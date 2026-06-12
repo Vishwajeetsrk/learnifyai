@@ -1,0 +1,191 @@
+import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { callUserAiChat } from "@/lib/user-ai";
+import { z } from "zod";
+
+const QuizInput = z.object({
+  action: z.literal("quiz"),
+  topic: z.string().min(2).max(500),
+  count: z.number().int().min(1).max(20).default(5),
+  difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
+});
+const DoubtInput = z.object({
+  action: z.literal("doubt"),
+  question: z.string().min(2).max(4000),
+  subject: z.string().max(200).optional(),
+});
+const CareerInput = z.object({
+  action: z.literal("career"),
+  goal: z.string().min(2).max(1000),
+  background: z.string().max(2000).optional(),
+  years: z.number().min(0).max(40).default(0),
+});
+const ReminderInput = z.object({
+  action: z.literal("reminder"),
+  task: z.string().min(2).max(500),
+  when: z.string().min(1).max(200),
+  goal: z.string().max(500).optional(),
+});
+const SynthInput = z.object({
+  action: z.literal("synth"),
+  notes: z.string().min(10).max(20000),
+});
+const FlashInput = z.object({
+  action: z.literal("flashcards"),
+  topic: z.string().min(2).max(500),
+  count: z.number().int().min(3).max(30).default(10),
+});
+
+const Input = z.discriminatedUnion("action", [
+  QuizInput,
+  DoubtInput,
+  CareerInput,
+  ReminderInput,
+  SynthInput,
+  FlashInput,
+]);
+
+const SYS = `You are Learnify AI — a senior technical mentor and educator. Be accurate, concrete, current (2025-2026), and production-grade. Avoid filler.`;
+
+function jsonInstruction(schemaHint: string) {
+  return `Respond with ONLY valid minified JSON matching this schema (no markdown, no prose, no code fences):\n${schemaHint}`;
+}
+
+function buildMessages(d: z.infer<typeof Input>) {
+  if (d.action === "quiz") {
+    return {
+      json: true,
+      messages: [
+        { role: "system", content: SYS },
+        {
+          role: "user",
+          content: `Generate ${d.count} multiple-choice quiz questions on "${d.topic}" at ${d.difficulty} difficulty. Each question must have exactly 4 distinct options, one correct answer (0-indexed), and a 1-2 sentence explanation. ${jsonInstruction(`{"questions":[{"question":string,"options":[string,string,string,string],"answer":0|1|2|3,"explanation":string}]}`)}`,
+        },
+      ],
+    };
+  }
+  if (d.action === "flashcards") {
+    return {
+      json: true,
+      messages: [
+        { role: "system", content: SYS },
+        {
+          role: "user",
+          content: `Create ${d.count} study flashcards on "${d.topic}". Front = concise prompt; Back = clear answer (1-3 sentences with tiny example if useful). ${jsonInstruction(`{"cards":[{"front":string,"back":string}]}`)}`,
+        },
+      ],
+    };
+  }
+  if (d.action === "reminder") {
+    return {
+      json: true,
+      messages: [
+        { role: "system", content: SYS },
+        {
+          role: "user",
+          content: `Create a smart, motivating study reminder.\nTask: ${d.task}\nWhen: ${d.when}\nGoal: ${d.goal ?? "n/a"}\nReturn a short title (max 60 chars), a focused body (2-3 sentences with one concrete action), and an ISO 8601 suggested_time. ${jsonInstruction(`{"title":string,"body":string,"suggested_time":string}`)}`,
+        },
+      ],
+    };
+  }
+  if (d.action === "doubt") {
+    return {
+      json: false,
+      messages: [
+        { role: "system", content: SYS },
+        {
+          role: "user",
+          content: `Subject: ${d.subject ?? "General"}\nQuestion: ${d.question}\n\n## Direct Answer\n## Why / How It Works\n## Worked Example (with code if relevant)\n## Common Mistakes\n## Further Reading`,
+        },
+      ],
+    };
+  }
+  if (d.action === "career") {
+    return {
+      json: false,
+      messages: [
+        { role: "system", content: SYS },
+        {
+          role: "user",
+          content: `Career Goal: ${d.goal}\nExperience: ${d.years} years\nBackground: ${d.background ?? "n/a"}\n\n## Reality Check (market 2025-2026, salary USD & INR)\n## Skills Gap\n## 12-Week Roadmap\n## Portfolio Projects (4-6)\n## Resources (real names)\n## Interview Prep\n## Application Strategy\n## 30/60/90 Day Milestones`,
+        },
+      ],
+    };
+  }
+  return {
+    json: false,
+    messages: [
+      { role: "system", content: SYS },
+      {
+        role: "user",
+        content: `Synthesize notes into a study brief:\n\n"""${d.notes}"""\n\n## TL;DR\n## Key Concepts\n## Definitions\n## How It Fits Together\n## Worked Examples\n## Practice Questions (5)\n## Spaced-Repetition Cues (5)`,
+      },
+    ],
+  };
+}
+
+function titleFor(d: z.infer<typeof Input>): string {
+  switch (d.action) {
+    case "quiz":
+      return `Quiz · ${d.topic}`;
+    case "flashcards":
+      return `Flashcards · ${d.topic}`;
+    case "reminder":
+      return `Reminder · ${d.task.slice(0, 60)}`;
+    case "doubt":
+      return `Doubt · ${d.question.slice(0, 60)}`;
+    case "career":
+      return `Career plan · ${d.goal.slice(0, 60)}`;
+    case "synth":
+      return `Synthesis · ${d.notes.slice(0, 50)}…`;
+  }
+}
+
+export const runAiTool = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => Input.parse(d))
+  .handler(async ({ data, context }) => {
+    const { json, messages } = buildMessages(data);
+    const body: Record<string, unknown> = { messages };
+    if (json) body.response_format = { type: "json_object" };
+
+    const res = await callUserAiChat(body as any, "fast");
+    if (res.status === 429) throw new Error("Rate limit reached. Try again shortly.");
+    if (res.status === 402)
+      throw new Error("AI credits exhausted. Top up your AI provider account.");
+    if (!res.ok) throw new Error(`AI provider error (${res.status})`);
+
+    const payload = await res.json();
+    const content: string = payload.choices?.[0]?.message?.content ?? "";
+
+    let result: { kind: "markdown" | "json"; content?: string; json?: string };
+    if (!json) {
+      result = { kind: "markdown", content };
+    } else {
+      let jsonStr = content;
+      try {
+        JSON.parse(content);
+      } catch {
+        const m = content.match(/\{[\s\S]*\}/);
+        if (!m) throw new Error("AI returned invalid JSON. Try again.");
+        jsonStr = m[0];
+        JSON.parse(jsonStr);
+      }
+      result = { kind: "json", json: jsonStr };
+    }
+
+    // Auto-save to history
+    try {
+      const { supabase, userId } = context;
+      await supabase.from("ai_outputs").insert({
+        user_id: userId,
+        tool: data.action,
+        title: titleFor(data),
+        payload: { input: data, output: result },
+      });
+    } catch (e) {
+      console.error("ai_outputs save failed", e);
+    }
+
+    return result;
+  });

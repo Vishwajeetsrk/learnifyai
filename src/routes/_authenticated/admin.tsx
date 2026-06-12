@@ -1,0 +1,1884 @@
+import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  Users,
+  ShieldAlert,
+  Wallet,
+  Activity,
+  BarChart3,
+  Bell,
+  Loader2,
+  Download,
+  RefreshCw,
+  Calendar as CalendarIcon,
+  MoreHorizontal,
+  Pencil,
+  KeyRound,
+  Ban,
+  Trash2,
+  CheckCircle2,
+  Sparkles,
+  ShieldCheck,
+  UserPlus,
+  VideoOff,
+} from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import {
+  format,
+  startOfWeek,
+  startOfMonth,
+  subDays,
+  eachDayOfInterval,
+  parse,
+  differenceInCalendarDays,
+  startOfDay,
+  endOfDay,
+} from "date-fns";
+import * as XLSX from "xlsx";
+import { toast } from "sonner";
+import { AppShell } from "@/components/AppShell";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
+import {
+  adminListUsers,
+  adminUpdateUser,
+  adminSetPassword,
+  adminSetDisabled,
+  adminDeleteUser,
+  adminSetAiCredits,
+  adminSetUserRoles,
+  adminCreateUser,
+} from "@/lib/admin-users.functions";
+import { DemandForecastWidget } from "@/components/DemandForecastWidget";
+
+const APP_ROLES = ["super_admin", "admin", "creator", "student"] as const;
+type AppRole = (typeof APP_ROLES)[number];
+
+export const Route = createFileRoute("/_authenticated/admin")({
+  head: () => ({ meta: [{ title: "Admin Command Center — Learnify AI" }] }),
+  component: AdminPage,
+});
+
+const inr = (n: number) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(n);
+const fmtDate = (d: Date) => format(d, "dd-MM-yyyy");
+
+type RangePreset = "7d" | "30d" | "month" | "90d" | "custom";
+
+function AdminPage() {
+  const location = useLocation();
+
+  if (location.pathname !== "/admin") return <Outlet />;
+  return <AdminOverview />;
+}
+
+function AdminOverview() {
+  const { user, isAdmin, loading } = useAuth();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const [forbidden, setForbidden] = useState(false);
+
+  // ───────── Date range filter (default last 30 days) ─────────
+  const today = useMemo(() => new Date(), []);
+  const [preset, setPreset] = useState<RangePreset>("30d");
+  const [from, setFrom] = useState<Date>(subDays(today, 29));
+  const [to, setTo] = useState<Date>(today);
+
+  const applyPreset = (p: RangePreset) => {
+    setPreset(p);
+    const now = new Date();
+    if (p === "7d") {
+      setFrom(subDays(now, 6));
+      setTo(now);
+    } else if (p === "30d") {
+      setFrom(subDays(now, 29));
+      setTo(now);
+    } else if (p === "month") {
+      setFrom(startOfMonth(now));
+      setTo(now);
+    } else if (p === "90d") {
+      setFrom(subDays(now, 89));
+      setTo(now);
+    }
+  };
+
+  useEffect(() => {
+    if (!loading && !isAdmin) setForbidden(true);
+  }, [loading, isAdmin]);
+
+  // ───────── QUERIES ─────────
+  const aiReq24hQuery = useQuery({
+    enabled: isAdmin,
+    queryKey: ["admin", "ai24"],
+    queryFn: async () => {
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { count, error } = await supabase
+        .from("chat_messages")
+        .select("id", { count: "exact", head: true })
+        .gte("created_at", since);
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const notificationsQuery = useQuery({
+    enabled: isAdmin,
+    queryKey: ["admin", "notifications"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true });
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  // Transactions in selected range
+  const fromIso = startOfDay(from).toISOString();
+  const toIso = endOfDay(to).toISOString();
+  const txQuery = useQuery({
+    enabled: isAdmin,
+    queryKey: ["admin", "transactions", fromIso, toIso],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("wallet_transactions")
+        .select("id, user_id, amount_inr, type, status, description, created_at")
+        .gte("created_at", fromIso)
+        .lte("created_at", toIso)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const listUsersFn = useServerFn(adminListUsers);
+  const usersQuery = useQuery({
+    enabled: isAdmin,
+    queryKey: ["admin", "users"],
+    queryFn: () => listUsersFn(),
+  });
+
+  // Top-up approval queue
+  const topupsQuery = useQuery({
+    enabled: isAdmin,
+    queryKey: ["admin", "topups"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("wallet_topup_requests")
+        .select("id, user_id, amount_inr, method, reference, status, created_at, admin_notes")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  // Withdrawal requests
+  const withdrawalsQuery = useQuery({
+    enabled: isAdmin,
+    queryKey: ["admin", "withdrawals"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("creator_withdrawals")
+        .select(
+          "id, user_id, amount_inr, method, destination, status, admin_notes, created_at, processed_at",
+        )
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  // AI cost in range
+  const aiCostQuery = useQuery({
+    enabled: isAdmin,
+    queryKey: ["admin", "ai-cost", fromIso, toIso],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("ai_usage")
+        .select("model, cost_usd, cost_inr, total_tokens, created_at")
+        .gte("created_at", fromIso)
+        .lte("created_at", toIso)
+        .order("created_at", { ascending: false })
+        .limit(5000);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  // Creator applications queue
+  const creatorAppsQuery = useQuery({
+    enabled: isAdmin,
+    queryKey: ["admin", "creator-apps"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("creator_applications")
+        .select("id, user_id, motivation, portfolio_url, expertise, status, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  // ───────── REALTIME ─────────
+  useEffect(() => {
+    if (!isAdmin) return;
+    const ch = supabase
+      .channel("admin-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "wallet_transactions" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin", "transactions"] }),
+      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin", "users"] }),
+      )
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin", "ai24"] }),
+      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin", "notifications"] }),
+      )
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "ai_usage" }, () =>
+        qc.invalidateQueries({ queryKey: ["admin", "ai-cost"] }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [isAdmin, qc]);
+
+  // ───────── DERIVED METRICS (range-aware) ─────────
+  const tx = txQuery.data ?? [];
+  const rangeRevenue = useMemo(
+    () =>
+      tx
+        .filter((t) => t.status === "completed" && t.type === "credit")
+        .reduce((s, t) => s + Number(t.amount_inr), 0),
+    [tx],
+  );
+  const weeklyRevenue = useMemo(() => {
+    const wkStart = startOfWeek(new Date(), { weekStartsOn: 1 });
+    return tx
+      .filter(
+        (t) => t.status === "completed" && t.type === "credit" && new Date(t.created_at) >= wkStart,
+      )
+      .reduce((s, t) => s + Number(t.amount_inr), 0);
+  }, [tx]);
+  const monthlyRevenue = useMemo(() => {
+    const mStart = startOfMonth(new Date());
+    return tx
+      .filter(
+        (t) => t.status === "completed" && t.type === "credit" && new Date(t.created_at) >= mStart,
+      )
+      .reduce((s, t) => s + Number(t.amount_inr), 0);
+  }, [tx]);
+
+  // Daily series across the selected range
+  const dailySeries = useMemo(() => {
+    const days = eachDayOfInterval({ start: from, end: to });
+    const buckets = new Map(days.map((d) => [format(d, "yyyy-MM-dd"), 0] as [string, number]));
+    for (const t of tx) {
+      if (t.status !== "completed" || t.type !== "credit") continue;
+      const k = format(new Date(t.created_at), "yyyy-MM-dd");
+      if (buckets.has(k)) buckets.set(k, (buckets.get(k) ?? 0) + Number(t.amount_inr));
+    }
+    return Array.from(buckets, ([date, revenue]) => ({
+      date: format(new Date(date), "dd-MM"),
+      revenue,
+    }));
+  }, [tx, from, to]);
+
+  // Weekly series across the range (max 16 buckets)
+  const weeklySeries = useMemo(() => {
+    const totalDays = Math.max(1, differenceInCalendarDays(to, from) + 1);
+    const weeks = Math.max(1, Math.ceil(totalDays / 7));
+    const out: { week: string; revenue: number }[] = [];
+    for (let i = 0; i < weeks; i++) {
+      const ws = subDays(to, (weeks - i) * 7 - 1);
+      const we = subDays(to, (weeks - i - 1) * 7 - 1);
+      const sum = tx
+        .filter(
+          (t) =>
+            t.status === "completed" &&
+            t.type === "credit" &&
+            new Date(t.created_at) >= ws &&
+            new Date(t.created_at) <= we,
+        )
+        .reduce((s, t) => s + Number(t.amount_inr), 0);
+      out.push({ week: format(ws, "dd-MM"), revenue: sum });
+    }
+    return out;
+  }, [tx, from, to]);
+
+  const rangeLabel = `${fmtDate(from)} → ${fmtDate(to)}`;
+
+  const handleExport = () => {
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet([
+        { Metric: "Date range", Value: rangeLabel },
+        { Metric: "Total users", Value: usersQuery.data?.total ?? 0 },
+        { Metric: "AI requests (24h)", Value: aiReq24hQuery.data ?? 0 },
+        { Metric: "Range revenue (INR)", Value: rangeRevenue },
+        { Metric: "Weekly revenue (INR)", Value: weeklyRevenue },
+        { Metric: "Monthly revenue (INR)", Value: monthlyRevenue },
+        { Metric: "Notifications sent", Value: notificationsQuery.data ?? 0 },
+        { Metric: "Generated at", Value: format(new Date(), "dd-MM-yyyy HH:mm") },
+      ]),
+      "Summary",
+    );
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(dailySeries), "Daily Revenue");
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(weeklySeries), "Weekly Revenue");
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(
+        tx.map((t) => ({
+          id: t.id,
+          user_id: t.user_id,
+          amount_inr: Number(t.amount_inr),
+          type: t.type,
+          status: t.status,
+          description: t.description ?? "",
+          created_at: format(new Date(t.created_at), "dd-MM-yyyy HH:mm"),
+        })),
+      ),
+      "Transactions",
+    );
+    XLSX.utils.book_append_sheet(
+      wb,
+      XLSX.utils.json_to_sheet(
+        (usersQuery.data?.rows ?? []).map((u) => ({
+          id: u.id,
+          full_name: u.full_name ?? "",
+          email: u.email ?? "",
+          roles: u.roles.join(", "),
+          disabled: u.disabled,
+          joined: format(new Date(u.created_at), "dd-MM-yyyy"),
+        })),
+      ),
+      "Users",
+    );
+    XLSX.writeFile(wb, `learnify-report-${fmtDate(from)}_${fmtDate(to)}.xlsx`);
+  };
+
+  const refreshAll = () => qc.invalidateQueries({ queryKey: ["admin"] });
+
+  // ───────── User actions modals ─────────
+  type AdminUser = NonNullable<typeof usersQuery.data>["rows"][number];
+  const [editing, setEditing] = useState<AdminUser | null>(null);
+  const [pwdFor, setPwdFor] = useState<AdminUser | null>(null);
+  const [deleting, setDeleting] = useState<AdminUser | null>(null);
+  const [creditsFor, setCreditsFor] = useState<AdminUser | null>(null);
+  const [creditsValue, setCreditsValue] = useState<string>("");
+  const [rolesFor, setRolesFor] = useState<AdminUser | null>(null);
+  const [rolesValue, setRolesValue] = useState<AppRole[]>([]);
+  const [creating, setCreating] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newPwd, setNewPwd] = useState("");
+  const [newRoles, setNewRoles] = useState<AppRole[]>(["student"]);
+  const [busy, setBusy] = useState(false);
+
+  const updateUser = useServerFn(adminUpdateUser);
+  const setPassword = useServerFn(adminSetPassword);
+  const setDisabled = useServerFn(adminSetDisabled);
+  const deleteUser = useServerFn(adminDeleteUser);
+  const setAiCredits = useServerFn(adminSetAiCredits);
+  const setUserRoles = useServerFn(adminSetUserRoles);
+  const createUser = useServerFn(adminCreateUser);
+
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [pwdValue, setPwdValue] = useState("");
+
+  useEffect(() => {
+    if (rolesFor) setRolesValue((rolesFor.roles as AppRole[]) ?? []);
+  }, [rolesFor]);
+
+  useEffect(() => {
+    if (editing) {
+      setEditName(editing.full_name ?? "");
+      setEditEmail(editing.email ?? "");
+    }
+  }, [editing]);
+
+  useEffect(() => {
+    if (creditsFor) setCreditsValue(String(creditsFor.credits_remaining ?? 0));
+  }, [creditsFor]);
+
+  async function saveEdit() {
+    if (!editing) return;
+    setBusy(true);
+    try {
+      await updateUser({
+        data: { userId: editing.id, fullName: editName.trim(), email: editEmail.trim() },
+      });
+      toast.success("User updated");
+      setEditing(null);
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function savePassword() {
+    if (!pwdFor) return;
+    if (pwdValue.length < 8) return toast.error("At least 8 characters");
+    setBusy(true);
+    try {
+      await setPassword({ data: { userId: pwdFor.id, password: pwdValue } });
+      toast.success("Password reset");
+      setPwdFor(null);
+      setPwdValue("");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function toggleDisabled(u: AdminUser) {
+    setBusy(true);
+    try {
+      await setDisabled({ data: { userId: u.id, disabled: !u.disabled } });
+      toast.success(u.disabled ? "User enabled" : "User disabled");
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function confirmDelete() {
+    if (!deleting) return;
+    setBusy(true);
+    try {
+      await deleteUser({ data: { userId: deleting.id } });
+      toast.success("User deleted");
+      setDeleting(null);
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function saveCredits() {
+    if (!creditsFor) return;
+    const n = Number(creditsValue);
+    if (!Number.isFinite(n) || n < 0 || !Number.isInteger(n)) {
+      return toast.error("Enter a whole number ≥ 0");
+    }
+    setBusy(true);
+    try {
+      await setAiCredits({ data: { userId: creditsFor.id, creditsRemaining: n } });
+      toast.success(`AI credits updated to ${n.toLocaleString("en-IN")}`);
+      setCreditsFor(null);
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  function toggleRole(list: AppRole[], r: AppRole, set: (v: AppRole[]) => void) {
+    set(list.includes(r) ? list.filter((x) => x !== r) : [...list, r]);
+  }
+  async function saveRoles() {
+    if (!rolesFor) return;
+    setBusy(true);
+    try {
+      await setUserRoles({ data: { userId: rolesFor.id, roles: rolesValue } });
+      toast.success("Roles updated");
+      setRolesFor(null);
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function saveCreate() {
+    const email = newEmail.trim();
+    const name = newName.trim();
+    if (!email || !name) return toast.error("Name and email are required");
+    if (newPwd.length < 8) return toast.error("Password must be at least 8 characters");
+    if (newRoles.length === 0) return toast.error("Pick at least one role");
+    setBusy(true);
+    try {
+      await createUser({ data: { email, fullName: name, password: newPwd, roles: newRoles } });
+      toast.success("User created");
+      setCreating(false);
+      setNewEmail("");
+      setNewName("");
+      setNewPwd("");
+      setNewRoles(["student"]);
+      qc.invalidateQueries({ queryKey: ["admin", "users"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (forbidden) {
+    return (
+      <AppShell>
+        <div className="min-h-[60vh] grid place-items-center p-10 text-center">
+          <div>
+            <ShieldAlert className="h-10 w-10 mx-auto text-destructive" />
+            <h1 className="mt-4 text-2xl font-display font-semibold">Restricted area</h1>
+            <p className="mt-2 text-muted-foreground">
+              You need admin privileges to view this page.
+            </p>
+            <button
+              className="mt-6 text-sm text-primary underline"
+              onClick={() => navigate({ to: "/dashboard" })}
+            >
+              Back to dashboard
+            </button>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  const stats = [
+    {
+      label: "Total users",
+      value: usersQuery.isLoading ? "…" : (usersQuery.data?.total ?? 0),
+      icon: Users,
+      tint: "from-primary/30 to-primary/0",
+    },
+    {
+      label: "AI requests (24h)",
+      value: aiReq24hQuery.isLoading ? "…" : (aiReq24hQuery.data ?? 0).toLocaleString("en-IN"),
+      icon: Activity,
+      tint: "from-violet-500/30 to-violet-500/0",
+    },
+    {
+      label: `Revenue · ${rangeLabel}`,
+      value: txQuery.isLoading ? "…" : inr(rangeRevenue),
+      icon: Wallet,
+      tint: "from-emerald-500/30 to-emerald-500/0",
+    },
+    {
+      label: "Notifications sent",
+      value: notificationsQuery.isLoading
+        ? "…"
+        : (notificationsQuery.data ?? 0).toLocaleString("en-IN"),
+      icon: Bell,
+      tint: "from-amber-500/30 to-amber-500/0",
+    },
+  ];
+
+  return (
+    <AppShell>
+      <div className="px-4 md:px-10 py-8 max-w-7xl">
+        <div className="flex items-end justify-between flex-wrap gap-4">
+          <div>
+            <div className="text-xs uppercase tracking-widest text-primary font-medium">
+              Command Center
+            </div>
+            <h1 className="mt-1 text-2xl md:text-3xl font-display font-semibold tracking-tight">
+              Admin overview
+            </h1>
+            <p className="text-muted-foreground mt-1 text-sm">Realtime view of the platform.</p>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant="secondary" className="gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+            </Badge>
+            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/content" })}>
+              <CalendarIcon className="h-4 w-4" /> Events & Jobs
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate({ to: "/admin/missing-videos" })}
+            >
+              <VideoOff className="h-4 w-4" /> Missing videos
+            </Button>
+            <Button variant="outline" size="sm" onClick={refreshAll}>
+              <RefreshCw className="h-4 w-4" /> Refresh
+            </Button>
+            <Button size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4" /> Export Excel
+            </Button>
+          </div>
+        </div>
+
+        {/* Report filter */}
+        <div className="mt-6 rounded-2xl border bg-card p-4 shadow-card">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="text-sm font-medium mr-2 flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4 text-primary" /> Report range
+            </div>
+            {(["7d", "30d", "month", "90d"] as const).map((p) => (
+              <Button
+                key={p}
+                size="sm"
+                variant={preset === p ? "default" : "outline"}
+                onClick={() => applyPreset(p)}
+              >
+                {p === "7d"
+                  ? "Last 7 days"
+                  : p === "30d"
+                    ? "Last 30 days"
+                    : p === "month"
+                      ? "This month"
+                      : "Last 90 days"}
+              </Button>
+            ))}
+            <div className="flex items-center gap-2 ml-auto">
+              <DateField
+                label="From"
+                value={from}
+                onChange={(d) => {
+                  setFrom(d);
+                  setPreset("custom");
+                }}
+              />
+              <span className="text-muted-foreground">→</span>
+              <DateField
+                label="To"
+                value={to}
+                onChange={(d) => {
+                  setTo(d);
+                  setPreset("custom");
+                }}
+              />
+            </div>
+          </div>
+          <div className="mt-2 text-xs text-muted-foreground">
+            Showing data for <span className="font-medium text-foreground">{rangeLabel}</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          {stats.map((s) => (
+            <div
+              key={s.label}
+              className="relative overflow-hidden rounded-xl border bg-card p-5 shadow-card"
+            >
+              <div
+                className={`absolute -top-12 -right-12 h-32 w-32 rounded-full bg-gradient-to-br ${s.tint} blur-2xl`}
+              />
+              <s.icon className="h-5 w-5 text-primary relative" />
+              <div className="mt-3 text-xl md:text-2xl font-display font-semibold relative">
+                {s.value}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 relative">{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+          <div className="rounded-2xl border bg-card p-6 shadow-card">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">This week</div>
+            <div className="mt-2 text-3xl font-display font-semibold">{inr(weeklyRevenue)}</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              Revenue since {fmtDate(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+            </div>
+          </div>
+          <div className="rounded-2xl border bg-card p-6 shadow-card">
+            <div className="text-xs uppercase tracking-widest text-muted-foreground">
+              This month
+            </div>
+            <div className="mt-2 text-3xl font-display font-semibold">{inr(monthlyRevenue)}</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              Revenue since {fmtDate(startOfMonth(new Date()))}
+            </div>
+          </div>
+        </div>
+
+        {/* AI demand forecast */}
+        <div className="mt-6">
+          <DemandForecastWidget />
+        </div>
+
+        {/* AI Cost panel (real-time) */}
+        <AiCostPanel
+          rows={aiCostQuery.data ?? []}
+          loading={aiCostQuery.isLoading}
+          rangeLabel={rangeLabel}
+        />
+
+        {/* Charts */}
+        <div className="mt-8 grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 rounded-2xl border bg-card p-6 shadow-card">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-display text-lg font-semibold">Daily revenue</h2>
+                <p className="text-xs text-muted-foreground">{rangeLabel}</p>
+              </div>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={dailySeries}>
+                  <defs>
+                    <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="oklch(0.72 0.18 245)" stopOpacity={0.6} />
+                      <stop offset="100%" stopColor="oklch(0.72 0.18 245)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0 0 0 / 0.06)" />
+                  <XAxis dataKey="date" stroke="oklch(0.5 0.03 260)" fontSize={11} />
+                  <YAxis
+                    stroke="oklch(0.5 0.03 260)"
+                    fontSize={11}
+                    tickFormatter={(v) => `₹${v}`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid var(--border)",
+                      background: "var(--card)",
+                    }}
+                    formatter={(v: number) => inr(v)}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="oklch(0.72 0.18 245)"
+                    fill="url(#rev)"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border bg-card p-6 shadow-card">
+            <h2 className="font-display text-lg font-semibold">Weekly revenue</h2>
+            <p className="text-xs text-muted-foreground mb-4">Per-week totals in range</p>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={weeklySeries}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(0 0 0 / 0.06)" />
+                  <XAxis dataKey="week" stroke="oklch(0.5 0.03 260)" fontSize={11} />
+                  <YAxis
+                    stroke="oklch(0.5 0.03 260)"
+                    fontSize={11}
+                    tickFormatter={(v) => `₹${v}`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      borderRadius: 12,
+                      border: "1px solid var(--border)",
+                      background: "var(--card)",
+                    }}
+                    formatter={(v: number) => inr(v)}
+                  />
+                  <Bar dataKey="revenue" fill="oklch(0.55 0.22 260)" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent transactions */}
+        <div className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden">
+          <div className="px-6 py-4 border-b">
+            <h2 className="font-display text-lg font-semibold">Transactions</h2>
+            <p className="text-xs text-muted-foreground">
+              {tx.length} in {rangeLabel}
+            </p>
+          </div>
+          {txQuery.isLoading ? (
+            <div className="p-10 grid place-items-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : tx.length === 0 ? (
+            <div className="p-10 text-sm text-muted-foreground text-center">
+              No transactions in this range.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th className="text-left px-6 py-3 font-medium">When</th>
+                    <th className="text-left px-6 py-3 font-medium">Type</th>
+                    <th className="text-left px-6 py-3 font-medium">Status</th>
+                    <th className="text-left px-6 py-3 font-medium">Description</th>
+                    <th className="text-right px-6 py-3 font-medium">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tx.slice(0, 50).map((t) => (
+                    <tr key={t.id} className="border-t hover:bg-accent/30">
+                      <td className="px-6 py-3 text-muted-foreground text-xs">
+                        {format(new Date(t.created_at), "dd-MM-yyyy HH:mm")}
+                      </td>
+                      <td className="px-6 py-3">
+                        <Badge
+                          variant={t.type === "credit" ? "default" : "secondary"}
+                          className="text-[10px]"
+                        >
+                          {t.type}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-3 text-xs">{t.status}</td>
+                      <td className="px-6 py-3 text-muted-foreground">{t.description ?? "—"}</td>
+                      <td className="px-6 py-3 text-right font-medium">
+                        {inr(Number(t.amount_inr))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Wallet top-up approvals */}
+        <ApprovalsSection
+          topups={topupsQuery.data ?? []}
+          isLoading={topupsQuery.isLoading}
+          creatorApps={creatorAppsQuery.data ?? []}
+          appsLoading={creatorAppsQuery.isLoading}
+          userMap={new Map((usersQuery.data?.rows ?? []).map((u) => [u.id, u]))}
+          adminId={user?.id ?? ""}
+          onChanged={() => {
+            qc.invalidateQueries({ queryKey: ["admin", "topups"] });
+            qc.invalidateQueries({ queryKey: ["admin", "creator-apps"] });
+            qc.invalidateQueries({ queryKey: ["admin", "transactions"] });
+          }}
+        />
+
+        <WithdrawalsSection
+          withdrawals={withdrawalsQuery.data ?? []}
+          isLoading={withdrawalsQuery.isLoading}
+          userMap={new Map((usersQuery.data?.rows ?? []).map((u) => [u.id, u]))}
+          adminId={user?.id ?? ""}
+          onChanged={() => {
+            qc.invalidateQueries({ queryKey: ["admin", "withdrawals"] });
+            qc.invalidateQueries({ queryKey: ["admin", "transactions"] });
+          }}
+        />
+
+        {/* Users management */}
+        <div className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden">
+          <div className="px-6 py-4 border-b flex items-start justify-between gap-3">
+            <div>
+              <h2 className="font-display text-lg font-semibold">Users</h2>
+              <p className="text-xs text-muted-foreground">
+                {usersQuery.data?.total ?? 0} total · manage profile, roles, password, status
+              </p>
+            </div>
+            <Button size="sm" onClick={() => setCreating(true)} className="gap-1.5">
+              <UserPlus className="h-4 w-4" /> Add user
+            </Button>
+          </div>
+          {usersQuery.isLoading ? (
+            <div className="p-10 grid place-items-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : usersQuery.error ? (
+            <div className="p-10 text-sm text-destructive text-center">
+              {(usersQuery.error as Error).message}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">User</th>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">Email</th>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">Roles</th>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">AI credits</th>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">Status</th>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">Joined</th>
+                    <th className="px-4 md:px-6 py-3" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {(usersQuery.data?.rows ?? []).map((u) => {
+                    const isMe = u.id === user?.id;
+                    return (
+                      <tr
+                        key={u.id}
+                        className={cn("border-t hover:bg-accent/30", u.disabled && "opacity-60")}
+                      >
+                        <td className="px-4 md:px-6 py-3 font-medium">{u.full_name ?? "—"}</td>
+                        <td className="px-4 md:px-6 py-3 text-muted-foreground">{u.email}</td>
+                        <td className="px-4 md:px-6 py-3">
+                          <div className="flex flex-wrap gap-1">
+                            {u.roles.length === 0 ? (
+                              <span className="text-xs text-muted-foreground">—</span>
+                            ) : (
+                              u.roles.map((r) => (
+                                <Badge
+                                  key={r}
+                                  variant={r === "super_admin" ? "default" : "secondary"}
+                                  className="text-[10px]"
+                                >
+                                  {r}
+                                </Badge>
+                              ))
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 md:px-6 py-3">
+                          <button
+                            type="button"
+                            onClick={() => setCreditsFor(u)}
+                            className="inline-flex items-center gap-1.5 rounded-md border bg-background px-2 py-1 text-xs font-medium hover:bg-accent transition"
+                            title="Edit AI credits"
+                          >
+                            <Sparkles className="h-3 w-3 text-violet-500" />
+                            {(u.credits_remaining ?? 0).toLocaleString("en-IN")}
+                            <span className="text-muted-foreground font-normal">
+                              · used {(u.credits_used ?? 0).toLocaleString("en-IN")}
+                            </span>
+                          </button>
+                        </td>
+                        <td className="px-4 md:px-6 py-3">
+                          {u.disabled ? (
+                            <Badge variant="destructive" className="text-[10px]">
+                              Disabled
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-[10px]">
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              Active
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="px-4 md:px-6 py-3 text-muted-foreground text-xs">
+                          {format(new Date(u.created_at), "dd-MM-yyyy")}
+                        </td>
+                        <td className="px-4 md:px-6 py-3 text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" disabled={busy}>
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => setEditing(u)}>
+                                <Pencil className="h-4 w-4" /> Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setRolesFor(u)}>
+                                <ShieldCheck className="h-4 w-4" /> Manage roles
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setPwdFor(u)}>
+                                <KeyRound className="h-4 w-4" /> Change password
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setCreditsFor(u)}>
+                                <Sparkles className="h-4 w-4" /> Edit AI credits
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem disabled={isMe} onClick={() => toggleDisabled(u)}>
+                                <Ban className="h-4 w-4" />{" "}
+                                {u.disabled ? "Enable user" : "Disable user"}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                disabled={isMe}
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => setDeleting(u)}
+                              >
+                                <Trash2 className="h-4 w-4" /> Delete user
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Edit dialog */}
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit user</DialogTitle>
+            <DialogDescription>Update profile and email.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>Full name</Label>
+              <Input value={editName} onChange={(e) => setEditName(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button onClick={saveEdit} disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Password dialog */}
+      <Dialog
+        open={!!pwdFor}
+        onOpenChange={(o) => {
+          if (!o) {
+            setPwdFor(null);
+            setPwdValue("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Set new password</DialogTitle>
+            <DialogDescription>This will overwrite the user's current password.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <Label>New password</Label>
+            <Input type="password" value={pwdValue} onChange={(e) => setPwdValue(e.target.value)} />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setPwdFor(null);
+                setPwdValue("");
+              }}
+              disabled={busy}
+            >
+              Cancel
+            </Button>
+            <Button onClick={savePassword} disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Update
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI credits dialog */}
+      <Dialog
+        open={!!creditsFor}
+        onOpenChange={(o) => {
+          if (!o) {
+            setCreditsFor(null);
+            setCreditsValue("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-violet-500" /> Edit AI credits
+            </DialogTitle>
+            <DialogDescription>
+              Set the remaining AI credits for <b>{creditsFor?.email}</b>. Used so far:{" "}
+              {(creditsFor?.credits_used ?? 0).toLocaleString("en-IN")}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1.5">
+            <Label>Credits remaining</Label>
+            <Input
+              type="number"
+              min={0}
+              step={1}
+              value={creditsValue}
+              onChange={(e) => setCreditsValue(e.target.value)}
+              placeholder="e.g. 500"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Whole number, between 0 and 1,000,000.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCreditsFor(null);
+                setCreditsValue("");
+              }}
+              disabled={busy}
+            >
+              Cancel
+            </Button>
+            <Button onClick={saveCredits} disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save credits
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirm */}
+      {/* Manage roles dialog */}
+      <Dialog open={!!rolesFor} onOpenChange={(o) => !o && setRolesFor(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" /> Manage roles
+            </DialogTitle>
+            <DialogDescription>
+              Control role-based access for <b>{rolesFor?.email}</b>. A user can have multiple
+              roles.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            {APP_ROLES.map((r) => {
+              const checked = rolesValue.includes(r);
+              const isSelfSuper = rolesFor?.id === user?.id && r === "super_admin";
+              return (
+                <label
+                  key={r}
+                  className={cn(
+                    "flex items-center gap-3 rounded-md border p-2.5 cursor-pointer hover:bg-accent/40",
+                    checked && "border-primary/50 bg-primary/5",
+                  )}
+                >
+                  <Checkbox
+                    checked={checked}
+                    disabled={isSelfSuper && checked}
+                    onCheckedChange={() => toggleRole(rolesValue, r, setRolesValue)}
+                  />
+                  <div className="flex-1">
+                    <div className="text-sm font-medium capitalize">{r.replace("_", " ")}</div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {r === "super_admin" &&
+                        "Full access to everything, including this admin console."}
+                      {r === "admin" && "Manage content, courses, certificates, and most settings."}
+                      {r === "creator" &&
+                        "Create and publish courses & lessons; access creator studio."}
+                      {r === "student" &&
+                        "Default learner role; enroll, learn, and earn certificates."}
+                    </div>
+                  </div>
+                </label>
+              );
+            })}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRolesFor(null)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button onClick={saveRoles} disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save roles
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create user dialog */}
+      <Dialog
+        open={creating}
+        onOpenChange={(o) => {
+          if (!o) setCreating(false);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserPlus className="h-4 w-4 text-primary" /> Add new user
+            </DialogTitle>
+            <DialogDescription>
+              Create an account and assign one or more roles. The user can sign in immediately.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label>Full name</Label>
+              <Input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Jane Doe"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Email</Label>
+              <Input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="jane@example.com"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Temporary password</Label>
+              <Input
+                type="password"
+                value={newPwd}
+                onChange={(e) => setNewPwd(e.target.value)}
+                placeholder="At least 8 characters"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Roles</Label>
+              <div className="flex flex-wrap gap-2">
+                {APP_ROLES.map((r) => {
+                  const checked = newRoles.includes(r);
+                  return (
+                    <button
+                      type="button"
+                      key={r}
+                      onClick={() => toggleRole(newRoles, r, setNewRoles)}
+                      className={cn(
+                        "px-2.5 py-1 rounded-full border text-xs capitalize transition",
+                        checked
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "bg-background hover:bg-accent",
+                      )}
+                    >
+                      {r.replace("_", " ")}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreating(false)} disabled={busy}>
+              Cancel
+            </Button>
+            <Button onClick={saveCreate} disabled={busy}>
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Create user
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this user?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes <b>{deleting?.email}</b> and all their auth/profile data.
+              This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={busy}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </AppShell>
+  );
+}
+
+function DateField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: Date;
+  onChange: (d: Date) => void;
+}) {
+  const [text, setText] = useState(format(value, "dd-MM-yyyy"));
+  useEffect(() => setText(format(value, "dd-MM-yyyy")), [value]);
+  return (
+    <Popover>
+      <div className="flex items-center gap-1.5">
+        <Label className="text-xs text-muted-foreground hidden sm:inline">{label}</Label>
+        <Input
+          className="h-9 w-32 font-mono text-xs"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onBlur={() => {
+            const parsed = parse(text, "dd-MM-yyyy", new Date());
+            if (!isNaN(parsed.getTime())) onChange(parsed);
+            else setText(format(value, "dd-MM-yyyy"));
+          }}
+          placeholder="DD-MM-YYYY"
+        />
+        <PopoverTrigger asChild>
+          <Button size="icon" variant="outline" className="h-9 w-9">
+            <CalendarIcon className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+      </div>
+      <PopoverContent className="w-auto p-0" align="end">
+        <Calendar
+          mode="single"
+          selected={value}
+          onSelect={(d) => d && onChange(d)}
+          initialFocus
+          className="p-3 pointer-events-auto"
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+type TopupRow = {
+  id: string;
+  user_id: string;
+  amount_inr: number;
+  method: string;
+  reference: string | null;
+  status: string;
+  created_at: string;
+  admin_notes: string | null;
+};
+type CreatorAppRow = {
+  id: string;
+  user_id: string;
+  motivation: string;
+  portfolio_url: string | null;
+  expertise: string | null;
+  status: string;
+  created_at: string;
+};
+type UserLite = { id: string; email: string; full_name: string | null };
+
+function ApprovalsSection({
+  topups,
+  isLoading,
+  creatorApps,
+  appsLoading,
+  userMap,
+  adminId,
+  onChanged,
+}: {
+  topups: TopupRow[];
+  isLoading: boolean;
+  creatorApps: CreatorAppRow[];
+  appsLoading: boolean;
+  userMap: Map<string, UserLite>;
+  adminId: string;
+  onChanged: () => void;
+}) {
+  const pendingTopups = topups.filter((t) => t.status === "pending");
+  const pendingApps = creatorApps.filter((a) => a.status === "pending");
+
+  async function approveTopup(t: TopupRow) {
+    // Insert wallet transaction (credit) and mark request approved
+    const { error: txErr } = await supabase.from("wallet_transactions").insert({
+      user_id: t.user_id,
+      amount_inr: t.amount_inr,
+      type: "credit",
+      status: "completed",
+      description: `Wallet top-up · ${t.method}${t.reference ? ` · ${t.reference}` : ""}`,
+    });
+    if (txErr) return toast.error(txErr.message);
+    const { error } = await supabase
+      .from("wallet_topup_requests")
+      .update({ status: "approved", approved_at: new Date().toISOString(), approved_by: adminId })
+      .eq("id", t.id);
+    if (error) return toast.error(error.message);
+    await supabase.from("notifications").insert({
+      user_id: t.user_id,
+      title: "Wallet top-up approved",
+      body: `₹${t.amount_inr} has been credited to your wallet.`,
+      type: "success",
+    });
+    toast.success("Top-up approved & credited");
+    onChanged();
+  }
+
+  async function rejectTopup(t: TopupRow) {
+    const { error } = await supabase
+      .from("wallet_topup_requests")
+      .update({ status: "rejected" })
+      .eq("id", t.id);
+    if (error) return toast.error(error.message);
+    await supabase.from("notifications").insert({
+      user_id: t.user_id,
+      title: "Wallet top-up rejected",
+      body: `Your ₹${t.amount_inr} top-up was not approved. Contact support if needed.`,
+      type: "warning",
+    });
+    toast.success("Rejected");
+    onChanged();
+  }
+
+  async function decideApp(a: CreatorAppRow, approve: boolean) {
+    const status = approve ? "approved" : "rejected";
+    const { error } = await supabase.from("creator_applications").update({ status }).eq("id", a.id);
+    if (error) return toast.error(error.message);
+    if (approve) {
+      // Grant creator role
+      await supabase.from("user_roles").insert({ user_id: a.user_id, role: "creator" });
+    }
+    await supabase.from("notifications").insert({
+      user_id: a.user_id,
+      title: approve ? "Creator application approved" : "Creator application rejected",
+      body: approve
+        ? "You can now publish courses from Creator Studio."
+        : "Your application wasn't accepted this time.",
+      type: approve ? "success" : "info",
+    });
+    toast.success(approve ? "Creator approved" : "Application rejected");
+    onChanged();
+  }
+
+  const fmtUser = (id: string) => {
+    const u = userMap.get(id);
+    return u?.full_name || u?.email || id.slice(0, 8);
+  };
+
+  return (
+    <div className="mt-8 grid lg:grid-cols-2 gap-6">
+      {/* Top-up approvals */}
+      <div className="rounded-2xl border bg-card shadow-card overflow-hidden">
+        <div className="px-6 py-4 border-b flex items-center justify-between">
+          <div>
+            <h2 className="font-display text-lg font-semibold">Wallet top-ups</h2>
+            <p className="text-xs text-muted-foreground">
+              {pendingTopups.length} pending · {topups.length} total
+            </p>
+          </div>
+          <Badge variant={pendingTopups.length ? "default" : "secondary"} className="text-[10px]">
+            {pendingTopups.length} to approve
+          </Badge>
+        </div>
+        {isLoading ? (
+          <div className="p-8 grid place-items-center">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : topups.length === 0 ? (
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            No top-up requests yet.
+          </div>
+        ) : (
+          <ul className="divide-y">
+            {topups.slice(0, 20).map((t) => (
+              <li key={t.id} className="px-6 py-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-sm font-medium">
+                    {inr(Number(t.amount_inr))} · {fmtUser(t.user_id)}
+                  </div>
+                  <div className="text-xs text-muted-foreground truncate">
+                    {t.method}
+                    {t.reference ? ` · ${t.reference}` : ""} ·{" "}
+                    {format(new Date(t.created_at), "dd-MM-yyyy HH:mm")}
+                  </div>
+                </div>
+                {t.status === "pending" ? (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button size="sm" onClick={() => approveTopup(t)}>
+                      Approve
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => rejectTopup(t)}>
+                      Reject
+                    </Button>
+                  </div>
+                ) : (
+                  <Badge
+                    variant={t.status === "approved" ? "default" : "secondary"}
+                    className="text-[10px] capitalize"
+                  >
+                    {t.status}
+                  </Badge>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* Creator applications */}
+      <div className="rounded-2xl border bg-card shadow-card overflow-hidden">
+        <div className="px-6 py-4 border-b flex items-center justify-between">
+          <div>
+            <h2 className="font-display text-lg font-semibold">Creator applications</h2>
+            <p className="text-xs text-muted-foreground">
+              {pendingApps.length} pending · {creatorApps.length} total
+            </p>
+          </div>
+          <Badge variant={pendingApps.length ? "default" : "secondary"} className="text-[10px]">
+            {pendingApps.length} to review
+          </Badge>
+        </div>
+        {appsLoading ? (
+          <div className="p-8 grid place-items-center">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : creatorApps.length === 0 ? (
+          <div className="p-8 text-center text-sm text-muted-foreground">No applications yet.</div>
+        ) : (
+          <ul className="divide-y">
+            {creatorApps.slice(0, 20).map((a) => (
+              <li key={a.id} className="px-6 py-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium">{fmtUser(a.user_id)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {a.expertise ?? "—"} · {format(new Date(a.created_at), "dd-MM-yyyy")}
+                    </div>
+                  </div>
+                  {a.status === "pending" ? (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button size="sm" onClick={() => decideApp(a, true)}>
+                        Approve
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => decideApp(a, false)}>
+                        Reject
+                      </Button>
+                    </div>
+                  ) : (
+                    <Badge
+                      variant={a.status === "approved" ? "default" : "secondary"}
+                      className="text-[10px] capitalize"
+                    >
+                      {a.status}
+                    </Badge>
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{a.motivation}</p>
+                {a.portfolio_url && (
+                  <a
+                    href={a.portfolio_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs text-primary underline"
+                  >
+                    {a.portfolio_url}
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AiCostPanel({
+  rows,
+  loading,
+  rangeLabel,
+}: {
+  rows: {
+    model: string;
+    cost_usd: number;
+    cost_inr: number;
+    total_tokens: number;
+    created_at: string;
+  }[];
+  loading: boolean;
+  rangeLabel: string;
+}) {
+  const totalUsd = rows.reduce((s, r) => s + Number(r.cost_usd), 0);
+  const totalInr = rows.reduce((s, r) => s + Number(r.cost_inr), 0);
+  const totalTokens = rows.reduce((s, r) => s + Number(r.total_tokens), 0);
+  const byModel = new Map<string, { usd: number; inr: number; tokens: number; calls: number }>();
+  for (const r of rows) {
+    const k = r.model;
+    const cur = byModel.get(k) ?? { usd: 0, inr: 0, tokens: 0, calls: 0 };
+    cur.usd += Number(r.cost_usd);
+    cur.inr += Number(r.cost_inr);
+    cur.tokens += Number(r.total_tokens);
+    cur.calls += 1;
+    byModel.set(k, cur);
+  }
+  const modelRows = Array.from(byModel, ([model, v]) => ({ model, ...v })).sort(
+    (a, b) => b.usd - a.usd,
+  );
+
+  return (
+    <div className="mt-6 rounded-2xl border bg-card shadow-card overflow-hidden">
+      <div className="px-6 py-4 border-b flex items-center justify-between">
+        <div>
+          <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+            <Activity className="h-4 w-4 text-primary" /> AI cost (real-time)
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {rangeLabel} · {rows.length.toLocaleString("en-IN")} requests
+          </p>
+        </div>
+        <Badge variant="secondary" className="gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+        </Badge>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-6">
+        <Metric label="Total cost (USD)" value={`$${totalUsd.toFixed(4)}`} />
+        <Metric label="Total cost (INR)" value={`₹${totalInr.toFixed(2)}`} />
+        <Metric label="Total tokens" value={totalTokens.toLocaleString("en-IN")} />
+        <Metric label="Requests" value={rows.length.toLocaleString("en-IN")} />
+      </div>
+      {loading ? (
+        <div className="p-8 grid place-items-center">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : modelRows.length === 0 ? (
+        <div className="p-8 text-center text-sm text-muted-foreground">
+          No AI usage in this range yet.
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+              <tr>
+                <th className="text-left px-6 py-3 font-medium">Model</th>
+                <th className="text-right px-6 py-3 font-medium">Calls</th>
+                <th className="text-right px-6 py-3 font-medium">Tokens</th>
+                <th className="text-right px-6 py-3 font-medium">Cost (USD)</th>
+                <th className="text-right px-6 py-3 font-medium">Cost (INR)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {modelRows.map((r) => (
+                <tr key={r.model} className="border-t hover:bg-accent/30">
+                  <td className="px-6 py-3 font-mono text-xs">{r.model}</td>
+                  <td className="px-6 py-3 text-right">{r.calls.toLocaleString("en-IN")}</td>
+                  <td className="px-6 py-3 text-right">{r.tokens.toLocaleString("en-IN")}</td>
+                  <td className="px-6 py-3 text-right">${r.usd.toFixed(4)}</td>
+                  <td className="px-6 py-3 text-right font-medium">₹{r.inr.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Metric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border bg-background/40 p-4">
+      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
+      <div className="mt-1 text-xl font-display font-semibold">{value}</div>
+    </div>
+  );
+}
+
+type WithdrawalRow = {
+  id: string;
+  user_id: string;
+  amount_inr: number;
+  method: string;
+  destination: any;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+  processed_at: string | null;
+};
+
+function WithdrawalsSection({
+  withdrawals,
+  isLoading,
+  userMap,
+  adminId,
+  onChanged,
+}: {
+  withdrawals: WithdrawalRow[];
+  isLoading: boolean;
+  userMap: Map<string, UserLite>;
+  adminId: string;
+  onChanged: () => void;
+}) {
+  const pending = withdrawals.filter((w) => w.status === "pending");
+  const fmtUser = (id: string) => {
+    const u = userMap.get(id);
+    return u?.full_name || u?.email || id.slice(0, 8);
+  };
+
+  async function approve(w: WithdrawalRow) {
+    const { error: txErr } = await supabase.from("wallet_transactions").insert({
+      user_id: w.user_id,
+      amount_inr: w.amount_inr,
+      type: "debit",
+      status: "completed",
+      description: `Withdrawal · ${w.method}`,
+    });
+    if (txErr) return toast.error(txErr.message);
+    const { error } = await supabase
+      .from("creator_withdrawals")
+      .update({
+        status: "paid",
+        processed_at: new Date().toISOString(),
+        processed_by: adminId,
+      })
+      .eq("id", w.id);
+    if (error) return toast.error(error.message);
+    await supabase.from("notifications").insert({
+      user_id: w.user_id,
+      title: "Withdrawal paid",
+      body: `₹${w.amount_inr} withdrawal via ${w.method} has been processed.`,
+      type: "success",
+    });
+    toast.success("Withdrawal approved & paid");
+    onChanged();
+  }
+
+  async function reject(w: WithdrawalRow) {
+    const notes = window.prompt("Rejection reason (optional):") ?? "";
+    const { error } = await supabase
+      .from("creator_withdrawals")
+      .update({
+        status: "rejected",
+        admin_notes: notes || null,
+        processed_at: new Date().toISOString(),
+        processed_by: adminId,
+      })
+      .eq("id", w.id);
+    if (error) return toast.error(error.message);
+    await supabase.from("notifications").insert({
+      user_id: w.user_id,
+      title: "Withdrawal rejected",
+      body: notes ? `Reason: ${notes}` : "Your withdrawal request was rejected.",
+      type: "warning",
+    });
+    toast.success("Rejected");
+    onChanged();
+  }
+
+  async function editDestination(w: WithdrawalRow) {
+    const current = formatDest(w);
+    const next = window.prompt("Edit payout destination (admin only):", current);
+    if (next == null) return;
+    const merged = { ...(w.destination ?? {}), details: next.trim(), edited_by_admin: true };
+    const { error } = await supabase
+      .from("creator_withdrawals")
+      .update({ destination: merged })
+      .eq("id", w.id);
+    if (error) return toast.error(error.message);
+    toast.success("Destination updated");
+    onChanged();
+  }
+
+  return (
+    <div className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden">
+      <div className="px-6 py-4 border-b flex items-center justify-between">
+        <div>
+          <h2 className="font-display text-lg font-semibold">Creator withdrawals · Payouts</h2>
+          <p className="text-xs text-muted-foreground">
+            {pending.length} pending · {withdrawals.length} total
+          </p>
+        </div>
+        <Badge variant={pending.length ? "default" : "secondary"} className="text-[10px]">
+          {pending.length} to process
+        </Badge>
+      </div>
+      {isLoading ? (
+        <div className="p-8 grid place-items-center">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : withdrawals.length === 0 ? (
+        <div className="p-8 text-center text-sm text-muted-foreground">
+          No withdrawal requests yet.
+        </div>
+      ) : (
+        <ul className="divide-y">
+          {withdrawals.slice(0, 30).map((w) => (
+            <li key={w.id} className="px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium">
+                  {inr(Number(w.amount_inr))} · {fmtUser(w.user_id)}
+                </div>
+                <div className="text-xs text-muted-foreground truncate">
+                  <span className="uppercase font-medium text-foreground">{w.method}</span> ·{" "}
+                  {formatDest(w) || "—"} · {format(new Date(w.created_at), "dd-MM-yyyy HH:mm")}
+                </div>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                {w.status === "pending" ? (
+                  <>
+                    <Button size="sm" variant="ghost" onClick={() => editDestination(w)}>
+                      Edit
+                    </Button>
+                    <Button size="sm" onClick={() => approve(w)}>
+                      Approve & pay
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => reject(w)}>
+                      Reject
+                    </Button>
+                  </>
+                ) : (
+                  <Badge
+                    variant={
+                      w.status === "paid"
+                        ? "default"
+                        : w.status === "rejected"
+                          ? "destructive"
+                          : "secondary"
+                    }
+                    className="text-[10px] capitalize"
+                  >
+                    {w.status}
+                  </Badge>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function formatDest(w: WithdrawalRow): string {
+  const d = w.destination ?? {};
+  if (d.details) return String(d.details);
+  const saved = d.saved ?? {};
+  if (w.method === "upi") return saved.upi_id ?? "";
+  if (w.method === "paypal") return saved.paypal_email ?? "";
+  if (w.method === "bank")
+    return [saved.account_name, saved.account_number, saved.ifsc].filter(Boolean).join(" · ");
+  return "";
+}
