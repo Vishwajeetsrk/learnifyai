@@ -56,38 +56,76 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     const safety = checkThumbnailPromptSafety(data.prompt);
     if (safety) throw new Error(safety);
 
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("AI image service not configured. Contact support.");
+    const lovableKey = process.env.LOVABLE_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image-preview",
-        messages: [{ role: "user", content: `${data.prompt}\n\n(Render at ${data.size}.)` }],
-        modalities: ["image", "text"],
-      }),
-    });
+    // 1. Try Lovable API if available
+    if (lovableKey) {
+      try {
+        const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${lovableKey}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-image-preview",
+            messages: [{ role: "user", content: `${data.prompt}\n\n(Render at ${data.size}.)` }],
+            modalities: ["image", "text"],
+          }),
+        });
 
-    if (!res.ok) {
-      const txt = await res.text().catch(() => "");
-      if (res.status === 429) throw new Error("Rate limited — try again in a moment.");
-      if (res.status === 402)
-        throw new Error("AI credits exhausted. Add funds in Workspace settings.");
-      if (res.status === 400 && /policy|moderation|safety/i.test(txt)) {
-        throw new Error(
-          "AI provider rejected the prompt (content policy). Try a different style or wording.",
-        );
+        if (res.ok) {
+          const json = (await res.json()) as {
+            choices?: Array<{ message?: { images?: Array<{ image_url?: { url?: string } }> } }>;
+          };
+          const url = json.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+          if (url) return { dataUrl: url };
+        } else {
+          console.warn(`Lovable image generation failed (${res.status}). Trying fallback...`);
+        }
+      } catch (err) {
+        console.warn("Lovable image generation error. Trying fallback...", err);
       }
-      throw new Error(`AI image error (${res.status}): ${txt.slice(0, 180)}`);
     }
 
-    const json = (await res.json()) as {
-      choices?: Array<{ message?: { images?: Array<{ image_url?: { url?: string } }> } }>;
-    };
-    const url = json.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-    if (url) return { dataUrl: url };
-    throw new Error("AI returned no image. Try regenerating.");
+    // 2. Fallback to Gemini Imagen 3 if available
+    if (geminiKey) {
+      try {
+        // Map size keys to supported Imagen 3 aspect ratios: "1:1", "3:4", "4:3", "9:16", "16:9"
+        const aspectRatio = data.size === "1024x1024" 
+          ? "1:1" 
+          : data.size === "1024x1536" 
+            ? "3:4" 
+            : "4:3";
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${geminiKey}`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: data.prompt,
+            numberOfImages: 1,
+            outputMimeType: "image/jpeg",
+            aspectRatio,
+          }),
+        });
+
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`Gemini Imagen API error (${res.status}): ${txt.slice(0, 180)}`);
+        }
+
+        const json = (await res.json()) as {
+          generatedImages?: Array<{ image?: { imageBytes?: string } }>;
+        };
+        const base64Bytes = json.generatedImages?.[0]?.image?.imageBytes;
+        if (base64Bytes) {
+          return { dataUrl: `data:image/jpeg;base64,${base64Bytes}` };
+        }
+      } catch (err: any) {
+        throw new Error(`Image generation failed: ${err.message || err}`);
+      }
+    }
+
+    throw new Error("No image generation service configured. Please provide GEMINI_API_KEY or LOVABLE_API_KEY.");
   });
 
 export const THUMBNAIL_STYLES = [
