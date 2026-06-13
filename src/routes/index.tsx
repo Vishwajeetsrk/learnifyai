@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+
 import {
   ArrowRight,
   Sparkles,
@@ -19,6 +20,7 @@ import {
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
+import { AiToolsShowcase } from "@/components/AiToolsShowcase";
 import { InteractiveDemo } from "@/components/InteractiveDemo";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
@@ -75,15 +77,6 @@ const features = [
     title: "Career Intelligence",
     desc: "AI-guided paths, resume reviews, and skill graphs.",
   },
-];
-
-const aiTools = [
-  { icon: Sparkles, label: "Quiz Generator" },
-  { icon: MessageSquare, label: "Doubt Solver" },
-  { icon: GraduationCap, label: "Career Coach" },
-  { icon: Bell, label: "Smart Reminders" },
-  { icon: Zap, label: "Lesson Synthesizer" },
-  { icon: BookOpen, label: "Auto Flashcards" },
 ];
 
 function Index() {
@@ -213,43 +206,7 @@ function Index() {
       <section id="ai" className="relative">
         <div className="container mx-auto px-6 py-28">
           <Reveal variant="scale">
-            <div
-              className="rounded-3xl p-12 md:p-16 relative overflow-hidden"
-              style={{ background: "var(--gradient-brand)" }}
-            >
-              <motion.div
-                className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_30%_20%,white,transparent_50%)]"
-                animate={{ opacity: [0.2, 0.4, 0.2] }}
-                transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-              />
-              <div className="relative max-w-2xl text-primary-foreground">
-                <p className="text-sm font-medium opacity-80 mb-3">AI Toolkit</p>
-                <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
-                  Every action, supercharged by AI.
-                </h2>
-                <p className="mt-4 opacity-85 text-lg">
-                  From the first question to a career offer — intelligence woven into every step of
-                  your journey.
-                </p>
-              </div>
-              <StaggerGroup
-                className="relative mt-12 grid grid-cols-2 md:grid-cols-3 gap-3"
-                stagger={0.06}
-              >
-                {aiTools.map((t) => (
-                  <StaggerItem key={t.label}>
-                    <motion.div
-                      whileHover={{ scale: 1.04, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex items-center gap-3 p-4 rounded-xl bg-background/10 backdrop-blur border border-white/15 text-primary-foreground hover:bg-background/25 transition cursor-pointer"
-                    >
-                      <t.icon className="h-5 w-5 opacity-90" />
-                      <span className="text-sm font-medium">{t.label}</span>
-                    </motion.div>
-                  </StaggerItem>
-                ))}
-              </StaggerGroup>
-            </div>
+            <AiToolsShowcase />
           </Reveal>
         </div>
       </section>

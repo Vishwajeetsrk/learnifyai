@@ -17,7 +17,7 @@ const defaults: SiteSettings = {
   discord_label: "Chat with the community in real time.",
   twitter_url: "https://x.com/learnifyai",
   twitter_handle: "@learnifyai",
-  github_url: "#",
+  github_url: "https://github.com/Vishwajeetsrk/learnifyai",
   careers_email: "careers@learnify.ai",
 };
 
@@ -29,7 +29,7 @@ export function useSiteSettings() {
       if (error) throw error;
       const map: Record<string, string> = {};
       (data ?? []).forEach((r: any) => {
-        if (r.value != null) map[r.key] = r.value;
+        if (r.value != null && r.value !== "#" && r.value !== "") map[r.key] = r.value;
       });
       return { ...defaults, ...(map as Partial<SiteSettings>) };
     },

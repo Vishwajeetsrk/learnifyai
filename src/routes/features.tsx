@@ -14,6 +14,7 @@ import {
   FileText,
 } from "lucide-react";
 import { MarketingPage } from "@/components/MarketingPage";
+import { AiToolsShowcase } from "@/components/AiToolsShowcase";
 
 export const Route = createFileRoute("/features")({
   head: () => ({
@@ -68,19 +69,6 @@ const platform = [
   },
 ];
 
-const tools = [
-  { icon: Sparkles, label: "Quiz Generator", desc: "Turn any topic into a 10-question MCQ set." },
-  {
-    icon: MessageSquare,
-    label: "Doubt Solver",
-    desc: "Ask any question, get a worked-out answer.",
-  },
-  { icon: GraduationCap, label: "Career Coach", desc: "Roadmaps tailored to your goals." },
-  { icon: Bell, label: "Smart Reminders", desc: "Spaced repetition that actually fits your week." },
-  { icon: Zap, label: "Lesson Synthesizer", desc: "Compress hours of video into 5-minute briefs." },
-  { icon: FileText, label: "Auto Flashcards", desc: "Generate decks straight from your notes." },
-];
-
 function FeaturesPage() {
   return (
     <MarketingPage
@@ -102,19 +90,7 @@ function FeaturesPage() {
       </div>
 
       <div id="ai-tools" className="mt-20 scroll-mt-24">
-        <h2 className="font-display text-3xl md:text-4xl font-semibold tracking-tight">AI Tools</h2>
-        <p className="mt-3 text-muted-foreground max-w-2xl">
-          A growing suite of one-click utilities, available inside every course.
-        </p>
-        <div className="mt-8 grid md:grid-cols-3 gap-6">
-          {tools.map((t) => (
-            <div key={t.label} className="rounded-2xl border border-border/60 bg-card p-6">
-              <t.icon className="h-5 w-5 text-primary" />
-              <h3 className="mt-3 font-semibold">{t.label}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{t.desc}</p>
-            </div>
-          ))}
-        </div>
+        <AiToolsShowcase />
       </div>
     </MarketingPage>
   );

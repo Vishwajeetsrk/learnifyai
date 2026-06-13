@@ -11,7 +11,10 @@ Learnify AI is an AI-powered personalized learning and course generation platfor
 - **Real-Time Enrichment Monitor**: Check progress of YouTube video processing in real time via Supabase Realtime subscriptions.
 - **Creator Wallet**: Direct credit/debit transaction log, automatic earning shares, and manual withdrawal requests (UPI, bank, PayPal).
 - **Certificate Issuance**: Dynamic PDF certificate generator using `jspdf` and `html2canvas-pro` with unique verification routes (`/certificates/$code`).
-- **Modern Theme System**: Clean light/dark mode configuration integrated with custom Tailwind CSS rules.
+- **Interactive AI Toolkit Showcase**: Live playground simulating 6 utilities (Quiz Generator, Doubt Solver, Career Path roadmapping, Spaced Reminders, Synthesizer, and Auto Flashcards) available directly on both the Landing Page and Features Page.
+- **Interactive Coach Suite**: Rebuilt coaches route featuring a responsive sandbox for booking slot schedules, simulating native messaging with clients, checking off client roadmap milestones, and running AI outcomes/skill audits.
+- **Resilient Fallback Pages**: Implemented database query try-catch handlers for the FAQ and Events routes. If database connections fail or tables are empty, pages seamlessly fall back to beautiful, pre-populated lists rather than throwing an error page.
+- **Appearance & Color Theme Engine**: Restructured the appearance selector to support 3 mode toggles (Light, Dark, System), 3 motion preferences (Match System, Full, Reduced), and 6 custom CSS theme colors (Indigo, Ocean, Sunset, Forest, Rose, and Noir) with custom variable maps.
 
 ---
 
@@ -39,12 +42,14 @@ Learnify AI is an AI-powered personalized learning and course generation platfor
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/Vishwajeetsrk/learnifyai.git
    cd learnifyai
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    # or
@@ -52,6 +57,7 @@ Learnify AI is an AI-powered personalized learning and course generation platfor
    ```
 
 3. Configure environment variables by creating `.env.local` or editing `.env`:
+
    ```env
    # Database & Supabase
    DATABASE_URL="your-postgresql-url"
@@ -70,16 +76,19 @@ Learnify AI is an AI-powered personalized learning and course generation platfor
 ### Development
 
 To start the development server locally:
+
 ```bash
 npm run dev
 ```
 
 To run lint checks:
+
 ```bash
 npm run lint
 ```
 
 To run code formatting with Prettier:
+
 ```bash
 npm run format
 ```
@@ -87,6 +96,7 @@ npm run format
 ### Testing
 
 Verify that all unit and integration tests pass by running:
+
 ```bash
 npx vitest run
 ```
@@ -98,13 +108,15 @@ npx vitest run
 The project is configured for Cloudflare deployment using [Nitro](https://nitro.unjs.io).
 
 1. Build the production application:
+
    ```bash
    npm run build
    ```
+
    This generates a static build under `.output/public` and a server runtime under `.output/server`, as well as configuration for Cloudflare (`wrangler.json`).
 
 2. Deploy using Wrangler:
    ```bash
    npx wrangler deploy
    ```
-   *(Ensure you run `npx wrangler login` first to authenticate with your Cloudflare account).*
+   _(Ensure you run `npx wrangler login` first to authenticate with your Cloudflare account)._

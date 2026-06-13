@@ -118,16 +118,14 @@ export const adminSetAiCredits = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await assertSuperAdmin(context.userId);
-    const { error } = await supabaseAdmin
-      .from("ai_credits")
-      .upsert(
-        {
-          user_id: data.userId,
-          credits_remaining: data.creditsRemaining,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-      );
+    const { error } = await supabaseAdmin.from("ai_credits").upsert(
+      {
+        user_id: data.userId,
+        credits_remaining: data.creditsRemaining,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
     if (error) throw new Error(error.message);
     return { ok: true };
   });

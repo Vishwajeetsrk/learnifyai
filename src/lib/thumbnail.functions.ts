@@ -90,11 +90,8 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     if (geminiKey) {
       try {
         // Map size keys to supported Imagen 3 aspect ratios: "1:1", "3:4", "4:3", "9:16", "16:9"
-        const aspectRatio = data.size === "1024x1024" 
-          ? "1:1" 
-          : data.size === "1024x1536" 
-            ? "3:4" 
-            : "4:3";
+        const aspectRatio =
+          data.size === "1024x1024" ? "1:1" : data.size === "1024x1536" ? "3:4" : "4:3";
 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${geminiKey}`;
         const res = await fetch(url, {
@@ -125,7 +122,9 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       }
     }
 
-    throw new Error("No image generation service configured. Please provide GEMINI_API_KEY or LOVABLE_API_KEY.");
+    throw new Error(
+      "No image generation service configured. Please provide GEMINI_API_KEY or LOVABLE_API_KEY.",
+    );
   });
 
 export const THUMBNAIL_STYLES = [

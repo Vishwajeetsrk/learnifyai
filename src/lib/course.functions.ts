@@ -191,17 +191,15 @@ export const markCourseStarted = createServerFn({ method: "POST" })
       .eq("id", enrollment.id);
 
     if (data.lessonId) {
-      const { error: pErr } = await supabase
-        .from("lesson_progress")
-        .upsert(
-          {
-            user_id: userId,
-            course_id: data.courseId,
-            lesson_id: data.lessonId,
-            watched_seconds: 1,
-          },
-          { onConflict: "user_id,lesson_id" },
-        );
+      const { error: pErr } = await supabase.from("lesson_progress").upsert(
+        {
+          user_id: userId,
+          course_id: data.courseId,
+          lesson_id: data.lessonId,
+          watched_seconds: 1,
+        },
+        { onConflict: "user_id,lesson_id" },
+      );
       if (pErr) throw new Error(pErr.message);
     }
 

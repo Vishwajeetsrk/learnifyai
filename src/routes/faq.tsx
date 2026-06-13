@@ -42,23 +42,76 @@ type FaqRow = {
   order_index: number;
 };
 
+const defaultFaqs: FaqRow[] = [
+  {
+    id: "default-1",
+    question: "What is Learnify AI?",
+    answer:
+      "Learnify AI is an AI-powered learning operating system. It brings together interactive courses, personalized 1-on-1 AI tutoring, note-taking tools, and community-driven learning into a single, cohesive experience.",
+    category: "General",
+    order_index: 1,
+  },
+  {
+    id: "default-2",
+    question: "How do I enroll in a course?",
+    answer:
+      "Simply browse our course catalog, click on any course you are interested in, and click the 'Enroll' button to add it to your learning dashboard and start studying.",
+    category: "Courses",
+    order_index: 2,
+  },
+  {
+    id: "default-3",
+    question: "How do the AI study tools work?",
+    answer:
+      "Each course is equipped with direct access to an AI Tutor, Quiz Generator, Doubt Solver, and Auto Flashcards. They analyze the course material and video transcriptions to generate study resources custom-tailored to your learning progress.",
+    category: "AI Tools",
+    order_index: 3,
+  },
+  {
+    id: "default-4",
+    question: "Are certificates verified?",
+    answer:
+      "Yes, once you pass a course's final assessment, Learnify AI generates a verified digital certificate with a unique code. Anyone can verify its authenticity by visiting the public verification URL.",
+    category: "Certificates",
+    order_index: 4,
+  },
+  {
+    id: "default-5",
+    question: "Is there a free tier?",
+    answer:
+      "Yes! You can sign up and start learning for free. We offer a premium subscription plan that grants unlimited access to advanced AI sessions, certificate generation, and creator studio tools.",
+    category: "Pricing",
+    order_index: 5,
+  },
+];
+
 function FaqPage() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("All");
 
-  const { data: faqs = [], isLoading } = useQuery({
+  const { data: faqsDb = [], isLoading } = useQuery({
     queryKey: ["public-faqs"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("faqs")
-        .select("id, question, answer, category, order_index")
-        .eq("published", true)
-        .order("category", { ascending: true })
-        .order("order_index", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as FaqRow[];
+      try {
+        const { data, error } = await supabase
+          .from("faqs")
+          .select("id, question, answer, category, order_index")
+          .eq("published", true)
+          .order("category", { ascending: true })
+          .order("order_index", { ascending: true });
+        if (error) {
+          console.warn("FAQ DB Query failed, falling back to static defaults:", error);
+          return [];
+        }
+        return (data ?? []) as FaqRow[];
+      } catch (err) {
+        console.warn("FAQ fetch caught exception, falling back to static defaults:", err);
+        return [];
+      }
     },
   });
+
+  const faqs = faqsDb.length > 0 ? faqsDb : defaultFaqs;
 
   const categories = useMemo(
     () => ["All", ...Array.from(new Set(faqs.map((f) => f.category)))],
