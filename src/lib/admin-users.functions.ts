@@ -4,14 +4,16 @@ import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-async function assertSuperAdmin(userId: string) {
+async function assertAdmin(userId: string) {
   const { data, error } = await supabaseAdmin
     .from("user_roles")
     .select("role")
     .eq("user_id", userId);
   if (error) throw new Error(error.message);
   const roles = (data ?? []).map((r) => r.role);
-  if (!roles.includes("super_admin")) throw new Error("Forbidden: super_admin only");
+  if (!roles.includes("super_admin") && !roles.includes("admin")) {
+    throw new Error("Forbidden: admin or super_admin only");
+  }
 }
 
 const SUPER_ADMIN_EMAIL = process.env.SUPABASE_SUPER_ADMIN_EMAIL?.trim().toLowerCase();
@@ -54,7 +56,7 @@ export const bootstrapSuperAdmin = createServerFn({ method: "POST" })
 export const adminListUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertSuperAdmin(context.userId);
+    await assertAdmin(context.userId);
 
     // Get auth users (paginated) for ban / disabled status + last sign in
     const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.listUsers({
@@ -117,7 +119,7 @@ export const adminSetAiCredits = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertSuperAdmin(context.userId);
+    await assertAdmin(context.userId);
     const { error } = await supabaseAdmin.from("ai_credits").upsert(
       {
         user_id: data.userId,
@@ -142,7 +144,7 @@ export const adminUpdateUser = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertSuperAdmin(context.userId);
+    await assertAdmin(context.userId);
 
     if (data.email) {
       const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
@@ -167,7 +169,7 @@ export const adminSetPassword = createServerFn({ method: "POST" })
     z.object({ userId: z.string().uuid(), password: z.string().min(8).max(128) }).parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertSuperAdmin(context.userId);
+    await assertAdmin(context.userId);
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
       password: data.password,
     });
@@ -179,7 +181,7 @@ export const adminSetDisabled = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ userId: z.string().uuid(), disabled: z.boolean() }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertSuperAdmin(context.userId);
+    await assertAdmin(context.userId);
     if (data.userId === context.userId) throw new Error("You cannot disable your own account");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(
       data.userId,
@@ -194,7 +196,7 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
-    await assertSuperAdmin(context.userId);
+    await assertAdmin(context.userId);
     if (data.userId === context.userId) throw new Error("You cannot delete your own account");
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
     if (error) throw new Error(error.message);
@@ -215,10 +217,10 @@ export const adminSetUserRoles = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertSuperAdmin(context.userId);
+    await assertAdmin(context.userId);
 
-    if (data.userId === context.userId && !data.roles.includes("super_admin")) {
-      throw new Error("You cannot remove super_admin from your own account");
+    if (data.userId === context.userId && !data.roles.includes("super_admin") && !data.roles.includes("admin")) {
+      throw new Error("You cannot remove admin access from your own account");
     }
 
     const unique = Array.from(new Set(data.roles));
@@ -250,7 +252,7 @@ export const adminCreateUser = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
-    await assertSuperAdmin(context.userId);
+    await assertAdmin(context.userId);
 
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,

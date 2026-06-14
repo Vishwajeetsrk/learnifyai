@@ -60,7 +60,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { lessonAiHelper } from "@/lib/lesson-ai.functions";
 import { enrollFree, markCourseStarted, recomputeProgress } from "@/lib/course.functions";
-import { LessonSocial } from "@/components/LessonSocial";
+
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import {
   buildCourseVideoEmbedUrl,
