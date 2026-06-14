@@ -12,6 +12,7 @@ export function RecommendedCourses() {
   const q = useQuery({
     queryKey: ["recommended-courses"],
     queryFn: () => fn(),
+    enabled: typeof window !== "undefined",
     staleTime: 5 * 60 * 1000,
   });
 
