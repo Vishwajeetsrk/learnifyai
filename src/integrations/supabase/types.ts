@@ -1214,6 +1214,7 @@ export type Database = {
           order_index: number;
           title: string;
           video_url: string | null;
+          video_channel_id: string | null;
         };
         Insert: {
           content_md?: string | null;
@@ -1227,6 +1228,7 @@ export type Database = {
           order_index?: number;
           title: string;
           video_url?: string | null;
+          video_channel_id?: string | null;
         };
         Update: {
           content_md?: string | null;
@@ -1240,6 +1242,7 @@ export type Database = {
           order_index?: number;
           title?: string;
           video_url?: string | null;
+          video_channel_id?: string | null;
         };
         Relationships: [
           {

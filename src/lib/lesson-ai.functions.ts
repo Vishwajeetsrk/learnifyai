@@ -13,17 +13,17 @@ const Input = z.object({
   question: z.string().max(4000).optional(),
 });
 
-const SYSTEM = `You are Learnify AI — a senior technical mentor. Respond in clean, professional markdown (H2/H3 headings, numbered steps, fenced code blocks with language tags, bullet lists where useful). No emoji spam, no filler. Be concrete and production-grade.`;
+const SYSTEM = `You are Learnify AI — a senior technical mentor. Provide direct, short answers. Use concise bullet points for the best presentation. Respond in clean, professional markdown (H2/H3 headings, fenced code blocks). Be extremely concise. Avoid long paragraphs, fluff, or filler text.`;
 
 function buildPrompt(d: z.infer<typeof Input>) {
   const ctx = `Course: ${d.courseTitle}\nLesson: ${d.lessonTitle}${d.lessonDescription ? `\nLesson notes: ${d.lessonDescription}` : ""}`;
   if (d.action === "summary") {
-    return `${ctx}\n\nProduce a structured lesson summary with these sections:\n## Key Takeaways (5-7 bullets)\n## Core Concepts Explained\n## Real-World Applications\n## Quick Recap (3 lines)`;
+    return `${ctx}\n\nProduce a short, structured lesson summary with these sections (use brief bullet points):\n## Key Takeaways (3-5 short bullets)\n## Core Concepts Explained (briefly)\n## Real-World Applications\n## Quick Recap (1 short line)`;
   }
   if (d.action === "exercise") {
-    return `${ctx}\n\nDesign a practical, hands-on exercise the learner can build right now. Include:\n## Objective\n## Prerequisites\n## Step-by-Step Instructions (numbered)\n## Starter Code (fenced code block)\n## Expected Output\n## Bonus Challenges (2-3 stretch goals)\n## Solution Hints (collapsible thinking, not full solution)`;
+    return `${ctx}\n\nDesign a short, practical exercise. Keep it brief and use bullet points:\n## Objective\n## Prerequisites\n## Step-by-Step Instructions (short bullets)\n## Starter Code\n## Expected Output\n## Bonus Challenges\n## Solution Hints`;
   }
-  return `${ctx}\n\nLearner's doubt: """${d.question ?? ""}"""\n\nClear the doubt with:\n## Direct Answer\n## Why This Happens / How It Works\n## Worked Example (with code if applicable)\n## Common Mistakes to Avoid\n## Further Reading (real, current resources)`;
+  return `${ctx}\n\nLearner's doubt: """${d.question ?? ""}"""\n\nClear the doubt directly and concisely using bullet points:\n## Direct Answer (1-2 short sentences)\n## Why This Happens (bullet points)\n## Worked Example\n## Common Mistakes to Avoid (bullet points)\n## Further Reading`;
 }
 
 export const lessonAiHelper = createServerFn({ method: "POST" })

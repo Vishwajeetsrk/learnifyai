@@ -12,7 +12,9 @@ Learnify AI is an AI-powered personalized learning and course generation platfor
 - **Creator Wallet**: Direct credit/debit transaction log, automatic earning shares, and manual withdrawal requests (UPI, bank, PayPal).
 - **Certificate Issuance**: Dynamic PDF certificate generator using `jspdf` and `html2canvas-pro` with unique verification routes (`/certificates/$code`).
 - **Interactive AI Toolkit Showcase**: Live playground simulating 6 utilities (Quiz Generator, Doubt Solver, Career Path roadmapping, Spaced Reminders, Synthesizer, and Auto Flashcards) available directly on both the Landing Page and Features Page.
-- **Interactive Coach Suite**: Rebuilt coaches route featuring a responsive sandbox for booking slot schedules, simulating native messaging with clients, checking off client roadmap milestones, and running AI outcomes/skill audits.
+- **Interactive Coach & Creator Suites**: Responsive sandboxes for booking slot schedules, generating AI courses from prompts, withdrawing mock earnings to wallet, and running AI outcomes/skill audits.
+- **Custom Video Player**: Built-in React-based player overlay on YouTube streams with a natively integrated Subscribe button, progress tracking, volume, CC, and timeline controls.
+- **Smart YouTube Engine**: Fetches actual exact duration timeline (calculated in minutes) via secondary YouTube Data API requests, guarantees NO music/songs by restricting to Education categories, and prioritizes bilingual Hindi/English courses.
 - **Resilient Fallback Pages**: Implemented database query try-catch handlers for the FAQ and Events routes. If database connections fail or tables are empty, pages seamlessly fall back to beautiful, pre-populated lists rather than throwing an error page.
 - **Appearance & Color Theme Engine**: Restructured the appearance selector to support 3 mode toggles (Light, Dark, System), 3 motion preferences (Match System, Full, Reduced), and 6 custom CSS theme colors (Indigo, Ocean, Sunset, Forest, Rose, and Noir) with custom variable maps.
 

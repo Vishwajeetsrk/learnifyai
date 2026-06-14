@@ -45,7 +45,7 @@ const Input = z.discriminatedUnion("action", [
   FlashInput,
 ]);
 
-const SYS = `You are Learnify AI — a senior technical mentor and educator. Be accurate, concrete, current (2025-2026), and production-grade. Avoid filler.`;
+const SYS = `You are Learnify AI — a senior technical mentor and educator. Be accurate, concrete, current (2025-2026), and production-grade. Provide direct, short answers. Use concise bullet points for the best presentation. Avoid fluff and filler.`;
 
 function jsonInstruction(schemaHint: string) {
   return `Respond with ONLY valid minified JSON matching this schema (no markdown, no prose, no code fences):\n${schemaHint}`;
@@ -59,7 +59,7 @@ function buildMessages(d: z.infer<typeof Input>) {
         { role: "system", content: SYS },
         {
           role: "user",
-          content: `Generate ${d.count} multiple-choice quiz questions on "${d.topic}" at ${d.difficulty} difficulty. Each question must have exactly 4 distinct options, one correct answer (0-indexed), and a 1-2 sentence explanation. ${jsonInstruction(`{"questions":[{"question":string,"options":[string,string,string,string],"answer":0|1|2|3,"explanation":string}]}`)}`,
+          content: `Generate ${d.count} multiple-choice quiz questions on "${d.topic}" at ${d.difficulty} difficulty. Each question must have exactly 4 distinct options, one correct answer (0-indexed), and a short 1-sentence explanation. ${jsonInstruction(`{"questions":[{"question":string,"options":[string,string,string,string],"answer":0|1|2|3,"explanation":string}]}`)}`,
         },
       ],
     };
@@ -71,7 +71,7 @@ function buildMessages(d: z.infer<typeof Input>) {
         { role: "system", content: SYS },
         {
           role: "user",
-          content: `Create ${d.count} study flashcards on "${d.topic}". Front = concise prompt; Back = clear answer (1-3 sentences with tiny example if useful). ${jsonInstruction(`{"cards":[{"front":string,"back":string}]}`)}`,
+          content: `Create ${d.count} study flashcards on "${d.topic}". Front = concise prompt; Back = very short answer (1-2 sentences). ${jsonInstruction(`{"cards":[{"front":string,"back":string}]}`)}`,
         },
       ],
     };
@@ -83,7 +83,7 @@ function buildMessages(d: z.infer<typeof Input>) {
         { role: "system", content: SYS },
         {
           role: "user",
-          content: `Create a smart, motivating study reminder.\nTask: ${d.task}\nWhen: ${d.when}\nGoal: ${d.goal ?? "n/a"}\nReturn a short title (max 60 chars), a focused body (2-3 sentences with one concrete action), and an ISO 8601 suggested_time. ${jsonInstruction(`{"title":string,"body":string,"suggested_time":string}`)}`,
+          content: `Create a smart, motivating study reminder.\nTask: ${d.task}\nWhen: ${d.when}\nGoal: ${d.goal ?? "n/a"}\nReturn a short title (max 60 chars), a focused body (1-2 sentences), and an ISO 8601 suggested_time. ${jsonInstruction(`{"title":string,"body":string,"suggested_time":string}`)}`,
         },
       ],
     };
@@ -95,7 +95,7 @@ function buildMessages(d: z.infer<typeof Input>) {
         { role: "system", content: SYS },
         {
           role: "user",
-          content: `Subject: ${d.subject ?? "General"}\nQuestion: ${d.question}\n\n## Direct Answer\n## Why / How It Works\n## Worked Example (with code if relevant)\n## Common Mistakes\n## Further Reading`,
+          content: `Subject: ${d.subject ?? "General"}\nQuestion: ${d.question}\n\nProvide the response using short bullet points:\n## Direct Answer (1-2 sentences)\n## Why / How It Works (bullet points)\n## Worked Example (with code if relevant)\n## Common Mistakes (bullet points)\n## Further Reading (bullet points)`,
         },
       ],
     };
@@ -107,7 +107,7 @@ function buildMessages(d: z.infer<typeof Input>) {
         { role: "system", content: SYS },
         {
           role: "user",
-          content: `Career Goal: ${d.goal}\nExperience: ${d.years} years\nBackground: ${d.background ?? "n/a"}\n\n## Reality Check (market 2025-2026, salary USD & INR)\n## Skills Gap\n## 12-Week Roadmap\n## Portfolio Projects (4-6)\n## Resources (real names)\n## Interview Prep\n## Application Strategy\n## 30/60/90 Day Milestones`,
+          content: `Career Goal: ${d.goal}\nExperience: ${d.years} years\nBackground: ${d.background ?? "n/a"}\n\nProvide the response using short bullet points:\n## Reality Check (market 2025-2026, salary USD & INR)\n## Skills Gap (bullets)\n## 12-Week Roadmap (brief milestones)\n## Portfolio Projects (4-6 bullets)\n## Resources (real names)\n## Interview Prep (bullets)\n## Application Strategy (bullets)\n## 30/60/90 Day Milestones`,
         },
       ],
     };
@@ -118,7 +118,7 @@ function buildMessages(d: z.infer<typeof Input>) {
       { role: "system", content: SYS },
       {
         role: "user",
-        content: `Synthesize notes into a study brief:\n\n"""${d.notes}"""\n\n## TL;DR\n## Key Concepts\n## Definitions\n## How It Fits Together\n## Worked Examples\n## Practice Questions (5)\n## Spaced-Repetition Cues (5)`,
+        content: `Synthesize notes into a short study brief using bullet points:\n\n"""${d.notes}"""\n\n## TL;DR (short summary)\n## Key Concepts (bullets)\n## Definitions (bullets)\n## How It Fits Together\n## Worked Examples\n## Practice Questions (5)\n## Spaced-Repetition Cues (5)`,
       },
     ],
   };

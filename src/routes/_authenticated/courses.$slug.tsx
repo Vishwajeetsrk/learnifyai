@@ -28,6 +28,9 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { LessonSocial } from "@/components/LessonSocial";
+import { FinalTestSection } from "@/components/FinalTestSection";
+import { CustomVideoPlayer } from "@/components/CustomVideoPlayer";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -494,22 +497,15 @@ function CourseDetail() {
           <div className="space-y-4 min-w-0">
             <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
               {activeVideo?.ok && !playerLoadFailed ? (
-                <iframe
-                  id="learnify-player"
+                <CustomVideoPlayer
                   key={`${active?.id}-${playerRetry}`}
-                  src={activeVideo.src}
-                  title={active?.title ?? course.title}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  onLoad={() => {
-                    setPlayerLoadFailed(false);
-                    if (activeVideo.isYoutube)
-                      toast.message(
-                        "Video loaded. If it stays paused, press play — your browser may block autoplay.",
-                      );
-                  }}
+                  url={activeVideo.src}
+                  startSeconds={activeProgress?.watched_seconds ?? 0}
+                  playbackRate={speed}
+                  playing={true}
+                  channelId={active?.video_channel_id}
                   onError={() => setPlayerLoadFailed(true)}
+                  onReady={() => setPlayerLoadFailed(false)}
                 />
               ) : (
                 <div className="w-full h-full grid place-items-center text-muted-foreground text-sm text-center px-6">
@@ -561,7 +557,6 @@ function CourseDetail() {
                       onValueChange={(v) => {
                         const n = Number(v);
                         setSpeed(n);
-                        setYouTubeSpeed(n);
                       }}
                     >
                       <SelectTrigger className="h-8 w-[88px] text-xs">
@@ -794,12 +789,7 @@ function VideoFallback({
 }
 
 function setYouTubeSpeed(rate: number) {
-  const iframe = document.getElementById("learnify-player") as HTMLIFrameElement | null;
-  if (!iframe?.contentWindow) return;
-  iframe.contentWindow.postMessage(
-    JSON.stringify({ event: "command", func: "setPlaybackRate", args: [rate] }),
-    "*",
-  );
+  // Deprecated: speed is now managed by CustomVideoPlayer
 }
 
 // ---------- AI Tutor + Playground tabs ----------

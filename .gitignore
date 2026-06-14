@@ -42,3 +42,10 @@ env
 client_secret_*.json
 .vercel
 .env*
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

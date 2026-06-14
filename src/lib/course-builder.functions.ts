@@ -84,12 +84,16 @@ ${schemaHint(data.modules)}`;
     const ytWarnings: string[] = [];
     let quotaBlocked = false;
     if (ytKey && Array.isArray(parsed.modules)) {
+      const foundVideoIds: string[] = [];
+      const chMap = new Map<string, any>();
+
       outer: for (const mod of parsed.modules) {
         for (const ch of mod.chapters ?? []) {
           if (quotaBlocked) break outer;
-          const q = (ch.youtube_query || `${ch.title} ${data.topic} tutorial`).trim();
+          // Prioritize Hindi/English and filter by educational category to prevent songs
+          const q = (ch.youtube_query || `${ch.title} ${data.topic} tutorial`).trim() + " in Hindi or English";
           try {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&videoEmbeddable=true&relevanceLanguage=en&safeSearch=strict&q=${encodeURIComponent(q)}&key=${ytKey}`;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=27&maxResults=1&videoEmbeddable=true&safeSearch=strict&q=${encodeURIComponent(q)}&key=${ytKey}`;
             const r = await fetch(url);
             const j: any = await r.json().catch(() => ({}));
             if (!r.ok) {
@@ -112,13 +116,41 @@ ${schemaHint(data.modules)}`;
             const item = j.items?.[0];
             const vid = item?.id?.videoId;
             if (vid) {
+              foundVideoIds.push(vid);
+              chMap.set(vid, ch);
               ch.video_url = `https://www.youtube.com/watch?v=${vid}`;
               ch.video_title = item.snippet?.title ?? null;
               ch.video_channel = item.snippet?.channelTitle ?? null;
+              ch.video_channel_id = item.snippet?.channelId ?? null;
             }
           } catch {
             // ignore individual chapter failures
           }
+        }
+      }
+
+      // Batch fetch exact duration
+      if (foundVideoIds.length > 0) {
+        try {
+          const vUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${foundVideoIds.join(",")}&key=${ytKey}`;
+          const vr = await fetch(vUrl);
+          if (vr.ok) {
+            const vj: any = await vr.json();
+            for (const item of vj.items ?? []) {
+              const ch = chMap.get(item.id);
+              if (ch && item.contentDetails?.duration) {
+                const match = item.contentDetails.duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+                if (match) {
+                  const h = parseInt(match[1]) || 0;
+                  const m = parseInt(match[2]) || 0;
+                  const s = parseInt(match[3]) || 0;
+                  ch.duration_minutes = Math.max(1, Math.ceil(h * 60 + m + s / 60));
+                }
+              }
+            }
+          }
+        } catch {
+          // ignore duration fetch failures
         }
       }
     } else if (!ytKey) {
@@ -154,7 +186,8 @@ export const materializeCourse = createServerFn({ method: "POST" })
     const slug = `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`;
 
     const totalMins = (bp.modules ?? []).reduce(
-      (s: number, m: any) => s + (m.chapters?.length ?? 0) * 10,
+      (s: number, m: any) =>
+        s + (m.chapters ?? []).reduce((cs: number, c: any) => cs + (c.duration_minutes || 10), 0),
       0,
     );
 
@@ -206,7 +239,8 @@ export const materializeCourse = createServerFn({ method: "POST" })
           description: String(ch.summary ?? "").slice(0, 500),
           content_md: md,
           video_url: ch.video_url ?? null,
-          duration_minutes: 10,
+          video_channel_id: ch.video_channel_id ?? null,
+          duration_minutes: ch.duration_minutes || 10,
           order_index: lessonOrder++,
           is_preview: lessonOrder === 1,
         });
