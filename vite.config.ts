@@ -26,9 +26,15 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 1000,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
+      rollupOptions: {
+        onwarn(warning, warn) {
+          if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
+            return;
+          }
+          warn(warning);
+        },
+        output: {
+          manualChunks(id) {
           if (!id.includes("node_modules")) return;
           if (id.includes("react-dom") || id.includes("react")) return "vendor-react";
           if (id.includes("@tanstack")) return "vendor-tanstack";
