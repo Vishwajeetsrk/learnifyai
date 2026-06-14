@@ -37,7 +37,6 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreatorRouteImport } from './routes/_authenticated/creator'
-import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
 import { Route as AuthenticatedCohortsRouteImport } from './routes/_authenticated/cohorts'
 import { Route as AuthenticatedCertificatesRouteImport } from './routes/_authenticated/certificates'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
@@ -45,6 +44,7 @@ import { Route as AuthenticatedApplyCreatorRouteImport } from './routes/_authent
 import { Route as AuthenticatedAiToolsRouteImport } from './routes/_authenticated/ai-tools'
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
 import { Route as AuthenticatedCreatorsIdRouteImport } from './routes/_authenticated/creators.$id'
 import { Route as AuthenticatedCreatorSubscribersRouteImport } from './routes/_authenticated/creator.subscribers'
 import { Route as AuthenticatedCreatorSettingsRouteImport } from './routes/_authenticated/creator.settings'
@@ -197,11 +197,6 @@ const AuthenticatedCreatorRoute = AuthenticatedCreatorRouteImport.update({
   path: '/creator',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
-  id: '/courses',
-  path: '/courses',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
 const AuthenticatedCohortsRoute = AuthenticatedCohortsRouteImport.update({
   id: '/cohorts',
   path: '/cohorts',
@@ -239,6 +234,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCoursesIndexRoute =
+  AuthenticatedCoursesIndexRouteImport.update({
+    id: '/courses/',
+    path: '/courses/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCreatorsIdRoute = AuthenticatedCreatorsIdRouteImport.update({
   id: '/creators/$id',
   path: '/creators/$id',
@@ -270,9 +271,9 @@ const AuthenticatedCreatorCommentsRoute =
   } as any)
 const AuthenticatedCoursesSlugRoute =
   AuthenticatedCoursesSlugRouteImport.update({
-    id: '/$slug',
-    path: '/$slug',
-    getParentRoute: () => AuthenticatedCoursesRoute,
+    id: '/courses/$slug',
+    path: '/courses/$slug',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedCohortsIdRoute = AuthenticatedCohortsIdRouteImport.update({
   id: '/$id',
@@ -329,7 +330,6 @@ export interface FileRoutesByFullPath {
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
   '/cohorts': typeof AuthenticatedCohortsRouteWithChildren
-  '/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
@@ -350,6 +350,7 @@ export interface FileRoutesByFullPath {
   '/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/creators/$id': typeof AuthenticatedCreatorsIdRoute
+  '/courses/': typeof AuthenticatedCoursesIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
 export interface FileRoutesByTo {
@@ -377,7 +378,6 @@ export interface FileRoutesByTo {
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
   '/cohorts': typeof AuthenticatedCohortsRouteWithChildren
-  '/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
@@ -398,6 +398,7 @@ export interface FileRoutesByTo {
   '/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/creators/$id': typeof AuthenticatedCreatorsIdRoute
+  '/courses': typeof AuthenticatedCoursesIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
 export interface FileRoutesById {
@@ -427,7 +428,6 @@ export interface FileRoutesById {
   '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/certificates': typeof AuthenticatedCertificatesRoute
   '/_authenticated/cohorts': typeof AuthenticatedCohortsRouteWithChildren
-  '/_authenticated/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/_authenticated/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRoute
@@ -448,6 +448,7 @@ export interface FileRoutesById {
   '/_authenticated/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/_authenticated/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/_authenticated/creators/$id': typeof AuthenticatedCreatorsIdRoute
+  '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
 export interface FileRouteTypes {
@@ -477,7 +478,6 @@ export interface FileRouteTypes {
     | '/cart'
     | '/certificates'
     | '/cohorts'
-    | '/courses'
     | '/creator'
     | '/dashboard'
     | '/inbox'
@@ -498,6 +498,7 @@ export interface FileRouteTypes {
     | '/creator/settings'
     | '/creator/subscribers'
     | '/creators/$id'
+    | '/courses/'
     | '/api/public/hooks/run-reminders'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -525,7 +526,6 @@ export interface FileRouteTypes {
     | '/cart'
     | '/certificates'
     | '/cohorts'
-    | '/courses'
     | '/creator'
     | '/dashboard'
     | '/inbox'
@@ -546,6 +546,7 @@ export interface FileRouteTypes {
     | '/creator/settings'
     | '/creator/subscribers'
     | '/creators/$id'
+    | '/courses'
     | '/api/public/hooks/run-reminders'
   id:
     | '__root__'
@@ -574,7 +575,6 @@ export interface FileRouteTypes {
     | '/_authenticated/cart'
     | '/_authenticated/certificates'
     | '/_authenticated/cohorts'
-    | '/_authenticated/courses'
     | '/_authenticated/creator'
     | '/_authenticated/dashboard'
     | '/_authenticated/inbox'
@@ -595,6 +595,7 @@ export interface FileRouteTypes {
     | '/_authenticated/creator/settings'
     | '/_authenticated/creator/subscribers'
     | '/_authenticated/creators/$id'
+    | '/_authenticated/courses/'
     | '/api/public/hooks/run-reminders'
   fileRoutesById: FileRoutesById
 }
@@ -821,13 +822,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreatorRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/courses': {
-      id: '/_authenticated/courses'
-      path: '/courses'
-      fullPath: '/courses'
-      preLoaderRoute: typeof AuthenticatedCoursesRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/cohorts': {
       id: '/_authenticated/cohorts'
       path: '/cohorts'
@@ -877,6 +871,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/courses/': {
+      id: '/_authenticated/courses/'
+      path: '/courses'
+      fullPath: '/courses/'
+      preLoaderRoute: typeof AuthenticatedCoursesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/creators/$id': {
       id: '/_authenticated/creators/$id'
       path: '/creators/$id'
@@ -914,10 +915,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/courses/$slug': {
       id: '/_authenticated/courses/$slug'
-      path: '/$slug'
+      path: '/courses/$slug'
       fullPath: '/courses/$slug'
       preLoaderRoute: typeof AuthenticatedCoursesSlugRouteImport
-      parentRoute: typeof AuthenticatedCoursesRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/cohorts/$id': {
       id: '/_authenticated/cohorts/$id'
@@ -983,17 +984,6 @@ const AuthenticatedCohortsRouteChildren: AuthenticatedCohortsRouteChildren = {
 const AuthenticatedCohortsRouteWithChildren =
   AuthenticatedCohortsRoute._addFileChildren(AuthenticatedCohortsRouteChildren)
 
-interface AuthenticatedCoursesRouteChildren {
-  AuthenticatedCoursesSlugRoute: typeof AuthenticatedCoursesSlugRoute
-}
-
-const AuthenticatedCoursesRouteChildren: AuthenticatedCoursesRouteChildren = {
-  AuthenticatedCoursesSlugRoute: AuthenticatedCoursesSlugRoute,
-}
-
-const AuthenticatedCoursesRouteWithChildren =
-  AuthenticatedCoursesRoute._addFileChildren(AuthenticatedCoursesRouteChildren)
-
 interface AuthenticatedCreatorRouteChildren {
   AuthenticatedCreatorCommentsRoute: typeof AuthenticatedCreatorCommentsRoute
   AuthenticatedCreatorEarningsRoute: typeof AuthenticatedCreatorEarningsRoute
@@ -1019,7 +1009,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCertificatesRoute: typeof AuthenticatedCertificatesRoute
   AuthenticatedCohortsRoute: typeof AuthenticatedCohortsRouteWithChildren
-  AuthenticatedCoursesRoute: typeof AuthenticatedCoursesRouteWithChildren
   AuthenticatedCreatorRoute: typeof AuthenticatedCreatorRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
@@ -1027,7 +1016,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
+  AuthenticatedCoursesSlugRoute: typeof AuthenticatedCoursesSlugRoute
   AuthenticatedCreatorsIdRoute: typeof AuthenticatedCreatorsIdRoute
+  AuthenticatedCoursesIndexRoute: typeof AuthenticatedCoursesIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -1038,7 +1029,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCertificatesRoute: AuthenticatedCertificatesRoute,
   AuthenticatedCohortsRoute: AuthenticatedCohortsRouteWithChildren,
-  AuthenticatedCoursesRoute: AuthenticatedCoursesRouteWithChildren,
   AuthenticatedCreatorRoute: AuthenticatedCreatorRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRoute,
@@ -1046,7 +1036,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
+  AuthenticatedCoursesSlugRoute: AuthenticatedCoursesSlugRoute,
   AuthenticatedCreatorsIdRoute: AuthenticatedCreatorsIdRoute,
+  AuthenticatedCoursesIndexRoute: AuthenticatedCoursesIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

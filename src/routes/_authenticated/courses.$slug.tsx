@@ -113,6 +113,19 @@ const inr = (n: number) =>
         maximumFractionDigits: 0,
       }).format(n);
 
+function formatDuration(minutes: number) {
+  if (!minutes) return "0m";
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  const hoursStr = hours > 0 ? `${hours}h` : "";
+  const minutesStr = remainingMinutes > 0 ? `${remainingMinutes}m` : "";
+  const durationStr = [hoursStr, minutesStr].filter(Boolean).join(" ");
+  
+  // Estimate daily learning load (assuming ~45 mins of dedicated focus/study per day)
+  const daysLoad = Math.max(1, Math.ceil(minutes / 45));
+  return `${durationStr} (${daysLoad} ${daysLoad === 1 ? "day" : "days"} load)`;
+}
+
 function CourseDetail() {
   const { slug } = Route.useParams();
   const { tab: initialTab } = Route.useSearch();
@@ -139,7 +152,18 @@ function CourseDetail() {
         .eq("course_id", course.id)
         .order("order_index", { ascending: true });
       if (lErr) throw lErr;
-      return { course, lessons: lessons ?? [] };
+
+      let instructorProfile = null;
+      if (course.created_by) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", course.created_by)
+          .maybeSingle();
+        instructorProfile = profile;
+      }
+
+      return { course, lessons: lessons ?? [], instructorProfile };
     },
   });
 
@@ -201,6 +225,7 @@ function CourseDetail() {
   );
   const lessons = courseQuery.data?.lessons ?? [];
   const course = courseQuery.data?.course;
+  const instructorProfile = courseQuery.data?.instructorProfile;
   const hasFullToolAccess = hasCourseToolAccess({
     isAdmin,
     isEnrolled,
@@ -392,7 +417,7 @@ function CourseDetail() {
           <Badge variant="secondary">{course.category}</Badge>
           <Badge variant="outline">{course.level}</Badge>
           <span className="text-xs text-muted-foreground flex items-center gap-1">
-            <Clock className="h-3 w-3" /> {course.duration_minutes} min
+            <Clock className="h-3 w-3" /> {formatDuration(course.duration_minutes)}
           </span>
           <span className="text-xs font-semibold ml-auto">{inr(Number(course.price_inr))}</span>
         </div>
@@ -585,62 +610,143 @@ function CourseDetail() {
             )}
           </div>
 
-          {/* Lesson list */}
-          <div className="rounded-2xl border bg-card shadow-card overflow-hidden">
-            <div className="px-4 py-3 border-b">
-              <h3 className="font-display font-semibold text-sm">Course content</h3>
-              <p className="text-[11px] text-muted-foreground">{lessons.length} lessons</p>
+          {/* Right Sidebar (Content + Details) */}
+          <div className="space-y-6">
+            {/* Course Summary Card */}
+            <div className="rounded-2xl border bg-card p-5 shadow-card space-y-4">
+              <h3 className="font-display font-semibold text-sm">Course Details</h3>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="rounded-lg bg-muted/40 p-2.5">
+                  <span className="text-muted-foreground block mb-0.5">Duration</span>
+                  <span className="font-medium flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5 text-primary" />
+                    {formatDuration(course.duration_minutes)}
+                  </span>
+                </div>
+                <div className="rounded-lg bg-muted/40 p-2.5">
+                  <span className="text-muted-foreground block mb-0.5">Level</span>
+                  <span className="font-medium capitalize">{course.level}</span>
+                </div>
+                <div className="rounded-lg bg-muted/40 p-2.5">
+                  <span className="text-muted-foreground block mb-0.5">Category</span>
+                  <span className="font-medium capitalize">{course.category}</span>
+                </div>
+                <div className="rounded-lg bg-muted/40 p-2.5">
+                  <span className="text-muted-foreground block mb-0.5">Lessons</span>
+                  <span className="font-medium">{lessons.length} lessons</span>
+                </div>
+              </div>
             </div>
-            <ul className="divide-y max-h-[60vh] overflow-y-auto">
-              {lessons.map((l, i) => {
-                const isUnlocked = unlocked.has(l.id);
-                const isDone = completed.has(l.id);
-                const isActive = activeLessonId === l.id;
-                return (
-                  <li key={l.id}>
-                    <button
-                      onClick={() => isUnlocked && setActiveLessonId(l.id)}
-                      disabled={!isUnlocked}
-                      className={cn(
-                        "w-full text-left px-4 py-3 flex items-center gap-3 transition",
-                        isActive && "bg-primary/5",
-                        isUnlocked
-                          ? "hover:bg-accent cursor-pointer"
-                          : "opacity-50 cursor-not-allowed",
-                      )}
-                    >
-                      <div className="shrink-0">
-                        {!isUnlocked ? (
-                          <Lock className="h-4 w-4 text-muted-foreground" />
-                        ) : isDone ? (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                        ) : (
-                          <Circle className="h-4 w-4 text-muted-foreground" />
+
+            {/* Lesson list */}
+            <div className="rounded-2xl border bg-card shadow-card overflow-hidden">
+              <div className="px-4 py-3 border-b">
+                <h3 className="font-display font-semibold text-sm">Course content</h3>
+                <p className="text-[11px] text-muted-foreground">{lessons.length} lessons</p>
+              </div>
+              <ul className="divide-y max-h-[60vh] overflow-y-auto">
+                {lessons.map((l, i) => {
+                  const isUnlocked = unlocked.has(l.id);
+                  const isDone = completed.has(l.id);
+                  const isActive = activeLessonId === l.id;
+                  return (
+                    <li key={l.id}>
+                      <button
+                        onClick={() => isUnlocked && setActiveLessonId(l.id)}
+                        disabled={!isUnlocked}
+                        className={cn(
+                          "w-full text-left px-4 py-3 flex items-center gap-3 transition",
+                          isActive && "bg-primary/5",
+                          isUnlocked
+                            ? "hover:bg-accent cursor-pointer"
+                            : "opacity-50 cursor-not-allowed",
                         )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div
-                          className={cn(
-                            "text-sm truncate",
-                            isActive && "font-semibold text-primary",
-                          )}
-                        >
-                          {i + 1}. {l.title}
-                        </div>
-                        <div className="text-[11px] text-muted-foreground flex items-center gap-2">
-                          <Clock className="h-3 w-3" /> {l.duration_minutes} min
-                          {l.is_preview && (
-                            <Badge variant="outline" className="text-[9px] py-0">
-                              Preview
-                            </Badge>
+                      >
+                        <div className="shrink-0">
+                          {!isUnlocked ? (
+                            <Lock className="h-4 w-4 text-muted-foreground" />
+                          ) : isDone ? (
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                          ) : (
+                            <Circle className="h-4 w-4 text-muted-foreground" />
                           )}
                         </div>
-                      </div>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+                        <div className="min-w-0 flex-1">
+                          <div
+                            className={cn(
+                              "text-sm truncate",
+                              isActive && "font-semibold text-primary",
+                            )}
+                          >
+                            {i + 1}. {l.title}
+                          </div>
+                          <div className="text-[11px] text-muted-foreground flex items-center gap-2">
+                            <Clock className="h-3 w-3" /> {l.duration_minutes} min
+                            {l.is_preview && (
+                              <Badge variant="outline" className="text-[9px] py-0">
+                                Preview
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Instructor Profile Card */}
+            <div className="rounded-2xl border bg-card p-5 shadow-card space-y-4">
+              <h3 className="font-display font-semibold text-sm">Your Instructor</h3>
+              <div className="flex items-center gap-3">
+                {instructorProfile?.avatar_url ? (
+                  <img
+                    src={instructorProfile.avatar_url}
+                    alt={instructorProfile.full_name || course.instructor}
+                    className="h-12 w-12 rounded-full object-cover border-2 border-primary/20"
+                  />
+                ) : (
+                  <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
+                    {(instructorProfile?.full_name || course.instructor).charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <h4 className="font-display font-semibold text-sm truncate">
+                    {instructorProfile?.full_name || course.instructor}
+                  </h4>
+                  {instructorProfile?.email && (
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      {instructorProfile.email}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {instructorProfile?.bio ? (
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {instructorProfile.bio}
+                </p>
+              ) : (
+                <p className="text-xs text-muted-foreground italic">
+                  Expert instructor delivering high-quality learning experiences.
+                </p>
+              )}
+              {instructorProfile?.social_links && typeof instructorProfile.social_links === "object" && (
+                <div className="flex flex-wrap gap-2 pt-2 border-t text-xs">
+                  {Object.entries(instructorProfile.social_links as Record<string, string>).map(([platform, url]) => (
+                    <a
+                      key={platform}
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-primary hover:underline capitalize"
+                    >
+                      {platform}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

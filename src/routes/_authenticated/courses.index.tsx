@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { enrollFree } from "@/lib/course.functions";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 
-export const Route = createFileRoute("/_authenticated/courses")({
+export const Route = createFileRoute("/_authenticated/courses/")({
   head: () => ({ meta: [{ title: "Courses — Learnify AI" }] }),
   component: CoursesPage,
 });
