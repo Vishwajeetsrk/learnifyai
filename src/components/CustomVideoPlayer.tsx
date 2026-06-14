@@ -51,6 +51,18 @@ export function CustomVideoPlayer({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
   const [controlsTimeout, setControlsTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [fetchedChannelUrl, setFetchedChannelUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!channelId && url) {
+      fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.author_url) setFetchedChannelUrl(data.author_url);
+        })
+        .catch(() => {});
+    }
+  }, [channelId, url]);
 
   useEffect(() => {
     setPlaying(initialPlaying);
@@ -226,9 +238,13 @@ export function CustomVideoPlayer({
           </div>
 
           <div className="flex items-center gap-4">
-            {channelId && (
+            {(channelId || fetchedChannelUrl) && (
               <a
-                href={`https://www.youtube.com/channel/${channelId}?sub_confirmation=1`}
+                href={
+                  channelId
+                    ? `https://www.youtube.com/channel/${channelId}?sub_confirmation=1`
+                    : `${fetchedChannelUrl}?sub_confirmation=1`
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium px-3 py-1.5 rounded-full transition"
