@@ -1,1 +1,0 @@
-import{c as r}from"./createServerFn-dLVZL542.js";import{r as e}from"./auth-middleware-DGqPirqS.js";import{c as a}from"./index-BolUZjIi.js";const c=r({method:"POST"}).middleware([e]).handler(a("33af551c8f8394d9f57af892e3af12cb6f428728b849520f0b91d27807f95f0e"));export{c as r};
