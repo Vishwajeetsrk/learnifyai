@@ -1,0 +1,1 @@
+import{w as n,r as u,a7 as a,a8 as c}from"./index-BolUZjIi.js";function p(i){const t=n();if(t.isServer)return t.stores.location.get();const e=u.useRef(void 0);return a(t.stores.location,r=>{const o=r;if(t.options.defaultStructuralSharing){const s=c(e.current,o);return e.current=s,s}return o})}export{p as u};
