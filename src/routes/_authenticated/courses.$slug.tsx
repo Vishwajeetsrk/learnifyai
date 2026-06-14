@@ -25,6 +25,9 @@ import {
   Paperclip,
   ExternalLink,
   Upload,
+  Bell,
+  BellOff,
+  Users,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -231,6 +234,59 @@ function CourseDetail() {
   const lessons = courseQuery.data?.lessons ?? [];
   const course = courseQuery.data?.course;
   const instructorProfile = courseQuery.data?.instructorProfile;
+
+  const creatorId = course?.created_by;
+
+  const creatorSubsQuery = useQuery({
+    enabled: !!creatorId,
+    queryKey: ["creator-subs-count", creatorId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("creator_subscriptions")
+        .select("*", { count: "exact", head: true })
+        .eq("creator_id", creatorId!);
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const mySubQuery = useQuery({
+    enabled: !!user && !!creatorId && user.id !== creatorId,
+    queryKey: ["my-sub-to-creator", creatorId, user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("creator_subscriptions")
+        .select("id")
+        .eq("subscriber_id", user!.id)
+        .eq("creator_id", creatorId!)
+        .maybeSingle();
+      return !!data;
+    },
+  });
+
+  const toggleCreatorSub = async () => {
+    if (!user) return navigate({ to: "/login" });
+    if (!creatorId || user.id === creatorId) return;
+
+    const isSubscribed = !!mySubQuery.data;
+    if (isSubscribed) {
+      const { error } = await supabase
+        .from("creator_subscriptions")
+        .delete()
+        .eq("subscriber_id", user.id)
+        .eq("creator_id", creatorId);
+      if (error) return toast.error(error.message);
+      toast.success("Unsubscribed");
+    } else {
+      const { error } = await supabase
+        .from("creator_subscriptions")
+        .insert({ subscriber_id: user.id, creator_id: creatorId });
+      if (error) return toast.error(error.message);
+      toast.success("Subscribed — you'll get notified for new lessons");
+    }
+    qc.invalidateQueries({ queryKey: ["my-sub-to-creator", creatorId, user.id] });
+    qc.invalidateQueries({ queryKey: ["creator-subs-count", creatorId] });
+  };
   const hasFullToolAccess = hasCourseToolAccess({
     isAdmin,
     isEnrolled,
@@ -721,17 +777,40 @@ function CourseDetail() {
                     {(instructorProfile?.full_name || course.instructor).charAt(0).toUpperCase()}
                   </div>
                 )}
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <h4 className="font-display font-semibold text-sm truncate">
                     {instructorProfile?.full_name || course.instructor}
                   </h4>
+                  <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
+                    <Users className="h-3 w-3 text-primary" />
+                    <span>{creatorSubsQuery.data ?? 0} subscribers</span>
+                  </div>
                   {instructorProfile?.email && (
-                    <p className="text-[11px] text-muted-foreground truncate">
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
                       {instructorProfile.email}
                     </p>
                   )}
                 </div>
               </div>
+
+              {creatorId && user?.id !== creatorId && (
+                <Button
+                  onClick={toggleCreatorSub}
+                  variant={mySubQuery.data ? "outline" : "default"}
+                  size="sm"
+                  className="w-full rounded-full gap-1.5"
+                >
+                  {mySubQuery.data ? (
+                    <>
+                      <BellOff className="h-3.5 w-3.5" /> Subscribed
+                    </>
+                  ) : (
+                    <>
+                      <Bell className="h-3.5 w-3.5" /> Subscribe
+                    </>
+                  )}
+                </Button>
+              )}
               {instructorProfile?.bio ? (
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   {instructorProfile.bio}

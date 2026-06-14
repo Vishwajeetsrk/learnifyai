@@ -57,7 +57,7 @@ function CreatorProfile() {
     queryFn: async () => {
       const [{ data: profile }, { data: courses, error: cErr }, { count: subs }] =
         await Promise.all([
-          supabase.from("profiles").select("id, full_name, avatar_url").eq("id", id).maybeSingle(),
+          supabase.from("profiles").select("id, full_name, avatar_url, banner_url, bio, social_links").eq("id", id).maybeSingle(),
           supabase
             .from("courses")
             .select(
@@ -142,42 +142,103 @@ function CreatorProfile() {
           <ArrowLeft className="h-4 w-4" /> Back to courses
         </Link>
 
-        <div className="mt-6 rounded-3xl border bg-card p-6 sm:p-8 shadow-card flex flex-col sm:flex-row items-start sm:items-center gap-5">
-          <Avatar className="h-20 w-20">
-            {p?.profile?.avatar_url && <AvatarImage src={p.profile.avatar_url} alt="" />}
-            <AvatarFallback className="text-xl">{initials}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
-              {name}
-            </h1>
-            <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <Users className="h-4 w-4" /> {p?.subscribers ?? 0} subscribers
-              </span>
-              <span>·</span>
-              <span>{p?.courses.length ?? 0} courses</span>
+        {/* YouTube-Style Channel Layout */}
+        <div className="mt-6 rounded-3xl border bg-card overflow-hidden shadow-card relative">
+          {/* Channel Banner */}
+          <div className="h-44 md:h-56 w-full relative overflow-hidden bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500">
+            {p?.profile?.banner_url ? (
+              <img
+                src={p.profile.banner_url}
+                alt="Channel Banner"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/10 backdrop-blur-[1px]">
+                <span className="text-white/40 font-display font-medium tracking-wider text-sm">
+                  Welcome to {name}'s Channel
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Channel Info & Avatar Container */}
+          <div className="px-6 pb-6 sm:px-8 sm:pb-8 flex flex-col sm:flex-row items-start gap-5 relative">
+            {/* Overlapping Avatar */}
+            <Avatar className="h-28 w-28 border-4 border-card rounded-full -mt-14 shadow-md bg-card shrink-0">
+              {p?.profile?.avatar_url && <AvatarImage src={p.profile.avatar_url} alt="" />}
+              <AvatarFallback className="text-3xl font-display font-bold bg-primary/10 text-primary">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1 min-w-0 pt-2 sm:pt-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <h1 className="font-display text-2xl sm:text-3xl font-semibold tracking-tight">
+                    {name}
+                  </h1>
+                  <div className="flex flex-wrap items-center gap-3 mt-1.5 text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1.5">
+                      <Users className="h-4 w-4 text-primary" /> {p?.subscribers ?? 0} subscribers
+                    </span>
+                    <span>·</span>
+                    <span>{p?.courses.length ?? 0} courses</span>
+                  </div>
+                </div>
+
+                {!isSelf && (
+                  <Button
+                    onClick={toggleSub}
+                    variant={subscribed ? "outline" : "default"}
+                    size="lg"
+                    className="rounded-full shadow-sm gap-1.5 w-full sm:w-auto"
+                    aria-pressed={subscribed}
+                  >
+                    {subscribed ? (
+                      <>
+                        <BellOff className="h-5 w-5" /> Subscribed
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="h-5 w-5" /> Subscribe
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+
+              {/* Bio / About */}
+              {p?.profile?.bio && (
+                <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-3xl">
+                  {p.profile.bio}
+                </p>
+              )}
+
+              {/* Social Media Links */}
+              {p?.profile?.social_links && typeof p.profile.social_links === "object" && (
+                <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t text-xs">
+                  {Object.entries(p.profile.social_links as Record<string, string>).map(([platform, url]) => {
+                    if (!url) return null;
+                    // Try to resolve clean URL display
+                    let displayUrl = url.replace(/https?:\/\/(www\.)?/, "");
+                    if (displayUrl.length > 25) displayUrl = displayUrl.slice(0, 25) + "…";
+                    return (
+                      <a
+                        key={platform}
+                        href={url.startsWith("http") ? url : `https://${url}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border bg-muted/30 hover:bg-muted text-primary transition-colors hover:underline capitalize"
+                      >
+                        <span className="font-medium">{platform}</span>
+                        <span className="text-[10px] text-muted-foreground">({displayUrl})</span>
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
-          {!isSelf && (
-            <Button
-              onClick={toggleSub}
-              variant={subscribed ? "outline" : "default"}
-              size="lg"
-              className="rounded-full"
-              aria-pressed={subscribed}
-            >
-              {subscribed ? (
-                <>
-                  <BellOff className="h-4 w-4" /> Subscribed
-                </>
-              ) : (
-                <>
-                  <Bell className="h-4 w-4" /> Subscribe
-                </>
-              )}
-            </Button>
-          )}
         </div>
 
         {(isSelf || (user && (user as any).id)) && (

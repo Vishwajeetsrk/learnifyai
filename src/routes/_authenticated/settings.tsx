@@ -29,12 +29,15 @@ function SettingsPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const fileInput = useRef<HTMLInputElement | null>(null);
+  const bannerFileInput = useRef<HTMLInputElement | null>(null);
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
   const [savingName, setSavingName] = useState(false);
 
   const [uploading, setUploading] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
   const [avatarSignedUrl, setAvatarSignedUrl] = useState<string | null>(null);
+  const [bannerSignedUrl, setBannerSignedUrl] = useState<string | null>(null);
 
   const [currentPwd, setCurrentPwd] = useState("");
   const [newPwd, setNewPwd] = useState("");
@@ -47,7 +50,7 @@ function SettingsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, email, full_name, avatar_url, bio, created_at")
+        .select("id, email, full_name, avatar_url, banner_url, bio, created_at")
         .eq("id", user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -74,6 +77,20 @@ function SettingsPage() {
     const { data } = supabase.storage.from("avatars").getPublicUrl(path);
     setAvatarSignedUrl(data.publicUrl);
   }, [profileQuery.data?.avatar_url]);
+
+  useEffect(() => {
+    const path = profileQuery.data?.banner_url;
+    if (!path) {
+      setBannerSignedUrl(null);
+      return;
+    }
+    if (path.startsWith("http")) {
+      setBannerSignedUrl(path);
+      return;
+    }
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    setBannerSignedUrl(data.publicUrl);
+  }, [profileQuery.data?.banner_url]);
 
   const walletQuery = useQuery({
     enabled: !!user,
@@ -167,6 +184,64 @@ function SettingsPage() {
     qc.invalidateQueries({ queryKey: ["profile"] });
   }
 
+  async function handleBannerUpload(file: File) {
+    if (!user) return;
+    if (file.size > 5 * 1024 * 1024) return toast.error("Image must be < 5MB");
+    if (!file.type.startsWith("image/")) return toast.error("Pick an image file");
+    setUploadingBanner(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${user.id}/banner_${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+
+      const publicUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+      const bucketBase = supabase.storage.from("avatars").getPublicUrl("").data.publicUrl;
+
+      // remove old file if any, skipping external URLs
+      const old = profileQuery.data?.banner_url;
+      if (old && old.startsWith(bucketBase)) {
+        const oldPath = old.replace(bucketBase + (bucketBase.endsWith("/") ? "" : "/"), "");
+        if (oldPath && oldPath !== path) {
+          await supabase.storage.from("avatars").remove([oldPath]);
+        }
+      } else if (old && old !== path && !old.startsWith("http")) {
+        await supabase.storage.from("avatars").remove([old]);
+      }
+
+      const { error: pErr } = await supabase
+        .from("profiles")
+        .update({ banner_url: publicUrl })
+        .eq("id", user.id);
+      if (pErr) throw pErr;
+
+      toast.success("Banner updated");
+      qc.invalidateQueries({ queryKey: ["profile"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setUploadingBanner(false);
+    }
+  }
+
+  async function removeBanner() {
+    if (!user) return;
+    const old = profileQuery.data?.banner_url;
+    const bucketBase = supabase.storage.from("avatars").getPublicUrl("").data.publicUrl;
+    
+    if (old && old.startsWith(bucketBase)) {
+      const oldPath = old.replace(bucketBase + (bucketBase.endsWith("/") ? "" : "/"), "");
+      if (oldPath) await supabase.storage.from("avatars").remove([oldPath]);
+    } else if (old && !old.startsWith("http")) {
+      await supabase.storage.from("avatars").remove([old]);
+    }
+    await supabase.from("profiles").update({ banner_url: null }).eq("id", user.id);
+    toast.success("Banner removed");
+    qc.invalidateQueries({ queryKey: ["profile"] });
+  }
+
   async function changePassword() {
     if (!user?.email) return;
     if (newPwd.length < 8) return toast.error("Password must be at least 8 characters");
@@ -226,7 +301,50 @@ function SettingsPage() {
           </TabsList>
 
           <TabsContent value="profile" className="mt-6">
-            <div className="rounded-2xl border bg-card p-6 shadow-card">
+            <div className="rounded-2xl border bg-card p-6 shadow-card space-y-6">
+              {/* Channel Banner */}
+              <div className="space-y-2">
+                <Label>Channel Banner</Label>
+                <div className="relative h-32 md:h-40 w-full rounded-xl border bg-muted overflow-hidden flex items-center justify-center">
+                  {bannerSignedUrl ? (
+                    <img src={bannerSignedUrl} alt="Channel Banner" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-xs text-muted-foreground flex flex-col items-center gap-1">
+                      <span>No channel banner uploaded</span>
+                      <span className="text-[10px]">Recommended: Wide banner for creator profiles</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    ref={bannerFileInput}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleBannerUpload(f);
+                      e.target.value = "";
+                    }}
+                  />
+                  <Button size="sm" variant="outline" onClick={() => bannerFileInput.current?.click()} disabled={uploadingBanner}>
+                    {uploadingBanner ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                    ) : (
+                      <Upload className="h-4 w-4 mr-1.5" />
+                    )}
+                    Upload banner
+                  </Button>
+                  {profileQuery.data?.banner_url ? (
+                    <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10" onClick={removeBanner}>
+                      <Trash2 className="h-4 w-4 mr-1.5" /> Remove banner
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="border-t pt-4" />
+
               <div className="flex items-center gap-5">
                 <Avatar className="h-20 w-20">
                   {avatarSignedUrl ? <AvatarImage src={avatarSignedUrl} alt="Avatar" /> : null}

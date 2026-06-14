@@ -28,6 +28,8 @@ Learnify AI is an AI-powered personalized learning and course generation platfor
 - **Global Auth Middleware**: Registered `attachSupabaseAuth` as a global `functionMiddleware` in `start.ts`, guaranteeing every `useServerFn` RPC call automatically sends the user's Bearer token — eliminating all "Unauthorized: No authorization header provided" errors across admin, forecast, and recommendation features.
 - **Profile Photo Upload**: Full avatar management with Supabase Storage — upload, preview via signed URLs, remove old files, and gracefully handle external Google OAuth avatar URLs without crashes.
 - **Accessibility Compliance**: Added `DialogTitle` and `DialogDescription` to all Radix UI Dialog components (including the Command Palette) to eliminate screen reader accessibility warnings.
+- **YouTube-Style Creator Profiles**: Public creator and coach profiles redesigned to feature custom wide banners, overlapping avatar displays, biographies, and expandable social media link badges.
+- **Interactive Instructor Subscriptions**: Seamless student-creator connection with real-time "Subscribe" toggles, unified subscriber counts, and interactive follow actions on both the public creator channel and the course workspace sidebar.
 
 ---
 
