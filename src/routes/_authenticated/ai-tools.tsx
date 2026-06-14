@@ -305,6 +305,62 @@ function HistoryView({ row }: { row: any }) {
   if (out.kind === "markdown") return <MarkdownBlock>{out.content}</MarkdownBlock>;
   try {
     const parsed = JSON.parse(out.json);
+
+    if (row.tool === "quiz" && parsed.questions) {
+      return (
+        <div className="space-y-4">
+          {parsed.questions.map((q: any, i: number) => (
+            <div key={i} className="rounded-lg border p-4 space-y-2 bg-card">
+              <div className="text-sm font-medium">
+                {i + 1}. {q.question}
+              </div>
+              <div className="grid gap-1.5">
+                {q.options.map((opt: string, idx: number) => {
+                  const isCorrect = q.answer === idx;
+                  return (
+                    <div
+                      key={idx}
+                      className={cn(
+                        "text-left text-sm rounded-md border px-3 py-2 flex items-center gap-2",
+                        isCorrect
+                          ? "border-emerald-500/60 bg-emerald-500/10 font-medium text-emerald-900 dark:text-emerald-100"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "text-xs w-5",
+                          isCorrect ? "text-emerald-500 font-bold" : "text-muted-foreground"
+                        )}
+                      >
+                        {String.fromCharCode(65 + idx)}.
+                      </span>
+                      <span className="flex-1">{opt}</span>
+                      {isCorrect && <Check className="h-4 w-4 text-emerald-500" />}
+                    </div>
+                  );
+                })}
+              </div>
+              {q.explanation && (
+                <p className="text-xs text-muted-foreground pt-2 border-t mt-3 italic">
+                  {q.explanation}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    if (row.tool === "reminder" && parsed.title) {
+      return (
+        <div className="space-y-2 p-4 border rounded-lg bg-card">
+          <h3 className="font-semibold">{parsed.title}</h3>
+          <p className="text-sm text-muted-foreground">{parsed.body}</p>
+        </div>
+      );
+    }
+
     return (
       <pre className="text-xs bg-muted p-3 rounded-lg overflow-x-auto">
         {JSON.stringify(parsed, null, 2)}
