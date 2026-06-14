@@ -504,7 +504,7 @@ function CourseDetail() {
                   url={activeVideo.src}
                   startSeconds={activeProgress?.watched_seconds ?? 0}
                   playbackRate={speed}
-                  playing={true}
+                  playing={false}
                   channelId={active?.video_channel_id}
                   onError={() => setPlayerLoadFailed(true)}
                   onReady={() => setPlayerLoadFailed(false)}
