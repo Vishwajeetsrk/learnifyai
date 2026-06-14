@@ -43,14 +43,8 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
     const path = profileQuery.data?.avatar_url;
     if (!path) return setSigned(null);
     if (path.startsWith("http")) return setSigned(path);
-    let cancelled = false;
-    supabase.storage
-      .from("avatars")
-      .createSignedUrl(path, 60 * 60)
-      .then(({ data }) => !cancelled && setSigned(data?.signedUrl ?? null));
-    return () => {
-      cancelled = true;
-    };
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    setSigned(data.publicUrl);
   }, [profileQuery.data?.avatar_url]);
 
   const name = profileQuery.data?.full_name ?? user?.email ?? "User";

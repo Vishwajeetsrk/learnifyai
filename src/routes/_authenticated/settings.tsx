@@ -60,7 +60,7 @@ function SettingsPage() {
     if (profileQuery.data?.bio) setBio(profileQuery.data.bio);
   }, [profileQuery.data?.full_name, profileQuery.data?.bio]);
 
-  // Sign storage path → URL so user can preview their avatar
+  // Fallback for displaying existing relative avatars using getPublicUrl
   useEffect(() => {
     const path = profileQuery.data?.avatar_url;
     if (!path) {
@@ -71,16 +71,8 @@ function SettingsPage() {
       setAvatarSignedUrl(path);
       return;
     }
-    let cancelled = false;
-    supabase.storage
-      .from("avatars")
-      .createSignedUrl(path, 60 * 60)
-      .then(({ data }) => {
-        if (!cancelled) setAvatarSignedUrl(data?.signedUrl ?? null);
-      });
-    return () => {
-      cancelled = true;
-    };
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    setAvatarSignedUrl(data.publicUrl);
   }, [profileQuery.data?.avatar_url]);
 
   const walletQuery = useQuery({
@@ -130,15 +122,23 @@ function SettingsPage() {
         .upload(path, file, { upsert: true });
       if (upErr) throw upErr;
 
+      const publicUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+      const bucketBase = supabase.storage.from("avatars").getPublicUrl("").data.publicUrl;
+
       // remove old file if any, skipping external URLs
       const old = profileQuery.data?.avatar_url;
-      if (old && old !== path && !old.startsWith("http")) {
+      if (old && old.startsWith(bucketBase)) {
+        const oldPath = old.replace(bucketBase + (bucketBase.endsWith("/") ? "" : "/"), "");
+        if (oldPath && oldPath !== path) {
+          await supabase.storage.from("avatars").remove([oldPath]);
+        }
+      } else if (old && old !== path && !old.startsWith("http")) {
         await supabase.storage.from("avatars").remove([old]);
       }
 
       const { error: pErr } = await supabase
         .from("profiles")
-        .update({ avatar_url: path })
+        .update({ avatar_url: publicUrl })
         .eq("id", user.id);
       if (pErr) throw pErr;
 
@@ -154,7 +154,12 @@ function SettingsPage() {
   async function removeAvatar() {
     if (!user) return;
     const old = profileQuery.data?.avatar_url;
-    if (old && !old.startsWith("http")) {
+    const bucketBase = supabase.storage.from("avatars").getPublicUrl("").data.publicUrl;
+    
+    if (old && old.startsWith(bucketBase)) {
+      const oldPath = old.replace(bucketBase + (bucketBase.endsWith("/") ? "" : "/"), "");
+      if (oldPath) await supabase.storage.from("avatars").remove([oldPath]);
+    } else if (old && !old.startsWith("http")) {
       await supabase.storage.from("avatars").remove([old]);
     }
     await supabase.from("profiles").update({ avatar_url: null }).eq("id", user.id);
