@@ -29,7 +29,7 @@ import {
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { LessonSocial } from "@/components/LessonSocial";
-import { FinalTestSection } from "@/components/FinalTestSection";
+
 import { CustomVideoPlayer } from "@/components/CustomVideoPlayer";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";

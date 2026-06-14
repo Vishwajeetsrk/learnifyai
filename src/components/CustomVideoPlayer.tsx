@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import ReactPlayer from "react-player/youtube";
+import ReactPlayer from "react-player";
 import screenfull from "screenfull";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
