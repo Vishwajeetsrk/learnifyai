@@ -10,6 +10,8 @@ import {
   Loader2,
   Send,
   Sparkles,
+  Users,
+  Video,
 } from "lucide-react";
 import { MarketingPage } from "@/components/MarketingPage";
 import { Button } from "@/components/ui/button";
@@ -60,6 +62,12 @@ const perks = [
     icon: TrendingUp,
     title: "Outcome Tracking",
     desc: "Show progress with real data, not vibes.",
+  },
+  {
+    id: "cohorts",
+    icon: Users,
+    title: "Live Cohort Manager",
+    desc: "Easily transition from async courses to high-ticket live cohorts.",
   },
 ];
 
@@ -127,6 +135,16 @@ function CoachesPage() {
     setTimeout(() => {
       setRunAudit("done");
     }, 1200);
+  };
+
+  // State for Cohorts
+  const [cohortStatus, setCohortStatus] = useState<"idle" | "starting" | "live">("idle");
+
+  const handleStartCohort = () => {
+    setCohortStatus("starting");
+    setTimeout(() => {
+      setCohortStatus("live");
+    }, 1000);
   };
 
   const renderInteractiveDemo = () => {
@@ -360,12 +378,10 @@ function CoachesPage() {
                 </div>
               )}
 
-              {runAudit === "auditing" && (
-                <div className="py-12 flex flex-col items-center justify-center gap-3 text-center">
+              {runAudit === "running" && (
+                <div className="py-8 flex flex-col items-center justify-center gap-3">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <p className="text-xs text-muted-foreground font-medium">
-                    Scanning client codebase and logs...
-                  </p>
+                  <p className="text-xs text-muted-foreground">Analyzing 4 weeks of data...</p>
                 </div>
               )}
 
@@ -393,6 +409,62 @@ function CoachesPage() {
                 className="w-full text-xs"
               >
                 Reset Audit
+              </Button>
+            )}
+          </div>
+        );
+
+      case "cohorts":
+        return (
+          <div className="flex flex-col h-full justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <Users className="h-5 w-5 text-primary" />
+                <h3 className="font-display font-semibold text-sm text-foreground">
+                  Live Cohort Manager
+                </h3>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">
+                Easily transition from async courses to high-ticket live cohorts.
+              </p>
+
+              <div className="p-4 border border-border bg-muted/20 rounded-xl space-y-4">
+                <div>
+                  <h4 className="font-semibold text-xs text-foreground mb-1">
+                    System Design Interview Prep
+                  </h4>
+                  <p className="text-xs text-muted-foreground">Upcoming Live Session • 45/50 RSVPed</p>
+                </div>
+
+                {cohortStatus === "idle" && (
+                  <Button onClick={handleStartCohort} size="sm" className="w-full text-xs gap-2">
+                    <Video className="h-3.5 w-3.5" /> Go Live Now
+                  </Button>
+                )}
+
+                {cohortStatus === "starting" && (
+                  <div className="py-2 flex justify-center">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                  </div>
+                )}
+
+                {cohortStatus === "live" && (
+                  <div className="flex items-center justify-center gap-2 py-2 text-red-500 font-semibold text-xs animate-pulse">
+                    <div className="h-2 w-2 rounded-full bg-red-500" />
+                    SESSION IS LIVE
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {cohortStatus === "live" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCohortStatus("idle")}
+                className="w-full text-xs"
+              >
+                End Session
               </Button>
             )}
           </div>

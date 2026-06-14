@@ -17,9 +17,11 @@ Learnify AI is an AI-powered personalized learning and course generation platfor
 - **Smart YouTube Engine**: Fetches actual exact duration timeline (calculated in minutes) via secondary YouTube Data API requests, guarantees NO music/songs by restricting to Education categories, and prioritizes bilingual Hindi/English courses.
 - **Resilient Fallback Pages**: Implemented database query try-catch handlers for the FAQ and Events routes. If database connections fail or tables are empty, pages seamlessly fall back to beautiful, pre-populated lists rather than throwing an error page.
 - **Appearance & Color Theme Engine**: Restructured the appearance selector to support 3 mode toggles (Light, Dark, System), 3 motion preferences (Match System, Full, Reduced), and 6 custom CSS theme colors (Indigo, Ocean, Sunset, Forest, Rose, and Noir) with custom variable maps.
-- **Expanded Admin Capabilities**: Admin panel grants full control (add, edit, update, reset password, ban, delete) to both `admin` and `super_admin` roles gracefully integrated via `assertAdmin`.
+- **Expanded Admin Capabilities**: Admin panel grants full control (add, edit, update, reset password, ban, delete) to both `admin` and `super_admin` roles gracefully integrated via `assertAdmin`, alongside AI demand forecasting.
 - **Optimized Build Deployments**: Improved Vite and Rollup configurations to suppress non-critical module-level directives (like `use client` spam) and successfully externalize package dependencies for clean cloud deployments on Vercel/Cloudflare Pages.
 - **Graceful Profile Edge Case Handling**: Safe query lookups via `.maybeSingle()` across Avatar menus and Dashboards to natively handle newly-signed up profiles without triggering `406 Not Acceptable` payload warnings.
+- **Gamified Progress System**: Highly addictive learning loop incorporating XP points, daily and all-time Streaks (🔥), Badges, and an interactive Leaderboard to rank top learners based on module completions.
+- **Live Cohort Manager**: Integrated directly into Creator and Coach suites, enabling educators to seamlessly run and manage high-ticket live cohorts with RSVP tracking alongside their async courses.
 
 ---
 

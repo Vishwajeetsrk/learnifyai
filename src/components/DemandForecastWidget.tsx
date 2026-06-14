@@ -18,6 +18,7 @@ export function DemandForecastWidget() {
   const q = useQuery({
     queryKey: ["admin", "demand-forecast"],
     queryFn: () => fn(),
+    enabled: typeof window !== "undefined",
     staleTime: 5 * 60 * 1000,
   });
 

@@ -25,6 +25,7 @@ interface CustomVideoPlayerProps {
   startSeconds?: number;
   playbackRate?: number;
   channelId?: string | null;
+  onEnded?: () => void;
 }
 
 export function CustomVideoPlayer({
@@ -36,6 +37,7 @@ export function CustomVideoPlayer({
   startSeconds = 0,
   playbackRate = 1,
   channelId,
+  onEnded,
 }: CustomVideoPlayerProps) {
   const playerRef = useRef<ReactPlayer>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -156,6 +158,7 @@ export function CustomVideoPlayer({
           onError={onError}
           onProgress={handleProgress}
           onDuration={(d) => setDuration(d)}
+          onEnded={onEnded}
           config={{
             youtube: {
               playerVars: {

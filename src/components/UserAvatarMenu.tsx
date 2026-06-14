@@ -32,7 +32,7 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("full_name, avatar_url")
+        .select("full_name, avatar_url, xp, current_streak")
         .eq("id", user!.id)
         .maybeSingle();
       return data;
@@ -95,6 +95,14 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
             <div className="text-[11px] text-muted-foreground truncate">{user?.email}</div>
           </div>
         </DropdownMenuLabel>
+        <div className="px-2 py-1.5 flex gap-2 justify-center text-xs font-semibold bg-muted/50 mx-2 mb-2 rounded-md">
+          <div className="flex items-center text-orange-500">
+            🔥 {profileQuery.data?.current_streak ?? 0}
+          </div>
+          <div className="flex items-center text-yellow-500">
+            ⭐ {profileQuery.data?.xp ?? 0} XP
+          </div>
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link to="/settings">

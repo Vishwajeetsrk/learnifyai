@@ -34,6 +34,7 @@ import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreatorRouteImport } from './routes/_authenticated/creator'
@@ -182,6 +183,12 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedLeaderboardRoute =
+  AuthenticatedLeaderboardRouteImport.update({
+    id: '/leaderboard',
+    path: '/leaderboard',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedInboxRoute = AuthenticatedInboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
@@ -333,6 +340,7 @@ export interface FileRoutesByFullPath {
   '/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
+  '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
@@ -381,6 +389,7 @@ export interface FileRoutesByTo {
   '/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
+  '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
@@ -431,6 +440,7 @@ export interface FileRoutesById {
   '/_authenticated/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRoute
+  '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
@@ -481,6 +491,7 @@ export interface FileRouteTypes {
     | '/creator'
     | '/dashboard'
     | '/inbox'
+    | '/leaderboard'
     | '/settings'
     | '/studio'
     | '/submissions'
@@ -529,6 +540,7 @@ export interface FileRouteTypes {
     | '/creator'
     | '/dashboard'
     | '/inbox'
+    | '/leaderboard'
     | '/settings'
     | '/studio'
     | '/submissions'
@@ -578,6 +590,7 @@ export interface FileRouteTypes {
     | '/_authenticated/creator'
     | '/_authenticated/dashboard'
     | '/_authenticated/inbox'
+    | '/_authenticated/leaderboard'
     | '/_authenticated/settings'
     | '/_authenticated/studio'
     | '/_authenticated/submissions'
@@ -801,6 +814,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/leaderboard': {
+      id: '/_authenticated/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof AuthenticatedLeaderboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/inbox': {
       id: '/_authenticated/inbox'
       path: '/inbox'
@@ -1012,6 +1032,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCreatorRoute: typeof AuthenticatedCreatorRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
+  AuthenticatedLeaderboardRoute: typeof AuthenticatedLeaderboardRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
@@ -1032,6 +1053,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCreatorRoute: AuthenticatedCreatorRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRoute,
+  AuthenticatedLeaderboardRoute: AuthenticatedLeaderboardRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,

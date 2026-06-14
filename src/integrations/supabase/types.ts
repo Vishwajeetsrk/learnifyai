@@ -1412,6 +1412,10 @@ export type Database = {
           email: string | null;
           full_name: string | null;
           id: string;
+          xp: number;
+          current_streak: number;
+          highest_streak: number;
+          last_active_at: string | null;
           notif_prefs: Json;
           payout_destination: Json;
           social_links: Json;
@@ -1426,6 +1430,10 @@ export type Database = {
           email?: string | null;
           full_name?: string | null;
           id: string;
+          xp?: number;
+          current_streak?: number;
+          highest_streak?: number;
+          last_active_at?: string | null;
           notif_prefs?: Json;
           payout_destination?: Json;
           social_links?: Json;
@@ -1440,6 +1448,10 @@ export type Database = {
           email?: string | null;
           full_name?: string | null;
           id?: string;
+          xp?: number;
+          current_streak?: number;
+          highest_streak?: number;
+          last_active_at?: string | null;
           notif_prefs?: Json;
           payout_destination?: Json;
           social_links?: Json;
@@ -1525,6 +1537,69 @@ export type Database = {
           user_id?: string;
         };
         Relationships: [];
+      };
+      badges: {
+        Row: {
+          id: string;
+          name: string;
+          description: string;
+          icon_url: string;
+          xp_required: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description: string;
+          icon_url: string;
+          xp_required?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string;
+          icon_url?: string;
+          xp_required?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      user_badges: {
+        Row: {
+          id: string;
+          user_id: string;
+          badge_id: string;
+          earned_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          badge_id: string;
+          earned_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          badge_id?: string;
+          earned_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey";
+            columns: ["badge_id"];
+            isOneToOne: false;
+            referencedRelation: "badges";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_badges_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       wallet_topup_requests: {
         Row: {

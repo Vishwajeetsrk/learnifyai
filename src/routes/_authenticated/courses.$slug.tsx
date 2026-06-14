@@ -60,6 +60,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { lessonAiHelper } from "@/lib/lesson-ai.functions";
 import { enrollFree, markCourseStarted, recomputeProgress } from "@/lib/course.functions";
+import { awardXP } from "@/lib/gamification.functions";
 
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import {
@@ -215,6 +216,7 @@ function CourseDetail() {
   const enrollFreeFn = useServerFn(enrollFree);
   const markStarted = useServerFn(markCourseStarted);
   const recompute = useServerFn(recomputeProgress);
+  const awardXPFn = useServerFn(awardXP);
   const navigate = useNavigate();
 
   const isEnrolled = !!enrollmentQuery.data;
@@ -506,6 +508,19 @@ function CourseDetail() {
                   channelId={active?.video_channel_id}
                   onError={() => setPlayerLoadFailed(true)}
                   onReady={() => setPlayerLoadFailed(false)}
+                  onEnded={() => {
+                    if (active && user) {
+                      if (!completed.has(active.id)) {
+                        toggleComplete(active.id);
+                      }
+                      awardXPFn({ data: { userId: user.id, amount: 10 } }).then((res) => {
+                        if (res.success) {
+                          toast.success(`+10 XP Earned! 🔥 Streak: ${res.streak}`);
+                          qc.invalidateQueries({ queryKey: ["profile-mini", user.id] });
+                        }
+                      });
+                    }
+                  }}
                 />
               ) : (
                 <div className="w-full h-full grid place-items-center text-muted-foreground text-sm text-center px-6">

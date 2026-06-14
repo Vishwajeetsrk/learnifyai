@@ -157,7 +157,7 @@ function AdminOverview() {
 
   // ───────── QUERIES ─────────
   const aiReq24hQuery = useQuery({
-    enabled: isAdmin,
+    enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "ai24"],
     queryFn: async () => {
       const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -171,7 +171,7 @@ function AdminOverview() {
   });
 
   const notificationsQuery = useQuery({
-    enabled: isAdmin,
+    enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "notifications"],
     queryFn: async () => {
       const { count, error } = await supabase
@@ -186,7 +186,7 @@ function AdminOverview() {
   const fromIso = startOfDay(from).toISOString();
   const toIso = endOfDay(to).toISOString();
   const txQuery = useQuery({
-    enabled: isAdmin,
+    enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "transactions", fromIso, toIso],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -202,14 +202,14 @@ function AdminOverview() {
 
   const listUsersFn = useServerFn(adminListUsers);
   const usersQuery = useQuery({
-    enabled: isAdmin,
+    enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "users"],
     queryFn: () => listUsersFn(),
   });
 
   // Top-up approval queue
   const topupsQuery = useQuery({
-    enabled: isAdmin,
+    enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "topups"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -224,7 +224,7 @@ function AdminOverview() {
 
   // Withdrawal requests
   const withdrawalsQuery = useQuery({
-    enabled: isAdmin,
+    enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "withdrawals"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -241,7 +241,7 @@ function AdminOverview() {
 
   // AI cost in range
   const aiCostQuery = useQuery({
-    enabled: isAdmin,
+    enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "ai-cost", fromIso, toIso],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -258,7 +258,7 @@ function AdminOverview() {
 
   // Creator applications queue
   const creatorAppsQuery = useQuery({
-    enabled: isAdmin,
+    enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "creator-apps"],
     queryFn: async () => {
       const { data, error } = await supabase
