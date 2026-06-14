@@ -42,6 +42,7 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
   useEffect(() => {
     const path = profileQuery.data?.avatar_url;
     if (!path) return setSigned(null);
+    if (path.startsWith("http")) return setSigned(path);
     let cancelled = false;
     supabase.storage
       .from("avatars")

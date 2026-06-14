@@ -67,6 +67,10 @@ function SettingsPage() {
       setAvatarSignedUrl(null);
       return;
     }
+    if (path.startsWith("http")) {
+      setAvatarSignedUrl(path);
+      return;
+    }
     let cancelled = false;
     supabase.storage
       .from("avatars")
@@ -126,9 +130,9 @@ function SettingsPage() {
         .upload(path, file, { upsert: true });
       if (upErr) throw upErr;
 
-      // remove old file if any
+      // remove old file if any, skipping external URLs
       const old = profileQuery.data?.avatar_url;
-      if (old && old !== path) {
+      if (old && old !== path && !old.startsWith("http")) {
         await supabase.storage.from("avatars").remove([old]);
       }
 
@@ -150,7 +154,9 @@ function SettingsPage() {
   async function removeAvatar() {
     if (!user) return;
     const old = profileQuery.data?.avatar_url;
-    if (old) await supabase.storage.from("avatars").remove([old]);
+    if (old && !old.startsWith("http")) {
+      await supabase.storage.from("avatars").remove([old]);
+    }
     await supabase.from("profiles").update({ avatar_url: null }).eq("id", user.id);
     toast.success("Photo removed");
     qc.invalidateQueries({ queryKey: ["profile"] });
