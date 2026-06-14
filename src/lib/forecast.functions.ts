@@ -50,8 +50,8 @@ export const getDemandForecast = createServerFn({ method: "GET" })
     const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const { data: enrolls } = await supabaseAdmin
       .from("enrollments")
-      .select("course_id, created_at, courses:course_id(category)")
-      .gte("created_at", since)
+      .select("course_id, enrolled_at, courses:course_id(category)")
+      .gte("enrolled_at", since)
       .limit(5000);
 
     const rows = (enrolls ?? []) as any[];
@@ -66,7 +66,7 @@ export const getDemandForecast = createServerFn({ method: "GET" })
       days.push({ date: k, enrollments: 0 });
     }
     for (const r of rows) {
-      const k = bucketDay(new Date(r.created_at));
+      const k = bucketDay(new Date(r.enrolled_at));
       if (counts.has(k)) counts.set(k, (counts.get(k) ?? 0) + 1);
     }
     for (const p of days) p.enrollments = counts.get(p.date) ?? 0;
@@ -95,7 +95,7 @@ export const getDemandForecast = createServerFn({ method: "GET" })
     const cutoff14 = Date.now() - 14 * 24 * 60 * 60 * 1000;
     for (const r of rows) {
       const cat = (r.courses?.category ?? "Uncategorized") as string;
-      const t = new Date(r.created_at).getTime();
+      const t = new Date(r.enrolled_at).getTime();
       const e = byCat.get(cat) ?? { last7: 0, prev7: 0 };
       if (t >= cutoff7) e.last7 += 1;
       else if (t >= cutoff14) e.prev7 += 1;
