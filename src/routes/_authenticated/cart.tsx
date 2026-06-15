@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { checkoutCart, COUPONS } from "@/lib/course.functions";
+import { createRazorpayOrder } from "@/lib/payment.functions";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import { PaymentLoader } from "@/components/PaymentLoader";
 
@@ -30,6 +31,16 @@ export const Route = createFileRoute("/_authenticated/cart")({
   head: () => ({ meta: [{ title: "Cart — Learnify AI" }] }),
   component: CartPage,
 });
+
+const loadRazorpay = () =>
+  new Promise((resolve) => {
+    if ((window as any).Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
 
 const inr = (n: number) =>
   n === 0
@@ -47,6 +58,7 @@ function CartPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const checkout = useServerFn(checkoutCart);
+  const createOrder = useServerFn(createRazorpayOrder);
   const [paying, setPaying] = useState(false);
   const [celebration, setCelebration] = useState<{
     title: string;
@@ -120,14 +132,7 @@ function CartPage() {
     qc.invalidateQueries({ queryKey: ["cart"] });
   };
 
-  const pay = async () => {
-    if (method !== "wallet") {
-      toast.info(
-        `${method.toUpperCase()} payments will be enabled once an admin connects payments. Use wallet for now.`,
-      );
-      return;
-    }
-    setPaying(true);
+  const handleCheckoutSuccess = async (rzpData?: any) => {
     try {
       const r = await checkout({ data: { coupon: appliedCoupon } });
       toast.success(`Enrolled in ${r.enrolled} course${r.enrolled === 1 ? "" : "s"}`);
@@ -150,11 +155,49 @@ function CartPage() {
     }
   };
 
+  const pay = async () => {
+    setPaying(true);
+    try {
+      if (method !== "wallet") {
+        const loaded = await loadRazorpay();
+        if (!loaded) throw new Error("Razorpay SDK failed to load");
+
+        const order = await createOrder({ data: { amountInr: total } });
+        const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T1tN8tDaacLQxo",
+          amount: order.amount,
+          currency: order.currency,
+          name: "Learnify AI",
+          description: "Course Enrollment",
+          order_id: order.id,
+          handler: async function (response: any) {
+            await handleCheckoutSuccess(response);
+          },
+          prefill: {
+            email: user?.email || "",
+          },
+          theme: { color: "#4f46e5" },
+        };
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on("payment.failed", function (response: any) {
+          setPaying(false);
+          toast.error(response.error.description || "Payment failed");
+        });
+        rzp.open();
+      } else {
+        await handleCheckoutSuccess();
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Checkout failed");
+      setPaying(false);
+    }
+  };
+
   const methods: { id: PayMethod; label: string; icon: any; note?: string }[] = [
     { id: "wallet", label: "Wallet", icon: Sparkles, note: "Instant" },
-    { id: "card", label: "Card", icon: CreditCard, note: "Coming soon" },
-    { id: "upi", label: "UPI", icon: Smartphone, note: "Coming soon" },
-    { id: "bank", label: "Bank", icon: Landmark, note: "Manual" },
+    { id: "card", label: "Card", icon: CreditCard, note: "Fast" },
+    { id: "upi", label: "UPI", icon: Smartphone, note: "Fast" },
+    { id: "bank", label: "Bank", icon: Landmark, note: "Netbanking" },
   ];
 
   return (
@@ -328,8 +371,8 @@ function CartPage() {
                 {method !== "wallet" && (
                   <p className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
                     {method === "bank"
-                      ? "Bank transfer: top up wallet first, then check out."
-                      : `${method.toUpperCase()} live checkout will be enabled once an admin connects payments.`}
+                      ? "Bank transfer via Razorpay."
+                      : `${method.toUpperCase()} live checkout via Razorpay.`}
                   </p>
                 )}
               </div>

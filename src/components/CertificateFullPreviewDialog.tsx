@@ -63,6 +63,7 @@ export function CertificateFullPreviewDialog({ open, onOpenChange, design, ctx, 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[98vw] w-[98vw] h-[96vh] p-0 gap-0 flex flex-col overflow-hidden">
         <DialogTitle className="sr-only">{title ?? "Certificate preview"}</DialogTitle>
+        <DialogDescription className="sr-only">Full screen certificate preview</DialogDescription>
         <div className="flex items-center justify-between gap-2 px-4 py-2 border-b bg-card">
           <div className="text-sm font-medium truncate">{title ?? "Certificate preview"}</div>
           <div className="flex items-center gap-1">

@@ -35,15 +35,12 @@ export const getDemandForecast = createServerFn({ method: "GET" })
     const uid = caller.user?.id;
     let isAdmin = false;
     if (uid) {
-      const r = await supabaseAdmin.rpc("has_role", { _user_id: uid, _role: "admin" as any });
-      isAdmin = !!r.data;
-      if (!isAdmin) {
-        const sr = await supabaseAdmin.rpc("has_role", {
-          _user_id: uid,
-          _role: "super_admin" as any,
-        });
-        isAdmin = !!sr.data;
-      }
+      const { data: roles } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", uid);
+      const roleSet = new Set((roles ?? []).map((r: any) => r.role));
+      isAdmin = roleSet.has("admin") || roleSet.has("super_admin");
     }
     if (!isAdmin) throw new Error("Admin only");
 

@@ -10,7 +10,7 @@ export const getPublicProfile = createServerFn({ method: "GET" })
     const [profileRes, subRes, likesRes, enrollRes, createdRes, certsRes] = await Promise.all([
       supabaseAdmin
         .from("profiles")
-        .select("id, full_name, avatar_url, bio, created_at")
+        .select("id, full_name, avatar_url, bio, created_at, banner_url, social_links")
         .eq("id", id)
         .maybeSingle(),
       supabaseAdmin

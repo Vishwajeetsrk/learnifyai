@@ -59,11 +59,15 @@ export const adminListUsers = createServerFn({ method: "GET" })
     await assertAdmin(context.userId);
 
     // Get auth users (paginated) for ban / disabled status + last sign in
-    const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.listUsers({
-      page: 1,
-      perPage: 200,
-    });
-    if (authErr) throw new Error(authErr.message);
+    let authUsers: any[] = [];
+    try {
+      const res = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+      if (res.data?.users) {
+        authUsers = res.data.users;
+      }
+    } catch (e) {
+      console.error("[adminListUsers] auth.admin.listUsers failed:", e);
+    }
 
     const [{ data: profiles }, { data: roles }, { data: credits }] = await Promise.all([
       supabaseAdmin.from("profiles").select("id, email, full_name, avatar_url, created_at"),
@@ -71,6 +75,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
       supabaseAdmin.from("ai_credits").select("user_id, credits_remaining, credits_used"),
     ]);
 
+    const authById = new Map(authUsers.map((u) => [u.id, u]));
     const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
     const rolesById = new Map<string, string[]>();
     for (const r of roles ?? []) {
@@ -85,19 +90,25 @@ export const adminListUsers = createServerFn({ method: "GET" })
       ]),
     );
 
-    const rows = authData.users.map((u) => {
-      const p = profileById.get(u.id);
-      const bannedUntil = (u as unknown as { banned_until?: string | null }).banned_until ?? null;
+    const baseIds = new Set([
+      ...(profiles ?? []).map((p) => p.id),
+      ...authUsers.map((u) => u.id),
+    ]);
+
+    const rows = Array.from(baseIds).map((id) => {
+      const p = profileById.get(id);
+      const u = authById.get(id);
+      const bannedUntil = (u as unknown as { banned_until?: string | null })?.banned_until ?? null;
       const isBanned = bannedUntil ? new Date(bannedUntil).getTime() > Date.now() : false;
-      const c = creditsById.get(u.id);
+      const c = creditsById.get(id);
       return {
-        id: u.id,
-        email: p?.email ?? u.email ?? "",
+        id,
+        email: p?.email ?? u?.email ?? "",
         full_name: p?.full_name ?? null,
         avatar_url: p?.avatar_url ?? null,
-        created_at: p?.created_at ?? u.created_at,
-        last_sign_in_at: u.last_sign_in_at ?? null,
-        roles: rolesById.get(u.id) ?? [],
+        created_at: p?.created_at ?? u?.created_at ?? new Date().toISOString(),
+        last_sign_in_at: u?.last_sign_in_at ?? null,
+        roles: rolesById.get(id) ?? [],
         banned_until: bannedUntil,
         disabled: isBanned,
         credits_remaining: c?.remaining ?? 0,

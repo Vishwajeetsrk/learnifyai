@@ -30,6 +30,7 @@ type EventRow = {
   starts_at: string;
   location: string | null;
   rsvp_url: string | null;
+  cover_image_url?: string | null;
 };
 
 const defaultEvents: EventRow[] = [
@@ -109,7 +110,12 @@ function EventsPage() {
                 key={e.id}
                 className="rounded-2xl border border-border/60 bg-card p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
               >
-                <div>
+                {e.cover_image_url && (
+                  <div className="shrink-0 w-full md:w-48 aspect-video rounded-xl overflow-hidden bg-muted">
+                    <img src={e.cover_image_url} alt={e.title} className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
                   <h3 className="font-display text-xl font-semibold">{e.title}</h3>
                   {e.description && (
                     <p className="text-sm text-muted-foreground mt-1">{e.description}</p>
@@ -136,12 +142,12 @@ function EventsPage() {
                     href={e.rsvp_url}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:opacity-90 transition self-start md:self-center"
+                    className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:opacity-90 transition self-start md:self-center shrink-0"
                   >
                     RSVP
                   </a>
                 ) : (
-                  <span className="rounded-full bg-muted text-muted-foreground px-5 py-2 text-sm font-medium self-start md:self-center">
+                  <span className="rounded-full bg-muted text-muted-foreground px-5 py-2 text-sm font-medium self-start md:self-center shrink-0">
                     Details soon
                   </span>
                 )}

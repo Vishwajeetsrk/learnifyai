@@ -12,7 +12,7 @@ if (process.env.VERCEL) {
 }
 
 export default defineConfig({
-  nitro: process.env.VERCEL ? { preset: "vercel" } : true,
+  nitro: process.env.VERCEL ? { preset: "vercel" } : { preset: "vercel" },
   envPrefix: ["VITE_", "NEXT_PUBLIC_"],
   vite: {
     build: {

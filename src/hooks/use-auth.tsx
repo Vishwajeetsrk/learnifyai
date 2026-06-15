@@ -40,6 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
+      if (newSession?.access_token) {
+        // Sync token to cookie for server functions (useServerFn) to read
+        document.cookie = `sb-access-token=${newSession.access_token}; path=/; max-age=31536000; SameSite=Lax`;
+      } else {
+        document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      }
+
       if (newSession?.user) {
         fetchRoles(newSession.user.id);
       } else {

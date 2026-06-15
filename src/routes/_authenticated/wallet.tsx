@@ -18,6 +18,8 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
+import { useServerFn } from "@tanstack/react-start";
+import { createRazorpayOrder, verifyWalletTopup } from "@/lib/payment.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +40,16 @@ export const Route = createFileRoute("/_authenticated/wallet")({
   component: WalletPage,
 });
 
+const loadRazorpay = () =>
+  new Promise((resolve) => {
+    if ((window as any).Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
 const inr = (n: number) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -53,6 +65,8 @@ function WalletPage() {
   const [method, setMethod] = useState<"razorpay" | "upi" | "manual">("razorpay");
   const [reference, setReference] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const createOrder = useServerFn(createRazorpayOrder);
+  const verifyTopup = useServerFn(verifyWalletTopup);
 
   const txQuery = useQuery({
     enabled: !!user,
@@ -144,19 +158,66 @@ function WalletPage() {
     const amt = Number(amount);
     if (!amt || amt < 50) return toast.error("Minimum amount is ₹50");
     if (amt > 100000) return toast.error("Maximum amount is ₹1,00,000");
+    
     setSubmitting(true);
-    const { error } = await supabase.from("wallet_topup_requests").insert({
-      user_id: user.id,
-      amount_inr: amt,
-      method,
-      reference: reference.trim() || null,
-    });
-    setSubmitting(false);
-    if (error) return toast.error(error.message);
-    toast.success("Top-up request submitted. Admin will approve shortly.");
-    setOpen(false);
-    setReference("");
-    qc.invalidateQueries({ queryKey: ["wallet-topups"] });
+    try {
+      if (method === "manual") {
+        const { error } = await supabase.from("wallet_topup_requests").insert({
+          user_id: user.id,
+          amount_inr: amt,
+          method,
+          reference: reference.trim() || null,
+        });
+        if (error) throw error;
+        toast.success("Top-up request submitted. Admin will approve shortly.");
+        setOpen(false);
+        setReference("");
+        qc.invalidateQueries({ queryKey: ["wallet-topups"] });
+      } else {
+        const loaded = await loadRazorpay();
+        if (!loaded) throw new Error("Razorpay SDK failed to load");
+
+        const order = await createOrder({ data: { amountInr: amt } });
+        const options = {
+          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T1tN8tDaacLQxo",
+          amount: order.amount,
+          currency: order.currency,
+          name: "Learnify AI",
+          description: "Wallet Top-up",
+          order_id: order.id,
+          handler: async function (response: any) {
+            try {
+              await verifyTopup({ 
+                data: {
+                  amountInr: amt,
+                  method,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                }
+              });
+              toast.success(`Successfully added ₹${amt} to your wallet.`);
+              qc.invalidateQueries({ queryKey: ["wallet-tx"] });
+              qc.invalidateQueries({ queryKey: ["wallet-balance"] });
+              setOpen(false);
+              setReference("");
+            } catch (err: any) {
+              toast.error(err.message || "Failed to verify topup");
+            }
+          },
+          prefill: { email: user?.email || "" },
+          theme: { color: "#4f46e5" },
+        };
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on("payment.failed", function (response: any) {
+          toast.error(response.error.description || "Payment failed");
+        });
+        rzp.open();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to initiate top-up");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const presets = [200, 500, 1000, 2500, 5000, 10000];
@@ -423,21 +484,20 @@ function TopUpDialogContent({
             ))}
           </div>
         </div>
-        {method !== "razorpay" && (
+        {method === "manual" && (
           <div className="space-y-2">
             <Label>Reference / UTR (optional)</Label>
             <Input
               value={reference}
               onChange={(e) => setReference(e.target.value)}
-              placeholder="e.g. UPI ref id"
+              placeholder="e.g. Bank transfer ref id"
               maxLength={64}
             />
           </div>
         )}
-        {method === "razorpay" && (
-          <div className="text-xs text-muted-foreground rounded-lg bg-muted p-3">
-            Live card checkout will be enabled once an admin connects payments. Your request will be
-            created as <b>pending</b>.
+        {method !== "manual" && (
+          <div className="text-xs text-emerald-800 rounded-lg bg-emerald-50 p-3 border border-emerald-200">
+            You will be redirected to Razorpay to securely add funds instantly.
           </div>
         )}
       </div>
