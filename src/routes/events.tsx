@@ -30,7 +30,7 @@ type EventRow = {
   starts_at: string;
   location: string | null;
   rsvp_url: string | null;
-  cover_image_url?: string | null;
+  cover_url?: string | null;
 };
 
 const defaultEvents: EventRow[] = [
@@ -110,9 +110,9 @@ function EventsPage() {
                 key={e.id}
                 className="rounded-2xl border border-border/60 bg-card p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
               >
-                {e.cover_image_url && (
+                {e.cover_url && (
                   <div className="shrink-0 w-full md:w-48 aspect-video rounded-xl overflow-hidden bg-muted">
-                    <img src={e.cover_image_url} alt={e.title} className="w-full h-full object-cover" />
+                    <img src={e.cover_url} alt={e.title} className="w-full h-full object-cover" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
