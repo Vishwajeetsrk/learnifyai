@@ -103,9 +103,9 @@ function PublicProfilePage() {
     .join("")
     .toUpperCase();
 
-  const socialLinks = profile.social_links && typeof profile.social_links === "object"
+  const socialLinks = (profile.social_links && typeof profile.social_links === "object"
     ? Object.values(profile.social_links).filter((url) => typeof url === "string" && url.trim() !== "")
-    : [];
+    : []) as string[];
 
   return (
     <AppShell>

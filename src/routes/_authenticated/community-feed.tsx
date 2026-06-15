@@ -11,6 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 
 export const Route = createFileRoute("/_authenticated/community-feed")({
   component: CommunityPage,
@@ -23,6 +26,26 @@ function CommunityPage() {
   const [content, setContent] = useState("");
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState("");
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Placeholder.configure({
+        placeholder: 'Share your progress, ask a question, or post a resource...',
+      }),
+    ],
+    content: '',
+    editorProps: {
+      attributes: {
+        class: 'min-h-[100px] w-full resize-none rounded-md bg-accent/50 px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 prose prose-sm dark:prose-invert max-w-none',
+      },
+    },
+    onUpdate: ({ editor }) => {
+      setContent(editor.getHTML());
+    },
+  });
 
   // Profile data for current user
   const { data: profile } = useQuery({
@@ -38,7 +61,7 @@ function CommunityPage() {
     queryKey: ["community-posts"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("posts")
+        .from("posts" as any)
         .select(`
           *,
           author:profiles!posts_author_id_fkey (id, full_name, avatar_url, role),
@@ -57,7 +80,8 @@ function CommunityPage() {
   });
 
   const createPost = async () => {
-    if (!user || (!content.trim() && !mediaFile)) return;
+    const textContent = editor?.getText() || "";
+    if (!user || (!textContent.trim() && !mediaFile)) return;
     
     setIsUploading(true);
     try {
@@ -83,7 +107,7 @@ function CommunityPage() {
         else mediaType = 'pdf';
       }
 
-      const { error } = await supabase.from("posts").insert({
+      const { error } = await supabase.from("posts" as any).insert({
         author_id: user.id,
         content: content.trim(),
         media_url: mediaUrl,
@@ -93,6 +117,7 @@ function CommunityPage() {
       if (error) throw error;
       
       setContent("");
+      editor?.commands.setContent("");
       setMediaFile(null);
       toast.success("Post created successfully");
       qc.invalidateQueries({ queryKey: ["community-posts"] });
@@ -105,7 +130,7 @@ function CommunityPage() {
 
   const deletePost = async (postId: string) => {
     if (!window.confirm("Delete this post?")) return;
-    const { error } = await supabase.from("posts").delete().eq("id", postId);
+    const { error } = await supabase.from("posts" as any).delete().eq("id", postId);
     if (error) {
       toast.error("Failed to delete post");
     } else {
@@ -117,9 +142,9 @@ function CommunityPage() {
   const toggleLike = async (postId: string, isLiked: boolean) => {
     if (!user) return;
     if (isLiked) {
-      await supabase.from("post_likes").delete().match({ post_id: postId, user_id: user.id });
+      await supabase.from("post_likes" as any).delete().match({ post_id: postId, user_id: user.id });
     } else {
-      await supabase.from("post_likes").insert({ post_id: postId, user_id: user.id });
+      await supabase.from("post_likes" as any).insert({ post_id: postId, user_id: user.id });
     }
     qc.invalidateQueries({ queryKey: ["community-posts"] });
   };
@@ -127,11 +152,31 @@ function CommunityPage() {
   const toggleSave = async (postId: string, isSaved: boolean) => {
     if (!user) return;
     if (isSaved) {
-      await supabase.from("post_saves").delete().match({ post_id: postId, user_id: user.id });
+      await supabase.from("post_saves" as any).delete().match({ post_id: postId, user_id: user.id });
     } else {
-      await supabase.from("post_saves").insert({ post_id: postId, user_id: user.id });
+      await supabase.from("post_saves" as any).insert({ post_id: postId, user_id: user.id });
     }
     qc.invalidateQueries({ queryKey: ["community-posts"] });
+  };
+
+  const addComment = async (postId: string) => {
+    if (!user || !commentText.trim()) return;
+    const { error } = await supabase.from("post_comments" as any).insert({
+      post_id: postId,
+      author_id: user.id,
+      content: commentText.trim()
+    });
+    if (error) {
+      toast.error("Failed to add comment");
+    } else {
+      setCommentText("");
+      qc.invalidateQueries({ queryKey: ["community-posts"] });
+    }
+  };
+
+  const deleteComment = async (commentId: string) => {
+    const { error } = await supabase.from("post_comments" as any).delete().eq("id", commentId);
+    if (!error) qc.invalidateQueries({ queryKey: ["community-posts"] });
   };
 
   return (
@@ -147,12 +192,7 @@ function CommunityPage() {
               <AvatarFallback>{profile?.full_name?.charAt(0) || user?.email?.charAt(0)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-3">
-              <Textarea
-                placeholder="Share your progress, ask a question, or post a resource..."
-                className="resize-none min-h-[100px] border-none bg-accent/50 focus-visible:ring-1 text-base"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-              />
+              <EditorContent editor={editor} />
               
               {mediaFile && (
                 <div className="relative rounded-lg overflow-hidden bg-accent inline-block">
@@ -182,7 +222,7 @@ function CommunityPage() {
                 </div>
                 <Button 
                   onClick={createPost} 
-                  disabled={isUploading || (!content.trim() && !mediaFile)}
+                  disabled={isUploading || (!(editor?.getText().trim()) && !mediaFile)}
                   className="rounded-full px-6"
                 >
                   {isUploading ? "Posting..." : <><Send className="h-4 w-4 mr-2" /> Post</>}
@@ -246,7 +286,7 @@ function CommunityPage() {
                     )}
                   </div>
                   
-                  <div className="text-sm whitespace-pre-wrap mb-4">{post.content}</div>
+                  <div className="text-sm prose prose-sm dark:prose-invert max-w-none mb-4" dangerouslySetInnerHTML={{ __html: post.content }} />
                   
                   {post.media_url && (
                     <div className="mb-4 rounded-xl overflow-hidden bg-accent/30 border">
@@ -276,7 +316,11 @@ function CommunityPage() {
                       <span className="text-sm">{post.likes?.length || 0}</span>
                     </button>
                     
-                    <button className="flex items-center gap-1.5 hover:text-indigo-500 transition-colors">
+                    <button 
+                      onClick={() => {
+                        setExpandedPostId(expandedPostId === post.id ? null : post.id);
+                      }}
+                      className="flex items-center gap-1.5 hover:text-indigo-500 transition-colors">
                       <MessageSquare className="h-5 w-5" />
                       <span className="text-sm">{post.comments?.length || 0}</span>
                     </button>
@@ -288,6 +332,36 @@ function CommunityPage() {
                       <Bookmark className={`h-5 w-5 ${isSaved ? "fill-current" : ""}`} />
                     </button>
                   </div>
+
+                  {expandedPostId === post.id && (
+                    <div className="mt-4 pt-4 border-t space-y-4">
+                      {post.comments?.length > 0 ? (
+                        <div className="space-y-3">
+                          {post.comments.map((comment: any) => (
+                            <div key={comment.id} className="flex gap-2 text-sm">
+                              <Avatar className="h-6 w-6 mt-0.5">
+                                <AvatarFallback>U</AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 bg-accent/30 rounded-lg p-2.5">
+                                <p className="text-muted-foreground whitespace-pre-wrap">{comment.content || "..."}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground text-center py-2">No comments yet. Start the conversation!</p>
+                      )}
+                      <div className="flex gap-2 items-end">
+                        <Textarea 
+                          value={commentText}
+                          onChange={(e) => setCommentText(e.target.value)}
+                          placeholder="Write a comment..." 
+                          className="min-h-[40px] h-[40px] resize-none"
+                        />
+                        <Button size="sm" onClick={() => addComment(post.id)} disabled={!commentText.trim()}>Post</Button>
+                      </div>
+                    </div>
+                  )}
                 </article>
               );
             })

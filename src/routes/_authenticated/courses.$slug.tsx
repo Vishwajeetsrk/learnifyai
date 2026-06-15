@@ -1302,12 +1302,7 @@ function FinalTestSection({
               qc.invalidateQueries({ queryKey: ["enrollments"] });
               setOpen(false);
               setCelebratePass(true);
-              awardXPFn({ data: { userId: user.id, amount: 50 } }).then((res) => {
-                if (res.success) {
-                  toast.success(`+50 XP Earned for passing the final test! 🔥 Streak: ${res.streak}`);
-                  qc.invalidateQueries({ queryKey: ["profile-mini", user.id] });
-                }
-              }).catch(() => {});
+              qc.invalidateQueries({ queryKey: ["profile-mini", userId] });
             }}
           />
         )}

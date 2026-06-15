@@ -13,8 +13,8 @@ if (process.env.VERCEL) {
 
 export default defineConfig({
   nitro: process.env.VERCEL ? { preset: "vercel" } : { preset: "vercel" },
-  envPrefix: ["VITE_", "NEXT_PUBLIC_"],
   vite: {
+    envPrefix: ["VITE_", "NEXT_PUBLIC_"],
     build: {
       chunkSizeWarningLimit: 1500, // Suppress the chunk size warning
     },

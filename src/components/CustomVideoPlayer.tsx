@@ -149,13 +149,13 @@ export function CustomVideoPlayer({
       onMouseLeave={handleMouseLeave}
     >
       {!ready && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/50">
+        <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/50 pointer-events-none">
           <Loader2 className="h-8 w-8 text-primary animate-spin" />
         </div>
       )}
 
       {/* ReactPlayer Wrapper */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0">
         <ReactPlayer
           ref={playerRef}
           url={url}
@@ -184,12 +184,9 @@ export function CustomVideoPlayer({
           config={{
             youtube: {
               playerVars: {
-                controls: 0,
+                controls: 1,
                 modestbranding: 1,
                 rel: 0,
-                showinfo: 0,
-                iv_load_policy: 3,
-                disablekb: 1,
               },
             },
           }}
@@ -197,72 +194,17 @@ export function CustomVideoPlayer({
         />
       </div>
 
-      {/* Click overlay to play/pause */}
-      <div className="absolute inset-0 z-10" onClick={handlePlayPause} />
+      {/* Controls Overlay - hidden for native player compatibility */}
 
       {/* Controls Overlay */}
       <div
         className={cn(
-          "absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end p-4 transition-opacity duration-300",
+          "absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end p-4 transition-opacity duration-300 pointer-events-none",
           "bg-gradient-to-t from-black/80 via-black/40 to-transparent",
-          showControls || !playing ? "opacity-100" : "opacity-0 pointer-events-none"
+          showControls && !playing ? "opacity-100" : "opacity-0"
         )}
       >
-        <div className="flex items-center gap-4 mb-2">
-          <Slider
-            value={[played]}
-            min={0}
-            max={1}
-            step={0.001}
-            onValueChange={handleSeek}
-            className="cursor-pointer flex-1"
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handlePlayPause}
-              className="text-white hover:text-primary transition"
-            >
-              {playing ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6 fill-current" />}
-            </button>
-            <div className="flex items-center gap-2">
-              <button onClick={handleToggleMute} className="text-white hover:text-primary transition">
-                {muted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-              </button>
-              <div className="w-20 hidden sm:block">
-                <Slider
-                  value={[muted ? 0 : volume]}
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  onValueChange={handleVolumeChange}
-                  className="w-full cursor-pointer"
-                />
-              </div>
-            </div>
-            <div className="text-white text-xs font-medium">
-              {formatTime(played * duration)} / {formatTime(duration)}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-
-            <button className="text-white hover:text-primary transition" title="Subtitles / CC">
-              <ClosedCaption className="h-5 w-5" />
-            </button>
-            <button className="text-white hover:text-primary transition" title="Settings">
-              <Settings className="h-5 w-5" />
-            </button>
-            <button
-              onClick={handleToggleFullscreen}
-              className="text-white hover:text-primary transition"
-            >
-              {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
-            </button>
-          </div>
-        </div>
+        {/* Native controls are used instead */}
       </div>
     </div>
   );

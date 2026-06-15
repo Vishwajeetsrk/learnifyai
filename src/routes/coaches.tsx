@@ -378,7 +378,7 @@ function CoachesPage() {
                 </div>
               )}
 
-              {runAudit === "running" && (
+              {runAudit === "auditing" && (
                 <div className="py-8 flex flex-col items-center justify-center gap-3">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
                   <p className="text-xs text-muted-foreground">Analyzing 4 weeks of data...</p>
