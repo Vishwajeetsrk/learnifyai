@@ -133,6 +133,13 @@ function formatDuration(minutes: number) {
   return `${durationStr} (${daysLoad} ${daysLoad === 1 ? "day" : "days"} load)`;
 }
 
+function formatLessonTime(minutes: number) {
+  if (!minutes) return "0:00";
+  const m = Math.floor(minutes);
+  const s = Math.round((minutes - m) * 60);
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 function CourseDetail() {
   const { slug } = Route.useParams();
   const { tab: initialTab } = Route.useSearch();
@@ -619,7 +626,7 @@ function CourseDetail() {
                   <div className="min-w-0">
                     <h2 className="font-display text-lg font-semibold">{active.title}</h2>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {active.duration_minutes} min{active.is_preview ? " · Free preview" : ""}
+                      {formatLessonTime(active.duration_minutes)}{active.is_preview ? " · Free preview" : ""}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -747,7 +754,7 @@ function CourseDetail() {
                             {i + 1}. {l.title}
                           </div>
                           <div className="text-[11px] text-muted-foreground flex items-center gap-2">
-                            <Clock className="h-3 w-3" /> {l.duration_minutes} min
+                            <Clock className="h-3 w-3" /> {formatLessonTime(l.duration_minutes)}
                             {l.is_preview && (
                               <Badge variant="outline" className="text-[9px] py-0">
                                 Preview
@@ -766,21 +773,53 @@ function CourseDetail() {
             <div className="rounded-2xl border bg-card p-5 shadow-card space-y-4">
               <h3 className="font-display font-semibold text-sm">Your Instructor</h3>
               <div className="flex items-center gap-3">
-                {instructorProfile?.avatar_url ? (
-                  <img
-                    src={instructorProfile.avatar_url}
-                    alt={instructorProfile.full_name || course.instructor}
-                    className="h-12 w-12 rounded-full object-cover border-2 border-primary/20"
-                  />
+                {course.created_by ? (
+                  <Link
+                    to="/u/$id"
+                    params={{ id: course.created_by }}
+                    className="shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full hover:opacity-90 transition-opacity"
+                  >
+                    {instructorProfile?.avatar_url ? (
+                      <img
+                        src={instructorProfile.avatar_url}
+                        alt={instructorProfile.full_name || course.instructor}
+                        className="h-12 w-12 rounded-full object-cover border-2 border-primary/20"
+                      />
+                    ) : (
+                      <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
+                        {(instructorProfile?.full_name || course.instructor).charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </Link>
                 ) : (
-                  <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
-                    {(instructorProfile?.full_name || course.instructor).charAt(0).toUpperCase()}
-                  </div>
+                  instructorProfile?.avatar_url ? (
+                    <img
+                      src={instructorProfile.avatar_url}
+                      alt={instructorProfile.full_name || course.instructor}
+                      className="h-12 w-12 rounded-full object-cover border-2 border-primary/20 shrink-0"
+                    />
+                  ) : (
+                    <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
+                      {(instructorProfile?.full_name || course.instructor).charAt(0).toUpperCase()}
+                    </div>
+                  )
                 )}
                 <div className="min-w-0 flex-1">
-                  <h4 className="font-display font-semibold text-sm truncate">
-                    {instructorProfile?.full_name || course.instructor}
-                  </h4>
+                  {course.created_by ? (
+                    <Link
+                      to="/u/$id"
+                      params={{ id: course.created_by }}
+                      className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded inline-block max-w-full"
+                    >
+                      <h4 className="font-display font-semibold text-sm truncate">
+                        {instructorProfile?.full_name || course.instructor}
+                      </h4>
+                    </Link>
+                  ) : (
+                    <h4 className="font-display font-semibold text-sm truncate">
+                      {instructorProfile?.full_name || course.instructor}
+                    </h4>
+                  )}
                   <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
                     <Users className="h-3 w-3 text-primary" />
                     <span>{creatorSubsQuery.data ?? 0} subscribers</span>
@@ -1497,8 +1536,8 @@ function AssignmentsPanel({ courseId, userId }: { courseId: string; userId: stri
           const sub = latestByAssignment.get(a.id);
           return (
             <div key={a.id} className="border rounded-lg p-4">
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div className="min-w-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
                   <p className="font-medium">
                     {i + 1}. {a.title}
                   </p>
@@ -1506,7 +1545,7 @@ function AssignmentsPanel({ courseId, userId }: { courseId: string; userId: stri
                     {a.prompt}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
                   {sub && (
                     <Badge variant="outline" className="text-[10px] capitalize">
                       {String(sub.status).replace("_", " ")}

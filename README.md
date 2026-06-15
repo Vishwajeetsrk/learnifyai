@@ -30,6 +30,9 @@ Learnify AI is an AI-powered personalized learning and course generation platfor
 - **Accessibility Compliance**: Added `DialogTitle` and `DialogDescription` to all Radix UI Dialog components (including the Command Palette) to eliminate screen reader accessibility warnings.
 - **YouTube-Style Creator Profiles**: Public creator and coach profiles redesigned to feature custom wide banners, overlapping avatar displays, biographies, and expandable social media link badges.
 - **Interactive Instructor Subscriptions**: Seamless student-creator connection with real-time "Subscribe" toggles, unified subscriber counts, and interactive follow actions on both the public creator channel and the course workspace sidebar.
+- **RazorPay Payment Gateway Integration**: Native support for RazorPay checkout, enabling frictionless purchases for paid courses and cohort access in INR.
+- **Responsive Workspace UI**: Fully responsive design across course video pages, including practice modules, ensuring seamless accessibility across desktop, tablet, and mobile breakpoints.
+- **Accurate Timestamps**: Real video timestamps mapped to UI formatting natively (`MM:SS`) to provide a clear, accurate reading of lesson lengths across all modules.
 
 ---
 

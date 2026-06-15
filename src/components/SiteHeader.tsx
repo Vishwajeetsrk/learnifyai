@@ -23,6 +23,9 @@ export function SiteHeader() {
           <Link to="/creators" className="hover:text-foreground transition">
             Creators
           </Link>
+          <Link to="/coaches" className="hover:text-foreground transition">
+            Coaches
+          </Link>
           <Link to="/pricing" className="hover:text-foreground transition">
             Pricing
           </Link>

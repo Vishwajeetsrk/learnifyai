@@ -64,9 +64,7 @@ export function CustomVideoPlayer({
     }
   }, [channelId, url]);
 
-  useEffect(() => {
-    setPlaying(initialPlaying);
-  }, [initialPlaying]);
+  // Removed initialPlaying sync effect to prevent parent updates from pausing active playback
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -111,7 +109,14 @@ export function CustomVideoPlayer({
   const handleSeek = (value: number[]) => {
     const p = value[0];
     setPlayed(p);
-    playerRef.current?.seekTo(p, "fraction");
+    if (playerRef.current) {
+      const player: any = playerRef.current;
+      if (typeof player.seekTo === "function") {
+        player.seekTo(p, "fraction");
+      } else {
+        player.currentTime = p * duration;
+      }
+    }
   };
 
   const handleToggleFullscreen = () => {
@@ -162,8 +167,13 @@ export function CustomVideoPlayer({
           playbackRate={playbackRate}
           onReady={() => {
             setReady(true);
-            if (startSeconds > 0) {
-              playerRef.current?.seekTo(startSeconds, "seconds");
+            if (startSeconds > 0 && playerRef.current) {
+              const player: any = playerRef.current;
+              if (typeof player.seekTo === "function") {
+                player.seekTo(startSeconds, "seconds");
+              } else {
+                player.currentTime = startSeconds;
+              }
             }
             if (onReady) onReady();
           }}
@@ -238,21 +248,7 @@ export function CustomVideoPlayer({
           </div>
 
           <div className="flex items-center gap-4">
-            {(channelId || fetchedChannelUrl) && (
-              <a
-                href={
-                  channelId
-                    ? `https://www.youtube.com/channel/${channelId}?sub_confirmation=1`
-                    : `${fetchedChannelUrl}?sub_confirmation=1`
-                }
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium px-3 py-1.5 rounded-full transition"
-              >
-                <Youtube className="h-3.5 w-3.5" />
-                Subscribe
-              </a>
-            )}
+
             <button className="text-white hover:text-primary transition" title="Subtitles / CC">
               <ClosedCaption className="h-5 w-5" />
             </button>
