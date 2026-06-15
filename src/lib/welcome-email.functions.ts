@@ -15,6 +15,8 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#39;");
 }
 
+import nodemailer from "nodemailer";
+
 async function sendResendEmail({
   to,
   subject,
@@ -27,26 +29,22 @@ async function sendResendEmail({
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   if (!RESEND_API_KEY) throw new Error("Email service not configured.");
 
-  const body = JSON.stringify({
+  const transporter = nodemailer.createTransport({
+    host: "smtp.resend.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "resend",
+      pass: RESEND_API_KEY,
+    },
+  });
+
+  await transporter.sendMail({
     from: "Learnify AI <onboarding@resend.dev>",
     to: [to],
     subject,
     html,
   });
-
-  const gateway = "https://connector-gateway.lovable.dev/resend/emails";
-  const response = await fetch(gateway, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Connection-Api-Key": RESEND_API_KEY,
-    },
-    body,
-  });
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    throw new Error(`Email send failed (${response.status}): ${text}`);
-  }
 }
 
 export const sendWelcomeEmail = createServerFn({ method: "POST" })

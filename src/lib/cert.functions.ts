@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import nodemailer from "nodemailer";
 
 function escapeHtml(s: string): string {
   return s.replace(
@@ -130,47 +131,27 @@ async function sendResend({
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   if (!RESEND_API_KEY) throw new Error("Email service not configured.");
 
-  const body = JSON.stringify({
+  const transporter = nodemailer.createTransport({
+    host: "smtp.resend.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "resend",
+      pass: RESEND_API_KEY,
+    },
+  });
+
+  const headers = idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined;
+
+  const info = await transporter.sendMail({
     from: "Learnify AI <onboarding@resend.dev>",
     to: [to],
     subject,
     html,
+    headers,
   });
-  const idemHeaders: Record<string, string> = idempotencyKey
-    ? { "Idempotency-Key": idempotencyKey }
-    : {};
-
-  // Gateway first
-  const gw = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.LOVABLE_API_KEY ?? ""}`,
-      "X-Connection-Api-Key": RESEND_API_KEY,
-      ...idemHeaders,
-    },
-    body,
-  }).catch(() => null);
-  if (gw && gw.ok) {
-    const j = await gw.json().catch(() => ({}) as any);
-    return { messageId: j?.id ?? null };
-  }
-  // Direct fallback
-  const direct = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${RESEND_API_KEY}`,
-      ...idemHeaders,
-    },
-    body,
-  });
-  if (!direct.ok) {
-    const t = await direct.text();
-    throw new Error(`Email failed: ${direct.status} ${t.slice(0, 200)}`);
-  }
-  const j = await direct.json().catch(() => ({}) as any);
-  return { messageId: j?.id ?? null };
+  
+  return { messageId: info.messageId };
 }
 
 function resolveOrigin(): string {
