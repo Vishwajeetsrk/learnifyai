@@ -416,6 +416,14 @@ function CoachingDashboard() {
                 ))}
               </div>
             ) : (
+              <div className="text-center py-10 text-muted-foreground">
+                <Compass className="h-10 w-10 mx-auto mb-3 opacity-20" />
+                <p>No active roadmap assigned by your coach yet.</p>
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === "outcomes" && (
           <div className="bg-card rounded-2xl border p-6 min-h-[400px]">
             <div className="flex items-center gap-3 mb-6">
