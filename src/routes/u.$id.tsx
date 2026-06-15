@@ -207,6 +207,7 @@ function PublicProfilePage() {
           )}
         </section>
       </div>
+    </div>
     </AppShell>
   );
 }

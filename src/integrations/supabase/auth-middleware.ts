@@ -42,6 +42,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     } else {
       // Fallback to cookie for useServerFn requests
       const cookieHeader = request.headers.get("cookie");
+      console.log("[auth-middleware] Cookie header:", cookieHeader);
       if (cookieHeader) {
         const match = cookieHeader.match(/sb-access-token=([^;]+)/);
         if (match) token = match[1];
@@ -49,6 +50,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     }
 
     if (!token) {
+      console.log("[auth-middleware] No token found! Headers:", Object.fromEntries(request.headers.entries()));
       throw new Error("Unauthorized: No authorization header provided");
     }
 

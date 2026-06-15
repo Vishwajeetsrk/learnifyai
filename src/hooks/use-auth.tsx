@@ -59,6 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .getSession()
       .then(({ data }) => {
         setSession(data.session);
+        if (data.session?.access_token) {
+          document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=31536000; SameSite=Lax`;
+        }
         if (data.session?.user) {
           return fetchRoles(data.session.user.id);
         }
