@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/logo.png" alt="Learnify AI Logo" width="120" />
+  <img src="https://github.com/Vishwajeetsrk/learnifyai/blob/main/src%2Fassets%2Flearnify-logo.png" alt="Learnify AI Logo" width="120" />
 
   # Learnify AI
   
