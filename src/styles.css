@@ -240,6 +240,16 @@ html.dark[data-theme="noir"] {
     font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
+
+  /* Hide number input spin buttons */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
 }
 
 @layer utilities {
