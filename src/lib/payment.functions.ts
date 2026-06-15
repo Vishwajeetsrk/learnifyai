@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const createRazorpayOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { amountInr: number }) => z.object({ amountInr: z.number() }).parse(d))
+  .inputValidator((d: { amountInr: number }) => z.object({ amountInr: z.number() }).parse(d))
   .handler(async ({ data: { amountInr }, context }) => {
     if (!context.userId) throw new Error("Unauthorized");
 
@@ -29,7 +29,7 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
 
 export const verifyWalletTopup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { amountInr: number; method: string; razorpay_payment_id: string; razorpay_order_id: string }) => 
+  .inputValidator((d: { amountInr: number; method: string; razorpay_payment_id: string; razorpay_order_id: string }) => 
     z.object({
       amountInr: z.number(),
       method: z.string(),
