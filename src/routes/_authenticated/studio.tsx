@@ -752,7 +752,7 @@ function CourseFormDialog({
               </Button>
             </div>
             {coverUrl && !coverFailed ? (
-              <div className="mt-2 overflow-hidden rounded-md border bg-muted">
+              <div className="mt-2 overflow-hidden rounded-md border bg-muted relative group">
                 <img
                   src={coverUrl}
                   alt="Cover preview"
@@ -760,6 +760,19 @@ function CourseFormDialog({
                   onLoad={() => setCoverFailed(false)}
                   onError={() => setCoverFailed(true)}
                 />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="destructive"
+                  className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => {
+                    setCoverUrl("");
+                    setCoverFailed(false);
+                  }}
+                  title="Remove image"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             ) : coverFailed ? (
               <p className="text-[11px] text-destructive flex items-center gap-1">

@@ -38,7 +38,9 @@ import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenti
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreatorRouteImport } from './routes/_authenticated/creator'
+import { Route as AuthenticatedCommunityFeedRouteImport } from './routes/_authenticated/community-feed'
 import { Route as AuthenticatedCohortsRouteImport } from './routes/_authenticated/cohorts'
+import { Route as AuthenticatedCoachingRouteImport } from './routes/_authenticated/coaching'
 import { Route as AuthenticatedCertificatesRouteImport } from './routes/_authenticated/certificates'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
 import { Route as AuthenticatedApplyCreatorRouteImport } from './routes/_authenticated/apply-creator'
@@ -204,9 +206,20 @@ const AuthenticatedCreatorRoute = AuthenticatedCreatorRouteImport.update({
   path: '/creator',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCommunityFeedRoute =
+  AuthenticatedCommunityFeedRouteImport.update({
+    id: '/community-feed',
+    path: '/community-feed',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCohortsRoute = AuthenticatedCohortsRouteImport.update({
   id: '/cohorts',
   path: '/cohorts',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedCoachingRoute = AuthenticatedCoachingRouteImport.update({
+  id: '/coaching',
+  path: '/coaching',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCertificatesRoute =
@@ -336,7 +349,9 @@ export interface FileRoutesByFullPath {
   '/apply-creator': typeof AuthenticatedApplyCreatorRoute
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
+  '/coaching': typeof AuthenticatedCoachingRoute
   '/cohorts': typeof AuthenticatedCohortsRouteWithChildren
+  '/community-feed': typeof AuthenticatedCommunityFeedRoute
   '/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
@@ -385,7 +400,9 @@ export interface FileRoutesByTo {
   '/apply-creator': typeof AuthenticatedApplyCreatorRoute
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
+  '/coaching': typeof AuthenticatedCoachingRoute
   '/cohorts': typeof AuthenticatedCohortsRouteWithChildren
+  '/community-feed': typeof AuthenticatedCommunityFeedRoute
   '/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
@@ -436,7 +453,9 @@ export interface FileRoutesById {
   '/_authenticated/apply-creator': typeof AuthenticatedApplyCreatorRoute
   '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/certificates': typeof AuthenticatedCertificatesRoute
+  '/_authenticated/coaching': typeof AuthenticatedCoachingRoute
   '/_authenticated/cohorts': typeof AuthenticatedCohortsRouteWithChildren
+  '/_authenticated/community-feed': typeof AuthenticatedCommunityFeedRoute
   '/_authenticated/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRoute
@@ -487,7 +506,9 @@ export interface FileRouteTypes {
     | '/apply-creator'
     | '/cart'
     | '/certificates'
+    | '/coaching'
     | '/cohorts'
+    | '/community-feed'
     | '/creator'
     | '/dashboard'
     | '/inbox'
@@ -536,7 +557,9 @@ export interface FileRouteTypes {
     | '/apply-creator'
     | '/cart'
     | '/certificates'
+    | '/coaching'
     | '/cohorts'
+    | '/community-feed'
     | '/creator'
     | '/dashboard'
     | '/inbox'
@@ -586,7 +609,9 @@ export interface FileRouteTypes {
     | '/_authenticated/apply-creator'
     | '/_authenticated/cart'
     | '/_authenticated/certificates'
+    | '/_authenticated/coaching'
     | '/_authenticated/cohorts'
+    | '/_authenticated/community-feed'
     | '/_authenticated/creator'
     | '/_authenticated/dashboard'
     | '/_authenticated/inbox'
@@ -842,11 +867,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreatorRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/community-feed': {
+      id: '/_authenticated/community-feed'
+      path: '/community-feed'
+      fullPath: '/community-feed'
+      preLoaderRoute: typeof AuthenticatedCommunityFeedRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/cohorts': {
       id: '/_authenticated/cohorts'
       path: '/cohorts'
       fullPath: '/cohorts'
       preLoaderRoute: typeof AuthenticatedCohortsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/coaching': {
+      id: '/_authenticated/coaching'
+      path: '/coaching'
+      fullPath: '/coaching'
+      preLoaderRoute: typeof AuthenticatedCoachingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/certificates': {
@@ -1028,7 +1067,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedApplyCreatorRoute: typeof AuthenticatedApplyCreatorRoute
   AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCertificatesRoute: typeof AuthenticatedCertificatesRoute
+  AuthenticatedCoachingRoute: typeof AuthenticatedCoachingRoute
   AuthenticatedCohortsRoute: typeof AuthenticatedCohortsRouteWithChildren
+  AuthenticatedCommunityFeedRoute: typeof AuthenticatedCommunityFeedRoute
   AuthenticatedCreatorRoute: typeof AuthenticatedCreatorRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
@@ -1049,7 +1090,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedApplyCreatorRoute: AuthenticatedApplyCreatorRoute,
   AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCertificatesRoute: AuthenticatedCertificatesRoute,
+  AuthenticatedCoachingRoute: AuthenticatedCoachingRoute,
   AuthenticatedCohortsRoute: AuthenticatedCohortsRouteWithChildren,
+  AuthenticatedCommunityFeedRoute: AuthenticatedCommunityFeedRoute,
   AuthenticatedCreatorRoute: AuthenticatedCreatorRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRoute,

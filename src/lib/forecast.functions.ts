@@ -31,8 +31,7 @@ export const getDemandForecast = createServerFn({ method: "GET" })
 
     // Use admin client so this works regardless of caller's RLS (admin gate is enforced UI-side)
     // We still validate auth via middleware. For role check, look up via has_role.
-    const { data: caller } = await supabase.auth.getUser();
-    const uid = caller.user?.id;
+    const uid = context.userId;
     let isAdmin = false;
     if (uid) {
       const { data: roles } = await supabaseAdmin

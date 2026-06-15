@@ -1,43 +1,58 @@
 <div align="center">
-  <img src="https://via.placeholder.com/150/000000/FFFFFF?text=Learnify+AI" alt="Learnify AI Logo" width="150" height="150" />
-  <h1>Learnify AI 🎓✨</h1>
-  <p><strong>The Intelligent Learning OS for Learners, Creators, and Coaches.</strong></p>
-  <p>Learnify AI is an AI-powered personalized learning and course generation platform built on top of React 19, TanStack Start, and Supabase. It enables creators to build rich courses, enrich lessons using AI, and manage student learning experience in a unified workspace.</p>
+  <img src="public/logo.png" alt="Learnify AI Logo" width="120" />
 
-  <p>
-    <a href="#-key-features">Features</a> •
-    <a href="#-file-structure">File Structure</a> •
-    <a href="#-technology-stack">Tech Stack</a> •
-    <a href="#-apis-used">APIs</a> •
-    <a href="#-how-to-run">How to Run</a> •
-    <a href="#-version-history">Versions</a>
-  </p>
+  # Learnify AI
+  
+  **The Next-Generation AI-Powered Learning Management System (LMS)**
+
+  *Learnify AI brings together course creation, automated AI tutoring, dynamic roadmaps, live cohorts, integrated payments, and a rich community experience—all in one seamless platform.*
+
+  [Live Demo](https://learnifyai.vercel.app) • [Documentation](https://docs.learnifyai.com) • [Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues)
 </div>
+
+<br/>
+
+## ✨ Key Features
+
+Learnify AI is built to empower both learners and creators by streamlining the entire educational lifecycle.
+
+### 🎓 For Learners
+- **Interactive Course Player:** Rich media support, markdown notes, and video playback.
+- **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
+- **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
+- **Wallet & Integrated Payments:** Manage credits, purchase courses, and download invoices instantly.
+- **Community Feed:** Share updates, post questions, attach media, and engage with peers.
+- **AI-Powered Roadmaps:** Dynamic learning paths adjusted to your progress.
+- **Verifiable Certificates:** Auto-generated, verifiable certificates upon course completion.
+
+### 🚀 For Creators & Coaches
+- **Creator Studio:** Upload courses, manage lessons, and track enrollment.
+- **Coaching Hub:** Manage 1-on-1 scheduling, async messaging, and client progression.
+- **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts.
+- **Automated Invoicing:** Professional billing automatically handled for wallet top-ups.
+- **Analytics Dashboard:** AI-driven insights into course demand, student performance, and revenue.
 
 ---
 
-## 🚀 Key Features
+## 🛠️ Technology Stack
 
-### Dawn V2: Platform Maturity & Monetization
-- **Admin Command Center**: Real-time admin dashboard with AI cost tracking, Top-up approvals, missing video alerts, revenue tracking, and complete user role management (Super Admin, Admin, Creator, Student).
-- **RazorPay Integration**: Native support for RazorPay checkout, enabling frictionless purchases for paid courses and cohort access in INR. Wallet top-ups, transaction logging, and revenue dashboards.
-- **YouTube-Style Creator Profiles**: Public creator and coach profiles redesigned to feature custom wide banners, overlapping avatar displays, biographies, and expandable social media link badges.
-- **Interactive Instructor Subscriptions**: Seamless student-creator connection with real-time "Subscribe" toggles, unified subscriber counts, and interactive follow actions.
-- **Playwright E2E Tests**: Comprehensive browser testing workflow ensuring high reliability for enrollments and video progression tracking.
-- **Automated Cloudflare Deployments**: Configured Vite with `cloudflare-pages` preset for blazing-fast Edge network delivery.
+Learnify AI is built on the modern web stack for maximum performance and developer experience.
 
-### Dawn V1: Core AI & Learning Engine
-- **AI Course Builder**: Automatically generate and enrich courses, including extracting, summarizing, and translating YouTube transcripts using Google Gemini API.
-- **Creator Studio**: Direct management of courses, view statistics, subscriber tracking, and student submissions.
-- **Real-Time Enrichment Monitor**: Check progress of YouTube video processing in real time via Supabase Realtime subscriptions.
-- **Certificate Issuance**: Dynamic PDF certificate generator using `jspdf` and `html2canvas-pro` with unique verification routes (`/certificates/$code`).
-- **Interactive AI Toolkit Showcase**: Live playground simulating 6 utilities (Quiz Generator, Doubt Solver, Career Path roadmapping, Spaced Reminders, Synthesizer, and Auto Flashcards).
-- **AI Tutor**: Dedicated conversational AI tutor available per user, integrating seamlessly with Gemini, Groq, and OpenRouter, complete with custom credit systems and image attachment support.
-- **Custom Video Player**: Built-in React-based player overlay on YouTube streams with native progress tracking, volume, CC, and timeline controls. Accurately maps real duration formats (`MM:SS`).
-- **Appearance & Color Theme Engine**: Restructured the appearance selector to support 3 mode toggles (Light, Dark, System) and 6 custom CSS theme colors (Indigo, Ocean, Sunset, Forest, Rose, and Noir).
-- **Gamified Progress System**: Highly addictive learning loop incorporating XP points, daily and all-time Streaks (🔥), Badges, and an interactive Leaderboard.
-- **Live Cohort Manager**: Enabling educators to seamlessly run and manage high-ticket live cohorts with RSVP tracking alongside their async courses.
-- **Profile Management**: Full avatar management with Supabase Storage — upload, preview via signed URLs, and gracefully handle external Google OAuth avatar URLs.
+### Frontend
+- **Framework:** [React 19](https://react.dev) + [TanStack Start](https://tanstack.com/start/latest) (SSR & Routing)
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/)
+- **State Management:** [TanStack Query](https://tanstack.com/query/latest) (React Query)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/)
+
+### Backend & Infrastructure
+- **Database & Auth:** [Supabase](https://supabase.com/) (PostgreSQL, Row Level Security)
+- **File Storage:** Supabase Storage (Courses, Community Uploads)
+- **Deployment:** [Vercel](https://vercel.com/) (Edge Network & Serverless Functions)
+
+### Integrated APIs & Tools
+- **Payments:** [Razorpay](https://razorpay.com/) (Integrated Wallet Top-ups & Checkout)
+- **AI Integration:** Google Gemini API / OpenAI API (For AI Tutor and Analytics)
+- **PDF Generation:** jsPDF & jsPDF-Autotable (Invoice rendering)
 
 ---
 
@@ -45,61 +60,38 @@
 
 ```text
 learnifyai/
-├── public/                 # Static public assets (images, icons, etc.)
-├── src/                    # Main application source code
-│   ├── components/         # Reusable React components (UI, layout, shared widgets)
-│   ├── hooks/              # Custom React hooks (auth, theme, etc.)
-│   ├── integrations/       # External service adapters (Supabase clients, Analytics)
-│   ├── lib/                # Utility functions, API wrappers, schemas, server functions
-│   ├── routes/             # TanStack Start file-based routing architecture
-│   │   ├── _authenticated/ # Protected routes (Dashboard, Studio, Admin, Courses)
-│   │   └── api/            # Server API endpoints
-│   ├── styles/             # Global CSS, Tailwind configurations, design tokens
-│   ├── routeTree.gen.ts    # Auto-generated routing tree by TanStack
-│   └── start.ts            # Application entry point and middleware configuration
+├── public/                 # Static assets (images, fonts, favicons)
+├── src/
+│   ├── components/         # Reusable UI components (Shadcn, AppShell, etc.)
+│   ├── hooks/              # Custom React hooks (use-auth, etc.)
+│   ├── integrations/       # API clients (Supabase, Razorpay)
+│   ├── lib/                # Utility functions (cn, formatters)
+│   ├── routes/             # TanStack Start Route tree
+│   │   ├── _authenticated/ # Protected routes (Dashboard, Wallet, Coaching)
+│   │   ├── _admin/         # Admin-only dashboard routes
+│   │   ├── _creator/       # Creator studio routes
+│   │   └── api/            # Serverless API endpoints
+│   ├── routeTree.gen.ts    # Auto-generated routing tree
+│   ├── router.tsx          # Router configuration
+│   └── main.tsx            # Application entry point
 ├── supabase/
-│   ├── migrations/         # PostgreSQL schema definitions and database migrations
-│   └── seed.sql            # Initial database seed records
-├── tests/                  # E2E test suites (Playwright)
-├── vite.config.ts          # Vite build and deployment configurations
-├── tailwind.config.ts      # Tailwind styling maps
-└── package.json            # Node.js dependencies and run scripts
+│   └── migrations/         # PostgreSQL schema definitions and RLS policies
+├── package.json            # Dependencies and scripts
+├── tailwind.config.js      # Tailwind CSS configuration
+└── README.md               # You are here!
 ```
 
 ---
 
-## 🛠️ Technology Stack
+## 🚀 Getting Started
 
-- **Core Framework**: React 19, TypeScript, Vite
-- **Routing & SSR**: [TanStack Start](https://tanstack.com/router/latest/docs/start/overview) (file-based routing with server-side rendering support)
-- **Database & Auth**: [Supabase](https://supabase.com) (PostgreSQL database, authentication, real-time channels, edge functions)
-- **Styling & UI**: Tailwind CSS, Framer Motion (animations), Radix UI primitives, Lucide React (icons)
-- **State Management**: TanStack Query (React Query)
-- **Media & Storage**: Cloudinary (asset storage), Supabase Storage
-- **Testing**: Vitest (Unit), Playwright (E2E)
-
----
-
-## 🔌 APIs Used
-
-Learnify AI leverages several powerful external APIs to deliver an intelligent experience:
-
-1. **Google Gemini API**: Powers the AI Course Builder, generating lesson summaries, parsing transcripts, answering queries, and powering the AI Tutor.
-2. **YouTube Data API v3**: Fetches exact video durations, restricts content to verified educational channels, and streams video payloads.
-3. **RazorPay API**: Facilitates INR checkout operations, wallet top-ups, and creator earnings distribution.
-4. **Resend API**: Handles transactional emails, user verifications, and digital certificate deliveries.
-5. **Upstash Redis REST API**: Handles fast, ephemeral caching for the AI endpoints to prevent aggressive rate limiting.
-6. **Noembed API**: Fetches channel URL metadata to automatically build instructor profiles based on YouTube links.
-
----
-
-## 📦 How to Run
+Follow these instructions to get the project up and running locally.
 
 ### Prerequisites
-
-- Node.js 18+ or Bun
-- A Supabase project with database credentials
-- External API keys (Gemini API, YouTube API, RazorPay, Resend)
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [Git](https://git-scm.com/)
+- A [Supabase](https://supabase.com/) account
+- A [Razorpay](https://razorpay.com/) Sandbox account
 
 ### Installation
 
@@ -112,78 +104,39 @@ Learnify AI leverages several powerful external APIs to deliver an intelligent e
 2. **Install dependencies:**
    ```bash
    npm install
-   # or
-   bun install
    ```
 
-3. **Configure environment variables:**
-   Create a `.env` or `.env.local` file in the root directory:
+3. **Set up environment variables:**
+   Create a `.env` file in the root directory and add the following keys:
    ```env
-   # Database & Supabase
-   DATABASE_URL="your-postgresql-url"
-   SUPABASE_URL="your-supabase-url"
-   SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
-   VITE_SUPABASE_URL="your-supabase-url"
-   VITE_SUPABASE_PUBLISHABLE_KEY="your-anon-publishable-key"
-
-   # AI & APIs
-   GEMINI_API_KEY="your-gemini-key"
-   YOUTUBE_API_KEY="your-youtube-key"
-   RAZORPAY_KEY_ID="your-razorpay-key"
-   RAZORPAY_KEY_SECRET="your-razorpay-secret"
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_RAZORPAY_KEY_ID=your_razorpay_key
+   VITE_BASE_URL=http://localhost:3000
    ```
 
-### Development
+4. **Initialize the Database:**
+   Run the Supabase migrations in your project's SQL editor or via the Supabase CLI to create the necessary tables (`wallet_transactions`, `posts`, `coaching_slots`, etc.) and Storage buckets (`community-uploads`, `course-videos`).
 
-To start the local development server:
-```bash
-npm run dev
-```
-
-To run linting and formatting:
-```bash
-npm run lint
-npm run format
-```
-
-To execute test suites:
-```bash
-npx playwright test
-npx vitest run
-```
-
----
-
-## 🚀 Deployment
-
-The project is configured for Vercel deployment using [Nitro](https://nitro.unjs.io).
-
-1. **Deploy to Vercel:**
-   You can easily deploy to Vercel by pushing your repository to GitHub and importing it into Vercel. Vercel will automatically detect the configuration and build it.
-   
-   Alternatively, deploy using the Vercel CLI:
+5. **Start the development server:**
    ```bash
-   npx vercel
+   npm run dev
    ```
+   The app will be available at `http://localhost:3000`.
 
 ---
 
-## 📅 Version History
+## 📄 Legal & Authorship
 
-- **Dawn V1**: The initial core engine featuring the AI course builder, student dashboard, Supabase real-time tracking, certificates, and the foundation of the custom video player.
-- **Dawn V2** (Current): The monetization and scale update, introducing RazorPay integrations, the comprehensive Admin Command Center, YouTube-style Creator channel views, subscriptions, Playwright testing, and Edge-ready Cloudflare deployments.
+**Developed and Maintained by:** Vishwajeet
+
+### Legal Documents
+- [Terms of Service](#) (Placeholder)
+- [Privacy Policy](#) (Placeholder)
+- [Cookie Policy](#) (Placeholder)
+
+### License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
-
-## ⚖️ Legal & Copyright
-
-**Created & Maintained by Vishwajeet SRK**
-
-By using Learnify AI, you agree to our standard terms of service.
-- **License**: MIT License
-- **Privacy Policy**: Data is handled securely via Supabase and external API partners adhering to local privacy laws.
-- **Terms of Service**: Content generated via AI APIs may be subject to the terms dictated by Google Gemini and YouTube Data API frameworks.
-
-<div align="center">
-  <p>© 2026 Vishwajeet SRK. All rights reserved.</p>
-</div>
+*Built with ❤️ for the future of education.*

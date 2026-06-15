@@ -63,6 +63,7 @@
     "html2canvas-pro": "^2.0.4",
     "input-otp": "^1.4.2",
     "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lru-cache": "^11.5.1",
     "lucide-react": "^0.575.0",
     "nitro": "3.0.260429-beta",

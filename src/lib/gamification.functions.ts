@@ -13,13 +13,16 @@ export const awardXP = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // 1. Get current profile
-    const { data: profile } = await supabaseAdmin
+    let { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("xp, current_streak, highest_streak, last_active_at")
       .eq("id", data.userId)
-      .single();
+      .maybeSingle();
 
-    if (!profile) return { success: false, error: "Profile not found" };
+    if (!profile) {
+      await supabaseAdmin.from("profiles").insert({ id: data.userId, xp: 0, current_streak: 0, highest_streak: 0 });
+      profile = { xp: 0, current_streak: 0, highest_streak: 0, last_active_at: null };
+    }
 
     const now = new Date();
     let currentStreak = profile.current_streak ?? 0;

@@ -14,6 +14,8 @@ import {
   FileCheck2,
   Award,
   BarChart3,
+  Users,
+  Compass,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -36,6 +38,8 @@ interface NavItem {
 }
 const nav: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/community-feed", label: "Community", icon: Users },
+  { to: "/coaching", label: "Coaching", icon: Compass },
   { to: "/courses", label: "Courses", icon: GraduationCap },
   { to: "/cart", label: "Cart", icon: ShoppingCart },
   { to: "/submissions", label: "Submissions", icon: FileCheck2 },

@@ -47,7 +47,7 @@ function resolveProvider(model: string) {
 const BodySchema = z.object({
   conversationId: z.string().uuid().nullable().optional(),
   model: z.string().min(1).max(200),
-  content: z.string().min(1).max(20_000),
+  content: z.string().min(1).max(10_000_000),
 });
 
 // USD price per 1M tokens. Approximate — adjust as providers change.

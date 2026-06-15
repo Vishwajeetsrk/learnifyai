@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Loader2,
@@ -13,6 +15,7 @@ import {
   TrendingDown,
   Sparkles,
   Clock3,
+  Download,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -220,6 +223,60 @@ function WalletPage() {
     }
   }
 
+  function downloadInvoice(tx: any) {
+    if (!user) return;
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor(79, 70, 229); // Primary Indigo
+    doc.text("Learnify AI", 14, 22);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text("Learnify EdTech Pvt. Ltd.", 14, 30);
+    doc.text("GSTIN: 29XXXXX1234X1Z5", 14, 35);
+    
+    doc.setFontSize(20);
+    doc.setTextColor(0);
+    doc.text("INVOICE", 150, 22);
+    
+    // Details
+    doc.setFontSize(10);
+    doc.setTextColor(50);
+    doc.text(`Invoice Number: LRN-${tx.id.split("-")[0].toUpperCase()}`, 150, 30);
+    doc.text(`Date: ${format(new Date(tx.created_at), "dd MMM yyyy")}`, 150, 35);
+    
+    doc.setDrawColor(200);
+    doc.line(14, 45, 196, 45);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text("Bill To:", 14, 55);
+    doc.setFontSize(10);
+    doc.setTextColor(80);
+    doc.text(user.email ?? "Customer", 14, 62);
+    
+    // Table
+    (doc as any).autoTable({
+      startY: 75,
+      headStyles: { fillColor: [79, 70, 229] },
+      head: [["Description", "Amount"]],
+      body: [
+        [tx.description ?? "Wallet Top-up", `INR ${Number(tx.amount_inr).toFixed(2)}`],
+      ],
+      foot: [["Total Paid", `INR ${Number(tx.amount_inr).toFixed(2)}`]],
+      footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: "bold" },
+    });
+    
+    // Footer
+    doc.setFontSize(9);
+    doc.setTextColor(150);
+    doc.text("This is a computer generated invoice and does not require a signature.", 14, (doc as any).lastAutoTable.finalY + 30);
+    
+    doc.save(`Learnify_Invoice_${tx.id.split("-")[0]}.pdf`);
+  }
+
   const presets = [200, 500, 1000, 2500, 5000, 10000];
 
   return (
@@ -393,8 +450,17 @@ function WalletPage() {
                       {t.type === "credit" ? "+" : "−"}
                       {inr(Number(t.amount_inr))}
                     </div>
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {t.status}
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center justify-end gap-2 mt-1">
+                      <span>{t.status}</span>
+                      {t.status === "completed" && (
+                        <button
+                          onClick={() => downloadInvoice(t)}
+                          className="text-primary hover:text-primary/80 transition-colors p-1"
+                          title="Download Invoice"
+                        >
+                          <Download className="h-3 w-3" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </li>
