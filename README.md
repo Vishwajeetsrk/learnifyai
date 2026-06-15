@@ -7,7 +7,7 @@
 
   *Learnify AI brings together course creation, automated AI tutoring, dynamic roadmaps, live cohorts, integrated payments, and a rich community experience—all in one seamless platform.*
 
-  [Live Demo](https://learnifyai.vercel.app) • [Documentation](https://docs.learnifyai.com) • [Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues)
+  [Live Demo](https://learnifyaitool.vercel.app/) • [Documentation](https://docs.learnifyai.com) • [Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues)
 </div>
 
 <br/>
@@ -132,8 +132,8 @@ Follow these instructions to get the project up and running locally.
 
 ### Legal Documents
 - [Terms of Service](#) (Placeholder)
-- [Privacy Policy](#) (Placeholder)
-- [Cookie Policy](#) (Placeholder)
+- [Privacy Policy](https://learnifyaitool.vercel.app/privacy) (Placeholder)
+- [Cookie Policy](https://learnifyaitool.vercel.app/about) (Placeholder)
 
 ### License
 This project is licensed under the MIT License - see the LICENSE file for details.
