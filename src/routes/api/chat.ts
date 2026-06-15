@@ -218,7 +218,28 @@ NEVER give shallow answers, a single resource, outdated stacks, generic boilerpl
             stream_options: { include_usage: true },
             messages: [
               { role: "system", content: systemPrompt },
-              ...(history ?? []).map((m) => ({ role: m.role, content: m.content })),
+              ...(history ?? []).map((m) => {
+                let content: any = m.content;
+                if (m.role === "user" && m.content.includes("![") && m.content.includes("](data:image/")) {
+                  const parts: any[] = [];
+                  const imgRegex = /!\[.*?\]\((data:image\/[^;]+;base64,[^\)]+)\)/g;
+                  let lastIndex = 0;
+                  let match;
+                  while ((match = imgRegex.exec(m.content)) !== null) {
+                    const textBefore = m.content.substring(lastIndex, match.index).trim();
+                    if (textBefore) parts.push({ type: "text", text: textBefore });
+                    parts.push({ type: "image_url", image_url: { url: match[1] } });
+                    lastIndex = imgRegex.lastIndex;
+                  }
+                  const textAfter = m.content.substring(lastIndex).trim();
+                  if (textAfter) parts.push({ type: "text", text: textAfter });
+                  
+                  if (parts.length > 0) {
+                    content = parts;
+                  }
+                }
+                return { role: m.role, content };
+              }),
             ],
           }),
         });
