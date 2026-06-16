@@ -12,7 +12,7 @@ function escapeHtml(s: string): string {
 }
 
 const LOGO_URL =
-  "https://id-preview--295c53aa-3c80-4f45-b788-d3d2b0a36d0a.lovable.app/__l5e/assets-v1/3b594ffd-98a6-4642-9661-dba29f6bb4c5/learnify-logo.png";
+  "/favicon.ico";
 
 function buildHtml({
   courseTitle,

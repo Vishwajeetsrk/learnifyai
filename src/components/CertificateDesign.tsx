@@ -38,7 +38,7 @@ export const DEFAULT_DESIGN: CertDesign = {
   bg_color: "#fdfbf5",
   text_color: "#0f1b3d",
   font_family: "Playfair Display",
-  logo_url: null,
+  logo_url: "/favicon.ico",
   signature_url: null,
   stamp_url: null,
   title_font: null,
