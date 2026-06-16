@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { MessageSquare, Heart, Share2, Bookmark, Image as ImageIcon, Video, FileText, Send, MoreHorizontal, Trash2 } from "lucide-react";
+import { MessageSquare, Heart, Share2, Bookmark, Image as ImageIcon, Video, FileText, Send, MoreHorizontal, Trash2, Bold, Italic, Link as LinkIcon, List, Heading1 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -39,7 +39,7 @@ function CommunityPage() {
     content: '',
     editorProps: {
       attributes: {
-        class: 'min-h-[100px] w-full resize-none rounded-md bg-accent/50 px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 prose prose-sm dark:prose-invert max-w-none',
+        class: 'min-h-[100px] w-full resize-none bg-transparent px-2 py-2 text-base outline-none prose prose-sm dark:prose-invert max-w-none focus:outline-none',
       },
     },
     onUpdate: ({ editor }) => {
@@ -185,47 +185,89 @@ function CommunityPage() {
         <h1 className="text-3xl font-display font-semibold mb-6">Community Hub</h1>
         
         {/* Create Post Box */}
-        <div className="bg-card rounded-2xl border p-4 mb-8 shadow-sm">
+        <div className="bg-card rounded-2xl border p-5 mb-8 shadow-sm focus-within:ring-1 focus-within:ring-primary/50 transition-shadow">
           <div className="flex gap-4">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-11 w-11 mt-1 border">
               <AvatarImage src={profile?.avatar_url || ""} />
               <AvatarFallback>{profile?.full_name?.charAt(0) || user?.email?.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div className="flex-1 space-y-3">
-              <EditorContent editor={editor} />
+            <div className="flex-1 min-w-0">
+              <div className="bg-transparent mb-2">
+                <EditorContent editor={editor} className="cursor-text" onClick={() => editor?.commands.focus()} />
+              </div>
               
               {mediaFile && (
-                <div className="relative rounded-lg overflow-hidden bg-accent inline-block">
-                  <div className="p-2 flex items-center gap-2 text-sm font-medium">
-                    <span className="truncate max-w-[200px]">{mediaFile.name}</span>
-                    <button onClick={() => setMediaFile(null)} className="text-muted-foreground hover:text-destructive">
-                      &times;
+                <div className="relative rounded-lg overflow-hidden bg-accent/40 border inline-flex max-w-[250px] mb-4">
+                  <div className="p-2.5 flex items-center gap-3 text-sm font-medium w-full">
+                    <div className="truncate flex-1 text-foreground">{mediaFile.name}</div>
+                    <button onClick={() => setMediaFile(null)} className="text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10 rounded-full p-1 transition-colors">
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
               )}
               
-              <div className="flex items-center justify-between border-t pt-3">
-                <div className="flex gap-1 text-muted-foreground">
-                  <label className="p-2 hover:bg-accent rounded-full cursor-pointer transition-colors">
-                    <ImageIcon className="h-5 w-5 text-indigo-500" />
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} />
-                  </label>
-                  <label className="p-2 hover:bg-accent rounded-full cursor-pointer transition-colors">
-                    <Video className="h-5 w-5 text-rose-500" />
-                    <input type="file" accept="video/*" className="hidden" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} />
-                  </label>
-                  <label className="p-2 hover:bg-accent rounded-full cursor-pointer transition-colors">
-                    <FileText className="h-5 w-5 text-amber-500" />
-                    <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} />
-                  </label>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t pt-3 gap-4">
+                <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
+                  {/* Text Formatting Toolbar */}
+                  <div className="flex items-center border-r pr-2 mr-1">
+                    <button 
+                      onClick={() => editor?.chain().focus().toggleBold().run()} 
+                      className={`p-2 rounded-lg transition-colors ${editor?.isActive('bold') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+                      title="Bold"
+                    >
+                      <Bold className="h-4 w-4" />
+                    </button>
+                    <button 
+                      onClick={() => editor?.chain().focus().toggleItalic().run()} 
+                      className={`p-2 rounded-lg transition-colors ${editor?.isActive('italic') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+                      title="Italic"
+                    >
+                      <Italic className="h-4 w-4" />
+                    </button>
+                    <button 
+                      onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()} 
+                      className={`p-2 rounded-lg transition-colors ${editor?.isActive('heading') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+                      title="Heading"
+                    >
+                      <Heading1 className="h-4 w-4" />
+                    </button>
+                    <button 
+                      onClick={() => editor?.chain().focus().toggleBulletList().run()} 
+                      className={`p-2 rounded-lg transition-colors ${editor?.isActive('bulletList') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
+                      title="Bullet List"
+                    >
+                      <List className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Media Uploads */}
+                  <div className="flex items-center gap-1">
+                    <label className="p-2 text-indigo-500 hover:bg-indigo-500/10 rounded-lg cursor-pointer transition-colors" title="Add Image">
+                      <ImageIcon className="h-5 w-5" />
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} />
+                    </label>
+                    <label className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg cursor-pointer transition-colors" title="Add Video">
+                      <Video className="h-5 w-5" />
+                      <input type="file" accept="video/*" className="hidden" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} />
+                    </label>
+                    <label className="p-2 text-amber-500 hover:bg-amber-500/10 rounded-lg cursor-pointer transition-colors" title="Add Document">
+                      <FileText className="h-5 w-5" />
+                      <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} />
+                    </label>
+                  </div>
                 </div>
+
                 <Button 
                   onClick={createPost} 
                   disabled={isUploading || (!(editor?.getText().trim()) && !mediaFile)}
-                  className="rounded-full px-6"
+                  className="rounded-full px-8 shrink-0 shadow-sm"
                 >
-                  {isUploading ? "Posting..." : <><Send className="h-4 w-4 mr-2" /> Post</>}
+                  {isUploading ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Posting...</>
+                  ) : (
+                    <><Send className="h-4 w-4 mr-2" /> Post</>
+                  )}
                 </Button>
               </div>
             </div>

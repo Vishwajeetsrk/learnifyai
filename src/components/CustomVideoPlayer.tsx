@@ -39,7 +39,7 @@ export function CustomVideoPlayer({
   channelId,
   onEnded,
 }: CustomVideoPlayerProps) {
-  const playerRef = useRef<ReactPlayer>(null);
+  const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [ready, setReady] = useState(false);
@@ -171,8 +171,8 @@ export function CustomVideoPlayer({
             if (onReady) onReady();
           }}
           onError={onError}
-          onProgress={handleProgress}
-          onDuration={(d) => setDuration(d)}
+          onProgress={handleProgress as any}
+          onDuration={(d: number) => setDuration(d)}
           onEnded={onEnded}
           config={{
             youtube: {
@@ -181,7 +181,7 @@ export function CustomVideoPlayer({
                 rel: 0,
               },
             },
-          }}
+          } as any}
           className="react-player"
         />
       </div>

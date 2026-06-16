@@ -38,7 +38,7 @@ function CoachingDashboard() {
   const { data: coaches = [] } = useQuery({
     queryKey: ["available-coaches"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("*").eq("role", "creator");
+      const { data } = await supabase.from("profiles" as any).select("*").eq("role", "creator");
       return data || [];
     },
   });
@@ -195,25 +195,30 @@ function CoachingDashboard() {
             <div className="bg-card rounded-2xl border p-6">
               <h3 className="font-semibold text-lg mb-4">Upcoming Sessions</h3>
               {myBookings.length === 0 ? (
-                <div className="text-center py-10 text-muted-foreground">
-                  <Calendar className="h-10 w-10 mx-auto mb-3 opacity-20" />
-                  <p>No upcoming sessions.</p>
+                <div className="text-center py-12 px-4 rounded-xl border border-dashed bg-accent/20 text-muted-foreground">
+                  <Calendar className="h-10 w-10 mx-auto mb-3 opacity-30 text-primary" />
+                  <p className="font-medium text-foreground mb-1">No upcoming sessions</p>
+                  <p className="text-sm">Your booked coaching sessions will appear here.</p>
                 </div>
               ) : (
                 <ul className="space-y-4">
                   {myBookings.map((b: any) => (
-                    <li key={b.id} className="p-4 border rounded-xl flex justify-between items-center bg-accent/30">
+                    <li key={b.id} className="p-4 border border-border/50 rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-gradient-to-br from-card to-accent/10 shadow-sm transition-all hover:shadow-md">
                       <div>
-                        <div className="font-medium text-sm">
+                        <div className="font-medium text-sm text-foreground flex items-center gap-2">
+                          <Avatar className="h-6 w-6">
+                            <AvatarImage src={isCreator ? b.learner?.avatar_url : b.coach?.avatar_url} />
+                            <AvatarFallback className="text-[10px]">{isCreator ? b.learner?.full_name?.charAt(0) : b.coach?.full_name?.charAt(0)}</AvatarFallback>
+                          </Avatar>
                           {isCreator ? `Client: ${b.learner?.full_name}` : `Coach: ${b.coach?.full_name}`}
                         </div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
-                          <Clock className="h-3 w-3" />
+                        <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-2 font-medium">
+                          <Clock className="h-3.5 w-3.5 text-primary" />
                           {b.slot && format(new Date(b.slot.start_time), "MMM d, yyyy · h:mm a")}
                         </div>
                       </div>
-                      <Button size="sm" variant="outline" className="gap-2">
-                        <Video className="h-3 w-3" /> Join
+                      <Button size="sm" className="w-full sm:w-auto gap-2">
+                        <Video className="h-3.5 w-3.5" /> Join Session
                       </Button>
                     </li>
                   ))}
@@ -222,40 +227,52 @@ function CoachingDashboard() {
             </div>
 
             {!isCreator && (
-              <div className="bg-card rounded-2xl border p-6">
+              <div className="bg-card rounded-2xl border p-6 flex flex-col h-full">
                 <h3 className="font-semibold text-lg mb-4">
                   {selectedCoachId ? "Select a Slot" : "Book a Coach"}
                 </h3>
                 
                 {!selectedCoachId ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3 flex-1 overflow-y-auto pr-1">
                     {coaches.map((coach: any) => (
-                      <div key={coach.id} className="p-4 border rounded-xl flex items-center gap-4 hover:border-primary/50 cursor-pointer transition-colors" onClick={() => setSelectedCoachId(coach.id)}>
-                        <Avatar className="h-12 w-12">
+                      <div key={coach.id} className="p-3 border rounded-xl flex items-center gap-4 hover:border-primary/50 hover:bg-accent/30 cursor-pointer transition-all" onClick={() => setSelectedCoachId(coach.id)}>
+                        <Avatar className="h-12 w-12 border">
                           <AvatarImage src={coach.avatar_url} />
                           <AvatarFallback>{coach.full_name?.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <div className="flex-1">
-                          <h4 className="font-medium">{coach.full_name}</h4>
-                          <p className="text-xs text-muted-foreground line-clamp-1">{coach.bio || "Expert Coach"}</p>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium truncate">{coach.full_name}</h4>
+                          <p className="text-xs text-muted-foreground truncate">{coach.bio || "Expert Coach"}</p>
                         </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                        <ChevronRight className="h-5 w-5 text-muted-foreground opacity-50" />
                       </div>
                     ))}
+                    {coaches.length === 0 && (
+                      <div className="text-center py-10 text-muted-foreground border rounded-xl border-dashed">
+                        No coaches available right now.
+                      </div>
+                    )}
                   </div>
                 ) : (
-                  <div>
-                    <Button variant="ghost" size="sm" className="mb-4" onClick={() => setSelectedCoachId(null)}>← Back to coaches</Button>
+                  <div className="flex flex-col h-full">
+                    <Button variant="ghost" size="sm" className="mb-4 self-start text-muted-foreground hover:text-foreground -ml-2" onClick={() => setSelectedCoachId(null)}>
+                      ← Back to coaches
+                    </Button>
                     {coachSlots.length === 0 ? (
-                      <p className="text-sm text-muted-foreground text-center py-8">No available slots for this coach.</p>
+                      <div className="flex-1 flex items-center justify-center border border-dashed rounded-xl p-8 text-center text-muted-foreground">
+                        No available slots for this coach.
+                      </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="space-y-3 flex-1 overflow-y-auto pr-1">
                         {coachSlots.map((s: any) => (
-                          <div key={s.id} className="p-4 border rounded-xl flex justify-between items-center">
-                            <span className="text-sm font-medium">{format(new Date(s.start_time), "MMM d, yyyy · h:mm a")}</span>
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm font-semibold text-primary">₹{s.price_inr}</span>
-                              <Button size="sm" onClick={() => bookSlot(s.id)}>Book</Button>
+                          <div key={s.id} className="p-4 border rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-4 hover:border-primary/30 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4 text-primary opacity-70" />
+                              <span className="text-sm font-medium">{format(new Date(s.start_time), "MMM d, yyyy · h:mm a")}</span>
+                            </div>
+                            <div className="flex items-center gap-3 justify-between sm:justify-end w-full sm:w-auto">
+                              <span className="text-sm font-semibold px-2 py-1 bg-accent rounded-md">₹{s.price_inr}</span>
+                              <Button size="sm" onClick={() => bookSlot(s.id)}>Book Slot</Button>
                             </div>
                           </div>
                         ))}
@@ -267,38 +284,60 @@ function CoachingDashboard() {
             )}
             
             {isCreator && (
-              <div className="bg-card rounded-2xl border p-6">
+              <div className="bg-card rounded-2xl border p-6 flex flex-col h-full">
                 <h3 className="font-semibold text-lg mb-4">My Availability</h3>
                 
-                <div className="flex gap-2 mb-6 items-end">
-                  <div className="flex-1">
-                    <label className="text-xs text-muted-foreground">Start Time</label>
-                    <Input type="datetime-local" value={newSlotStart} onChange={e => setNewSlotStart(e.target.value)} />
+                <div className="bg-accent/30 border border-border/50 rounded-xl p-4 mb-6">
+                  <h4 className="text-sm font-medium mb-3">Add New Slot</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Start Time</label>
+                      <Input type="datetime-local" className="h-10" value={newSlotStart} onChange={e => setNewSlotStart(e.target.value)} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">End Time</label>
+                      <Input type="datetime-local" className="h-10" value={newSlotEnd} onChange={e => setNewSlotEnd(e.target.value)} />
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <label className="text-xs text-muted-foreground">End Time</label>
-                    <Input type="datetime-local" value={newSlotEnd} onChange={e => setNewSlotEnd(e.target.value)} />
+                  <div className="flex flex-col sm:flex-row items-end gap-4">
+                    <div className="space-y-1.5 w-full sm:w-1/3">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price (₹)</label>
+                      <Input type="number" className="h-10" placeholder="e.g. 500" value={newSlotPrice} onChange={e => setNewSlotPrice(e.target.value)} />
+                    </div>
+                    <Button onClick={addSlot} disabled={!newSlotStart || !newSlotEnd} className="w-full sm:w-2/3 h-10">Add Slot to Calendar</Button>
                   </div>
-                  <div className="w-24">
-                    <label className="text-xs text-muted-foreground">Price (₹)</label>
-                    <Input type="number" value={newSlotPrice} onChange={e => setNewSlotPrice(e.target.value)} />
-                  </div>
-                  <Button onClick={addSlot} disabled={!newSlotStart || !newSlotEnd}>Add</Button>
                 </div>
 
-                <ul className="space-y-2 max-h-[300px] overflow-y-auto">
+                <div className="flex-1 overflow-y-auto pr-1 space-y-3">
+                  <h4 className="text-sm font-medium sticky top-0 bg-card py-2 border-b mb-2 z-10">Manage Slots</h4>
                   {mySlots.map((s: any) => (
-                    <li key={s.id} className="p-3 border rounded-lg text-sm flex justify-between items-center">
-                      <span>{format(new Date(s.start_time), "MMM d · h:mm a")} - {format(new Date(s.end_time), "h:mm a")}</span>
-                      {s.is_booked ? (
-                        <span className="text-emerald-500 font-semibold text-xs bg-emerald-500/10 px-2 py-1 rounded">Booked</span>
-                      ) : (
-                        <span className="text-muted-foreground text-xs">Available (₹{s.price_inr})</span>
-                      )}
-                    </li>
+                    <div key={s.id} className="p-3.5 border rounded-xl text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card hover:bg-accent/10 transition-colors">
+                      <div className="flex items-center gap-2 text-foreground font-medium">
+                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <span>{format(new Date(s.start_time), "MMM d, yyyy")}</span>
+                        <span className="text-muted-foreground mx-1">·</span>
+                        <span>{format(new Date(s.start_time), "h:mm a")} - {format(new Date(s.end_time), "h:mm a")}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <span className="font-semibold px-2 py-0.5 rounded-md border text-muted-foreground text-xs">₹{s.price_inr}</span>
+                        {s.is_booked ? (
+                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-xs bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Booked
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground text-xs font-medium px-2.5 py-1 rounded-full bg-accent">Available</span>
+                        )}
+                      </div>
+                    </div>
                   ))}
-                  {mySlots.length === 0 && <p className="text-sm text-muted-foreground py-4">No slots added yet.</p>}
-                </ul>
+                  {mySlots.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground border border-dashed rounded-xl">
+                      <p className="text-sm">No slots added yet.</p>
+                      <p className="text-xs mt-1">Add slots above so learners can book you.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
