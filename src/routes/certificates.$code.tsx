@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import QRCode from "qrcode";
 import { Loader2, Award, Printer, Share2, Download, Mail } from "lucide-react";
 import { format } from "date-fns";
@@ -55,11 +56,18 @@ function CertificatePage() {
   const q = useQuery({
     queryKey: ["cert", code],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("get_certificate_by_code", { _code: code });
+      const { data: rpcData, error } = await supabase.rpc("get_certificate_by_code", { _code: code });
       if (error) throw error;
-      const row = Array.isArray(data) ? data[0] : data;
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
       if (!row) throw new Error("Certificate not found");
-      return row as any;
+      
+      const { data: certV2 } = await supabase
+        .from("certificates")
+        .select("template_id, verification_url, dynamic_data, certificate_templates(*)")
+        .eq("code", code)
+        .maybeSingle();
+
+      return { ...row, v2: certV2 } as any;
     },
   });
 
@@ -194,7 +202,39 @@ function CertificatePage() {
           </div>
         </div>
 
-        <CertificateRender ref={certRef} design={design} ctx={ctx} />
+        {row.v2?.certificate_templates ? (
+          <div ref={certRef} className="relative w-full mx-auto overflow-hidden shadow-2xl bg-white" style={{ aspectRatio: "1.414 / 1", backgroundImage: row.v2.certificate_templates.bg_image_url ? `url(${row.v2.certificate_templates.bg_image_url})` : 'none', backgroundSize: 'cover' }}>
+            {row.v2.certificate_templates.config_json?.elements?.map((el: any) => {
+              let content = el.content || "";
+              content = content.replace("{name}", ctx.name).replace("{course}", ctx.course).replace("{date}", ctx.date).replace("{certificate_id}", ctx.code);
+              
+              if (el.type === 'qr') {
+                return (
+                  <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height }}>
+                    {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" />}
+                  </div>
+                );
+              }
+              
+              return (
+                <div key={el.id} className="absolute whitespace-pre-wrap" style={{ 
+                  left: el.x, 
+                  top: el.y, 
+                  fontSize: el.fontSize, 
+                  fontFamily: el.fontFamily, 
+                  color: el.color,
+                  textAlign: el.align,
+                  width: el.width || 'auto',
+                  transform: el.align === 'center' ? 'translateX(-50%)' : el.align === 'right' ? 'translateX(-100%)' : 'none'
+                }}>
+                  {content}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <CertificateRender ref={certRef} design={design} ctx={ctx} />
+        )}
 
         <p className="mt-4 text-center text-[11px] text-muted-foreground print:hidden">
           Verify at {typeof window !== "undefined" ? window.location.host : "learnify.ai"}

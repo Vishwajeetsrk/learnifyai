@@ -23,7 +23,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Wallet & Integrated Payments:** Manage credits, purchase courses, and download invoices instantly.
 - **Community Feed:** Share updates, post questions, attach media, and engage with peers.
 - **AI-Powered Roadmaps:** Dynamic learning paths adjusted to your progress.
-- **Verifiable Certificates:** Auto-generated, verifiable certificates upon course completion.
+- **Verifiable Certificates (System 2.0):** Cryptographically verifiable professional credentials with dynamic drag-and-drop templates, public `/verify` routes, QR codes, and 1-click LinkedIn sharing.
 
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons, and track enrollment.
