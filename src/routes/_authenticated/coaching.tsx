@@ -38,7 +38,10 @@ function CoachingDashboard() {
   const { data: coaches = [] } = useQuery({
     queryKey: ["available-coaches"],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles" as any).select("*").eq("role", "creator");
+      const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "creator");
+      if (!roles || roles.length === 0) return [];
+      const userIds = roles.map((r: any) => r.user_id);
+      const { data } = await supabase.from("profiles" as any).select("*").in("id", userIds);
       return data || [];
     },
   });

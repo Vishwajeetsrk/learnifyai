@@ -87,9 +87,9 @@ function DashboardPage() {
     (attemptsByCourse[a.course_id] ||= []).push(a);
   });
 
-  const enrolled = enrollQ.data ?? [];
-  const totalCompleted = enrolled.filter((e) => e.status === "completed").length;
-  const totalCerts = (certsQ.data ?? []).length;
+  const enrolled = Array.isArray(enrollQ.data) ? enrollQ.data : [];
+  const totalCompleted = enrolled.filter((e: any) => e.status === "completed").length;
+  const totalCerts = Array.isArray(certsQ.data) ? certsQ.data.length : 0;
 
   return (
     <AppShell>

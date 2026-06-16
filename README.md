@@ -50,9 +50,10 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 - **Deployment:** [Vercel](https://vercel.com/) (Edge Network & Serverless Functions)
 
 ### Integrated APIs & Tools
-- **Payments:** [Razorpay](https://razorpay.com/) (Integrated Wallet Top-ups & Checkout)
+- **Payments:** [Razorpay](https://razorpay.com/) (Integrated Wallet Top-ups & Checkout with strict HMAC SHA-256 signature verification and idempotency keys)
 - **AI Integration:** Google Gemini API / OpenAI API (For AI Tutor and Analytics)
 - **PDF Generation:** jsPDF & jsPDF-Autotable (Invoice rendering)
+- **Observability:** Sentry Error Tracking & PostHog Analytics
 
 ---
 

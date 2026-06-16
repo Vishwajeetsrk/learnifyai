@@ -29,7 +29,7 @@ export const getPlatformStats = createServerFn({ method: "GET" }).handler(
     const [learners, courses, creators, enrollments, certificates] = await Promise.all([
       safeCount("profiles"),
       safeCount("courses", (q) => q.eq("published", true)),
-      safeCount("profiles", (q) => q.eq("role", "creator")),
+      safeCount("user_roles", (q) => q.eq("role", "creator")),
       safeCount("enrollments"),
       safeCount("certificates"),
     ]);
