@@ -144,23 +144,16 @@ export function CustomVideoPlayer({
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden group"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden"
     >
-      {!ready && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/50 pointer-events-none">
-          <Loader2 className="h-8 w-8 text-primary animate-spin" />
-        </div>
-      )}
-
-      {/* ReactPlayer Wrapper */}
       <div className="absolute inset-0">
         <ReactPlayer
           ref={playerRef}
           url={url}
           width="100%"
           height="100%"
+          light={true}
+          controls={true}
           playing={playing}
           volume={volume}
           muted={muted}
@@ -184,7 +177,6 @@ export function CustomVideoPlayer({
           config={{
             youtube: {
               playerVars: {
-                controls: 1,
                 modestbranding: 1,
                 rel: 0,
               },
