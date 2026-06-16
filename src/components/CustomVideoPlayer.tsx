@@ -147,6 +147,7 @@ export function CustomVideoPlayer({
       className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden"
     >
       <div className="absolute inset-0">
+        {/* @ts-ignore - ReactPlayer typings can be overly strict about refs/components */}
         <ReactPlayer
           ref={playerRef}
           url={url}

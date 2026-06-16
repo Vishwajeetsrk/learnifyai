@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { MessageSquare, Heart, Share2, Bookmark, Image as ImageIcon, Video, FileText, Send, MoreHorizontal, Trash2, Bold, Italic, Link as LinkIcon, List, Heading1 } from "lucide-react";
+import { MessageSquare, Heart, Share2, Bookmark, Image as ImageIcon, Video, FileText, Send, MoreHorizontal, Trash2, Bold, Italic, Link as LinkIcon, List, Heading1, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
