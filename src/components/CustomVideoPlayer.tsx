@@ -141,14 +141,15 @@ export function CustomVideoPlayer({
     return `${mm}:${ss}`;
   };
 
+  const Player = ReactPlayer as any;
+
   return (
     <div
       ref={containerRef}
       className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden"
     >
       <div className="absolute inset-0">
-        {/* @ts-ignore - ReactPlayer typings can be overly strict about refs/components */}
-        <ReactPlayer
+        <Player
           ref={playerRef}
           url={url}
           width="100%"

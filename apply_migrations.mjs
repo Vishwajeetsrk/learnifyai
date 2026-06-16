@@ -11,7 +11,8 @@ async function main() {
 
   const files = [
     "20260615000000_community_features.sql",
-    "20260615000001_coaching_features.sql"
+    "20260615000001_coaching_features.sql",
+    "20260616000000_rag_core.sql"
   ];
 
   for (const file of files) {

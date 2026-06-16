@@ -15,15 +15,23 @@ const Input = z.object({
 
 const SYSTEM = `You are Learnify AI — a senior technical mentor. Provide direct, short answers. Use concise bullet points for the best presentation. Respond in clean, professional markdown (H2/H3 headings, fenced code blocks). Be extremely concise. Avoid long paragraphs, fluff, or filler text.`;
 
-function buildPrompt(d: z.infer<typeof Input>) {
+function buildPrompt(d: z.infer<typeof Input>, ragContext?: string) {
   const ctx = `Course: ${d.courseTitle}\nLesson: ${d.lessonTitle}${d.lessonDescription ? `\nLesson notes: ${d.lessonDescription}` : ""}`;
+  
+  let basePrompt = "";
   if (d.action === "summary") {
-    return `${ctx}\n\nProduce a short, structured lesson summary with these sections (use brief bullet points):\n## Key Takeaways (3-5 short bullets)\n## Core Concepts Explained (briefly)\n## Real-World Applications\n## Quick Recap (1 short line)`;
+    basePrompt = `${ctx}\n\nProduce a short, structured lesson summary with these sections (use brief bullet points):\n## Key Takeaways (3-5 short bullets)\n## Core Concepts Explained (briefly)\n## Real-World Applications\n## Quick Recap (1 short line)`;
+  } else if (d.action === "exercise") {
+    basePrompt = `${ctx}\n\nDesign a short, practical exercise. Keep it brief and use bullet points:\n## Objective\n## Prerequisites\n## Step-by-Step Instructions (short bullets)\n## Starter Code\n## Expected Output\n## Bonus Challenges\n## Solution Hints`;
+  } else {
+    basePrompt = `${ctx}\n\nLearner's doubt: """${d.question ?? ""}"""\n\nClear the doubt directly and concisely using bullet points:\n## Direct Answer (1-2 short sentences)\n## Why This Happens (bullet points)\n## Worked Example\n## Common Mistakes to Avoid (bullet points)\n## Further Reading`;
   }
-  if (d.action === "exercise") {
-    return `${ctx}\n\nDesign a short, practical exercise. Keep it brief and use bullet points:\n## Objective\n## Prerequisites\n## Step-by-Step Instructions (short bullets)\n## Starter Code\n## Expected Output\n## Bonus Challenges\n## Solution Hints`;
+
+  if (ragContext) {
+    basePrompt = `COURSE CONTENT & CONTEXT:\nUse the following extracted materials from the course to guide your answer and ensure accuracy based on the actual course contents.\n\n${ragContext}\n\n---\n\n${basePrompt}`;
   }
-  return `${ctx}\n\nLearner's doubt: """${d.question ?? ""}"""\n\nClear the doubt directly and concisely using bullet points:\n## Direct Answer (1-2 short sentences)\n## Why This Happens (bullet points)\n## Worked Example\n## Common Mistakes to Avoid (bullet points)\n## Further Reading`;
+
+  return basePrompt;
 }
 
 export const lessonAiHelper = createServerFn({ method: "POST" })
@@ -89,10 +97,26 @@ export const lessonAiHelper = createServerFn({ method: "POST" })
         "Full course access is required to use AI hints, suggestions, solving help, and summaries.",
       );
 
+    let ragContext = "";
+    if (data.action === "doubt" && data.question) {
+      try {
+        const { searchCourseContext } = await import('./rag.functions');
+        const matches = await searchCourseContext({ 
+          data: { courseId: data.courseId, query: data.question, limit: 3 }, 
+          context 
+        } as any);
+        if (matches && matches.length > 0) {
+          ragContext = matches.map((m: any) => m.content).join("\n\n---\n\n");
+        }
+      } catch (e) {
+        console.error("Failed to fetch RAG context in lesson-ai:", e);
+      }
+    }
+
     const res = await callUserAiChat({
       messages: [
         { role: "system", content: SYSTEM },
-        { role: "user", content: buildPrompt(data) },
+        { role: "user", content: buildPrompt(data, ragContext) },
       ],
     });
 

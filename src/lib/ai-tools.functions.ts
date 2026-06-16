@@ -13,6 +13,7 @@ const DoubtInput = z.object({
   action: z.literal("doubt"),
   question: z.string().min(2).max(4000),
   subject: z.string().max(200).optional(),
+  courseId: z.string().uuid().optional(),
 });
 const CareerInput = z.object({
   action: z.literal("career"),
@@ -51,7 +52,7 @@ function jsonInstruction(schemaHint: string) {
   return `Respond with ONLY valid minified JSON matching this schema (no markdown, no prose, no code fences):\n${schemaHint}`;
 }
 
-function buildMessages(d: z.infer<typeof Input>) {
+function buildMessages(d: z.infer<typeof Input>, ragContext?: string) {
   if (d.action === "quiz") {
     return {
       json: true,
@@ -89,10 +90,15 @@ function buildMessages(d: z.infer<typeof Input>) {
     };
   }
   if (d.action === "doubt") {
+    let systemPrompt = SYS;
+    if (ragContext) {
+      systemPrompt += `\n\nCOURSE CONTEXT:\nUse the following extracted content from the course to answer the user's doubt. Do NOT hallucinate information outside this context if it's a specific course question.\n\n${ragContext}`;
+    }
+
     return {
       json: false,
       messages: [
-        { role: "system", content: SYS },
+        { role: "system", content: systemPrompt },
         {
           role: "user",
           content: `Subject: ${d.subject ?? "General"}\nQuestion: ${d.question}\n\nProvide the response using short bullet points:\n## Direct Answer (1-2 sentences)\n## Why / How It Works (bullet points)\n## Worked Example (with code if relevant)\n## Common Mistakes (bullet points)\n## Further Reading (bullet points)`,
@@ -145,7 +151,26 @@ export const runAiTool = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => Input.parse(d))
   .handler(async ({ data, context }) => {
-    const { json, messages } = buildMessages(data);
+    let ragContext = "";
+    
+    // If it's a doubt and we have a courseId, fetch RAG context
+    if (data.action === "doubt" && data.courseId) {
+      try {
+        const { searchCourseContext } = await import('./rag.functions');
+        const matches = await searchCourseContext({ 
+          data: { courseId: data.courseId, query: data.question, limit: 3 }, 
+          context 
+        } as any);
+        
+        if (matches && matches.length > 0) {
+          ragContext = matches.map((m: any) => m.content).join("\n\n---\n\n");
+        }
+      } catch (e) {
+        console.error("Failed to fetch RAG context:", e);
+      }
+    }
+
+    const { json, messages } = buildMessages(data, ragContext);
     const body: Record<string, unknown> = { messages };
     if (json) body.response_format = { type: "json_object" };
 
