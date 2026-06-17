@@ -67,7 +67,7 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 | **Payments** | Razorpay (wallet, checkout, webhooks with HMAC SHA-256 verification) |
 | **AI Chat / Text** | OpenRouter, Gemini, Groq (3-tier fallback) |
 | **AI Embeddings** | Gemini Embeddings (text-embedding-004) |
-| **Image Generation** | Lovable → Gemini → Stability AI → Fal AI → Hugging Face → Pollinations AI (6-tier fallback) |
+| **Image Generation** | OpenRouter (FLUX Pro) → Gemini → Stability AI → Fal AI → Hugging Face → Pollinations AI (6-tier fallback) |
 | **Video Analysis** | YouTube Data API + Gemini summarization |
 | **Email** | Resend (primary), Brevo/SMTP (fallback) |
 | **Error Monitoring** | Sentry |

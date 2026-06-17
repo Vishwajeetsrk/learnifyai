@@ -56,36 +56,40 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     const safety = checkThumbnailPromptSafety(data.prompt);
     if (safety) throw new Error(safety);
 
-    const lovableKey = process.env.LOVABLE_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY;
     const stabilityKey = process.env.STABILITY_API_KEY;
     const falKey = process.env.FAL_KEY;
     const hfKey = process.env.HF_API_KEY;
+    const openrouterKey = process.env.OPENROUTER_API_KEY;
 
-    // 1. Try Lovable API if available
-    if (lovableKey) {
+    // 1. OpenRouter — FLUX Pro (fast, reliable)
+    if (openrouterKey) {
       try {
-        const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
           method: "POST",
-          headers: { Authorization: `Bearer ${lovableKey}`, "Content-Type": "application/json" },
+          headers: {
+            Authorization: `Bearer ${openrouterKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://learnifyaitool.vercel.app",
+          },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash-image-preview",
-            messages: [{ role: "user", content: `${data.prompt}\n\n(Render at ${data.size}.)` }],
-            modalities: ["image", "text"],
+            model: "black-forest-labs/flux-1.1-pro",
+            messages: [{ role: "user", content: data.prompt }],
           }),
         });
 
         if (res.ok) {
-          const json = (await res.json()) as {
-            choices?: Array<{ message?: { images?: Array<{ image_url?: { url?: string } }> } }>;
-          };
-          const url = json.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-          if (url) return { dataUrl: url };
+          const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+          const content = json.choices?.[0]?.message?.content || "";
+          // Response may contain markdown image: ![alt](url) or direct URL
+          const m = content.match(/https?:\/\/[^\s"}]+\.(png|jpg|jpeg|webp)/i);
+          if (m) return { dataUrl: m[0] };
         } else {
-          console.warn(`Lovable image generation failed (${res.status}). Trying fallback...`);
+          const txt = await res.text().catch(() => "");
+          console.warn(`OpenRouter FLUX failed (${res.status}): ${txt.slice(0, 120)}`);
         }
       } catch (err) {
-        console.warn("Lovable image generation error. Trying fallback...", err);
+        console.warn("OpenRouter FLUX error. Trying Gemini...", err);
       }
     }
 
