@@ -24,6 +24,7 @@ import {
   Link2,
   Upload,
   Image as ImageIcon,
+  Code2,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { runAiTool } from "@/lib/ai-tools.functions";
@@ -168,6 +169,7 @@ function StudioPage() {
   const [manageLessonsFor, setManageLessonsFor] = useState<Course | null>(null);
   const [manageMcqFor, setManageMcqFor] = useState<Course | null>(null);
   const [manageAssignFor, setManageAssignFor] = useState<Course | null>(null);
+  const [manageProjectsFor, setManageProjectsFor] = useState<Course | null>(null);
   const [reviewSubFor, setReviewSubFor] = useState<Course | null>(null);
   const [aiBuilderOpen, setAiBuilderOpen] = useState(false);
 
@@ -336,6 +338,9 @@ function StudioPage() {
                           <Button size="sm" variant="ghost" onClick={() => setManageAssignFor(c)}>
                             <ClipboardList className="h-4 w-4" /> Assign.
                           </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setManageProjectsFor(c)}>
+                            <Code2 className="h-4 w-4" /> Projects
+                          </Button>
                           <Button size="sm" variant="ghost" onClick={() => setReviewSubFor(c)}>
                             <FileCheck2 className="h-4 w-4" /> Subs
                           </Button>
@@ -387,6 +392,8 @@ function StudioPage() {
       <McqDialog course={manageMcqFor} onClose={() => setManageMcqFor(null)} />
 
       <AssignmentsManagerDialog course={manageAssignFor} onClose={() => setManageAssignFor(null)} />
+
+      <ProjectsManagerDialog course={manageProjectsFor} onClose={() => setManageProjectsFor(null)} />
 
       <SubmissionsReviewDialog course={reviewSubFor} onClose={() => setReviewSubFor(null)} />
 
@@ -2211,6 +2218,125 @@ function AiThumbnailDialog({
           <Button onClick={() => preview && onApply(preview)} disabled={!preview}>
             <ImageIcon className="h-4 w-4" /> Use this thumbnail
           </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+/* ---------- Projects Manager ---------- */
+
+function ProjectsManagerDialog({ course, onClose }: { course: Course | null; onClose: () => void }) {
+  const qc = useQueryClient();
+  const [items, setItems] = useState<any[]>([]);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const aq = useQuery({
+    enabled: !!course,
+    queryKey: ["course-projects", course?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("course_assignments")
+        .select("*")
+        .eq("course_id", course!.id)
+        .order("order_index");
+      if (error) throw error;
+      // Filter for project-type entries
+      return (data ?? []).filter((a: any) => a.title?.startsWith("Project:"));
+    },
+  });
+
+  useEffect(() => {
+    setItems(aq.data ?? []);
+  }, [aq.data]);
+
+  const save = async (updated: any[]) => {
+    if (!course) return;
+    // Delete existing project entries
+    const existing = aq.data ?? [];
+    const ids = existing.map((a: any) => a.id);
+    if (ids.length > 0) {
+      await supabase.from("course_assignments").delete().in("id", ids);
+    }
+    // Insert updated
+    const rows = updated.map((p, i) => ({
+      course_id: course.id,
+      title: `Project: ${p.title}`,
+      prompt: p.prompt ?? "",
+      starter_code: p.starter_code ?? null,
+      order_index: i,
+    }));
+    const { error } = await supabase.from("course_assignments").insert(rows);
+    if (error) return toast.error(error.message);
+    toast.success("Projects saved");
+    qc.invalidateQueries({ queryKey: ["course-projects", course.id] });
+    onClose();
+  };
+
+  if (!course) return null;
+
+  return (
+    <Dialog open={!!course} onOpenChange={() => onClose()}>
+      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Code2 className="h-4 w-4 text-primary" /> Projects — {course.title}
+          </DialogTitle>
+          <DialogDescription>
+            Hands-on projects for this course. Students see these in the course player.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="flex justify-end">
+            <Button size="sm" onClick={() => {
+              setItems([...items, { title: "", prompt: "", starter_code: "" }]);
+              setEditingIndex(items.length);
+            }}>
+              <Plus className="h-4 w-4 mr-1" /> Add project
+            </Button>
+          </div>
+          {items.map((p, i) => (
+            <div key={i} className="rounded-xl border border-border/60 bg-card p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Project #{i + 1}</span>
+                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => {
+                  setItems(items.filter((_, idx) => idx !== i));
+                  if (editingIndex === i) setEditingIndex(null);
+                }}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              <Input
+                value={p.title}
+                onChange={(e) => {
+                  const copy = [...items]; copy[i] = { ...copy[i], title: e.target.value }; setItems(copy);
+                }}
+                placeholder="Project title (e.g. Build a Todo App)"
+              />
+              <textarea
+                value={p.prompt}
+                onChange={(e) => {
+                  const copy = [...items]; copy[i] = { ...copy[i], prompt: e.target.value }; setItems(copy);
+                }}
+                placeholder="Project description / instructions"
+                className="w-full rounded-lg border bg-background px-3 py-2 text-sm min-h-[80px]"
+              />
+              <Input
+                value={p.starter_code ?? ""}
+                onChange={(e) => {
+                  const copy = [...items]; copy[i] = { ...copy[i], starter_code: e.target.value }; setItems(copy);
+                }}
+                placeholder="Starter code URL (optional)"
+              />
+            </div>
+          ))}
+          {items.length === 0 && (
+            <div className="text-center text-muted-foreground py-8">No projects yet.</div>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={() => save(items)}>Save projects</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

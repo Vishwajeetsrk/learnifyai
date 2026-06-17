@@ -62,13 +62,41 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     const hfKey = process.env.HF_API_KEY;
     const openrouterKey = process.env.OPENROUTER_API_KEY;
 
-    // 1. Pollinations AI (free, no key needed — fast URL-based generation)
+    // 1. Hugging Face (free inference — FLUX.1-schnell, has user's API key)
+    if (hfKey) {
+      try {
+        const res = await fetch("https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${hfKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ inputs: data.prompt.slice(0, 500) }),
+        });
+
+        if (res.ok) {
+          const blob = await res.arrayBuffer();
+          const base64 = Buffer.from(blob).toString("base64");
+          return { dataUrl: `data:image/jpeg;base64,${base64}` };
+        } else {
+          const txt = await res.text().catch(() => "");
+          console.warn(`Hugging Face failed (${res.status}): ${txt.slice(0, 120)}`);
+        }
+      } catch (err) {
+        console.warn("Hugging Face error. Trying Pollinations...", err);
+      }
+    }
+
+    // 2. Pollinations AI (free, no key needed)
     try {
-      const pw = encodeURIComponent(data.prompt.slice(0, 1000));
+      const short = data.prompt.slice(0, 400);
+      const pw = encodeURIComponent(short);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 25000);
       const res = await fetch(`https://gen.pollinations.ai/image/${pw}?model=flux&nofeed=true`, {
-        method: "GET",
-        signal: AbortSignal.timeout(30000),
+        signal: controller.signal,
       });
+      clearTimeout(timer);
       if (res.ok) {
         const blob = await res.arrayBuffer();
         const base64 = Buffer.from(blob).toString("base64");
@@ -80,7 +108,7 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       console.warn("Pollinations AI error. Trying OpenRouter...", err);
     }
 
-    // 2. OpenRouter — FLUX Pro
+    // 3. OpenRouter — FLUX Pro
     if (openrouterKey) {
       try {
         const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -110,7 +138,7 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       }
     }
 
-    // 3. Gemini 2.5 Flash Image via generateContent
+    // 4. Gemini 2.5 Flash Image via generateContent
     if (geminiKey) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${geminiKey}`;
@@ -142,7 +170,7 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       }
     }
 
-    // 3. Stability AI (SD3 / SDXL)
+    // 5. Stability AI (SD3 / SDXL)
     if (stabilityKey) {
       try {
         const sizeMap: Record<string, string> = {
@@ -178,7 +206,7 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       }
     }
 
-    // 4. Fal AI (FLUX / SD3)
+    // 6. Fal AI (FLUX / SD3)
     if (falKey) {
       try {
         const res = await fetch("https://fal.run/fal-ai/flux-pro/v1.1-ultra", {
@@ -204,32 +232,7 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
           console.warn(`Fal AI failed (${res.status}): ${txt.slice(0, 120)}`);
         }
       } catch (err) {
-        console.warn("Fal AI error. Trying Hugging Face...", err);
-      }
-    }
-
-    // 5. Hugging Face (free inference — FLUX.1-schnell)
-    if (hfKey) {
-      try {
-        const res = await fetch("https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${hfKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ inputs: data.prompt }),
-        });
-
-        if (res.ok) {
-          const blob = await res.arrayBuffer();
-          const base64 = Buffer.from(blob).toString("base64");
-          return { dataUrl: `data:image/jpeg;base64,${base64}` };
-        } else {
-          const txt = await res.text().catch(() => "");
-          console.warn(`Hugging Face failed (${res.status}): ${txt.slice(0, 120)}`);
-        }
-      } catch (err) {
-        console.warn("Hugging Face error.", err);
+        console.warn("Fal AI error.", err);
       }
     }
 
