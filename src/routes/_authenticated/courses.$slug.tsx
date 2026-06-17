@@ -41,13 +41,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Dialog,
   DialogContent,
@@ -576,6 +570,7 @@ function CourseDetail() {
                   key={`${active?.id}-${playerRetry}`}
                   url={activeVideo.src}
                   startSeconds={activeProgress?.watched_seconds ?? 0}
+                  playbackRate={speed}
                   onError={() => setPlayerLoadFailed(true)}
                   onReady={() => setPlayerLoadFailed(false)}
                   onEnded={() => {
@@ -631,24 +626,6 @@ function CourseDetail() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Select
-                      value={String(speed)}
-                      onValueChange={(v) => {
-                        const n = Number(v);
-                        setSpeed(n);
-                      }}
-                    >
-                      <SelectTrigger className="h-8 w-[88px] text-xs">
-                        <SelectValue placeholder="Speed" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map((s) => (
-                          <SelectItem key={s} value={String(s)}>
-                            {s}x
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                     <Button
                       onClick={() => toggleComplete(active.id)}
                       variant={completed.has(active.id) ? "secondary" : "default"}
@@ -666,10 +643,6 @@ function CourseDetail() {
                     </Button>
                   </div>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  Captions &amp; quality are available in the player's built-in controls (⚙ icon).
-                </p>
-
                 <LessonAiTabs
                   key={active.id}
                   courseId={course.id}

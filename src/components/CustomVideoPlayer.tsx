@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize, Loader2 } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Loader2, Settings, Subtitles, SubtitlesIcon } from "lucide-react";
 
 interface CustomVideoPlayerProps {
   url: string;
@@ -27,6 +27,20 @@ function extractYoutubeId(url: string): string | null {
   return m ? m[1] : null;
 }
 
+const QUALITY_LABELS: Record<string, string> = {
+  hd2160: "2160p (4K)",
+  hd1440: "1440p (2K)",
+  hd1080: "1080p",
+  hd720: "720p",
+  large: "480p",
+  medium: "360p",
+  small: "240p",
+  tiny: "144p",
+  auto: "Auto",
+};
+
+const SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
 let youtubeApiLoaded = false;
 
 export function CustomVideoPlayer({
@@ -35,6 +49,7 @@ export function CustomVideoPlayer({
   onError,
   onProgress,
   startSeconds = 0,
+  playbackRate: initialRate,
   onEnded,
 }: CustomVideoPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,10 +69,14 @@ export function CustomVideoPlayer({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [captionsOn, setCaptionsOn] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(initialRate || 1);
+  const [quality, setQuality] = useState("auto");
+  const [availableQualities, setAvailableQualities] = useState<string[]>([]);
 
   const youtubeId = useMemo(() => extractYoutubeId(url), [url]);
 
-  // Load YouTube IFrame API and create player
   useEffect(() => {
     if (!youtubeId) return;
     playerReadyRef.current = false;
@@ -77,6 +96,9 @@ export function CustomVideoPlayer({
           modestbranding: 1,
           enablejsapi: 1,
           autoplay: 1,
+          iv_load_policy: 3,
+          cc_load_policy: 0,
+          fs: 0,
           start: Math.floor(startSeconds),
         },
         events: {
@@ -88,6 +110,14 @@ export function CustomVideoPlayer({
             setLoading(false);
             setDuration(e.target.getDuration());
             durationRef.current = e.target.getDuration();
+            if (initialRate && initialRate !== 1) {
+              e.target.setPlaybackRate(initialRate);
+              setPlaybackRate(initialRate);
+            }
+            try {
+              const qs = e.target.getAvailableQualityLevels();
+              if (qs?.length) setAvailableQualities(qs);
+            } catch {}
             if (onReady) onReady();
           },
           onStateChange: (e: any) => {
@@ -130,7 +160,6 @@ export function CustomVideoPlayer({
     }
   }, [youtubeId]);
 
-  // Progress polling
   useEffect(() => {
     if (!ready || !playerApiRef.current) return;
     const interval = setInterval(() => {
@@ -195,16 +224,55 @@ export function CustomVideoPlayer({
     }
   }, []);
 
-  // Controls auto-hide
+  const handleSpeedChange = useCallback((rate: number) => {
+    const api = playerApiRef.current;
+    if (api) {
+      api.setPlaybackRate(rate);
+      setPlaybackRate(rate);
+    }
+  }, []);
+
+  const handleQualityChange = useCallback((q: string) => {
+    const api = playerApiRef.current;
+    if (api) {
+      if (q === "auto") {
+        api.setPlaybackQuality("default");
+      } else {
+        api.setPlaybackQuality(q);
+      }
+      setQuality(q);
+    }
+  }, []);
+
+  const toggleCaptions = useCallback(() => {
+    const api = playerApiRef.current;
+    if (!api) return;
+    if (captionsOn) {
+      try { api.unloadModule("captions"); } catch {}
+      setCaptionsOn(false);
+    } else {
+      try {
+        api.loadModule("captions");
+        api.setOption("captions", "track", {});  // Auto-selects first available track
+        setCaptionsOn(true);
+      } catch {
+        try {
+          api.loadModule("captions");
+          setCaptionsOn(true);
+        } catch {}
+      }
+    }
+  }, [captionsOn]);
+
   useEffect(() => {
     if (!playing) { setShowControls(true); return; }
+    if (settingsOpen) return;
     const timer = setTimeout(() => setShowControls(false), 3000);
     return () => clearTimeout(timer);
-  }, [playing, showControls]);
+  }, [playing, showControls, settingsOpen]);
 
   const played = duration > 0 ? currentTime / duration : 0;
 
-  // Non-YouTube fallback
   if (!youtubeId) {
     return (
       <div ref={containerRef} className="relative w-full aspect-video bg-black overflow-hidden rounded-xl">
@@ -239,9 +307,8 @@ export function CustomVideoPlayer({
       ref={containerRef}
       className="relative w-full aspect-video bg-black overflow-hidden rounded-xl group"
       onMouseMove={() => setShowControls(true)}
-      onMouseLeave={() => { if (playing) setShowControls(false); }}
+      onMouseLeave={() => { if (playing && !settingsOpen) setShowControls(false); }}
     >
-      {/* YouTube player container */}
       <div className="absolute inset-0" id="youtube-player" />
 
       {loading && !error && (
@@ -262,17 +329,14 @@ export function CustomVideoPlayer({
         </div>
       )}
 
-      {/* Click to play/pause */}
       <div className="absolute inset-0 z-10 cursor-pointer" onClick={togglePlay} />
 
-      {/* Custom controls bar */}
       <div
         className={`absolute bottom-0 left-0 right-0 z-20 transition-opacity duration-300 ${
           showControls ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
         <div className="bg-gradient-to-t from-black/90 via-black/50 to-transparent px-3 pt-8 pb-3">
-          {/* Progress bar */}
           <div
             className="relative h-1.5 bg-white/20 rounded-full cursor-pointer mb-3 group/progress hover:h-2.5 transition-all"
             onClick={handleSeek}
@@ -284,7 +348,7 @@ export function CustomVideoPlayer({
             />
           </div>
 
-          <div className="flex items-center gap-2 text-white">
+          <div className="flex items-center gap-1.5 text-white">
             <button onClick={togglePlay} className="p-1 hover:text-white/80 cursor-pointer shrink-0">
               {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </button>
@@ -293,7 +357,7 @@ export function CustomVideoPlayer({
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
 
-            <div className="flex items-center gap-1.5 ml-2 shrink-0">
+            <div className="flex items-center gap-1 ml-1 shrink-0">
               <button onClick={toggleMute} className="p-1 hover:text-white/80 cursor-pointer">
                 {muted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
               </button>
@@ -304,11 +368,70 @@ export function CustomVideoPlayer({
                 step={0.05}
                 value={muted ? 0 : volume}
                 onChange={handleVolume}
-                className="w-16 h-1 accent-white cursor-pointer"
+                className="w-14 h-1 accent-white cursor-pointer"
               />
             </div>
 
+            <span className="text-[11px] text-white/50 ml-1">{playbackRate}x</span>
+
             <div className="flex-1 min-w-0" />
+
+            <button
+              onClick={toggleCaptions}
+              className={`p-1 hover:text-white/80 cursor-pointer shrink-0 ${captionsOn ? "text-primary" : "text-white/80"}`}
+              title={captionsOn ? "Disable captions" : "Enable captions"}
+            >
+              <Subtitles className="h-4 w-4" />
+            </button>
+
+            <div className="relative shrink-0">
+              <button
+                onClick={() => setSettingsOpen(!settingsOpen)}
+                className="p-1 hover:text-white/80 cursor-pointer"
+                title="Settings"
+              >
+                <Settings className="h-4 w-4" />
+              </button>
+              {settingsOpen && (
+                <div
+                  className="absolute bottom-full right-0 mb-2 w-52 bg-black/95 rounded-lg border border-white/10 shadow-xl overflow-hidden"
+                  onMouseEnter={() => setShowControls(true)}
+                >
+                  <div className="px-3 py-2 border-b border-white/10">
+                    <span className="text-[11px] font-semibold text-white/70 uppercase tracking-wider">Speed</span>
+                    <div className="grid grid-cols-4 gap-1 mt-1.5">
+                      {SPEEDS.map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => handleSpeedChange(s)}
+                          className={`text-xs rounded px-1 py-1 transition ${
+                            playbackRate === s ? "bg-primary text-white" : "text-white/70 hover:bg-white/10"
+                          }`}
+                        >
+                          {s}x
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="px-3 py-2">
+                    <span className="text-[11px] font-semibold text-white/70 uppercase tracking-wider">Quality</span>
+                    <div className="space-y-0.5 mt-1.5 max-h-28 overflow-y-auto">
+                      {["auto", ...availableQualities].map((q) => (
+                        <button
+                          key={q}
+                          onClick={() => handleQualityChange(q)}
+                          className={`block w-full text-left text-xs rounded px-2 py-1 transition ${
+                            quality === q ? "bg-primary text-white" : "text-white/70 hover:bg-white/10"
+                          }`}
+                        >
+                          {QUALITY_LABELS[q] || q}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <button onClick={toggleFullscreen} className="p-1 hover:text-white/80 cursor-pointer shrink-0">
               <Maximize className="h-4 w-4" />
