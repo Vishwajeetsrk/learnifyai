@@ -213,34 +213,50 @@ function CertificatePage() {
         </div>
 
         {row.v2?.certificate_templates ? (
-          <div ref={certRef} className="relative w-full mx-auto overflow-hidden shadow-2xl" style={{ aspectRatio: "1.414 / 1", background: row.v2.certificate_templates.bg_image_url ? `#fff url(${row.v2.certificate_templates.bg_image_url}) center/cover no-repeat` : "#fff", colorScheme: "light" }}>
-            {row.v2.certificate_templates.config_json?.elements?.map((el: any) => {
-              let content = el.content || "";
-              content = content.replace("{name}", ctx.name).replace("{course}", ctx.course).replace("{date}", ctx.date).replace("{certificate_id}", ctx.code);
-              
-              if (el.type === 'qr') {
+          <div ref={certRef} className="relative w-full mx-auto overflow-hidden shadow-2xl" style={{ aspectRatio: "1.414 / 1", background: row.v2.certificate_templates.bg_image_url ? `#fdfbf5 url(${row.v2.certificate_templates.bg_image_url}) center/cover no-repeat` : "#fdfbf5", colorScheme: "light" }}>
+            {row.v2.certificate_templates.config_json?.elements?.length > 0 ? (
+              row.v2.certificate_templates.config_json.elements.map((el: any) => {
+                let content = el.content || "";
+                content = content.replace("{name}", ctx.name).replace("{course}", ctx.course).replace("{date}", ctx.date).replace("{certificate_id}", ctx.code);
+                
+                if (el.type === 'qr') {
+                  return (
+                    <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height }}>
+                      {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" />}
+                    </div>
+                  );
+                }
+                
                 return (
-                  <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height }}>
-                    {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" />}
+                  <div key={el.id} className="absolute whitespace-pre-wrap" style={{ 
+                    left: el.x, 
+                    top: el.y, 
+                    fontSize: el.fontSize || '16px', 
+                    fontFamily: el.fontFamily || 'Georgia, serif', 
+                    color: el.color || '#0f1b3d',
+                    textAlign: el.align || 'left',
+                    width: el.width || 'auto',
+                    transform: el.align === 'center' ? 'translateX(-50%)' : el.align === 'right' ? 'translateX(-100%)' : 'none'
+                  }}>
+                    {content}
                   </div>
                 );
-              }
-              
-              return (
-                <div key={el.id} className="absolute whitespace-pre-wrap" style={{ 
-                  left: el.x, 
-                  top: el.y, 
-                  fontSize: el.fontSize, 
-                  fontFamily: el.fontFamily, 
-                  color: el.color,
-                  textAlign: el.align,
-                  width: el.width || 'auto',
-                  transform: el.align === 'center' ? 'translateX(-50%)' : el.align === 'right' ? 'translateX(-100%)' : 'none'
-                }}>
-                  {content}
+              })
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center p-10 text-center" style={{ fontFamily: "'Georgia', serif" }}>
+                <div className="text-4xl font-bold mb-3" style={{ color: '#c9a84c' }}>Certificate of Completion</div>
+                <div className="text-xs uppercase tracking-widest mb-4 text-gray-500">This is to certify that</div>
+                <div className="text-3xl font-bold mb-3" style={{ color: '#0f1b3d' }}>{ctx.name}</div>
+                <div className="text-sm text-gray-600 max-w-md leading-relaxed mb-6">
+                  has successfully completed the course <strong>{ctx.course}</strong> on {ctx.date}.
                 </div>
-              );
-            })}
+                <div className="border-t pt-3 text-xs uppercase tracking-widest text-gray-500" style={{ borderColor: '#c9a84c' }}>
+                  {row.v2.certificate_templates.signatory_name || 'Learnify AI'}
+                </div>
+                <div className="mt-2 text-[10px] text-gray-400">{ctx.qrDataUrl && <img src={qrDataUrl} alt="QR" className="h-12 w-12 mx-auto" />}</div>
+                <div className="text-[10px] font-mono mt-1 text-gray-400">{ctx.code}</div>
+              </div>
+            )}
           </div>
         ) : (
           <CertificateRender ref={certRef} design={design} ctx={ctx} />
