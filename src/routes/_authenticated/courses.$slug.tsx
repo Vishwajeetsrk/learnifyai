@@ -1099,18 +1099,18 @@ function Markdown({ children }: { children: string }) {
 // ---------- Inline Playground: Code (Monaco+Piston) + Web (HTML/CSS/JS preview) ----------
 
 const PLAYGROUND_LANGS = [
-  { id: "python", label: "Python" },
-  { id: "javascript", label: "JavaScript" },
-  { id: "typescript", label: "TypeScript" },
-  { id: "cpp", label: "C++" },
-  { id: "c", label: "C" },
-  { id: "java", label: "Java" },
-  { id: "go", label: "Go" },
-  { id: "rust", label: "Rust" },
-  { id: "ruby", label: "Ruby" },
-  { id: "php", label: "PHP" },
-  { id: "bash", label: "Bash" },
-  { id: "sql", label: "SQL" },
+  { id: "python", label: "Python", color: "#3776AB", icon: "PY" },
+  { id: "javascript", label: "JavaScript", color: "#F7DF1E", icon: "JS" },
+  { id: "typescript", label: "TypeScript", color: "#3178C6", icon: "TS" },
+  { id: "cpp", label: "C++", color: "#00599C", icon: "C++" },
+  { id: "c", label: "C", color: "#A8B9CC", icon: "C" },
+  { id: "java", label: "Java", color: "#007396", icon: "JA" },
+  { id: "go", label: "Go", color: "#00ADD8", icon: "GO" },
+  { id: "rust", label: "Rust", color: "#000000", icon: "RS" },
+  { id: "ruby", label: "Ruby", color: "#CC342D", icon: "RB" },
+  { id: "php", label: "PHP", color: "#777BB4", icon: "PHP" },
+  { id: "bash", label: "Bash", color: "#4EAA25", icon: "SH" },
+  { id: "sql", label: "SQL", color: "#4479A1", icon: "SQL" },
 ];
 
 const PLAYGROUND_DEFAULTS: Record<string, string> = {
@@ -1164,7 +1164,9 @@ function CodeMode() {
   const [stdin, setStdin] = useState("");
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(null);
+  const [langOpen, setLangOpen] = useState(false);
   const execFn = useServerFn(executeCode);
+  const activeLang = PLAYGROUND_LANGS.find((l) => l.id === lang) ?? PLAYGROUND_LANGS[0];
 
   const run = useCallback(async () => {
     setRunning(true);
@@ -1183,15 +1185,36 @@ function CodeMode() {
   return (
     <>
       <div className="flex items-center gap-2">
-        <select
-          value={lang}
-          onChange={(e) => { setLang(e.target.value); setCode(PLAYGROUND_DEFAULTS[e.target.value] ?? ""); setOutput(null); }}
-          className="h-8 text-xs rounded-lg border bg-card px-2"
-        >
-          {PLAYGROUND_LANGS.map((l) => (
-            <option key={l.id} value={l.id}>{l.label}</option>
-          ))}
-        </select>
+        <div className="relative">
+          <button
+            onClick={() => setLangOpen(!langOpen)}
+            className="flex items-center gap-1.5 h-8 text-xs rounded-lg border bg-card px-2 hover:bg-accent"
+          >
+            <span className="w-5 h-5 rounded grid place-items-center text-[9px] font-bold text-white" style={{ background: activeLang.color }}>
+              {activeLang.icon}
+            </span>
+            {activeLang.label}
+          </button>
+          {langOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setLangOpen(false)} />
+              <div className="absolute top-full left-0 mt-1 z-20 w-44 rounded-lg border bg-popover shadow-lg overflow-hidden">
+                {PLAYGROUND_LANGS.map((l) => (
+                  <button
+                    key={l.id}
+                    onClick={() => { setLang(l.id); setCode(PLAYGROUND_DEFAULTS[l.id] ?? ""); setOutput(null); setLangOpen(false); }}
+                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:bg-accent transition"
+                  >
+                    <span className="w-5 h-5 rounded grid place-items-center text-[9px] font-bold text-white shrink-0" style={{ background: l.color }}>
+                      {l.icon}
+                    </span>
+                    {l.label}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
         <div className="flex-1" />
         <Button size="sm" onClick={run} disabled={running}>
           {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
@@ -1238,6 +1261,12 @@ function CodeMode() {
   );
 }
 
+const WEB_TABS = [
+  { id: "html" as const, label: "HTML", color: "#E34F26" },
+  { id: "css" as const, label: "CSS", color: "#1572B6" },
+  { id: "js" as const, label: "JS", color: "#F7DF1E" },
+];
+
 function WebMode() {
   const [html, setHtml] = useState(WEB_DEFAULTS.html);
   const [css, setCss] = useState(WEB_DEFAULTS.css);
@@ -1245,7 +1274,7 @@ function WebMode() {
   const [tab, setTab] = useState<"html" | "css" | "js">("html");
 
   const srcDoc = useMemo(() => {
-    const id = setTimeout(() => {}, 0); // force memo re-eval
+    const id = setTimeout(() => {}, 0);
     clearTimeout(id);
     return `${html}<style>${css}</style><script>${js}<\/script>`;
   }, [html, css, js]);
@@ -1257,16 +1286,19 @@ function WebMode() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[300px]">
       <div className="rounded-lg border bg-card overflow-hidden flex flex-col">
         <div className="flex border-b bg-muted/40 text-xs">
-          {(["html", "css", "js"] as const).map((t) => (
+          {WEB_TABS.map((t) => (
             <button
-              key={t}
-              onClick={() => setTab(t)}
+              key={t.id}
+              onClick={() => setTab(t.id)}
               className={cn(
-                "px-3 py-2 font-mono uppercase tracking-wide",
-                tab === t ? "bg-background text-primary font-semibold" : "text-muted-foreground hover:text-foreground",
+                "px-3 py-2 font-mono tracking-wide flex items-center gap-1.5",
+                tab === t.id ? "bg-background font-semibold" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {t}
+              <span className="w-4 h-4 rounded grid place-items-center text-[7px] font-bold text-white" style={{ background: t.color }}>
+                {t.label}
+              </span>
+              {t.label}
             </button>
           ))}
         </div>
