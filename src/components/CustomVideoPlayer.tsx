@@ -52,6 +52,8 @@ export function CustomVideoPlayer({
   const [showControls, setShowControls] = useState(true);
   const [controlsTimeout, setControlsTimeout] = useState<NodeJS.Timeout | null>(null);
   const [fetchedChannelUrl, setFetchedChannelUrl] = useState<string | null>(null);
+  const [videoError, setVideoError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     if (!channelId && url) {
@@ -150,6 +152,7 @@ export function CustomVideoPlayer({
     >
       <div className="absolute inset-0">
         <Player
+          key={retryCount}
           ref={playerRef}
           url={url}
           width="100%"
@@ -162,6 +165,7 @@ export function CustomVideoPlayer({
           playbackRate={playbackRate}
           onReady={() => {
             setReady(true);
+            setVideoError(false);
             if (startSeconds > 0 && playerRef.current) {
               const player: any = playerRef.current;
               if (typeof player.seekTo === "function") {
@@ -172,7 +176,10 @@ export function CustomVideoPlayer({
             }
             if (onReady) onReady();
           }}
-          onError={onError}
+          onError={(e: any) => {
+            setVideoError(true);
+            if (onError) onError(e);
+          }}
           onProgress={handleProgress as any}
           onDuration={(d: number) => setDuration(d)}
           onEnded={onEnded}
@@ -187,6 +194,18 @@ export function CustomVideoPlayer({
           className="react-player"
         />
       </div>
+
+      {videoError && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 text-white gap-3 p-6">
+          <p className="text-sm text-center text-muted-foreground">This video failed to load.</p>
+          <button
+            onClick={() => { setVideoError(false); setRetryCount(c => c + 1); }}
+            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm transition-colors cursor-pointer"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Controls Overlay - hidden for native player compatibility */}
 

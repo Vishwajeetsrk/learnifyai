@@ -68,11 +68,11 @@ export const processCourseMaterial = createServerFn({ method: "POST" })
     // 1. Verify user is creator of course
     const { data: course, error: courseErr } = await supabase
       .from("courses" as any)
-      .select("creator_id")
+      .select("created_by")
       .eq("id", data.courseId)
       .single() as any;
 
-    if (courseErr || !course || course.creator_id !== userId) {
+    if (courseErr || !course || course.created_by !== userId) {
       throw new Error("Unauthorized to add materials to this course.");
     }
 
