@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { checkoutCart, COUPONS } from "@/lib/course.functions";
+import { checkoutCart, getActiveCoupons, type CouponDef } from "@/lib/course.functions";
 import { createRazorpayOrder, verifyWalletTopup } from "@/lib/payment.functions";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import { PaymentLoader } from "@/components/PaymentLoader";
@@ -60,6 +60,7 @@ function CartPage() {
   const checkout = useServerFn(checkoutCart);
   const createOrder = useServerFn(createRazorpayOrder);
   const verifyTopup = useServerFn(verifyWalletTopup);
+  const fetchCoupons = useServerFn(getActiveCoupons);
   const [paying, setPaying] = useState(false);
   const [celebration, setCelebration] = useState<{
     title: string;
@@ -107,25 +108,35 @@ function CartPage() {
   const items = q.data ?? [];
   const subtotal = items.reduce((s, it: any) => s + Number(it.courses?.price_inr ?? 0), 0);
 
+  const { data: couponsData } = useQuery({
+    queryKey: ["coupons"],
+    queryFn: async () => {
+      const r = await fetchCoupons();
+      return r as Record<string, CouponDef> | undefined;
+    },
+    staleTime: 60_000,
+  });
+  const coupons = couponsData ?? {};
+
   const discount = useMemo(() => {
     if (!appliedCoupon) return 0;
-    const c = COUPONS[appliedCoupon];
+    const c = coupons[appliedCoupon];
     if (!c) return 0;
     const raw = c.type === "percent" ? Math.floor((subtotal * c.value) / 100) : c.value;
     return Math.min(raw, subtotal);
-  }, [appliedCoupon, subtotal]);
+  }, [appliedCoupon, subtotal, coupons]);
 
   const total = Math.max(0, subtotal - discount);
 
   const applyCoupon = () => {
     const code = couponInput.trim().toUpperCase();
     if (!code) return;
-    if (!COUPONS[code]) {
+    if (!coupons[code]) {
       toast.error("Invalid coupon code");
       return;
     }
     setAppliedCoupon(code);
-    toast.success(`Coupon applied: ${COUPONS[code].label}`);
+    toast.success(`Coupon applied: ${coupons[code].label}`);
   };
 
   const remove = async (id: string) => {
@@ -320,7 +331,7 @@ function CartPage() {
                       <Check className="h-4 w-4 text-emerald-600" />
                       <span className="font-semibold text-emerald-700">{appliedCoupon}</span>
                       <span className="text-xs text-emerald-600">
-                        · {COUPONS[appliedCoupon]?.label}
+                        · {coupons[appliedCoupon]?.label}
                       </span>
                     </div>
                     <button
@@ -348,7 +359,7 @@ function CartPage() {
                   </div>
                 )}
                 <div className="flex flex-wrap gap-1">
-                  {Object.entries(COUPONS)
+                  {Object.entries(coupons)
                     .slice(0, 3)
                     .map(([code, c]) => (
                       <button

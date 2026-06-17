@@ -19,6 +19,7 @@ import {
   Send,
   FileText,
   GitBranch,
+  Percent,
 } from "lucide-react";
 import {
   CertificateRender,
@@ -129,6 +130,7 @@ function AdminContentPage() {
     "faqs",
     "pages",
     "roadmap",
+    "coupons",
   ].includes(tabAlias)
     ? tabAlias
     : "events";
@@ -210,6 +212,10 @@ function AdminContentPage() {
               <GitBranch className="h-4 w-4 mr-2" />
               Roadmap
             </TabsTrigger>
+            <TabsTrigger value="coupons">
+              <Percent className="h-4 w-4 mr-2" />
+              Coupons
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="events" className="mt-6">
             <EventsManager />
@@ -240,6 +246,9 @@ function AdminContentPage() {
           </TabsContent>
           <TabsContent value="roadmap" className="mt-6">
             <RoadmapManager />
+          </TabsContent>
+          <TabsContent value="coupons" className="mt-6">
+            <CouponManager />
           </TabsContent>
         </Tabs>
       </div>
@@ -2700,6 +2709,128 @@ function RoadmapManager() {
         <Button onClick={save} disabled={saving}>
           {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
           Save roadmap
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+const COUPON_KEY = "coupons";
+const DEFAULT_COUPONS = [
+  { code: "WELCOME10", type: "percent", value: 10, label: "10% off", active: true },
+  { code: "LEARN20", type: "percent", value: 20, label: "20% off", active: true },
+  { code: "STUDENT25", type: "percent", value: 25, label: "25% student discount", active: true },
+];
+
+function CouponManager() {
+  const qc = useQueryClient();
+  const [items, setItems] = useState<any[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-coupons"],
+    queryFn: async () => {
+      const { data } = await supabase.from("site_settings").select("value").eq("key", COUPON_KEY).single();
+      if (data?.value) {
+        try { return JSON.parse(data.value as string); } catch { return DEFAULT_COUPONS; }
+      }
+      return DEFAULT_COUPONS;
+    },
+  });
+
+  useEffect(() => { if (data) setItems(data); }, [data]);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("site_settings").upsert(
+      { key: COUPON_KEY, value: JSON.stringify(items) },
+      { onConflict: "key" },
+    );
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Coupons saved");
+    qc.invalidateQueries({ queryKey: ["admin-coupons"] });
+  };
+
+  const addItem = () => {
+    setItems([...items, { code: "", type: "percent", value: 10, label: "", active: true }]);
+  };
+
+  const deleteItem = (i: number) => {
+    if (!window.confirm("Delete this coupon?")) return;
+    setItems(items.filter((_, idx) => idx !== i));
+  };
+
+  const updateItem = (i: number, updates: any) => {
+    setItems(items.map((item, idx) => (idx === i ? { ...item, ...updates } : item)));
+  };
+
+  if (isLoading) return <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+
+  return (
+    <div className="space-y-5 max-w-3xl">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Manage coupon codes. Users can apply these at checkout for discounts.
+        </p>
+        <Button onClick={addItem}><Plus className="h-4 w-4 mr-2" /> Add coupon</Button>
+      </div>
+
+      <div className="space-y-3">
+        {items.map((item, i) => (
+          <div key={i} className="rounded-xl border border-border/60 bg-card p-4 space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 flex-1">
+                <Input
+                  value={item.code}
+                  onChange={(e) => updateItem(i, { code: e.target.value.toUpperCase() })}
+                  placeholder="COUPON_CODE"
+                  className="w-36 font-mono text-xs uppercase"
+                />
+                <select
+                  value={item.type}
+                  onChange={(e) => updateItem(i, { type: e.target.value })}
+                  className="text-xs border rounded px-1.5 py-0.5 bg-background"
+                >
+                  <option value="percent">%</option>
+                  <option value="flat">₹</option>
+                </select>
+                <Input
+                  type="number"
+                  value={item.value}
+                  onChange={(e) => updateItem(i, { value: Number(e.target.value) })}
+                  className="w-20 text-xs"
+                />
+                <Input
+                  value={item.label}
+                  onChange={(e) => updateItem(i, { label: e.target.value })}
+                  placeholder="Label (e.g. 10% off)"
+                  className="flex-1 text-xs"
+                />
+                <label className="flex items-center gap-1 text-xs">
+                  <input
+                    type="checkbox"
+                    checked={item.active !== false}
+                    onChange={(e) => updateItem(i, { active: e.target.checked })}
+                  />
+                  Active
+                </label>
+              </div>
+              <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteItem(i)}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+        ))}
+        {items.length === 0 && (
+          <div className="text-center text-muted-foreground py-8">No coupons yet. Click "Add coupon" to start.</div>
+        )}
+      </div>
+
+      <div className="pt-2 sticky bottom-0 bg-background/95 backdrop-blur py-3">
+        <Button onClick={save} disabled={saving}>
+          {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          Save coupons
         </Button>
       </div>
     </div>

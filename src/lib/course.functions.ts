@@ -4,20 +4,48 @@ import { z } from "zod";
 
 /* ---------------- Checkout: wallet → enrollment ---------------- */
 
-export const COUPONS: Record<string, { type: "percent" | "flat"; value: number; label: string }> = {
+export type CouponDef = { type: "percent" | "flat"; value: number; label: string; active?: boolean };
+
+// Fallback hardcoded coupons used only when DB fetch fails
+const FALLBACK_COUPONS: Record<string, CouponDef> = {
   WELCOME10: { type: "percent", value: 10, label: "10% off" },
   LEARN20: { type: "percent", value: 20, label: "20% off" },
   STUDENT25: { type: "percent", value: 25, label: "25% student discount" },
-  FLAT100: { type: "flat", value: 100, label: "₹100 off" },
-  FLAT500: { type: "flat", value: 500, label: "₹500 off" },
 };
+
+async function loadCoupons(supabase: any): Promise<Record<string, CouponDef>> {
+  try {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "coupons")
+      .maybeSingle();
+    if (data?.value) {
+      const parsed = JSON.parse(data.value as string) as Array<CouponDef & { code: string }>;
+      const map: Record<string, CouponDef> = {};
+      for (const c of parsed) {
+        if (c.active !== false) map[c.code.toUpperCase()] = { type: c.type, value: c.value, label: c.label };
+      }
+      return Object.keys(map).length > 0 ? map : FALLBACK_COUPONS;
+    }
+  } catch { /* fallback */ }
+  return FALLBACK_COUPONS;
+}
+
+/** Server fn to fetch active coupons for the cart page */
+export const getActiveCoupons = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    return loadCoupons(supabaseAdmin);
+  });
 
 function computeDiscount(
   subtotal: number,
+  coupons: Record<string, CouponDef>,
   code?: string | null,
 ): { discount: number; coupon: string | null } {
   if (!code) return { discount: 0, coupon: null };
-  const c = COUPONS[code.trim().toUpperCase()];
+  const c = coupons[code.trim().toUpperCase()];
   if (!c) return { discount: 0, coupon: null };
   const raw = c.type === "percent" ? Math.floor((subtotal * c.value) / 100) : c.value;
   return { discount: Math.min(raw, subtotal), coupon: code.trim().toUpperCase() };
@@ -54,8 +82,9 @@ export const checkoutCart = createServerFn({ method: "POST" })
       return { ok: true, enrolled: 0, total: 0, slugs: [] as string[] };
     }
 
+    const allCoupons = await loadCoupons(supabase);
     const subtotal = items.reduce((s: number, c: any) => s + Number(c.courses?.price_inr ?? 0), 0);
-    const { discount, coupon } = computeDiscount(subtotal, data.coupon);
+    const { discount, coupon } = computeDiscount(subtotal, allCoupons, data.coupon);
     const total = Math.max(0, subtotal - discount);
 
     // Compute balance
