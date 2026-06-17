@@ -1,6 +1,13 @@
 {
   "name": "tanstack_start_ts",
   "private": true,
+<<<<<<< HEAD
+=======
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vishwajeetsrk/learnifyai.git"
+  },
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
   "sideEffects": false,
   "type": "module",
   "scripts": {

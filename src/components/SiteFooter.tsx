@@ -1,6 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { Twitter, Github, MessageSquare } from "lucide-react";
+<<<<<<< HEAD
 import logoUrl from "@/assets/learnify-logo.png?url";
+=======
+import { Logo } from "@/components/Logo";
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 import { useSiteSettings } from "@/hooks/use-site-settings";
 
 export function SiteFooter() {
@@ -10,7 +14,11 @@ export function SiteFooter() {
       <div className="container mx-auto px-6 py-16 grid gap-10 md:grid-cols-4">
         <div className="space-y-4">
           <Link to="/" className="inline-flex items-center" aria-label="Learnify AI">
+<<<<<<< HEAD
             <img src={logoUrl} alt="Learnify AI" className="h-10 w-auto" />
+=======
+            <Logo height="h-10" />
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
           </Link>
           <p className="text-sm text-muted-foreground max-w-xs">
             Learn smarter. Grow faster. The intelligent learning OS.

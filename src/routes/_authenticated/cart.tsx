@@ -23,7 +23,11 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { checkoutCart, COUPONS } from "@/lib/course.functions";
+<<<<<<< HEAD
 import { createRazorpayOrder } from "@/lib/payment.functions";
+=======
+import { createRazorpayOrder, verifyWalletTopup } from "@/lib/payment.functions";
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import { PaymentLoader } from "@/components/PaymentLoader";
 
@@ -59,6 +63,10 @@ function CartPage() {
   const navigate = useNavigate();
   const checkout = useServerFn(checkoutCart);
   const createOrder = useServerFn(createRazorpayOrder);
+<<<<<<< HEAD
+=======
+  const verifyTopup = useServerFn(verifyWalletTopup);
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
   const [paying, setPaying] = useState(false);
   const [celebration, setCelebration] = useState<{
     title: string;
@@ -134,6 +142,21 @@ function CartPage() {
 
   const handleCheckoutSuccess = async (rzpData?: any) => {
     try {
+<<<<<<< HEAD
+=======
+      if (rzpData && rzpData.razorpay_payment_id) {
+        await verifyTopup({
+          data: {
+            amountInr: total,
+            method: method,
+            razorpay_payment_id: rzpData.razorpay_payment_id,
+            razorpay_order_id: rzpData.razorpay_order_id,
+            razorpay_signature: rzpData.razorpay_signature,
+          }
+        });
+      }
+
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
       const r = await checkout({ data: { coupon: appliedCoupon } });
       toast.success(`Enrolled in ${r.enrolled} course${r.enrolled === 1 ? "" : "s"}`);
       qc.invalidateQueries({ queryKey: ["cart"] });

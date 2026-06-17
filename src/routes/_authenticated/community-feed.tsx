@@ -64,7 +64,11 @@ function CommunityPage() {
         .from("posts" as any)
         .select(`
           *,
+<<<<<<< HEAD
           author:profiles!posts_author_id_fkey (id, full_name, avatar_url, role),
+=======
+          author:profiles!posts_author_id_fkey (id, full_name, avatar_url),
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
           likes:post_likes(id, user_id),
           comments:post_comments(id),
           saves:post_saves(id, user_id)
@@ -303,9 +307,15 @@ function CommunityPage() {
                       <div>
                         <div className="font-semibold flex items-center gap-2">
                           {post.author?.full_name || "Anonymous User"}
+<<<<<<< HEAD
                           {post.author?.role === "creator" && (
                             <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">Coach</span>
                           )}
+=======
+                          {/* post.author?.role === "creator" && (
+                            <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full uppercase font-bold tracking-wider">Coach</span>
+                          ) */}
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}

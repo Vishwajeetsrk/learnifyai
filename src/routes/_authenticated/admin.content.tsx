@@ -74,7 +74,11 @@ export const Route = createFileRoute("/_authenticated/admin/content")({
   component: AdminContentPage,
 });
 
+<<<<<<< HEAD
 const SITE_LOGO_URL = "/__l5e/assets-v1/3b594ffd-98a6-4642-9661-dba29f6bb4c5/learnify-logo.png";
+=======
+const SITE_LOGO_URL = "/favicon.ico";
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 
 type EventRow = {
   id: string;

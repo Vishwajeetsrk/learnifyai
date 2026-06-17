@@ -29,20 +29,53 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
 
 export const verifyWalletTopup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
+<<<<<<< HEAD
   .inputValidator((d: { amountInr: number; method: string; razorpay_payment_id: string; razorpay_order_id: string }) => 
+=======
+  .inputValidator((d: { amountInr: number; method: string; razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => 
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     z.object({
       amountInr: z.number(),
       method: z.string(),
       razorpay_payment_id: z.string(),
       razorpay_order_id: z.string(),
+<<<<<<< HEAD
+=======
+      razorpay_signature: z.string(),
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     }).parse(d)
   )
   .handler(async ({ data, context }) => {
     if (!context.userId) throw new Error("Unauthorized");
     
+<<<<<<< HEAD
     // In a real app, verify razorpay signature using key_secret here
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     
+=======
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    if (!key_secret) throw new Error("RazorPay credentials missing");
+
+    const crypto = await import("crypto");
+    const body = data.razorpay_order_id + "|" + data.razorpay_payment_id;
+    const expectedSignature = crypto.createHmac("sha256", key_secret).update(body).digest("hex");
+    
+    if (expectedSignature !== data.razorpay_signature) {
+      throw new Error("Invalid payment signature. Verification failed.");
+    }
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    
+    // Idempotency check
+    const { data: existingTx } = await supabaseAdmin
+      .from("wallet_transactions")
+      .select("id")
+      .eq("description", `Top-up via ${data.method} (Razorpay: ${data.razorpay_payment_id})`)
+      .maybeSingle();
+
+    if (existingTx) return { success: true, already_processed: true };
+
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     const { error } = await supabaseAdmin.from("wallet_transactions").insert({
       user_id: context.userId,
       amount_inr: data.amountInr,
