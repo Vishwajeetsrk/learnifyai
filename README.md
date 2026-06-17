@@ -17,8 +17,10 @@
 Learnify AI is built to empower both learners and creators by streamlining the entire educational lifecycle.
 
 ### 🎓 For Learners
-- **Interactive Course Player:** Rich media support, markdown notes, and video playback.
+- **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + non-YouTube fallback).
 - **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
+- **AI Agent (Coming Soon):** Intelligent assistant with chat, voice I/O, and action control — embedded in the Playground and as a standalone page. Can read/write files, run code, execute SQL, and call APIs.
+- **Multi-Language Playground (Coming Soon):** Write, compile, and run code in C, C++, Java, Python, PHP, JavaScript, SQL, and 40+ languages using the Piston code execution engine with Monaco Editor.
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
 - **Wallet & Integrated Payments:** Manage credits, purchase courses, and download invoices instantly.
 - **Community Feed:** Share updates, post questions, attach media, and engage with peers.
@@ -75,6 +77,7 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 | **Analytics** | PostHog |
 | **LLM Observability** | LangSmith |
 | **AI Agent Framework** | CrewAI |
+| **Code Execution** | Piston (self-hosted) — 40+ languages including C, C++, Java, Python, PHP, SQLite, JS/TS |
 | **Vector Database** | Supabase pgvector (material_chunks, match_material_chunks RPC) |
 | **OCR / Vision** | Mistral OCR (planned), Hugging Face models (fallback) |
 | **PDF Generation** | jsPDF & jsPDF-Autotable |
@@ -89,14 +92,20 @@ learnifyai/
 ├── public/                 # Static assets (images, fonts, favicons)
 ├── src/
 │   ├── components/         # Reusable UI components (Shadcn, AppShell, etc.)
+│   │   ├── AiAgent/        # (NEW) AI Agent: chat, voice, tool call display
+│   │   └── Playground/     # (NEW) Multi-language Playground: Monaco editor, file tabs, output
 │   ├── hooks/              # Custom React hooks (use-auth, etc.)
 │   ├── integrations/       # API clients (Supabase, Razorpay)
-│   ├── lib/                # Utility functions (cn, formatters)
+│   ├── lib/                # Utility + server functions (playground.functions, agent.functions)
 │   ├── routes/             # TanStack Start Route tree
-│   │   ├── _authenticated/ # Protected routes (Dashboard, Wallet, Coaching)
+│   │   ├── _authenticated/ # Protected routes (Dashboard, Wallet, Coaching, Playground, AI Agent)
+│   │   │   ├── playground.tsx   # (NEW) Multi-language code playground
+│   │   │   └── ai-agent.tsx     # (NEW) Standalone AI Agent with chat + tool execution
 │   │   ├── _admin/         # Admin-only dashboard routes
 │   │   ├── _creator/       # Creator studio routes
 │   │   └── api/            # Serverless API endpoints
+│   │       ├── playground/   # (NEW) Code execution & runtime listing
+│   │       └── agent/        # (NEW) Agent chat endpoint with tool calls
 │   ├── routeTree.gen.ts    # Auto-generated routing tree
 │   ├── router.tsx          # Router configuration
 │   └── main.tsx            # Application entry point
@@ -109,7 +118,35 @@ learnifyai/
 
 ---
 
-## 🚀 Getting Started
+## 🧪 Coming Soon: Playground & AI Agent
+
+### Multi-Language Playground (`/playground`)
+A full-featured code execution environment powered by [Piston](https://github.com/engineer-man/piston) (self-hosted Docker sandbox) supporting 40+ languages:
+- **Languages:** C, C++, Java, Python, PHP, JavaScript/TypeScript, SQLite, Go, Rust, Ruby, and more
+- **Editor:** Monaco Editor (VS Code-grade) with multi-file tabs, syntax highlighting, and split-pane output
+- **Environment Variables:** Configure per-session env vars for API key testing
+- **SQL Query Panel:** Run SQLite queries inline
+- **Third-Party Connectors:** Test REST API calls with configurable headers and auth
+- **Embedded AI Agent:** Ask the agent to explain code, fix bugs, or suggest improvements — all without leaving the editor
+
+### AI Agent (`/ai-agent` + embedded)
+An intelligent assistant that understands your code and can take action:
+- **Chat Interface:** Conversational AI with context of your current code and files
+- **Voice I/O:** Push-to-talk via Web Speech API (speech-to-text + text-to-speech)
+- **Tool Execution:** Agent can run code, read/write files, execute SQL, and call APIs on your behalf
+- **Real-Time Streaming:** Server-Sent Events for instant responses
+- **Two Modes:** Standalone page for deep tasks + embedded panel in Playground for quick help
+
+### Architecture
+```
+Playground (Monaco Editor) ──► Piston API (self-hosted Docker) ──► Output
+       │
+       └── Embedded AI Agent ──► AI Provider (Gemini/Groq/OR) ──► Tool Execution
+                                      │
+                              Standalone Agent (/ai-agent)
+```
+
+---
 
 Follow these instructions to get the project up and running locally.
 

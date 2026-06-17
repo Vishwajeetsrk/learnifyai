@@ -1,249 +1,320 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
-import ReactPlayer from "react-player";
-import screenfull from "screenfull";
-import { Slider } from "@/components/ui/slider";
-import { cn } from "@/lib/utils";
-import {
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Maximize,
-  Minimize,
-  Settings,
-  ClosedCaption,
-  Loader2,
-  Youtube
-} from "lucide-react";
+import { useRef, useState, useEffect, useCallback, useMemo } from "react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Loader2 } from "lucide-react";
 
 interface CustomVideoPlayerProps {
   url: string;
-  playing?: boolean;
   onReady?: () => void;
   onError?: (e: any) => void;
   onProgress?: (state: { playedSeconds: number; played: number; loaded: number }) => void;
   startSeconds?: number;
   playbackRate?: number;
-  channelId?: string | null;
   onEnded?: () => void;
 }
 
+function formatTime(seconds: number) {
+  if (!seconds || !isFinite(seconds)) return "0:00";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  if (h) return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+function extractYoutubeId(url: string): string | null {
+  const m = url.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+  );
+  return m ? m[1] : null;
+}
+
+let youtubeApiLoaded = false;
+
 export function CustomVideoPlayer({
   url,
-  playing: initialPlaying = false,
   onReady,
   onError,
   onProgress,
   startSeconds = 0,
-  playbackRate = 1,
-  channelId,
   onEnded,
 }: CustomVideoPlayerProps) {
-  const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const playerApiRef = useRef<any>(null);
+  const playerReadyRef = useRef(false);
+  const progressRef = useRef(0);
+  const durationRef = useRef(0);
+  const volumeRef = useRef(1);
 
   const [ready, setReady] = useState(false);
-  const [playing, setPlaying] = useState(initialPlaying);
+  const [playing, setPlaying] = useState(false);
   const [volume, setVolume] = useState(1);
   const [muted, setMuted] = useState(false);
-  const [played, setPlayed] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showControls, setShowControls] = useState(true);
-  const [controlsTimeout, setControlsTimeout] = useState<NodeJS.Timeout | null>(null);
-  const [fetchedChannelUrl, setFetchedChannelUrl] = useState<string | null>(null);
-  const [videoError, setVideoError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+  const [buffered, setBuffered] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [embedUrl, setEmbedUrl] = useState<string | null>(null);
+  const [error, setError] = useState(false);
+  const [showControls, setShowControls] = useState(true);
 
-  // Extract YouTube video ID for direct embed fallback
-  const youtubeId = useMemo(() => {
-    if (!url) return null;
-    const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
-    return m ? m[1] : null;
-  }, [url]);
+  const youtubeId = useMemo(() => extractYoutubeId(url), [url]);
 
+  // Load YouTube IFrame API and create player
   useEffect(() => {
-    if (!channelId && url) {
-      fetch(`https://noembed.com/embed?url=${encodeURIComponent(url)}`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.author_url) setFetchedChannelUrl(data.author_url);
-        })
-        .catch(() => {});
+    if (!youtubeId) return;
+    playerReadyRef.current = false;
+
+    const createPlayer = () => {
+      if (!(window as any).YT?.Player) return;
+      const playerDiv = document.getElementById("youtube-player");
+      if (!playerDiv) return;
+      playerDiv.innerHTML = "";
+      const yt = new (window as any).YT.Player("youtube-player", {
+        height: "100%",
+        width: "100%",
+        videoId: youtubeId,
+        playerVars: {
+          controls: 0,
+          rel: 0,
+          modestbranding: 1,
+          enablejsapi: 1,
+          autoplay: 1,
+          start: Math.floor(startSeconds),
+        },
+        events: {
+          onReady: (e: any) => {
+            playerApiRef.current = e.target;
+            playerReadyRef.current = true;
+            e.target.setVolume(volumeRef.current * 100);
+            setReady(true);
+            setLoading(false);
+            setDuration(e.target.getDuration());
+            durationRef.current = e.target.getDuration();
+            if (onReady) onReady();
+          },
+          onStateChange: (e: any) => {
+            const YT = (window as any).YT;
+            if (e.data === YT.PlayerState.PLAYING) {
+              setPlaying(true);
+              setLoading(false);
+            } else if (e.data === YT.PlayerState.PAUSED) {
+              setPlaying(false);
+            } else if (e.data === YT.PlayerState.ENDED) {
+              setPlaying(false);
+              if (onEnded) onEnded();
+            } else if (e.data === YT.PlayerState.BUFFERING) {
+              setLoading(true);
+            } else if (e.data === YT.PlayerState.CUED) {
+              setLoading(false);
+            }
+          },
+          onError: () => {
+            setError(true);
+            setLoading(false);
+            if (onError) onError(null);
+          },
+        },
+      });
+    };
+
+    if (!youtubeApiLoaded) {
+      youtubeApiLoaded = true;
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      tag.onload = () => {
+        (window as any).onYouTubeIframeAPIReady = createPlayer;
+      };
+      document.head.appendChild(tag);
+    } else if ((window as any).YT?.Player) {
+      createPlayer();
+    } else {
+      (window as any).onYouTubeIframeAPIReady = createPlayer;
     }
-  }, [channelId, url]);
+  }, [youtubeId]);
 
-  // Removed initialPlaying sync effect to prevent parent updates from pausing active playback
-
+  // Progress polling
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(screenfull.isFullscreen);
-    };
-    if (screenfull.isEnabled) {
-      screenfull.on("change", handleFullscreenChange);
-    }
-    return () => {
-      if (screenfull.isEnabled) {
-        screenfull.off("change", handleFullscreenChange);
-      }
-    };
+    if (!ready || !playerApiRef.current) return;
+    const interval = setInterval(() => {
+      try {
+        const api = playerApiRef.current;
+        if (!api || !playerReadyRef.current) return;
+        const ct = api.getCurrentTime();
+        const dur = api.getDuration();
+        if (isFinite(ct)) {
+          setCurrentTime(ct);
+          setBuffered(api.getVideoLoadedFraction() || 0);
+        }
+        if (isFinite(dur)) setDuration(dur);
+        if (onProgress) {
+          const played = dur > 0 ? ct / dur : 0;
+          onProgress({ playedSeconds: ct, played, loaded: api.getVideoLoadedFraction() || 0 });
+        }
+      } catch {}
+    }, 500);
+    return () => clearInterval(interval);
+  }, [ready, onProgress]);
+
+  const togglePlay = useCallback(() => {
+    const api = playerApiRef.current;
+    if (!api) return;
+    if (playing) api.pauseVideo();
+    else api.playVideo();
+  }, [playing]);
+
+  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const api = playerApiRef.current;
+    if (!api || !durationRef.current) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const pct = (e.clientX - rect.left) / rect.width;
+    api.seekTo(pct * durationRef.current, true);
+    setCurrentTime(pct * durationRef.current);
   }, []);
 
-  const handleMouseMove = () => {
-    setShowControls(true);
-    if (controlsTimeout) clearTimeout(controlsTimeout);
-    setControlsTimeout(setTimeout(() => setShowControls(false), 2500));
-  };
+  const toggleMute = useCallback(() => {
+    const api = playerApiRef.current;
+    if (!api) return;
+    if (muted) { api.unMute(); setMuted(false); }
+    else { api.mute(); setMuted(true); }
+  }, [muted]);
 
-  const handleMouseLeave = () => {
-    if (playing) {
-      setShowControls(false);
-    }
-  };
-
-  const handlePlayPause = () => {
-    setPlaying(!playing);
-  };
-
-  const handleVolumeChange = (value: number[]) => {
-    const v = value[0];
+  const handleVolume = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = Number(e.target.value);
+    volumeRef.current = v;
     setVolume(v);
-    setMuted(v === 0);
-  };
+    const api = playerApiRef.current;
+    if (api) api.setVolume(v * 100);
+    if (v === 0) setMuted(true);
+    else setMuted(false);
+  }, []);
 
-  const handleToggleMute = () => {
-    setMuted(!muted);
-  };
-
-  const handleSeek = (value: number[]) => {
-    const p = value[0];
-    setPlayed(p);
-    if (playerRef.current) {
-      const player: any = playerRef.current;
-      if (typeof player.seekTo === "function") {
-        player.seekTo(p, "fraction");
-      } else {
-        player.currentTime = p * duration;
-      }
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      containerRef.current.requestFullscreen();
     }
-  };
+  }, []);
 
-  const handleToggleFullscreen = () => {
-    if (screenfull.isEnabled && containerRef.current) {
-      screenfull.toggle(containerRef.current);
-    }
-  };
+  // Controls auto-hide
+  useEffect(() => {
+    if (!playing) { setShowControls(true); return; }
+    const timer = setTimeout(() => setShowControls(false), 3000);
+    return () => clearTimeout(timer);
+  }, [playing, showControls]);
 
-  const handleProgress = (state: { playedSeconds: number; played: number; loaded: number }) => {
-    if (onProgress) onProgress(state);
-    setPlayed(state.played);
-  };
+  const played = duration > 0 ? currentTime / duration : 0;
 
-  const formatTime = (seconds: number) => {
-    const date = new Date(seconds * 1000);
-    const hh = date.getUTCHours();
-    const mm = date.getUTCMinutes();
-    const ss = date.getUTCSeconds().toString().padStart(2, "0");
-    if (hh) {
-      return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
-    }
-    return `${mm}:${ss}`;
-  };
-
-  const Player = ReactPlayer as any;
+  // Non-YouTube fallback
+  if (!youtubeId) {
+    return (
+      <div ref={containerRef} className="relative w-full aspect-video bg-black overflow-hidden rounded-xl">
+        <video
+          src={url}
+          className="w-full h-full"
+          controls
+          playsInline
+          autoPlay
+          onError={() => { setError(true); if (onError) onError(null); }}
+          onLoadedMetadata={(e) => {
+            setDuration(e.currentTarget.duration);
+            durationRef.current = e.currentTarget.duration;
+            if (startSeconds > 0) e.currentTarget.currentTime = startSeconds;
+            setReady(true);
+            setLoading(false);
+            if (onReady) onReady();
+          }}
+          onTimeUpdate={(e) => {
+            const ct = e.currentTarget.currentTime;
+            setCurrentTime(ct);
+            if (onProgress) onProgress({ playedSeconds: ct, played: ct / e.currentTarget.duration, loaded: 0 });
+          }}
+          onEnded={onEnded}
+        />
+      </div>
+    );
+  }
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden"
+      className="relative w-full aspect-video bg-black overflow-hidden rounded-xl group"
+      onMouseMove={() => setShowControls(true)}
+      onMouseLeave={() => { if (playing) setShowControls(false); }}
     >
-      <div className="absolute inset-0">
-        <Player
-          key={retryCount}
-          ref={playerRef}
-          url={url}
-          width="100%"
-          height="100%"
-          controls={true}
-          playing={playing}
-          volume={volume}
-          muted={muted}
-          playbackRate={playbackRate}
-          onReady={() => {
-            setReady(true);
-            setVideoError(false);
-            setLoading(false);
-            if (startSeconds > 0 && playerRef.current) {
-              const player: any = playerRef.current;
-              if (typeof player.seekTo === "function") {
-                player.seekTo(startSeconds, "seconds");
-              } else {
-                player.currentTime = startSeconds;
-              }
-            }
-            if (onReady) onReady();
-          }}
-          onError={(e: any) => {
-            if (!embedUrl && youtubeId) setEmbedUrl(`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`);
-            setVideoError(true);
-            setLoading(false);
-            if (onError) onError(e);
-          }}
-          onProgress={handleProgress as any}
-          onDuration={(d: number) => setDuration(d)}
-          onEnded={onEnded}
-          config={{
-            youtube: {
-              playerVars: {
-                modestbranding: 1,
-                rel: 0,
-              },
-            },
-          } as any}
-          className="react-player"
-        />
-      </div>
+      {/* YouTube player container */}
+      <div className="absolute inset-0" id="youtube-player" />
 
-      {loading && !videoError && (
+      {loading && !error && (
         <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60">
           <Loader2 className="h-8 w-8 animate-spin text-white/60" />
         </div>
       )}
 
-      {videoError && !embedUrl && (
+      {error && (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 text-white gap-3 p-6">
-          <p className="text-sm text-center text-muted-foreground">This video failed to load.</p>
+          <p className="text-sm text-center text-muted-foreground">Video failed to load.</p>
           <button
-            onClick={() => { setVideoError(false); setRetryCount(c => c + 1); }}
-            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm transition-colors cursor-pointer"
+            onClick={() => window.location.reload()}
+            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm cursor-pointer"
           >
             Retry
           </button>
         </div>
       )}
 
-      {embedUrl && (
-        <iframe
-          src={embedUrl}
-          className="absolute inset-0 w-full h-full"
-          allow="autoplay; fullscreen"
-          allowFullScreen
-        />
-      )}
+      {/* Click to play/pause */}
+      <div className="absolute inset-0 z-10 cursor-pointer" onClick={togglePlay} />
 
-      {/* Controls Overlay - hidden for native player compatibility */}
-
-      {/* Controls Overlay */}
+      {/* Custom controls bar */}
       <div
-        className={cn(
-          "absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end p-4 transition-opacity duration-300 pointer-events-none",
-          "bg-gradient-to-t from-black/80 via-black/40 to-transparent",
-          showControls && !playing ? "opacity-100" : "opacity-0"
-        )}
+        className={`absolute bottom-0 left-0 right-0 z-20 transition-opacity duration-300 ${
+          showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
       >
-        {/* Native controls are used instead */}
+        <div className="bg-gradient-to-t from-black/90 via-black/50 to-transparent px-3 pt-8 pb-3">
+          {/* Progress bar */}
+          <div
+            className="relative h-1.5 bg-white/20 rounded-full cursor-pointer mb-3 group/progress hover:h-2.5 transition-all"
+            onClick={handleSeek}
+          >
+            <div className="absolute inset-y-0 left-0 bg-primary rounded-full" style={{ width: `${played * 100}%` }} />
+            <div
+              className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-primary rounded-full shadow opacity-0 group-hover/progress:opacity-100 transition-opacity"
+              style={{ left: `${played * 100}%` }}
+            />
+          </div>
+
+          <div className="flex items-center gap-2 text-white">
+            <button onClick={togglePlay} className="p-1 hover:text-white/80 cursor-pointer shrink-0">
+              {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+            </button>
+
+            <span className="text-[11px] font-mono text-white/80 tabular-nums shrink-0">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
+
+            <div className="flex items-center gap-1.5 ml-2 shrink-0">
+              <button onClick={toggleMute} className="p-1 hover:text-white/80 cursor-pointer">
+                {muted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              </button>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.05}
+                value={muted ? 0 : volume}
+                onChange={handleVolume}
+                className="w-16 h-1 accent-white cursor-pointer"
+              />
+            </div>
+
+            <div className="flex-1 min-w-0" />
+
+            <button onClick={toggleFullscreen} className="p-1 hover:text-white/80 cursor-pointer shrink-0">
+              <Maximize className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
