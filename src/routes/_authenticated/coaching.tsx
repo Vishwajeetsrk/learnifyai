@@ -678,40 +678,6 @@ function RealRoadmaps({ user, isCreator, contacts }: { user: any; isCreator: boo
             <Button onClick={saveRoadmap} className="w-full">Save Roadmap</Button>
         </div>
       )}
-
-      {/* Edit Cohort Dialog */}
-      <Dialog open={!!editingCohort} onOpenChange={(open) => { if (!open) setEditingCohort(null); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Cohort</DialogTitle>
-            <DialogDescription>Update your cohort details.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div>
-              <Label>Title</Label>
-              <Input value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} />
-            </div>
-            <div>
-              <Label>Description</Label>
-              <Textarea value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Start date</Label>
-                <Input type="datetime-local" value={editForm.starts_at} onChange={e => setEditForm({ ...editForm, starts_at: e.target.value })} />
-              </div>
-              <div>
-                <Label>Capacity</Label>
-                <Input type="number" value={editForm.capacity} onChange={e => setEditForm({ ...editForm, capacity: Number(e.target.value) })} />
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingCohort(null)}>Cancel</Button>
-            <Button onClick={saveEditCohort}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
@@ -936,6 +902,40 @@ function RealCohorts({ user }: { user: any }) {
           })}
         </div>
       )}
+
+      {/* Edit Cohort Dialog */}
+      <Dialog open={!!editingCohort} onOpenChange={(open) => { if (!open) setEditingCohort(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Cohort</DialogTitle>
+            <DialogDescription>Update your cohort details.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Title</Label>
+              <Input value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Start date</Label>
+                <Input type="datetime-local" value={editForm.starts_at} onChange={e => setEditForm({ ...editForm, starts_at: e.target.value })} />
+              </div>
+              <div>
+                <Label>Capacity</Label>
+                <Input type="number" value={editForm.capacity} onChange={e => setEditForm({ ...editForm, capacity: Number(e.target.value) })} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingCohort(null)}>Cancel</Button>
+            <Button onClick={saveEditCohort}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -1050,7 +1050,8 @@ function RealOutcomes({ user }: { user: any }) {
             </div>
           )}
         </div>
-      </div>
+      )}
+
     </div>
   );
 }
