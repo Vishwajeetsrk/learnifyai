@@ -126,8 +126,10 @@ async function sendViaBrevoApi({
   subject: string;
   html: string;
 }) {
-  const apiKey = process.env.BREVO_SMTP_KEY;
-  if (!apiKey) throw new Error("BREVO_SMTP_KEY not set");
+  const apiKey = process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY;
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || "noreply@learnify.ai";
+  const senderName = process.env.BREVO_SENDER_NAME || "Learnify AI";
+  if (!apiKey) throw new Error("No Brevo API key configured (BREVO_API_KEY or BREVO_SMTP_KEY)");
   const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: {
@@ -136,7 +138,7 @@ async function sendViaBrevoApi({
       Accept: "application/json",
     },
     body: JSON.stringify({
-      sender: { name: "Learnify AI", email: "noreply@learnify.ai" },
+      sender: { name: senderName, email: senderEmail },
       to: [{ email: to }],
       subject,
       htmlContent: html,
@@ -144,6 +146,9 @@ async function sendViaBrevoApi({
   });
   if (!resp.ok) {
     const body = await resp.text().catch(() => "");
+    if (resp.status === 401) {
+      console.warn("Brevo API auth failed. Set BREVO_API_KEY (v3 API key), not an SMTP password.");
+    }
     throw new Error(`Brevo API ${resp.status}: ${body.slice(0, 200)}`);
   }
   const json = await resp.json();
@@ -191,7 +196,8 @@ async function sendEmail({
   }
 
   // Fallback to Brevo REST API (works from any IP, unlike SMTP)
-  if (BREVO_SMTP_KEY) {
+  const brevoApiKey = process.env.BREVO_API_KEY || BREVO_SMTP_KEY;
+  if (brevoApiKey) {
     try {
       return await sendViaBrevoApi({ to, subject, html });
     } catch (err: any) {
@@ -201,23 +207,32 @@ async function sendEmail({
 
   // Last resort: Brevo SMTP (requires authorized IP in Brevo dashboard)
   if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
-    const transporter = nodemailer.createTransport({
-      host: BREVO_SMTP_SERVER,
-      port: Number(BREVO_SMTP_PORT) || 587,
-      secure: false,
-      auth: { user: BREVO_SMTP_LOGIN, pass: BREVO_SMTP_KEY },
-    });
-    const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
-    const info = await transporter.sendMail({
-      from: emailFrom,
-      to: [to],
-      subject,
-      html,
-    });
-    return { messageId: info.messageId, provider: "brevo-smtp" };
+    try {
+      const transporter = nodemailer.createTransport({
+        host: BREVO_SMTP_SERVER,
+        port: Number(BREVO_SMTP_PORT) || 587,
+        secure: false,
+        auth: { user: BREVO_SMTP_LOGIN, pass: BREVO_SMTP_KEY },
+      });
+      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
+      const info = await transporter.sendMail({
+        from: emailFrom,
+        to: [to],
+        subject,
+        html,
+      });
+      return { messageId: info.messageId, provider: "brevo-smtp" };
+    } catch (err: any) {
+      console.warn("Brevo SMTP failed:", err?.message?.slice(0, 120));
+      throw err;
+    }
   }
 
-  throw new Error("No email service configured. Set RESEND_API_KEY or BREVO_SMTP_KEY.");
+  const hints: string[] = [];
+  if (!RESEND_API_KEY) hints.push("Set RESEND_API_KEY (free at resend.com)");
+  if (!brevoApiKey) hints.push("Set BREVO_API_KEY (v3 API key from Brevo dashboard)");
+  else hints.push("Add your Vercel IP to Brevo SMTP authorized IPs, or set a valid BREVO_API_KEY");
+  throw new Error(`Email failed. ${hints.join("; ")}.`);
 }
 
 function resolveOrigin(): string {

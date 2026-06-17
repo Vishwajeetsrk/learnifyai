@@ -88,24 +88,42 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     }
 
     // 2. Pollinations AI (free, no key needed)
-    try {
-      const short = data.prompt.slice(0, 400);
-      const pw = encodeURIComponent(short);
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 25000);
-      const res = await fetch(`https://gen.pollinations.ai/image/${pw}?model=flux&nofeed=true`, {
-        signal: controller.signal,
-      });
-      clearTimeout(timer);
-      if (res.ok) {
-        const blob = await res.arrayBuffer();
-        const base64 = Buffer.from(blob).toString("base64");
-        return { dataUrl: `data:image/jpeg;base64,${base64}` };
-      } else {
-        console.warn(`Pollinations AI failed (${res.status})`);
+    const pollinationsUrls = [
+      (p: string) => `https://image.pollinations.ai/prompt/${p}?model=flux&nofeed=true`,
+      (p: string) => `https://gen.pollinations.ai/image/${p}?model=flux&nofeed=true`,
+    ];
+    for (const buildUrl of pollinationsUrls) {
+      try {
+        const short = data.prompt.slice(0, 400);
+        const pw = encodeURIComponent(short);
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 20000);
+        const res = await fetch(buildUrl(pw), {
+          signal: controller.signal,
+          headers: { Accept: "image/*, */*" },
+        });
+        clearTimeout(timer);
+        const ct = res.headers.get("content-type") || "";
+        if (res.ok && ct.startsWith("image/")) {
+          const blob = await res.arrayBuffer();
+          const base64 = Buffer.from(blob).toString("base64");
+          return { dataUrl: `data:${ct};base64,${base64}` };
+        } else if (res.ok) {
+          const text = await res.text().catch(() => "");
+          if (text.length > 100 && !text.includes("<html")) {
+            // Some Pollinations endpoints return the image body as base64 or raw bytes via text
+            try { JSON.parse(text); } catch {
+              const base64 = Buffer.from(text, "binary").toString("base64");
+              return { dataUrl: `data:image/jpeg;base64,${base64}` };
+            }
+          }
+          console.warn(`Pollinations (${buildUrl("")}) unexpected response, trying next...`);
+        } else {
+          console.warn(`Pollinations AI failed (${res.status})`);
+        }
+      } catch (err) {
+        console.warn(`Pollinations AI error (${buildUrl("")}), trying next...`, err);
       }
-    } catch (err) {
-      console.warn("Pollinations AI error. Trying OpenRouter...", err);
     }
 
     // 3. OpenRouter — FLUX Pro

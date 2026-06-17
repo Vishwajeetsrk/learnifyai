@@ -148,8 +148,22 @@ export const Route = createFileRoute("/api/chat")({
           .order("created_at", { ascending: true })
           .limit(30);
 
-        const { cfg, providerModel } = resolveProvider(parsed.model);
-        const apiKey = process.env[cfg.keyEnv];
+        let { cfg, providerModel } = resolveProvider(parsed.model);
+        let apiKey = process.env[cfg.keyEnv];
+
+        // If model doesn't support vision but history has images, fall back to Gemini
+        const hasImages = (history ?? []).some(
+          (m) => m.role === "user" && m.content.includes("](data:image/"),
+        );
+        if (hasImages && cfg !== PROVIDERS.gemini) {
+          const geminiKey = process.env[PROVIDERS.gemini.keyEnv];
+          if (geminiKey) {
+            cfg = PROVIDERS.gemini;
+            apiKey = geminiKey;
+            providerModel = parsed.model.includes("pro") ? "gemini-2.5-pro" : "gemini-2.5-flash";
+          }
+        }
+
         if (!apiKey) {
           return new Response(JSON.stringify({ error: `${cfg.keyEnv} not configured` }), {
             status: 500,

@@ -44,11 +44,11 @@ type Message = { id: string; role: "user" | "assistant"; content: string };
 type Conversation = { id: string; title: string; updated_at: string };
 
 const MODELS = [
-  { id: "gemini/gemini-2.5-flash", label: "My Gemini API — Flash (fast)" },
-  { id: "gemini/gemini-2.5-pro", label: "My Gemini API — Pro (reasoning)" },
-  { id: "groq/llama-3.3-70b-versatile", label: "My Groq API — Llama 3.3 70B (ultra fast)" },
-  { id: "openrouter/google/gemini-2.5-flash", label: "My OpenRouter API — Gemini Flash" },
-  { id: "openrouter/deepseek/deepseek-chat", label: "My OpenRouter API — DeepSeek" },
+  { id: "gemini/gemini-2.5-flash", label: "My Gemini API — Flash (fast)", vision: true },
+  { id: "gemini/gemini-2.5-pro", label: "My Gemini API — Pro (reasoning)", vision: true },
+  { id: "groq/llama-3.3-70b-versatile", label: "My Groq API — Llama 3.3 70B (ultra fast)", vision: false },
+  { id: "openrouter/google/gemini-2.5-flash", label: "My OpenRouter API — Gemini Flash", vision: true },
+  { id: "openrouter/deepseek/deepseek-chat", label: "My OpenRouter API — DeepSeek", vision: false },
 ];
 
 function AIPage() {
@@ -180,6 +180,19 @@ function AIPage() {
     const text = input.trim();
     if ((!text && !attachedImage) || streaming) return;
     const photo = attachedImage;
+    // Auto-switch to first vision-capable model when image is attached
+    let activeModel = model;
+    if (photo) {
+      const current = MODELS.find((m) => m.id === activeModel);
+      if (current && !current.vision) {
+        const fallback = MODELS.find((m) => m.vision);
+        if (fallback) {
+          activeModel = fallback.id;
+          setModel(fallback.id);
+          toast.info(`Switched to ${fallback.label} — ${current.label} doesn't support images`);
+        }
+      }
+    }
     setInput("");
     setAttachedImage(null);
     setStreaming(true);
@@ -208,7 +221,7 @@ function AIPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ conversationId: activeId, model, content }),
+        body: JSON.stringify({ conversationId: activeId, model: activeModel, content }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -374,7 +387,14 @@ function AIPage() {
                 <SelectContent>
                   {MODELS.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
-                      {m.label}
+                      <span className="flex items-center gap-2">
+                        {m.label}
+                        {m.vision && (
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                            Vision
+                          </span>
+                        )}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -509,9 +529,23 @@ function AIPage() {
                   size="icon"
                   variant="ghost"
                   className="absolute left-2 bottom-2"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    const current = MODELS.find((m) => m.id === model);
+                    if (current && !current.vision) {
+                      const fallback = MODELS.find((m) => m.vision);
+                      if (fallback) {
+                        setModel(fallback.id);
+                        toast.info(`Switched to ${fallback.label} for photo support`);
+                      }
+                    }
+                    fileInputRef.current?.click();
+                  }}
                   disabled={streaming}
-                  title="Attach a photo"
+                  title={
+                    MODELS.find((m) => m.id === model)?.vision
+                      ? "Attach a photo"
+                      : "Switch to a Vision-capable model to attach photos"
+                  }
                 >
                   <ImagePlus className="h-4 w-4" />
                 </Button>

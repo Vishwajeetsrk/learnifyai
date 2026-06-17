@@ -631,35 +631,39 @@ export default function IssueCertificate() {
 
       {/* Audit log + filters + export */}
       <div className="rounded-xl border border-border/60 bg-card">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-border/60 flex-wrap">
-          <History className="h-4 w-4 text-muted-foreground" />
-          <h3 className="font-semibold text-sm">Issuance audit log</h3>
-          <span className="text-xs text-muted-foreground">
-            {filteredAudit.length} of {(auditLog.data ?? []).length}
-          </span>
-          <div className="ml-auto flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 px-4 py-3 border-b border-border/60">
+          <div className="flex items-center gap-2 flex-wrap">
+            <History className="h-4 w-4 text-muted-foreground shrink-0" />
+            <h3 className="font-semibold text-sm">Issuance audit log</h3>
+            <span className="text-xs text-muted-foreground">
+              {filteredAudit.length} of {(auditLog.data ?? []).length}
+            </span>
+          </div>
+          <div className="sm:ml-auto flex items-center gap-2 w-full sm:w-auto">
             <Button
               size="sm"
               variant="outline"
               onClick={manualRetry}
               title="Retry pending/failed emails now"
+              className="flex-1 sm:flex-none"
             >
-              <RefreshCw className="h-3.5 w-3.5 mr-1" />
-              Retry pending
+              <RefreshCw className="h-3.5 w-3.5 sm:mr-1" />
+              <span className="hidden sm:inline">Retry pending</span>
             </Button>
             <Button
               size="sm"
               variant="outline"
               onClick={exportCsv}
               disabled={filteredAudit.length === 0}
+              className="flex-1 sm:flex-none"
             >
-              <Download className="h-3.5 w-3.5 mr-1" />
-              Export CSV
+              <Download className="h-3.5 w-3.5 sm:mr-1" />
+              <span className="hidden sm:inline">Export CSV</span>
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-3 border-b border-border/60 bg-muted/20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 p-3 border-b border-border/60 bg-muted/20">
           <div>
             <Label className="text-[10px] uppercase">From</Label>
             <Input
@@ -704,10 +708,10 @@ export default function IssueCertificate() {
               <tr>
                 <th className="text-left px-4 py-2 font-medium">When</th>
                 <th className="text-left px-4 py-2 font-medium">Recipient</th>
-                <th className="text-left px-4 py-2 font-medium">Template</th>
-                <th className="text-left px-4 py-2 font-medium">Course</th>
-                <th className="text-left px-4 py-2 font-medium">Score</th>
-                <th className="text-left px-4 py-2 font-medium">Code</th>
+                <th className="text-left px-4 py-2 font-medium hidden sm:table-cell">Template</th>
+                <th className="text-left px-4 py-2 font-medium hidden md:table-cell">Course</th>
+                <th className="text-left px-4 py-2 font-medium hidden md:table-cell">Score</th>
+                <th className="text-left px-4 py-2 font-medium hidden sm:table-cell">Code</th>
                 <th className="text-left px-4 py-2 font-medium">Email status</th>
                 <th className="text-right px-4 py-2 font-medium">Actions</th>
               </tr>
@@ -760,12 +764,12 @@ export default function IssueCertificate() {
                           {r.recipient_email ?? ""}
                         </div>
                       </td>
-                      <td className="px-4 py-2 text-xs">{r.template_name ?? "—"}</td>
-                      <td className="px-4 py-2 text-xs">{r.course_title ?? "—"}</td>
-                      <td className="px-4 py-2 text-xs">
+                      <td className="px-4 py-2 text-xs hidden sm:table-cell">{r.template_name ?? "—"}</td>
+                      <td className="px-4 py-2 text-xs hidden md:table-cell">{r.course_title ?? "—"}</td>
+                      <td className="px-4 py-2 text-xs hidden md:table-cell">
                         {r.total > 0 ? `${r.score}/${r.total}` : "—"}
                       </td>
-                      <td className="px-4 py-2 text-xs font-mono">
+                      <td className="px-4 py-2 text-xs font-mono hidden sm:table-cell">
                         <Link
                           to="/certificates/$code"
                           params={{ code: r.code }}
@@ -785,7 +789,7 @@ export default function IssueCertificate() {
                         </div>
                         {eRow?.error && (
                           <div
-                            className="text-[10px] text-destructive truncate max-w-[180px]"
+                            className="text-[10px] text-destructive truncate max-w-[120px] sm:max-w-[180px]"
                             title={eRow.error}
                           >
                             {eRow.error}
@@ -803,8 +807,8 @@ export default function IssueCertificate() {
                             <Loader2 className="h-3 w-3 animate-spin" />
                           ) : (
                             <>
-                              <Mail className="h-3 w-3 mr-1" />
-                              {status === "sent" ? "Resend" : "Send"}
+                              <Mail className="h-3 w-3 sm:mr-1" />
+                              <span className="hidden sm:inline">{status === "sent" ? "Resend" : "Send"}</span>
                             </>
                           )}
                         </Button>
