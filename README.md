@@ -30,7 +30,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Coaching Hub:** Manage 1-on-1 scheduling, async messaging, and client progression.
 - **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts.
 - **Automated Invoicing:** Professional billing automatically handled for wallet top-ups.
-- **AI Thumbnail Generator:** Generate course thumbnails using Gemini 2.5 Flash Image API.
+- **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 providers (Lovable, Gemini, Stability AI, Fal AI, Hugging Face, Pollinations AI).
 
 ### 📬 Inbox & Notifications
 - **Smart Notifications:** Wallet top-ups, withdrawals, new lessons, and certificate updates — each notification is clickable and links to the relevant page (courses, wallet, certificates, creator dashboard).
@@ -62,10 +62,21 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 
 ### Integrated APIs & Tools
 
-- **Payments:** [Razorpay](https://razorpay.com/) (Integrated Wallet Top-ups & Checkout with strict HMAC SHA-256 signature verification and idempotency keys)
-- **AI Integration:** Google Gemini API / OpenAI API (For AI Tutor and Analytics)
-- **PDF Generation:** jsPDF & jsPDF-Autotable (Invoice rendering)
-- **Observability:** Sentry Error Tracking & PostHog Analytics
+| Category | Providers |
+|----------|-----------|
+| **Payments** | Razorpay (wallet, checkout, webhooks with HMAC SHA-256 verification) |
+| **AI Chat / Text** | OpenRouter, Gemini, Groq (3-tier fallback) |
+| **AI Embeddings** | Gemini Embeddings (text-embedding-004) |
+| **Image Generation** | Lovable → Gemini → Stability AI → Fal AI → Hugging Face → Pollinations AI (6-tier fallback) |
+| **Video Analysis** | YouTube Data API + Gemini summarization |
+| **Email** | Resend (primary), Brevo/SMTP (fallback) |
+| **Error Monitoring** | Sentry |
+| **Analytics** | PostHog |
+| **LLM Observability** | LangSmith |
+| **AI Agent Framework** | CrewAI |
+| **Vector Database** | Supabase pgvector (material_chunks, match_material_chunks RPC) |
+| **OCR / Vision** | Mistral OCR (planned), Hugging Face models (fallback) |
+| **PDF Generation** | jsPDF & jsPDF-Autotable |
 
 
 ---

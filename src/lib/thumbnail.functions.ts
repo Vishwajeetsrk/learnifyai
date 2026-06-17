@@ -58,7 +58,9 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
 
     const lovableKey = process.env.LOVABLE_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY;
-    const openrouterKey = process.env.OPENROUTER_API_KEY;
+    const stabilityKey = process.env.STABILITY_API_KEY;
+    const falKey = process.env.FAL_KEY;
+    const hfKey = process.env.HF_API_KEY;
 
     // 1. Try Lovable API if available
     if (lovableKey) {
@@ -87,7 +89,7 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       }
     }
 
-    // 2. Fallback to Gemini 2.5 Flash Image (Nano Banana) via generateContent
+    // 2. Gemini 2.5 Flash Image via generateContent
     if (geminiKey) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${geminiKey}`;
@@ -115,47 +117,114 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
           return { dataUrl: `data:${inline.inlineData.mimeType};base64,${inline.inlineData.data}` };
         }
       } catch (err: any) {
-        console.warn("Gemini image gen failed. Trying OpenRouter fallback...", err);
+        console.warn("Gemini image gen failed. Trying Stability AI...", err);
       }
     }
 
-    // 3. Fallback to OpenRouter (different rate quota than direct Gemini)
-    if (openrouterKey) {
+    // 3. Stability AI (SD3 / SDXL)
+    if (stabilityKey) {
       try {
-        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const sizeMap: Record<string, string> = {
+          "1024x1024": "1024x1024",
+          "1536x1024": "1536x1024",
+          "1024x1536": "1024x1536",
+        };
+        const size = sizeMap[data.size] || "1024x1024";
+        const res = await fetch("https://api.stability.ai/v2beta/stable-image/generate/core", {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${openrouterKey}`,
+            Authorization: `Bearer ${stabilityKey}`,
+            Accept: "application/json",
+          },
+          body: (() => {
+            const form = new FormData();
+            form.append("prompt", data.prompt);
+            form.append("output_format", "webp");
+            form.append("aspect_ratio", size.replace("x", ":"));
+            return form;
+          })(),
+        });
+
+        if (res.ok) {
+          const json = await res.json() as { image?: string };
+          if (json.image) return { dataUrl: `data:image/webp;base64,${json.image}` };
+        } else {
+          const txt = await res.text().catch(() => "");
+          console.warn(`Stability AI failed (${res.status}): ${txt.slice(0, 120)}`);
+        }
+      } catch (err) {
+        console.warn("Stability AI error. Trying Fal AI...", err);
+      }
+    }
+
+    // 4. Fal AI (FLUX / SD3)
+    if (falKey) {
+      try {
+        const res = await fetch("https://fal.run/fal-ai/flux-pro/v1.1-ultra", {
+          method: "POST",
+          headers: {
+            Authorization: `Key ${falKey}`,
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://learnifyaitool.vercel.app",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash-image-preview",
-            messages: [{ role: "user", content: `${data.prompt}\n\n(Render at ${data.size}.)` }],
-            modalities: ["image", "text"],
+            prompt: data.prompt,
+            image_size: data.size === "1536x1024" ? "landscape_4_3" : data.size === "1024x1536" ? "portrait_4_3" : "square_hd",
+            num_images: 1,
+            output_format: "jpeg",
           }),
         });
 
         if (res.ok) {
-          const json = (await res.json()) as {
-            choices?: Array<{ message?: { content?: string } }>;
-          };
-          const content = json.choices?.[0]?.message?.content;
-          if (content && content.startsWith("data:")) {
-            return { dataUrl: content };
-          }
-          // Some OpenRouter providers return a markdown image URL
-          if (content) {
-            const m = content.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/);
-            if (m) return { dataUrl: m[1] };
-          }
+          const json = await res.json() as { images?: Array<{ url?: string }> };
+          const url = json.images?.[0]?.url;
+          if (url) return { dataUrl: url };
         } else {
           const txt = await res.text().catch(() => "");
-          console.warn(`OpenRouter image gen failed (${res.status}): ${txt.slice(0, 180)}`);
+          console.warn(`Fal AI failed (${res.status}): ${txt.slice(0, 120)}`);
         }
       } catch (err) {
-        console.warn("OpenRouter image gen error.", err);
+        console.warn("Fal AI error. Trying Hugging Face...", err);
       }
+    }
+
+    // 5. Hugging Face (free inference — FLUX.1-schnell)
+    if (hfKey) {
+      try {
+        const res = await fetch("https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${hfKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ inputs: data.prompt }),
+        });
+
+        if (res.ok) {
+          const blob = await res.arrayBuffer();
+          const base64 = Buffer.from(blob).toString("base64");
+          return { dataUrl: `data:image/jpeg;base64,${base64}` };
+        } else {
+          const txt = await res.text().catch(() => "");
+          console.warn(`Hugging Face failed (${res.status}): ${txt.slice(0, 120)}`);
+        }
+      } catch (err) {
+        console.warn("Hugging Face error.", err);
+      }
+    }
+
+    // 6. Pollinations AI (free — no key needed)
+    try {
+      const pw = encodeURIComponent(data.prompt);
+      const res = await fetch(`https://gen.pollinations.ai/image/${pw}?model=flux&nofeed=true`, {
+        method: "GET",
+      });
+      if (res.ok) {
+        const blob = await res.arrayBuffer();
+        const base64 = Buffer.from(blob).toString("base64");
+        return { dataUrl: `data:image/jpeg;base64,${base64}` };
+      }
+    } catch (err) {
+      console.warn("Pollinations AI error.", err);
     }
 
     throw new Error(
