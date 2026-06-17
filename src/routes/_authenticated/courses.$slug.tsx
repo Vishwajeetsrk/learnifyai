@@ -10,6 +10,7 @@ import {
   Clock,
   Loader2,
   Lock,
+  Play,
   PlayCircle,
   Sparkles,
   NotebookPen,
@@ -53,6 +54,8 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { agentChat } from "@/lib/agent.functions";
+import { executeCode } from "@/lib/playground.functions";
+import Editor from "@monaco-editor/react";
 import { useAuth } from "@/hooks/use-auth";
 // isAdmin pulled from useAuth below
 import { cn } from "@/lib/utils";
@@ -1092,74 +1095,113 @@ function Markdown({ children }: { children: string }) {
   );
 }
 
-// ---------- Inbuilt HTML/CSS/JS preview + editor ----------
+// ---------- Inline Playground with Monaco + Piston ----------
 
-const DEFAULT_HTML = `<!doctype html>
-<html>
-  <head><meta charset="utf-8" /></head>
-  <body>
-    <h1>Hello, Learnify!</h1>
-    <p id="msg">Edit me — preview updates live.</p>
-    <button onclick="document.getElementById('msg').innerText = 'Clicked at ' + new Date().toLocaleTimeString()">
-      Click me
-    </button>
-  </body>
-</html>`;
-const DEFAULT_CSS = `body { font-family: ui-sans-serif, system-ui; padding: 24px; color: #111; }
-h1 { color: #4f46e5; }
-button { padding: 8px 14px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; }`;
-const DEFAULT_JS = `console.log("Playground ready");`;
+const PLAYGROUND_LANGS = [
+  { id: "python", label: "Python" },
+  { id: "javascript", label: "JavaScript" },
+  { id: "typescript", label: "TypeScript" },
+  { id: "cpp", label: "C++" },
+  { id: "c", label: "C" },
+  { id: "java", label: "Java" },
+  { id: "go", label: "Go" },
+  { id: "rust", label: "Rust" },
+  { id: "ruby", label: "Ruby" },
+  { id: "php", label: "PHP" },
+  { id: "bash", label: "Bash" },
+  { id: "sql", label: "SQL" },
+];
+
+const PLAYGROUND_DEFAULTS: Record<string, string> = {
+  python: 'print("Hello, world!")',
+  javascript: 'console.log("Hello, world!");',
+  typescript: 'const msg: string = "Hello, world!";\nconsole.log(msg);',
+  cpp: '#include <iostream>\n\nint main() {\n  std::cout << "Hello, world!" << std::endl;\n  return 0;\n}',
+  c: '#include <stdio.h>\n\nint main() {\n  printf("Hello, world!\\n");\n  return 0;\n}',
+  java: 'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, world!");\n  }\n}',
+  go: 'package main\n\nimport "fmt"\n\nfunc main() {\n  fmt.Println("Hello, world!")\n}',
+  rust: 'fn main() {\n  println!("Hello, world!");\n}',
+  ruby: 'puts "Hello, world!"',
+  php: '<?php\necho "Hello, world!";',
+  bash: '#!/bin/bash\necho "Hello, world!"',
+  sql: 'SELECT \'Hello, world!\' AS greeting;',
+};
 
 function CodePlayground() {
-  const [html, setHtml] = useState(DEFAULT_HTML);
-  const [css, setCss] = useState(DEFAULT_CSS);
-  const [js, setJs] = useState(DEFAULT_JS);
-  const [tab, setTab] = useState<"html" | "css" | "js">("html");
-  const [doc, setDoc] = useState("");
+  const [lang, setLang] = useState("python");
+  const [code, setCode] = useState(PLAYGROUND_DEFAULTS.python);
+  const [stdin, setStdin] = useState("");
+  const [running, setRunning] = useState(false);
+  const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(null);
+  const execFn = useServerFn(executeCode);
 
-  useEffect(() => {
-    const id = setTimeout(() => {
-      setDoc(`${html}<style>${css}</style><script>${js}<\/script>`);
-    }, 350);
-    return () => clearTimeout(id);
-  }, [html, css, js]);
-
-  const value = tab === "html" ? html : tab === "css" ? css : js;
-  const setValue = tab === "html" ? setHtml : tab === "css" ? setCss : setJs;
+  const run = useCallback(async () => {
+    setRunning(true);
+    setOutput(null);
+    try {
+      const res = await execFn({ data: { language: lang, code, stdin } });
+      if (res.success) setOutput({ stdout: res.stdout, stderr: res.stderr, code: res.code });
+      else setOutput({ stdout: "", stderr: res.error, code: 1 });
+    } catch (err: any) {
+      setOutput({ stdout: "", stderr: err?.message ?? "Execution failed", code: 1 });
+    } finally {
+      setRunning(false);
+    }
+  }, [lang, code, stdin, execFn]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <div className="rounded-lg border bg-card overflow-hidden flex flex-col">
-        <div className="flex border-b bg-muted/40 text-xs">
-          {(["html", "css", "js"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={cn(
-                "px-3 py-2 font-mono uppercase tracking-wide",
-                tab === t
-                  ? "bg-background text-primary font-semibold"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t}
-            </button>
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2">
+        <select
+          value={lang}
+          onChange={(e) => { setLang(e.target.value); setCode(PLAYGROUND_DEFAULTS[e.target.value] ?? ""); setOutput(null); }}
+          className="h-8 text-xs rounded-lg border bg-card px-2"
+        >
+          {PLAYGROUND_LANGS.map((l) => (
+            <option key={l.id} value={l.id}>{l.label}</option>
           ))}
-        </div>
-        <Textarea
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          className="font-mono text-xs min-h-[260px] rounded-none border-0 resize-none focus-visible:ring-0"
-          spellCheck={false}
-        />
+        </select>
+        <div className="flex-1" />
+        <Button size="sm" onClick={run} disabled={running}>
+          {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+          Run
+        </Button>
       </div>
-      <div className="rounded-lg border bg-white overflow-hidden min-h-[260px]">
-        <iframe
-          title="Live preview"
-          sandbox="allow-scripts"
-          srcDoc={doc}
-          className="w-full h-full min-h-[260px]"
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 min-h-[300px]">
+        <div className="rounded-lg border overflow-hidden">
+          <Editor
+            height="300px"
+            language={lang === "cpp" ? "cpp" : lang === "c" ? "c" : lang}
+            theme="vs-dark"
+            value={code}
+            onChange={(v) => setCode(v ?? "")}
+            options={{ fontSize: 12, minimap: { enabled: false }, lineNumbers: "on", tabSize: 2, automaticLayout: true, padding: { top: 6 } }}
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <div className="flex-1 rounded-lg border bg-card p-3 font-mono text-xs whitespace-pre-wrap overflow-auto min-h-[200px]">
+            {output ? (
+              <>
+                {output.stdout && <div className="text-foreground">{output.stdout}</div>}
+                {output.stderr && <div className="text-destructive">{output.stderr}</div>}
+                <div className={output.code === 0 ? "text-green-500 mt-1" : "text-destructive mt-1"}>
+                  Exit code: {output.code}
+                </div>
+              </>
+            ) : (
+              <span className="text-muted-foreground">Press Run to execute</span>
+            )}
+            {running && <span className="text-muted-foreground animate-pulse">Running...</span>}
+          </div>
+          <textarea
+            value={stdin}
+            onChange={(e) => setStdin(e.target.value)}
+            placeholder="stdin input..."
+            className="w-full font-mono text-xs p-2 rounded-lg border bg-card resize-none"
+            rows={2}
+            spellCheck={false}
+          />
+        </div>
       </div>
     </div>
   );
@@ -1172,6 +1214,7 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
   const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
   const [busy, setBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const agent = useServerFn(agentChat);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -1183,16 +1226,17 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
     setInput("");
     setMessages((p) => [...p, { role: "user", content: q }]);
     setBusy(true);
+    const history = messages.map((m) => ({ role: m.role, content: m.content }));
     try {
       const context = `I'm studying the lesson "${lesson.title}" (${lesson.description || "no description"}).`;
-      const res = await agentChat({ data: { content: `${context}\n\n${q}`, history: messages.map((m) => ({ role: m.role, content: m.content })) } });
+      const res = await agent({ data: { content: `${context}\n\n${q}`, history } });
       setMessages((p) => [...p, { role: "assistant", content: res.content }]);
     } catch (err: any) {
       setMessages((p) => [...p, { role: "assistant", content: `Error: ${err?.message ?? "Something went wrong"}` }]);
     } finally {
       setBusy(false);
     }
-  }, [input, busy, messages, lesson]);
+  }, [input, busy, messages, lesson, agent]);
 
   return (
     <div className="flex flex-col h-[400px]">
