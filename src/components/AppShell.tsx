@@ -16,6 +16,8 @@ import {
   BarChart3,
   Users,
   Compass,
+  Code2,
+  Bot,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -45,7 +47,9 @@ const nav: NavItem[] = [
   { to: "/submissions", label: "Submissions", icon: FileCheck2 },
   { to: "/certificates", label: "Certificates", icon: Award },
   { to: "/ai", label: "AI Chat", icon: Sparkles },
+  { to: "/ai-agent", label: "AI Agent", icon: Bot },
   { to: "/ai-tools", label: "AI Tools", icon: Wand2 },
+  { to: "/playground", label: "Playground", icon: Code2 },
   { to: "/inbox", label: "Inbox", icon: Inbox },
   { to: "/wallet", label: "Wallet", icon: WalletIcon },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
