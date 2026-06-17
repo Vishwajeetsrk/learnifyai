@@ -30,6 +30,7 @@ import {
   BellOff,
   Users,
   Bot,
+  Terminal,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -1289,16 +1290,20 @@ function WebMode() {
 
 /* ---------- Inline AI Agent ---------- */
 
+type AgentStep = { type: string; thought?: string; name?: string; arguments?: any; result?: string };
+type AgentMsg = { role: "user" | "assistant"; content: string; steps?: AgentStep[] };
+
 function CourseAiAgent({ lesson }: { lesson: Lesson }) {
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [messages, setMessages] = useState<AgentMsg[]>([]);
   const [busy, setBusy] = useState(false);
+  const [liveStep, setLiveStep] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const agent = useServerFn(agentChat);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages]);
+  }, [messages, liveStep]);
 
   const send = useCallback(async () => {
     if (!input.trim() || busy) return;
@@ -1306,53 +1311,106 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
     setInput("");
     setMessages((p) => [...p, { role: "user", content: q }]);
     setBusy(true);
+    setLiveStep("Thinking...");
     const history = messages.map((m) => ({ role: m.role, content: m.content }));
     try {
-      const context = `I'm studying the lesson "${lesson.title}" (${lesson.description || "no description"}).`;
-      const res = await agent({ data: { content: `${context}\n\n${q}`, history } });
-      setMessages((p) => [...p, { role: "assistant", content: res.content }]);
+      setLiveStep("Researching & coding...");
+      const res = await agent({
+        data: {
+          content: q,
+          history,
+          lessonContext: `I'm studying "${lesson.title}". ${lesson.description || ""}`,
+        },
+      });
+      setMessages((p) => [...p, { role: "assistant", content: res.content, steps: res.steps }]);
     } catch (err: any) {
       setMessages((p) => [...p, { role: "assistant", content: `Error: ${err?.message ?? "Something went wrong"}` }]);
     } finally {
       setBusy(false);
+      setLiveStep(null);
     }
   }, [input, busy, messages, lesson, agent]);
 
   return (
-    <div className="flex flex-col h-[400px]">
+    <div className="flex flex-col h-[450px]">
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pr-1 mb-3">
         {messages.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center py-8">
-            Ask the AI Agent anything about this lesson — it can write and run code, search the web, or explain concepts.
-          </p>
+          <div className="text-center py-8 space-y-2">
+            <Bot className="h-6 w-6 mx-auto text-muted-foreground" />
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+              I can write code, run it, fix errors, search the web, and explain anything. Try: <em>"Write a Python function to reverse a linked list and test it"</em>
+            </p>
+          </div>
         )}
         {messages.map((m, i) => (
-          <div key={i} className={cn("flex gap-2", m.role === "user" ? "justify-end" : "justify-start")}>
-            <div
-              className={cn(
-                "rounded-xl px-3 py-2 text-xs leading-relaxed max-w-[85%]",
-                m.role === "user" ? "bg-primary text-primary-foreground" : "bg-card border",
-              )}
-            >
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  pre: ({ children }) => <pre className="bg-muted rounded-lg p-2 my-1 overflow-x-auto text-[10px]">{children}</pre>,
-                  code: ({ className, children }) => {
-                    if (className) return <code className={cn(className, "text-[10px]")}>{children}</code>;
-                    return <code className="bg-muted px-1 py-0.5 rounded text-[10px]">{children}</code>;
-                  },
-                }}
-              >
-                {m.content}
-              </ReactMarkdown>
-            </div>
+          <div key={i}>
+            {m.role === "user" ? (
+              <div className="flex gap-2 justify-end">
+                <div className="rounded-xl px-3 py-2 text-xs leading-relaxed max-w-[80%] bg-primary text-primary-foreground">
+                  {m.content}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {m.steps?.map((step, si) => (
+                  <div key={si}>
+                    {step.type === "tool_call" && step.name === "execute_code" && (
+                      <div className="rounded-lg border border-primary/20 bg-primary/5 p-2.5 space-y-1.5">
+                        <div className="flex items-center gap-1.5 text-[10px] font-medium text-primary">
+                          <Play className="h-3 w-3" /> Executed {step.arguments?.language || "code"}
+                        </div>
+                        {step.arguments?.code && (
+                          <pre className="text-[10px] bg-black/80 text-green-400 rounded p-2 overflow-x-auto leading-relaxed">{step.arguments.code}</pre>
+                        )}
+                        {step.result && (() => {
+                          let r;
+                          try { r = JSON.parse(step.result); } catch { r = { stdout: step.result }; }
+                          const hasOutput = r.stdout || r.stderr;
+                          return hasOutput ? (
+                            <div className="text-[10px] font-mono bg-black/90 text-white rounded p-2 overflow-x-auto leading-relaxed">
+                              {r.stdout && <div>{r.stdout}</div>}
+                              {r.stderr && <div className="text-red-400">{r.stderr}</div>}
+                              {r.code !== undefined && <div className={r.code === 0 ? "text-green-400 mt-0.5" : "text-red-400 mt-0.5"}>Exit: {r.code}</div>}
+                            </div>
+                          ) : null;
+                        })()}
+                      </div>
+                    )}
+                    {step.type === "tool_call" && step.name === "web_search" && (
+                      <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-2.5">
+                        <div className="flex items-center gap-1.5 text-[10px] font-medium text-blue-500">
+                          <Terminal className="h-3 w-3" /> Searched: {step.arguments?.query}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <div className="flex gap-2 justify-start">
+                  <div className="rounded-xl px-3 py-2 text-xs leading-relaxed max-w-[85%] bg-card border">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        pre: ({ children }) => <pre className="bg-muted rounded-lg p-2 my-1 overflow-x-auto text-[10px]">{children}</pre>,
+                        code: ({ className, children }) => {
+                          if (className) return <code className={cn(className, "text-[10px]")}>{children}</code>;
+                          return <code className="bg-muted px-1 py-0.5 rounded text-[10px]">{children}</code>;
+                        },
+                      }}
+                    >
+                      {m.content}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ))}
         {busy && (
-          <div className="flex gap-2">
-            <div className="rounded-xl px-3 py-2 bg-card border">
-              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+          <div className="space-y-2">
+            <div className="rounded-lg border border-muted bg-muted/20 p-2.5 animate-pulse">
+              <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+                <Loader2 className="h-3 w-3 animate-spin" /> {liveStep || "Working..."}
+              </div>
             </div>
           </div>
         )}
@@ -1362,7 +1420,7 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-          placeholder="Ask the agent..."
+          placeholder="Ask me to code, debug, explain, or solve anything..."
           className="min-h-[36px] max-h-[80px] resize-none text-xs"
           rows={1}
         />
