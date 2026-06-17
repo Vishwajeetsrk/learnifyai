@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize, Loader2, Settings, Subtitles, SubtitlesIcon } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Loader2, Settings, Subtitles } from "lucide-react";
 
 interface CustomVideoPlayerProps {
   url: string;
@@ -97,7 +97,7 @@ export function CustomVideoPlayer({
           enablejsapi: 1,
           autoplay: 1,
           iv_load_policy: 3,
-          cc_load_policy: 0,
+          cc_load_policy: 1,
           fs: 0,
           start: Math.floor(startSeconds),
         },
@@ -114,10 +114,6 @@ export function CustomVideoPlayer({
               e.target.setPlaybackRate(initialRate);
               setPlaybackRate(initialRate);
             }
-            try {
-              const qs = e.target.getAvailableQualityLevels();
-              if (qs?.length) setAvailableQualities(qs);
-            } catch {}
             if (onReady) onReady();
           },
           onStateChange: (e: any) => {
@@ -125,6 +121,13 @@ export function CustomVideoPlayer({
             if (e.data === YT.PlayerState.PLAYING) {
               setPlaying(true);
               setLoading(false);
+              try {
+                const api = playerApiRef.current;
+                if (api) {
+                  const qs = api.getAvailableQualityLevels();
+                  if (qs?.length) setAvailableQualities(qs);
+                }
+              } catch {}
             } else if (e.data === YT.PlayerState.PAUSED) {
               setPlaying(false);
             } else if (e.data === YT.PlayerState.ENDED) {
@@ -135,6 +138,15 @@ export function CustomVideoPlayer({
             } else if (e.data === YT.PlayerState.CUED) {
               setLoading(false);
             }
+          },
+          onPlaybackQualityChange: (e: any) => {
+            try {
+              const api = playerApiRef.current;
+              if (api) {
+                const qs = api.getAvailableQualityLevels();
+                if (qs?.length) setAvailableQualities(qs);
+              }
+            } catch {}
           },
           onError: () => {
             setError(true);
@@ -248,18 +260,30 @@ export function CustomVideoPlayer({
     const api = playerApiRef.current;
     if (!api) return;
     if (captionsOn) {
-      try { api.unloadModule("captions"); } catch {}
-      setCaptionsOn(false);
+      try {
+        api.unloadModule("captions");
+        setCaptionsOn(false);
+      } catch {
+        try {
+          api.setOption("captions", "track", {});
+          setCaptionsOn(false);
+        } catch {}
+      }
     } else {
       try {
         api.loadModule("captions");
-        api.setOption("captions", "track", {});  // Auto-selects first available track
+        api.setOption("captions", "track", { languageCode: "en" });
         setCaptionsOn(true);
       } catch {
         try {
           api.loadModule("captions");
           setCaptionsOn(true);
-        } catch {}
+        } catch {
+          try {
+            api.setOption("captions", "reload", true);
+            setCaptionsOn(true);
+          } catch {}
+        }
       }
     }
   }, [captionsOn]);

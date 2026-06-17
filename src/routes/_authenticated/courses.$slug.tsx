@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -28,6 +28,7 @@ import {
   Bell,
   BellOff,
   Users,
+  Bot,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -51,6 +52,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { agentChat } from "@/lib/agent.functions";
 import { useAuth } from "@/hooks/use-auth";
 // isAdmin pulled from useAuth below
 import { cn } from "@/lib/utils";
@@ -67,8 +69,8 @@ import {
   hasCourseToolAccess,
 } from "@/lib/course-player";
 
-type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground";
-const VALID_TABS: CourseTab[] = ["notes", "summary", "doubt", "exercise", "playground"];
+type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "ai-agent";
+const VALID_TABS: CourseTab[] = ["notes", "summary", "doubt", "exercise", "playground", "ai-agent"];
 
 export const Route = createFileRoute("/_authenticated/courses/$slug")({
   head: () => ({ meta: [{ title: "Course — Learnify AI" }] }),
@@ -971,6 +973,9 @@ function LessonAiTabs({
             <TabsTrigger value="playground" className="gap-1.5">
               <Code2 className="h-3.5 w-3.5" /> Playground
             </TabsTrigger>
+            <TabsTrigger value="ai-agent" className="gap-1.5">
+              <Bot className="h-3.5 w-3.5" /> AI Agent
+            </TabsTrigger>
           </>
         )}
       </TabsList>
@@ -1050,6 +1055,12 @@ function LessonAiTabs({
       {hasToolAccess && (
         <TabsContent value="playground" className="pt-4">
           <CodePlayground />
+        </TabsContent>
+      )}
+
+      {hasToolAccess && (
+        <TabsContent value="ai-agent" className="pt-4">
+          <CourseAiAgent lesson={lesson} />
         </TabsContent>
       )}
     </Tabs>
@@ -1149,6 +1160,91 @@ function CodePlayground() {
           srcDoc={doc}
           className="w-full h-full min-h-[260px]"
         />
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Inline AI Agent ---------- */
+
+function CourseAiAgent({ lesson }: { lesson: Lesson }) {
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [busy, setBusy] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  const send = useCallback(async () => {
+    if (!input.trim() || busy) return;
+    const q = input.trim();
+    setInput("");
+    setMessages((p) => [...p, { role: "user", content: q }]);
+    setBusy(true);
+    try {
+      const context = `I'm studying the lesson "${lesson.title}" (${lesson.description || "no description"}).`;
+      const res = await agentChat({ data: { content: `${context}\n\n${q}`, history: messages.map((m) => ({ role: m.role, content: m.content })) } });
+      setMessages((p) => [...p, { role: "assistant", content: res.content }]);
+    } catch (err: any) {
+      setMessages((p) => [...p, { role: "assistant", content: `Error: ${err?.message ?? "Something went wrong"}` }]);
+    } finally {
+      setBusy(false);
+    }
+  }, [input, busy, messages, lesson]);
+
+  return (
+    <div className="flex flex-col h-[400px]">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pr-1 mb-3">
+        {messages.length === 0 && (
+          <p className="text-xs text-muted-foreground text-center py-8">
+            Ask the AI Agent anything about this lesson — it can write and run code, search the web, or explain concepts.
+          </p>
+        )}
+        {messages.map((m, i) => (
+          <div key={i} className={cn("flex gap-2", m.role === "user" ? "justify-end" : "justify-start")}>
+            <div
+              className={cn(
+                "rounded-xl px-3 py-2 text-xs leading-relaxed max-w-[85%]",
+                m.role === "user" ? "bg-primary text-primary-foreground" : "bg-card border",
+              )}
+            >
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  pre: ({ children }) => <pre className="bg-muted rounded-lg p-2 my-1 overflow-x-auto text-[10px]">{children}</pre>,
+                  code: ({ className, children }) => {
+                    if (className) return <code className={cn(className, "text-[10px]")}>{children}</code>;
+                    return <code className="bg-muted px-1 py-0.5 rounded text-[10px]">{children}</code>;
+                  },
+                }}
+              >
+                {m.content}
+              </ReactMarkdown>
+            </div>
+          </div>
+        ))}
+        {busy && (
+          <div className="flex gap-2">
+            <div className="rounded-xl px-3 py-2 bg-card border">
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <Textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+          placeholder="Ask the agent..."
+          className="min-h-[36px] max-h-[80px] resize-none text-xs"
+          rows={1}
+        />
+        <Button size="sm" onClick={send} disabled={!input.trim() || busy} className="shrink-0">
+          {busy ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />}
+        </Button>
       </div>
     </div>
   );

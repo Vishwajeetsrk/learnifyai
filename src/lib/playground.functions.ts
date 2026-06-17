@@ -57,7 +57,7 @@ const LANGUAGE_VERSIONS: Record<string, string> = {
 export const SUPPORTED_LANGUAGES = Object.keys(LANGUAGE_VERSIONS).sort();
 
 export const executeCode = createServerFn({ method: "POST" })
-  .validator((data: unknown) => PistonRequestSchema.parse(data))
+  .inputValidator((data: unknown) => PistonRequestSchema.parse(data))
   .handler(async ({ data }) => {
     const version = LANGUAGE_VERSIONS[data.language];
     if (!version) {

@@ -45,7 +45,7 @@ Be concise and clear in your responses. If you use a tool, explain what you foun
 
 const MessageSchema = z.object({
   content: z.string().min(1).max(50000),
-  history: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() })).default([]),
+  history: z.array(z.object({ role: z.enum(["user", "assistant"]), content: z.string() })),
 });
 
 async function callOpenRouter(messages: any[], toolResults?: any[]) {
@@ -136,10 +136,10 @@ async function executeTool(name: string, args: any) {
 }
 
 export const agentChat = createServerFn({ method: "POST" })
-  .validator((data: unknown) => MessageSchema.parse(data))
+  .inputValidator((data: unknown) => MessageSchema.parse(data))
   .handler(async ({ data }) => {
     const messages = [
-      ...data.history.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+      ...(data.history ?? []).map((m: any) => ({ role: m.role as "user" | "assistant", content: m.content })),
       { role: "user" as const, content: data.content },
     ];
 
