@@ -58,6 +58,7 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
 
     const lovableKey = process.env.LOVABLE_API_KEY;
     const geminiKey = process.env.GEMINI_API_KEY;
+    const openrouterKey = process.env.OPENROUTER_API_KEY;
 
     // 1. Try Lovable API if available
     if (lovableKey) {
@@ -114,12 +115,51 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
           return { dataUrl: `data:${inline.inlineData.mimeType};base64,${inline.inlineData.data}` };
         }
       } catch (err: any) {
-        throw new Error(`Image generation failed: ${err.message || err}`);
+        console.warn("Gemini image gen failed. Trying OpenRouter fallback...", err);
+      }
+    }
+
+    // 3. Fallback to OpenRouter (different rate quota than direct Gemini)
+    if (openrouterKey) {
+      try {
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${openrouterKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://learnifyaitool.vercel.app",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-image-preview",
+            messages: [{ role: "user", content: `${data.prompt}\n\n(Render at ${data.size}.)` }],
+            modalities: ["image", "text"],
+          }),
+        });
+
+        if (res.ok) {
+          const json = (await res.json()) as {
+            choices?: Array<{ message?: { content?: string } }>;
+          };
+          const content = json.choices?.[0]?.message?.content;
+          if (content && content.startsWith("data:")) {
+            return { dataUrl: content };
+          }
+          // Some OpenRouter providers return a markdown image URL
+          if (content) {
+            const m = content.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/);
+            if (m) return { dataUrl: m[1] };
+          }
+        } else {
+          const txt = await res.text().catch(() => "");
+          console.warn(`OpenRouter image gen failed (${res.status}): ${txt.slice(0, 180)}`);
+        }
+      } catch (err) {
+        console.warn("OpenRouter image gen error.", err);
       }
     }
 
     throw new Error(
-      "No image generation service configured. Please provide GEMINI_API_KEY or LOVABLE_API_KEY.",
+      "Image generation failed. All providers exhausted. Check your API keys or try again later.",
     );
   });
 
