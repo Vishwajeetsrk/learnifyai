@@ -38,7 +38,8 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Reminders:** View, toggle, and delete scheduled reminders. Linked from AI Tools.
 
 ### ⚙️ Admin Features
-- **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates, FAQs, Legal Pages (Terms, Privacy, Refund), and Roadmap.
+- **Coupon System:** Admin-managed discount codes (percent/flat) stored in DB — applied at checkout with real-time validation and cart UI.
+- **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates, FAQs, Legal Pages (Terms, Privacy, Refund), Coupons, and Roadmap.
 - **Legal Pages:** Fully editable Terms of Service, Privacy Policy, and Refund Policy — rendered from the database, editable via the admin Content Manager.
 - **Social Media Management:** Configurable Discord, Twitter/X, GitHub, LinkedIn, and YouTube links with icons in the footer. All managed through Site Settings.
 - **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, and custom settings.
