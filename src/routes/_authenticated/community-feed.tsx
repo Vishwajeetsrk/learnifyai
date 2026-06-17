@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { MessageSquare, Heart, Bookmark, Image as ImageIcon, Video, FileText, Send, MoreHorizontal, Trash2, Bold, Italic, List, Heading1, Loader2, BarChart3, Megaphone, Check } from "lucide-react";
+import { MessageSquare, Heart, Bookmark, Image as ImageIcon, Video, FileText, Send, MoreHorizontal, Trash2, Bold, Italic, List, Heading1, Loader2, BarChart3, Megaphone, Check, Underline, Palette, AlignLeft, AlignCenter, AlignRight, ListOrdered, Type } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,11 @@ import { cn } from "@/lib/utils";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
+import UnderlineExt from '@tiptap/extension-underline';
+import TextStyle from '@tiptap/extension-text-style';
+import Color from '@tiptap/extension-color';
+import TextAlign from '@tiptap/extension-text-align';
+import FontFamily from '@tiptap/extension-font-family';
 
 export const Route = createFileRoute("/_authenticated/community-feed")({
   component: CommunityPage,
@@ -37,9 +42,19 @@ function CommunityPage() {
   const [pollQuestion, setPollQuestion] = useState("");
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
 
+  const [colorOpen, setColorOpen] = useState(false);
+
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        orderedList: true,
+        bulletList: true,
+      }),
+      UnderlineExt,
+      TextStyle,
+      Color,
+      FontFamily,
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({
         placeholder: 'Share your progress, ask a question, or post a resource...',
       }),
@@ -77,10 +92,23 @@ function CommunityPage() {
           saves:post_saves(id, user_id),
           poll_votes:post_poll_votes(id, user_id, option_index)
         `)
-        .order("is_pinned", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false });
       
       if (error) {
+        if (error.message?.includes("is_pinned") || error.code === "PGRST204") {
+          const { data: fallback } = await supabase
+            .from("posts" as any)
+            .select(`
+              *,
+              author:profiles!posts_author_id_fkey (id, full_name, avatar_url),
+              likes:post_likes(id, user_id),
+              comments:post_comments(id, content, author_id, created_at, author:author_id(id, full_name, avatar_url)),
+              saves:post_saves(id, user_id),
+              poll_votes:post_poll_votes(id, user_id, option_index)
+            `)
+            .order("created_at", { ascending: false });
+          return (fallback || []) as any[];
+        }
         console.error("Posts fetch error:", error);
         return [];
       }
@@ -250,23 +278,62 @@ function CommunityPage() {
               {postType !== "poll" && (
               <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t pt-3 gap-4">
                 <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
-                  <div className="flex items-center border-r pr-2 mr-1">
-                    <button onClick={() => editor?.chain().focus().toggleBold().run()} className={`p-2 rounded-lg transition-colors ${editor?.isActive('bold') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Bold"><Bold className="h-4 w-4" /></button>
-                    <button onClick={() => editor?.chain().focus().toggleItalic().run()} className={`p-2 rounded-lg transition-colors ${editor?.isActive('italic') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Italic"><Italic className="h-4 w-4" /></button>
-                    <button onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()} className={`p-2 rounded-lg transition-colors ${editor?.isActive('heading') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Heading"><Heading1 className="h-4 w-4" /></button>
-                    <button onClick={() => editor?.chain().focus().toggleBulletList().run()} className={`p-2 rounded-lg transition-colors ${editor?.isActive('bulletList') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Bullet List"><List className="h-4 w-4" /></button>
+                  <div className="flex items-center border-r pr-2 mr-1 gap-0.5">
+                    <button onClick={() => editor?.chain().focus().toggleBold().run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive('bold') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Bold"><Bold className="h-4 w-4" /></button>
+                    <button onClick={() => editor?.chain().focus().toggleItalic().run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive('italic') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Italic"><Italic className="h-4 w-4" /></button>
+                    <button onClick={() => editor?.chain().focus().toggleUnderline().run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive('underline') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Underline"><Underline className="h-4 w-4" /></button>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <label className="p-2 text-indigo-500 hover:bg-indigo-500/10 rounded-lg cursor-pointer transition-colors" title="Add Image">
-                      <ImageIcon className="h-5 w-5" />
+                  <div className="flex items-center border-r pr-2 mr-1 gap-0.5">
+                    <button onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive('heading') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Heading"><Heading1 className="h-4 w-4" /></button>
+                    <button onClick={() => editor?.chain().focus().toggleBulletList().run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive('bulletList') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Bullet List"><List className="h-4 w-4" /></button>
+                    <button onClick={() => editor?.chain().focus().toggleOrderedList().run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive('orderedList') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Ordered List"><ListOrdered className="h-4 w-4" /></button>
+                  </div>
+                  <div className="flex items-center border-r pr-2 mr-1 gap-0.5">
+                    <button onClick={() => editor?.chain().focus().setTextAlign('left').run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: 'left' }) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Align Left"><AlignLeft className="h-4 w-4" /></button>
+                    <button onClick={() => editor?.chain().focus().setTextAlign('center').run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: 'center' }) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Align Center"><AlignCenter className="h-4 w-4" /></button>
+                    <button onClick={() => editor?.chain().focus().setTextAlign('right').run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: 'right' }) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Align Right"><AlignRight className="h-4 w-4" /></button>
+                  </div>
+                  <div className="flex items-center gap-0.5">
+                    <div className="relative">
+                      <button onClick={() => setColorOpen(!colorOpen)} className={`p-1.5 rounded-lg transition-colors ${colorOpen ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Text Color"><Palette className="h-4 w-4" /></button>
+                      {colorOpen && (
+                        <div className="absolute top-full left-0 mt-1 z-50 p-2 rounded-lg border bg-popover shadow-lg flex gap-1">
+                          {['#000000','#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899'].map(c => (
+                            <button key={c} onClick={() => { editor?.chain().focus().setColor(c).run(); setColorOpen(false); }} className="h-6 w-6 rounded-full border" style={{ backgroundColor: c }} title={c} />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <select onChange={e => editor?.chain().focus().setMark('textStyle', { fontSize: e.target.value + 'px' }).run()} className="p-1 rounded text-[10px] bg-transparent border text-muted-foreground cursor-pointer hover:text-foreground" title="Font Size">
+                        <option value="14">14</option>
+                        <option value="16">16</option>
+                        <option value="18">18</option>
+                        <option value="20">20</option>
+                        <option value="24">24</option>
+                        <option value="30">30</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-0.5">
+                      <select onChange={e => editor?.chain().focus().setFontFamily(e.target.value).run()} className="p-1 rounded text-[10px] bg-transparent border text-muted-foreground cursor-pointer hover:text-foreground" title="Font Family">
+                        <option value="Inter">Inter</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="monospace">Monospace</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 ml-1 pl-2 border-l">
+                    <label className="p-1.5 text-indigo-500 hover:bg-indigo-500/10 rounded-lg cursor-pointer transition-colors" title="Add Image">
+                      <ImageIcon className="h-4 w-4" />
                       <input type="file" accept="image/*" className="hidden" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} />
                     </label>
-                    <label className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg cursor-pointer transition-colors" title="Add Video">
-                      <Video className="h-5 w-5" />
+                    <label className="p-1.5 text-rose-500 hover:bg-rose-500/10 rounded-lg cursor-pointer transition-colors" title="Add Video">
+                      <Video className="h-4 w-4" />
                       <input type="file" accept="video/*" className="hidden" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} />
                     </label>
-                    <label className="p-2 text-amber-500 hover:bg-amber-500/10 rounded-lg cursor-pointer transition-colors" title="Add Document">
-                      <FileText className="h-5 w-5" />
+                    <label className="p-1.5 text-amber-500 hover:bg-amber-500/10 rounded-lg cursor-pointer transition-colors" title="Add Document">
+                      <FileText className="h-4 w-4" />
                       <input type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} />
                     </label>
                   </div>
@@ -300,7 +367,7 @@ function CommunityPage() {
               const isSaved = post.saves?.some((s: any) => s.user_id === user?.id);
               const isPoll = post.post_type === "poll";
               const isAnnouncement = post.post_type === "announcement";
-              const isPinned = post.is_pinned;
+              const isPinned = post.is_pinned === true;
               let pollData: PollData | null = null;
               if (isPoll && post.content) { try { pollData = JSON.parse(post.content); } catch {} }
               

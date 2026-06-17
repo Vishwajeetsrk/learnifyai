@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Calendar, MessageCircle, Compass, Users, Check, Loader2, Send, Video, Clock, ChevronRight, TrendingUp, Trash2 } from "lucide-react";
@@ -39,7 +39,13 @@ function CoachingDashboard() {
   const [newSlotStart, setNewSlotStart] = useState("");
   const [newSlotEnd, setNewSlotEnd] = useState("");
   const [newSlotPrice, setNewSlotPrice] = useState("0");
+  const [newSlotMeetingLink, setNewSlotMeetingLink] = useState("");
   const [selectedCoachId, setSelectedCoachId] = useState<string | null>(null);
+  const [editingSlot, setEditingSlot] = useState<any>(null);
+  const [editSlotStart, setEditSlotStart] = useState("");
+  const [editSlotEnd, setEditSlotEnd] = useState("");
+  const [editSlotPrice, setEditSlotPrice] = useState("0");
+  const [editSlotMeetingLink, setEditSlotMeetingLink] = useState("");
 
   // Messaging State
   const [activeChatUser, setActiveChatUser] = useState<any>(null);
@@ -117,13 +123,45 @@ function CoachingDashboard() {
         start_time: new Date(newSlotStart).toISOString(),
         end_time: new Date(newSlotEnd).toISOString(),
         price_inr: parseFloat(newSlotPrice),
+        meeting_link: newSlotMeetingLink.trim() || null,
       });
       if (error) throw error;
       toast.success("Slot added");
+      setNewSlotStart(""); setNewSlotEnd(""); setNewSlotPrice("0"); setNewSlotMeetingLink("");
       qc.invalidateQueries({ queryKey: ["my-coaching-slots"] });
     } catch (e: any) {
       toast.error("Failed to add slot");
     }
+  };
+
+  const deleteSlot = async (slotId: string) => {
+    if (!window.confirm("Delete this slot?")) return;
+    const { error } = await supabase.from("coaching_slots" as any).delete().eq("id", slotId);
+    if (error) return toast.error("Failed to delete slot");
+    toast.success("Slot deleted");
+    qc.invalidateQueries({ queryKey: ["my-coaching-slots"] });
+  };
+
+  const openEditSlot = (slot: any) => {
+    setEditingSlot(slot);
+    setEditSlotStart(new Date(slot.start_time).toISOString().slice(0, 16));
+    setEditSlotEnd(new Date(slot.end_time).toISOString().slice(0, 16));
+    setEditSlotPrice(String(slot.price_inr || 0));
+    setEditSlotMeetingLink(slot.meeting_link || "");
+  };
+
+  const saveEditSlot = async () => {
+    if (!editingSlot) return;
+    const { error } = await supabase.from("coaching_slots" as any).update({
+      start_time: new Date(editSlotStart).toISOString(),
+      end_time: new Date(editSlotEnd).toISOString(),
+      price_inr: parseFloat(editSlotPrice),
+      meeting_link: editSlotMeetingLink.trim() || null,
+    }).eq("id", editingSlot.id);
+    if (error) return toast.error("Failed to update slot");
+    toast.success("Slot updated");
+    setEditingSlot(null);
+    qc.invalidateQueries({ queryKey: ["my-coaching-slots"] });
   };
 
   const bookSlot = async (slotId: string) => {
@@ -219,20 +257,32 @@ function CoachingDashboard() {
                     <li key={b.id} className="p-4 border border-border/50 rounded-xl flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-gradient-to-br from-card to-accent/10 shadow-sm transition-all hover:shadow-md">
                       <div>
                         <div className="font-medium text-sm text-foreground flex items-center gap-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage src={isCreator ? b.learner?.avatar_url : b.coach?.avatar_url} />
-                            <AvatarFallback className="text-[10px]">{isCreator ? b.learner?.full_name?.charAt(0) : b.coach?.full_name?.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          {isCreator ? `Client: ${b.learner?.full_name}` : `Coach: ${b.coach?.full_name}`}
-                        </div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-2 font-medium">
-                          <Clock className="h-3.5 w-3.5 text-primary" />
-                          {b.slot && format(new Date(b.slot.start_time), "MMM d, yyyy · h:mm a")}
-                        </div>
-                      </div>
-                      <Button size="sm" className="w-full sm:w-auto gap-2">
-                        <Video className="h-3.5 w-3.5" /> Join Session
-                      </Button>
+                      <Avatar className="h-6 w-6">
+                             <AvatarImage src={isCreator ? b.learner?.avatar_url : b.coach?.avatar_url} />
+                             <AvatarFallback className="text-[10px]">{isCreator ? b.learner?.full_name?.charAt(0) : b.coach?.full_name?.charAt(0)}</AvatarFallback>
+                           </Avatar>
+                           {isCreator ? `Client: ${b.learner?.full_name}` : `Coach: ${b.coach?.full_name}`}
+                         </div>
+                         <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-2 font-medium">
+                           <Clock className="h-3.5 w-3.5 text-primary" />
+                           {b.slot && format(new Date(b.slot.start_time), "MMM d, yyyy · h:mm a")}
+                         </div>
+                         {b.slot?.meeting_link && (
+                           <div className="text-xs text-blue-500 mt-1 flex items-center gap-1">
+                             <Video className="h-3 w-3" />
+                             <a href={b.slot.meeting_link} target="_blank" rel="noreferrer" className="hover:underline">{b.slot.meeting_link.replace(/^https?:\/\//, '').replace(/\/$/, '').substring(0, 35)}...</a>
+                           </div>
+                         )}
+                       </div>
+                       <div className="flex gap-2">
+                         {b.slot?.meeting_link ? (
+                           <a href={b.slot.meeting_link} target="_blank" rel="noreferrer">
+                             <Button size="sm" className="w-full sm:w-auto gap-2"><Video className="h-3.5 w-3.5" /> Join Session</Button>
+                           </a>
+                         ) : (
+                           <Button size="sm" className="w-full sm:w-auto gap-2" disabled><Video className="h-3.5 w-3.5" /> Join Session</Button>
+                         )}
+                       </div>
                     </li>
                   ))}
                 </ul>
@@ -312,12 +362,16 @@ function CoachingDashboard() {
                       <Input type="datetime-local" className="h-10" value={newSlotEnd} onChange={e => setNewSlotEnd(e.target.value)} />
                     </div>
                   </div>
+                  <div className="mb-4">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Meeting Link (Google Meet / Zoom)</label>
+                    <Input type="url" className="h-10 mt-1.5" placeholder="https://meet.google.com/xxx-xxxx-xxx" value={newSlotMeetingLink} onChange={e => setNewSlotMeetingLink(e.target.value)} />
+                  </div>
                   <div className="flex flex-col sm:flex-row items-end gap-4">
-                    <div className="space-y-1.5 w-full sm:w-1/3">
+                    <div className="space-y-1.5 w-full sm:w-1/4">
                       <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Price (₹)</label>
                       <Input type="number" className="h-10" placeholder="e.g. 500" value={newSlotPrice} onChange={e => setNewSlotPrice(e.target.value)} />
                     </div>
-                    <Button onClick={addSlot} disabled={!newSlotStart || !newSlotEnd} className="w-full sm:w-2/3 h-10">Add Slot to Calendar</Button>
+                    <Button onClick={addSlot} disabled={!newSlotStart || !newSlotEnd} className="w-full sm:w-3/4 h-10">Add Slot to Calendar</Button>
                   </div>
                 </div>
 
@@ -326,13 +380,18 @@ function CoachingDashboard() {
                   {mySlots.map((s: any) => (
                     <div key={s.id} className="p-3.5 border rounded-xl text-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card hover:bg-accent/10 transition-colors">
                       <div className="flex items-center gap-2 text-foreground font-medium">
-                        <Clock className="h-4 w-4 text-muted-foreground" />
+                        <Clock className="h-4 w-4 text-muted-foreground shrink-0" />
                         <span>{format(new Date(s.start_time), "MMM d, yyyy")}</span>
                         <span className="text-muted-foreground mx-1">·</span>
                         <span>{format(new Date(s.start_time), "h:mm a")} - {format(new Date(s.end_time), "h:mm a")}</span>
                       </div>
                       
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        {s.meeting_link && (
+                          <a href={s.meeting_link} target="_blank" rel="noreferrer" className="text-xs text-blue-500 hover:underline truncate max-w-[140px] hidden sm:block" title={s.meeting_link}>
+                            <Video className="h-3 w-3 inline mr-1" />Meet
+                          </a>
+                        )}
                         <span className="font-semibold px-2 py-0.5 rounded-md border text-muted-foreground text-xs">₹{s.price_inr}</span>
                         {s.is_booked ? (
                           <span className="text-emerald-600 dark:text-emerald-400 font-semibold text-xs bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 flex items-center gap-1.5">
@@ -340,6 +399,16 @@ function CoachingDashboard() {
                           </span>
                         ) : (
                           <span className="text-muted-foreground text-xs font-medium px-2.5 py-1 rounded-full bg-accent">Available</span>
+                        )}
+                        {!s.is_booked && (
+                          <>
+                            <button onClick={() => openEditSlot(s)} className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-accent transition-colors" title="Edit Slot">
+                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                            </button>
+                            <button onClick={() => deleteSlot(s.id)} className="text-muted-foreground hover:text-destructive p-1 rounded hover:bg-destructive/10 transition-colors" title="Delete Slot">
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -351,6 +420,40 @@ function CoachingDashboard() {
                     </div>
                   )}
                 </div>
+
+                {/* Edit Slot Dialog */}
+                <Dialog open={!!editingSlot} onOpenChange={(open) => { if (!open) setEditingSlot(null); }}>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit Slot</DialogTitle>
+                      <DialogDescription>Update your availability slot details.</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label>Start Time</Label>
+                          <Input type="datetime-local" value={editSlotStart} onChange={e => setEditSlotStart(e.target.value)} />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label>End Time</Label>
+                          <Input type="datetime-local" value={editSlotEnd} onChange={e => setEditSlotEnd(e.target.value)} />
+                        </div>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Meeting Link (Google Meet / Zoom)</Label>
+                        <Input type="url" placeholder="https://meet.google.com/xxx-xxxx-xxx" value={editSlotMeetingLink} onChange={e => setEditSlotMeetingLink(e.target.value)} />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label>Price (₹)</Label>
+                        <Input type="number" value={editSlotPrice} onChange={e => setEditSlotPrice(e.target.value)} />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setEditingSlot(null)}>Cancel</Button>
+                      <Button onClick={saveEditSlot}>Save Changes</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
             )}
           </div>
@@ -573,11 +676,45 @@ function RealRoadmaps({ user, isCreator, contacts }: { user: any; isCreator: boo
             </div>
 
             <Button onClick={saveRoadmap} className="w-full">Save Roadmap</Button>
+        </div>
+      )}
+
+      {/* Edit Cohort Dialog */}
+      <Dialog open={!!editingCohort} onOpenChange={(open) => { if (!open) setEditingCohort(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Cohort</DialogTitle>
+            <DialogDescription>Update your cohort details.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Title</Label>
+              <Input value={editForm.title} onChange={e => setEditForm({ ...editForm, title: e.target.value })} />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Start date</Label>
+                <Input type="datetime-local" value={editForm.starts_at} onChange={e => setEditForm({ ...editForm, starts_at: e.target.value })} />
+              </div>
+              <div>
+                <Label>Capacity</Label>
+                <Input type="number" value={editForm.capacity} onChange={e => setEditForm({ ...editForm, capacity: Number(e.target.value) })} />
+              </div>
+            </div>
           </div>
-        )}
-      </div>
-    );
-  }
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingCohort(null)}>Cancel</Button>
+            <Button onClick={saveEditCohort}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
 
   return (
     <div className="bg-card rounded-2xl border p-6 min-h-[400px]">
@@ -617,6 +754,8 @@ function RealCohorts({ user }: { user: any }) {
   const qc = useQueryClient();
   const [newOpen, setNewOpen] = useState(false);
   const [form, setForm] = useState({ title: "", description: "", starts_at: "", kind: "cohort", capacity: 20 });
+  const [editingCohort, setEditingCohort] = useState<any>(null);
+  const [editForm, setEditForm] = useState({ title: "", description: "", starts_at: "", kind: "cohort", capacity: 20 });
 
   const { data: cohorts = [], isLoading } = useQuery({
     enabled: !!user,
@@ -624,7 +763,7 @@ function RealCohorts({ user }: { user: any }) {
     queryFn: async () => {
       const { data } = await supabase
         .from("cohorts")
-        .select("*, cohort_members(count), cohort_members!inner(user_id)")
+        .select("*, cohort_members(count)")
         .eq("creator_id", user!.id)
         .order("starts_at", { ascending: false });
       return data ?? [];
@@ -653,6 +792,45 @@ function RealCohorts({ user }: { user: any }) {
     if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["coaching-cohorts"] });
     toast.success("Cohort launched");
+  };
+
+  const deleteCohort = async (id: string) => {
+    if (!window.confirm("Delete this cohort?")) return;
+    const { error } = await supabase.from("cohorts").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Cohort deleted");
+    qc.invalidateQueries({ queryKey: ["coaching-cohorts"] });
+  };
+
+  const openEditCohort = (c: any) => {
+    setEditingCohort(c);
+    setEditForm({
+      title: c.title,
+      description: c.description || "",
+      starts_at: new Date(c.starts_at).toISOString().slice(0, 16),
+      kind: c.kind,
+      capacity: c.capacity,
+    });
+  };
+
+  const saveEditCohort = async () => {
+    if (!editingCohort) return;
+    const { error } = await supabase.from("cohorts").update({
+      title: editForm.title.trim(),
+      description: editForm.description.trim() || null,
+      starts_at: new Date(editForm.starts_at).toISOString(),
+      kind: editForm.kind,
+      capacity: editForm.capacity,
+    }).eq("id", editingCohort.id);
+    if (error) return toast.error(error.message);
+    toast.success("Cohort updated");
+    setEditingCohort(null);
+    qc.invalidateQueries({ queryKey: ["coaching-cohorts"] });
+  };
+
+  const shareViaWhatsApp = (c: any) => {
+    const text = encodeURIComponent(`Join my cohort: ${c.title}\nStarts: ${format(new Date(c.starts_at), "MMM d, yyyy · h:mm a")}\n${c.description || ""}\n\nSign up here: ${window.location.origin}/coaching`);
+    window.open(`https://wa.me/?text=${text}`, "_blank");
   };
 
   return (
@@ -712,7 +890,7 @@ function RealCohorts({ user }: { user: any }) {
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
           {cohorts.map((c: any) => {
-            const memberCount = c.cohort_members?.length ?? 0;
+            const memberCount = c.cohort_members?.[0]?.count ?? c.cohort_members?.length ?? 0;
             const isLive = c.status === "live";
             const isScheduled = c.status === "scheduled";
             return (
@@ -722,7 +900,22 @@ function RealCohorts({ user }: { user: any }) {
                     <h4 className="font-semibold">{c.title}</h4>
                     <p className="text-xs text-muted-foreground">{c.kind.replace("_", " ")} · {memberCount} enrolled</p>
                   </div>
-                  <Badge className={isLive ? "bg-rose-500" : "bg-muted"}>{c.status}</Badge>
+                  <div className="flex items-center gap-1">
+                    {!isLive && (
+                      <>
+                        <button onClick={() => openEditCohort(c)} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors" title="Edit Cohort">
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                        </button>
+                        <button onClick={() => deleteCohort(c.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors" title="Delete Cohort">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    )}
+                    <button onClick={() => shareViaWhatsApp(c)} className="p-1.5 rounded-lg text-muted-foreground hover:text-emerald-500 hover:bg-emerald-500/10 transition-colors" title="Share on WhatsApp">
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    </button>
+                    <Badge className={isLive ? "bg-rose-500" : "bg-muted"}>{c.status}</Badge>
+                  </div>
                 </div>
                 {c.description && <p className="text-sm text-muted-foreground line-clamp-2">{c.description}</p>}
                 <div className="text-xs text-muted-foreground">

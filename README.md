@@ -23,13 +23,13 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Multi-Language Playground:** Write, compile, and run code in 40+ languages (C, C++, Java, Python, JavaScript, TypeScript, Go, Rust, and more) using Monaco Editor. JS/TS runs locally via Node.js VM; other languages use Piston execution engine.
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
 - **Wallet & Integrated Payments:** Manage credits, purchase courses, and download invoices instantly.
-- **Community Feed:** Share updates, post questions, attach media, create polls, post announcements, and engage with peers. Complete with comment author avatars, live poll voting, and pinned announcements.
+- **Community Feed:** Share updates, post questions, attach media, create polls, post announcements, and engage with peers. Rich text editor with Bold, Italic, Underline, text color, font size, font family, bullet/ordered lists, and text alignment. Complete with comment author avatars, live poll voting, and pinned announcements.
 - **Dynamic Roadmaps:** CMS-backed public roadmap showing shipped, in-progress, and planned features.
 - **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate builder with text, image, and QR elements. Public verification, PDF download, and 1-click LinkedIn sharing. Light mode-forced render to prevent dark mode issues.
 
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons, and track enrollment.
-- **Coaching Hub:** Manage cohorts (create/launch/live), track learner outcomes (quiz stats, course progress), and build milestone-based learning roadmaps — all backed by real Supabase data.
+- **Coaching Hub:** Manage cohorts (create/launch/live with edit/delete/WhatsApp share), track learner outcomes (quiz stats, course progress), build milestone-based learning roadmaps, and manage scheduling with Google Meet/Zoom integration (add/edit/delete slots with meeting links) — all backed by real Supabase data.
 - **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management.
 - **Automated Invoicing:** Professional billing automatically handled for wallet top-ups.
 - **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 providers (Lovable, Gemini, Stability AI, Fal AI, Hugging Face, Pollinations AI).
