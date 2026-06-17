@@ -728,12 +728,6 @@ function AdminOverview() {
             >
               <VideoOff className="h-4 w-4" /> Missing videos
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/coaches" })}>
-              <Users className="h-4 w-4" /> Coaches
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/features" })}>
-              <Sparkles className="h-4 w-4" /> Features
-            </Button>
             <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/certificates" })}>
               <Award className="h-4 w-4" /> Certificates
             </Button>

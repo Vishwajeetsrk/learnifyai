@@ -47,7 +47,6 @@ export function SiteFooter() {
             <li><Link to="/ai-tools" className="hover:text-foreground transition">AI Tools</Link></li>
             <li><Link to="/pricing" className="hover:text-foreground transition">Pricing</Link></li>
             <li><Link to="/roadmap" className="hover:text-foreground transition">Roadmap</Link></li>
-            <li><Link to="/coach-os" className="hover:text-foreground transition">Coach OS</Link></li>
           </ul>
         </div>
 
@@ -56,9 +55,6 @@ export function SiteFooter() {
           <ul className="space-y-2.5 text-sm text-muted-foreground">
             <li><Link to="/community" className="hover:text-foreground transition">Community</Link></li>
             <li><Link to="/events" className="hover:text-foreground transition">Events</Link></li>
-            <li><Link to="/community" className="hover:text-foreground transition">Blog & Updates</Link></li>
-            <li><Link to="/faq" className="hover:text-foreground transition">Help Center</Link></li>
-            <li><Link to="/features" className="hover:text-foreground transition">Documentation</Link></li>
           </ul>
         </div>
 
@@ -66,7 +62,7 @@ export function SiteFooter() {
           <h4 className="font-display font-semibold text-sm mb-4">Company</h4>
           <ul className="space-y-2.5 text-sm text-muted-foreground">
             <li><Link to="/about" className="hover:text-foreground transition">About</Link></li>
-            <li><Link to="/about" className="hover:text-foreground transition">Careers</Link></li>
+            <li><Link to="/careers" className="hover:text-foreground transition">Careers</Link></li>
             <li><Link to="/contact" className="hover:text-foreground transition">Contact</Link></li>
             <li><Link to="/faq" className="hover:text-foreground transition">FAQ</Link></li>
           </ul>
@@ -78,12 +74,6 @@ export function SiteFooter() {
             <li><Link to="/privacy" className="hover:text-foreground transition">Privacy Policy</Link></li>
             <li><Link to="/terms" className="hover:text-foreground transition">Terms of Service</Link></li>
             <li><Link to="/refund-policy" className="hover:text-foreground transition">Refund Policy</Link></li>
-            <li><Link to="/cookie-policy" className="hover:text-foreground transition">Cookie Policy</Link></li>
-            <li><Link to="/community-guidelines" className="hover:text-foreground transition">Community Guidelines</Link></li>
-            <li><Link to="/acceptable-use" className="hover:text-foreground transition">Acceptable Use Policy</Link></li>
-            <li><Link to="/copyright-policy" className="hover:text-foreground transition">Copyright Policy</Link></li>
-            <li><Link to="/ai-policy" className="hover:text-foreground transition">AI Policy</Link></li>
-            <li><Link to="/security-policy" className="hover:text-foreground transition">Security Policy</Link></li>
           </ul>
         </div>
       </div>
