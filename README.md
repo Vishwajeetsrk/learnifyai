@@ -7,7 +7,7 @@
 
   *Learnify AI brings together course creation, automated AI tutoring, dynamic roadmaps, live cohorts, integrated payments, and a rich community experience—all in one seamless platform.*
 
-  [Live Demo](https://learnifyaitool.vercel.app/) • [Documentation](https://docs.learnifyai.com) • [Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues)
+  [Live Demo](https://learnifyaitool.vercel.app/) • [Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues)
 </div>
 
 <br/>
@@ -22,17 +22,21 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
 - **Wallet & Integrated Payments:** Manage credits, purchase courses, and download invoices instantly.
 - **Community Feed:** Share updates, post questions, attach media, and engage with peers.
-- **AI-Powered Roadmaps:** Dynamic learning paths adjusted to your progress.
-- **Verifiable Certificates:** Auto-generated, verifiable certificates upon course completion.
-- **Verifiable Certificates (System 2.0):** Cryptographically verifiable professional credentials with dynamic drag-and-drop templates, public `/verify` routes, QR codes, and 1-click LinkedIn sharing.
-
+- **Dynamic Roadmaps:** CMS-backed public roadmap showing shipped, in-progress, and planned features.
+- **Verifiable Certificates (System 2.0):** Drag-and-drop certificate builder with text, image, and QR elements. Public verification, PDF download, and 1-click LinkedIn sharing.
 
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons, and track enrollment.
 - **Coaching Hub:** Manage 1-on-1 scheduling, async messaging, and client progression.
 - **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts.
 - **Automated Invoicing:** Professional billing automatically handled for wallet top-ups.
-- **Analytics Dashboard:** AI-driven insights into course demand, student performance, and revenue.
+- **AI Thumbnail Generator:** Generate course thumbnails using Gemini 2.5 Flash Image API.
+
+### ⚙️ Admin Features
+- **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates, FAQs, Legal Pages (Terms, Privacy, Refund), and Roadmap.
+- **Legal Pages:** Fully editable Terms of Service, Privacy Policy, and Refund Policy — rendered from the database, editable via the admin Content Manager.
+- **Social Media Management:** Configurable Discord, Twitter/X, GitHub, LinkedIn, and YouTube links with icons in the footer. All managed through Site Settings.
+- **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, and custom settings.
 
 ---
 
@@ -136,9 +140,9 @@ Follow these instructions to get the project up and running locally.
 **Developed and Maintained by:** Vishwajeet
 
 ### Legal Documents
-- [Terms of Service](#) (Placeholder)
-- [Privacy Policy](https://learnifyaitool.vercel.app/privacy) (Placeholder)
-- [Cookie Policy](https://learnifyaitool.vercel.app/about) (Placeholder)
+- [Terms of Service](https://learnifyaitool.vercel.app/terms)
+- [Privacy Policy](https://learnifyaitool.vercel.app/privacy)
+- [Refund Policy](https://learnifyaitool.vercel.app/refund-policy)
 
 ### License
 This project is licensed under the MIT License - see the LICENSE file for details.
