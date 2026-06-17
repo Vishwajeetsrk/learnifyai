@@ -58,6 +58,34 @@ const LANGUAGE_VERSIONS: Record<string, string> = {
 
 export const SUPPORTED_LANGUAGES = Object.keys(LANGUAGE_VERSIONS).sort();
 
+function tryRunWithJavascript(code: string, stdin: string) {
+  try {
+    const vm = require("node:vm");
+    let __stdout = "";
+    let __stderr = "";
+    const sandbox = {
+      console: {
+        log: (...args: any[]) => { __stdout += args.map((a: any) => typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)).join(" ") + "\n"; },
+        error: (...args: any[]) => { __stderr += args.map((a: any) => typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)).join(" ") + "\n"; },
+        warn: (...args: any[]) => { __stdout += args.map((a: any) => String(a)).join(" ") + "\n"; },
+      },
+      __stdin: stdin,
+      JSON, Math, Date, RegExp, Error, Array, Object, String, Number, Boolean, Map, Set, WeakMap, WeakSet, Promise, parseInt, parseFloat, isNaN, isFinite, decodeURI, encodeURI, decodeURIComponent, encodeURIComponent, Infinity, NaN, undefined,
+    };
+    const wrapped = `"use strict";\n${code}`;
+    const script = new vm.Script(wrapped, { timeout: 5000 });
+    script.runInNewContext(sandbox, { timeout: 5000 });
+    return { stdout: __stdout, stderr: __stderr, code: 0 };
+  } catch (err: any) {
+    return { stdout: "", stderr: err?.message ?? "Execution failed", code: 1 };
+  }
+}
+
+const PISTON_DEAD_MSG = "Public Piston API is now whitelist-only since Feb 2026. " +
+  "For JS/TS, the playground uses local Node.js execution. " +
+  "For other languages, set the PISTON_URL env var to your self-hosted Piston instance " +
+  "(https://github.com/engineer-man/piston).";
+
 export const executeCode = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => PistonRequestSchema.parse(data))
   .handler(async ({ data }) => {
@@ -66,8 +94,16 @@ export const executeCode = createServerFn({ method: "POST" })
       return { success: false as const, error: `Unsupported language: ${data.language}` };
     }
 
+    // For JS/TS, try local Node.js VM execution first
+    if (data.language === "javascript" || data.language === "typescript") {
+      const jsCode = data.language === "typescript" ? transpileTs(data.code) : data.code;
+      const local = tryRunWithJavascript(jsCode, data.stdin);
+      return { success: true as const, ...local, signal: null };
+    }
+
     try {
       const base = pistonUrl();
+      const isDefaultApi = base.includes("emkc.org");
       const res = await fetch(`${base}/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -83,6 +119,14 @@ export const executeCode = createServerFn({ method: "POST" })
 
       if (!res.ok) {
         const text = await res.text().catch(() => "Unknown error");
+        const is401 = res.status === 401;
+        const isWhitelistError = text.includes("whitelist");
+        if (isDefaultApi && (is401 || isWhitelistError)) {
+          return {
+            success: false as const,
+            error: PISTON_DEAD_MSG,
+          };
+        }
         return { success: false as const, error: `Piston API error (${res.status}): ${text}` };
       }
 
@@ -99,3 +143,17 @@ export const executeCode = createServerFn({ method: "POST" })
       return { success: false as const, error: err?.message ?? "Failed to execute code" };
     }
   });
+
+function transpileTs(code: string): string {
+  try {
+    const ts = require("typescript");
+    const result = ts.transpileModule(code, {
+      target: ts.ScriptTarget.ES2020,
+      noEmit: true,
+      removeComments: true,
+    });
+    return result?.outputText ?? code;
+  } catch {
+    return code;
+  }
+}

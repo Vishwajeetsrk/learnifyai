@@ -226,56 +226,60 @@ function WalletPage() {
 
   function downloadInvoice(tx: any) {
     if (!user) return;
-    const doc = new jsPDF();
-    
-    // Header
-    doc.setFontSize(22);
-    doc.setTextColor(79, 70, 229); // Primary Indigo
-    doc.text("Learnify AI", 14, 22);
-    
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text("Learnify EdTech Pvt. Ltd.", 14, 30);
-    doc.text("GSTIN: 29XXXXX1234X1Z5", 14, 35);
-    
-    doc.setFontSize(20);
-    doc.setTextColor(0);
-    doc.text("INVOICE", 150, 22);
-    
-    // Details
-    doc.setFontSize(10);
-    doc.setTextColor(50);
-    doc.text(`Invoice Number: LRN-${tx.id.split("-")[0].toUpperCase()}`, 150, 30);
-    doc.text(`Date: ${format(new Date(tx.created_at), "dd MMM yyyy")}`, 150, 35);
-    
-    doc.setDrawColor(200);
-    doc.line(14, 45, 196, 45);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(0);
-    doc.text("Bill To:", 14, 55);
-    doc.setFontSize(10);
-    doc.setTextColor(80);
-    doc.text(user.email ?? "Customer", 14, 62);
-    
-    // Table
-    (doc as any).autoTable({
-      startY: 75,
-      headStyles: { fillColor: [79, 70, 229] },
-      head: [["Description", "Amount"]],
-      body: [
-        [tx.description ?? "Wallet Top-up", `INR ${Number(tx.amount_inr).toFixed(2)}`],
-      ],
-      foot: [["Total Paid", `INR ${Number(tx.amount_inr).toFixed(2)}`]],
-      footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: "bold" },
-    });
-    
-    // Footer
-    doc.setFontSize(9);
-    doc.setTextColor(150);
-    doc.text("This is a computer generated invoice and does not require a signature.", 14, (doc as any).lastAutoTable.finalY + 30);
-    
-    doc.save(`Learnify_Invoice_${tx.id.split("-")[0]}.pdf`);
+    try {
+      const doc = new jsPDF();
+
+      // Header
+      doc.setFontSize(22);
+      doc.setTextColor(79, 70, 229);
+      doc.text("Learnify AI", 14, 22);
+
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text("Learnify EdTech Pvt. Ltd.", 14, 30);
+      doc.text("GSTIN: 29XXXXX1234X1Z5", 14, 35);
+
+      doc.setFontSize(20);
+      doc.setTextColor(0);
+      doc.text("INVOICE", 150, 22);
+
+      // Details
+      doc.setFontSize(10);
+      doc.setTextColor(50);
+      doc.text(`Invoice Number: LRN-${tx.id?.split("-")[0]?.toUpperCase() ?? "NA"}`, 150, 30);
+      doc.text(`Date: ${tx.created_at ? format(new Date(tx.created_at), "dd MMM yyyy") : "N/A"}`, 150, 35);
+
+      doc.setDrawColor(200);
+      doc.line(14, 45, 196, 45);
+
+      doc.setFontSize(12);
+      doc.setTextColor(0);
+      doc.text("Bill To:", 14, 55);
+      doc.setFontSize(10);
+      doc.setTextColor(80);
+      doc.text(user.email ?? "Customer", 14, 62);
+
+      // Table
+      (doc as any).autoTable({
+        startY: 75,
+        headStyles: { fillColor: [79, 70, 229] },
+        head: [["Description", "Amount"]],
+        body: [
+          [tx.description ?? "Wallet Top-up", `INR ${Number(tx.amount_inr ?? 0).toFixed(2)}`],
+        ],
+        foot: [["Total Paid", `INR ${Number(tx.amount_inr ?? 0).toFixed(2)}`]],
+        footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: "bold" },
+      });
+
+      // Footer
+      doc.setFontSize(9);
+      doc.setTextColor(150);
+      doc.text("This is a computer generated invoice and does not require a signature.", 14, (doc as any).lastAutoTable.finalY + 30);
+
+      doc.save(`Learnify_Invoice_${tx.id?.split("-")[0] ?? "NA"}.pdf`);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to generate invoice");
+    }
   }
 
   const presets = [200, 500, 1000, 2500, 5000, 10000];

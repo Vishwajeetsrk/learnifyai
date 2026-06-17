@@ -20,6 +20,7 @@ import {
   FileText,
   GitBranch,
   Percent,
+  ShieldCheck,
 } from "lucide-react";
 import {
   CertificateRender,
@@ -1309,6 +1310,7 @@ const PREVIEW_CTX = {
 
 function CertTemplatesManager() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [editing, setEditing] = useState<TemplateRow | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -1379,7 +1381,6 @@ function CertTemplatesManager() {
           ? json.templates
           : [];
       if (!rows.length) return toast.error("No templates found in file");
-      // Strip server-managed fields and ensure name is unique-ish
       const clean = rows.map((r) => {
         const { id, created_by, created_at, updated_at, is_default, ...rest } = r ?? {};
         return { ...rest, name: String(rest.name ?? "Imported template"), is_default: false };
@@ -1419,6 +1420,10 @@ function CertTemplatesManager() {
         <Button variant="outline" onClick={loadPresets}>
           Load preset templates
         </Button>
+        <Button variant="outline" onClick={() => navigate({ to: "/admin/certificates" })}>
+          <ShieldCheck className="h-4 w-4 mr-2" />
+          Open Designer
+        </Button>
         <Button onClick={newTemplate}>
           <Plus className="h-4 w-4 mr-2" />
           New template
@@ -1450,11 +1455,12 @@ function CertTemplatesManager() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => {
-                      setEditing(t);
-                      setOpen(true);
-                    }}
+                    onClick={() => navigate({ to: "/admin/certificates" })}
+                    title="Edit in Certificate Designer"
                   >
+                    <ShieldCheck className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => { setEditing(t); setOpen(true); }}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setDeleteId(t.id)}>

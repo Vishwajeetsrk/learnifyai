@@ -200,7 +200,7 @@ function InboxPage() {
                         <Bell className="h-4 w-4 text-primary" />
                       )}
                     </div>
-                    <div className="flex-1 min-w-0" onClick={e => e.stopPropagation()}>
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="font-medium text-sm sm:text-base">{n.title}</h3>
                         {!n.read && (
@@ -257,7 +257,7 @@ function InboxPage() {
               </p>
             ) : (
               (reminders.data ?? []).map((r) => (
-                <div key={r.id} className="border rounded-lg p-3 sm:p-4 flex gap-3">
+                <div key={r.id} className="border rounded-lg p-3 sm:p-4 flex gap-3 cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate({ to: "/ai-tools" })}>
                   <div className="h-9 w-9 rounded-lg bg-primary/10 grid place-items-center shrink-0">
                     <Clock className="h-4 w-4 text-primary" />
                   </div>
@@ -281,6 +281,7 @@ function InboxPage() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1" onClick={e => e.stopPropagation()}>
                     <Button
                       size="icon"
                       variant="ghost"
@@ -296,6 +297,7 @@ function InboxPage() {
                     <Button size="icon" variant="ghost" onClick={() => delReminder(r.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
+                    </div>
                   </div>
                 </div>
               ))

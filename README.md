@@ -7,7 +7,7 @@
 
   *Learnify AI brings together course creation, automated AI tutoring, dynamic roadmaps, live cohorts, integrated payments, and a rich community experience—all in one seamless platform.*
 
-  [Live Demo](https://learnifyai.vercel.app/) • [Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues)
+  [Live Demo](https://learnifyaitool.vercel.app/) • [Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues)
 </div>
 
 <br/>
@@ -19,18 +19,18 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 ### 🎓 For Learners
 - **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + non-YouTube fallback).
 - **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
-- **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution via Piston and web search. Standalone page at `/ai-agent`.
-- **Multi-Language Playground:** Write, compile, and run code in 40+ languages (C, C++, Java, Python, JavaScript, TypeScript, Go, Rust, and more) using Monaco Editor + Piston execution engine. Standalone page at `/playground`.
+- **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution (Piston / local VM) and web search. Inline in course player.
+- **Multi-Language Playground:** Write, compile, and run code in 40+ languages (C, C++, Java, Python, JavaScript, TypeScript, Go, Rust, and more) using Monaco Editor. JS/TS runs locally via Node.js VM; other languages use Piston execution engine.
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
 - **Wallet & Integrated Payments:** Manage credits, purchase courses, and download invoices instantly.
-- **Community Feed:** Share updates, post questions, attach media, and engage with peers.
+- **Community Feed:** Share updates, post questions, attach media, create polls, post announcements, and engage with peers. Complete with comment author avatars, live poll voting, and pinned announcements.
 - **Dynamic Roadmaps:** CMS-backed public roadmap showing shipped, in-progress, and planned features.
-- **Verifiable Certificates (System 2.0):** Drag-and-drop certificate builder with text, image, and QR elements. Public verification, PDF download, and 1-click LinkedIn sharing.
+- **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate builder with text, image, and QR elements. Public verification, PDF download, and 1-click LinkedIn sharing. Light mode-forced render to prevent dark mode issues.
 
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons, and track enrollment.
-- **Coaching Hub:** Manage 1-on-1 scheduling, async messaging, and client progression.
-- **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts.
+- **Coaching Hub:** Manage cohorts (create/launch/live), track learner outcomes (quiz stats, course progress), and build milestone-based learning roadmaps — all backed by real Supabase data.
+- **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management.
 - **Automated Invoicing:** Professional billing automatically handled for wallet top-ups.
 - **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 providers (Lovable, Gemini, Stability AI, Fal AI, Hugging Face, Pollinations AI).
 
@@ -41,7 +41,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 
 ### ⚙️ Admin Features
 - **Coupon System:** Admin-managed discount codes (percent/flat) stored in DB — applied at checkout with real-time validation and cart UI.
-- **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates, FAQs, Legal Pages (Terms, Privacy, Refund), Coupons, and Roadmap.
+- **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates (with "Open Designer" link to full WYSIWYG builder), FAQs, Legal Pages (Terms, Privacy, Refund), Coupons, and Roadmap.
 - **Legal Pages:** Fully editable Terms of Service, Privacy Policy, and Refund Policy — rendered from the database, editable via the admin Content Manager.
 - **Social Media Management:** Configurable Discord, Twitter/X, GitHub, LinkedIn, and YouTube links with icons in the footer. All managed through Site Settings.
 - **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, and custom settings.
@@ -77,7 +77,7 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 | **Analytics** | PostHog |
 | **LLM Observability** | LangSmith |
 | **AI Agent Framework** | CrewAI |
-| **Code Execution** | Piston (self-hosted) — 40+ languages including C, C++, Java, Python, PHP, SQLite, JS/TS |
+| **Code Execution** | Piston (self-hosted) — 40+ languages including C, C++, Java, Python, PHP, SQLite. JS/TS runs locally via Node.js `vm` |
 | **Vector Database** | Supabase pgvector (material_chunks, match_material_chunks RPC) |
 | **OCR / Vision** | Mistral OCR (planned), Hugging Face models (fallback) |
 | **PDF Generation** | jsPDF & jsPDF-Autotable |
@@ -116,28 +116,29 @@ learnifyai/
 ## 🧪 Playground & AI Agent
 
 ### Multi-Language Playground (`/playground`)
-A full-featured code execution environment powered by [Piston](https://github.com/engineer-man/piston) (Docker sandbox API) supporting 40+ languages:
+A full-featured code execution environment supporting 40+ languages:
 - **Editor:** Monaco Editor (VS Code-grade) with syntax highlighting, minimap, and multi-tab editing
 - **Languages:** JavaScript, TypeScript, Python, C++, C, Java, Go, Rust, Ruby, PHP, C#, SQL, Bash, and 30+ more
+- **Local JS/TS Execution:** JavaScript and TypeScript run locally via Node.js `vm.runInNewContext()` — no external API needed. TypeScript is auto-transpiled before execution.
 - **Stdin Input:** Pass input to your programs
 - **Output Panel:** Real-time stdout, stderr, and exit code display
 - **Run on Demand:** Execute code with a single click
 
-### AI Agent (`/ai-agent`)
-An intelligent assistant with tool execution capabilities:
+### AI Agent
+An intelligent assistant embedded in the course player with tool execution capabilities:
 - **Chat Interface:** Conversational AI powered by OpenRouter (GPT-4o-mini)
 - **Voice I/O:** Push-to-talk via Web Speech API (speech-to-text) + text-to-speech output
-- **Tool Execution:** Agent can run code via Piston and search the web for up-to-date information
-- **Multi-Turn Reasoning:** Agent can make multiple tool calls in a single conversation to solve complex tasks
+- **Tool Execution:** Agent can run code and search the web for up-to-date information
+- **Multi-Turn Reasoning:** Agent can make multiple tool calls in a single conversation
 
 ### Architecture
 ```
-Playground (Monaco Editor) ──► Piston API (emkc.org) ──► Output
+Playground (Monaco Editor) ──► Node.js VM (JS/TS) or Piston API (other langs) ──► Output
 AI Agent (Chat + Voice) ──► OpenRouter (GPT-4o-mini) ──► Tool Calls
-                                  │
-                    ┌──────────────┴──────────────┐
-                    ▼                              ▼
-              Piston Execution              Web Search API
+                                   │
+                     ┌──────────────┴──────────────┐
+                     ▼                              ▼
+               Code Execution                Web Search API
 ```
 
 ---

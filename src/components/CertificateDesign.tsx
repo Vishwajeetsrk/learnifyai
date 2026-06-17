@@ -103,30 +103,31 @@ export function interpolate(template: string, ctx: CertContext) {
 }
 
 function patternBackground(pattern: string, bg: string, accent: string, accent2?: string | null) {
+  const safeBg = bg || "#ffffff";
   switch (pattern) {
     case "dots":
       return {
-        backgroundColor: bg,
+        backgroundColor: safeBg,
         backgroundImage: `radial-gradient(${accent}33 1px, transparent 1px)`,
         backgroundSize: "18px 18px",
       };
     case "grid":
       return {
-        backgroundColor: bg,
+        backgroundColor: safeBg,
         backgroundImage: `linear-gradient(${accent}22 1px, transparent 1px), linear-gradient(90deg, ${accent}22 1px, transparent 1px)`,
         backgroundSize: "32px 32px",
       };
     case "diagonal":
       return {
-        backgroundColor: bg,
+        backgroundColor: safeBg,
         backgroundImage: `repeating-linear-gradient(45deg, ${accent}11 0 2px, transparent 2px 14px)`,
       };
     case "gradient":
       return {
-        background: `linear-gradient(135deg, ${bg} 0%, ${accent2 || accent}22 100%)`,
+        background: `linear-gradient(135deg, ${safeBg} 0%, ${accent2 || accent}22 100%)`,
       };
     default:
-      return { background: bg };
+      return { background: safeBg };
   }
 }
 
@@ -167,13 +168,14 @@ export const CertificateRender = forwardRef<HTMLDivElement, Props>(({ design, ct
   return (
     <div
       ref={ref}
-      className="relative w-full mx-auto overflow-hidden shadow-2xl"
+      className="relative w-full mx-auto overflow-hidden shadow-2xl bg-white"
       style={{
         color: design.text_color,
         aspectRatio: "1.414 / 1",
         fontFamily: `'${bodyFont}', Georgia, serif`,
         border: borderCss,
         ...bgStyle,
+        colorScheme: "light",
       }}
     >
       {borderStyle === "ornate" && (

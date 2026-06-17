@@ -182,7 +182,7 @@ function CertificatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-violet-100 py-6 sm:py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-violet-100 py-6 sm:py-12 px-4" style={{ colorScheme: "light" }}>
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between gap-2 mb-4 print:hidden flex-wrap">
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
@@ -213,7 +213,7 @@ function CertificatePage() {
         </div>
 
         {row.v2?.certificate_templates ? (
-          <div ref={certRef} className="relative w-full mx-auto overflow-hidden shadow-2xl bg-white" style={{ aspectRatio: "1.414 / 1", backgroundImage: row.v2.certificate_templates.bg_image_url ? `url(${row.v2.certificate_templates.bg_image_url})` : 'none', backgroundSize: 'cover' }}>
+          <div ref={certRef} className="relative w-full mx-auto overflow-hidden shadow-2xl" style={{ aspectRatio: "1.414 / 1", background: row.v2.certificate_templates.bg_image_url ? `#fff url(${row.v2.certificate_templates.bg_image_url}) center/cover no-repeat` : "#fff", colorScheme: "light" }}>
             {row.v2.certificate_templates.config_json?.elements?.map((el: any) => {
               let content = el.content || "";
               content = content.replace("{name}", ctx.name).replace("{course}", ctx.course).replace("{date}", ctx.date).replace("{certificate_id}", ctx.code);
