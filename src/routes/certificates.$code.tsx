@@ -63,11 +63,21 @@ function CertificatePage() {
       
       const { data: certV2 } = await supabase
         .from("certificates")
-        .select("template_id, certificate_templates(*)")
+        .select("template_id")
         .eq("code", code)
         .maybeSingle();
 
-      return { ...row, v2: certV2 } as any;
+      let template = null;
+      if (certV2?.template_id) {
+        const { data: tmpl } = await supabase
+          .from("certificate_templates")
+          .select("*")
+          .eq("id", certV2.template_id)
+          .maybeSingle();
+        template = tmpl;
+      }
+
+      return { ...row, v2: certV2 ? { ...certV2, certificate_templates: template } : null } as any;
     },
   });
 

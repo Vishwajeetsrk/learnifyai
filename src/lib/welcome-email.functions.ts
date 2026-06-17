@@ -45,11 +45,35 @@ async function sendResendEmail({
       await transporter.sendMail({ from: emailFrom, to: [to], subject, html });
       return;
     } catch (err: any) {
-      console.warn("Resend failed, trying Brevo fallback...", err?.message?.slice(0, 120));
+      console.warn("Resend failed, trying Brevo...", err?.message?.slice(0, 120));
     }
   }
 
-  // Fallback to Brevo SMTP
+  // Fallback: Brevo REST API (no IP restrictions)
+  if (BREVO_SMTP_KEY) {
+    try {
+      const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": BREVO_SMTP_KEY,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: "Learnify AI", email: "noreply@learnify.ai" },
+          to: [{ email: to }],
+          subject,
+          htmlContent: html,
+        }),
+      });
+      if (!resp.ok) throw new Error(`Brevo API ${resp.status}`);
+      return;
+    } catch (err: any) {
+      console.warn("Brevo API failed, trying SMTP...", err?.message?.slice(0, 120));
+    }
+  }
+
+  // Last resort: Brevo SMTP (requires authorized IP)
   if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
     const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
     const transporter = nodemailer.createTransport({

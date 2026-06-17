@@ -117,6 +117,39 @@ function buildHtml({
 </body></html>`;
 }
 
+async function sendViaBrevoApi({
+  to,
+  subject,
+  html,
+}: {
+  to: string;
+  subject: string;
+  html: string;
+}) {
+  const apiKey = process.env.BREVO_SMTP_KEY;
+  if (!apiKey) throw new Error("BREVO_SMTP_KEY not set");
+  const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "api-key": apiKey,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      sender: { name: "Learnify AI", email: "noreply@learnify.ai" },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+  if (!resp.ok) {
+    const body = await resp.text().catch(() => "");
+    throw new Error(`Brevo API ${resp.status}: ${body.slice(0, 200)}`);
+  }
+  const json = await resp.json();
+  return { messageId: json.messageId, provider: "brevo-api" };
+}
+
 async function sendEmail({
   to,
   subject,
@@ -153,11 +186,20 @@ async function sendEmail({
       });
       return { messageId: info.messageId, provider: "resend" };
     } catch (err: any) {
-      console.warn("Resend failed, trying Brevo fallback...", err?.message?.slice(0, 120));
+      console.warn("Resend failed, trying Brevo...", err?.message?.slice(0, 120));
     }
   }
 
-  // Fallback to Brevo SMTP
+  // Fallback to Brevo REST API (works from any IP, unlike SMTP)
+  if (BREVO_SMTP_KEY) {
+    try {
+      return await sendViaBrevoApi({ to, subject, html });
+    } catch (err: any) {
+      console.warn("Brevo API failed, trying Brevo SMTP...", err?.message?.slice(0, 120));
+    }
+  }
+
+  // Last resort: Brevo SMTP (requires authorized IP in Brevo dashboard)
   if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
     const transporter = nodemailer.createTransport({
       host: BREVO_SMTP_SERVER,
@@ -172,7 +214,7 @@ async function sendEmail({
       subject,
       html,
     });
-    return { messageId: info.messageId, provider: "brevo" };
+    return { messageId: info.messageId, provider: "brevo-smtp" };
   }
 
   throw new Error("No email service configured. Set RESEND_API_KEY or BREVO_SMTP_KEY.");

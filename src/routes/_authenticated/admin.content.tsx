@@ -2730,7 +2730,7 @@ function CouponManager() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-coupons"],
     queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("value").eq("key", COUPON_KEY).single();
+      const { data } = await supabase.from("site_settings").select("value").eq("key", COUPON_KEY).maybeSingle();
       if (data?.value) {
         try { return JSON.parse(data.value as string); } catch { return DEFAULT_COUPONS; }
       }
