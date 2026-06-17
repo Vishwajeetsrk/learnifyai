@@ -23,7 +23,10 @@ import {
   ShieldCheck,
   UserPlus,
   VideoOff,
+<<<<<<< HEAD
+=======
   Award,
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -734,9 +737,12 @@ function AdminOverview() {
             <Button variant="outline" size="sm" onClick={() => navigate({ to: "/features" })}>
               <Sparkles className="h-4 w-4" /> Features
             </Button>
+<<<<<<< HEAD
+=======
             <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/certificates" })}>
               <Award className="h-4 w-4" /> Certificates
             </Button>
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
             <Button variant="outline" size="sm" onClick={refreshAll}>
               <RefreshCw className="h-4 w-4" /> Refresh
             </Button>

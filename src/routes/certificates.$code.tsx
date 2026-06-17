@@ -2,7 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
+<<<<<<< HEAD
+=======
 import { motion } from "framer-motion";
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 import QRCode from "qrcode";
 import { Loader2, Award, Printer, Share2, Download, Mail } from "lucide-react";
 import { format } from "date-fns";
@@ -56,6 +59,13 @@ function CertificatePage() {
   const q = useQuery({
     queryKey: ["cert", code],
     queryFn: async () => {
+<<<<<<< HEAD
+      const { data, error } = await supabase.rpc("get_certificate_by_code", { _code: code });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      if (!row) throw new Error("Certificate not found");
+      return row as any;
+=======
       const { data: rpcData, error } = await supabase.rpc("get_certificate_by_code", { _code: code });
       if (error) throw error;
       const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
@@ -68,6 +78,7 @@ function CertificatePage() {
         .maybeSingle();
 
       return { ...row, v2: certV2 } as any;
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     },
   });
 
@@ -202,6 +213,9 @@ function CertificatePage() {
           </div>
         </div>
 
+<<<<<<< HEAD
+        <CertificateRender ref={certRef} design={design} ctx={ctx} />
+=======
         {row.v2?.certificate_templates ? (
           <div ref={certRef} className="relative w-full mx-auto overflow-hidden shadow-2xl bg-white" style={{ aspectRatio: "1.414 / 1", backgroundImage: row.v2.certificate_templates.bg_image_url ? `url(${row.v2.certificate_templates.bg_image_url})` : 'none', backgroundSize: 'cover' }}>
             {row.v2.certificate_templates.config_json?.elements?.map((el: any) => {
@@ -235,6 +249,7 @@ function CertificatePage() {
         ) : (
           <CertificateRender ref={certRef} design={design} ctx={ctx} />
         )}
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 
         <p className="mt-4 text-center text-[11px] text-muted-foreground print:hidden">
           Verify at {typeof window !== "undefined" ? window.location.host : "learnify.ai"}

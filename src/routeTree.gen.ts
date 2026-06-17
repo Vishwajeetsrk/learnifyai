@@ -27,7 +27,10 @@ import { Route as CareersRouteImport } from './routes/careers'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+<<<<<<< HEAD
+=======
 import { Route as VerifyIdRouteImport } from './routes/verify.$id'
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as CertificatesCodeRouteImport } from './routes/certificates.$code'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -60,7 +63,10 @@ import { Route as AuthenticatedCohortsIdRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminMissingVideosRouteImport } from './routes/_authenticated/admin.missing-videos'
 import { Route as AuthenticatedAdminEnrichmentRunsRouteImport } from './routes/_authenticated/admin.enrichment-runs'
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
+<<<<<<< HEAD
+=======
 import { Route as AuthenticatedAdminCertificatesRouteImport } from './routes/_authenticated/admin.certificates'
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 import { Route as ApiPublicHooksRunRemindersRouteImport } from './routes/api/public/hooks/run-reminders'
 
 const SignupRoute = SignupRouteImport.update({
@@ -152,11 +158,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+<<<<<<< HEAD
+=======
 const VerifyIdRoute = VerifyIdRouteImport.update({
   id: '/verify/$id',
   path: '/verify/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 const UIdRoute = UIdRouteImport.update({
   id: '/u/$id',
   path: '/u/$id',
@@ -331,12 +340,15 @@ const AuthenticatedAdminContentRoute =
     path: '/content',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+<<<<<<< HEAD
+=======
 const AuthenticatedAdminCertificatesRoute =
   AuthenticatedAdminCertificatesRouteImport.update({
     id: '/certificates',
     path: '/certificates',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 const ApiPublicHooksRunRemindersRoute =
   ApiPublicHooksRunRemindersRouteImport.update({
     id: '/api/public/hooks/run-reminders',
@@ -383,8 +395,11 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/certificates/$code': typeof CertificatesCodeRoute
   '/u/$id': typeof UIdRoute
+<<<<<<< HEAD
+=======
   '/verify/$id': typeof VerifyIdRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
@@ -437,8 +452,11 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/certificates/$code': typeof CertificatesCodeRoute
   '/u/$id': typeof UIdRoute
+<<<<<<< HEAD
+=======
   '/verify/$id': typeof VerifyIdRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
@@ -493,8 +511,11 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/certificates/$code': typeof CertificatesCodeRoute
   '/u/$id': typeof UIdRoute
+<<<<<<< HEAD
+=======
   '/verify/$id': typeof VerifyIdRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/_authenticated/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
@@ -549,8 +570,11 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/certificates/$code'
     | '/u/$id'
+<<<<<<< HEAD
+=======
     | '/verify/$id'
     | '/admin/certificates'
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     | '/admin/content'
     | '/admin/enrichment-runs'
     | '/admin/missing-videos'
@@ -603,8 +627,11 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/certificates/$code'
     | '/u/$id'
+<<<<<<< HEAD
+=======
     | '/verify/$id'
     | '/admin/certificates'
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     | '/admin/content'
     | '/admin/enrichment-runs'
     | '/admin/missing-videos'
@@ -658,8 +685,11 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/certificates/$code'
     | '/u/$id'
+<<<<<<< HEAD
+=======
     | '/verify/$id'
     | '/_authenticated/admin/certificates'
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     | '/_authenticated/admin/content'
     | '/_authenticated/admin/enrichment-runs'
     | '/_authenticated/admin/missing-videos'
@@ -696,7 +726,10 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   CertificatesCodeRoute: typeof CertificatesCodeRoute
   UIdRoute: typeof UIdRoute
+<<<<<<< HEAD
+=======
   VerifyIdRoute: typeof VerifyIdRoute
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
   ApiPublicHooksRunRemindersRoute: typeof ApiPublicHooksRunRemindersRoute
 }
 
@@ -828,6 +861,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+<<<<<<< HEAD
+=======
     '/verify/$id': {
       id: '/verify/$id'
       path: '/verify/$id'
@@ -835,6 +870,7 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     '/u/$id': {
       id: '/u/$id'
       path: '/u/$id'
@@ -1059,6 +1095,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminContentRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+<<<<<<< HEAD
+=======
     '/_authenticated/admin/certificates': {
       id: '/_authenticated/admin/certificates'
       path: '/certificates'
@@ -1066,6 +1104,7 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCertificatesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     '/api/public/hooks/run-reminders': {
       id: '/api/public/hooks/run-reminders'
       path: '/api/public/hooks/run-reminders'
@@ -1077,14 +1116,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+<<<<<<< HEAD
+=======
   AuthenticatedAdminCertificatesRoute: typeof AuthenticatedAdminCertificatesRoute
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminEnrichmentRunsRoute: typeof AuthenticatedAdminEnrichmentRunsRoute
   AuthenticatedAdminMissingVideosRoute: typeof AuthenticatedAdminMissingVideosRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+<<<<<<< HEAD
+=======
   AuthenticatedAdminCertificatesRoute: AuthenticatedAdminCertificatesRoute,
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
   AuthenticatedAdminEnrichmentRunsRoute: AuthenticatedAdminEnrichmentRunsRoute,
   AuthenticatedAdminMissingVideosRoute: AuthenticatedAdminMissingVideosRoute,
@@ -1195,7 +1240,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   CertificatesCodeRoute: CertificatesCodeRoute,
   UIdRoute: UIdRoute,
+<<<<<<< HEAD
+=======
   VerifyIdRoute: VerifyIdRoute,
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
   ApiPublicHooksRunRemindersRoute: ApiPublicHooksRunRemindersRoute,
 }
 export const routeTree = rootRouteImport

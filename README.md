@@ -23,7 +23,11 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Wallet & Integrated Payments:** Manage credits, purchase courses, and download invoices instantly.
 - **Community Feed:** Share updates, post questions, attach media, and engage with peers.
 - **AI-Powered Roadmaps:** Dynamic learning paths adjusted to your progress.
+<<<<<<< HEAD
+- **Verifiable Certificates:** Auto-generated, verifiable certificates upon course completion.
+=======
 - **Verifiable Certificates (System 2.0):** Cryptographically verifiable professional credentials with dynamic drag-and-drop templates, public `/verify` routes, QR codes, and 1-click LinkedIn sharing.
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons, and track enrollment.
@@ -50,10 +54,16 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 - **Deployment:** [Vercel](https://vercel.com/) (Edge Network & Serverless Functions)
 
 ### Integrated APIs & Tools
+<<<<<<< HEAD
+- **Payments:** [Razorpay](https://razorpay.com/) (Integrated Wallet Top-ups & Checkout)
+- **AI Integration:** Google Gemini API / OpenAI API (For AI Tutor and Analytics)
+- **PDF Generation:** jsPDF & jsPDF-Autotable (Invoice rendering)
+=======
 - **Payments:** [Razorpay](https://razorpay.com/) (Integrated Wallet Top-ups & Checkout with strict HMAC SHA-256 signature verification and idempotency keys)
 - **AI Integration:** Google Gemini API / OpenAI API (For AI Tutor and Analytics)
 - **PDF Generation:** jsPDF & jsPDF-Autotable (Invoice rendering)
 - **Observability:** Sentry Error Tracking & PostHog Analytics
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
 
 ---
 

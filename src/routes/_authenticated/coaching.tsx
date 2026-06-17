@@ -38,10 +38,14 @@ function CoachingDashboard() {
   const { data: coaches = [] } = useQuery({
     queryKey: ["available-coaches"],
     queryFn: async () => {
+<<<<<<< HEAD
+      const { data } = await supabase.from("profiles" as any).select("*").eq("role", "creator");
+=======
       const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "creator");
       if (!roles || roles.length === 0) return [];
       const userIds = roles.map((r: any) => r.user_id);
       const { data } = await supabase.from("profiles" as any).select("*").in("id", userIds);
+>>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
       return data || [];
     },
   });
