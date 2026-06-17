@@ -626,8 +626,7 @@ function CourseDetail() {
               <div className="rounded-2xl border bg-card p-5 shadow-card space-y-4">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h2 className="font-display text-lg font-semibold">{active.title}</h2>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-xs text-muted-foreground">
                       {formatLessonTime(active.duration_minutes)}{active.is_preview ? " · Free preview" : ""}
                     </p>
                   </div>
