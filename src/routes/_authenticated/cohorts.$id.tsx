@@ -1,14 +1,29 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Calendar, ExternalLink, Loader2, Users, Video } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import {
+  ArrowLeft,
+  Calendar,
+  ExternalLink,
+  Loader2,
+  Users,
+  Video,
+  Send,
+  MessageCircle,
+  ChevronDown,
+} from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useServerFn } from "@tanstack/react-start";
+import { sendGroupMessage } from "@/lib/group-chat.functions";
 
 export const Route = createFileRoute("/_authenticated/cohorts/$id")({
   head: () => ({ meta: [{ title: "Cohort — Learnify AI" }] }),
@@ -20,6 +35,13 @@ function CohortDetail() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const sendMsg = useServerFn(sendGroupMessage);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [msgs, setMsgs] = useState<any[]>([]);
+  const [showChat, setShowChat] = useState(true);
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
   const cohortQuery = useQuery({
     queryKey: ["cohort", id],
@@ -31,13 +53,19 @@ function CohortDetail() {
         .maybeSingle();
       if (error) throw error;
       if (!c) return null;
-      const [{ data: members }, { data: creator }] = await Promise.all([
+      const [{ data: members }, { data: creator }, { data: messages }] = await Promise.all([
         supabase.from("cohort_members").select("user_id, role, joined_at").eq("cohort_id", id),
         supabase
           .from("profiles")
           .select("id, full_name, avatar_url")
           .eq("id", c.creator_id)
           .maybeSingle(),
+        supabase
+          .from("group_messages")
+          .select("id, sender_id, content, created_at")
+          .eq("cohort_id", id)
+          .order("created_at", { ascending: true })
+          .limit(200),
       ]);
       const memberIds = (members ?? []).map((m) => m.user_id);
       let memberProfiles: any[] = [];
@@ -48,13 +76,70 @@ function CohortDetail() {
           .in("id", memberIds);
         memberProfiles = data ?? [];
       }
-      return { cohort: c, members: members ?? [], memberProfiles, creator };
+      const profileMap = Object.fromEntries(
+        (memberProfiles as any[]).map((p: any) => [p.id, p]),
+      );
+      const enriched = (messages ?? []).map((m: any) => ({
+        ...m,
+        profile: profileMap[m.sender_id] ?? { full_name: "Unknown", avatar_url: null },
+      }));
+      return { cohort: c, members: members ?? [], memberProfiles, profileMap, creator, messages: enriched };
     },
   });
 
   const data = cohortQuery.data;
   const isMember = !!data?.members.find((m) => m.user_id === user?.id);
   const isHost = data?.cohort.creator_id === user?.id;
+
+  // Realtime: new messages
+  useEffect(() => {
+    if (!id || !isMember) return;
+    setMsgs(data?.messages ?? []);
+    const ch = supabase
+      .channel(`cohort-chat-${id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "group_messages",
+          filter: `cohort_id=eq.${id}`,
+        },
+        (payload: any) => {
+          const msg = payload.new;
+          const profile = data?.profileMap?.[msg.sender_id];
+          setMsgs((prev) => [
+            ...prev,
+            { ...msg, profile: profile ?? { full_name: "Unknown", avatar_url: null } },
+          ]);
+        },
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [id, isMember, data?.messages?.length]);
+
+  // Realtime: online presence
+  useEffect(() => {
+    if (!id || !user || !isMember) return;
+    const ch = supabase.channel(`cohort-presence-${id}`, {
+      config: { presence: { key: user.id } },
+    });
+    ch.on("presence", { event: "sync" }, () => {
+      const state = ch.presenceState();
+      setOnlineUsers(new Set(Object.keys(state)));
+    });
+    ch.subscribe(async (status) => {
+      if (status === "SUBSCRIBED") {
+        await ch.track({ online_at: new Date().toISOString() });
+      }
+    });
+    return () => { supabase.removeChannel(ch); };
+  }, [id, user, isMember]);
+
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs.length]);
 
   async function join() {
     if (!user) return navigate({ to: "/login" });
@@ -76,6 +161,21 @@ function CohortDetail() {
     qc.invalidateQueries({ queryKey: ["cohort", id] });
   }
 
+  async function handleSend() {
+    const t = text.trim();
+    if (!t || sending) return;
+    setSending(true);
+    setText("");
+    try {
+      await sendMsg({ data: { cohortId: id, content: t } });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Send failed");
+      setText(t);
+    } finally {
+      setSending(false);
+    }
+  }
+
   if (cohortQuery.isLoading)
     return (
       <AppShell>
@@ -95,9 +195,18 @@ function CohortDetail() {
   const memberCount = data.members.length;
   const isFull = memberCount >= c.capacity;
 
+  function initials(name: string) {
+    return name
+      .split(" ")
+      .map((s) => s[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+  }
+
   return (
     <AppShell>
-      <div className="px-4 sm:px-6 lg:px-10 py-6 max-w-4xl">
+      <div className="px-4 sm:px-6 lg:px-10 py-6 max-w-6xl">
         <Link
           to="/cohorts"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -105,6 +214,7 @@ function CohortDetail() {
           <ArrowLeft className="h-4 w-4" /> All cohorts
         </Link>
 
+        {/* Cohort info card */}
         <div className="mt-6 rounded-3xl border bg-card p-6 sm:p-8 shadow-card">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div className="min-w-0">
@@ -182,39 +292,159 @@ function CohortDetail() {
           </div>
         </div>
 
-        <div className="mt-8 rounded-2xl border bg-card p-6 shadow-card">
-          <h2 className="font-display font-semibold mb-4 flex items-center gap-2">
-            <Users className="h-4 w-4" /> Members ({memberCount})
-          </h2>
-          {memberCount === 0 ? (
-            <p className="text-sm text-muted-foreground">No members yet. Be the first to join!</p>
-          ) : (
-            <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {data.memberProfiles.map((p) => {
-                const initials = (p.full_name ?? "U")
-                  .split(" ")
-                  .map((s: string) => s[0])
-                  .slice(0, 2)
-                  .join("")
-                  .toUpperCase();
-                return (
-                  <li key={p.id}>
-                    <Link
-                      to="/u/$id"
-                      params={{ id: p.id }}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent"
+        {/* Chat + Members (only for members) */}
+        {isMember && (
+          <>
+            {/* Mobile toggle */}
+            <button
+              onClick={() => setShowChat(!showChat)}
+              className="mt-6 flex w-full items-center justify-between rounded-xl border bg-card p-3 text-sm font-medium sm:hidden"
+            >
+              <span className="flex items-center gap-2">
+                <MessageCircle className="h-4 w-4" />
+                {showChat ? "Members" : "Group chat"}
+              </span>
+              <ChevronDown
+                className={`h-4 w-4 transition ${showChat ? "rotate-180" : ""}`}
+              />
+            </button>
+
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {/* Chat panel */}
+              {showChat && (
+                <div className="sm:col-span-2 rounded-2xl border bg-card flex flex-col overflow-hidden shadow-sm">
+                  <div className="px-4 py-3 border-b flex items-center gap-2 text-sm font-medium">
+                    <MessageCircle className="h-4 w-4 text-primary" />
+                    Group chat
+                    <span className="text-muted-foreground font-normal">
+                      · {msgs.length} messages
+                    </span>
+                  </div>
+
+                  <ScrollArea className="flex-1 h-[400px] sm:h-[480px] p-4">
+                    {msgs.length === 0 ? (
+                      <div className="h-full grid place-items-center text-sm text-muted-foreground">
+                        No messages yet. Start the conversation!
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {msgs.map((m) => {
+                          const isMe = m.sender_id === user?.id;
+                          return (
+                            <div
+                              key={m.id}
+                              className={`flex gap-2.5 ${isMe ? "flex-row-reverse" : ""}`}
+                            >
+                              <Avatar className="h-7 w-7 shrink-0 mt-0.5">
+                                {m.profile?.avatar_url ? (
+                                  <AvatarImage src={m.profile.avatar_url} />
+                                ) : null}
+                                <AvatarFallback className="text-[10px]">
+                                  {initials(m.profile?.full_name ?? "?")}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className={`max-w-[75%] ${isMe ? "items-end" : ""} flex flex-col`}>
+                                <div className="flex items-baseline gap-2 mb-0.5">
+                                  <span className="text-[11px] font-medium text-muted-foreground">
+                                    {isMe ? "You" : (m.profile?.full_name ?? "Unknown")}
+                                  </span>
+                                  <span className="text-[10px] text-muted-foreground/60">
+                                    {format(new Date(m.created_at), "HH:mm")}
+                                  </span>
+                                </div>
+                                <div
+                                  className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed break-words ${
+                                    isMe
+                                      ? "bg-primary text-primary-foreground rounded-tr-md"
+                                      : "bg-accent rounded-tl-md"
+                                  }`}
+                                >
+                                  {m.content}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <div ref={chatEndRef} />
+                      </div>
+                    )}
+                  </ScrollArea>
+
+                  <div className="border-t p-3 flex gap-2">
+                    <Input
+                      value={text}
+                      onChange={(e) => setText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSend();
+                        }
+                      }}
+                      placeholder="Type a message..."
+                      maxLength={2000}
+                      className="flex-1"
+                    />
+                    <Button
+                      size="icon"
+                      onClick={handleSend}
+                      disabled={!text.trim() || sending}
                     >
-                      <Avatar className="h-9 w-9">
-                        <AvatarFallback>{initials}</AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm truncate">{p.full_name ?? "Learner"}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+                      {sending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Members panel (always visible on desktop) */}
+              <div className={showChat ? "" : "sm:col-span-3"}>
+                <div className="rounded-2xl border bg-card p-4 shadow-sm">
+                  <h2 className="font-medium text-sm flex items-center gap-2 mb-3">
+                    <Users className="h-4 w-4" />{" "}
+                    {memberCount}{" "}
+                    {memberCount === 1 ? "member" : "members"}
+                  </h2>
+                  {memberCount === 0 ? (
+                    <p className="text-sm text-muted-foreground">No members yet.</p>
+                  ) : (
+                    <ul className="space-y-2">
+                      {data.memberProfiles.map((p: any) => {
+                        const online = onlineUsers.has(p.id);
+                        return (
+                          <li key={p.id}>
+                            <Link
+                              to="/u/$id"
+                              params={{ id: p.id }}
+                              className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent"
+                            >
+                              <div className="relative">
+                                <Avatar className="h-8 w-8">
+                                  {p.avatar_url ? (
+                                    <AvatarImage src={p.avatar_url} />
+                                  ) : null}
+                                  <AvatarFallback className="text-[10px]">
+                                    {initials(p.full_name ?? "U")}
+                                  </AvatarFallback>
+                                </Avatar>
+                                {online && (
+                                  <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
+                                )}
+                              </div>
+                              <span className="text-sm truncate">{p.full_name ?? "Learner"}</span>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </AppShell>
   );
