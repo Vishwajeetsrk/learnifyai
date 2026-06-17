@@ -117,7 +117,7 @@ function buildHtml({
 </body></html>`;
 }
 
-async function sendResend({
+async function sendEmail({
   to,
   subject,
   html,
@@ -129,31 +129,53 @@ async function sendResend({
   idempotencyKey?: string;
 }) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  if (!RESEND_API_KEY) throw new Error("Email service not configured.");
+  const BREVO_SMTP_KEY = process.env.BREVO_SMTP_KEY;
+  const BREVO_SMTP_SERVER = process.env.BREVO_SMTP_SERVER;
+  const BREVO_SMTP_PORT = process.env.BREVO_SMTP_PORT;
+  const BREVO_SMTP_LOGIN = process.env.BREVO_SMTP_LOGIN;
 
-  const transporter = nodemailer.createTransport({
-    host: "smtp.resend.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: "resend",
-      pass: RESEND_API_KEY,
-    },
-  });
+  // Try Resend first
+  if (RESEND_API_KEY) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.resend.com",
+        port: 465,
+        secure: true,
+        auth: { user: "resend", pass: RESEND_API_KEY },
+      });
+      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>";
+      const info = await transporter.sendMail({
+        from: emailFrom,
+        to: [to],
+        subject,
+        html,
+        headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
+      });
+      return { messageId: info.messageId, provider: "resend" };
+    } catch (err: any) {
+      console.warn("Resend failed, trying Brevo fallback...", err?.message?.slice(0, 120));
+    }
+  }
 
-  const headers = idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined;
+  // Fallback to Brevo SMTP
+  if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
+    const transporter = nodemailer.createTransport({
+      host: BREVO_SMTP_SERVER,
+      port: Number(BREVO_SMTP_PORT) || 587,
+      secure: false,
+      auth: { user: BREVO_SMTP_LOGIN, pass: BREVO_SMTP_KEY },
+    });
+    const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
+    const info = await transporter.sendMail({
+      from: emailFrom,
+      to: [to],
+      subject,
+      html,
+    });
+    return { messageId: info.messageId, provider: "brevo" };
+  }
 
-  const emailFrom = process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>";
-
-  const info = await transporter.sendMail({
-    from: emailFrom,
-    to: [to],
-    subject,
-    html,
-    headers,
-  });
-  
-  return { messageId: info.messageId };
+  throw new Error("No email service configured. Set RESEND_API_KEY or BREVO_SMTP_KEY.");
 }
 
 function resolveOrigin(): string {
@@ -205,7 +227,7 @@ export const emailCertificate = createServerFn({ method: "POST" })
       code: cert.code,
       recipientName: cert.recipient_name,
     });
-    await sendResend({
+    await sendEmail({
       to: data.to,
       subject: `Your certificate — ${course?.title ?? "Learnify AI"}`,
       html,
@@ -330,7 +352,7 @@ export const adminEmailCertificate = createServerFn({ method: "POST" })
     }
 
     try {
-      const { messageId } = await sendResend({
+      const { messageId } = await sendEmail({
         to: recipient,
         subject: `Your certificate — ${course?.title ?? "Learnify AI"}`,
         html,
@@ -439,7 +461,7 @@ export const retryPendingCertificateEmails = createServerFn({ method: "POST" })
       });
 
       try {
-        const { messageId } = await sendResend({
+        const { messageId } = await sendEmail({
           to: row.recipient_email,
           subject: `Your certificate — ${course?.title ?? "Learnify AI"}`,
           html,

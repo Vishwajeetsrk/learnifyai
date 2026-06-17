@@ -21,24 +21,45 @@ function advance(frequency: string, current: Date): Date | null {
 async function sendEmail(to: string, subject: string, html: string) {
   const lovKey = process.env.LOVABLE_API_KEY;
   const resendKey = process.env.RESEND_API_KEY;
-  if (!lovKey || !resendKey) return;
-  try {
-    await fetch("https://connector-gateway.lovable.dev/resend/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${lovKey}`,
-        "X-Connection-Api-Key": resendKey,
-      },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>",
-        to: [to],
-        subject,
-        html,
-      }),
+
+  // Try Resend via Lovable gateway first
+  if (lovKey && resendKey) {
+    try {
+      await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${lovKey}`,
+          "X-Connection-Api-Key": resendKey,
+        },
+        body: JSON.stringify({
+          from: process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>",
+          to: [to],
+          subject,
+          html,
+        }),
+      });
+      return;
+    } catch (e) {
+      console.error("resend send failed, trying Brevo...", e);
+    }
+  }
+
+  // Fallback to Brevo SMTP
+  const brevoKey = process.env.BREVO_SMTP_KEY;
+  const brevoServer = process.env.BREVO_SMTP_SERVER;
+  const brevoPort = process.env.BREVO_SMTP_PORT;
+  const brevoLogin = process.env.BREVO_SMTP_LOGIN;
+  if (brevoKey && brevoServer && brevoLogin) {
+    const { createTransport } = await import("nodemailer");
+    const transporter = createTransport({
+      host: brevoServer,
+      port: Number(brevoPort) || 587,
+      secure: false,
+      auth: { user: brevoLogin, pass: brevoKey },
     });
-  } catch (e) {
-    console.error("resend send failed", e);
+    const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
+    await transporter.sendMail({ from: emailFrom, to: [to], subject, html });
   }
 }
 

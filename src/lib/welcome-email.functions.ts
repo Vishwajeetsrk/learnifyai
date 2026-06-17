@@ -27,26 +27,42 @@ async function sendResendEmail({
   html: string;
 }) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  if (!RESEND_API_KEY) throw new Error("Email service not configured.");
+  const BREVO_SMTP_KEY = process.env.BREVO_SMTP_KEY;
+  const BREVO_SMTP_SERVER = process.env.BREVO_SMTP_SERVER;
+  const BREVO_SMTP_PORT = process.env.BREVO_SMTP_PORT;
+  const BREVO_SMTP_LOGIN = process.env.BREVO_SMTP_LOGIN;
 
-  const transporter = nodemailer.createTransport({
-    host: "smtp.resend.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: "resend",
-      pass: RESEND_API_KEY,
-    },
-  });
+  // Try Resend first
+  if (RESEND_API_KEY) {
+    try {
+      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>";
+      const transporter = nodemailer.createTransport({
+        host: "smtp.resend.com",
+        port: 465,
+        secure: true,
+        auth: { user: "resend", pass: RESEND_API_KEY },
+      });
+      await transporter.sendMail({ from: emailFrom, to: [to], subject, html });
+      return;
+    } catch (err: any) {
+      console.warn("Resend failed, trying Brevo fallback...", err?.message?.slice(0, 120));
+    }
+  }
 
-  const emailFrom = process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>";
+  // Fallback to Brevo SMTP
+  if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
+    const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
+    const transporter = nodemailer.createTransport({
+      host: BREVO_SMTP_SERVER,
+      port: Number(BREVO_SMTP_PORT) || 587,
+      secure: false,
+      auth: { user: BREVO_SMTP_LOGIN, pass: BREVO_SMTP_KEY },
+    });
+    await transporter.sendMail({ from: emailFrom, to: [to], subject, html });
+    return;
+  }
 
-  await transporter.sendMail({
-    from: emailFrom,
-    to: [to],
-    subject,
-    html,
-  });
+  throw new Error("No email service configured. Set RESEND_API_KEY or BREVO_SMTP_KEY.");
 }
 
 export const sendWelcomeEmail = createServerFn({ method: "POST" })

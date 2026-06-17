@@ -63,7 +63,7 @@ function CertificatePage() {
       
       const { data: certV2 } = await supabase
         .from("certificates")
-        .select("template_id, verification_url, dynamic_data, certificate_templates(*)")
+        .select("template_id, certificate_templates(*)")
         .eq("code", code)
         .maybeSingle();
 
