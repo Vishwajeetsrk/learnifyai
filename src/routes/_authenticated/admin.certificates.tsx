@@ -127,6 +127,16 @@ function AdminCertificatesPage() {
     })
   };
 
+  const addImage = () => {
+    if(!active) return;
+    setActive({
+      ...active,
+      config_json: {
+        elements: [...active.config_json.elements, { id: Date.now().toString(), type: "image", url: "", x: 100, y: 100, width: 160, height: 120 }]
+      }
+    })
+  };
+
   return (
     <AppShell>
       <div className="px-4 md:px-10 py-8 max-w-[1600px] mx-auto">
@@ -173,6 +183,7 @@ function AdminCertificatesPage() {
                 <div className="flex gap-2">
                   <Button variant="ghost" size="sm" onClick={() => setActive(null)}>Cancel</Button>
                   <Button variant="outline" size="sm" onClick={addText}><Type className="h-4 w-4" /> Add Text</Button>
+                  <Button variant="outline" size="sm" onClick={addImage}><ImageIcon className="h-4 w-4" /> Add Image</Button>
                 </div>
                 <Button onClick={handleSave} disabled={saving}><Save className="h-4 w-4" /> {saving ? "Saving..." : "Save Template"}</Button>
               </div>
@@ -212,6 +223,15 @@ function AdminCertificatesPage() {
                       }}
                     >
                       {el.type === 'text' && (el.content)}
+                      {el.type === 'image' && (
+                        el.url ? (
+                          <img src={el.url} alt="" className="w-full h-full object-contain" />
+                        ) : (
+                          <div className="w-full h-full bg-muted border border-dashed flex items-center justify-center text-[10px] text-muted-foreground">
+                            <ImageIcon className="h-6 w-6 opacity-40" />
+                          </div>
+                        )
+                      )}
                       {el.type === 'qr' && (
                         <div className="w-full h-full bg-black/10 border border-dashed flex items-center justify-center text-[10px] text-muted-foreground">
                           QR Code
@@ -301,6 +321,28 @@ function AdminCertificatesPage() {
                             <SelectItem value="right">Right</SelectItem>
                           </SelectContent>
                         </Select>
+                      </div>
+                    </div>
+                  )}
+                  {active.config_json.elements.find(e => e.id === selectedEl)?.type === 'image' && (
+                    <div className="space-y-3">
+                      <div>
+                        <Label>Image URL</Label>
+                        <Input 
+                          value={active.config_json.elements.find(e => e.id === selectedEl)?.url || ""} 
+                          onChange={e => updateActiveEl({ url: e.target.value })} 
+                          placeholder="https://..." 
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>Width (px)</Label>
+                          <Input type="number" value={active.config_json.elements.find(e => e.id === selectedEl)?.width} onChange={e => updateActiveEl({ width: Number(e.target.value) })} />
+                        </div>
+                        <div>
+                          <Label>Height (px)</Label>
+                          <Input type="number" value={active.config_json.elements.find(e => e.id === selectedEl)?.height} onChange={e => updateActiveEl({ height: Number(e.target.value) })} />
+                        </div>
                       </div>
                     </div>
                   )}

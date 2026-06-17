@@ -86,36 +86,32 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       }
     }
 
-    // 2. Fallback to Gemini Imagen 3 if available
+    // 2. Fallback to Gemini 2.5 Flash Image (Nano Banana) via generateContent
     if (geminiKey) {
       try {
-        // Map size keys to supported Imagen 3 aspect ratios: "1:1", "3:4", "4:3", "9:16", "16:9"
-        const aspectRatio =
-          data.size === "1024x1024" ? "1:1" : data.size === "1024x1536" ? "3:4" : "4:3";
-
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${geminiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${geminiKey}`;
         const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            prompt: data.prompt,
-            numberOfImages: 1,
-            outputMimeType: "image/jpeg",
-            aspectRatio,
+            contents: [{ parts: [{ text: data.prompt }] }],
+            generationConfig: {
+              responseModalities: ["image", "text"],
+            },
           }),
         });
 
         if (!res.ok) {
           const txt = await res.text().catch(() => "");
-          throw new Error(`Gemini Imagen API error (${res.status}): ${txt.slice(0, 180)}`);
+          throw new Error(`Gemini image API error (${res.status}): ${txt.slice(0, 180)}`);
         }
 
         const json = (await res.json()) as {
-          generatedImages?: Array<{ image?: { imageBytes?: string } }>;
+          candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { mimeType: string; data: string } }> } }>;
         };
-        const base64Bytes = json.generatedImages?.[0]?.image?.imageBytes;
-        if (base64Bytes) {
-          return { dataUrl: `data:image/jpeg;base64,${base64Bytes}` };
+        const inline = json.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+        if (inline?.inlineData?.data) {
+          return { dataUrl: `data:${inline.inlineData.mimeType};base64,${inline.inlineData.data}` };
         }
       } catch (err: any) {
         throw new Error(`Image generation failed: ${err.message || err}`);
