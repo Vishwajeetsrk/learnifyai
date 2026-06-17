@@ -29,30 +29,18 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
 
 export const verifyWalletTopup = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-<<<<<<< HEAD
-  .inputValidator((d: { amountInr: number; method: string; razorpay_payment_id: string; razorpay_order_id: string }) => 
-=======
   .inputValidator((d: { amountInr: number; method: string; razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => 
->>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     z.object({
       amountInr: z.number(),
       method: z.string(),
       razorpay_payment_id: z.string(),
       razorpay_order_id: z.string(),
-<<<<<<< HEAD
-=======
       razorpay_signature: z.string(),
->>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     }).parse(d)
   )
   .handler(async ({ data, context }) => {
     if (!context.userId) throw new Error("Unauthorized");
     
-<<<<<<< HEAD
-    // In a real app, verify razorpay signature using key_secret here
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    
-=======
     const key_secret = process.env.RAZORPAY_KEY_SECRET;
     if (!key_secret) throw new Error("RazorPay credentials missing");
 
@@ -75,7 +63,6 @@ export const verifyWalletTopup = createServerFn({ method: "POST" })
 
     if (existingTx) return { success: true, already_processed: true };
 
->>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
     const { error } = await supabaseAdmin.from("wallet_transactions").insert({
       user_id: context.userId,
       amount_inr: data.amountInr,

@@ -196,10 +196,7 @@ function WalletPage() {
                   method,
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_order_id: response.razorpay_order_id,
-<<<<<<< HEAD
-=======
                   razorpay_signature: response.razorpay_signature,
->>>>>>> fc4522b843573bc1c1f5dd8e35d41f7bbd28de87
                 }
               });
               toast.success(`Successfully added ₹${amt} to your wallet.`);
