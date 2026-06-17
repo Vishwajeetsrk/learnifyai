@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import ReactPlayer from "react-player";
 import screenfull from "screenfull";
 import { Slider } from "@/components/ui/slider";
@@ -54,6 +54,15 @@ export function CustomVideoPlayer({
   const [fetchedChannelUrl, setFetchedChannelUrl] = useState<string | null>(null);
   const [videoError, setVideoError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [embedUrl, setEmbedUrl] = useState<string | null>(null);
+
+  // Extract YouTube video ID for direct embed fallback
+  const youtubeId = useMemo(() => {
+    if (!url) return null;
+    const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)/);
+    return m ? m[1] : null;
+  }, [url]);
 
   useEffect(() => {
     if (!channelId && url) {
@@ -157,7 +166,6 @@ export function CustomVideoPlayer({
           url={url}
           width="100%"
           height="100%"
-          light={true}
           controls={true}
           playing={playing}
           volume={volume}
@@ -166,6 +174,7 @@ export function CustomVideoPlayer({
           onReady={() => {
             setReady(true);
             setVideoError(false);
+            setLoading(false);
             if (startSeconds > 0 && playerRef.current) {
               const player: any = playerRef.current;
               if (typeof player.seekTo === "function") {
@@ -177,7 +186,9 @@ export function CustomVideoPlayer({
             if (onReady) onReady();
           }}
           onError={(e: any) => {
+            if (!embedUrl && youtubeId) setEmbedUrl(`https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0`);
             setVideoError(true);
+            setLoading(false);
             if (onError) onError(e);
           }}
           onProgress={handleProgress as any}
@@ -195,7 +206,13 @@ export function CustomVideoPlayer({
         />
       </div>
 
-      {videoError && (
+      {loading && !videoError && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/60">
+          <Loader2 className="h-8 w-8 animate-spin text-white/60" />
+        </div>
+      )}
+
+      {videoError && !embedUrl && (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 text-white gap-3 p-6">
           <p className="text-sm text-center text-muted-foreground">This video failed to load.</p>
           <button
@@ -205,6 +222,15 @@ export function CustomVideoPlayer({
             Retry
           </button>
         </div>
+      )}
+
+      {embedUrl && (
+        <iframe
+          src={embedUrl}
+          className="absolute inset-0 w-full h-full"
+          allow="autoplay; fullscreen"
+          allowFullScreen
+        />
       )}
 
       {/* Controls Overlay - hidden for native player compatibility */}

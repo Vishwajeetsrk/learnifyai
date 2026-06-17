@@ -62,7 +62,25 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     const hfKey = process.env.HF_API_KEY;
     const openrouterKey = process.env.OPENROUTER_API_KEY;
 
-    // 1. OpenRouter — FLUX Pro (fast, reliable)
+    // 1. Pollinations AI (free, no key needed — fast URL-based generation)
+    try {
+      const pw = encodeURIComponent(data.prompt.slice(0, 1000));
+      const res = await fetch(`https://gen.pollinations.ai/image/${pw}?model=flux&nofeed=true`, {
+        method: "GET",
+        signal: AbortSignal.timeout(30000),
+      });
+      if (res.ok) {
+        const blob = await res.arrayBuffer();
+        const base64 = Buffer.from(blob).toString("base64");
+        return { dataUrl: `data:image/jpeg;base64,${base64}` };
+      } else {
+        console.warn(`Pollinations AI failed (${res.status})`);
+      }
+    } catch (err) {
+      console.warn("Pollinations AI error. Trying OpenRouter...", err);
+    }
+
+    // 2. OpenRouter — FLUX Pro
     if (openrouterKey) {
       try {
         const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -81,7 +99,6 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
         if (res.ok) {
           const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
           const content = json.choices?.[0]?.message?.content || "";
-          // Response may contain markdown image: ![alt](url) or direct URL
           const m = content.match(/https?:\/\/[^\s"}]+\.(png|jpg|jpeg|webp)/i);
           if (m) return { dataUrl: m[0] };
         } else {
@@ -93,7 +110,7 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       }
     }
 
-    // 2. Gemini 2.5 Flash Image via generateContent
+    // 3. Gemini 2.5 Flash Image via generateContent
     if (geminiKey) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${geminiKey}`;
@@ -214,21 +231,6 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       } catch (err) {
         console.warn("Hugging Face error.", err);
       }
-    }
-
-    // 6. Pollinations AI (free — no key needed)
-    try {
-      const pw = encodeURIComponent(data.prompt);
-      const res = await fetch(`https://gen.pollinations.ai/image/${pw}?model=flux&nofeed=true`, {
-        method: "GET",
-      });
-      if (res.ok) {
-        const blob = await res.arrayBuffer();
-        const base64 = Buffer.from(blob).toString("base64");
-        return { dataUrl: `data:image/jpeg;base64,${base64}` };
-      }
-    } catch (err) {
-      console.warn("Pollinations AI error.", err);
     }
 
     throw new Error(
