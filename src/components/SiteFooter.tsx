@@ -26,17 +26,21 @@ export function SiteFooter() {
                 <MessageSquare className="h-4 w-4" />
               </a>
             )}
-            <a href="#" aria-label="LinkedIn" className="h-9 w-9 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition">
-              <Linkedin className="h-4 w-4" />
-            </a>
+            {s?.linkedin_url && s.linkedin_url !== "#" && (
+              <a href={s.linkedin_url} target="_blank" rel="noreferrer" aria-label="LinkedIn" className="h-9 w-9 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition">
+                <Linkedin className="h-4 w-4" />
+              </a>
+            )}
             {s?.twitter_url && (
               <a href={s.twitter_url} target="_blank" rel="noreferrer" aria-label="X (Twitter)" className="h-9 w-9 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition">
                 <Twitter className="h-4 w-4" />
               </a>
             )}
-            <a href="#" aria-label="YouTube" className="h-9 w-9 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition">
-              <Youtube className="h-4 w-4" />
-            </a>
+            {s?.youtube_url && s.youtube_url !== "#" && (
+              <a href={s.youtube_url} target="_blank" rel="noreferrer" aria-label="YouTube" className="h-9 w-9 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition">
+                <Youtube className="h-4 w-4" />
+              </a>
+            )}
           </div>
         </div>
 

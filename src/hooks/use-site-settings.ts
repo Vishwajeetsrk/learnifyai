@@ -3,22 +3,26 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type SiteSettings = {
   contact_email: string;
+  careers_email: string;
   discord_url: string;
   discord_label: string;
   twitter_url: string;
   twitter_handle: string;
   github_url: string;
-  careers_email: string;
+  linkedin_url: string;
+  youtube_url: string;
 };
 
 const defaults: SiteSettings = {
   contact_email: "hello@learnify.ai",
+  careers_email: "careers@learnify.ai",
   discord_url: "https://discord.gg/learnify",
   discord_label: "Chat with the community in real time.",
   twitter_url: "https://x.com/learnifyai",
   twitter_handle: "@learnifyai",
   github_url: "https://github.com/Vishwajeetsrk/learnifyai",
-  careers_email: "careers@learnify.ai",
+  linkedin_url: "",
+  youtube_url: "",
 };
 
 export function useSiteSettings() {

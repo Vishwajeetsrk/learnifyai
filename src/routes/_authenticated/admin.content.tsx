@@ -17,6 +17,8 @@ import {
   Award,
   HelpCircle,
   Send,
+  FileText,
+  GitBranch,
 } from "lucide-react";
 import {
   CertificateRender,
@@ -125,6 +127,8 @@ function AdminContentPage() {
     "cert-templates",
     "issue-cert",
     "faqs",
+    "pages",
+    "roadmap",
   ].includes(tabAlias)
     ? tabAlias
     : "events";
@@ -198,6 +202,14 @@ function AdminContentPage() {
               <HelpCircle className="h-4 w-4 mr-2" />
               FAQs
             </TabsTrigger>
+            <TabsTrigger value="pages">
+              <FileText className="h-4 w-4 mr-2" />
+              Pages
+            </TabsTrigger>
+            <TabsTrigger value="roadmap">
+              <GitBranch className="h-4 w-4 mr-2" />
+              Roadmap
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="events" className="mt-6">
             <EventsManager />
@@ -222,6 +234,12 @@ function AdminContentPage() {
 
           <TabsContent value="faqs" className="mt-6">
             <FaqsManager />
+          </TabsContent>
+          <TabsContent value="pages" className="mt-6">
+            <PagesManager />
+          </TabsContent>
+          <TabsContent value="roadmap" className="mt-6">
+            <RoadmapManager />
           </TabsContent>
         </Tabs>
       </div>
@@ -1103,6 +1121,8 @@ const SETTING_FIELDS: { key: string; label: string; placeholder: string }[] = [
   { key: "twitter_url", label: "X (Twitter) URL", placeholder: "https://x.com/learnifyai" },
   { key: "twitter_handle", label: "X handle", placeholder: "@learnifyai" },
   { key: "github_url", label: "GitHub URL", placeholder: "https://github.com/..." },
+  { key: "linkedin_url", label: "LinkedIn URL", placeholder: "https://linkedin.com/company/..." },
+  { key: "youtube_url", label: "YouTube URL", placeholder: "https://youtube.com/@..." },
   {
     key: "events_auto_delete_enabled",
     label: "Auto-delete past events (true/false)",
@@ -2483,5 +2503,205 @@ function FaqDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ─────────────────────────── Pages (Terms, Refund, Privacy) ───────────────────────────
+
+const PAGE_KEYS = [
+  { key: "page_terms", label: "Terms of Service", slug: "/terms" },
+  { key: "page_refund", label: "Refund Policy", slug: "/refund-policy" },
+  { key: "page_privacy", label: "Privacy Policy", slug: "/privacy" },
+];
+
+function PagesManager() {
+  const qc = useQueryClient();
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-page-content"],
+    queryFn: async () => {
+      const keys = PAGE_KEYS.map((p) => p.key);
+      const { data, error } = await supabase
+        .from("site_settings")
+        .select("key,value")
+        .in("key", keys);
+      if (error) throw error;
+      const m: Record<string, string> = {};
+      (data ?? []).forEach((r: any) => { m[r.key] = r.value ?? ""; });
+      keys.forEach((k) => { if (!(k in m)) m[k] = ""; });
+      return m;
+    },
+  });
+
+  useEffect(() => {
+    if (data) setValues(data);
+  }, [data]);
+
+  const save = async () => {
+    setSaving(true);
+    const rows = PAGE_KEYS.map((p) => ({ key: p.key, value: values[p.key] ?? "" }));
+    const { error } = await supabase.from("site_settings").upsert(rows, { onConflict: "key" });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Page content saved");
+    qc.invalidateQueries({ queryKey: ["admin-page-content"] });
+  };
+
+  if (isLoading) return <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+
+  return (
+    <div className="space-y-5 max-w-3xl">
+      <p className="text-sm text-muted-foreground">
+        Edit the HTML content for each legal page. These are rendered on the public site.
+      </p>
+      {PAGE_KEYS.map((page) => (
+        <div key={page.key} className="rounded-xl border border-border/60 bg-card p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">{page.label}</Label>
+            <span className="text-xs text-muted-foreground font-mono">{page.slug}</span>
+          </div>
+          <Textarea
+            rows={12}
+            value={values[page.key] ?? ""}
+            onChange={(e) => setValues({ ...values, [page.key]: e.target.value })}
+            placeholder="Paste HTML content here..."
+            className="font-mono text-xs"
+          />
+        </div>
+      ))}
+      <div className="pt-2 sticky bottom-0 bg-background/95 backdrop-blur py-3">
+        <Button onClick={save} disabled={saving}>
+          {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          Save page content
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────── Roadmap Manager ───────────────────────────
+
+type RoadmapItem = { id: string; status: "done" | "progress" | "planned"; title: string; desc: string };
+
+const ROADMAP_KEY = "roadmap_items";
+const DEFAULT_ROADMAP: RoadmapItem[] = [
+  { id: "1", status: "done", title: "AI Tutor & Doubt Solver", desc: "Multi-model chat with course context." },
+  { id: "2", status: "done", title: "Courses, Modules & Lessons", desc: "Full course builder with assignments and MCQ tests." },
+  { id: "3", status: "done", title: "Wallet & Cart Checkout", desc: "Top-up, paid course enrollment, transaction history." },
+  { id: "4", status: "done", title: "Certificates", desc: "Issue, design, PDF download, QR verify, email delivery." },
+  { id: "5", status: "progress", title: "Cohort Live Sessions", desc: "Scheduled live rooms with recordings." },
+  { id: "6", status: "progress", title: "Creator Payouts", desc: "Automatic monthly creator settlements." },
+  { id: "7", status: "planned", title: "Mobile App", desc: "iOS + Android with offline lessons." },
+  { id: "8", status: "planned", title: "Skill Graph & Career AI", desc: "Personalized career paths with skill gap analysis." },
+];
+
+function RoadmapManager() {
+  const qc = useQueryClient();
+  const [items, setItems] = useState<RoadmapItem[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [editing, setEditing] = useState<RoadmapItem | null>(null);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-roadmap"],
+    queryFn: async () => {
+      const { data } = await supabase.from("site_settings").select("value").eq("key", ROADMAP_KEY).single();
+      if (data?.value) {
+        try { return JSON.parse(data.value as string) as RoadmapItem[]; } catch { return DEFAULT_ROADMAP; }
+      }
+      return DEFAULT_ROADMAP;
+    },
+  });
+
+  useEffect(() => { if (data) setItems(data); }, [data]);
+
+  const save = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("site_settings").upsert(
+      { key: ROADMAP_KEY, value: JSON.stringify(items) },
+      { onConflict: "key" },
+    );
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Roadmap saved");
+    qc.invalidateQueries({ queryKey: ["admin-roadmap"] });
+  };
+
+  const addItem = () => {
+    const newItem: RoadmapItem = { id: Date.now().toString(), status: "planned", title: "", desc: "" };
+    setItems([...items, newItem]);
+    setEditing(newItem);
+  };
+
+  const deleteItem = (id: string) => {
+    if (!window.confirm("Delete this roadmap item?")) return;
+    setItems(items.filter((i) => i.id !== id));
+  };
+
+  const updateItem = (id: string, updates: Partial<RoadmapItem>) => {
+    setItems(items.map((i) => (i.id === id ? { ...i, ...updates } : i)));
+  };
+
+  if (isLoading) return <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+
+  return (
+    <div className="space-y-5 max-w-3xl">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          Manage the public roadmap shown at /roadmap. Add, edit, or reorder items.
+        </p>
+        <Button onClick={addItem}><Plus className="h-4 w-4 mr-2" /> Add item</Button>
+      </div>
+
+      <div className="space-y-3">
+        {items.map((item) => (
+          <div key={item.id} className="rounded-xl border border-border/60 bg-card p-4">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2">
+                <select
+                  value={item.status}
+                  onChange={(e) => updateItem(item.id, { status: e.target.value as RoadmapItem["status"] })}
+                  className="text-xs border rounded px-1.5 py-0.5 bg-background"
+                >
+                  <option value="done">Shipped</option>
+                  <option value="progress">In progress</option>
+                  <option value="planned">Planned</option>
+                </select>
+              </div>
+              <div className="flex gap-1">
+                <Button size="sm" variant="ghost" onClick={() => setEditing(editing?.id === item.id ? null : item)}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteItem(item.id)}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+            {editing?.id === item.id ? (
+              <div className="space-y-2">
+                <Input value={item.title} onChange={(e) => updateItem(item.id, { title: e.target.value })} placeholder="Title" />
+                <Input value={item.desc} onChange={(e) => updateItem(item.id, { desc: e.target.value })} placeholder="Description" />
+              </div>
+            ) : (
+              <>
+                <div className="font-semibold text-sm">{item.title || "Untitled"}</div>
+                {item.desc && <div className="text-xs text-muted-foreground mt-0.5">{item.desc}</div>}
+              </>
+            )}
+          </div>
+        ))}
+        {items.length === 0 && (
+          <div className="text-center text-muted-foreground py-8">No roadmap items yet. Click "Add item" to start.</div>
+        )}
+      </div>
+
+      <div className="pt-2 sticky bottom-0 bg-background/95 backdrop-blur py-3">
+        <Button onClick={save} disabled={saving}>
+          {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          Save roadmap
+        </Button>
+      </div>
+    </div>
   );
 }
