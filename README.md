@@ -7,7 +7,7 @@
 
   *Learnify AI brings together course creation, automated AI tutoring, dynamic roadmaps, live cohorts, integrated payments, and a rich community experience—all in one seamless platform.*
 
-  [Live Demo](https://learnifyaitool.vercel.app/) • [Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues)
+  [Live Demo](https://learnifyai.vercel.app/) • [Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues)
 </div>
 
 <br/>
@@ -19,8 +19,8 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 ### 🎓 For Learners
 - **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + non-YouTube fallback).
 - **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
-- **AI Agent (Coming Soon):** Intelligent assistant with chat, voice I/O, and action control — embedded in the Playground and as a standalone page. Can read/write files, run code, execute SQL, and call APIs.
-- **Multi-Language Playground (Coming Soon):** Write, compile, and run code in C, C++, Java, Python, PHP, JavaScript, SQL, and 40+ languages using the Piston code execution engine with Monaco Editor.
+- **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution via Piston and web search. Standalone page at `/ai-agent`.
+- **Multi-Language Playground:** Write, compile, and run code in 40+ languages (C, C++, Java, Python, JavaScript, TypeScript, Go, Rust, and more) using Monaco Editor + Piston execution engine. Standalone page at `/playground`.
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
 - **Wallet & Integrated Payments:** Manage credits, purchase courses, and download invoices instantly.
 - **Community Feed:** Share updates, post questions, attach media, and engage with peers.
@@ -91,59 +91,53 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 learnifyai/
 ├── public/                 # Static assets (images, fonts, favicons)
 ├── src/
-│   ├── components/         # Reusable UI components (Shadcn, AppShell, etc.)
-│   │   ├── AiAgent/        # (NEW) AI Agent: chat, voice, tool call display
-│   │   └── Playground/     # (NEW) Multi-language Playground: Monaco editor, file tabs, output
+│   ├── components/         # Reusable UI components (Shadcn, AppShell, CustomVideoPlayer, etc.)
 │   ├── hooks/              # Custom React hooks (use-auth, etc.)
 │   ├── integrations/       # API clients (Supabase, Razorpay)
-│   ├── lib/                # Utility + server functions (playground.functions, agent.functions)
-│   ├── routes/             # TanStack Start Route tree
-│   │   ├── _authenticated/ # Protected routes (Dashboard, Wallet, Coaching, Playground, AI Agent)
-│   │   │   ├── playground.tsx   # (NEW) Multi-language code playground
-│   │   │   └── ai-agent.tsx     # (NEW) Standalone AI Agent with chat + tool execution
-│   │   ├── _admin/         # Admin-only dashboard routes
-│   │   ├── _creator/       # Creator studio routes
+│   ├── lib/                # Utility + server functions
+│   │   ├── playground.functions.ts  # Code execution via Piston API (40+ languages)
+│   │   └── agent.functions.ts       # AI agent with tool calling (code, web search)
+│   ├── routes/             # TanStack Start route tree
+│   │   ├── _authenticated/ # Protected routes
+│   │   │   ├── playground.tsx  # Multi-language code playground (Monaco + Piston)
+│   │   │   └── ai-agent.tsx    # AI agent with chat, voice I/O, tool execution
 │   │   └── api/            # Serverless API endpoints
-│   │       ├── playground/   # (NEW) Code execution & runtime listing
-│   │       └── agent/        # (NEW) Agent chat endpoint with tool calls
 │   ├── routeTree.gen.ts    # Auto-generated routing tree
 │   ├── router.tsx          # Router configuration
 │   └── main.tsx            # Application entry point
 ├── supabase/
 │   └── migrations/         # PostgreSQL schema definitions and RLS policies
 ├── package.json            # Dependencies and scripts
-├── tailwind.config.js      # Tailwind CSS configuration
 └── README.md               # You are here!
 ```
 
 ---
 
-## 🧪 Coming Soon: Playground & AI Agent
+## 🧪 Playground & AI Agent
 
 ### Multi-Language Playground (`/playground`)
-A full-featured code execution environment powered by [Piston](https://github.com/engineer-man/piston) (self-hosted Docker sandbox) supporting 40+ languages:
-- **Languages:** C, C++, Java, Python, PHP, JavaScript/TypeScript, SQLite, Go, Rust, Ruby, and more
-- **Editor:** Monaco Editor (VS Code-grade) with multi-file tabs, syntax highlighting, and split-pane output
-- **Environment Variables:** Configure per-session env vars for API key testing
-- **SQL Query Panel:** Run SQLite queries inline
-- **Third-Party Connectors:** Test REST API calls with configurable headers and auth
-- **Embedded AI Agent:** Ask the agent to explain code, fix bugs, or suggest improvements — all without leaving the editor
+A full-featured code execution environment powered by [Piston](https://github.com/engineer-man/piston) (Docker sandbox API) supporting 40+ languages:
+- **Editor:** Monaco Editor (VS Code-grade) with syntax highlighting, minimap, and multi-tab editing
+- **Languages:** JavaScript, TypeScript, Python, C++, C, Java, Go, Rust, Ruby, PHP, C#, SQL, Bash, and 30+ more
+- **Stdin Input:** Pass input to your programs
+- **Output Panel:** Real-time stdout, stderr, and exit code display
+- **Run on Demand:** Execute code with a single click
 
-### AI Agent (`/ai-agent` + embedded)
-An intelligent assistant that understands your code and can take action:
-- **Chat Interface:** Conversational AI with context of your current code and files
-- **Voice I/O:** Push-to-talk via Web Speech API (speech-to-text + text-to-speech)
-- **Tool Execution:** Agent can run code, read/write files, execute SQL, and call APIs on your behalf
-- **Real-Time Streaming:** Server-Sent Events for instant responses
-- **Two Modes:** Standalone page for deep tasks + embedded panel in Playground for quick help
+### AI Agent (`/ai-agent`)
+An intelligent assistant with tool execution capabilities:
+- **Chat Interface:** Conversational AI powered by OpenRouter (GPT-4o-mini)
+- **Voice I/O:** Push-to-talk via Web Speech API (speech-to-text) + text-to-speech output
+- **Tool Execution:** Agent can run code via Piston and search the web for up-to-date information
+- **Multi-Turn Reasoning:** Agent can make multiple tool calls in a single conversation to solve complex tasks
 
 ### Architecture
 ```
-Playground (Monaco Editor) ──► Piston API (self-hosted Docker) ──► Output
-       │
-       └── Embedded AI Agent ──► AI Provider (Gemini/Groq/OR) ──► Tool Execution
-                                      │
-                              Standalone Agent (/ai-agent)
+Playground (Monaco Editor) ──► Piston API (emkc.org) ──► Output
+AI Agent (Chat + Voice) ──► OpenRouter (GPT-4o-mini) ──► Tool Calls
+                                  │
+                    ┌──────────────┴──────────────┐
+                    ▼                              ▼
+              Piston Execution              Web Search API
 ```
 
 ---
