@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const AGENT_MODEL = process.env.AGENT_MODEL || "openai/gpt-4o";
+const AGENT_MODEL = process.env.AGENT_MODEL || "openai/gpt-4o-mini";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 const TOOLS = [
@@ -77,7 +77,7 @@ async function callOpenRouter(messages: any[]) {
       ],
       tools: TOOLS,
       tool_choice: "auto",
-      max_tokens: 8192,
+      max_tokens: 2048,
     }),
   });
 
