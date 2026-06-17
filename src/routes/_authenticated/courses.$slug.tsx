@@ -1095,7 +1095,7 @@ function Markdown({ children }: { children: string }) {
   );
 }
 
-// ---------- Inline Playground with Monaco + Piston ----------
+// ---------- Inline Playground: Code (Monaco+Piston) + Web (HTML/CSS/JS preview) ----------
 
 const PLAYGROUND_LANGS = [
   { id: "python", label: "Python" },
@@ -1124,10 +1124,40 @@ const PLAYGROUND_DEFAULTS: Record<string, string> = {
   ruby: 'puts "Hello, world!"',
   php: '<?php\necho "Hello, world!";',
   bash: '#!/bin/bash\necho "Hello, world!"',
-  sql: 'SELECT \'Hello, world!\' AS greeting;',
+  sql: "SELECT 'Hello, world!' AS greeting;",
+};
+
+const WEB_DEFAULTS = {
+  html: '<!doctype html>\n<html>\n  <head><meta charset="utf-8" /></head>\n  <body>\n    <h1>Hello, Learnify!</h1>\n    <p id="msg">Edit me — preview updates live.</p>\n    <button onclick="document.getElementById(\'msg\').innerText = \'Clicked!\'">Click me</button>\n  </body>\n</html>',
+  css: 'body { font-family: ui-sans-serif, system-ui; padding: 24px; }\nh1 { color: #4f46e5; }\nbutton { padding: 8px 14px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; }',
+  js: 'console.log("preview ready");',
 };
 
 function CodePlayground() {
+  const [mode, setMode] = useState<"code" | "web">("code");
+
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-2 border-b pb-2">
+        <button
+          onClick={() => setMode("code")}
+          className={`text-xs font-medium px-3 py-1.5 rounded-t transition ${mode === "code" ? "bg-primary/10 text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          Code
+        </button>
+        <button
+          onClick={() => setMode("web")}
+          className={`text-xs font-medium px-3 py-1.5 rounded-t transition ${mode === "web" ? "bg-primary/10 text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          Web (HTML/CSS/JS)
+        </button>
+      </div>
+      {mode === "code" ? <CodeMode /> : <WebMode />}
+    </div>
+  );
+}
+
+function CodeMode() {
   const [lang, setLang] = useState("python");
   const [code, setCode] = useState(PLAYGROUND_DEFAULTS.python);
   const [stdin, setStdin] = useState("");
@@ -1150,7 +1180,7 @@ function CodePlayground() {
   }, [lang, code, stdin, execFn]);
 
   return (
-    <div className="flex flex-col gap-3">
+    <>
       <div className="flex items-center gap-2">
         <select
           value={lang}
@@ -1202,6 +1232,56 @@ function CodePlayground() {
             spellCheck={false}
           />
         </div>
+      </div>
+    </>
+  );
+}
+
+function WebMode() {
+  const [html, setHtml] = useState(WEB_DEFAULTS.html);
+  const [css, setCss] = useState(WEB_DEFAULTS.css);
+  const [js, setJs] = useState(WEB_DEFAULTS.js);
+  const [tab, setTab] = useState<"html" | "css" | "js">("html");
+
+  const srcDoc = useMemo(() => {
+    const id = setTimeout(() => {}, 0); // force memo re-eval
+    clearTimeout(id);
+    return `${html}<style>${css}</style><script>${js}<\/script>`;
+  }, [html, css, js]);
+
+  const value = tab === "html" ? html : tab === "css" ? css : js;
+  const setValue = tab === "html" ? setHtml : tab === "css" ? setCss : setJs;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[300px]">
+      <div className="rounded-lg border bg-card overflow-hidden flex flex-col">
+        <div className="flex border-b bg-muted/40 text-xs">
+          {(["html", "css", "js"] as const).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={cn(
+                "px-3 py-2 font-mono uppercase tracking-wide",
+                tab === t ? "bg-background text-primary font-semibold" : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+        <div className="flex-1">
+          <Editor
+            height="300px"
+            language={tab === "js" ? "javascript" : "html"}
+            theme="vs-dark"
+            value={value}
+            onChange={(v) => setValue(v ?? "")}
+            options={{ fontSize: 12, minimap: { enabled: false }, lineNumbers: "on", tabSize: 2, automaticLayout: true, padding: { top: 6 } }}
+          />
+        </div>
+      </div>
+      <div className="rounded-lg border bg-white overflow-hidden min-h-[300px]">
+        <iframe title="Live preview" sandbox="allow-scripts" srcDoc={srcDoc} className="w-full h-full" />
       </div>
     </div>
   );

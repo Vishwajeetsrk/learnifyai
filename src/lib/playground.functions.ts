@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const PISTON_URL = "https://emkc.org/api/v2/piston";
+function pistonUrl(): string {
+  return process.env.PISTON_URL || "https://emkc.org/api/v2/piston";
+}
 
 const PistonRequestSchema = z.object({
   language: z.string().min(1).max(50),
@@ -65,7 +67,8 @@ export const executeCode = createServerFn({ method: "POST" })
     }
 
     try {
-      const res = await fetch(`${PISTON_URL}/execute`, {
+      const base = pistonUrl();
+      const res = await fetch(`${base}/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

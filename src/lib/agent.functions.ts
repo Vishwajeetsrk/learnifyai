@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const AGENT_MODEL = "openrouter/openai/gpt-4o-mini";
+const AGENT_MODEL = "openai/gpt-4o-mini";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 const TOOLS = [
@@ -88,7 +88,8 @@ async function callOpenRouter(messages: any[], toolResults?: any[]) {
 async function executeTool(name: string, args: any) {
   if (name === "execute_code") {
     try {
-      const res = await fetch("https://emkc.org/api/v2/piston/execute", {
+      const piston = process.env.PISTON_URL || "https://emkc.org/api/v2/piston";
+      const res = await fetch(`${piston}/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
