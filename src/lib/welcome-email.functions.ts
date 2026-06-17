@@ -39,8 +39,10 @@ async function sendResendEmail({
     },
   });
 
+  const emailFrom = process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>";
+
   await transporter.sendMail({
-    from: "Learnify AI <onboarding@resend.dev>",
+    from: emailFrom,
     to: [to],
     subject,
     html,

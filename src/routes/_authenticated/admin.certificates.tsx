@@ -43,10 +43,10 @@ type CertTemplate = {
 
 const DEFAULT_ELEMENTS: CertElement[] = [
   { id: "e1", type: "text", content: "{name}", x: 400, y: 250, fontSize: 48, fontFamily: "Playfair Display", color: "#1a1a1a", align: "center" },
-  { id: "e2", type: "text", content: "has successfully completed", x: 400, y: 320, fontSize: 18, fontFamily: "Inter", color: "#666", align: "center" },
+  { id: "e2", type: "text", content: "has successfully completed", x: 400, y: 320, fontSize: 18, fontFamily: "Inter", color: "#666666", align: "center" },
   { id: "e3", type: "text", content: "{course}", x: 400, y: 380, fontSize: 32, fontFamily: "Inter", color: "#1a1a1a", align: "center" },
-  { id: "e4", type: "text", content: "Issued on: {date}", x: 400, y: 460, fontSize: 14, fontFamily: "Inter", color: "#666", align: "center" },
-  { id: "e5", type: "text", content: "ID: {certificate_id}", x: 100, y: 550, fontSize: 12, fontFamily: "Inter", color: "#999", align: "left" },
+  { id: "e4", type: "text", content: "Issued on: {date}", x: 400, y: 460, fontSize: 14, fontFamily: "Inter", color: "#666666", align: "center" },
+  { id: "e5", type: "text", content: "ID: {certificate_id}", x: 100, y: 550, fontSize: 12, fontFamily: "Inter", color: "#999999", align: "left" },
   { id: "e6", type: "qr", x: 650, y: 480, width: 80, height: 80 },
 ];
 
@@ -161,7 +161,10 @@ function AdminCertificatesPage() {
                     <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
                   )}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <Button size="sm" variant="secondary" onClick={() => setActive(t)}><Edit3 className="h-4 w-4" /> Edit</Button>
+                    <Button size="sm" variant="secondary" onClick={() => {
+                      const parsed = typeof t.config_json === 'string' ? JSON.parse(t.config_json) : t.config_json;
+                      setActive({ ...t, config_json: { elements: parsed?.elements ?? [...DEFAULT_ELEMENTS] } });
+                    }}><Edit3 className="h-4 w-4" /> Edit</Button>
                     <Button size="sm" variant="destructive" onClick={() => handleDelete(t.id)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 </div>

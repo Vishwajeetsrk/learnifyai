@@ -31,7 +31,7 @@ async function sendEmail(to: string, subject: string, html: string) {
         "X-Connection-Api-Key": resendKey,
       },
       body: JSON.stringify({
-        from: "Learnify AI <onboarding@resend.dev>",
+        from: process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>",
         to: [to],
         subject,
         html,

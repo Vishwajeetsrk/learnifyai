@@ -83,7 +83,9 @@ function CoursesPage() {
         .select("course_id")
         .eq("user_id", user!.id);
       if (error) throw error;
-      return new Set((data ?? []).map((r: any) => r.course_id as string));
+      const map: Record<string, boolean> = {};
+      (data ?? []).forEach((r: any) => { map[r.course_id as string] = true; });
+      return map;
     },
   });
 
@@ -96,7 +98,9 @@ function CoursesPage() {
         .select("course_id")
         .eq("user_id", user!.id);
       if (error) throw error;
-      return new Set((data ?? []).map((r: any) => r.course_id as string));
+      const map: Record<string, boolean> = {};
+      (data ?? []).forEach((r: any) => { map[r.course_id as string] = true; });
+      return map;
     },
   });
 
@@ -104,9 +108,9 @@ function CoursesPage() {
     e.preventDefault();
     e.stopPropagation();
     if (!user) return navigate({ to: "/auth" });
-    if (enrollmentsQuery.data?.has(c.id))
+    if (enrollmentsQuery.data?.[c.id])
       return navigate({ to: "/courses/$slug", params: { slug: c.slug } });
-    if (cartQuery.data?.has(c.id)) return navigate({ to: "/cart" });
+    if (cartQuery.data?.[c.id]) return navigate({ to: "/cart" });
     setBusyId(c.id);
     try {
       if (Number(c.price_inr) === 0) {
@@ -309,8 +313,8 @@ function CoursesPage() {
                     </span>
                   </div>
                   {(() => {
-                    const enrolled = enrollmentsQuery.data?.has(c.id);
-                    const inCart = cartQuery.data?.has(c.id);
+                    const enrolled = enrollmentsQuery.data?.[c.id];
+                    const inCart = cartQuery.data?.[c.id];
                     const isFree = Number(c.price_inr) === 0;
                     const busy = busyId === c.id;
                     const label = enrolled

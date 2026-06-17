@@ -143,8 +143,10 @@ async function sendResend({
 
   const headers = idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined;
 
+  const emailFrom = process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>";
+
   const info = await transporter.sendMail({
-    from: "Learnify AI <onboarding@resend.dev>",
+    from: emailFrom,
     to: [to],
     subject,
     html,
