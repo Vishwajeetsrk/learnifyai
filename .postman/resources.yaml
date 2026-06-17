@@ -1,0 +1,12 @@
+workspace:
+  id: 9be0a9d9-46c0-44ae-8733-1cb093e28454
+localResources:
+  collections:
+    - ../postman/collections/New Collection
+  environments:
+    - ../postman/environments/New Environment.environment.yaml
+cloudResources:
+  collections:
+    ../postman/collections/New Collection: 55407040-610e27f9-7c72-4431-962d-7e27c5e9d63e
+  environments:
+    ../postman/environments/New Environment.environment.yaml: 55407040-fb07608d-1693-4300-8ada-a9d15f6a8e76

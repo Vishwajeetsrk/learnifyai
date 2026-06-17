@@ -1,5 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { createFileRoute, Link } from "@tanstack/react-start";
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from "@tanstack/react-query";
 import { Award, ShieldCheck, CheckCircle2, Download, Printer, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
