@@ -32,6 +32,11 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Automated Invoicing:** Professional billing automatically handled for wallet top-ups.
 - **AI Thumbnail Generator:** Generate course thumbnails using Gemini 2.5 Flash Image API.
 
+### 📬 Inbox & Notifications
+- **Smart Notifications:** Wallet top-ups, withdrawals, new lessons, and certificate updates — each notification is clickable and links to the relevant page (courses, wallet, certificates, creator dashboard).
+- **Interactive Flashcards:** Flashcards generated via AI Tools render as interactive flip cards directly in the inbox notification.
+- **Reminders:** View, toggle, and delete scheduled reminders. Linked from AI Tools.
+
 ### ⚙️ Admin Features
 - **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates, FAQs, Legal Pages (Terms, Privacy, Refund), and Roadmap.
 - **Legal Pages:** Fully editable Terms of Service, Privacy Policy, and Refund Policy — rendered from the database, editable via the admin Content Manager.
