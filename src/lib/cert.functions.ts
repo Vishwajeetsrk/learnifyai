@@ -167,12 +167,18 @@ async function sendEmail({
   idempotencyKey?: string;
 }) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const BREVO_SMTP_KEY = process.env.BREVO_SMTP_KEY;
-  const BREVO_SMTP_SERVER = process.env.BREVO_SMTP_SERVER;
-  const BREVO_SMTP_PORT = process.env.BREVO_SMTP_PORT;
-  const BREVO_SMTP_LOGIN = process.env.BREVO_SMTP_LOGIN;
+  const BREVO_API_KEY = process.env.BREVO_API_KEY || BREVO_SMTP_KEY;
 
-  // Try Resend first
+  // Try Brevo API first (most reliable, no domain verification needed)
+  if (BREVO_API_KEY) {
+    try {
+      return await sendViaBrevoApi({ to, subject, html });
+    } catch (err: any) {
+      console.warn("Brevo API failed, trying Resend...", err?.message?.slice(0, 120));
+    }
+  }
+
+  // Fallback to Resend
   if (RESEND_API_KEY) {
     try {
       const transporter = nodemailer.createTransport({
@@ -181,7 +187,7 @@ async function sendEmail({
         secure: true,
         auth: { user: "resend", pass: RESEND_API_KEY },
       });
-      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>";
+      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
       const info = await transporter.sendMail({
         from: emailFrom,
         to: [to],
@@ -191,17 +197,7 @@ async function sendEmail({
       });
       return { messageId: info.messageId, provider: "resend" };
     } catch (err: any) {
-      console.warn("Resend failed, trying Brevo...", err?.message?.slice(0, 120));
-    }
-  }
-
-  // Fallback to Brevo REST API (works from any IP, unlike SMTP)
-  const brevoApiKey = process.env.BREVO_API_KEY || BREVO_SMTP_KEY;
-  if (brevoApiKey) {
-    try {
-      return await sendViaBrevoApi({ to, subject, html });
-    } catch (err: any) {
-      console.warn("Brevo API failed, trying Brevo SMTP...", err?.message?.slice(0, 120));
+      console.warn("Resend failed, trying Brevo SMTP...", err?.message?.slice(0, 120));
     }
   }
 
