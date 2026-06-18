@@ -25,7 +25,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Wallet & Integrated Payments:** Manage credits, purchase courses, and download invoices instantly.
 - **Community Feed:** Share updates, post questions, attach media, create polls, post announcements, and engage with peers. Rich text editor with Bold, Italic, Underline, text color, font size, font family, bullet/ordered lists, and text alignment. Complete with comment author avatars, live poll voting, and pinned announcements.
 - **Dynamic Roadmaps:** CMS-backed public roadmap showing shipped, in-progress, and planned features.
-- **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate builder with text, image, and QR elements. Public verification, PDF download, and 1-click LinkedIn sharing. Light mode-forced render to prevent dark mode issues.
+- **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate designer with 10 distinct theme presets (Executive Gold, Modern Corporate, University Style, Creator Academy, Nature Green, Royal Purple, Sunset Orange, Ocean Teal, Midnight Amber, Rose Gold), visual border pickers (double/solid/dashed/ornate/none), corner styles (diagonal/ribbon/none), background patterns (solid/dots/grid/stripes/gradient), color pickers, font selectors, and QR code integration. Live canvas preview with framer-motion drag-and-drop. Public verification and PDF download.
 
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons, and track enrollment.
@@ -102,6 +102,7 @@ learnifyai/
 │   │   └── agent.functions.ts      # AI agent with tool calling (code, web search)
 │   ├── routes/             # TanStack Start route tree
 │   │   ├── _authenticated/ # Protected routes
+│   │   │   ├── admin.certificates.tsx  # Drag-and-drop certificate designer (10 themes, borders, patterns)
 │   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree checkout) + pending transactions
 │   │   │   ├── playlist.tsx    # Course player with inline AI tutor + agent
 │   │   │   ├── playground.tsx  # Multi-language code playground (Monaco + Piston)
