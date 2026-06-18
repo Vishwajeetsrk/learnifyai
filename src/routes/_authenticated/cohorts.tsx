@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Calendar, Loader2, Plus, Users, Video, BookOpen, Sparkles } from "lucide-react";
+import { Calendar, Loader2, Plus, Users, Video, BookOpen, Sparkles, Pencil, Trash2, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -20,6 +20,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Select,
   SelectContent,
@@ -41,11 +51,14 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 function CohortsPage() {
-  const { user, hasRole } = useAuth();
+  const { user, isAdmin, hasRole } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const isCreator = hasRole("creator") || hasRole("super_admin") || hasRole("admin");
   const [open, setOpen] = useState(false);
+  const [editingCohort, setEditingCohort] = useState<any | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const cohortsQuery = useQuery({
     queryKey: ["cohorts"],
@@ -163,12 +176,180 @@ function CohortsPage() {
                 counts={countsQuery.data ?? new Map()}
                 onJoin={joinCohort}
                 onLeave={leaveCohort}
+                userId={user?.id}
+                isAdmin={isAdmin}
+                onEdit={(c) => { setEditingCohort(c); setEditOpen(true); }}
+                onDelete={(id) => setDeleteId(id)}
               />
             </TabsContent>
           ))}
         </Tabs>
+
+        <EditCohortDialog
+          cohort={editingCohort}
+          open={editOpen}
+          onOpenChange={(v) => { setEditOpen(v); if (!v) setEditingCohort(null); }}
+          onSaved={() => { qc.invalidateQueries({ queryKey: ["cohorts"] }); }}
+        />
+
+        <DeleteCohortDialog
+          deleteId={deleteId}
+          onClose={() => setDeleteId(null)}
+          onDeleted={() => {
+            qc.invalidateQueries({ queryKey: ["cohorts"] });
+            qc.invalidateQueries({ queryKey: ["cohort-counts"] });
+          }}
+        />
       </div>
     </AppShell>
+  );
+}
+
+function DeleteCohortDialog({ deleteId, onClose, onDeleted }: { deleteId: string | null; onClose: () => void; onDeleted: () => void }) {
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDelete() {
+    if (!deleteId) return;
+    setDeleting(true);
+    const { error } = await supabase.from("cohorts").delete().eq("id", deleteId);
+    setDeleting(false);
+    if (error) return toast.error(error.message);
+    toast.success("Cohort deleted");
+    onDeleted();
+    onClose();
+  }
+
+  return (
+    <AlertDialog open={!!deleteId} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete cohort?</AlertDialogTitle>
+          <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete} disabled={deleting}>
+            {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+function EditCohortDialog({ cohort, open, onOpenChange, onSaved }: { cohort: any; open: boolean; onOpenChange: (v: boolean) => void; onSaved: () => void }) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [kind, setKind] = useState("cohort");
+  const [startsAt, setStartsAt] = useState("");
+  const [capacity, setCapacity] = useState("50");
+  const [status, setStatus] = useState("draft");
+  const [meetingUrl, setMeetingUrl] = useState("");
+  const [groupLink, setGroupLink] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (cohort) {
+      setTitle(cohort.title || "");
+      setDescription(cohort.description || "");
+      setKind(cohort.kind || "cohort");
+      setStartsAt(cohort.starts_at ? new Date(cohort.starts_at).toISOString().slice(0, 16) : "");
+      setCapacity(String(cohort.capacity ?? "50"));
+      setStatus(cohort.status || "draft");
+      setMeetingUrl(cohort.meeting_url || "");
+      setGroupLink(cohort.group_link || "");
+    }
+  }, [cohort]);
+
+  async function submit() {
+    if (!cohort?.id) return;
+    if (!title.trim()) return toast.error("Title required");
+    setSaving(true);
+    const { error } = await supabase
+      .from("cohorts")
+      .update({
+        title: title.trim(),
+        description: description.trim() || null,
+        kind,
+        starts_at: new Date(startsAt).toISOString(),
+        capacity: Math.max(1, Number(capacity) || 50),
+        status,
+        meeting_url: meetingUrl.trim() || null,
+        group_link: groupLink.trim() || null,
+      })
+      .eq("id", cohort.id);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Cohort updated");
+    onSaved();
+    onOpenChange(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Edit cohort</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label>Title</Label>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Description</Label>
+            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Type</Label>
+              <Select value={kind} onValueChange={setKind}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cohort">Live cohort</SelectItem>
+                  <SelectItem value="office_hours">Office hours</SelectItem>
+                  <SelectItem value="study_group">Study group</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Status</Label>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="live">Live</SelectItem>
+                  <SelectItem value="ended">Ended</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label>Starts at</Label>
+              <Input type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Capacity</Label>
+              <Input type="number" min={1} max={1000} value={capacity} onChange={(e) => setCapacity(e.target.value)} />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Meeting URL</Label>
+            <Input value={meetingUrl} onChange={(e) => setMeetingUrl(e.target.value)} placeholder="https://" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Group chat link (WhatsApp / Discord)</Label>
+            <Input value={groupLink} onChange={(e) => setGroupLink(e.target.value)} placeholder="https://chat.whatsapp.com/..." />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button onClick={submit} disabled={saving}>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -179,6 +360,10 @@ function CohortList({
   counts,
   onJoin,
   onLeave,
+  userId,
+  isAdmin,
+  onEdit,
+  onDelete,
 }: {
   cohorts: any[];
   loading: boolean;
@@ -186,6 +371,10 @@ function CohortList({
   counts: Map<string, number>;
   onJoin: (id: string) => void;
   onLeave: (id: string) => void;
+  userId?: string;
+  isAdmin?: boolean;
+  onEdit?: (c: any) => void;
+  onDelete?: (id: string) => void;
 }) {
   if (loading)
     return (
@@ -225,12 +414,24 @@ function CohortList({
                   <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{c.description}</p>
                 )}
               </div>
-              <Badge
-                variant={c.status === "live" ? "default" : "outline"}
-                className="text-[10px] capitalize shrink-0"
-              >
-                {c.status}
-              </Badge>
+              <div className="flex items-center gap-1 shrink-0">
+                {(isAdmin || c.creator_id === userId) && (
+                  <>
+                    <button onClick={() => onEdit?.(c)} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button onClick={() => onDelete?.(c.id)} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-destructive">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </>
+                )}
+                <Badge
+                  variant={c.status === "live" ? "default" : "outline"}
+                  className="text-[10px] capitalize"
+                >
+                  {c.status}
+                </Badge>
+              </div>
             </div>
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
@@ -246,6 +447,11 @@ function CohortList({
                   Details
                 </Link>
               </Button>
+              {c.group_link && (
+                <a href={c.group_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                  <MessageCircle className="h-3 w-3" /> Group chat
+                </a>
+              )}
               {isJoined ? (
                 <Button size="sm" variant="secondary" onClick={() => onLeave(c.id)}>
                   Leave

@@ -53,20 +53,26 @@ function CohortDetail() {
         .maybeSingle();
       if (error) throw error;
       if (!c) return null;
-      const [{ data: members }, { data: creator }, { data: messages }] = await Promise.all([
+      const [{ data: members }, { data: creator }] = await Promise.all([
         supabase.from("cohort_members").select("user_id, role, joined_at").eq("cohort_id", id),
         supabase
           .from("profiles")
           .select("id, full_name, avatar_url")
           .eq("id", c.creator_id)
           .maybeSingle(),
-        supabase
+      ]);
+      let messages: any[] = [];
+      try {
+        const { data } = await supabase
           .from("group_messages")
           .select("id, sender_id, content, created_at")
           .eq("cohort_id", id)
           .order("created_at", { ascending: true })
-          .limit(200),
-      ]);
+          .limit(200);
+        messages = data ?? [];
+      } catch {
+        // group_messages table may not exist yet
+      }
       const memberIds = (members ?? []).map((m) => m.user_id);
       let memberProfiles: any[] = [];
       if (memberIds.length) {
