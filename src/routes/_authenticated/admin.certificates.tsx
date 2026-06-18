@@ -152,18 +152,29 @@ function AdminCertificatesPage() {
 
         {!active ? (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {templates.map((t: any) => (
+            {templates.map((t: any) => {
+              const parsed = typeof t.config_json === 'string' ? JSON.parse(t.config_json) : t.config_json;
+              const els: CertElement[] = parsed?.elements ?? [];
+              return (
               <div key={t.id} className="rounded-xl border bg-card p-5 shadow-card group">
-                <div className="aspect-[1.414] bg-muted rounded-lg mb-4 flex items-center justify-center overflow-hidden relative">
-                  {t.bg_image_url ? (
-                    <img src={t.bg_image_url} alt="bg" className="w-full h-full object-cover" />
-                  ) : (
-                    <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
-                  )}
+                <div className="aspect-[1.414] rounded-lg mb-4 overflow-hidden relative">
+                  <div className="absolute inset-0" style={{ background: t.bg_image_url ? `#fdfbf5 url(${t.bg_image_url}) center/cover no-repeat` : '#fdfbf5' }}>
+                    <svg width="100%" height="100%" viewBox="0 0 842 595" preserveAspectRatio="xMidYMid meet" style={{ overflow: 'visible' }}>
+                      {els.map(el => {
+                        if (el.type === 'text') {
+                          return (
+                            <text key={el.id} x={el.x} y={el.y} fontSize={el.fontSize || 16} fill={el.color || '#0f1b3d'} fontFamily={el.fontFamily || 'Georgia, serif'} textAnchor={el.align === 'center' ? 'middle' : el.align === 'right' ? 'end' : 'start'} dominantBaseline="hanging">
+                              {el.content}
+                            </text>
+                          );
+                        }
+                        return null;
+                      })}
+                    </svg>
+                  </div>
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                     <Button size="sm" variant="secondary" onClick={() => {
-                      const parsed = typeof t.config_json === 'string' ? JSON.parse(t.config_json) : t.config_json;
-                      setActive({ ...t, config_json: { elements: parsed?.elements ?? [...DEFAULT_ELEMENTS] } });
+                      setActive({ ...t, config_json: { elements: els.length > 0 ? els : [...DEFAULT_ELEMENTS] } });
                     }}><Edit3 className="h-4 w-4" /> Edit</Button>
                     <Button size="sm" variant="destructive" onClick={() => handleDelete(t.id)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
@@ -171,7 +182,8 @@ function AdminCertificatesPage() {
                 <h3 className="font-semibold">{t.name}</h3>
                 <p className="text-xs text-muted-foreground">{t.type}</p>
               </div>
-            ))}
+              );
+            })}
             {templates.length === 0 && !q.isLoading && (
               <div className="col-span-full py-12 text-center text-muted-foreground">
                 No templates found. Create your first one!

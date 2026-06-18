@@ -49,3 +49,5 @@ client_secret_*.json
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+supabase/.temp/
