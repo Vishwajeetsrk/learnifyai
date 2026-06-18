@@ -106,7 +106,6 @@ import {
   adminCreateUser,
 } from "@/lib/admin-users.functions";
 import { DemandForecastWidget } from "@/components/DemandForecastWidget";
-import { syncPlanToCashfree, savePlan, deletePlan } from "@/lib/subscription.functions";
 
 const APP_ROLES = ["super_admin", "admin", "creator", "student"] as const;
 type AppRole = (typeof APP_ROLES)[number];
@@ -1147,17 +1146,6 @@ function AdminOverview() {
           )}
         </div>
 
-        {/* Pricing plans */}
-        <div className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden">
-          <div className="px-6 py-4 border-b flex items-start justify-between gap-3">
-            <div>
-              <h2 className="font-display text-lg font-semibold">Pricing plans</h2>
-              <p className="text-xs text-muted-foreground">Manage subscription plans, features, and pricing</p>
-            </div>
-          </div>
-          <PlansSection />
-        </div>
-
         {/* Users management */}
         <div className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden">
           <div className="px-6 py-4 border-b flex items-start justify-between gap-3">
@@ -2019,141 +2007,4 @@ function formatDest(w: WithdrawalRow): string {
   return "";
 }
 
-function PlansSection() {
-  const { user } = useAuth();
-  const qc = useQueryClient();
-  const [editId, setEditId] = useState<string | null>(null);
 
-  const plansQ = useQuery({
-    queryKey: ["admin", "plans"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("pricing_plans")
-        .select("*")
-        .order("order_index", { ascending: true });
-      return data ?? [];
-    },
-  });
-
-  const syncPlan = useServerFn(syncPlanToCashfree);
-  const doSavePlan = useServerFn(savePlan);
-  const doDeletePlan = useServerFn(deletePlan);
-
-  async function save(form: any) {
-    try {
-      await doSavePlan({ data: { plan: form } });
-      toast.success(form.id ? "Plan updated" : "Plan created");
-      qc.invalidateQueries({ queryKey: ["admin", "plans"] });
-      qc.invalidateQueries({ queryKey: ["pricing-plans"] });
-      setEditId(null);
-    } catch (e: any) {
-      toast.error(e?.message || "Failed to save plan");
-    }
-  }
-
-  return (
-    <div>
-      <div className="p-4 border-b flex gap-2">
-        <Button size="sm" onClick={() => setEditId("__new__")}><Plus className="h-4 w-4" /> Add plan</Button>
-      </div>
-      {plansQ.isLoading ? (
-        <div className="p-8 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin" /></div>
-      ) : !plansQ.data?.length ? (
-        <div className="p-8 text-center text-sm text-muted-foreground">No plans defined.</div>
-      ) : (
-        <div className="divide-y">
-          {(plansQ.data ?? []).map((p: any) => (
-            <div key={p.id} className="px-6 py-4">
-              {editId === p.id ? (
-                <PlanEditor plan={p} onSave={save} onCancel={() => setEditId(null)} />
-              ) : (
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{p.name}</span>
-                      <Badge variant={p.active ? "default" : "secondary"} className="text-[10px]">{p.active ? "Active" : "Inactive"}</Badge>
-                      {p.highlighted && <Badge variant="default" className="text-[10px]">Featured</Badge>}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {p.price_label} · {p.interval ? `${p.interval}ly` : "One-time"} · {p.ai_credits_monthly > 0 ? `${(p.ai_credits_monthly).toLocaleString("en-IN")} AI credits/mo` : "No AI credits"}
-                      {p.cashfree_plan_id ? ` · CF plan: ${p.cashfree_plan_id}` : " · Not synced"}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button size="sm" variant="ghost" onClick={() => setEditId(p.id)}>Edit</Button>
-                    {p.price_inr > 0 && p.interval && !p.cashfree_plan_id && (
-                      <Button size="sm" variant="outline" onClick={async () => {
-                        try {
-                          await syncPlan({ data: { planId: p.id } });
-                          toast.success("Plan synced to Cashfree");
-                          qc.invalidateQueries({ queryKey: ["admin", "plans"] });
-                        } catch (e: any) {
-                          toast.error(e?.message || "Sync failed");
-                        }
-                      }}>Sync to Cashfree</Button>
-                    )}
-                    <button onClick={async () => {
-                      if (!window.confirm("Delete this plan?")) return;
-                      try {
-                        await doDeletePlan({ data: { planId: p.id } });
-                        qc.invalidateQueries({ queryKey: ["admin", "plans"] });
-                        qc.invalidateQueries({ queryKey: ["pricing-plans"] });
-                      } catch (e: any) {
-                        toast.error(e?.message || "Delete failed");
-                      }
-                    }} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-destructive">
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-      {editId === "__new__" && (
-        <div className="border-t p-6">
-          <PlanEditor plan={null} onSave={save} onCancel={() => setEditId(null)} />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PlanEditor({ plan, onSave, onCancel }: { plan: any | null; onSave: (f: any) => void; onCancel: () => void }) {
-  const [f, setF] = useState<any>(plan ? { ...plan, features: Array.isArray(plan.features) ? plan.features.join("\n") : "" } : {
-    name: "", price_label: "", description: "", price_inr: 0, interval: "month", ai_credits_monthly: 0, max_courses: -1,
-    features: "", cta_label: "Subscribe", cta_to: "/pricing", highlighted: false, active: true, order_index: 0, badge: "", color: "",
-  });
-  const [saving, setSaving] = useState(false);
-
-  return (
-    <div className="grid sm:grid-cols-2 gap-3">
-      <div className="space-y-1.5"><Label>Name</Label><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} /></div>
-      <div className="space-y-1.5"><Label>Price label (display)</Label><Input value={f.price_label} onChange={e => setF({ ...f, price_label: e.target.value })} placeholder="₹499/mo" /></div>
-      <div className="space-y-1.5"><Label>Price INR</Label><Input type="number" value={f.price_inr} onChange={e => setF({ ...f, price_inr: e.target.value })} /></div>
-      <div className="space-y-1.5"><Label>Interval</Label><Select value={f.interval || ""} onValueChange={v => setF({ ...f, interval: v || null })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="">None</SelectItem><SelectItem value="month">Monthly</SelectItem><SelectItem value="year">Yearly</SelectItem></SelectContent></Select></div>
-      <div className="space-y-1.5"><Label>AI credits / mo</Label><Input type="number" value={f.ai_credits_monthly} onChange={e => setF({ ...f, ai_credits_monthly: e.target.value })} /></div>
-      <div className="space-y-1.5"><Label>Max courses (-1 = unlimited)</Label><Input type="number" value={f.max_courses} onChange={e => setF({ ...f, max_courses: e.target.value })} /></div>
-      <div className="space-y-1.5"><Label>Badge</Label><Input value={f.badge} onChange={e => setF({ ...f, badge: e.target.value })} placeholder="Most popular" /></div>
-      <div className="space-y-1.5"><Label>Color</Label><Input value={f.color} onChange={e => setF({ ...f, color: e.target.value })} placeholder="#7c3aed" /></div>
-      <div className="space-y-1.5"><Label>Description</Label><Textarea value={f.description} onChange={e => setF({ ...f, description: e.target.value })} rows={2} /></div>
-      <div className="space-y-1.5 sm:col-span-2"><Label>Features (one per line)</Label><Textarea value={f.features} onChange={e => setF({ ...f, features: e.target.value })} rows={4} placeholder="Unlimited courses&#10;Advanced AI tools&#10;Certificates" /></div>
-      <div className="sm:col-span-2 flex items-center gap-4 flex-wrap">
-        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.highlighted} onChange={e => setF({ ...f, highlighted: e.target.checked })} /> Highlighted</label>
-        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.active !== false} onChange={e => setF({ ...f, active: e.target.checked })} /> Active</label>
-      </div>
-      <div className="sm:col-span-2 flex gap-2">
-        <Button onClick={async () => {
-          setSaving(true);
-          const payload = { ...f, features: f.features.split("\n").map((s: string) => s.trim()).filter(Boolean) };
-          await onSave(payload);
-          setSaving(false);
-        }} disabled={saving}>
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} {plan ? "Update" : "Create"} plan
-        </Button>
-        <Button variant="outline" onClick={onCancel}>Cancel</Button>
-      </div>
-    </div>
-  );
-}
