@@ -38,6 +38,7 @@ import { Maximize2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -2881,7 +2882,7 @@ function CohortsManager() {
         .order("starts_at", { ascending: false })
         .limit(100);
       if (error) throw error;
-      return (data ?? []) as CohortRow[];
+      return (data ?? []) as unknown as CohortRow[];
     },
   });
 
@@ -3033,8 +3034,8 @@ function CohortDialog({
       group_link: form.group_link?.trim() || null,
     };
     const { error } = form.id
-      ? await supabase.from("cohorts").update(payload).eq("id", form.id)
-      : await supabase.from("cohorts").insert({ ...payload, creator_id: form.creator_id || undefined });
+      ? await (supabase as any).from("cohorts").update(payload).eq("id", form.id)
+      : await (supabase as any).from("cohorts").insert({ ...payload, creator_id: form.creator_id || undefined });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success(form.id ? "Group updated" : "Group created");

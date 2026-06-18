@@ -72,7 +72,7 @@ function CohortDetail() {
       ]);
       let messages: any[] = [];
       try {
-        const { data } = await supabase
+        const { data } = await (supabase as any)
           .from("group_messages")
           .select("id, sender_id, content, created_at")
           .eq("cohort_id", id)

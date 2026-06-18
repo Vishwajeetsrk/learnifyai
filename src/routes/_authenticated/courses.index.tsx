@@ -107,7 +107,7 @@ function CoursesPage() {
   const handleCardAction = async (e: React.MouseEvent, c: any) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user) return navigate({ to: "/auth" });
+    if (!user) return navigate({ to: "/login" as any });
     if (enrollmentsQuery.data?.[c.id])
       return navigate({ to: "/courses/$slug", params: { slug: c.slug } });
     if (cartQuery.data?.[c.id]) return navigate({ to: "/cart" });

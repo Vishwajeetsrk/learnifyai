@@ -85,7 +85,7 @@ function CommunityPage() {
           {sessions.map((c: any) => (
             <Link
               key={c.id}
-              to={c.id.startsWith("demo-") ? "/community" : `/cohorts/${c.id}`}
+              to={c.id.startsWith("demo-") ? "/community" : ("/cohorts/" + c.id) as any}
               className="rounded-2xl border border-border/60 bg-card p-6 hover:shadow-lg transition group"
             >
               <div className="flex items-start justify-between gap-3">

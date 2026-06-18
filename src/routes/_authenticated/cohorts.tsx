@@ -265,7 +265,7 @@ function EditCohortDialog({ cohort, open, onOpenChange, onSaved }: { cohort: any
     if (!cohort?.id) return;
     if (!title.trim()) return toast.error("Title required");
     setSaving(true);
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("cohorts")
       .update({
         title: title.trim(),
