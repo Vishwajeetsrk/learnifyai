@@ -108,16 +108,7 @@ export const verifyCashfreePayment = createServerFn({ method: "POST" })
       return { success: true };
     }
 
-    if (existingTx) return { success: true, already_processed: true };
-    const { error } = await supabaseAdmin.from("wallet_transactions").insert({
-      user_id: context.userId,
-      amount_inr: data.amountInr,
-      type: "credit",
-      status: "pending",
-      description: `Top-up via ${data.method} (Cashfree: ${data.cashfree_order_id})`,
-    });
-    if (error) throw new Error(error.message);
-    return { success: true, pending: true };
+    throw new Error("Payment not confirmed by Cashfree. Order status: " + (orderData.order_status || "unknown"));
   });
 
 export const processCashfreePayout = createServerFn({ method: "POST" })

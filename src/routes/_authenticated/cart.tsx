@@ -160,12 +160,12 @@ function CartPage() {
       });
 
       const msg = result?.paymentDetails?.paymentMessage;
-      if (msg === "FAILED") {
-        throw new Error("Payment failed. Please try again.");
-      }
-      if (msg === "USER_DROPPED") {
+      if (!msg || msg === "USER_DROPPED") {
         toast.info("Payment cancelled.");
         return;
+      }
+      if (msg === "FAILED") {
+        throw new Error("Payment failed. Please try again.");
       }
 
       await verifyTopup({
