@@ -20,7 +20,7 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
       throw new Error("Cashfree credentials not configured on the server.");
     }
 
-    const orderId = `ord_${context.userId.replace(/-/g, "").slice(0, 8)}_${Date.now()}`;
+    const orderId = `ord_${context.userId}_${Date.now()}`;
 
     const res = await fetch(`${CASHFREE_API}/orders`, {
       method: "POST",
@@ -35,7 +35,7 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
         order_amount: amountInr,
         order_currency: "INR",
         customer_details: {
-          customer_id: context.userId.replace(/-/g, "").slice(0, 50),
+          customer_id: context.userId,
           customer_email: email || `${context.userId.slice(0, 8)}@learnify.app`,
           customer_phone: "9999999999",
         },
