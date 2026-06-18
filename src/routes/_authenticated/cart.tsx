@@ -143,9 +143,9 @@ function CartPage() {
     qc.invalidateQueries({ queryKey: ["cart"] });
   };
 
-  const handleCheckoutSuccess = async () => {
+  const handleCheckoutSuccess = async (skipWallet?: boolean) => {
     try {
-      const r = await checkout({ data: { coupon: appliedCoupon } });
+      const r = await checkout({ data: { coupon: appliedCoupon, skipWallet } });
       toast.success(`Enrolled in ${r.enrolled} course${r.enrolled === 1 ? "" : "s"}`);
       qc.invalidateQueries({ queryKey: ["cart"] });
       qc.invalidateQueries({ queryKey: ["wallet-tx"] });
@@ -185,20 +185,27 @@ function CartPage() {
         redirectTarget: "_modal",
       });
 
-      if (result?.paymentDetails?.paymentMessage === "SUCCESS") {
-        await verifyTopup({
-          data: {
-            amountInr: total,
-            method: "online",
-            cashfree_order_id: order.order_id,
-          },
-        });
-        await handleCheckoutSuccess();
-      } else {
-        throw new Error("Payment was not completed");
+      const msg = result?.paymentDetails?.paymentMessage;
+      if (msg === "FAILED") {
+        throw new Error("Payment failed. Please try again.");
       }
+      if (msg === "USER_DROPPED") {
+        toast.info("Payment cancelled.");
+        return;
+      }
+
+      await verifyTopup({
+        data: {
+          amountInr: total,
+          method: "online",
+          cashfree_order_id: order.order_id,
+        },
+      });
+      // skipWallet: Cashfree already collected the payment, no need to debit wallet
+      await handleCheckoutSuccess(true);
     } catch (e: any) {
       toast.error(e?.message ?? "Checkout failed");
+    } finally {
       setPaying(false);
     }
   };

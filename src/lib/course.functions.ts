@@ -54,7 +54,7 @@ function computeDiscount(
 export const checkoutCart = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ coupon: z.string().max(32).optional().nullable() }).parse(d ?? {}),
+    z.object({ coupon: z.string().max(32).optional().nullable(), skipWallet: z.boolean().optional() }).parse(d ?? {}),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -100,23 +100,25 @@ export const checkoutCart = createServerFn({ method: "POST" })
         0,
       );
 
-    if (total > balance) {
-      throw new Error(
-        `Insufficient wallet balance. Need ₹${total}, have ₹${balance}. Please top up.`,
-      );
-    }
+    if (!data.skipWallet) {
+      if (total > balance) {
+        throw new Error(
+          `Insufficient wallet balance. Need ₹${total}, have ₹${balance}. Please top up.`,
+        );
+      }
 
-    // Debit (only if total > 0)
-    if (total > 0) {
-      const desc = `Course purchase: ${items.map((c: any) => c.courses?.title).join(", ")}${coupon ? ` (coupon ${coupon} -₹${discount})` : ""}`;
-      const { error: dErr } = await supabase.from("wallet_transactions").insert({
-        user_id: userId,
-        amount_inr: total,
-        type: "debit",
-        status: "completed",
-        description: desc,
-      });
-      if (dErr) throw new Error(dErr.message);
+      // Debit (only if total > 0)
+      if (total > 0) {
+        const desc = `Course purchase: ${items.map((c: any) => c.courses?.title).join(", ")}${coupon ? ` (coupon ${coupon} -₹${discount})` : ""}`;
+        const { error: dErr } = await supabase.from("wallet_transactions").insert({
+          user_id: userId,
+          amount_inr: total,
+          type: "debit",
+          status: "completed",
+          description: desc,
+        });
+        if (dErr) throw new Error(dErr.message);
+      }
     }
 
     // Create enrollments
