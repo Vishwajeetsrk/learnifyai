@@ -62,7 +62,7 @@ CREATE TRIGGER set_user_subscriptions_updated_at
   BEFORE UPDATE ON public.user_subscriptions
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
-ALTER PUBLICATION supabase_realtime ADD TABLE public.user_subscriptions;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.user_subscriptions; EXCEPTION WHEN duplicate_object THEN NULL; END; $$;
 
 -- subscription_events (audit log)
 CREATE TABLE public.subscription_events (

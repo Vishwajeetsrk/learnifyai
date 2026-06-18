@@ -1,6 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Loader2, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { MarketingPage } from "@/components/MarketingPage";
@@ -11,6 +11,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { createSubscription, cancelSubscription } from "@/lib/subscription.functions";
 
 export const Route = createFileRoute("/pricing")({
+  validateSearch: (s: Record<string, unknown>) => ({ subscribe: s.subscribe as string | undefined }),
   head: () => ({
     meta: [
       { title: "Pricing — Learnify AI" },
@@ -50,9 +51,18 @@ function PricingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { subscribe } = useSearch({ from: "/pricing" });
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const doSubscribe = useServerFn(createSubscription);
   const doCancel = useServerFn(cancelSubscription);
+
+  useEffect(() => {
+    if (subscribe === "ok") {
+      toast.success("Subscription successful! Welcome aboard.");
+      navigate({ to: "/pricing", search: { subscribe: undefined }, replace: true });
+      qc.invalidate({ queryKey: ["user-subscription"] });
+    }
+  }, [subscribe]);
 
   const { data: tiers, isLoading, error } = useQuery<Plan[]>({
     queryKey: ["pricing-plans"],
