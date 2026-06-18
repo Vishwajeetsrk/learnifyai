@@ -38,6 +38,15 @@ import { Maximize2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { savePlan, deletePlan, syncPlanToCashfree } from "@/lib/subscription.functions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -806,6 +815,13 @@ type PlanRow = {
   highlighted: boolean;
   order_index: number;
   active: boolean;
+  price_inr: number;
+  interval: string | null;
+  ai_credits_monthly: number;
+  max_courses: number;
+  badge: string | null;
+  color: string | null;
+  cashfree_plan_id: string | null;
 };
 
 function PricingManager() {
@@ -813,6 +829,9 @@ function PricingManager() {
   const [editing, setEditing] = useState<PlanRow | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const doSavePlan = useServerFn(savePlan);
+  const doDeletePlan = useServerFn(deletePlan);
+  const doSyncPlan = useServerFn(syncPlanToCashfree);
 
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ["admin-plans"],
@@ -841,18 +860,28 @@ function PricingManager() {
       highlighted: false,
       order_index: (plans.length + 1) * 10,
       active: true,
+      price_inr: 0,
+      interval: "month",
+      ai_credits_monthly: 0,
+      max_courses: -1,
+      badge: "",
+      color: "",
+      cashfree_plan_id: null,
     });
     setOpen(true);
   };
 
   const removePlan = async () => {
     if (!deleteId) return;
-    const { error } = await supabase.from("pricing_plans").delete().eq("id", deleteId);
-    if (error) return toast.error(error.message);
-    toast.success("Plan deleted");
-    setDeleteId(null);
-    qc.invalidateQueries({ queryKey: ["admin-plans"] });
-    qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+    try {
+      await doDeletePlan({ data: { planId: deleteId } });
+      toast.success("Plan deleted");
+      setDeleteId(null);
+      qc.invalidateQueries({ queryKey: ["admin-plans"] });
+      qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Delete failed");
+    }
   };
 
   return (
@@ -874,40 +903,45 @@ function PricingManager() {
           {plans.map((p) => (
             <div
               key={p.id}
-              className="rounded-xl border border-border/60 bg-card p-4 flex items-center justify-between gap-3"
+              className="rounded-xl border border-border/60 bg-card p-4"
             >
-              <div className="min-w-0">
-                <div className="font-semibold truncate flex items-center gap-2">
-                  {p.name} <span className="text-xs text-muted-foreground">· {p.price_label}</span>
-                  {p.highlighted && (
-                    <span className="text-xs rounded-full bg-primary/10 text-primary px-2 py-0.5">
-                      Featured
-                    </span>
-                  )}
-                  {!p.active && (
-                    <span className="text-xs rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
-                      Hidden
-                    </span>
-                  )}
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold truncate flex items-center gap-2">
+                    {p.name} <span className="text-xs text-muted-foreground">· {p.price_label}</span>
+                    {p.highlighted && (
+                      <span className="text-xs rounded-full bg-primary/10 text-primary px-2 py-0.5">Featured</span>
+                    )}
+                    {!p.active && (
+                      <span className="text-xs rounded-full bg-muted px-2 py-0.5 text-muted-foreground">Hidden</span>
+                    )}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {p.interval ? `${p.interval}ly` : "One-time"} · {p.ai_credits_monthly > 0 ? `${(p.ai_credits_monthly).toLocaleString("en-IN")} AI credits/mo` : "No AI credits"}
+                    {p.cashfree_plan_id ? ` · Synced to Cashfree` : ` · Not synced`}
+                  </div>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1 truncate">
-                  {p.features.length} features
+                <div className="flex gap-2 shrink-0">
+                  {p.price_inr > 0 && p.interval && !p.cashfree_plan_id && (
+                    <Button size="sm" variant="outline" onClick={async () => {
+                      try {
+                        await doSyncPlan({ data: { planId: p.id } });
+                        toast.success("Plan synced to Cashfree");
+                        qc.invalidateQueries({ queryKey: ["admin-plans"] });
+                      } catch (e: any) {
+                        toast.error(e?.message || "Sync failed");
+                      }
+                    }}>
+                      Sync to Cashfree
+                    </Button>
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => { setEditing(p); setOpen(true); }}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setDeleteId(p.id)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
-              </div>
-              <div className="flex gap-2 shrink-0">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setEditing(p);
-                    setOpen(true);
-                  }}
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => setDeleteId(p.id)}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
               </div>
             </div>
           ))}
@@ -921,9 +955,17 @@ function PricingManager() {
           if (!v) setEditing(null);
         }}
         plan={editing}
-        onSaved={() => {
-          qc.invalidateQueries({ queryKey: ["admin-plans"] });
-          qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+        onSaved={async (form) => {
+          try {
+            await doSavePlan({ data: { plan: form } });
+            toast.success(form.id ? "Plan updated" : "Plan created");
+            qc.invalidateQueries({ queryKey: ["admin-plans"] });
+            qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+            setOpen(false);
+            setEditing(null);
+          } catch (e: any) {
+            toast.error(e?.message || "Failed to save plan");
+          }
         }}
       />
 
@@ -952,28 +994,21 @@ function PlanDialog({
   open: boolean;
   onOpenChange: (v: boolean) => void;
   plan: PlanRow | null;
-  onSaved: () => void;
+  onSaved: (form: any) => Promise<void>;
 }) {
-  const [form, setForm] = useState<PlanRow | null>(plan);
-  const [featureInput, setFeatureInput] = useState("");
+  const [form, setForm] = useState<any>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setForm(plan);
-    setFeatureInput("");
+    if (plan) {
+      setForm({
+        ...plan,
+        features: Array.isArray(plan.features) ? plan.features.join("\n") : "",
+      });
+    }
   }, [plan]);
 
   if (!form) return null;
-
-  const addFeature = () => {
-    const v = featureInput.trim();
-    if (!v) return;
-    setForm({ ...form, features: [...form.features, v] });
-    setFeatureInput("");
-  };
-  const removeFeature = (i: number) => {
-    setForm({ ...form, features: form.features.filter((_, idx) => idx !== i) });
-  };
 
   const save = async () => {
     if (!form.name.trim() || !form.price_label.trim()) {
@@ -982,24 +1017,11 @@ function PlanDialog({
     }
     setSaving(true);
     const payload = {
-      name: form.name.trim(),
-      price_label: form.price_label.trim(),
-      description: form.description?.trim() || null,
-      features: form.features,
-      cta_label: form.cta_label.trim() || "Get started",
-      cta_to: form.cta_to.trim() || "/signup",
-      highlighted: form.highlighted,
-      order_index: form.order_index,
-      active: form.active,
+      ...form,
+      features: form.features.split("\n").map((s: string) => s.trim()).filter(Boolean),
     };
-    const { error } = form.id
-      ? await supabase.from("pricing_plans").update(payload).eq("id", form.id)
-      : await supabase.from("pricing_plans").insert(payload);
+    await onSaved(payload);
     setSaving(false);
-    if (error) return toast.error(error.message);
-    toast.success(form.id ? "Plan updated" : "Plan created");
-    onSaved();
-    onOpenChange(false);
   };
 
   return (
@@ -1013,110 +1035,75 @@ function PlanDialog({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Name</Label>
-              <Input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Pro"
-              />
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Pro" />
             </div>
             <div>
               <Label>Price label</Label>
-              <Input
-                value={form.price_label}
-                onChange={(e) => setForm({ ...form, price_label: e.target.value })}
-                placeholder="₹499/mo"
-              />
-            </div>
-          </div>
-          <div>
-            <Label>Description</Label>
-            <Textarea
-              rows={2}
-              value={form.description ?? ""}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-            />
-          </div>
-          <div>
-            <Label>Features</Label>
-            <div className="flex gap-2 mt-1.5">
-              <Input
-                value={featureInput}
-                onChange={(e) => setFeatureInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addFeature();
-                  }
-                }}
-                placeholder="Add a feature, then press Enter"
-              />
-              <Button type="button" variant="outline" onClick={addFeature}>
-                Add
-              </Button>
-            </div>
-            <div className="mt-2 space-y-1">
-              {form.features.map((f, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between rounded-md bg-muted/50 px-3 py-1.5 text-sm"
-                >
-                  <span>{f}</span>
-                  <button
-                    onClick={() => removeFeature(i)}
-                    className="text-muted-foreground hover:text-destructive"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ))}
+              <Input value={form.price_label} onChange={(e) => setForm({ ...form, price_label: e.target.value })} placeholder="₹499/mo" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>CTA label</Label>
-              <Input
-                value={form.cta_label}
-                onChange={(e) => setForm({ ...form, cta_label: e.target.value })}
-              />
+              <Label>Price INR</Label>
+              <Input type="number" value={form.price_inr} onChange={(e) => setForm({ ...form, price_inr: Number(e.target.value) || 0 })} />
             </div>
             <div>
-              <Label>CTA link</Label>
-              <Input
-                value={form.cta_to}
-                onChange={(e) => setForm({ ...form, cta_to: e.target.value })}
-                placeholder="/signup or mailto:..."
-              />
+              <Label>Interval</Label>
+              <Select value={form.interval || ""} onValueChange={(v) => setForm({ ...form, interval: v || null })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="month">Monthly</SelectItem>
+                  <SelectItem value="year">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>AI credits / mo</Label>
+              <Input type="number" value={form.ai_credits_monthly} onChange={(e) => setForm({ ...form, ai_credits_monthly: Number(e.target.value) || 0 })} />
+            </div>
+            <div>
+              <Label>Max courses (-1 = unlimited)</Label>
+              <Input type="number" value={form.max_courses} onChange={(e) => setForm({ ...form, max_courses: Number(e.target.value) || -1 })} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Badge</Label>
+              <Input value={form.badge || ""} onChange={(e) => setForm({ ...form, badge: e.target.value })} placeholder="Most popular" />
+            </div>
+            <div>
+              <Label>Color</Label>
+              <Input value={form.color || ""} onChange={(e) => setForm({ ...form, color: e.target.value })} placeholder="#7c3aed" />
+            </div>
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Textarea rows={2} value={form.description ?? ""} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </div>
+          <div>
+            <Label>Features (one per line)</Label>
+            <Textarea rows={4} value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} placeholder="Unlimited courses&#10;Advanced AI tools&#10;Certificates" />
           </div>
           <div className="grid grid-cols-3 gap-3 items-end">
             <div>
               <Label>Order</Label>
-              <Input
-                type="number"
-                value={form.order_index}
-                onChange={(e) => setForm({ ...form, order_index: Number(e.target.value) || 0 })}
-              />
+              <Input type="number" value={form.order_index} onChange={(e) => setForm({ ...form, order_index: Number(e.target.value) || 0 })} />
             </div>
             <div className="flex items-center gap-2 pb-2">
-              <Switch
-                checked={form.highlighted}
-                onCheckedChange={(v) => setForm({ ...form, highlighted: v })}
-              />
+              <Switch checked={form.highlighted} onCheckedChange={(v) => setForm({ ...form, highlighted: v })} />
               <Label className="cursor-pointer">Featured</Label>
             </div>
             <div className="flex items-center gap-2 pb-2">
-              <Switch
-                checked={form.active}
-                onCheckedChange={(v) => setForm({ ...form, active: v })}
-              />
+              <Switch checked={form.active !== false} onCheckedChange={(v) => setForm({ ...form, active: v })} />
               <Label className="cursor-pointer">Active</Label>
             </div>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={save} disabled={saving}>
             {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Save
