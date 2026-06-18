@@ -67,7 +67,7 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 
 | Category | Providers |
 |----------|-----------|
-| **Payments** | Cashfree (wallet, checkout, order verification via REST API) |
+| **Payments** | Cashfree (wallet, checkout, webhook + REST API order verification) |
 | **AI Chat / Text** | OpenRouter, Gemini, Groq (3-tier fallback) |
 | **AI Embeddings** | Gemini Embeddings (text-embedding-004) |
 | **Image Generation** | Pollinations AI (free) → OpenRouter (FLUX Pro) → Gemini → Stability AI → Fal AI → Hugging Face (6-tier fallback) |
@@ -102,6 +102,7 @@ learnifyai/
 │   │   │   ├── playground.tsx  # Multi-language code playground (Monaco + Piston)
 │   │   │   └── ai-agent.tsx    # AI agent with chat, voice I/O, tool execution
 │   │   └── api/            # Serverless API endpoints
+│   │       └── webhooks/   # Payment webhook handlers (Cashfree)
 │   ├── routeTree.gen.ts    # Auto-generated routing tree
 │   ├── router.tsx          # Router configuration
 │   └── main.tsx            # Application entry point
