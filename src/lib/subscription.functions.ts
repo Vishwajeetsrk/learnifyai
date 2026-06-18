@@ -2,8 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const CF_API = "https://api.cashfree.com/subscription";
-const CF_API_VERSION = "2024-01-01";
+const CF_API = "https://api.cashfree.com/pg";
+const CF_API_VERSION = "2025-01-01";
 
 function getCreds() {
   const appId = process.env.CASHFREE_APP_ID;
@@ -44,14 +44,12 @@ async function doSyncPlan(planId: string): Promise<string> {
       plan_name: p.name,
       plan_type: "PERIODIC",
       plan_currency: "INR",
-      plan_amount: p.price_inr,
-      plan_interval: {
-        interval_type: p.interval === "month" ? "MONTHLY" : "YEARLY",
-        interval_count: 1,
-      },
-      plan_note: p.description || "",
+      plan_recurring_amount: p.price_inr,
       plan_max_amount: p.price_inr * 12,
       plan_max_cycles: 0,
+      plan_intervals: 1,
+      plan_interval_type: p.interval === "month" ? "MONTH" : "YEAR",
+      plan_note: p.description || "",
     }),
   });
 
@@ -84,7 +82,6 @@ export const createSubscription = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const uid = context.userId!;
 
-    // Check active subscription
     const { data: existing } = await (supabaseAdmin as any)
       .from("user_subscriptions")
       .select("id, status, plan_id")
@@ -101,7 +98,6 @@ export const createSubscription = createServerFn({ method: "POST" })
     const p = plan as any;
     if (!p) throw new Error("Plan not found");
 
-    // Auto-sync plan to Cashfree if not already synced
     if (!p.cashfree_plan_id) {
       p.cashfree_plan_id = await doSyncPlan(data.planId);
     }
@@ -117,21 +113,26 @@ export const createSubscription = createServerFn({ method: "POST" })
       headers: cfHeaders(appId, secretKey),
       body: JSON.stringify({
         subscription_id: subId,
-        plan_id: p.cashfree_plan_id,
         customer_details: {
-          customer_id: uid,
+          customer_name: uid.slice(0, 8),
           customer_email: `${uid.slice(0, 8)}@learnify.app`,
           customer_phone: "9999999999",
         },
+        plan_details: {
+          plan_id: p.cashfree_plan_id,
+        },
+        authorization_details: {
+          authorization_amount: 1,
+          authorization_amount_refund: true,
+          payment_methods: ["enach", "pnach", "upi", "card"],
+        },
         subscription_meta: {
           return_url: returnUrl,
-          notify_url: notifyUrl,
+          notification_channel: ["EMAIL"],
         },
         subscription_expiry_time: new Date(Date.now() + 86400000).toISOString(),
-        subscription_first_charge: 0,
-        subscription_charge_linked: 1,
+        subscription_first_charge_time: new Date(Date.now() + 86400000).toISOString(),
         subscription_note: `${p.name} plan - Rs${p.price_inr}/${p.interval}`,
-        subscription_payment_method: "any",
       }),
     });
 
@@ -152,7 +153,7 @@ export const createSubscription = createServerFn({ method: "POST" })
         user_id: uid,
         plan_id: data.planId,
         cashfree_subscription_id: sub.subscription_id || subId,
-        cashfree_order_id: sub.order_id || null,
+        cashfree_order_id: sub.cf_subscription_id || null,
         status: "active",
         current_period_end: periodEnd.toISOString(),
         ai_credits_reset_at: new Date(Date.now() + 30 * 86400000).toISOString(),
@@ -160,7 +161,9 @@ export const createSubscription = createServerFn({ method: "POST" })
     if (insErr) throw new Error(insErr.message);
 
     return {
-      auth_link: sub.subscription_auth_link || sub.auth_link,
+      auth_link: sub.subscription_session_id
+        ? `https://www.cashfree.com/checkout/post/subscription?subscription_session_id=${sub.subscription_session_id}`
+        : (sub as any).auth_link,
       subscription_id: sub.subscription_id || subId,
     };
   });
@@ -178,13 +181,15 @@ export const cancelSubscription = createServerFn({ method: "POST" })
       .single();
     if (!sub) throw new Error("No active subscription found");
 
-    const { appId, secretKey } = getCreds();
-
     if (sub.cashfree_subscription_id) {
-      await fetch(`${CF_API}/subscriptions/${sub.cashfree_subscription_id}/cancel`, {
+      const { appId, secretKey } = getCreds();
+      await fetch(`${CF_API}/subscriptions/${sub.cashfree_subscription_id}/manage`, {
         method: "POST",
         headers: cfHeaders(appId, secretKey),
-        body: JSON.stringify({ cancellation_reason: "User requested cancellation" }),
+        body: JSON.stringify({
+          subscription_id: sub.cashfree_subscription_id,
+          action: "CANCEL",
+        }),
       }).catch(() => {});
     }
 
