@@ -11,8 +11,7 @@ import {
   Tag,
   Check,
   X,
-  Smartphone,
-  Landmark,
+
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -23,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { checkoutCart, getActiveCoupons, type CouponDef } from "@/lib/course.functions";
-import { createRazorpayOrder, verifyWalletTopup } from "@/lib/payment.functions";
+import { createCashfreeOrder, verifyCashfreePayment } from "@/lib/payment.functions";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import { PaymentLoader } from "@/components/PaymentLoader";
 
@@ -32,11 +31,11 @@ export const Route = createFileRoute("/_authenticated/cart")({
   component: CartPage,
 });
 
-const loadRazorpay = () =>
+const loadCashfree = () =>
   new Promise((resolve) => {
-    if ((window as any).Razorpay) return resolve(true);
+    if ((window as any).Cashfree) return resolve(true);
     const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
@@ -51,15 +50,15 @@ const inr = (n: number) =>
         maximumFractionDigits: 0,
       }).format(n);
 
-type PayMethod = "wallet" | "card" | "upi" | "bank";
+type PayMethod = "wallet" | "online";
 
 function CartPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const checkout = useServerFn(checkoutCart);
-  const createOrder = useServerFn(createRazorpayOrder);
-  const verifyTopup = useServerFn(verifyWalletTopup);
+  const createOrder = useServerFn(createCashfreeOrder);
+  const verifyTopup = useServerFn(verifyCashfreePayment);
   const fetchCoupons = useServerFn(getActiveCoupons);
   const [paying, setPaying] = useState(false);
   const [celebration, setCelebration] = useState<{
@@ -144,20 +143,8 @@ function CartPage() {
     qc.invalidateQueries({ queryKey: ["cart"] });
   };
 
-  const handleCheckoutSuccess = async (rzpData?: any) => {
+  const handleCheckoutSuccess = async () => {
     try {
-      if (rzpData && rzpData.razorpay_payment_id) {
-        await verifyTopup({
-          data: {
-            amountInr: total,
-            method: method,
-            razorpay_payment_id: rzpData.razorpay_payment_id,
-            razorpay_order_id: rzpData.razorpay_order_id,
-            razorpay_signature: rzpData.razorpay_signature,
-          }
-        });
-      }
-
       const r = await checkout({ data: { coupon: appliedCoupon } });
       toast.success(`Enrolled in ${r.enrolled} course${r.enrolled === 1 ? "" : "s"}`);
       qc.invalidateQueries({ queryKey: ["cart"] });
@@ -182,34 +169,33 @@ function CartPage() {
   const pay = async () => {
     setPaying(true);
     try {
-      if (method !== "wallet") {
-        const loaded = await loadRazorpay();
-        if (!loaded) throw new Error("Razorpay SDK failed to load");
-
-        const order = await createOrder({ data: { amountInr: total } });
-        const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T1tN8tDaacLQxo",
-          amount: order.amount,
-          currency: order.currency,
-          name: "Learnify AI",
-          description: "Course Enrollment",
-          order_id: order.id,
-          handler: async function (response: any) {
-            await handleCheckoutSuccess(response);
-          },
-          prefill: {
-            email: user?.email || "",
-          },
-          theme: { color: "#4f46e5" },
-        };
-        const rzp = new (window as any).Razorpay(options);
-        rzp.on("payment.failed", function (response: any) {
-          setPaying(false);
-          toast.error(response.error.description || "Payment failed");
-        });
-        rzp.open();
-      } else {
+      if (method === "wallet") {
         await handleCheckoutSuccess();
+        return;
+      }
+
+      const order = await createOrder({ data: { amountInr: total, email: user?.email } });
+
+      const loaded = await loadCashfree();
+      if (!loaded) throw new Error("Cashfree SDK failed to load");
+
+      const cashfree = new (window as any).Cashfree({ mode: "production" });
+      const result = await cashfree.checkout({
+        paymentSessionId: order.payment_session_id,
+        redirectTarget: "_modal",
+      });
+
+      if (result?.paymentDetails?.paymentMessage === "SUCCESS") {
+        await verifyTopup({
+          data: {
+            amountInr: total,
+            method: "online",
+            cashfree_order_id: order.order_id,
+          },
+        });
+        await handleCheckoutSuccess();
+      } else {
+        throw new Error("Payment was not completed");
       }
     } catch (e: any) {
       toast.error(e?.message ?? "Checkout failed");
@@ -219,9 +205,7 @@ function CartPage() {
 
   const methods: { id: PayMethod; label: string; icon: any; note?: string }[] = [
     { id: "wallet", label: "Wallet", icon: Sparkles, note: "Instant" },
-    { id: "card", label: "Card", icon: CreditCard, note: "Fast" },
-    { id: "upi", label: "UPI", icon: Smartphone, note: "Fast" },
-    { id: "bank", label: "Bank", icon: Landmark, note: "Netbanking" },
+    { id: "online", label: "Card / UPI", icon: CreditCard, note: "Fast" },
   ];
 
   return (
@@ -394,9 +378,7 @@ function CartPage() {
                 </div>
                 {method !== "wallet" && (
                   <p className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
-                    {method === "bank"
-                      ? "Bank transfer via Razorpay."
-                      : `${method.toUpperCase()} live checkout via Razorpay.`}
+                    Secure checkout via Cashfree (card, UPI, netbanking).
                   </p>
                 )}
               </div>

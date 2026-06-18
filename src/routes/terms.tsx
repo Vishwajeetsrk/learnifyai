@@ -25,7 +25,7 @@ export const Route = createFileRoute("/terms")({
 <p>Courses are provided by creators ("Instructors"). Learnify AI is not responsible for the accuracy or quality of instructor-provided content. We reserve the right to remove any content that violates our policies.</p>
 
 <h2>4. Payments & Refunds</h2>
-<p>Paid courses are processed through our payment partner Razorpay. Refunds are governed by our <a href="/refund-policy">Refund Policy</a>. Learnify AI takes a platform fee; remaining revenue is paid to Instructors.</p>
+<p>Paid courses are processed through our payment partner Cashfree. Refunds are governed by our <a href="/refund-policy">Refund Policy</a>. Learnify AI takes a platform fee; remaining revenue is paid to Instructors.</p>
 
 <h2>5. Prohibited Conduct</h2>
 <p>You may not use the Platform to: violate laws, infringe intellectual property, distribute malware, harass others, scrape data, or bypass payment systems.</p>

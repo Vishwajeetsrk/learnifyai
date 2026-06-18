@@ -9,7 +9,7 @@ import {
   Plus,
   IndianRupee,
   CreditCard,
-  Smartphone,
+
   ArrowDownToLine,
   TrendingUp,
   TrendingDown,
@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
-import { createRazorpayOrder, verifyWalletTopup } from "@/lib/payment.functions";
+import { createCashfreeOrder, verifyCashfreePayment } from "@/lib/payment.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,11 +43,11 @@ export const Route = createFileRoute("/_authenticated/wallet")({
   component: WalletPage,
 });
 
-const loadRazorpay = () =>
+const loadCashfree = () =>
   new Promise((resolve) => {
-    if ((window as any).Razorpay) return resolve(true);
+    if ((window as any).Cashfree) return resolve(true);
     const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
@@ -65,11 +65,11 @@ function WalletPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState<string>("500");
-  const [method, setMethod] = useState<"razorpay" | "upi" | "manual">("razorpay");
+  const [method, setMethod] = useState<"online" | "manual">("online");
   const [reference, setReference] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const createOrder = useServerFn(createRazorpayOrder);
-  const verifyTopup = useServerFn(verifyWalletTopup);
+  const createOrder = useServerFn(createCashfreeOrder);
+  const verifyTopup = useServerFn(verifyCashfreePayment);
 
   const txQuery = useQuery({
     enabled: !!user,
@@ -177,45 +177,33 @@ function WalletPage() {
         setReference("");
         qc.invalidateQueries({ queryKey: ["wallet-topups"] });
       } else {
-        const loaded = await loadRazorpay();
-        if (!loaded) throw new Error("Razorpay SDK failed to load");
+        const order = await createOrder({ data: { amountInr: amt, email: user?.email } });
 
-        const order = await createOrder({ data: { amountInr: amt } });
-        const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_T1tN8tDaacLQxo",
-          amount: order.amount,
-          currency: order.currency,
-          name: "Learnify AI",
-          description: "Wallet Top-up",
-          order_id: order.id,
-          handler: async function (response: any) {
-            try {
-              await verifyTopup({ 
-                data: {
-                  amountInr: amt,
-                  method,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_signature: response.razorpay_signature,
-                }
-              });
-              toast.success(`Successfully added ₹${amt} to your wallet.`);
-              qc.invalidateQueries({ queryKey: ["wallet-tx"] });
-              qc.invalidateQueries({ queryKey: ["wallet-balance"] });
-              setOpen(false);
-              setReference("");
-            } catch (err: any) {
-              toast.error(err.message || "Failed to verify topup");
-            }
-          },
-          prefill: { email: user?.email || "" },
-          theme: { color: "#4f46e5" },
-        };
-        const rzp = new (window as any).Razorpay(options);
-        rzp.on("payment.failed", function (response: any) {
-          toast.error(response.error.description || "Payment failed");
+        const loaded = await loadCashfree();
+        if (!loaded) throw new Error("Cashfree SDK failed to load");
+
+        const cashfree = new (window as any).Cashfree({ mode: "production" });
+        const result = await cashfree.checkout({
+          paymentSessionId: order.payment_session_id,
+          redirectTarget: "_modal",
         });
-        rzp.open();
+
+        if (result?.paymentDetails?.paymentMessage === "SUCCESS") {
+          await verifyTopup({
+            data: {
+              amountInr: amt,
+              method: "online",
+              cashfree_order_id: order.order_id,
+            },
+          });
+          toast.success(`Successfully added ${inr(amt)} to your wallet.`);
+          qc.invalidateQueries({ queryKey: ["wallet-tx"] });
+          qc.invalidateQueries({ queryKey: ["wallet-balance"] });
+          setOpen(false);
+          setReference("");
+        } else {
+          throw new Error("Payment was not completed");
+        }
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to initiate top-up");
@@ -492,8 +480,8 @@ function TopUpDialogContent({
 }: {
   amount: string;
   setAmount: (v: string) => void;
-  method: "razorpay" | "upi" | "manual";
-  setMethod: (v: "razorpay" | "upi" | "manual") => void;
+  method: "online" | "manual";
+  setMethod: (v: "online" | "manual") => void;
   reference: string;
   setReference: (v: string) => void;
   submitting: boolean;
@@ -506,7 +494,7 @@ function TopUpDialogContent({
       <DialogHeader>
         <DialogTitle>Add money to wallet</DialogTitle>
         <DialogDescription>
-          Top up instantly via card/UPI, or submit a bank transfer for admin approval.
+          Top up instantly via Cashfree (card/UPI/netbanking), or submit a bank transfer for admin approval.
         </DialogDescription>
       </DialogHeader>
       <div className="space-y-5">
@@ -538,11 +526,10 @@ function TopUpDialogContent({
         </div>
         <div className="space-y-2">
           <Label>Payment method</Label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {[
-              { v: "razorpay" as const, l: "Card", icon: CreditCard },
-              { v: "upi" as const, l: "UPI", icon: Smartphone },
-              { v: "manual" as const, l: "Bank", icon: ArrowDownToLine },
+              { v: "online" as const, l: "Card / UPI", icon: CreditCard },
+              { v: "manual" as const, l: "Bank Transfer", icon: ArrowDownToLine },
             ].map(({ v, l, icon: Icon }) => (
               <button
                 key={v}
@@ -568,7 +555,7 @@ function TopUpDialogContent({
         )}
         {method !== "manual" && (
           <div className="text-xs text-emerald-800 rounded-lg bg-emerald-50 p-3 border border-emerald-200">
-            You will be redirected to Razorpay to securely add funds instantly.
+            You will be redirected to Cashfree to securely add funds instantly.
           </div>
         )}
       </div>
