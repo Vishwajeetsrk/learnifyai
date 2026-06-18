@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Plus, Trash2, Save, Image as ImageIcon, Type, Edit3, Settings, ShieldCheck, Palette, BorderAll, LayoutGrid, Scissors } from "lucide-react";
+import { Plus, Trash2, Save, Image as ImageIcon, Type, Edit3, Settings, ShieldCheck, Palette, Square, LayoutGrid, Scissors } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -656,7 +656,7 @@ function AdminCertificatesPage() {
 
               {/* Border Style */}
               <div className="border-t pt-5">
-                <h4 className="font-semibold flex items-center gap-2 mb-3 text-sm"><BorderAll className="h-3.5 w-3.5 text-primary" /> Border Style</h4>
+                <h4 className="font-semibold flex items-center gap-2 mb-3 text-sm"><Square className="h-3.5 w-3.5 text-primary" /> Border Style</h4>
                 <div className="grid grid-cols-5 gap-1.5">
                   {BORDER_OPTIONS.map(b => {
                     const isActive = active.config_json.design.border_style === b.id;
