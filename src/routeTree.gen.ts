@@ -52,6 +52,7 @@ import { Route as AuthenticatedAiToolsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
+import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
 import { Route as AuthenticatedCreatorsIdRouteImport } from './routes/_authenticated/creators.$id'
 import { Route as AuthenticatedCreatorSubscribersRouteImport } from './routes/_authenticated/creator.subscribers'
 import { Route as AuthenticatedCreatorSettingsRouteImport } from './routes/_authenticated/creator.settings'
@@ -285,6 +286,11 @@ const AuthenticatedCoursesIndexRoute =
     path: '/courses/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const ApiWebhooksCashfreeRoute = ApiWebhooksCashfreeRouteImport.update({
+  id: '/api/webhooks/cashfree',
+  path: '/api/webhooks/cashfree',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCreatorsIdRoute = AuthenticatedCreatorsIdRouteImport.update({
   id: '/creators/$id',
   path: '/creators/$id',
@@ -409,6 +415,7 @@ export interface FileRoutesByFullPath {
   '/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/creators/$id': typeof AuthenticatedCreatorsIdRoute
+  '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/courses/': typeof AuthenticatedCoursesIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
@@ -465,6 +472,7 @@ export interface FileRoutesByTo {
   '/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/creators/$id': typeof AuthenticatedCreatorsIdRoute
+  '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/courses': typeof AuthenticatedCoursesIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
@@ -523,6 +531,7 @@ export interface FileRoutesById {
   '/_authenticated/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/_authenticated/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/_authenticated/creators/$id': typeof AuthenticatedCreatorsIdRoute
+  '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
@@ -581,6 +590,7 @@ export interface FileRouteTypes {
     | '/creator/settings'
     | '/creator/subscribers'
     | '/creators/$id'
+    | '/api/webhooks/cashfree'
     | '/courses/'
     | '/api/public/hooks/run-reminders'
   fileRoutesByTo: FileRoutesByTo
@@ -637,6 +647,7 @@ export interface FileRouteTypes {
     | '/creator/settings'
     | '/creator/subscribers'
     | '/creators/$id'
+    | '/api/webhooks/cashfree'
     | '/courses'
     | '/api/public/hooks/run-reminders'
   id:
@@ -694,6 +705,7 @@ export interface FileRouteTypes {
     | '/_authenticated/creator/settings'
     | '/_authenticated/creator/subscribers'
     | '/_authenticated/creators/$id'
+    | '/api/webhooks/cashfree'
     | '/_authenticated/courses/'
     | '/api/public/hooks/run-reminders'
   fileRoutesById: FileRoutesById
@@ -723,6 +735,7 @@ export interface RootRouteChildren {
   CertificatesCodeRoute: typeof CertificatesCodeRoute
   UIdRoute: typeof UIdRoute
   VerifyIdRoute: typeof VerifyIdRoute
+  ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
   ApiPublicHooksRunRemindersRoute: typeof ApiPublicHooksRunRemindersRoute
 }
 
@@ -1029,6 +1042,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoursesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/webhooks/cashfree': {
+      id: '/api/webhooks/cashfree'
+      path: '/api/webhooks/cashfree'
+      fullPath: '/api/webhooks/cashfree'
+      preLoaderRoute: typeof ApiWebhooksCashfreeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/creators/$id': {
       id: '/_authenticated/creators/$id'
       path: '/creators/$id'
@@ -1238,6 +1258,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertificatesCodeRoute: CertificatesCodeRoute,
   UIdRoute: UIdRoute,
   VerifyIdRoute: VerifyIdRoute,
+  ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,
   ApiPublicHooksRunRemindersRoute: ApiPublicHooksRunRemindersRoute,
 }
 export const routeTree = rootRouteImport

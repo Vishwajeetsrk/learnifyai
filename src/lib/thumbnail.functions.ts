@@ -62,101 +62,7 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     const hfKey = process.env.HF_API_KEY;
     const openrouterKey = process.env.OPENROUTER_API_KEY;
 
-    // 1. Hugging Face (free inference — FLUX.1-schnell, has user's API key)
-    if (hfKey) {
-      try {
-        const res = await fetch("https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${hfKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ inputs: data.prompt.slice(0, 500) }),
-        });
-
-        if (res.ok) {
-          const blob = await res.arrayBuffer();
-          const base64 = Buffer.from(blob).toString("base64");
-          return { dataUrl: `data:image/jpeg;base64,${base64}` };
-        } else {
-          const txt = await res.text().catch(() => "");
-          console.warn(`Hugging Face failed (${res.status}): ${txt.slice(0, 120)}`);
-        }
-      } catch (err) {
-        console.warn("Hugging Face error. Trying Pollinations...", err);
-      }
-    }
-
-    // 2. Pollinations AI (free, no key needed)
-    const pollinationsUrls = [
-      (p: string) => `https://image.pollinations.ai/prompt/${p}?model=flux&nofeed=true`,
-      (p: string) => `https://gen.pollinations.ai/image/${p}?model=flux&nofeed=true`,
-    ];
-    for (const buildUrl of pollinationsUrls) {
-      try {
-        const short = data.prompt.slice(0, 400);
-        const pw = encodeURIComponent(short);
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 20000);
-        const res = await fetch(buildUrl(pw), {
-          signal: controller.signal,
-          headers: { Accept: "image/*, */*" },
-        });
-        clearTimeout(timer);
-        const ct = res.headers.get("content-type") || "";
-        if (res.ok && ct.startsWith("image/")) {
-          const blob = await res.arrayBuffer();
-          const base64 = Buffer.from(blob).toString("base64");
-          return { dataUrl: `data:${ct};base64,${base64}` };
-        } else if (res.ok) {
-          const text = await res.text().catch(() => "");
-          if (text.length > 100 && !text.includes("<html")) {
-            // Some Pollinations endpoints return the image body as base64 or raw bytes via text
-            try { JSON.parse(text); } catch {
-              const base64 = Buffer.from(text, "binary").toString("base64");
-              return { dataUrl: `data:image/jpeg;base64,${base64}` };
-            }
-          }
-          console.warn(`Pollinations (${buildUrl("")}) unexpected response, trying next...`);
-        } else {
-          console.warn(`Pollinations AI failed (${res.status})`);
-        }
-      } catch (err) {
-        console.warn(`Pollinations AI error (${buildUrl("")}), trying next...`, err);
-      }
-    }
-
-    // 3. OpenRouter — FLUX Pro
-    if (openrouterKey) {
-      try {
-        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${openrouterKey}`,
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://learnifyaitool.vercel.app",
-          },
-          body: JSON.stringify({
-            model: "black-forest-labs/flux-1.1-pro",
-            messages: [{ role: "user", content: data.prompt }],
-          }),
-        });
-
-        if (res.ok) {
-          const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
-          const content = json.choices?.[0]?.message?.content || "";
-          const m = content.match(/https?:\/\/[^\s"}]+\.(png|jpg|jpeg|webp)/i);
-          if (m) return { dataUrl: m[0] };
-        } else {
-          const txt = await res.text().catch(() => "");
-          console.warn(`OpenRouter FLUX failed (${res.status}): ${txt.slice(0, 120)}`);
-        }
-      } catch (err) {
-        console.warn("OpenRouter FLUX error. Trying Gemini...", err);
-      }
-    }
-
-    // 4. Gemini 2.5 Flash Image via generateContent
+    // 1. Gemini 2.5 Flash Image — best free tier, excellent text rendering
     if (geminiKey) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${geminiKey}`;
@@ -164,31 +70,31 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: data.prompt }] }],
+            contents: [{ parts: [{ text: data.prompt.slice(0, 1400) }] }],
             generationConfig: {
               responseModalities: ["image", "text"],
             },
           }),
         });
 
-        if (!res.ok) {
+        if (res.ok) {
+          const json = (await res.json()) as {
+            candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { mimeType: string; data: string } }> } }>;
+          };
+          const inline = json.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+          if (inline?.inlineData?.data) {
+            return { dataUrl: `data:${inline.inlineData.mimeType};base64,${inline.inlineData.data}` };
+          }
+        } else {
           const txt = await res.text().catch(() => "");
-          throw new Error(`Gemini image API error (${res.status}): ${txt.slice(0, 180)}`);
+          console.warn(`Gemini image API error (${res.status}): ${txt.slice(0, 120)}`);
         }
-
-        const json = (await res.json()) as {
-          candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { mimeType: string; data: string } }> } }>;
-        };
-        const inline = json.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-        if (inline?.inlineData?.data) {
-          return { dataUrl: `data:${inline.inlineData.mimeType};base64,${inline.inlineData.data}` };
-        }
-      } catch (err: any) {
-        console.warn("Gemini image gen failed. Trying Stability AI...", err);
+      } catch (err) {
+        console.warn("Gemini failed. Trying Stability AI...", err);
       }
     }
 
-    // 5. Stability AI (SD3 / SDXL)
+    // 2. Stability AI (SD3 / SDXL) — paid, sharp text rendering
     if (stabilityKey) {
       try {
         const sizeMap: Record<string, string> = {
@@ -220,11 +126,96 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
           console.warn(`Stability AI failed (${res.status}): ${txt.slice(0, 120)}`);
         }
       } catch (err) {
-        console.warn("Stability AI error. Trying Fal AI...", err);
+        console.warn("Stability AI error. Trying OpenRouter FLUX...", err);
       }
     }
 
-    // 6. Fal AI (FLUX / SD3)
+    // 3. OpenRouter — FLUX Pro (paid, great text)
+    if (openrouterKey) {
+      try {
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${openrouterKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://learnifyaitool.vercel.app",
+          },
+          body: JSON.stringify({
+            model: "black-forest-labs/flux-1.1-pro",
+            messages: [{ role: "user", content: data.prompt }],
+          }),
+        });
+
+        if (res.ok) {
+          const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+          const content = json.choices?.[0]?.message?.content || "";
+          const m = content.match(/https?:\/\/[^\s"}]+\.(png|jpg|jpeg|webp)/i);
+          if (m) return { dataUrl: m[0] };
+        } else {
+          const txt = await res.text().catch(() => "");
+          console.warn(`OpenRouter FLUX failed (${res.status}): ${txt.slice(0, 120)}`);
+        }
+      } catch (err) {
+        console.warn("OpenRouter FLUX error.", err);
+      }
+    }
+
+    // 4. Hugging Face (free fallback)
+    if (hfKey) {
+      try {
+        const res = await fetch("https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${hfKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ inputs: data.prompt.slice(0, 500) }),
+        });
+        if (res.ok) {
+          const blob = await res.arrayBuffer();
+          const base64 = Buffer.from(blob).toString("base64");
+          return { dataUrl: `data:image/jpeg;base64,${base64}` };
+        }
+      } catch (err) {
+        console.warn("Hugging Face error.", err);
+      }
+    }
+
+    // 5. Pollinations AI (free, no key needed — last resort)
+    const pollinationsUrls = [
+      (p: string) => `https://image.pollinations.ai/prompt/${p}?model=flux&nofeed=true`,
+      (p: string) => `https://gen.pollinations.ai/image/${p}?model=flux&nofeed=true`,
+    ];
+    for (const buildUrl of pollinationsUrls) {
+      try {
+        const pw = encodeURIComponent(data.prompt.slice(0, 400));
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 20000);
+        const res = await fetch(buildUrl(pw), {
+          signal: controller.signal,
+          headers: { Accept: "image/*, */*" },
+        });
+        clearTimeout(timer);
+        const ct = res.headers.get("content-type") || "";
+        if (res.ok && ct.startsWith("image/")) {
+          const blob = await res.arrayBuffer();
+          const base64 = Buffer.from(blob).toString("base64");
+          return { dataUrl: `data:${ct};base64,${base64}` };
+        } else if (res.ok) {
+          const text = await res.text().catch(() => "");
+          if (text.length > 100 && !text.includes("<html")) {
+            try { JSON.parse(text); } catch {
+              const base64 = Buffer.from(text, "binary").toString("base64");
+              return { dataUrl: `data:image/jpeg;base64,${base64}` };
+            }
+          }
+        }
+      } catch (err) {
+        console.warn(`Pollinations error.`, err);
+      }
+    }
+
+    // 6. Fal AI (paid fallback)
     if (falKey) {
       try {
         const res = await fetch("https://fal.run/fal-ai/flux-pro/v1.1-ultra", {
@@ -240,14 +231,10 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
             output_format: "jpeg",
           }),
         });
-
         if (res.ok) {
           const json = await res.json() as { images?: Array<{ url?: string }> };
           const url = json.images?.[0]?.url;
           if (url) return { dataUrl: url };
-        } else {
-          const txt = await res.text().catch(() => "");
-          console.warn(`Fal AI failed (${res.status}): ${txt.slice(0, 120)}`);
         }
       } catch (err) {
         console.warn("Fal AI error.", err);
@@ -290,14 +277,17 @@ export function buildThumbnailPrompt(opts: {
   lessonHint?: string;
 }) {
   const style = THUMBNAIL_STYLES.find((s) => s.id === opts.style) ?? THUMBNAIL_STYLES[0];
+  const titleText = opts.title.length > 120 ? opts.title.slice(0, 117) + "..." : opts.title;
   const parts = [
-    `Course thumbnail (1536x1024, social-share friendly) for an online course titled "${opts.title}".`,
+    `Professional course thumbnail for an online course titled "${titleText}".`,
     opts.category ? `Category: ${opts.category}.` : "",
     opts.description ? `About: ${opts.description.slice(0, 300)}.` : "",
     opts.lessonHint ? `First lesson theme: ${opts.lessonHint.slice(0, 240)}.` : "",
     `Style: ${style.label} — ${style.hint}.`,
-    opts.colors ? `Color palette hint: ${opts.colors}.` : "",
-    `Render the title text "${opts.title}" prominently and legibly. No watermark, no logos, no copyrighted IP, no real faces.`,
+    opts.colors ? `Color palette: ${opts.colors}.` : "",
+    `CRITICAL: Render the title text "${titleText}" in CRYSTAL CLEAR, perfectly readable high-resolution text. Text must be sharp, centered, and large enough to be clearly legible on mobile. Use bold sans-serif or serif font with high contrast against the background. NO blurry, smudged, distorted, warped, or unreadable text.`,
+    `Quality: ultra-realistic, 8K quality, sharp details, professional design, vibrant colors, clean composition.`,
+    `DO NOT: include watermarks, logos, copyrighted IP, real faces (use abstract icons instead), text beyond the title, or low-resolution artifacts.`,
     opts.customNotes ? `Extra direction: ${opts.customNotes}` : "",
   ];
   return parts.filter(Boolean).join(" ");
