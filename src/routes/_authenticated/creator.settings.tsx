@@ -35,12 +35,11 @@ export const Route = createFileRoute("/_authenticated/creator/settings")({
 
 type SocialLinks = { website?: string; twitter?: string; youtube?: string; github?: string };
 type Payout = {
-  method?: "bank" | "upi" | "paypal";
+  method?: "bank" | "upi";
   upi_id?: string;
   account_name?: string;
   account_number?: string;
   ifsc?: string;
-  paypal_email?: string;
 };
 type NotifPrefs = {
   new_subscriber: boolean;
@@ -201,7 +200,7 @@ function CreatorSettingsPage() {
             <Field label="Method">
               <Select
                 value={payout.method ?? "bank"}
-                onValueChange={(v: "bank" | "upi" | "paypal") =>
+                onValueChange={(v: "bank" | "upi") =>
                   setPayout({ ...payout, method: v })
                 }
               >
@@ -211,7 +210,6 @@ function CreatorSettingsPage() {
                 <SelectContent>
                   <SelectItem value="upi">UPI</SelectItem>
                   <SelectItem value="bank">Bank transfer</SelectItem>
-                  <SelectItem value="paypal">PayPal</SelectItem>
                 </SelectContent>
               </Select>
             </Field>
@@ -221,15 +219,6 @@ function CreatorSettingsPage() {
                   value={payout.upi_id ?? ""}
                   onChange={(e) => setPayout({ ...payout, upi_id: e.target.value })}
                   placeholder="name@bank"
-                />
-              </Field>
-            ) : payout.method === "paypal" ? (
-              <Field label="PayPal email">
-                <Input
-                  type="email"
-                  value={payout.paypal_email ?? ""}
-                  onChange={(e) => setPayout({ ...payout, paypal_email: e.target.value })}
-                  placeholder="you@example.com"
                 />
               </Field>
             ) : (
@@ -255,7 +244,7 @@ function CreatorSettingsPage() {
               </div>
             )}
             <p className="text-[11px] text-muted-foreground">
-              Used to autofill when you request a withdrawal from your wallet.
+              Used to autofill when you request a withdrawal via Cashfree Payouts.
             </p>
           </Card>
 

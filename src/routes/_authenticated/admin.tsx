@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -15,6 +15,7 @@ import {
   Calendar as CalendarIcon,
   MoreHorizontal,
   Pencil,
+  Plus,
   KeyRound,
   Ban,
   Trash2,
@@ -57,6 +58,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -66,6 +75,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -96,6 +106,7 @@ import {
   adminCreateUser,
 } from "@/lib/admin-users.functions";
 import { DemandForecastWidget } from "@/components/DemandForecastWidget";
+import { syncPlanToCashfree } from "@/lib/subscription.functions";
 
 const APP_ROLES = ["super_admin", "admin", "creator", "student"] as const;
 type AppRole = (typeof APP_ROLES)[number];
@@ -208,16 +219,16 @@ function AdminOverview() {
     queryFn: () => listUsersFn(),
   });
 
-  // Top-up approval queue
-  const topupsQuery = useQuery({
+  // Cohorts
+  const adminCohortsQuery = useQuery({
     enabled: isAdmin && typeof window !== "undefined",
-    queryKey: ["admin", "topups"],
+    queryKey: ["admin", "cohorts"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("wallet_topup_requests")
-        .select("id, user_id, amount_inr, method, reference, status, created_at, admin_notes")
+        .from("cohorts")
+        .select("id, title, description, kind, starts_at, capacity, status, creator_id, created_at, meeting_url")
         .order("created_at", { ascending: false })
-        .limit(100);
+        .limit(50);
       if (error) throw error;
       return data ?? [];
     },
@@ -505,6 +516,12 @@ function AdminOverview() {
   const [newEmail, setNewEmail] = useState("");
   const [newName, setNewName] = useState("");
   const [newPwd, setNewPwd] = useState("");
+  const [cohortCreateOpen, setCohortCreateOpen] = useState(false);
+  const [cohortForm, setCohortForm] = useState({
+    title: "", description: "", kind: "cohort",
+    starts_at: new Date(Date.now() + 86400000).toISOString().slice(0, 16),
+    capacity: "50", status: "draft", meeting_url: "",
+  });
   const [newRoles, setNewRoles] = useState<AppRole[]>(["student"]);
   const [busy, setBusy] = useState(false);
 
@@ -965,17 +982,15 @@ function AdminOverview() {
           )}
         </div>
 
-        {/* Wallet top-up approvals */}
+        {/* Creator applications */}
         <ApprovalsSection
-          topups={topupsQuery.data ?? []}
-          isLoading={topupsQuery.isLoading}
           creatorApps={creatorAppsQuery.data ?? []}
           appsLoading={creatorAppsQuery.isLoading}
           userMap={new Map((usersQuery.data?.rows ?? []).map((u) => [u.id, u]))}
           adminId={user?.id ?? ""}
           onChanged={() => {
-            qc.invalidateQueries({ queryKey: ["admin", "topups"] });
             qc.invalidateQueries({ queryKey: ["admin", "creator-apps"] });
+            qc.invalidateQueries({ queryKey: ["admin", "withdrawals"] });
             qc.invalidateQueries({ queryKey: ["admin", "transactions"] });
           }}
         />
@@ -990,6 +1005,158 @@ function AdminOverview() {
             qc.invalidateQueries({ queryKey: ["admin", "transactions"] });
           }}
         />
+
+        {/* Admin cohorts */}
+        <div className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden">
+          <div className="px-6 py-4 border-b flex items-start justify-between gap-3">
+            <div>
+              <h2 className="font-display text-lg font-semibold">Cohorts</h2>
+              <p className="text-xs text-muted-foreground">
+                {adminCohortsQuery.data?.length ?? 0} total · manage cohorts, office hours, study groups
+              </p>
+            </div>
+            <Dialog open={cohortCreateOpen} onOpenChange={setCohortCreateOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm"><Plus className="h-4 w-4" /> Create</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-lg">
+                <DialogHeader><DialogTitle>Create cohort</DialogTitle></DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <Label>Title</Label>
+                    <Input value={cohortForm.title} onChange={e => setCohortForm(f => ({ ...f, title: e.target.value }))} maxLength={120} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Description</Label>
+                    <Textarea value={cohortForm.description} onChange={e => setCohortForm(f => ({ ...f, description: e.target.value }))} rows={2} maxLength={500} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label>Type</Label>
+                      <Select value={cohortForm.kind} onValueChange={v => setCohortForm(f => ({ ...f, kind: v }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cohort">Live cohort</SelectItem>
+                          <SelectItem value="office_hours">Office hours</SelectItem>
+                          <SelectItem value="study_group">Study group</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Status</Label>
+                      <Select value={cohortForm.status} onValueChange={v => setCohortForm(f => ({ ...f, status: v }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="draft">Draft</SelectItem>
+                          <SelectItem value="live">Live</SelectItem>
+                          <SelectItem value="ended">Ended</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1.5">
+                      <Label>Starts at</Label>
+                      <Input type="datetime-local" value={cohortForm.starts_at} onChange={e => setCohortForm(f => ({ ...f, starts_at: e.target.value }))} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Capacity</Label>
+                      <Input type="number" min={1} max={10000} value={cohortForm.capacity} onChange={e => setCohortForm(f => ({ ...f, capacity: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Meeting URL</Label>
+                    <Input value={cohortForm.meeting_url} onChange={e => setCohortForm(f => ({ ...f, meeting_url: e.target.value }))} placeholder="https://" />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button onClick={async () => {
+                    if (!cohortForm.title.trim()) return toast.error("Title required");
+                    const { error } = await supabase.from("cohorts").insert({
+                      title: cohortForm.title.trim(),
+                      description: cohortForm.description.trim() || null,
+                      kind: cohortForm.kind,
+                      starts_at: new Date(cohortForm.starts_at).toISOString(),
+                      capacity: Math.max(1, Number(cohortForm.capacity) || 50),
+                      status: cohortForm.status,
+                      meeting_url: cohortForm.meeting_url.trim() || null,
+                      creator_id: user?.id ?? "",
+                    });
+                    if (error) return toast.error(error.message);
+                    toast.success("Cohort created");
+                    setCohortCreateOpen(false);
+                    setCohortForm({ title: "", description: "", kind: "cohort", starts_at: new Date(Date.now() + 86400000).toISOString().slice(0, 16), capacity: "50", status: "draft", meeting_url: "" });
+                    qc.invalidateQueries({ queryKey: ["admin", "cohorts"] });
+                    qc.invalidateQueries({ queryKey: ["cohorts"] });
+                    qc.invalidateQueries({ queryKey: ["community-cohorts"] });
+                  }}>
+                    <Plus className="h-4 w-4" /> Create
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+          {adminCohortsQuery.isLoading ? (
+            <div className="p-8 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          ) : !adminCohortsQuery.data || adminCohortsQuery.data.length === 0 ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">No cohorts yet.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">Title</th>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">Type</th>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">Status</th>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">Starts</th>
+                    <th className="text-left px-4 md:px-6 py-3 font-medium">Capacity</th>
+                    <th className="px-4 md:px-6 py-3" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {(adminCohortsQuery.data ?? []).map((c: any) => (
+                    <tr key={c.id} className="border-t hover:bg-accent/30">
+                      <td className="px-4 md:px-6 py-3 font-medium">{c.title}</td>
+                      <td className="px-4 md:px-6 py-3 capitalize">{c.kind.replace("_", " ")}</td>
+                      <td className="px-4 md:px-6 py-3"><Badge variant={c.status === "live" ? "default" : c.status === "draft" ? "secondary" : "outline"} className="text-[10px] capitalize">{c.status}</Badge></td>
+                      <td className="px-4 md:px-6 py-3 text-muted-foreground text-xs">{c.starts_at ? format(new Date(c.starts_at), "dd MMM HH:mm") : "—"}</td>
+                      <td className="px-4 md:px-6 py-3">{c.capacity}</td>
+                      <td className="px-4 md:px-6 py-3">
+                        <div className="flex items-center gap-1">
+                          <Button size="sm" variant="ghost" asChild>
+                            <Link to="/cohorts/$id" params={{ id: c.id }}>View</Link>
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={async () => {
+                            const confirmed = window.confirm("Delete this cohort?");
+                            if (!confirmed) return;
+                            await supabase.from("cohorts").delete().eq("id", c.id);
+                            toast.success("Deleted");
+                            qc.invalidateQueries({ queryKey: ["admin", "cohorts"] });
+                            qc.invalidateQueries({ queryKey: ["cohorts"] });
+                            qc.invalidateQueries({ queryKey: ["community-cohorts"] });
+                          }}>
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Pricing plans */}
+        <div className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden">
+          <div className="px-6 py-4 border-b flex items-start justify-between gap-3">
+            <div>
+              <h2 className="font-display text-lg font-semibold">Pricing plans</h2>
+              <p className="text-xs text-muted-foreground">Manage subscription plans, features, and pricing</p>
+            </div>
+          </div>
+          <PlansSection />
+        </div>
 
         {/* Users management */}
         <div className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden">
@@ -1453,16 +1620,6 @@ function DateField({
   );
 }
 
-type TopupRow = {
-  id: string;
-  user_id: string;
-  amount_inr: number;
-  method: string;
-  reference: string | null;
-  status: string;
-  created_at: string;
-  admin_notes: string | null;
-};
 type CreatorAppRow = {
   id: string;
   user_id: string;
@@ -1475,72 +1632,25 @@ type CreatorAppRow = {
 type UserLite = { id: string; email: string; full_name: string | null };
 
 function ApprovalsSection({
-  topups,
-  isLoading,
   creatorApps,
   appsLoading,
   userMap,
   adminId,
   onChanged,
 }: {
-  topups: TopupRow[];
-  isLoading: boolean;
   creatorApps: CreatorAppRow[];
   appsLoading: boolean;
   userMap: Map<string, UserLite>;
   adminId: string;
   onChanged: () => void;
 }) {
-  const pendingTopups = topups.filter((t) => t.status === "pending");
   const pendingApps = creatorApps.filter((a) => a.status === "pending");
-
-  async function approveTopup(t: TopupRow) {
-    // Insert wallet transaction (credit) and mark request approved
-    const { error: txErr } = await supabase.from("wallet_transactions").insert({
-      user_id: t.user_id,
-      amount_inr: t.amount_inr,
-      type: "credit",
-      status: "completed",
-      description: `Wallet top-up · ${t.method}${t.reference ? ` · ${t.reference}` : ""}`,
-    });
-    if (txErr) return toast.error(txErr.message);
-    const { error } = await supabase
-      .from("wallet_topup_requests")
-      .update({ status: "approved", approved_at: new Date().toISOString(), approved_by: adminId })
-      .eq("id", t.id);
-    if (error) return toast.error(error.message);
-    await supabase.from("notifications").insert({
-      user_id: t.user_id,
-      title: "Wallet top-up approved",
-      body: `₹${t.amount_inr} has been credited to your wallet.`,
-      type: "success",
-    });
-    toast.success("Top-up approved & credited");
-    onChanged();
-  }
-
-  async function rejectTopup(t: TopupRow) {
-    const { error } = await supabase
-      .from("wallet_topup_requests")
-      .update({ status: "rejected" })
-      .eq("id", t.id);
-    if (error) return toast.error(error.message);
-    await supabase.from("notifications").insert({
-      user_id: t.user_id,
-      title: "Wallet top-up rejected",
-      body: `Your ₹${t.amount_inr} top-up was not approved. Contact support if needed.`,
-      type: "warning",
-    });
-    toast.success("Rejected");
-    onChanged();
-  }
 
   async function decideApp(a: CreatorAppRow, approve: boolean) {
     const status = approve ? "approved" : "rejected";
     const { error } = await supabase.from("creator_applications").update({ status }).eq("id", a.id);
     if (error) return toast.error(error.message);
     if (approve) {
-      // Grant creator role
       await supabase.from("user_roles").insert({ user_id: a.user_id, role: "creator" });
     }
     await supabase.from("notifications").insert({
@@ -1561,119 +1671,73 @@ function ApprovalsSection({
   };
 
   return (
-    <div className="mt-8 grid lg:grid-cols-2 gap-6">
-      {/* Top-up approvals */}
-      <div className="rounded-2xl border bg-card shadow-card overflow-hidden">
-        <div className="px-6 py-4 border-b flex items-center justify-between">
-          <div>
-            <h2 className="font-display text-lg font-semibold">Wallet top-ups</h2>
-            <p className="text-xs text-muted-foreground">
-              {pendingTopups.length} pending · {topups.length} total
-            </p>
-          </div>
-          <Badge variant={pendingTopups.length ? "default" : "secondary"} className="text-[10px]">
-            {pendingTopups.length} to approve
-          </Badge>
+    <div className="mt-8 rounded-2xl border bg-card shadow-card overflow-hidden">
+      {/* Manual top-ups note */}
+      <div className="px-6 py-4 border-b flex items-center gap-3">
+        <div className="h-8 w-8 rounded-lg bg-primary/10 grid place-items-center shrink-0">
+          <Wallet className="h-4 w-4 text-primary" />
         </div>
-        {isLoading ? (
-          <div className="p-8 grid place-items-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : topups.length === 0 ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">
-            No top-up requests yet.
-          </div>
-        ) : (
-          <ul className="divide-y">
-            {topups.slice(0, 20).map((t) => (
-              <li key={t.id} className="px-6 py-3 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium">Wallet top-ups</p>
+          <p className="text-xs text-muted-foreground">
+            Manual top-ups discontinued. All top-ups are processed instantly via Cashfree.
+          </p>
+        </div>
+      </div>
+
+      {/* Creator applications */}
+      <div className="px-6 py-4 border-b flex items-center justify-between">
+        <div>
+          <h2 className="font-display text-lg font-semibold">Creator applications</h2>
+          <p className="text-xs text-muted-foreground">
+            {pendingApps.length} pending · {creatorApps.length} total
+          </p>
+        </div>
+        <Badge variant={pendingApps.length ? "default" : "secondary"} className="text-[10px]">
+          {pendingApps.length} to review
+        </Badge>
+      </div>
+      {appsLoading ? (
+        <div className="p-8 grid place-items-center">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : creatorApps.length === 0 ? (
+        <div className="p-8 text-center text-sm text-muted-foreground">No applications yet.</div>
+      ) : (
+        <ul className="divide-y">
+          {creatorApps.slice(0, 20).map((a) => (
+            <li key={a.id} className="px-6 py-3">
+              <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-sm font-medium">
-                    {inr(Number(t.amount_inr))} · {fmtUser(t.user_id)}
-                  </div>
-                  <div className="text-xs text-muted-foreground truncate">
-                    {t.method}
-                    {t.reference ? ` · ${t.reference}` : ""} ·{" "}
-                    {format(new Date(t.created_at), "dd-MM-yyyy HH:mm")}
+                  <div className="text-sm font-medium">{fmtUser(a.user_id)}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {a.expertise ?? "—"} · {format(new Date(a.created_at), "dd-MM-yyyy")}
                   </div>
                 </div>
-                {t.status === "pending" ? (
+                {a.status === "pending" ? (
                   <div className="flex items-center gap-1 shrink-0">
-                    <Button size="sm" onClick={() => approveTopup(t)}>
+                    <Button size="sm" onClick={() => decideApp(a, true)}>
                       Approve
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => rejectTopup(t)}>
+                    <Button size="sm" variant="outline" onClick={() => decideApp(a, false)}>
                       Reject
                     </Button>
                   </div>
                 ) : (
                   <Badge
-                    variant={t.status === "approved" ? "default" : "secondary"}
+                    variant={a.status === "approved" ? "default" : "secondary"}
                     className="text-[10px] capitalize"
                   >
-                    {t.status}
+                    {a.status}
                   </Badge>
                 )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* Creator applications */}
-      <div className="rounded-2xl border bg-card shadow-card overflow-hidden">
-        <div className="px-6 py-4 border-b flex items-center justify-between">
-          <div>
-            <h2 className="font-display text-lg font-semibold">Creator applications</h2>
-            <p className="text-xs text-muted-foreground">
-              {pendingApps.length} pending · {creatorApps.length} total
-            </p>
-          </div>
-          <Badge variant={pendingApps.length ? "default" : "secondary"} className="text-[10px]">
-            {pendingApps.length} to review
-          </Badge>
-        </div>
-        {appsLoading ? (
-          <div className="p-8 grid place-items-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : creatorApps.length === 0 ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">No applications yet.</div>
-        ) : (
-          <ul className="divide-y">
-            {creatorApps.slice(0, 20).map((a) => (
-              <li key={a.id} className="px-6 py-3">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="text-sm font-medium">{fmtUser(a.user_id)}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {a.expertise ?? "—"} · {format(new Date(a.created_at), "dd-MM-yyyy")}
-                    </div>
-                  </div>
-                  {a.status === "pending" ? (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <Button size="sm" onClick={() => decideApp(a, true)}>
-                        Approve
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => decideApp(a, false)}>
-                        Reject
-                      </Button>
-                    </div>
-                  ) : (
-                    <Badge
-                      variant={a.status === "approved" ? "default" : "secondary"}
-                      className="text-[10px] capitalize"
-                    >
-                      {a.status}
-                    </Badge>
-                  )}
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{a.motivation}</p>
-                {a.portfolio_url && (
-                  <a
-                    href={a.portfolio_url}
-                    target="_blank"
-                    rel="noreferrer"
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{a.motivation}</p>
+              {a.portfolio_url && (
+                <a
+                  href={a.portfolio_url}
+                  target="_blank"
+                  rel="noreferrer"
                     className="text-xs text-primary underline"
                   >
                     {a.portfolio_url}
@@ -1684,7 +1748,6 @@ function ApprovalsSection({
           </ul>
         )}
       </div>
-    </div>
   );
 }
 
@@ -1820,30 +1883,23 @@ function WithdrawalsSection({
   };
 
   async function approve(w: WithdrawalRow) {
-    const { error: txErr } = await supabase.from("wallet_transactions").insert({
-      user_id: w.user_id,
-      amount_inr: w.amount_inr,
-      type: "debit",
-      status: "completed",
-      description: `Withdrawal · ${w.method}`,
-    });
-    if (txErr) return toast.error(txErr.message);
     const { error } = await supabase
       .from("creator_withdrawals")
       .update({
         status: "paid",
         processed_at: new Date().toISOString(),
         processed_by: adminId,
+        admin_notes: "Processed via Cashfree Payouts",
       })
       .eq("id", w.id);
     if (error) return toast.error(error.message);
     await supabase.from("notifications").insert({
       user_id: w.user_id,
       title: "Withdrawal paid",
-      body: `₹${w.amount_inr} withdrawal via ${w.method} has been processed.`,
+      body: `₹${w.amount_inr} withdrawal via ${w.method} has been processed (Cashfree Payouts).`,
       type: "success",
     });
-    toast.success("Withdrawal approved & paid");
+    toast.success("Withdrawal marked as paid");
     onChanged();
   }
 
@@ -1889,7 +1945,7 @@ function WithdrawalsSection({
         <div>
           <h2 className="font-display text-lg font-semibold">Creator withdrawals · Payouts</h2>
           <p className="text-xs text-muted-foreground">
-            {pending.length} pending · {withdrawals.length} total
+            {pending.length} pending · {withdrawals.length} total · Wallet debited upfront via Cashfree Payouts
           </p>
         </div>
         <Badge variant={pending.length ? "default" : "secondary"} className="text-[10px]">
@@ -1958,8 +2014,154 @@ function formatDest(w: WithdrawalRow): string {
   if (d.details) return String(d.details);
   const saved = d.saved ?? {};
   if (w.method === "upi") return saved.upi_id ?? "";
-  if (w.method === "paypal") return saved.paypal_email ?? "";
   if (w.method === "bank")
     return [saved.account_name, saved.account_number, saved.ifsc].filter(Boolean).join(" · ");
   return "";
+}
+
+function PlansSection() {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const [editId, setEditId] = useState<string | null>(null);
+
+  const plansQ = useQuery({
+    queryKey: ["admin", "plans"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("pricing_plans")
+        .select("*")
+        .order("order_index", { ascending: true });
+      return data ?? [];
+    },
+  });
+
+  const syncPlan = useServerFn(syncPlanToCashfree);
+
+  async function save(form: any) {
+    const payload: any = {};
+    for (const k of ["name","price_label","description","cta_label","cta_to","badge","color","interval","cashfree_plan_id"]) {
+      if (form[k] !== undefined) payload[k] = form[k];
+    }
+    payload.features = form.features || [];
+    payload.price_inr = Number(form.price_inr) || 0;
+    payload.ai_credits_monthly = Number(form.ai_credits_monthly) || 0;
+    payload.max_courses = Number(form.max_courses) ?? -1;
+    payload.highlighted = !!form.highlighted;
+    payload.active = form.active !== false;
+    payload.order_index = Number(form.order_index) || 0;
+
+    if (form.id) {
+      const { error } = await supabase.from("pricing_plans").update(payload).eq("id", form.id);
+      if (error) return toast.error(error.message);
+    } else {
+      const { error } = await supabase.from("pricing_plans").insert(payload);
+      if (error) return toast.error(error.message);
+    }
+    toast.success(form.id ? "Plan updated" : "Plan created");
+    qc.invalidateQueries({ queryKey: ["admin", "plans"] });
+    qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+    setEditId(null);
+  }
+
+  return (
+    <div>
+      <div className="p-4 border-b flex gap-2">
+        <Button size="sm" onClick={() => setEditId("__new__")}><Plus className="h-4 w-4" /> Add plan</Button>
+      </div>
+      {plansQ.isLoading ? (
+        <div className="p-8 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin" /></div>
+      ) : !plansQ.data?.length ? (
+        <div className="p-8 text-center text-sm text-muted-foreground">No plans defined.</div>
+      ) : (
+        <div className="divide-y">
+          {(plansQ.data ?? []).map((p: any) => (
+            <div key={p.id} className="px-6 py-4">
+              {editId === p.id ? (
+                <PlanEditor plan={p} onSave={save} onCancel={() => setEditId(null)} />
+              ) : (
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{p.name}</span>
+                      <Badge variant={p.active ? "default" : "secondary"} className="text-[10px]">{p.active ? "Active" : "Inactive"}</Badge>
+                      {p.highlighted && <Badge variant="default" className="text-[10px]">Featured</Badge>}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {p.price_label} · {p.interval ? `${p.interval}ly` : "One-time"} · {p.ai_credits_monthly > 0 ? `${(p.ai_credits_monthly).toLocaleString("en-IN")} AI credits/mo` : "No AI credits"}
+                      {p.cashfree_plan_id ? ` · CF plan: ${p.cashfree_plan_id}` : " · Not synced"}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button size="sm" variant="ghost" onClick={() => setEditId(p.id)}>Edit</Button>
+                    {p.price_inr > 0 && p.interval && !p.cashfree_plan_id && (
+                      <Button size="sm" variant="outline" onClick={async () => {
+                        try {
+                          await syncPlan({ data: { planId: p.id } });
+                          toast.success("Plan synced to Cashfree");
+                          qc.invalidateQueries({ queryKey: ["admin", "plans"] });
+                        } catch (e: any) {
+                          toast.error(e?.message || "Sync failed");
+                        }
+                      }}>Sync to Cashfree</Button>
+                    )}
+                    <button onClick={async () => {
+                      if (!window.confirm("Delete this plan?")) return;
+                      await supabase.from("pricing_plans").delete().eq("id", p.id);
+                      qc.invalidateQueries({ queryKey: ["admin", "plans"] });
+                      qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+                    }} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-destructive">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {editId === "__new__" && (
+        <div className="border-t p-6">
+          <PlanEditor plan={null} onSave={save} onCancel={() => setEditId(null)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PlanEditor({ plan, onSave, onCancel }: { plan: any | null; onSave: (f: any) => void; onCancel: () => void }) {
+  const [f, setF] = useState<any>(plan ? { ...plan, features: Array.isArray(plan.features) ? plan.features.join("\n") : "" } : {
+    name: "", price_label: "", description: "", price_inr: 0, interval: "month", ai_credits_monthly: 0, max_courses: -1,
+    features: "", cta_label: "Subscribe", cta_to: "/pricing", highlighted: false, active: true, order_index: 0, badge: "", color: "",
+  });
+  const [saving, setSaving] = useState(false);
+
+  return (
+    <div className="grid sm:grid-cols-2 gap-3">
+      <div className="space-y-1.5"><Label>Name</Label><Input value={f.name} onChange={e => setF({ ...f, name: e.target.value })} /></div>
+      <div className="space-y-1.5"><Label>Price label (display)</Label><Input value={f.price_label} onChange={e => setF({ ...f, price_label: e.target.value })} placeholder="₹499/mo" /></div>
+      <div className="space-y-1.5"><Label>Price INR</Label><Input type="number" value={f.price_inr} onChange={e => setF({ ...f, price_inr: e.target.value })} /></div>
+      <div className="space-y-1.5"><Label>Interval</Label><Select value={f.interval || ""} onValueChange={v => setF({ ...f, interval: v || null })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="">None</SelectItem><SelectItem value="month">Monthly</SelectItem><SelectItem value="year">Yearly</SelectItem></SelectContent></Select></div>
+      <div className="space-y-1.5"><Label>AI credits / mo</Label><Input type="number" value={f.ai_credits_monthly} onChange={e => setF({ ...f, ai_credits_monthly: e.target.value })} /></div>
+      <div className="space-y-1.5"><Label>Max courses (-1 = unlimited)</Label><Input type="number" value={f.max_courses} onChange={e => setF({ ...f, max_courses: e.target.value })} /></div>
+      <div className="space-y-1.5"><Label>Badge</Label><Input value={f.badge} onChange={e => setF({ ...f, badge: e.target.value })} placeholder="Most popular" /></div>
+      <div className="space-y-1.5"><Label>Color</Label><Input value={f.color} onChange={e => setF({ ...f, color: e.target.value })} placeholder="#7c3aed" /></div>
+      <div className="space-y-1.5"><Label>Description</Label><Textarea value={f.description} onChange={e => setF({ ...f, description: e.target.value })} rows={2} /></div>
+      <div className="space-y-1.5 sm:col-span-2"><Label>Features (one per line)</Label><Textarea value={f.features} onChange={e => setF({ ...f, features: e.target.value })} rows={4} placeholder="Unlimited courses&#10;Advanced AI tools&#10;Certificates" /></div>
+      <div className="sm:col-span-2 flex items-center gap-4 flex-wrap">
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.highlighted} onChange={e => setF({ ...f, highlighted: e.target.checked })} /> Highlighted</label>
+        <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.active !== false} onChange={e => setF({ ...f, active: e.target.checked })} /> Active</label>
+      </div>
+      <div className="sm:col-span-2 flex gap-2">
+        <Button onClick={async () => {
+          setSaving(true);
+          const payload = { ...f, features: f.features.split("\n").map((s: string) => s.trim()).filter(Boolean) };
+          await onSave(payload);
+          setSaving(false);
+        }} disabled={saving}>
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} {plan ? "Update" : "Create"} plan
+        </Button>
+        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+      </div>
+    </div>
+  );
 }

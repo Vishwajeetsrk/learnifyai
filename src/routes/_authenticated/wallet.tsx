@@ -22,7 +22,7 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
-import { createCashfreeOrder, verifyCashfreePayment } from "@/lib/payment.functions";
+import { createCashfreeOrder, verifyCashfreePayment, processCashfreePayout } from "@/lib/payment.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,8 +65,6 @@ function WalletPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState<string>("500");
-  const [method, setMethod] = useState<"online" | "manual">("online");
-  const [reference, setReference] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const createOrder = useServerFn(createCashfreeOrder);
   const verifyTopup = useServerFn(verifyCashfreePayment);
@@ -86,21 +84,6 @@ function WalletPage() {
     },
   });
 
-  const topupsQuery = useQuery({
-    enabled: !!user,
-    queryKey: ["wallet-topups", user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("wallet_topup_requests")
-        .select("*")
-        .eq("user_id", user!.id)
-        .order("created_at", { ascending: false })
-        .limit(20);
-      if (error) throw error;
-      return data ?? [];
-    },
-  });
-
   useEffect(() => {
     if (!user) return;
     const ch = supabase
@@ -114,16 +97,6 @@ function WalletPage() {
           filter: `user_id=eq.${user.id}`,
         },
         () => qc.invalidateQueries({ queryKey: ["wallet-tx"] }),
-      )
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "wallet_topup_requests",
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => qc.invalidateQueries({ queryKey: ["wallet-topups"] }),
       )
       .subscribe();
     return () => {
@@ -154,8 +127,7 @@ function WalletPage() {
     creatorEarnings.reduce((s, t) => s + Number(t.amount_inr), 0) -
       creatorWithdrawals.reduce((s, t) => s + Number(t.amount_inr), 0),
   );
-  const pending = (topupsQuery.data ?? []).filter((t) => t.status === "pending");
-  const pendingCashfree = txs.filter((t) => t.status === "pending" && t.type === "credit");
+  const pendingTxs = txs.filter((t) => t.status === "pending" && t.type === "credit");
 
   async function submitTopup() {
     if (!user) return;
@@ -165,51 +137,36 @@ function WalletPage() {
     
     setSubmitting(true);
     try {
-      if (method === "manual") {
-        const { error } = await supabase.from("wallet_topup_requests").insert({
-          user_id: user.id,
-          amount_inr: amt,
-          method,
-          reference: reference.trim() || null,
-        });
-        if (error) throw error;
-        toast.success("Top-up request submitted. Admin will approve shortly.");
-        setOpen(false);
-        setReference("");
-        qc.invalidateQueries({ queryKey: ["wallet-topups"] });
-      } else {
-        const order = await createOrder({ data: { amountInr: amt, email: user?.email } });
+      const order = await createOrder({ data: { amountInr: amt, email: user?.email } });
 
-        const loaded = await loadCashfree();
-        if (!loaded) throw new Error("Cashfree SDK failed to load");
+      const loaded = await loadCashfree();
+      if (!loaded) throw new Error("Cashfree SDK failed to load");
 
-        const cashfree = new (window as any).Cashfree({ mode: "production" });
-        const result = await cashfree.checkout({
-          paymentSessionId: order.payment_session_id,
-          redirectTarget: "_modal",
-        });
+      const cashfree = new (window as any).Cashfree({ mode: "production" });
+      const result = await cashfree.checkout({
+        paymentSessionId: order.payment_session_id,
+        redirectTarget: "_modal",
+      });
 
-        const msg = result?.paymentDetails?.paymentMessage;
-        if (msg === "FAILED") {
-          throw new Error("Payment failed. Please try again.");
-        }
-        if (msg === "USER_DROPPED") {
-          toast.info("Payment cancelled.");
-          return;
-        }
-        await verifyTopup({
-          data: {
-            amountInr: amt,
-            method: "online",
-            cashfree_order_id: order.order_id,
-          },
-        });
-        toast.success(`Successfully added ${inr(amt)} to your wallet.`);
-        qc.invalidateQueries({ queryKey: ["wallet-tx"] });
-        qc.invalidateQueries({ queryKey: ["wallet-balance"] });
-        setOpen(false);
-        setReference("");
+      const msg = result?.paymentDetails?.paymentMessage;
+      if (msg === "FAILED") {
+        throw new Error("Payment failed. Please try again.");
       }
+      if (msg === "USER_DROPPED") {
+        toast.info("Payment cancelled.");
+        return;
+      }
+      await verifyTopup({
+        data: {
+          amountInr: amt,
+          method: "online",
+          cashfree_order_id: order.order_id,
+        },
+      });
+      toast.success(`Successfully added ${inr(amt)} to your wallet.`);
+      qc.invalidateQueries({ queryKey: ["wallet-tx"] });
+      qc.invalidateQueries({ queryKey: ["wallet-balance"] });
+      setOpen(false);
     } catch (err: any) {
       toast.error(err.message || "Failed to initiate top-up");
     } finally {
@@ -318,10 +275,6 @@ function WalletPage() {
               <TopUpDialogContent
                 amount={amount}
                 setAmount={setAmount}
-                method={method}
-                setMethod={setMethod}
-                reference={reference}
-                setReference={setReference}
                 submitting={submitting}
                 submitTopup={submitTopup}
                 presets={presets}
@@ -342,11 +295,11 @@ function WalletPage() {
               <span className="inline-flex items-center gap-1">
                 <TrendingDown className="h-3.5 w-3.5" /> Spent {inr(totalOut)}
               </span>
-              {pending.length > 0 && (
+              {pendingTxs.length > 0 && (
                 <>
                   <span className="opacity-50">·</span>
                   <span className="inline-flex items-center gap-1 bg-amber-300/20 text-amber-100 px-2 py-0.5 rounded-full">
-                    <Clock3 className="h-3 w-3" /> {pending.length} pending
+                    <Clock3 className="h-3 w-3" /> {pendingTxs.length} processing
                   </span>
                 </>
               )}
@@ -370,36 +323,17 @@ function WalletPage() {
           </div>
         </div>
 
-        {/* Pending top-ups */}
-        {(pending.length > 0 || pendingCashfree.length > 0) && (
+        {/* Processing top-ups */}
+        {pendingTxs.length > 0 && (
           <div className="mt-6 rounded-2xl border bg-card p-5 shadow-card">
             <h3 className="font-display font-semibold flex items-center gap-2 mb-3">
-              <Sparkles className="h-4 w-4 text-amber-500" /> Pending top-ups
+              <Sparkles className="h-4 w-4 text-amber-500" /> Processing top-ups
             </h3>
             <ul className="space-y-2">
-              {pending.map((t) => (
+              {pendingTxs.map((t) => (
                 <li
                   key={t.id}
-                  className="flex items-center justify-between text-sm border-b last:border-0 pb-2 last:pb-0"
-                >
-                  <div>
-                    <div className="font-medium">{inr(Number(t.amount_inr))}</div>
-                    <div className="text-xs text-muted-foreground capitalize">
-                      {t.method} · {format(new Date(t.created_at), "dd MMM HH:mm")}
-                    </div>
-                  </div>
-                  <Badge
-                    variant="secondary"
-                    className="bg-amber-100 text-amber-800 hover:bg-amber-100"
-                  >
-                    Awaiting approval
-                  </Badge>
-                </li>
-              ))}
-              {pendingCashfree.map((t) => (
-                <li
-                  key={t.id}
-                  className="flex items-center justify-between text-sm border-b last:border-0 pb-2 last:pb-0"
+                  className="flex items-center justify-between text-sm"
                 >
                   <div>
                     <div className="font-medium">{inr(Number(t.amount_inr))}</div>
@@ -490,10 +424,6 @@ function WalletPage() {
 function TopUpDialogContent({
   amount,
   setAmount,
-  method,
-  setMethod,
-  reference,
-  setReference,
   submitting,
   submitTopup,
   presets,
@@ -501,10 +431,6 @@ function TopUpDialogContent({
 }: {
   amount: string;
   setAmount: (v: string) => void;
-  method: "online" | "manual";
-  setMethod: (v: "online" | "manual") => void;
-  reference: string;
-  setReference: (v: string) => void;
   submitting: boolean;
   submitTopup: () => void;
   presets: number[];
@@ -515,7 +441,7 @@ function TopUpDialogContent({
       <DialogHeader>
         <DialogTitle>Add money to wallet</DialogTitle>
         <DialogDescription>
-          Top up instantly via Cashfree (card/UPI/netbanking), or submit a bank transfer for admin approval.
+          Top up instantly via Cashfree (card/UPI/netbanking).
         </DialogDescription>
       </DialogHeader>
       <div className="space-y-5">
@@ -545,40 +471,10 @@ function TopUpDialogContent({
             ))}
           </div>
         </div>
-        <div className="space-y-2">
-          <Label>Payment method</Label>
-          <div className="grid grid-cols-2 gap-2">
-            {[
-              { v: "online" as const, l: "Card / UPI", icon: CreditCard },
-              { v: "manual" as const, l: "Bank Transfer", icon: ArrowDownToLine },
-            ].map(({ v, l, icon: Icon }) => (
-              <button
-                key={v}
-                type="button"
-                onClick={() => setMethod(v)}
-                className={`rounded-xl border p-3 text-xs flex flex-col items-center gap-1.5 transition ${method === v ? "border-primary bg-primary/5 text-primary" : "hover:bg-accent"}`}
-              >
-                <Icon className="h-4 w-4" /> {l}
-              </button>
-            ))}
-          </div>
+        <div className="text-xs text-emerald-800 rounded-lg bg-emerald-50 p-3 border border-emerald-200 flex items-center gap-2">
+          <CreditCard className="h-4 w-4 shrink-0" />
+          You will be redirected to Cashfree to securely add funds instantly via card, UPI, or netbanking.
         </div>
-        {method === "manual" && (
-          <div className="space-y-2">
-            <Label>Reference / UTR (optional)</Label>
-            <Input
-              value={reference}
-              onChange={(e) => setReference(e.target.value)}
-              placeholder="e.g. Bank transfer ref id"
-              maxLength={64}
-            />
-          </div>
-        )}
-        {method !== "manual" && (
-          <div className="text-xs text-emerald-800 rounded-lg bg-emerald-50 p-3 border border-emerald-200">
-            You will be redirected to Cashfree to securely add funds instantly.
-          </div>
-        )}
       </div>
       <DialogFooter>
         <Button variant="outline" onClick={onClose} disabled={submitting}>
@@ -586,7 +482,7 @@ function TopUpDialogContent({
         </Button>
         <Button onClick={submitTopup} disabled={submitting}>
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}{" "}
-          Submit
+          Proceed to pay
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -599,7 +495,7 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
   const isCreator = hasRole("creator") || hasRole("super_admin") || hasRole("admin");
   const [open, setOpen] = useState(false);
   const [amt, setAmt] = useState("500");
-  const [method, setMethod] = useState<"bank" | "upi" | "paypal">("upi");
+  const [method, setMethod] = useState<"bank" | "upi">("upi");
   const [dest, setDest] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -614,12 +510,11 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
         .eq("id", user!.id)
         .maybeSingle();
       return (data?.payout_destination ?? null) as null | {
-        method?: "bank" | "upi" | "paypal";
+        method?: "bank" | "upi";
         upi_id?: string;
         account_name?: string;
         account_number?: string;
         ifsc?: string;
-        paypal_email?: string;
       };
     },
   });
@@ -638,11 +533,10 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
     },
   });
 
-  function autofillFor(m: "bank" | "upi" | "paypal") {
+  function autofillFor(m: "bank" | "upi") {
     const p = payoutQuery.data;
     if (!p) return "";
     if (m === "upi") return p.upi_id ?? "";
-    if (m === "paypal") return p.paypal_email ?? "";
     if (m === "bank") {
       const parts = [p.account_name, p.account_number, p.ifsc].filter(Boolean);
       return parts.join(" · ");
@@ -661,6 +555,8 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
 
   if (!isCreator) return null;
 
+  const processPayout = useServerFn(processCashfreePayout);
+
   async function submit() {
     if (!user) return;
     const n = Number(amt);
@@ -668,18 +564,18 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
     if (n > balance) return toast.error("Insufficient balance");
     if (!dest.trim()) return toast.error("Destination details required");
     setSubmitting(true);
-    const { error } = await supabase.from("creator_withdrawals").insert({
-      user_id: user.id,
-      amount_inr: n,
-      method,
-      destination: { details: dest.trim(), saved: payoutQuery.data ?? null },
-    });
-    setSubmitting(false);
-    if (error) return toast.error(error.message);
-    toast.success("Withdrawal requested");
-    setOpen(false);
-    setDest("");
-    qc.invalidateQueries({ queryKey: ["my-withdrawals"] });
+    try {
+      await processPayout({ data: { amountInr: n, method, destination: dest.trim() } });
+      toast.success("Withdrawal processed via Cashfree Payouts");
+      setOpen(false);
+      setDest("");
+      qc.invalidateQueries({ queryKey: ["my-withdrawals"] });
+      qc.invalidateQueries({ queryKey: ["wallet-tx"] });
+    } catch (err: any) {
+      toast.error(err.message || "Withdrawal failed");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const pending = (wQuery.data ?? []).filter((w) => w.status === "pending");
@@ -692,7 +588,7 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
             <ArrowDownToLine className="h-4 w-4 text-primary" /> Creator withdrawals
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
-            Withdraw earnings to bank, UPI, or PayPal. Available: <b>{inr(balance)}</b>
+            Withdraw earnings via Cashfree (UPI or bank). Available: <b>{inr(balance)}</b>
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
@@ -719,8 +615,8 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
               </div>
               <div className="space-y-1.5">
                 <Label>Method</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(["upi", "bank", "paypal"] as const).map((m) => (
+                <div className="grid grid-cols-2 gap-2">
+                  {(["upi", "bank"] as const).map((m) => (
                     <button
                       key={m}
                       type="button"
@@ -738,11 +634,7 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label>
-                    {method === "upi"
-                      ? "UPI ID"
-                      : method === "bank"
-                        ? "Account number + IFSC"
-                        : "PayPal email"}
+                    {method === "upi" ? "UPI ID" : "Account details (name, account number, IFSC)"}
                   </Label>
                   {autofillFor(method) && autofillFor(method) !== dest && (
                     <button
@@ -773,7 +665,7 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
             </div>
             <DialogFooter>
               <Button onClick={submit} disabled={submitting}>
-                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Submit request
+                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Withdraw via Cashfree
               </Button>
             </DialogFooter>
           </DialogContent>

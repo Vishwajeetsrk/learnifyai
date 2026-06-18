@@ -5,7 +5,7 @@
   
   **The Next-Generation AI-Powered Learning Management System (LMS)**
 
-  *Learnify AI brings together course creation, automated AI tutoring, dynamic roadmaps, live cohorts, integrated payments, and a rich community experience—all in one seamless platform.*
+  *Learnify AI brings together course creation, automated AI tutoring, dynamic roadmaps, live cohorts, integrated payments (Cashfree), and a rich community experience—all in one seamless platform.*
 
   [Live Demo](https://learnifyaitool.vercel.app/) • [Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues)
 </div>
@@ -22,8 +22,9 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution (Piston / local VM) and web search. Inline in course player.
 - **Multi-Language Playground:** Write, compile, and run code in 40+ languages (C, C++, Java, Python, JavaScript, TypeScript, Go, Rust, and more) using Monaco Editor. JS/TS runs locally via Node.js VM; other languages use Piston execution engine.
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
-- **Wallet & Integrated Payments:** Manage credits, purchase courses, and download invoices instantly.
-- **Community Feed:** Share updates, post questions, attach media, create polls, post announcements, and engage with peers. Rich text editor with Bold, Italic, Underline, text color, font size, font family, bullet/ordered lists, and text alignment. Complete with comment author avatars, live poll voting, and pinned announcements.
+- **Wallet & Integrated Payments:** Manage credits, top-up via Cashfree (UPI/card/netbanking), withdraw via Cashfree Payouts, purchase courses, and download invoices instantly.
+- **Pro Subscription Plans:** Monthly/yearly subscription plans powered by Cashfree Subscriptions API. Auto-credits AI credits every billing cycle.
+- **Community Feed:** Share updates, post questions, attach media, create polls, post announcements, and engage with peers. Rich text editor with Bold, Italic, Underline, text color, font size, font family, heading dropdown, bullet/ordered lists, emoji picker, and text alignment. Complete with comment author avatars, live poll voting, and pinned announcements.
 - **Dynamic Roadmaps:** CMS-backed public roadmap showing shipped, in-progress, and planned features.
 - **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate designer with 10 distinct theme presets (Executive Gold, Modern Corporate, University Style, Creator Academy, Nature Green, Royal Purple, Sunset Orange, Ocean Teal, Midnight Amber, Rose Gold), visual border pickers (double/solid/dashed/ornate/none), corner styles (diagonal/ribbon/none), background patterns (solid/dots/grid/stripes/gradient), color pickers, font selectors, and QR code integration. Live canvas preview with framer-motion drag-and-drop. Public verification and PDF download.
 
@@ -31,6 +32,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Creator Studio:** Upload courses, manage lessons, and track enrollment.
 - **Coaching Hub:** Manage cohorts (create/launch/live with edit/delete/WhatsApp share + group chat links), track learner outcomes (quiz stats, course progress), build milestone-based learning roadmaps, and manage scheduling with Google Meet/Zoom integration (add/edit/delete slots with meeting links) — all backed by real Supabase data.
 - **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management.
+- **Creator Payouts:** Withdraw earnings via Cashfree Payouts (UPI or bank account).
 - **Automated Invoicing:** Professional billing automatically handled for wallet top-ups.
 - **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 providers (Lovable, Gemini, Stability AI, Fal AI, Hugging Face, Pollinations AI).
 
@@ -41,6 +43,8 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 
 ### ⚙️ Admin Features
 - **Coupon System:** Admin-managed discount codes (percent/flat) stored in DB — applied at checkout with real-time validation and cart UI.
+- **Pricing Plans Management:** Full CRUD for subscription plans (name, price INR, interval, features, badge, color, max courses, AI credits). One-click sync to Cashfree Subscriptions API.
+- **Cohort Management:** Create and manage cohorts of all types (live cohort, office hours, study group) with title, description, type, capacity, status, and date range. Table view with delete.
 - **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates (with "Open Designer" link to full WYSIWYG builder), FAQs, Legal Pages (Terms, Privacy, Refund), Coupons, Community Groups, and Roadmap.
 - **Legal Pages:** Fully editable Terms of Service, Privacy Policy, and Refund Policy — rendered from the database, editable via the admin Content Manager.
 - **Social Media Management:** Configurable Discord, Twitter/X, GitHub, LinkedIn, and YouTube links with icons in the footer. All managed through Site Settings.
@@ -57,19 +61,20 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/)
 - **State Management:** [TanStack Query](https://tanstack.com/query/latest) (React Query)
 - **Animations:** [Framer Motion](https://www.framer.com/motion/)
-- **Wallet:** Cashfree Payments (order create + checkout + webhook verification) with pending transaction flow
+- **Wallet & Payments:** Cashfree Payments (order create + checkout + webhook verification) with pending transaction flow
 
 ### Backend & Infrastructure
 - **Database & Auth:** [Supabase](https://supabase.com/) (PostgreSQL, Row Level Security)
 - **File Storage:** Supabase Storage (Courses, Community Uploads)
 - **Deployment:** [Vercel](https://vercel.com/) (Edge Network & Serverless Functions)
-- **Webhook:** Cashfree webhook at `/api/webhooks/cashfree` — HMAC-SHA256 verification, upgrades pending → completed on `ORDER_PAID`, returns 200 for all requests
+- **Subscriptions:** Cashfree Subscriptions API (recurring billing, webhook at `/api/webhooks/cashfree-subscription`)
+- **Payouts:** Cashfree Payouts API (withdrawals to UPI/bank)
 
 ### Integrated APIs & Tools
 
 | Category | Providers |
 |----------|-----------|
-| **Payments** | Cashfree (wallet, checkout, webhook + REST API order verification) |
+| **Payments** | Cashfree (wallet, checkout, subscriptions, payouts — no PayPal/manual) |
 | **AI Chat / Text** | OpenRouter, Gemini, Groq (3-tier fallback) |
 | **AI Embeddings** | Gemini Embeddings (text-embedding-004) |
 | **Image Generation** | Pollinations AI (free) → OpenRouter (FLUX Pro) → Gemini → Stability AI → Fal AI → Hugging Face (6-tier fallback) |
@@ -97,25 +102,31 @@ learnifyai/
 │   ├── hooks/              # Custom React hooks (use-auth, etc.)
 │   ├── integrations/       # API clients (Supabase, Cashfree)
 │   ├── lib/                # Utility + server functions
-│   │   ├── payment.functions.ts    # Cashfree order create + verify (pending/completed)
-│   │   ├── playground.functions.ts # Code execution via Piston API (40+ languages)
-│   │   └── agent.functions.ts      # AI agent with tool calling (code, web search)
+│   │   ├── payment.functions.ts        # Cashfree order create + verify (pending/completed)
+│   │   ├── subscription.functions.ts   # Cashfree Subscriptions CRUD (sync plan, create/cancel/get subscription)
+│   │   ├── playground.functions.ts     # Code execution via Piston API (40+ languages)
+│   │   ├── course.functions.ts         # Course purchase logic with duplicate enrollment protection
+│   │   └── agent.functions.ts          # AI agent with tool calling (code, web search)
 │   ├── routes/             # TanStack Start route tree
 │   │   ├── _authenticated/ # Protected routes
+│   │   │   ├── admin.tsx        # Admin panel: cohorts CRUD + pricing plans CRUD + sync to Cashfree
 │   │   │   ├── admin.certificates.tsx  # Drag-and-drop certificate designer (10 themes, borders, patterns)
-│   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree checkout) + pending transactions
+│   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree) + withdrawal (Cashfree Payouts)
+│   │   │   ├── pricing.tsx     # Subscription plans page with subscribe/cancel flow
 │   │   │   ├── playlist.tsx    # Course player with inline AI tutor + agent
 │   │   │   ├── playground.tsx  # Multi-language code playground (Monaco + Piston)
 │   │   │   └── ai-agent.tsx    # AI agent with chat, voice I/O, tool execution
 │   │   └── api/            # Serverless API endpoints
 │   │       └── webhooks/
-│   │           └── cashfree.ts  # Cashfree webhook (HMAC verify, upgrade pending → completed)
+│   │           ├── cashfree.ts               # Cashfree payment webhook (HMAC verify, upgrade pending → completed)
+│   │           └── cashfree-subscription.ts  # Cashfree subscription webhook (payment success, cancel, expire)
 │   ├── routeTree.gen.ts    # Auto-generated routing tree
 │   ├── router.tsx          # Router configuration
 │   └── main.tsx            # Application entry point
 ├── supabase/
 │   └── migrations/         # PostgreSQL schema definitions and RLS policies
-│       └── 20260618000001_group_link.sql  # Adds group_link column to cohorts
+│       ├── 20260618000001_group_link.sql             # Adds group_link column to cohorts
+│       └── 20260618000002_subscriptions.sql          # Subscription tables (user_subscriptions, subscription_events, pricing_plans columns)
 ├── package.json            # Dependencies and scripts
 └── README.md               # You are here!
 ```
@@ -150,7 +161,19 @@ AI Agent (Chat + Voice) ──► OpenRouter (GPT-4o-mini) ──► Tool Calls
                Code Execution                Web Search API
 ```
 
+## 💳 Payment & Subscription Architecture
+
+```
+Wallet Top-up              ──► Cashfree Checkout ──► Webhook /api/webhooks/cashfree
+Course Purchase            ──► Cashfree Checkout ──► Webhook (duplicate enrollment prevented)
+Withdrawal (Creators)      ──► Cashfree Payouts API (UPI / bank)
+Pro Subscription           ──► Cashfree Subscriptions API ──► Webhook /api/webhooks/cashfree-subscription
+Admin Sync Plan to Cashfree ──► POST /subscription/plans
+```
+
 ---
+
+## 🚀 Getting Started
 
 Follow these instructions to get the project up and running locally.
 
@@ -158,7 +181,7 @@ Follow these instructions to get the project up and running locally.
 - [Node.js](https://nodejs.org/) (v18 or higher)
 - [Git](https://git-scm.com/)
 - A [Supabase](https://supabase.com/) account
-- A [Cashfree](https://cashfree.com/) merchant account
+- A [Cashfree](https://cashfree.com/) merchant account (with Subscriptions API and Payouts API enabled)
 
 ### Installation
 
@@ -178,14 +201,14 @@ Follow these instructions to get the project up and running locally.
    ```env
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   VITE_CASHFREE_APP_ID=your_cashfree_app_id
    CASHFREE_APP_ID=your_cashfree_app_id
    CASHFREE_SECRET_KEY=your_cashfree_secret_key
+   VITE_APP_URL=http://localhost:3000
    VITE_BASE_URL=http://localhost:3000
    ```
 
 4. **Initialize the Database:**
-   Run the Supabase migrations in your project's SQL editor or via the Supabase CLI to create the necessary tables (`wallet_transactions`, `posts`, `coaching_slots`, etc.) and Storage buckets (`community-uploads`, `course-videos`).
+   Run the Supabase migrations in your project's SQL editor or via the Supabase CLI to create all necessary tables (`wallet_transactions`, `posts`, `coaching_slots`, `user_subscriptions`, `subscription_events`, etc.) and Storage buckets (`community-uploads`, `course-videos`).
 
 5. **Start the development server:**
    ```bash

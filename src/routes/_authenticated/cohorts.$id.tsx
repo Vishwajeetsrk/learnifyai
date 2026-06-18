@@ -28,6 +28,15 @@ import { sendGroupMessage } from "@/lib/group-chat.functions";
 export const Route = createFileRoute("/_authenticated/cohorts/$id")({
   head: () => ({ meta: [{ title: "Cohort — Learnify AI" }] }),
   component: CohortDetail,
+  errorComponent: ({ error }) => (
+    <AppShell>
+      <div className="py-20 text-center max-w-lg mx-auto px-4">
+        <p className="text-lg font-semibold text-destructive">Could not load cohort</p>
+        <p className="text-sm text-muted-foreground mt-2">{(error as Error)?.message || "Something went wrong. Please try again."}</p>
+        <a href="/cohorts" className="inline-flex mt-4 text-sm text-primary hover:underline">← Back to cohorts</a>
+      </div>
+    </AppShell>
+  ),
 });
 
 function CohortDetail() {

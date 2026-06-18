@@ -389,6 +389,14 @@ function CourseDetail() {
 
   const addToCart = async () => {
     if (!user || !course) return;
+    if (isEnrolled) return toast.error("You already own this course");
+    const { data: existing } = await supabase
+      .from("cart_items")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("course_id", course.id)
+      .maybeSingle();
+    if (existing) return toast.info("Already in your cart");
     const { error } = await supabase
       .from("cart_items")
       .insert({ user_id: user.id, course_id: course.id });
