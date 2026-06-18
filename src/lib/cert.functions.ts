@@ -167,7 +167,11 @@ async function sendEmail({
   idempotencyKey?: string;
 }) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const BREVO_API_KEY = process.env.BREVO_API_KEY || BREVO_SMTP_KEY;
+  const BREVO_API_KEY = process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY;
+  const BREVO_SMTP_KEY = process.env.BREVO_SMTP_KEY;
+  const BREVO_SMTP_SERVER = process.env.BREVO_SMTP_SERVER;
+  const BREVO_SMTP_PORT = process.env.BREVO_SMTP_PORT;
+  const BREVO_SMTP_LOGIN = process.env.BREVO_SMTP_LOGIN;
 
   // Try Brevo API first (most reliable, no domain verification needed)
   if (BREVO_API_KEY) {
@@ -226,7 +230,7 @@ async function sendEmail({
 
   const hints: string[] = [];
   if (!RESEND_API_KEY) hints.push("Set RESEND_API_KEY (free at resend.com)");
-  if (!brevoApiKey) hints.push("Set BREVO_API_KEY (v3 API key from Brevo dashboard)");
+  if (!BREVO_API_KEY) hints.push("Set BREVO_API_KEY (v3 API key from Brevo dashboard)");
   else hints.push("Add your Vercel IP to Brevo SMTP authorized IPs, or set a valid BREVO_API_KEY");
   throw new Error(`Email failed. ${hints.join("; ")}.`);
 }

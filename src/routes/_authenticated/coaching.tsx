@@ -1050,8 +1050,7 @@ function RealOutcomes({ user }: { user: any }) {
             </div>
           )}
         </div>
-      )}
-
+      </div>
     </div>
   );
 }

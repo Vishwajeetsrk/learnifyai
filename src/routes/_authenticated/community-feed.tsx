@@ -18,10 +18,9 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import UnderlineExt from '@tiptap/extension-underline';
-import { TextStyle } from '@tiptap/extension-text-style';
+import { TextStyle, FontFamily } from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
-import FontFamily from '@tiptap/extension-font-family';
 
 export const Route = createFileRoute("/_authenticated/community-feed")({
   component: CommunityPage,
@@ -47,8 +46,8 @@ function CommunityPage() {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        orderedList: true,
-        bulletList: true,
+        orderedList: {},
+        bulletList: {},
       }),
       UnderlineExt,
       TextStyle,
@@ -82,37 +81,38 @@ function CommunityPage() {
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ["community-posts"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("posts" as any)
-        .select(`
-          *,
-          author:profiles!posts_author_id_fkey (id, full_name, avatar_url),
-          likes:post_likes(id, user_id),
-          comments:post_comments(id, content, author_id, created_at, author:author_id(id, full_name, avatar_url)),
-          saves:post_saves(id, user_id),
-          poll_votes:post_poll_votes(id, user_id, option_index)
-        `)
-        .order("created_at", { ascending: false });
-      
-      if (error) {
-        if (error.message?.includes("is_pinned") || error.code === "PGRST204") {
-          const { data: fallback } = await supabase
-            .from("posts" as any)
-            .select(`
-              *,
-              author:profiles!posts_author_id_fkey (id, full_name, avatar_url),
-              likes:post_likes(id, user_id),
-              comments:post_comments(id, content, author_id, created_at, author:author_id(id, full_name, avatar_url)),
-              saves:post_saves(id, user_id),
-              poll_votes:post_poll_votes(id, user_id, option_index)
-            `)
-            .order("created_at", { ascending: false });
-          return (fallback || []) as any[];
-        }
+      try {
+        const { data, error } = await supabase
+          .from("posts" as any)
+          .select(`
+            *,
+            author:profiles!posts_author_id_fkey (id, full_name, avatar_url),
+            likes:post_likes(id, user_id),
+            comments:post_comments(id, content, author_id, created_at, author:author_id(id, full_name, avatar_url)),
+            saves:post_saves(id, user_id)
+          `)
+          .order("created_at", { ascending: false });
+        
+        if (error) throw error;
+        
+        // Try to get poll_votes separately (table may not exist)
+        let pollVotes: any[] = [];
+        try {
+          const { data: pv } = await supabase
+            .from("post_poll_votes" as any)
+            .select("id, post_id, user_id, option_index");
+          if (pv) pollVotes = pv;
+        } catch {}
+        
+        // Attach poll_votes to matching posts
+        return (data || []).map((post: any) => ({
+          ...post,
+          poll_votes: pollVotes.filter((v: any) => v.post_id === post.id),
+        })) as any[];
+      } catch (error: any) {
         console.error("Posts fetch error:", error);
         return [];
       }
-      return data as any[];
     },
   });
 
