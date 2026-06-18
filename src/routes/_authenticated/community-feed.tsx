@@ -285,16 +285,16 @@ function CommunityPage() {
               )}
               
               {postType !== "poll" && (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t pt-3 gap-4">
-                <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
-                  <div className="flex items-center border-r pr-2 mr-1 gap-0.5">
+              <div className="flex flex-col gap-3 border-t pt-3">
+                <div className="flex flex-wrap items-center gap-1">
+                  <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
                     <button onClick={() => editor?.chain().focus().toggleBold().run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive('bold') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Bold"><Bold className="h-4 w-4" /></button>
                     <button onClick={() => editor?.chain().focus().toggleItalic().run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive('italic') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Italic"><Italic className="h-4 w-4" /></button>
                     <button onClick={() => editor?.chain().focus().toggleUnderline().run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive('underline') ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Underline"><Underline className="h-4 w-4" /></button>
                   </div>
 
                   {/* Heading dropdown */}
-                  <div className="relative flex items-center border-r pr-2 mr-1">
+                  <div className="relative">
                     <button onClick={() => setHeadingOpen(!headingOpen)} className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors flex items-center gap-0.5" title="Heading">
                       <Heading1 className="h-4 w-4" /><ChevronDown className="h-3 w-3" />
                     </button>
@@ -310,7 +310,7 @@ function CommunityPage() {
                   </div>
 
                   {/* List dropdown (bullet + ordered) */}
-                  <div className="relative flex items-center border-r pr-2 mr-1">
+                  <div className="relative">
                     <button onClick={() => setListOpen(!listOpen)} className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors flex items-center gap-0.5" title="List">
                       <List className="h-4 w-4" /><ChevronDown className="h-3 w-3" />
                     </button>
@@ -322,69 +322,65 @@ function CommunityPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center border-r pr-2 mr-1 gap-0.5">
+                  <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
                     <button onClick={() => editor?.chain().focus().setTextAlign('left').run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: 'left' }) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Align Left"><AlignLeft className="h-4 w-4" /></button>
                     <button onClick={() => editor?.chain().focus().setTextAlign('center').run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: 'center' }) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Align Center"><AlignCenter className="h-4 w-4" /></button>
                     <button onClick={() => editor?.chain().focus().setTextAlign('right').run()} className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: 'right' }) ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Align Right"><AlignRight className="h-4 w-4" /></button>
                   </div>
 
-                  <div className="flex items-center gap-0.5">
-                    {/* Color picker */}
-                    <div className="relative">
-                      <button onClick={() => setColorOpen(!colorOpen)} className={`p-1.5 rounded-lg transition-colors ${colorOpen ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Text Color"><Palette className="h-4 w-4" /></button>
-                      {colorOpen && (
-                        <div className="absolute top-full left-0 mt-1 z-50 p-2 rounded-lg border bg-popover shadow-lg w-44" onMouseLeave={() => setColorOpen(false)}>
-                          <div className="grid grid-cols-7 gap-1 mb-2">
-                            {['#000000','#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#a855f7','#f43f5e','#84cc16','#0ea5e9','#64748b','#dc2626','#d97706','#7c3aed','#059669','#0284c7'].map(c => (
-                              <button key={c} onClick={() => { editor?.chain().focus().setColor(c).run(); setColorOpen(false); }} className="h-5 w-5 rounded-full border" style={{ backgroundColor: c }} title={c} />
-                            ))}
-                          </div>
-                          <div className="flex items-center gap-1 border-t pt-1.5">
-                            <Input type="color" value={customColor || "#000000"} onChange={e => { setCustomColor(e.target.value); editor?.chain().focus().setColor(e.target.value).run(); }} className="!w-8 !h-8 !p-0.5 border rounded cursor-pointer" />
-                            <Input value={customColor} onChange={e => { setCustomColor(e.target.value); if (e.target.value.match(/^#[0-9a-fA-F]{6}$/)) editor?.chain().focus().setColor(e.target.value).run(); }} placeholder="#hex" className="h-8 text-[10px] flex-1" maxLength={7} />
-                          </div>
+                  {/* Color picker */}
+                  <div className="relative">
+                    <button onClick={() => setColorOpen(!colorOpen)} className={`p-1.5 rounded-lg transition-colors ${colorOpen ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Text Color"><Palette className="h-4 w-4" /></button>
+                    {colorOpen && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 p-2 rounded-lg border bg-popover shadow-lg w-44 max-w-[90vw]" onMouseLeave={() => setColorOpen(false)}>
+                        <div className="grid grid-cols-7 gap-1 mb-2">
+                          {['#000000','#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#a855f7','#f43f5e','#84cc16','#0ea5e9','#64748b','#dc2626','#d97706','#7c3aed','#059669','#0284c7'].map(c => (
+                            <button key={c} onClick={() => { editor?.chain().focus().setColor(c).run(); setColorOpen(false); }} className="h-5 w-5 rounded-full border" style={{ backgroundColor: c }} title={c} />
+                          ))}
                         </div>
-                      )}
-                    </div>
-
-                    {/* Font size - custom input */}
-                    <div className="flex items-center gap-0.5">
-                      <input type="number" min="8" max="72" defaultValue="16" onChange={e => { const v = Number(e.target.value); if (v >= 8 && v <= 72) editor?.chain().focus().setMark('textStyle', { fontSize: v + 'px' }).run(); }} className="w-12 h-7 p-0.5 rounded text-[10px] bg-transparent border text-center text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" title="Font Size (px)" />
-                      <span className="text-[10px] text-muted-foreground">px</span>
-                    </div>
-
-                    {/* Font family */}
-                    <div className="flex items-center gap-0.5">
-                      <select onChange={e => editor?.chain().focus().setFontFamily(e.target.value).run()} className="p-1 rounded text-[10px] bg-transparent border text-muted-foreground cursor-pointer hover:text-foreground max-w-[80px]" title="Font Family">
-                        <option value="Inter">Inter</option>
-                        <option value="Arial">Arial</option>
-                        <option value="Georgia">Georgia</option>
-                        <option value="monospace">Monospace</option>
-                        <option value="Times New Roman">Times</option>
-                        <option value="Courier New">Courier</option>
-                        <option value="Verdana">Verdana</option>
-                        <option value="Trebuchet MS">Trebuchet</option>
-                        <option value="Impact">Impact</option>
-                        <option value="Comic Sans MS">Comic Sans</option>
-                      </select>
-                    </div>
-
-                    {/* Emoji picker */}
-                    <div className="relative">
-                      <button onClick={() => setEmojiOpen(!emojiOpen)} className={`p-1.5 rounded-lg transition-colors ${emojiOpen ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Emoji"><SmilePlus className="h-4 w-4" /></button>
-                      {emojiOpen && (
-                        <div className="absolute top-full left-0 mt-1 z-50 p-2 rounded-lg border bg-popover shadow-lg w-56" onMouseLeave={() => setEmojiOpen(false)}>
-                          <div className="grid grid-cols-8 gap-0.5 max-h-40 overflow-y-auto">
-                            {["😀","😃","😄","😁","😅","😂","🤣","😊","😇","🙂","😉","😌","😍","🥰","😘","😗","😋","😛","😜","🤪","😝","🤑","🤗","🤭","🤔","🤐","😐","😑","😶","😏","😒","🙄","😬","😮","😯","😲","😳","🥺","😢","😭","😤","😡","🤬","😈","👿","💀","☠️","💩","🤡","👹","👺","👻","👽","🤖","👍","👎","👊","✊","🤛","🤜","👏","🙌","🤲","🤝","🙏","💪","✌️","🤞","🫶","❤️","💔","💖","💙","💚","💛","💜","🖤","🤍","🤎","💯","🔥","⭐","✨","🌟","💫","⚡","🌈","☀️","🌙","🌟","💡","📚","🏆","🥇","🎯","🎉","🎊","🎈","🚀","💻","📱","⌨️","🖥️","🎨","📝","✅","❌","❗","❓","💬","🗨️","👋","🖐️","✋","💅","👀","🧠","🗣️","💭"].map(e => (
-                              <button key={e} type="button" onClick={() => { editor?.chain().focus().insertContent(e).run(); setEmojiOpen(false); }} className="hover:bg-accent rounded p-1 text-lg leading-none">{e}</button>
-                            ))}
-                          </div>
+                        <div className="flex items-center gap-1 border-t pt-1.5">
+                          <Input type="color" value={customColor || "#000000"} onChange={e => { setCustomColor(e.target.value); editor?.chain().focus().setColor(e.target.value).run(); }} className="!w-8 !h-8 !p-0.5 border rounded cursor-pointer" />
+                          <Input value={customColor} onChange={e => { setCustomColor(e.target.value); if (e.target.value.match(/^#[0-9a-fA-F]{6}$/)) editor?.chain().focus().setColor(e.target.value).run(); }} placeholder="#hex" className="h-8 text-[10px] flex-1" maxLength={7} />
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-1 ml-1 pl-2 border-l">
+                  {/* Font size */}
+                  <div className="flex items-center gap-0.5">
+                    <input type="number" min="8" max="72" defaultValue="16" onChange={e => { const v = Number(e.target.value); if (v >= 8 && v <= 72) editor?.chain().focus().setMark('textStyle', { fontSize: v + 'px' }).run(); }} className="w-12 h-7 p-0.5 rounded text-[10px] bg-transparent border text-center text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" title="Font Size (px)" />
+                    <span className="text-[10px] text-muted-foreground">px</span>
+                  </div>
+
+                  {/* Font family */}
+                  <select onChange={e => editor?.chain().focus().setFontFamily(e.target.value).run()} className="p-1 rounded text-[10px] bg-transparent border text-muted-foreground cursor-pointer hover:text-foreground max-w-[80px]" title="Font Family">
+                    <option value="Inter">Inter</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="monospace">Monospace</option>
+                    <option value="Times New Roman">Times</option>
+                    <option value="Courier New">Courier</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Trebuchet MS">Trebuchet</option>
+                    <option value="Impact">Impact</option>
+                    <option value="Comic Sans MS">Comic Sans</option>
+                  </select>
+
+                  {/* Emoji picker */}
+                  <div className="relative">
+                    <button onClick={() => setEmojiOpen(!emojiOpen)} className={`p-1.5 rounded-lg transition-colors ${emojiOpen ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`} title="Emoji"><SmilePlus className="h-4 w-4" /></button>
+                    {emojiOpen && (
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 p-2 rounded-lg border bg-popover shadow-lg w-56 max-w-[90vw]" onMouseLeave={() => setEmojiOpen(false)}>
+                        <div className="grid grid-cols-8 gap-0.5 max-h-40 overflow-y-auto">
+                          {["😀","😃","😄","😁","😅","😂","🤣","😊","😇","🙂","😉","😌","😍","🥰","😘","😗","😋","😛","😜","🤪","😝","🤑","🤗","🤭","🤔","🤐","😐","😑","😶","😏","😒","🙄","😬","😮","😯","😲","😳","🥺","😢","😭","😤","😡","🤬","😈","👿","💀","☠️","💩","🤡","👹","👺","👻","👽","🤖","👍","👎","👊","✊","🤛","🤜","👏","🙌","🤲","🤝","🙏","💪","✌️","🤞","🫶","❤️","💔","💖","💙","💚","💛","💜","🖤","🤍","🤎","💯","🔥","⭐","✨","🌟","💫","⚡","🌈","☀️","🌙","🌟","💡","📚","🏆","🥇","🎯","🎉","🎊","🎈","🚀","💻","📱","⌨️","🖥️","🎨","📝","✅","❌","❗","❓","💬","🗨️","👋","🖐️","✋","💅","👀","🧠","🗣️","💭"].map(e => (
+                            <button key={e} type="button" onClick={() => { editor?.chain().focus().insertContent(e).run(); setEmojiOpen(false); }} className="hover:bg-accent rounded p-1 text-lg leading-none">{e}</button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1 pl-2 border-l">
                     <label className="p-1.5 text-indigo-500 hover:bg-indigo-500/10 rounded-lg cursor-pointer transition-colors" title="Add Image">
                       <ImageIcon className="h-4 w-4" />
                       <input type="file" accept="image/*" className="hidden" onChange={(e) => setMediaFile(e.target.files?.[0] || null)} />
@@ -400,7 +396,7 @@ function CommunityPage() {
                   </div>
                 </div>
 
-                <Button onClick={createPost} disabled={isUploading || (postType === "post" && !editor?.getText().trim() && !mediaFile)} className="rounded-full px-8 shrink-0 shadow-sm">
+                <Button onClick={createPost} disabled={isUploading || (postType === "post" && !editor?.getText().trim() && !mediaFile)} className="rounded-full px-8 self-start sm:self-end shadow-sm">
                   {isUploading ? (<><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Posting...</>) : (<><Send className="h-4 w-4 mr-2" /> {postType === "announcement" ? "Announce" : "Post"}</>)}
                 </Button>
               </div>

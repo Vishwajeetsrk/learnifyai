@@ -106,7 +106,7 @@ import {
   adminCreateUser,
 } from "@/lib/admin-users.functions";
 import { DemandForecastWidget } from "@/components/DemandForecastWidget";
-import { syncPlanToCashfree } from "@/lib/subscription.functions";
+import { syncPlanToCashfree, savePlan, deletePlan } from "@/lib/subscription.functions";
 
 const APP_ROLES = ["super_admin", "admin", "creator", "student"] as const;
 type AppRole = (typeof APP_ROLES)[number];
@@ -2036,31 +2036,19 @@ function PlansSection() {
   });
 
   const syncPlan = useServerFn(syncPlanToCashfree);
+  const doSavePlan = useServerFn(savePlan);
+  const doDeletePlan = useServerFn(deletePlan);
 
   async function save(form: any) {
-    const payload: any = {};
-    for (const k of ["name","price_label","description","cta_label","cta_to","badge","color","interval","cashfree_plan_id"]) {
-      if (form[k] !== undefined) payload[k] = form[k];
+    try {
+      await doSavePlan({ data: { plan: form } });
+      toast.success(form.id ? "Plan updated" : "Plan created");
+      qc.invalidateQueries({ queryKey: ["admin", "plans"] });
+      qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+      setEditId(null);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to save plan");
     }
-    payload.features = form.features || [];
-    payload.price_inr = Number(form.price_inr) || 0;
-    payload.ai_credits_monthly = Number(form.ai_credits_monthly) || 0;
-    payload.max_courses = Number(form.max_courses) ?? -1;
-    payload.highlighted = !!form.highlighted;
-    payload.active = form.active !== false;
-    payload.order_index = Number(form.order_index) || 0;
-
-    if (form.id) {
-      const { error } = await supabase.from("pricing_plans").update(payload).eq("id", form.id);
-      if (error) return toast.error(error.message);
-    } else {
-      const { error } = await supabase.from("pricing_plans").insert(payload);
-      if (error) return toast.error(error.message);
-    }
-    toast.success(form.id ? "Plan updated" : "Plan created");
-    qc.invalidateQueries({ queryKey: ["admin", "plans"] });
-    qc.invalidateQueries({ queryKey: ["pricing-plans"] });
-    setEditId(null);
   }
 
   return (
@@ -2106,9 +2094,13 @@ function PlansSection() {
                     )}
                     <button onClick={async () => {
                       if (!window.confirm("Delete this plan?")) return;
-                      await supabase.from("pricing_plans").delete().eq("id", p.id);
-                      qc.invalidateQueries({ queryKey: ["admin", "plans"] });
-                      qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+                      try {
+                        await doDeletePlan({ data: { planId: p.id } });
+                        qc.invalidateQueries({ queryKey: ["admin", "plans"] });
+                        qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+                      } catch (e: any) {
+                        toast.error(e?.message || "Delete failed");
+                      }
                     }} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-destructive">
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>

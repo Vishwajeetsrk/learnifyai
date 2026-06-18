@@ -208,3 +208,30 @@ export const getUserSubscription = createServerFn({ method: "GET" })
       .single();
     return data || null;
   });
+
+export const savePlan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: any) => z.object({ plan: z.any() }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const plan = data.plan;
+    if (plan.id) {
+      const { error } = await supabaseAdmin.from("pricing_plans").update(plan).eq("id", plan.id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { id: pid, ...rest } = plan;
+      const { error } = await supabaseAdmin.from("pricing_plans").insert(rest);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deletePlan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: any) => z.object({ planId: z.string() }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("pricing_plans").delete().eq("id", data.planId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
