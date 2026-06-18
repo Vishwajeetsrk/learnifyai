@@ -2,10 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-async function verifyCashfreeWebhook(
-  rawBody: string,
-  signature: string | null,
-): Promise<boolean> {
+function verifySignature(rawBody: string, signature: string | null): boolean {
   if (!signature) return false;
   const secretKey = process.env.CASHFREE_SECRET_KEY;
   if (!secretKey) return false;
@@ -24,38 +21,41 @@ export const Route = createFileRoute("/api/webhooks/cashfree")({
         const rawBody = await request.clone().text();
         const signature = request.headers.get("x-webhook-signature");
 
-        if (!(await verifyCashfreeWebhook(rawBody, signature))) {
-          return new Response("Invalid signature", { status: 401 });
-        }
-
         let payload: any;
         try {
           payload = JSON.parse(rawBody);
         } catch {
-          return new Response("Invalid JSON", { status: 400 });
-        }
-
-        const eventType = payload.type;
-        const order = payload.data?.order;
-        const payment = payload.data?.payment;
-
-        if (!order || eventType !== "ORDER_PAID") {
           return new Response(JSON.stringify({ received: true }), {
+            status: 200,
             headers: { "Content-Type": "application/json" },
           });
         }
 
-        const orderId = order.order_id;
-        const customerId = order.customer_details?.customer_id;
-        const amount = order.order_amount;
-        const paymentMethod = payment?.payment_group ?? payment?.payment_method ?? "unknown";
-        const cfPaymentId = String(payment?.cf_payment_id ?? "");
-
-        if (!customerId || !orderId || !amount) {
-          return new Response("Missing order data", { status: 400 });
+        if (
+          !signature ||
+          !verifySignature(rawBody, signature) ||
+          payload.type !== "ORDER_PAID" ||
+          !payload.data?.order
+        ) {
+          return new Response(JSON.stringify({ received: true }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
         }
 
-        const userId = customerId;
+        const order = payload.data.order;
+        const payment = payload.data.payment;
+        const orderId = order.order_id;
+        const userId = order.customer_details?.customer_id;
+        const amount = order.order_amount;
+        const paymentMethod = payment?.payment_group ?? payment?.payment_method ?? "unknown";
+
+        if (!userId || !orderId || !amount) {
+          return new Response(JSON.stringify({ received: true }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
 
         const description = `Top-up via ${paymentMethod} (Cashfree: ${orderId})`;
 
@@ -67,6 +67,7 @@ export const Route = createFileRoute("/api/webhooks/cashfree")({
 
         if (existingTx) {
           return new Response(JSON.stringify({ received: true, already_processed: true }), {
+            status: 200,
             headers: { "Content-Type": "application/json" },
           });
         }
@@ -81,12 +82,10 @@ export const Route = createFileRoute("/api/webhooks/cashfree")({
 
         if (error) {
           console.error("[Cashfree webhook] insert error:", error);
-          return new Response(JSON.stringify({ error: "Failed to process payment" }), {
-            status: 500,
-          });
         }
 
         return new Response(JSON.stringify({ received: true }), {
+          status: 200,
           headers: { "Content-Type": "application/json" },
         });
       },
