@@ -21,55 +21,60 @@ function cfHeaders(appId: string, secretKey: string) {
   };
 }
 
+async function doSyncPlan(planId: string): Promise<string> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: plan } = await supabaseAdmin
+    .from("pricing_plans")
+    .select("*")
+    .eq("id", planId)
+    .single();
+  const p = plan as any;
+  if (!p) throw new Error("Plan not found");
+  if (!p.interval || !p.price_inr || p.price_inr <= 0)
+    throw new Error("Plan has no interval or price");
+
+  const { appId, secretKey } = getCreds();
+  const cfPlanId = `plan_${p.id.slice(0, 8)}`;
+
+  const res = await fetch(`${CF_API}/plans`, {
+    method: "POST",
+    headers: cfHeaders(appId, secretKey),
+    body: JSON.stringify({
+      plan_id: cfPlanId,
+      plan_name: p.name,
+      plan_type: "PERIODIC",
+      plan_currency: "INR",
+      plan_amount: p.price_inr,
+      plan_interval: {
+        interval_type: p.interval === "month" ? "MONTHLY" : "YEARLY",
+        interval_count: 1,
+      },
+      plan_note: p.description || "",
+      plan_max_amount: p.price_inr * 12,
+      plan_max_cycles: 0,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Cashfree plan creation failed: ${err}`);
+  }
+
+  const cf = await res.json();
+  const cashfreePlanId = cf.plan_id || cfPlanId;
+  await supabaseAdmin
+    .from("pricing_plans")
+    .update({ cashfree_plan_id: cashfreePlanId } as any)
+    .eq("id", planId);
+
+  return cashfreePlanId;
+}
+
 export const syncPlanToCashfree = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { planId: string }) => z.object({ planId: z.string() }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: plan } = await supabaseAdmin
-      .from("pricing_plans")
-      .select("*")
-      .eq("id", data.planId)
-      .single();
-    const p = plan as any;
-    if (!p) throw new Error("Plan not found");
-    if (!p.interval || !p.price_inr || p.price_inr <= 0)
-      throw new Error("Plan has no interval or price");
-
-    const { appId, secretKey } = getCreds();
-    const planId = `plan_${p.id.slice(0, 8)}`;
-
-    const res = await fetch(`${CF_API}/plans`, {
-      method: "POST",
-      headers: cfHeaders(appId, secretKey),
-      body: JSON.stringify({
-        plan_id: planId,
-        plan_name: p.name,
-        plan_type: "PERIODIC",
-        plan_currency: "INR",
-        plan_amount: p.price_inr,
-        plan_interval: {
-          interval_type: p.interval === "month" ? "MONTHLY" : "YEARLY",
-          interval_count: 1,
-        },
-        plan_note: p.description || "",
-        plan_max_amount: p.price_inr * 12,
-        plan_max_cycles: 0,
-      }),
-    });
-
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Cashfree plan creation failed: ${err}`);
-    }
-
-    const cf = await res.json();
-    await supabaseAdmin
-      .from("pricing_plans")
-      .update({ cashfree_plan_id: cf.plan_id || planId } as any)
-      .eq("id", data.planId);
-
-    return { cashfree_plan_id: cf.plan_id || planId };
+  .handler(async ({ data }) => {
+    return { cashfree_plan_id: await doSyncPlan(data.planId) };
   });
 
 export const createSubscription = createServerFn({ method: "POST" })
@@ -95,11 +100,15 @@ export const createSubscription = createServerFn({ method: "POST" })
       .single();
     const p = plan as any;
     if (!p) throw new Error("Plan not found");
-    if (!p.cashfree_plan_id) throw new Error("Plan not synced to Cashfree. Ask admin to sync.");
+
+    // Auto-sync plan to Cashfree if not already synced
+    if (!p.cashfree_plan_id) {
+      p.cashfree_plan_id = await doSyncPlan(data.planId);
+    }
 
     const { appId, secretKey } = getCreds();
     const subId = `sub_${uid.slice(0, 8)}_${Date.now()}`;
-    const baseUrl = process.env.VITE_APP_URL || "https://learnify-ai.vercel.app";
+    const baseUrl = process.env.VITE_APP_URL || "https://learnifyaitool.vercel.app";
     const returnUrl = `${baseUrl}/pricing?subscribe=ok`;
     const notifyUrl = `${baseUrl}/api/webhooks/cashfree-subscription`;
 
