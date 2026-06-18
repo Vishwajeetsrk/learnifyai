@@ -202,6 +202,34 @@ function Index() {
         </StaggerGroup>
       </section>
 
+      {/* COMMUNITY */}
+      <section className="container mx-auto px-6 py-28">
+        <Reveal className="max-w-2xl mx-auto text-center mb-12">
+          <p className="text-sm font-medium text-primary mb-3">Study together</p>
+          <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
+            Join a learning community.
+          </h2>
+          <p className="mt-4 text-muted-foreground text-lg">
+            Live cohorts, study groups, and office hours with dedicated WhatsApp and Discord
+            channels.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90 hover:-translate-y-0.5 transition-all">
+              <Link to="/cohorts">
+                <Users className="mr-1.5 h-4 w-4" />
+                Browse groups
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="hover:-translate-y-0.5 transition-all">
+              <Link to="/community">
+                <MessageSquare className="mr-1.5 h-4 w-4" />
+                Community feed
+              </Link>
+            </Button>
+          </div>
+        </Reveal>
+      </section>
+
       {/* AI TOOLS */}
       <section id="ai" className="relative">
         <div className="container mx-auto px-6 py-28">

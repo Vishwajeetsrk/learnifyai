@@ -29,7 +29,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons, and track enrollment.
-- **Coaching Hub:** Manage cohorts (create/launch/live with edit/delete/WhatsApp share), track learner outcomes (quiz stats, course progress), build milestone-based learning roadmaps, and manage scheduling with Google Meet/Zoom integration (add/edit/delete slots with meeting links) — all backed by real Supabase data.
+- **Coaching Hub:** Manage cohorts (create/launch/live with edit/delete/WhatsApp share + group chat links), track learner outcomes (quiz stats, course progress), build milestone-based learning roadmaps, and manage scheduling with Google Meet/Zoom integration (add/edit/delete slots with meeting links) — all backed by real Supabase data.
 - **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management.
 - **Automated Invoicing:** Professional billing automatically handled for wallet top-ups.
 - **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 providers (Lovable, Gemini, Stability AI, Fal AI, Hugging Face, Pollinations AI).
@@ -41,7 +41,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 
 ### ⚙️ Admin Features
 - **Coupon System:** Admin-managed discount codes (percent/flat) stored in DB — applied at checkout with real-time validation and cart UI.
-- **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates (with "Open Designer" link to full WYSIWYG builder), FAQs, Legal Pages (Terms, Privacy, Refund), Coupons, and Roadmap.
+- **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates (with "Open Designer" link to full WYSIWYG builder), FAQs, Legal Pages (Terms, Privacy, Refund), Coupons, Community Groups, and Roadmap.
 - **Legal Pages:** Fully editable Terms of Service, Privacy Policy, and Refund Policy — rendered from the database, editable via the admin Content Manager.
 - **Social Media Management:** Configurable Discord, Twitter/X, GitHub, LinkedIn, and YouTube links with icons in the footer. All managed through Site Settings.
 - **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, and custom settings.
@@ -67,7 +67,7 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 
 | Category | Providers |
 |----------|-----------|
-| **Payments** | Razorpay (wallet, checkout, webhooks with HMAC SHA-256 verification) |
+| **Payments** | Cashfree (wallet, checkout, order verification via REST API) |
 | **AI Chat / Text** | OpenRouter, Gemini, Groq (3-tier fallback) |
 | **AI Embeddings** | Gemini Embeddings (text-embedding-004) |
 | **Image Generation** | Pollinations AI (free) → OpenRouter (FLUX Pro) → Gemini → Stability AI → Fal AI → Hugging Face (6-tier fallback) |
@@ -93,7 +93,7 @@ learnifyai/
 ├── src/
 │   ├── components/         # Reusable UI components (Shadcn, AppShell, CustomVideoPlayer, etc.)
 │   ├── hooks/              # Custom React hooks (use-auth, etc.)
-│   ├── integrations/       # API clients (Supabase, Razorpay)
+│   ├── integrations/       # API clients (Supabase, Cashfree)
 │   ├── lib/                # Utility + server functions
 │   │   ├── playground.functions.ts  # Code execution via Piston API (40+ languages)
 │   │   └── agent.functions.ts       # AI agent with tool calling (code, web search)
@@ -149,7 +149,7 @@ Follow these instructions to get the project up and running locally.
 - [Node.js](https://nodejs.org/) (v18 or higher)
 - [Git](https://git-scm.com/)
 - A [Supabase](https://supabase.com/) account
-- A [Razorpay](https://razorpay.com/) Sandbox account
+- A [Cashfree](https://cashfree.com/) merchant account
 
 ### Installation
 
@@ -169,7 +169,9 @@ Follow these instructions to get the project up and running locally.
    ```env
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-   VITE_RAZORPAY_KEY_ID=your_razorpay_key
+   VITE_CASHFREE_APP_ID=your_cashfree_app_id
+   CASHFREE_APP_ID=your_cashfree_app_id
+   CASHFREE_SECRET_KEY=your_cashfree_secret_key
    VITE_BASE_URL=http://localhost:3000
    ```
 

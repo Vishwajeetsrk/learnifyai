@@ -21,6 +21,7 @@ import {
   GitBranch,
   Percent,
   ShieldCheck,
+  Users,
 } from "lucide-react";
 import {
   CertificateRender,
@@ -132,6 +133,7 @@ function AdminContentPage() {
     "pages",
     "roadmap",
     "coupons",
+    "community",
   ].includes(tabAlias)
     ? tabAlias
     : "events";
@@ -217,6 +219,10 @@ function AdminContentPage() {
               <Percent className="h-4 w-4 mr-2" />
               Coupons
             </TabsTrigger>
+            <TabsTrigger value="community">
+              <Users className="h-4 w-4 mr-2" />
+              Community Groups
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="events" className="mt-6">
             <EventsManager />
@@ -250,6 +256,9 @@ function AdminContentPage() {
           </TabsContent>
           <TabsContent value="coupons" className="mt-6">
             <CouponManager />
+          </TabsContent>
+          <TabsContent value="community" className="mt-6">
+            <CohortsManager />
           </TabsContent>
         </Tabs>
       </div>
@@ -2840,5 +2849,283 @@ function CouponManager() {
         </Button>
       </div>
     </div>
+  );
+}
+
+// ─────────────────────────── Community Groups (Cohorts) ───────────────────────────
+
+type CohortRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  kind: string;
+  starts_at: string;
+  capacity: number | null;
+  status: string;
+  group_link: string | null;
+  creator_id: string;
+};
+
+function CohortsManager() {
+  const qc = useQueryClient();
+  const [editing, setEditing] = useState<CohortRow | null>(null);
+  const [open, setOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const { data: cohorts = [], isLoading } = useQuery({
+    queryKey: ["admin-cohorts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("cohorts")
+        .select("id, title, description, kind, starts_at, capacity, status, group_link, creator_id")
+        .order("starts_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return (data ?? []) as CohortRow[];
+    },
+  });
+
+  const newCohort = () => {
+    setEditing({
+      id: "",
+      title: "",
+      description: "",
+      kind: "study_group",
+      starts_at: new Date().toISOString().slice(0, 16),
+      capacity: 50,
+      status: "draft",
+      group_link: "",
+      creator_id: "",
+    });
+    setOpen(true);
+  };
+
+  const removeCohort = async () => {
+    if (!deleteId) return;
+    const { error } = await supabase.from("cohorts").delete().eq("id", deleteId);
+    if (error) return toast.error(error.message);
+    toast.success("Cohort deleted");
+    setDeleteId(null);
+    qc.invalidateQueries({ queryKey: ["admin-cohorts"] });
+    qc.invalidateQueries({ queryKey: ["cohorts"] });
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button onClick={newCohort}>
+          <Plus className="h-4 w-4 mr-2" />
+          New group
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-5 w-5 animate-spin" />
+        </div>
+      ) : cohorts.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-10">No community groups yet.</p>
+      ) : (
+        <div className="space-y-2">
+          {cohorts.map((c) => (
+            <div
+              key={c.id}
+              className="rounded-xl border border-border/60 bg-card p-4 flex items-center justify-between gap-3"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="font-semibold truncate flex items-center gap-2">
+                  {c.title}
+                  <Badge variant={c.status === "live" ? "default" : "outline"} className="text-[10px] capitalize">
+                    {c.status}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground capitalize">{c.kind?.replace("_", " ")}</span>
+                </div>
+                <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-3">
+                  <span>{c.starts_at ? format(new Date(c.starts_at), "PP") : "—"}</span>
+                  {c.capacity && <span>· {c.capacity} seats</span>}
+                  {c.group_link && <span>· 🔗 link set</span>}
+                </div>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setEditing(c);
+                    setOpen(true);
+                  }}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setDeleteId(c.id)}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <CohortDialog
+        open={open}
+        onOpenChange={(v) => {
+          setOpen(v);
+          if (!v) setEditing(null);
+        }}
+        cohort={editing}
+        onSaved={() => {
+          qc.invalidateQueries({ queryKey: ["admin-cohorts"] });
+          qc.invalidateQueries({ queryKey: ["cohorts"] });
+        }}
+      />
+
+      <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this group?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove the cohort and associated member data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={removeCohort}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+function CohortDialog({
+  open,
+  onOpenChange,
+  cohort,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  cohort: CohortRow | null;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = useState<CohortRow | null>(cohort);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setForm(cohort);
+  }, [cohort]);
+
+  if (!form) return null;
+
+  const save = async () => {
+    if (!form.title.trim()) {
+      toast.error("Title is required");
+      return;
+    }
+    setSaving(true);
+    const payload: Record<string, any> = {
+      title: form.title.trim(),
+      description: form.description?.trim() || null,
+      kind: form.kind,
+      starts_at: form.starts_at ? new Date(form.starts_at).toISOString() : null,
+      capacity: form.capacity || null,
+      status: form.status,
+      group_link: form.group_link?.trim() || null,
+    };
+    const { error } = form.id
+      ? await supabase.from("cohorts").update(payload).eq("id", form.id)
+      : await supabase.from("cohorts").insert({ ...payload, creator_id: form.creator_id || undefined });
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success(form.id ? "Group updated" : "Group created");
+    onSaved();
+    onOpenChange(false);
+  };
+
+  const localStarts = (() => {
+    try {
+      return format(new Date(form.starts_at), "yyyy-MM-dd'T'HH:mm");
+    } catch {
+      return "";
+    }
+  })();
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{form.id ? "Edit group" : "New group"}</DialogTitle>
+          <DialogDescription>
+            Manage community groups, study groups, and office hours.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div>
+            <Label>Title</Label>
+            <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+          </div>
+          <div>
+            <Label>Description</Label>
+            <Textarea rows={3} value={form.description ?? ""} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Kind</Label>
+              <select
+                value={form.kind}
+                onChange={(e) => setForm({ ...form, kind: e.target.value })}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="cohort">Live cohort</option>
+                <option value="study_group">Study group</option>
+                <option value="office_hours">Office hours</option>
+              </select>
+            </div>
+            <div>
+              <Label>Status</Label>
+              <select
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="draft">Draft</option>
+                <option value="live">Live</option>
+                <option value="ended">Ended</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Start date</Label>
+              <Input type="datetime-local" value={localStarts} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
+            </div>
+            <div>
+              <Label>Capacity</Label>
+              <Input type="number" value={form.capacity ?? ""} onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) || null })} />
+            </div>
+          </div>
+          <div>
+            <Label>Group chat link (WhatsApp / Discord / Telegram)</Label>
+            <Input
+              value={form.group_link ?? ""}
+              onChange={(e) => setForm({ ...form, group_link: e.target.value })}
+              placeholder="https://chat.whatsapp.com/... or https://discord.gg/..."
+            />
+            <p className="text-[11px] text-muted-foreground mt-1">
+              This link will be shown on the dashboard so members can join the group chat.
+            </p>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={save} disabled={saving}>
+            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

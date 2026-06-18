@@ -14,6 +14,8 @@ import {
   Sparkles,
   PlayCircle,
   Code2,
+  Users,
+  ExternalLink,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -342,6 +344,8 @@ function DashboardPage() {
 
         <DashboardEventsJobs />
 
+        <DashboardCommunity />
+
         <UpgradePlans />
       </div>
     </AppShell>
@@ -420,6 +424,85 @@ function UpgradePlans() {
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function DashboardCommunity() {
+  const { user } = useAuth();
+
+  const { data: cohorts = [], isLoading } = useQuery({
+    enabled: !!user,
+    queryKey: ["dashboard-cohorts", user?.id],
+    refetchOnWindowFocus: true,
+    queryFn: async () => {
+      const { data: myIds } = await supabase
+        .from("cohort_members")
+        .select("cohort_id")
+        .eq("user_id", user!.id);
+      const memberIds = (myIds ?? []).map((r) => r.cohort_id);
+
+      const { data: mine } = await supabase
+        .from("cohorts")
+        .select("id, title, description, kind, starts_at, capacity, status, group_link, creator_id")
+        .or(
+          memberIds.length
+            ? `creator_id.eq.${user!.id},id.in.(${memberIds.join(",")})`
+            : `creator_id.eq.${user!.id}`,
+        )
+        .order("starts_at", { ascending: false })
+        .limit(20);
+      return mine ?? [];
+    },
+  });
+
+  if (isLoading) return null;
+  if (cohorts.length === 0) return null;
+
+  return (
+    <div className="mt-10">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-display text-xl font-semibold flex items-center gap-2">
+          <Users className="h-5 w-5 text-primary" /> Your Community
+        </h2>
+        <Link
+          to="/cohorts"
+          className="text-xs text-primary hover:underline inline-flex items-center gap-1"
+        >
+          View all <ArrowRight className="h-3 w-3" />
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {cohorts.map((c: any) => (
+          <div
+            key={c.id}
+            className="rounded-xl border bg-card p-4 shadow-card hover:shadow-lg transition"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="font-medium text-sm truncate">{c.title}</div>
+                <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+                  {c.kind?.replace("_", " ")} · {c.status}
+                </p>
+              </div>
+              <Badge variant={c.status === "live" ? "default" : "outline"} className="text-[10px] capitalize shrink-0">
+                {c.status}
+              </Badge>
+            </div>
+            {c.group_link && (
+              <a
+                href={c.group_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+              >
+                <ExternalLink className="h-3 w-3" />
+                Join group chat
+              </a>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
