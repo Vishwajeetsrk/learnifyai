@@ -150,6 +150,7 @@ function CartPage() {
       qc.invalidateQueries({ queryKey: ["cart"] });
       qc.invalidateQueries({ queryKey: ["wallet-tx"] });
       qc.invalidateQueries({ queryKey: ["wallet-balance"] });
+      qc.invalidateQueries({ queryKey: ["enrollment"] });
       qc.invalidateQueries({ queryKey: ["enrollments"] });
       setCelebration({
         title: "You're enrolled!",
