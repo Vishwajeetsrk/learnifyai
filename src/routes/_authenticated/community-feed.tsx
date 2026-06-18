@@ -257,6 +257,11 @@ function CommunityPage() {
                     </div>
                   ))}
                   <Button variant="outline" size="sm" onClick={() => setPollOptions([...pollOptions, ""])}>+ Add option</Button>
+                  <div className="flex justify-end pt-2">
+                    <Button onClick={createPost} disabled={isUploading || !pollQuestion.trim() || pollOptions.filter(o => o.trim()).length < 2} className="rounded-full px-8 shadow-sm">
+                      {isUploading ? (<><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Posting...</>) : (<><Send className="h-4 w-4 mr-2" /> Post</>)}
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="bg-transparent mb-2">
