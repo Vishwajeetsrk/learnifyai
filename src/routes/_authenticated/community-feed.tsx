@@ -48,6 +48,7 @@ function CommunityPage() {
       StarterKit.configure({
         orderedList: {},
         bulletList: {},
+        underline: false,
       }),
       UnderlineExt,
       TextStyle,
@@ -149,7 +150,6 @@ function CommunityPage() {
       const payload: any = {
         author_id: user.id,
         post_type: postType,
-        is_pinned: postType === "announcement",
       };
 
       if (postType === "poll") {
@@ -367,7 +367,6 @@ function CommunityPage() {
               const isSaved = post.saves?.some((s: any) => s.user_id === user?.id);
               const isPoll = post.post_type === "poll";
               const isAnnouncement = post.post_type === "announcement";
-              const isPinned = post.is_pinned === true;
               let pollData: PollData | null = null;
               if (isPoll && post.content) { try { pollData = JSON.parse(post.content); } catch {} }
               
@@ -383,7 +382,6 @@ function CommunityPage() {
                         <div className="font-semibold flex items-center gap-2">
                           {post.author?.full_name || "Anonymous User"}
                           {isAnnouncement && <Badge className="text-[10px] h-5"><Megaphone className="h-3 w-3 mr-1" /> Announcement</Badge>}
-                          {isPinned && !isAnnouncement && <Badge variant="secondary" className="text-[10px] h-5"><Bookmark className="h-3 w-3 mr-1" /> Pinned</Badge>}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
