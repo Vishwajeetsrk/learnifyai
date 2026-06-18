@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
@@ -11,13 +11,10 @@ import {
   Tag,
   Check,
   X,
-
-  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -50,8 +47,6 @@ const inr = (n: number) =>
         maximumFractionDigits: 0,
       }).format(n);
 
-type PayMethod = "wallet" | "online";
-
 function CartPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -69,7 +64,6 @@ function CartPage() {
   } | null>(null);
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
-  const [method, setMethod] = useState<PayMethod>("wallet");
 
   const q = useQuery({
     enabled: !!user,
@@ -84,23 +78,6 @@ function CartPage() {
         .order("added_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
-    },
-  });
-
-  const balQ = useQuery({
-    enabled: !!user,
-    queryKey: ["wallet-balance", user?.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("wallet_transactions")
-        .select("amount_inr, type, status")
-        .eq("user_id", user!.id);
-      return (data ?? [])
-        .filter((t) => t.status === "completed")
-        .reduce(
-          (s, t) => s + (t.type === "credit" ? Number(t.amount_inr) : -Number(t.amount_inr)),
-          0,
-        );
     },
   });
 
@@ -170,11 +147,6 @@ function CartPage() {
   const pay = async () => {
     setPaying(true);
     try {
-      if (method === "wallet") {
-        await handleCheckoutSuccess();
-        return;
-      }
-
       const order = await createOrder({ data: { amountInr: total, email: user?.email } });
 
       const loaded = await loadCashfree();
@@ -210,11 +182,6 @@ function CartPage() {
       setPaying(false);
     }
   };
-
-  const methods: { id: PayMethod; label: string; icon: any; note?: string }[] = [
-    { id: "wallet", label: "Wallet", icon: Sparkles, note: "Instant" },
-    { id: "online", label: "Card / UPI", icon: CreditCard, note: "Fast" },
-  ];
 
   return (
     <AppShell>
@@ -369,26 +336,13 @@ function CartPage() {
                 </div>
               </div>
 
-              {/* Payment method */}
+              {/* Payment method — Cashfree only */}
               <div className="space-y-2">
                 <label className="text-xs font-medium">Payment method</label>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {methods.map((m) => (
-                    <button
-                      key={m.id}
-                      onClick={() => setMethod(m.id)}
-                      className={`rounded-lg border p-2 text-[10px] flex flex-col items-center gap-1 transition ${method === m.id ? "border-primary bg-primary/5 text-primary" : "hover:bg-accent"}`}
-                    >
-                      <m.icon className="h-4 w-4" />
-                      <span className="font-medium">{m.label}</span>
-                    </button>
-                  ))}
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-primary shrink-0" />
+                  <span>Secure checkout via <strong>Cashfree</strong> (card, UPI, netbanking).</span>
                 </div>
-                {method !== "wallet" && (
-                  <p className="text-[10px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5">
-                    Secure checkout via Cashfree (card, UPI, netbanking).
-                  </p>
-                )}
               </div>
 
               {/* Totals */}
@@ -409,19 +363,7 @@ function CartPage() {
                 </div>
               </div>
 
-              <div className="border-t pt-3 text-xs text-muted-foreground">
-                Wallet balance:{" "}
-                <span
-                  className={`font-semibold ${(balQ.data ?? 0) < total ? "text-destructive" : "text-foreground"}`}
-                >
-                  {inr(balQ.data ?? 0)}
-                </span>
-              </div>
-              {(balQ.data ?? 0) < total && method === "wallet" && (
-                <Link to="/wallet" className="text-xs text-primary block">
-                  Top up wallet →
-                </Link>
-              )}
+
               <Button className="w-full" onClick={pay} disabled={paying || items.length === 0}>
                 {paying ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
