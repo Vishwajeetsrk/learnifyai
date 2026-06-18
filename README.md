@@ -57,11 +57,13 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) + [Shadcn UI](https://ui.shadcn.com/)
 - **State Management:** [TanStack Query](https://tanstack.com/query/latest) (React Query)
 - **Animations:** [Framer Motion](https://www.framer.com/motion/)
+- **Wallet:** Cashfree Payments (order create + checkout + webhook verification) with pending transaction flow
 
 ### Backend & Infrastructure
 - **Database & Auth:** [Supabase](https://supabase.com/) (PostgreSQL, Row Level Security)
 - **File Storage:** Supabase Storage (Courses, Community Uploads)
 - **Deployment:** [Vercel](https://vercel.com/) (Edge Network & Serverless Functions)
+- **Webhook:** Cashfree webhook at `/api/webhooks/cashfree` — HMAC-SHA256 verification, upgrades pending → completed on `ORDER_PAID`, returns 200 for all requests
 
 ### Integrated APIs & Tools
 
@@ -95,19 +97,24 @@ learnifyai/
 │   ├── hooks/              # Custom React hooks (use-auth, etc.)
 │   ├── integrations/       # API clients (Supabase, Cashfree)
 │   ├── lib/                # Utility + server functions
-│   │   ├── playground.functions.ts  # Code execution via Piston API (40+ languages)
-│   │   └── agent.functions.ts       # AI agent with tool calling (code, web search)
+│   │   ├── payment.functions.ts    # Cashfree order create + verify (pending/completed)
+│   │   ├── playground.functions.ts # Code execution via Piston API (40+ languages)
+│   │   └── agent.functions.ts      # AI agent with tool calling (code, web search)
 │   ├── routes/             # TanStack Start route tree
 │   │   ├── _authenticated/ # Protected routes
+│   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree checkout) + pending transactions
+│   │   │   ├── playlist.tsx    # Course player with inline AI tutor + agent
 │   │   │   ├── playground.tsx  # Multi-language code playground (Monaco + Piston)
 │   │   │   └── ai-agent.tsx    # AI agent with chat, voice I/O, tool execution
 │   │   └── api/            # Serverless API endpoints
-│   │       └── webhooks/   # Payment webhooks (Cashfree order paid)
+│   │       └── webhooks/
+│   │           └── cashfree.ts  # Cashfree webhook (HMAC verify, upgrade pending → completed)
 │   ├── routeTree.gen.ts    # Auto-generated routing tree
 │   ├── router.tsx          # Router configuration
 │   └── main.tsx            # Application entry point
 ├── supabase/
 │   └── migrations/         # PostgreSQL schema definitions and RLS policies
+│       └── 20260618000001_group_link.sql  # Adds group_link column to cohorts
 ├── package.json            # Dependencies and scripts
 └── README.md               # You are here!
 ```

@@ -87,10 +87,6 @@ export const verifyCashfreePayment = createServerFn({ method: "POST" })
 
     const orderData = await res.json();
 
-    if (orderData.order_status !== "PAID") {
-      throw new Error(`Payment not completed. Status: ${orderData.order_status}`);
-    }
-
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: existingTx } = await supabaseAdmin
@@ -99,16 +95,27 @@ export const verifyCashfreePayment = createServerFn({ method: "POST" })
       .eq("description", `Top-up via ${data.method} (Cashfree: ${data.cashfree_order_id})`)
       .maybeSingle();
 
-    if (existingTx) return { success: true, already_processed: true };
+    if (orderData.order_status === "PAID") {
+      if (existingTx) return { success: true, already_processed: true };
+      const { error } = await supabaseAdmin.from("wallet_transactions").insert({
+        user_id: context.userId,
+        amount_inr: data.amountInr,
+        type: "credit",
+        status: "completed",
+        description: `Top-up via ${data.method} (Cashfree: ${data.cashfree_order_id})`,
+      });
+      if (error) throw new Error(error.message);
+      return { success: true };
+    }
 
+    if (existingTx) return { success: true, already_processed: true };
     const { error } = await supabaseAdmin.from("wallet_transactions").insert({
       user_id: context.userId,
       amount_inr: data.amountInr,
       type: "credit",
-      status: "completed",
+      status: "pending",
       description: `Top-up via ${data.method} (Cashfree: ${data.cashfree_order_id})`,
     });
-
     if (error) throw new Error(error.message);
-    return { success: true };
+    return { success: true, pending: true };
   });

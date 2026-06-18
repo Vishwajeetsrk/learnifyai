@@ -61,11 +61,20 @@ export const Route = createFileRoute("/api/webhooks/cashfree")({
 
         const { data: existingTx } = await supabaseAdmin
           .from("wallet_transactions")
-          .select("id")
+          .select("id, status")
           .eq("description", description)
           .maybeSingle();
 
         if (existingTx) {
+          if (existingTx.status === "pending") {
+            const { error: updateError } = await supabaseAdmin
+              .from("wallet_transactions")
+              .update({ status: "completed" })
+              .eq("id", existingTx.id);
+            if (updateError) {
+              console.error("[Cashfree webhook] update error:", updateError);
+            }
+          }
           return new Response(JSON.stringify({ received: true, already_processed: true }), {
             status: 200,
             headers: { "Content-Type": "application/json" },

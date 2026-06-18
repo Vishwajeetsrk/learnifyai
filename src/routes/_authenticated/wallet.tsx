@@ -155,6 +155,7 @@ function WalletPage() {
       creatorWithdrawals.reduce((s, t) => s + Number(t.amount_inr), 0),
   );
   const pending = (topupsQuery.data ?? []).filter((t) => t.status === "pending");
+  const pendingCashfree = txs.filter((t) => t.status === "pending" && t.type === "credit");
 
   async function submitTopup() {
     if (!user) return;
@@ -188,22 +189,26 @@ function WalletPage() {
           redirectTarget: "_modal",
         });
 
-        if (result?.paymentDetails?.paymentMessage === "SUCCESS") {
-          await verifyTopup({
-            data: {
-              amountInr: amt,
-              method: "online",
-              cashfree_order_id: order.order_id,
-            },
-          });
-          toast.success(`Successfully added ${inr(amt)} to your wallet.`);
-          qc.invalidateQueries({ queryKey: ["wallet-tx"] });
-          qc.invalidateQueries({ queryKey: ["wallet-balance"] });
-          setOpen(false);
-          setReference("");
-        } else {
-          throw new Error("Payment was not completed");
+        const msg = result?.paymentDetails?.paymentMessage;
+        if (msg === "FAILED") {
+          throw new Error("Payment failed. Please try again.");
         }
+        if (msg === "USER_DROPPED") {
+          toast.info("Payment cancelled.");
+          return;
+        }
+        await verifyTopup({
+          data: {
+            amountInr: amt,
+            method: "online",
+            cashfree_order_id: order.order_id,
+          },
+        });
+        toast.success(`Successfully added ${inr(amt)} to your wallet.`);
+        qc.invalidateQueries({ queryKey: ["wallet-tx"] });
+        qc.invalidateQueries({ queryKey: ["wallet-balance"] });
+        setOpen(false);
+        setReference("");
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to initiate top-up");
@@ -366,7 +371,7 @@ function WalletPage() {
         </div>
 
         {/* Pending top-ups */}
-        {pending.length > 0 && (
+        {(pending.length > 0 || pendingCashfree.length > 0) && (
           <div className="mt-6 rounded-2xl border bg-card p-5 shadow-card">
             <h3 className="font-display font-semibold flex items-center gap-2 mb-3">
               <Sparkles className="h-4 w-4 text-amber-500" /> Pending top-ups
@@ -388,6 +393,22 @@ function WalletPage() {
                     className="bg-amber-100 text-amber-800 hover:bg-amber-100"
                   >
                     Awaiting approval
+                  </Badge>
+                </li>
+              ))}
+              {pendingCashfree.map((t) => (
+                <li
+                  key={t.id}
+                  className="flex items-center justify-between text-sm border-b last:border-0 pb-2 last:pb-0"
+                >
+                  <div>
+                    <div className="font-medium">{inr(Number(t.amount_inr))}</div>
+                    <div className="text-xs text-muted-foreground">
+                      Cashfree · {format(new Date(t.created_at), "dd MMM HH:mm")}
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+                    Processing
                   </Badge>
                 </li>
               ))}
