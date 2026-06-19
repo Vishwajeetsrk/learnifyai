@@ -31,11 +31,11 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons (with video URL validation), add practical assignments/projects, and create final test MCQs that students must pass (≥70%) to claim their certificate.
 - **Coaching Hub (5-tab production):** Scheduling (slot creation with Google Meet/Zoom — add/edit/delete, booking with user info collection), Messaging (real-time Supabase subscription, chat bubbles with timestamps, contact list from bookings), Client Roadmaps (milestone-based with progress bar, creator assigns to learner), Outcomes (quiz analytics, enrollment progress, cross-learner stats for creators), Cohorts (CRUD with learner management, WhatsApp share, live/scheduled/draft status).
-- **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management. Member avatars shown in list view, live countdown timer, pre-meeting toast notification (30 min window), group chat / meeting link display in detail view, and auto-open WhatsApp/Meet links on join.
+- **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management. Member avatars shown in list view (up to 5 faces with overflow count). Live countdown timer with ping dot when live, pre-meeting toast notification (30 min window). Group chat (WhatsApp) and meeting (Google Meet) link display in detail view restricted to members/hosts. Auto-open WhatsApp/Meet links in new tabs on successful cohort join.
 - **Creator Payouts:** Withdraw earnings via Cashfree Payouts (UPI or bank account).
 - **Automated Invoicing:** Professional PDF invoices with configurable company name, legal name, GSTIN, invoice prefix, footer text, **logo URL**, and **contact info** — downloadable from the wallet page.
-- **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 API providers (Gemini, Stability AI, OpenRouter FLUX, Hugging Face, Pollinations, Fal AI) plus a **local SVG gradient fallback** that always works — with word-wrapped title, text shadow, and contrast overlay for readability.
-- **AI Auto-Complete Course:** One-click button in Creator Studio that automatically fills missing videos (YouTube search), pulls transcripts & AI-summarizes into lesson content, generates 8 MCQs if none exist, creates 2 assignments + 1 project, and auto-generates a course thumbnail. Course creation defaults pre-fill from your profile settings.
+- **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 API providers (Gemini, Stability AI, OpenRouter FLUX, Hugging Face, Pollinations, Fal AI) plus a **local SVG fallback** that always works — with word-wrapped title rendered on dark pill backgrounds (rounded semi-transparent black pills per line) for guaranteed readability, large Arial fonts at weight 900, and no clipping.
+- **AI Auto-Complete Course:** One-click button in Creator Studio that automatically fills missing videos (YouTube search filtered to Education category, skipping music/meme content), pulls transcripts & AI-summarizes into lesson content, generates 8 MCQs if none exist, creates 2 assignments + 1 project, and auto-generates a course thumbnail. Course creation defaults pre-fill from your profile settings. Uses `supabaseAdmin` for reads to bypass RLS restrictions.
 
 ### 📬 Inbox & Notifications
 - **Smart Notifications:** Wallet top-ups, withdrawals, new lessons, and certificate updates — each notification is clickable and links to the relevant page (courses, wallet, certificates, creator dashboard).
@@ -43,7 +43,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Reminders:** View, toggle, and delete scheduled reminders. Linked from AI Tools.
 
 ### ⚙️ Admin Features
-- **Transactions Dashboard:** Filter transactions by type (All, Top-up, Subscription, Course purchase, Creator earning, Withdrawal) with date range presets. Export to Excel (multi-sheet report) or CSV (filtered view).
+- **Transactions Dashboard:** Filter transactions by type (All, Top-up, Subscription, Course purchase, Creator earning, Withdrawal) with date range presets. Export to Excel (multi-sheet report) or CSV (filtered or all data). Per-transaction delete with confirmation dialog. Bulk "Clear demo" button removes transactions matching demo/test/sample descriptions.
 - **Coupon System:** Admin-managed discount codes (percent/flat) stored in DB — applied at checkout with real-time validation and cart UI.
 - **Pricing Plans Management:** Full CRUD for subscription plans (name, price INR, interval, features, badge, color, max courses, AI credits). One-click sync to Cashfree Subscriptions API. Free/one-time plans show "No recurring billing" instead of sync button.
 - **Cohort Management:** Create and manage cohorts of all types (live cohort, office hours, study group) with title, description, type, capacity, status, and date range. Table view with delete.
@@ -53,7 +53,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, invoice customisation (company name, legal name, GSTIN, invoice prefix, footer, **logo URL**, **contact info**), and custom settings.
 - **Admin QA — Missing Videos:** Automated detection of lessons with empty/invalid video URLs and courses with zero lessons — table view with course name, lesson index, issue description, current URL, and direct link to Studio to fix.
 - **Transactions Management:** Full transaction table with date range presets (7d/30d/90d/month), type filter, status display (all statuses shown). Export to Excel (multi-sheet) or CSV. Per-transaction delete + bulk "Clear demo" button. Download all or filtered CSV.
-- **Certificate Issuance (System 2.0):** Full certificate lifecycle — issue certificates with score, course, template placeholders, and auto-email to learner. Audit log with filters (date, issuer, learner), CSV export, email delivery tracking (sent/pending/failed with retry), and per-certificate resend. Polling-based retry mechanism with exponential backoff (max 5 attempts).
+- **Certificate Issuance (System 2.0):** Full certificate lifecycle — issue certificates with score, course, template placeholders, and auto-email to learner. Audit log with filters (date, issuer, learner), CSV export, email delivery tracking (sent/pending/failed with retry), and per-certificate resend. Polling-based retry mechanism with exponential backoff (max 5 attempts). 5-tier email cascade (Resend REST → Brevo API → Resend SMTP → Brevo SMTP → Gmail SMTP) with 15s per-provider timeout and `domainUnverified` flag to skip SMTP tier when domain verification fails.
 
 ---
 
@@ -82,9 +82,9 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 | **Payments** | Cashfree (wallet, checkout, subscriptions, payouts — no PayPal/manual) |
 | **AI Chat / Text** | OpenRouter, Gemini, Groq (3-tier fallback) |
 | **AI Embeddings** | Gemini Embeddings (text-embedding-004) |
-| **Image Generation** | Gemini 2.0 Flash → Stability AI → OpenRouter (FLUX Pro) → Hugging Face → Pollinations AI → Fal AI → Local SVG gradient (7-tier fallback, always works) |
-| **Video Analysis** | YouTube Data API + Gemini summarization |
-| **Email** | Resend REST API (primary, 15s timeout) → Brevo API → Resend SMTP → Brevo SMTP → Gmail SMTP (5-tier fallback, skips SMTP if domain unverified) |
+| **Image Generation** | Gemini 2.0 Flash → Stability AI → OpenRouter (FLUX Pro) → Hugging Face → Pollinations AI → Fal AI → Local SVG pill-background text (7-tier fallback, always works) |
+| **Video Analysis** | YouTube Data API (Education category filter, music/meme content exclusion) + Gemini summarization |
+| **Email** | Resend REST API (primary, 15s timeout) → Brevo API → Resend SMTP → Brevo SMTP → Gmail SMTP (5-tier cascade, tracks `domainUnverified` to skip SMTP tier; max 5 retries with exponential backoff) |
 | **Error Monitoring** | Sentry |
 | **Analytics** | PostHog |
 | **LLM Observability** | LangSmith |
@@ -147,7 +147,8 @@ learnifyai/
 ├── supabase/
 │   └── migrations/         # PostgreSQL schema definitions and RLS policies
 │       ├── 20260618000001_group_link.sql             # Adds group_link column to cohorts
-│       └── 20260618000002_subscriptions.sql          # Subscription tables (user_subscriptions, subscription_events, pricing_plans columns)
+│       ├── 20260618000002_subscriptions.sql          # Subscription tables (user_subscriptions, subscription_events, pricing_plans columns)
+│       └── 20260619000001_cascade_delete.sql         # Cascade delete for certificate-related tables
 ├── package.json            # Dependencies and scripts
 ├── scripts/                # Utility scripts
 │   └── seed_courses.mjs    # Seed database with real courses
