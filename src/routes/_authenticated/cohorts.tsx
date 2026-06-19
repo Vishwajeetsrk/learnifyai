@@ -333,7 +333,7 @@ function EditCohortDialog({ cohort, open, onOpenChange, onSaved }: { cohort: any
             <Label>Description</Label>
             <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Type</Label>
               <Select value={kind} onValueChange={setKind}>
@@ -357,7 +357,7 @@ function EditCohortDialog({ cohort, open, onOpenChange, onSaved }: { cohort: any
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Starts at</Label>
               <Input type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} />
@@ -584,7 +584,7 @@ function CreateCohortDialog({ onCreated }: { onCreated: () => void }) {
             maxLength={500}
           />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label>Type</Label>
             <Select value={kind} onValueChange={setKind}>

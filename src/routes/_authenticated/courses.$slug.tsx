@@ -1503,7 +1503,7 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
   }, [input, busy, messages, lesson, agent]);
 
   return (
-    <div className="flex flex-col h-[450px]">
+    <div className="flex flex-col h-[350px] sm:h-[450px]">
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pr-1 mb-3">
         {messages.length === 0 && (
           <div className="text-center py-8 space-y-2">

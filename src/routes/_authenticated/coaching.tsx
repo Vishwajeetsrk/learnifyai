@@ -429,7 +429,7 @@ function CoachingDashboard() {
                       <DialogDescription>Update your availability slot details.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-1.5">
                           <Label>Start Time</Label>
                           <Input type="datetime-local" value={editSlotStart} onChange={e => setEditSlotStart(e.target.value)} />
@@ -460,7 +460,7 @@ function CoachingDashboard() {
         )}
 
         {activeTab === "messaging" && (
-          <div className="bg-card rounded-2xl border h-[600px] flex overflow-hidden">
+          <div className="bg-card rounded-2xl border h-[400px] sm:h-[600px] flex overflow-hidden">
             {/* Contacts Sidebar */}
             <div className="w-1/3 border-r bg-accent/10 flex flex-col">
               <div className="p-4 border-b font-medium">Conversations</div>
@@ -827,7 +827,7 @@ function RealCohorts({ user }: { user: any }) {
                 <Label>Description</Label>
                 <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label>Start date</Label>
                   <Input type="datetime-local" value={form.starts_at} onChange={e => setForm({ ...form, starts_at: e.target.value })} />
@@ -838,6 +838,7 @@ function RealCohorts({ user }: { user: any }) {
                 </div>
               </div>
             </div>
+            <DialogFooter>
             <DialogFooter>
               <Button onClick={createCohort}>Create</Button>
             </DialogFooter>
@@ -919,7 +920,7 @@ function RealCohorts({ user }: { user: any }) {
               <Label>Description</Label>
               <Textarea value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label>Start date</Label>
                 <Input type="datetime-local" value={editForm.starts_at} onChange={e => setEditForm({ ...editForm, starts_at: e.target.value })} />
