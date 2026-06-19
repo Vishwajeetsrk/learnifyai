@@ -601,6 +601,12 @@ function CourseDetail() {
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
           {/* Player */}
           <div className="space-y-4 min-w-0">
+            {active && (
+              <div className="flex items-center gap-2">
+                <h2 className="font-semibold text-base truncate">{active.title}</h2>
+                {active.is_preview && <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium shrink-0">Preview</span>}
+              </div>
+            )}
             <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
               {activeVideo?.ok && !playerLoadFailed ? (
                 <CustomVideoPlayer
@@ -615,6 +621,11 @@ function CourseDetail() {
                     if (active && user) {
                       if (!completed.has(active.id)) {
                         toggleComplete(active.id);
+                      }
+                      const idx = lessons.findIndex((l) => l.id === active.id);
+                      const next = lessons[idx + 1];
+                      if (next && unlocked.has(next.id)) {
+                        setTimeout(() => setActiveLessonId(next.id), 800);
                       }
                     }
                   }}
