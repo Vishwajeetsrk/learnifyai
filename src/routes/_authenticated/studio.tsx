@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { runAiTool } from "@/lib/ai-tools.functions";
-import { generateFullCourse, materializeCourse } from "@/lib/course-builder.functions";
+import { generateFullCourse, materializeCourse, autoCompleteCourse } from "@/lib/course-builder.functions";
 import {
   verifyYoutubeKey,
   startCourseEnrichment,
@@ -172,6 +172,24 @@ function StudioPage() {
   const [manageProjectsFor, setManageProjectsFor] = useState<Course | null>(null);
   const [reviewSubFor, setReviewSubFor] = useState<Course | null>(null);
   const [aiBuilderOpen, setAiBuilderOpen] = useState(false);
+  const [autoCompleting, setAutoCompleting] = useState<string | null>(null);
+  const [autoCompleteResult, setAutoCompleteResult] = useState<any>(null);
+  const autoCompleteFn = useServerFn(autoCompleteCourse);
+
+  const handleAutoComplete = async (courseId: string) => {
+    setAutoCompleting(courseId);
+    setAutoCompleteResult(null);
+    try {
+      const res: any = await autoCompleteFn({ data: { courseId } });
+      setAutoCompleteResult(res);
+      toast.success(`AI auto-complete done for ${res.courseTitle}`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Auto-complete failed");
+    } finally {
+      setAutoCompleting(null);
+      qc.invalidateQueries({ queryKey: ["studio-courses"] });
+    }
+  };
 
   const coursesQuery = useQuery({
     enabled: isCreator,
@@ -350,6 +368,19 @@ function StudioPage() {
                           <Button
                             size="sm"
                             variant="ghost"
+                            disabled={autoCompleting === c.id}
+                            onClick={() => handleAutoComplete(c.id)}
+                          >
+                            {autoCompleting === c.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Sparkles className="h-4 w-4" />
+                            )}{" "}
+                            AI
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             onClick={() => {
                               setCreating(false);
                               setEditing(c);
@@ -405,6 +436,67 @@ function StudioPage() {
           qc.invalidateQueries({ queryKey: ["studio-courses"] });
         }}
       />
+
+      <AlertDialog
+        open={!!autoCompleteResult}
+        onOpenChange={(o) => !o && setAutoCompleteResult(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />{" "}
+              {autoCompleteResult?.courseTitle ?? "Auto-Complete"} — Done
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 pt-2">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3 text-center">
+                    <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                      {autoCompleteResult?.stats?.videosAdded ?? 0}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Videos added</div>
+                  </div>
+                  <div className="rounded-lg bg-violet-500/10 border border-violet-500/30 p-3 text-center">
+                    <div className="text-2xl font-bold text-violet-600 dark:text-violet-400">
+                      {autoCompleteResult?.stats?.transcriptsAdded ?? 0}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Summaries added</div>
+                  </div>
+                  <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-3 text-center">
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {autoCompleteResult?.stats?.mcqsAdded ?? 0}
+                    </div>
+                    <div className="text-xs text-muted-foreground">MCQs added</div>
+                  </div>
+                  <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 p-3 text-center">
+                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+                      {autoCompleteResult?.stats?.assignmentsAdded ?? 0}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Assignments added</div>
+                  </div>
+                </div>
+                {autoCompleteResult?.stats?.projectsAdded > 0 && (
+                  <p className="text-xs text-muted-foreground text-center">
+                    + {autoCompleteResult.stats.projectsAdded} project added
+                  </p>
+                )}
+                {autoCompleteResult?.stats?.warnings?.length > 0 && (
+                  <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-xs text-amber-700 dark:text-amber-400">
+                    {autoCompleteResult.stats.warnings.map((w: string, i: number) => (
+                      <div key={i}>⚠ {w}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setAutoCompleteResult(null)}>
+              Done
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={!!deletingCourse} onOpenChange={(o) => !o && setDeletingCourse(null)}>
         <AlertDialogContent>
@@ -523,6 +615,23 @@ function CourseFormDialog({
       setDuration(0);
       setCoverUrl("");
       setPublished(false);
+      if (userId) {
+        (async () => {
+          try {
+            const { data } = await supabase
+              .from("profiles")
+              .select("default_course_settings")
+              .eq("id", userId)
+              .single();
+            if (data?.default_course_settings) {
+              const d = data.default_course_settings as any;
+              if (d.category) setCategory(d.category);
+              if (d.level) setLevel(d.level);
+              if (d.price_inr !== undefined) setPrice(d.price_inr);
+            }
+          } catch { /* ignore */ }
+        })();
+      }
     }
     setCoverFailed(false);
   }, [course, open]);

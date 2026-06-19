@@ -918,7 +918,7 @@ function PricingManager() {
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
                     {p.interval ? `${p.interval}ly` : "One-time"} · {p.ai_credits_monthly > 0 ? `${(p.ai_credits_monthly).toLocaleString("en-IN")} AI credits/mo` : "No AI credits"}
-                    {p.cashfree_plan_id ? ` · Synced to Cashfree` : ` · Not synced`}
+                    {p.cashfree_plan_id ? ` · Synced to Cashfree` : p.price_inr > 0 && p.interval ? ` · Not synced` : ` · No recurring billing`}
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">

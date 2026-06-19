@@ -176,16 +176,50 @@ async function sendEmail({
   const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
   const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
 
-  // Try Brevo API first (most reliable, no domain verification needed)
+  // 1. Try Resend REST API (most reliable — works without SMTP domain verification)
+  if (RESEND_API_KEY) {
+    try {
+      const resp = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: emailFrom,
+          to: [to],
+          subject,
+          html,
+          headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
+        }),
+      });
+      if (!resp.ok) {
+        const body = await resp.text().catch(() => "");
+        if (resp.status === 422 && body.includes("verified")) {
+          // Sender domain not verified — fall through to other providers
+          console.warn("Resend REST: sender not verified, trying alternatives...");
+        } else {
+          throw new Error(`Resend API ${resp.status}: ${body.slice(0, 200)}`);
+        }
+      } else {
+        const json = await resp.json();
+        return { messageId: json.id, provider: "resend-api" };
+      }
+    } catch (err: any) {
+      console.warn("Resend REST API failed, trying Brevo...", err?.message?.slice(0, 120));
+    }
+  }
+
+  // 2. Try Brevo API
   if (BREVO_API_KEY) {
     try {
       return await sendViaBrevoApi({ to, subject, html });
     } catch (err: any) {
-      console.warn("Brevo API failed, trying Resend...", err?.message?.slice(0, 120));
+      console.warn("Brevo API failed, trying Resend SMTP...", err?.message?.slice(0, 120));
     }
   }
 
-  // Fallback to Resend
+  // 3. Try Resend SMTP
   if (RESEND_API_KEY) {
     try {
       const transporter = nodemailer.createTransport({
@@ -201,13 +235,13 @@ async function sendEmail({
         html,
         headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
       });
-      return { messageId: info.messageId, provider: "resend" };
+      return { messageId: info.messageId, provider: "resend-smtp" };
     } catch (err: any) {
-      console.warn("Resend failed, trying Brevo SMTP...", err?.message?.slice(0, 120));
+      console.warn("Resend SMTP failed, trying Brevo SMTP...", err?.message?.slice(0, 120));
     }
   }
 
-  // Try Brevo SMTP (requires authorized IP in Brevo dashboard)
+  // 4. Try Brevo SMTP (requires authorized IP in Brevo dashboard)
   if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
     try {
       const transporter = nodemailer.createTransport({
@@ -228,7 +262,7 @@ async function sendEmail({
     }
   }
 
-  // Last resort: Gmail SMTP (most reliable, no domain verification needed)
+  // 5. Last resort: Gmail SMTP (no domain verification, just needs app password)
   if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
     try {
       const transporter = nodemailer.createTransport({
@@ -256,6 +290,67 @@ async function sendEmail({
   if (!GMAIL_EMAIL) hints.push("Set GMAIL_EMAIL + GMAIL_APP_PASSWORD (free Gmail app password)");
   throw new Error(`Email failed. ${hints.join("; ")}.`);
 }
+
+/** Test email sending — reports detailed provider results. */
+export const testEmailSending = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({ email1: z.string().email(), email2: z.string().email() }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const results: { provider: string; ok: boolean; error?: string }[] = [];
+    const RESEND_API_KEY = process.env.RESEND_API_KEY;
+    const BREVO_API_KEY = process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY;
+    const GMAIL_EMAIL = process.env.GMAIL_EMAIL;
+    const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
+    const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
+    const testHtml = `<div style="font-family:sans-serif;padding:24px"><h2>Test email from Learnify AI</h2><p>If you received this, email sending is working.</p></div>`;
+
+    for (const email of [data.email1, data.email2]) {
+      // Test Resend REST API
+      if (RESEND_API_KEY) {
+        try {
+          const r = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
+            body: JSON.stringify({ from: emailFrom, to: [email], subject: "Learnify AI — test email", html: testHtml }),
+          });
+          const body = await r.text().catch(() => "");
+          results.push({ provider: `Resend REST → ${email}`, ok: r.ok, error: r.ok ? undefined : `${r.status}: ${body.slice(0, 120)}` });
+        } catch (e: any) { results.push({ provider: `Resend REST → ${email}`, ok: false, error: e?.message }); }
+      } else {
+        results.push({ provider: `Resend REST → ${email}`, ok: false, error: "No RESEND_API_KEY set" });
+      }
+
+      // Test Brevo API
+      if (BREVO_API_KEY) {
+        try {
+          const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: { "api-key": BREVO_API_KEY, "Content-Type": "application/json" },
+            body: JSON.stringify({ sender: { name: "Learnify AI", email: "noreply@learnify.ai" }, to: [{ email }], subject: "Learnify AI — test email", htmlContent: `<p>Test email</p>` }),
+          });
+          const body = await r.text().catch(() => "");
+          results.push({ provider: `Brevo API → ${email}`, ok: r.ok, error: r.ok ? undefined : `${r.status}: ${body.slice(0, 120)}` });
+        } catch (e: any) { results.push({ provider: `Brevo API → ${email}`, ok: false, error: e?.message }); }
+      } else {
+        results.push({ provider: `Brevo API → ${email}`, ok: false, error: "No BREVO_API_KEY set" });
+      }
+
+      // Test Gmail SMTP
+      if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
+        try {
+          const transporter = nodemailer.createTransport({ host: "smtp.gmail.com", port: 587, secure: false, auth: { user: GMAIL_EMAIL, pass: GMAIL_APP_PASSWORD } });
+          const info = await transporter.sendMail({ from: `"Learnify AI" <${GMAIL_EMAIL}>`, to: [email], subject: "Learnify AI — test email", html: `<p>Test email from Gmail</p>` });
+          results.push({ provider: `Gmail SMTP → ${email}`, ok: true, error: undefined });
+        } catch (e: any) { results.push({ provider: `Gmail SMTP → ${email}`, ok: false, error: e?.message }); }
+      } else {
+        results.push({ provider: `Gmail SMTP → ${email}`, ok: false, error: "GMAIL_EMAIL or GMAIL_APP_PASSWORD not set" });
+      }
+    }
+
+    return { results };
+  });
 
 function resolveOrigin(): string {
   const origin =

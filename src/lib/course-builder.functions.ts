@@ -286,3 +286,215 @@ export const materializeCourse = createServerFn({ method: "POST" })
     }
     return { ok: true, slug: course.slug, course_id: course.id };
   });
+
+/* ----- Auto-Complete: fill missing videos, content, MCQs, assignments, projects ----- */
+
+const AutoCompleteSchema = z.object({ courseId: z.string().uuid() });
+
+export const autoCompleteCourse = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => AutoCompleteSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    const aiConfigured = Boolean(
+      process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || process.env.OPENROUTER_API_KEY,
+    );
+    if (!aiConfigured) throw new Error("No AI provider configured (Gemini, Groq, or OpenRouter key required).");
+
+    // 1. Fetch course
+    const { data: course, error: cErr } = await supabase
+      .from("courses")
+      .select("id, title, description, category, level")
+      .eq("id", data.courseId)
+      .single();
+    if (cErr || !course) throw new Error("Course not found.");
+
+    // 2. Fetch existing lessons, MCQs, assignments
+    const [{ data: lessons }, { data: mcqCount }, { data: assignCount }] = await Promise.all([
+      supabase
+        .from("lessons")
+        .select("id, title, description, content_md, video_url, order_index")
+        .eq("course_id", data.courseId)
+        .order("order_index"),
+      supabase
+        .from("mcq_questions")
+        .select("id", { count: "exact", head: true })
+        .eq("course_id", data.courseId),
+      supabase
+        .from("course_assignments")
+        .select("id", { count: "exact", head: true })
+        .eq("course_id", data.courseId),
+    ]);
+
+    const stats = {
+      videosAdded: 0,
+      transcriptsAdded: 0,
+      mcqsAdded: 0,
+      assignmentsAdded: 0,
+      projectsAdded: 0,
+      warnings: [] as string[],
+    };
+
+    // 3. Enrichment: videos + transcripts + summaries
+    if (lessons?.length) {
+      const { ytSearchTopVideo, fetchTranscriptRaw } = await import("./youtube.functions");
+      for (const lesson of lessons) {
+        try {
+          if (!apiKey) {
+            stats.warnings.push("YOUTUBE_API_KEY not set — skipping video search.");
+            break;
+          }
+          const hit = await ytSearchTopVideo(
+            `${lesson.title} ${course.title} tutorial`.trim(),
+            apiKey,
+          );
+          if (!hit) {
+            stats.warnings.push(`No YouTube result for "${lesson.title}".`);
+            continue;
+          }
+          const videoUrl = `https://www.youtube.com/watch?v=${hit.videoId}`;
+          let newContent = lesson.content_md ?? "";
+          let transcript = "";
+
+          // Only fetch transcript if content is minimal (no lesson content yet)
+          const needsContent = !lesson.content_md || lesson.content_md.length < 100;
+          if (needsContent) {
+            transcript = (await fetchTranscriptRaw(hit.videoId)) ?? "";
+            if (transcript && transcript.length > 50) {
+              const summary = await callUserAiChat({
+                messages: [
+                  {
+                    role: "system",
+                    content:
+                      "You write concise, technically accurate chapter notes from raw video transcripts. Output clean markdown only.",
+                  },
+                  {
+                    role: "user",
+                    content: `Chapter title: "${lesson.title}".\nFrom the transcript below, produce:\n- 4-8 bullet "Key takeaways"\n- "Detailed notes" (3-6 short paragraphs)\n- "Glossary" of 3-6 important terms with one-line definitions.\nDo not invent facts not present in the transcript.\n\nTRANSCRIPT:\n${transcript.slice(0, 15_000)}`,
+                  },
+                ],
+              });
+              if (summary.ok) {
+                const j: any = await summary.json();
+                const summaryMd = (j.choices?.[0]?.message?.content as string) ?? "";
+                if (summaryMd) {
+                  newContent = `## ${lesson.title}\n\n${lesson.description ?? ""}\n\n### Recommended video\n[${hit.title} — ${hit.channelTitle}](${videoUrl})\n\n${summaryMd}\n`;
+                  stats.transcriptsAdded++;
+                }
+              }
+            }
+          }
+
+          if (!newContent.includes(videoUrl)) {
+            newContent = `${newContent}\n\n### Recommended video\n[${hit.title} — ${hit.channelTitle}](${videoUrl})\n`;
+          }
+
+          await supabaseAdmin
+            .from("lessons")
+            .update({ video_url: videoUrl, content_md: newContent })
+            .eq("id", lesson.id);
+          stats.videosAdded++;
+        } catch (e: any) {
+          stats.warnings.push(`${lesson.title}: ${e?.message ?? "error"}`);
+        }
+      }
+    }
+
+    // 4. Generate MCQs if none exist
+    if (!mcqCount || mcqCount.length < 5) {
+      try {
+        const res = await callUserAiChat({
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a senior technical educator. Generate high-quality multiple-choice questions.",
+            },
+            {
+              role: "user",
+              content: `Generate 8 multiple-choice quiz questions for a "${course.level}" course on "${course.title}": "${course.description}". Each question must have exactly 4 distinct options, one correct answer (0-indexed), and a short explanation. Respond with ONLY valid minified JSON matching this schema: {"questions":[{"question":string,"options":[string,string,string,string],"answer":0|1|2|3,"explanation":string}]}`,
+            },
+          ],
+          response_format: { type: "json_object" },
+        });
+        if (res.ok) {
+          const j: any = await res.json();
+          const raw = j.choices?.[0]?.message?.content ?? "{}";
+          const parsed = JSON.parse(raw);
+          const rows = (parsed.questions ?? []).slice(0, 30).map((q: any, i: number) => ({
+            course_id: data.courseId,
+            question: String(q.question).slice(0, 1000),
+            options: q.options,
+            answer: Number(q.answer),
+            explanation: q.explanation ?? null,
+            order_index: i,
+          }));
+          if (rows.length) {
+            await supabaseAdmin.from("mcq_questions").insert(rows);
+            stats.mcqsAdded = rows.length;
+          }
+        }
+      } catch (e: any) {
+        stats.warnings.push(`MCQ generation: ${e?.message ?? "error"}`);
+      }
+    }
+
+    // 5. Generate assignments if none exist
+    if (!assignCount || assignCount.length < 2) {
+      try {
+        const res = await callUserAiChat({
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a senior technical educator creating practical, hands-on assignments.",
+            },
+            {
+              role: "user",
+              content: `Create 2 practical assignments and 1 mini-project for a "${course.level}" course on "${course.title}": "${course.description}". Each assignment needs a title and a detailed prompt (3-6 sentences with deliverables). The project should have a title, a detailed prompt, and optional starter code. Respond with ONLY valid minified JSON matching this schema: {"assignments":[{"title":string,"prompt":string}],"project":{"title":string,"prompt":string}}`,
+            },
+          ],
+          response_format: { type: "json_object" },
+        });
+        if (res.ok) {
+          const j: any = await res.json();
+          const raw = j.choices?.[0]?.message?.content ?? "{}";
+          const parsed = JSON.parse(raw);
+          let orderIndex = 0;
+          const rows: any[] = [];
+          if (parsed.project?.title) {
+            rows.push({
+              course_id: data.courseId,
+              title: `Project: ${String(parsed.project.title).slice(0, 180)}`,
+              prompt: String(parsed.project.prompt ?? "").slice(0, 4000),
+              order_index: orderIndex++,
+            });
+            stats.projectsAdded++;
+          }
+          for (const a of parsed.assignments ?? []) {
+            rows.push({
+              course_id: data.courseId,
+              title: String(a.title).slice(0, 180),
+              prompt: String(a.prompt ?? "").slice(0, 4000),
+              order_index: orderIndex++,
+            });
+            stats.assignmentsAdded++;
+          }
+          if (rows.length) {
+            await supabaseAdmin.from("course_assignments").insert(rows);
+          }
+        }
+      } catch (e: any) {
+        stats.warnings.push(`Assignment generation: ${e?.message ?? "error"}`);
+      }
+    }
+
+    return {
+      ok: true,
+      courseTitle: course.title,
+      stats,
+    };
+  });

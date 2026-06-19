@@ -39,7 +39,7 @@ function CommunityPage() {
       const { data } = await supabase
         .from("cohorts")
         .select("id, title, description, kind, starts_at, capacity, status")
-        .gte("starts_at", new Date(Date.now() - 86400000).toISOString())
+        .eq("status", "live")
         .order("starts_at", { ascending: true })
         .limit(50);
       return data ?? [];
@@ -65,6 +65,10 @@ function CommunityPage() {
         <div className="py-16 grid place-items-center">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
+      ) : sessions.length === 0 ? (
+        <p className="text-center text-muted-foreground py-12">
+          No active groups right now. Check back soon or open the community dashboard.
+        </p>
       ) : (
         <div className="grid md:grid-cols-2 gap-5">
           {sessions.map((c: any) => (

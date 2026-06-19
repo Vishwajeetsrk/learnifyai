@@ -244,23 +244,44 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     // 7. Last resort: generate a local SVG thumbnail (always works, no API needed)
     try {
       const title = data.prompt.slice(0, 80).replace(/["<>]/g, "");
+      const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      const lines: string[] = [];
+      let line = "";
+      for (const word of title.split(" ")) {
+        if ((line + " " + word).length > 30) { if (line) lines.push(line); line = word; }
+        else line = line ? line + " " + word : word;
+      }
+      if (line) lines.push(line);
+      const textYStart = 400;
+      const lineH = 100;
+      const textLines = lines.slice(0, 4).map((l, i) =>
+        `<text x="768" y="${textYStart + i * lineH}" text-anchor="middle" fill="white" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="86" font-weight="900" letter-spacing="-1">${esc(l)}</text>`
+      ).join("\n        ");
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024">
         <defs>
           <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#4f46e5"/>
-            <stop offset="100%" style="stop-color:#1e3a8a"/>
+            <stop offset="0%" style="stop-color:#1e1b4b"/>
+            <stop offset="50%" style="stop-color:#3730a3"/>
+            <stop offset="100%" style="stop-color:#4f46e5"/>
           </linearGradient>
-          <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#fde68a;stop-opacity:0.3"/>
-            <stop offset="100%" style="stop-color:#fde68a;stop-opacity:0"/>
+          <filter id="textShadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/>
+          </filter>
+          <linearGradient id="overlay" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#000;stop-opacity:0.3"/>
+            <stop offset="100%" style="stop-color:#000;stop-opacity:0.6"/>
           </linearGradient>
+          <clipPath id="textClip"><rect x="0" y="340" width="1536" height="420" fill="black"/></clipPath>
         </defs>
         <rect width="1536" height="1024" fill="url(#bg)"/>
-        <circle cx="200" cy="800" r="400" fill="url(#accent)"/>
-        <circle cx="1400" cy="200" r="300" fill="url(#accent)"/>
-        <text x="768" y="460" text-anchor="middle" fill="white" font-family="system-ui,-apple-system,sans-serif" font-size="72" font-weight="bold">${title}</text>
-        <text x="768" y="540" text-anchor="middle" fill="#c7d2fe" font-family="system-ui,-apple-system,sans-serif" font-size="28">Learnify AI</text>
-        <rect x="468" y="600" width="600" height="4" rx="2" fill="#fde68a" opacity="0.5"/>
+        <rect width="1536" height="1024" fill="url(#overlay)"/>
+        <circle cx="200" cy="900" r="500" fill="#fde68a" opacity="0.08"/>
+        <circle cx="1400" cy="200" r="400" fill="#c7d2fe" opacity="0.08"/>
+        <g filter="url(#textShadow)" clip-path="url(#textClip)">
+          ${textLines}
+        </g>
+        <text x="768" y="840" text-anchor="middle" fill="#c7d2fe" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="32" font-weight="600" letter-spacing="4">LEARNIFY AI</text>
+        <rect x="568" y="870" width="400" height="3" rx="1.5" fill="#fde68a" opacity="0.6"/>
       </svg>`;
       const base64 = Buffer.from(svg, "utf-8").toString("base64");
       return { dataUrl: `data:image/svg+xml;base64,${base64}` };

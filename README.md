@@ -34,7 +34,8 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management.
 - **Creator Payouts:** Withdraw earnings via Cashfree Payouts (UPI or bank account).
 - **Automated Invoicing:** Professional PDF invoices with configurable company name, legal name, GSTIN, invoice prefix, footer text, **logo URL**, and **contact info** — downloadable from the wallet page.
-- **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 API providers (Gemini, Stability AI, OpenRouter FLUX, Hugging Face, Pollinations, Fal AI) plus a **local SVG gradient fallback** that always works.
+- **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 API providers (Gemini, Stability AI, OpenRouter FLUX, Hugging Face, Pollinations, Fal AI) plus a **local SVG gradient fallback** that always works — with word-wrapped title, text shadow, and contrast overlay for readability.
+- **AI Auto-Complete Course:** One-click button in Creator Studio that automatically fills missing videos (YouTube search), pulls transcripts & AI-summarizes into lesson content, generates 8 MCQs if none exist, and creates 2 assignments + 1 project. Course creation defaults pre-fill from your profile settings.
 
 ### 📬 Inbox & Notifications
 - **Smart Notifications:** Wallet top-ups, withdrawals, new lessons, and certificate updates — each notification is clickable and links to the relevant page (courses, wallet, certificates, creator dashboard).
@@ -81,7 +82,7 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 | **AI Embeddings** | Gemini Embeddings (text-embedding-004) |
 | **Image Generation** | Gemini 2.0 Flash → Stability AI → OpenRouter (FLUX Pro) → Hugging Face → Pollinations AI → Fal AI → Local SVG gradient (7-tier fallback, always works) |
 | **Video Analysis** | YouTube Data API + Gemini summarization |
-| **Email** | Resend (primary), Brevo/SMTP (fallback), Gmail SMTP (last resort via app password) |
+| **Email** | Resend REST API (primary) → Brevo API → Resend SMTP → Brevo SMTP → Gmail SMTP (5-tier fallback) |
 | **Error Monitoring** | Sentry |
 | **Analytics** | PostHog |
 | **LLM Observability** | LangSmith |
@@ -119,6 +120,7 @@ learnifyai/
 │   │   │   ├── cart.tsx        # Cart with coupon support, Cashfree checkout, enrollment
 │   │   │   ├── pricing.tsx     # Subscription plans page with subscribe/cancel flow
 │   │   │   ├── playlist.tsx    # Course player with inline AI tutor + agent
+│   │   │   ├── studio.tsx      # Creator Studio — AI Auto-Complete + course defaults from profile settings
 │   │   │   ├── playground.tsx  # Multi-language code playground (Monaco + Piston)
 │   │   │   └── ai-agent.tsx    # AI agent with chat, voice I/O, tool execution
 │   │   └── api/            # Serverless API endpoints

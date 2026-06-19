@@ -98,7 +98,7 @@ async function ytFetchVideoMeta(videoId: string, apiKey: string) {
   };
 }
 
-async function ytSearchTopVideo(query: string, apiKey: string) {
+export async function ytSearchTopVideo(query: string, apiKey: string) {
   const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&videoEmbeddable=true&relevanceLanguage=en&safeSearch=strict&q=${encodeURIComponent(query)}&key=${apiKey}`;
   const r = await fetchWithRetry(url);
   const body: any = await r.json().catch(() => ({}));
@@ -112,7 +112,7 @@ async function ytSearchTopVideo(query: string, apiKey: string) {
   };
 }
 
-async function fetchTranscriptRaw(videoId: string): Promise<string | null> {
+export async function fetchTranscriptRaw(videoId: string): Promise<string | null> {
   try {
     const { YoutubeTranscript } = await import("youtube-transcript");
     const items = await YoutubeTranscript.fetchTranscript(videoId, { lang: "en" }).catch(

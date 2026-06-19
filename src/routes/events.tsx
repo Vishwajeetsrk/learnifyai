@@ -33,59 +33,22 @@ type EventRow = {
   image_url?: string | null;
 };
 
-const defaultEvents: EventRow[] = [
-  {
-    id: "default-event-1",
-    title: "Next.js & React 19 Live Workshop",
-    description:
-      "Learn forms Actions, server components, and performance optimization hands-on with live building exercises.",
-    starts_at: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-    location: "Online (Discord Live Channel)",
-    rsvp_url: "https://discord.gg/learnify",
-  },
-  {
-    id: "default-event-2",
-    title: "AI Creators Panel & AMA Session",
-    description:
-      "Connect with successful creators and coaches launching cohorts and study systems. Q&A on monetization and scaling.",
-    starts_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    location: "Online (Zoom Webinar Room)",
-    rsvp_url: "https://zoom.us",
-  },
-  {
-    id: "default-event-3",
-    title: "Bangalore Creator & Coach Meetup",
-    description:
-      "Meet up offline in Bangalore with other educators, coaches, and tech builders in the Learnify AI network.",
-    starts_at: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
-    location: "Innov8 Koramangala, Bangalore",
-    rsvp_url: "https://meetup.com",
-  },
-];
-
 function EventsPage() {
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["events-public"],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from("events")
-          .select("*")
-          .gte("starts_at", new Date(Date.now() - 86400_000).toISOString())
-          .order("starts_at", { ascending: true });
-        if (error) {
-          console.warn("Events DB Query failed, falling back to static defaults:", error);
-          return [];
-        }
-        return (data ?? []) as EventRow[];
-      } catch (err) {
-        console.warn("Events fetch caught exception, falling back to static defaults:", err);
-        return [];
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .gte("starts_at", new Date(Date.now() - 86400_000 * 30).toISOString())
+        .order("starts_at", { ascending: true });
+      if (error) {
+        console.warn("Events DB query failed:", error);
+        throw error;
       }
+      return (data ?? []) as EventRow[];
     },
   });
-
-  const displayEvents = events.length > 0 ? events : defaultEvents;
 
   return (
     <MarketingPage
@@ -97,13 +60,13 @@ function EventsPage() {
         <div className="flex justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
-      ) : displayEvents.length === 0 ? (
+      ) : events.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">
           No upcoming events. Check back soon.
         </p>
       ) : (
         <div className="space-y-5">
-          {displayEvents.map((e) => {
+          {events.map((e) => {
             const d = new Date(e.starts_at);
             return (
               <div

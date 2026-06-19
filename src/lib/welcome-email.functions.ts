@@ -17,7 +17,7 @@ function escapeHtml(value: string) {
 
 import nodemailer from "nodemailer";
 
-async function sendResendEmail({
+async function sendEmail({
   to,
   subject,
   html,
@@ -35,23 +35,29 @@ async function sendResendEmail({
   const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
   const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
 
-  // Try Resend first
+  // 1. Try Resend REST API (most reliable)
   if (RESEND_API_KEY) {
     try {
-      const transporter = nodemailer.createTransport({
-        host: "smtp.resend.com",
-        port: 465,
-        secure: true,
-        auth: { user: "resend", pass: RESEND_API_KEY },
+      const resp = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ from: emailFrom, to: [to], subject, html }),
       });
-      await transporter.sendMail({ from: emailFrom, to: [to], subject, html });
-      return;
+      if (resp.ok) return;
+      const body = await resp.text().catch(() => "");
+      if (!resp.ok && !body.includes("verified")) {
+        throw new Error(`Resend API ${resp.status}: ${body.slice(0, 120)}`);
+      }
+      console.warn("Resend REST: sender not verified, trying alternatives...");
     } catch (err: any) {
-      console.warn("Resend failed, trying Brevo...", err?.message?.slice(0, 120));
+      console.warn("Resend REST failed, trying Brevo...", err?.message?.slice(0, 120));
     }
   }
 
-  // Fallback: Brevo REST API (no IP restrictions)
+  // 2. Try Brevo REST API
   if (BREVO_SMTP_KEY) {
     try {
       const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
@@ -68,14 +74,34 @@ async function sendResendEmail({
           htmlContent: html,
         }),
       });
-      if (!resp.ok) throw new Error(`Brevo API ${resp.status}`);
-      return;
+      if (resp.ok) return;
+      const body = await resp.text().catch(() => "");
+      if (!body.includes("not_verified") && !body.includes("unauthorized")) {
+        throw new Error(`Brevo API ${resp.status}: ${body.slice(0, 120)}`);
+      }
+      console.warn("Brevo API: sender not verified, trying SMTP...");
     } catch (err: any) {
       console.warn("Brevo API failed, trying SMTP...", err?.message?.slice(0, 120));
     }
   }
 
-  // Brevo SMTP (requires authorized IP in Brevo dashboard)
+  // 3. Try Resend SMTP
+  if (RESEND_API_KEY) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.resend.com",
+        port: 465,
+        secure: true,
+        auth: { user: "resend", pass: RESEND_API_KEY },
+      });
+      await transporter.sendMail({ from: emailFrom, to: [to], subject, html });
+      return;
+    } catch (err: any) {
+      console.warn("Resend SMTP failed, trying Brevo SMTP...", err?.message?.slice(0, 120));
+    }
+  }
+
+  // 4. Try Brevo SMTP
   if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
     try {
       const transporter = nodemailer.createTransport({
@@ -91,7 +117,7 @@ async function sendResendEmail({
     }
   }
 
-  // Last resort: Gmail SMTP (most reliable, no domain verification needed)
+  // 5. Last resort: Gmail SMTP
   if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
     try {
       const transporter = nodemailer.createTransport({
@@ -125,7 +151,6 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const name = data.fullName?.trim() || "Learner";
     const safeName = escapeHtml(name);
-    const safeEmail = escapeHtml(data.email);
     const html = `
       <div style="font-family:Inter,system-ui,sans-serif;color:#0f172a;line-height:1.6">
         <h1 style="font-size:24px;margin-bottom:12px;color:#111827">Welcome to Learnify AI, ${safeName}!</h1>
@@ -136,8 +161,8 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
       </div>
     `;
 
-    await sendResendEmail({
-      to: safeEmail,
+    await sendEmail({
+      to: data.email,
       subject: "Welcome to Learnify AI",
       html,
     });
