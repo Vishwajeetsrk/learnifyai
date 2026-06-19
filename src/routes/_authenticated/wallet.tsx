@@ -194,13 +194,16 @@ function WalletPage() {
     try {
       const doc = new jsPDF();
 
-      const companyName = inv.invoice_company_name || "Learnify AI";
-      const legalName = inv.invoice_legal_name || "Learnify EdTech Pvt. Ltd.";
-      const gstin = inv.invoice_gstin || "29XXXXX1234X1Z5";
-      const prefix = inv.invoice_prefix || "LRN";
-      const footerText = inv.invoice_footer || "This is a computer generated invoice and does not require a signature.";
-      const logoUrl = inv.invoice_logo_url;
-      const contact = inv.invoice_contact;
+      // Check user's own branding settings (Team plan admins can customize)
+      const { data: profileBrand } = await supabase.from("profiles").select("invoice_company_name, invoice_legal_name, invoice_gstin, invoice_prefix, invoice_footer, invoice_logo_url, invoice_contact, org_name, org_logo_url").eq("id", user.id).maybeSingle();
+
+      const companyName = profileBrand?.invoice_company_name || inv.invoice_company_name || "Learnify AI";
+      const legalName = profileBrand?.invoice_legal_name || inv.invoice_legal_name || "Learnify EdTech Pvt. Ltd.";
+      const gstin = profileBrand?.invoice_gstin || inv.invoice_gstin || "29XXXXX1234X1Z5";
+      const prefix = profileBrand?.invoice_prefix || inv.invoice_prefix || "LRN";
+      const footerText = profileBrand?.invoice_footer || inv.invoice_footer || "This is a computer generated invoice and does not require a signature.";
+      const logoUrl = profileBrand?.invoice_logo_url || profileBrand?.org_logo_url || inv.invoice_logo_url;
+      const contact = profileBrand?.invoice_contact || inv.invoice_contact;
 
       // Logo (if configured) — fetch and convert to base64
       let logoHeight = 0;

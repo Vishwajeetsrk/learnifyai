@@ -28,7 +28,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Community Feed:** Share updates, post questions, attach media, create polls, post announcements, and engage with peers. Rich text editor with Bold, Italic, Underline, text color, font size, font family, heading dropdown, bullet/ordered lists, emoji picker, and text alignment. Complete with comment author avatars, live poll voting, and pinned announcements. Authors can edit/delete their own posts and comments; admins can edit/delete any post or comment.
 - **Dashboard — My Learning:** Enrolled courses grid with responsive layout (1-4 columns), progress bars, test attempt stats, Continue/Playground buttons. Responsive card design with `min-w-0`, `break-words`, and `flex-wrap` for small screens.
 - **Dynamic Roadmaps:** CMS-backed public roadmap showing shipped, in-progress, and planned features.
-- **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate designer with 10 distinct theme presets (Executive Gold, Modern Corporate, University Style, Creator Academy, Nature Green, Royal Purple, Sunset Orange, Ocean Teal, Midnight Amber, Rose Gold), visual border pickers (double/solid/dashed/ornate/none), corner styles (diagonal/ribbon/none), background patterns (solid/dots/grid/stripes/gradient), color pickers, font selectors, and QR code integration. Live canvas preview with framer-motion drag-and-drop. Public verification and PDF download.
+- **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate designer with 10 distinct theme presets (Executive Gold, Modern Corporate, University Style, Creator Academy, Nature Green, Royal Purple, Sunset Orange, Ocean Teal, Midnight Amber, Rose Gold), visual border pickers (double/solid/dashed/ornate/none), corner styles (diagonal/ribbon/none), background patterns (solid/dots/grid/stripes/gradient), color pickers, font selectors, and QR code integration. Rich text formatting bar (Bold/Italic/Underline, text presets H1-H4/Body/Small, emoji picker, 20-color preset grid, per-element font overrides from 12 fonts). **Organization Logo** element type renders the issuer's org branding on certificates. Z-index layering, duplicate, and delete controls. Live canvas preview with fixed framer-motion drag-and-drop (no CSS transform conflicts). Public verification and PDF download.
 
 ### 🎮 Playground (Coding IDE)
 - **Code Editor:** Full-featured Monaco editor with syntax highlighting, autocomplete, themes, line numbers, bracket pair colorization, and font ligatures. Supports 30+ languages with real SVG logos via Simple Icons CDN. Fullscreen mode. Inline project title editing with rename support. Unsaved change indicator.
@@ -48,7 +48,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Coaching Hub (5-tab production):** Scheduling (slot creation with Google Meet/Zoom — add/edit/delete, booking with user info collection), Messaging (real-time Supabase subscription, chat bubbles with timestamps, contact list from bookings), Client Roadmaps (milestone-based with progress bar, creator assigns to learner), Outcomes (quiz analytics, enrollment progress, cross-learner stats for creators), Cohorts (CRUD with learner management, WhatsApp share, live/scheduled/draft status).
 - **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management. Member avatars shown in list view (up to 5 faces with overflow count). Live countdown timer with ping dot when live, pre-meeting toast notification (30 min window). Group chat (WhatsApp) and meeting (Google Meet) link display in detail view restricted to members/hosts. Auto-open WhatsApp/Meet links in new tabs on successful cohort join. Responsive card grid (1-4 columns) with truncation and flex-wrap actions.
 - **Creator Payouts:** Withdraw earnings via Cashfree Payouts (UPI or bank account).
-- **Automated Invoicing:** Professional PDF invoices with configurable company name, legal name, GSTIN, invoice prefix, footer text, **logo URL**, and **contact info** — downloadable from the wallet page.
+- **Automated Invoicing:** Professional PDF invoices with configurable company name, legal name, GSTIN, invoice prefix, footer text, **logo URL**, and **contact info** — downloadable from the wallet page. Team plan admins can set their own invoice branding (overrides global defaults) from **Settings → Branding**.
 - **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 API providers (Gemini, Stability AI, OpenRouter FLUX, Hugging Face, Pollinations, Fal AI) plus a **local SVG fallback** that always works — with word-wrapped title rendered on dark pill backgrounds (rounded semi-transparent black pills per line) for guaranteed readability, large Arial fonts at weight 900, and no clipping.
 - **AI Auto-Complete Course:** One-click button in Creator Studio that automatically fills missing videos (YouTube search filtered to Education category, skipping music/meme content), pulls transcripts & AI-summarizes into lesson content, generates 8 MCQs if none exist, creates 2 assignments + 1 project, and auto-generates a course thumbnail. Course creation defaults pre-fill from your profile settings. Uses `supabaseAdmin` for reads to bypass RLS restrictions.
 
@@ -156,14 +156,14 @@ learnifyai/
 │   │   │   ├── admin.tsx             # Admin overview: transactions dashboard (type filter, date range), user management, cohorts, withdrawals, export (Excel + CSV)
 │   │   │   ├── admin.content.tsx     # Content Manager: Events, Jobs, Pricing Plans, Site Settings, Cert Templates, FAQs, Pages, Coupons, Community Groups, Roadmap
 │   │   │   ├── admin.missing-videos.tsx  # Admin QA: detects lessons with empty/invalid video URLs + courses with no lessons
-│   │   │   ├── admin.certificates.tsx  # Drag-and-drop certificate designer (10 themes, borders, patterns)
+│   │   │   ├── admin.certificates.tsx  # Drag-and-drop certificate designer (10 themes, borders, patterns, rich text formatting bar, org_logo element)
 │   │   │   ├── cohorts.tsx     # Cohort list view — member avatars, group chat links, countdown timers
 │   │   │   ├── cohorts.$id.tsx # Cohort detail + chat + members panel + meeting links + pre-start notification
 │   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree) + withdrawal (Cashfree Payouts) + invoice PDF download
 │   │   │   ├── cart.tsx        # Cart with coupon support, Cashfree checkout, enrollment
 │   │   │   ├── leaderboard.tsx # XP leaderboard with weekly/all-time tabs, podium, level badges, progress bar
 │   │   │   ├── achievements.tsx # Achievements page with categorized badges, earned/locked state, progress bars
-│   │   │   ├── settings.tsx    # Unified 4-tab settings: Profile (avatar, username, socials, skills), Billing (subscription, wallet, withdrawals), Notifications, Settings (password, payouts, defaults)
+│   │   │   ├── settings.tsx    # Unified 5-tab settings: Profile, Billing, Notifications, Settings, Branding (org name, logo, brand color, invoice customization — admin/Team only)
 │   │   │   ├── pricing.tsx     # Subscription plans page with subscribe/cancel flow
 │   │   │   ├── playlist.tsx    # Course player with inline AI tutor + agent
 │   │   │   ├── studio.tsx      # Creator Studio — AI Auto-Complete + course defaults from profile settings
@@ -192,7 +192,9 @@ learnifyai/
 │       ├── 20260620000000_leaderboard_ranks.sql      # xp_log table for weekly XP tracking
 │       ├── 20260620000001_achievements_badges.sql    # Badges category & course_id columns
 │       ├── 20260620000002_settings_profile_fields.sql # Profiles: username, location, work, education, website, skills
-│       └── 20260620000003_withdrawal_delete_policy.sql # RLS policy for withdrawal delete
+│       ├── 20260620000003_withdrawal_delete_policy.sql # RLS policy for withdrawal delete
+│       ├── 20260620000004_badges_seed.sql              # 24 badges across 5 categories, streak/course/test/challenge requirement columns
+│       └── 20260620000005_org_branding.sql             # Profiles: org_name, org_logo_url, brand_color, invoice customization fields
 ├── package.json            # Dependencies and scripts
 ├── scripts/                # Utility scripts
 │   └── seed_courses.mjs    # Seed database with real courses

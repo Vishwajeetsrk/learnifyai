@@ -19,6 +19,7 @@ import {
   Globe,
   KeyRound,
   XCircle,
+  Building2,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -44,6 +45,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -117,7 +119,7 @@ type Payout = {
 type Defaults = { price_inr: number; category: string; level: string };
 
 function SettingsPage() {
-  const { user, hasRole } = useAuth();
+  const { user, hasRole, isAdmin } = useAuth();
   const qc = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);
   const isCreator = hasRole("creator") || hasRole("super_admin") || hasRole("admin");
@@ -159,6 +161,19 @@ function SettingsPage() {
     level: "Beginner",
   });
   const [savingExtra, setSavingExtra] = useState(false);
+
+  // Branding (Team / admin)
+  const [orgName, setOrgName] = useState("");
+  const [orgLogoUrl, setOrgLogoUrl] = useState("");
+  const [brandColor, setBrandColor] = useState("#7c3aed");
+  const [invCompanyName, setInvCompanyName] = useState("");
+  const [invLegalName, setInvLegalName] = useState("");
+  const [invGstin, setInvGstin] = useState("");
+  const [invPrefix, setInvPrefix] = useState("INV");
+  const [invFooter, setInvFooter] = useState("");
+  const [invLogoUrl, setInvLogoUrl] = useState("");
+  const [invContact, setInvContact] = useState("");
+  const [savingBranding, setSavingBranding] = useState(false);
 
   // Wallet
   const [topupOpen, setTopupOpen] = useState(false);
@@ -269,6 +284,16 @@ function SettingsPage() {
         level: "Beginner",
       }) as Defaults,
     );
+    setOrgName(p.org_name ?? "");
+    setOrgLogoUrl(p.org_logo_url ?? "");
+    setBrandColor(p.brand_color ?? "#7c3aed");
+    setInvCompanyName(p.invoice_company_name ?? "");
+    setInvLegalName(p.invoice_legal_name ?? "");
+    setInvGstin(p.invoice_gstin ?? "");
+    setInvPrefix(p.invoice_prefix ?? "INV");
+    setInvFooter(p.invoice_footer ?? "");
+    setInvLogoUrl(p.invoice_logo_url ?? "");
+    setInvContact(p.invoice_contact ?? "");
   }, [profileQ.data]);
 
   useEffect(() => {
@@ -522,7 +547,7 @@ function SettingsPage() {
 
         <Tabs defaultValue="profile" className="w-full">
           <TabsList
-            className={`${isPhone ? "grid grid-cols-2" : "grid grid-cols-4"} w-full md:w-auto`}
+            className={`${isPhone ? "grid grid-cols-2" : isAdmin ? "grid grid-cols-5" : "grid grid-cols-4"} w-full md:w-auto`}
           >
             <TabsTrigger value="profile">
               <UserIcon className="h-4 w-4" />
@@ -540,6 +565,12 @@ function SettingsPage() {
               <SettingsIcon className="h-4 w-4" />
               <span className="ml-1.5">Settings</span>
             </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger value="branding">
+                <Building2 className="h-4 w-4" />
+                <span className="ml-1.5">Branding</span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* ═══ PROFILE ═══ */}
@@ -1220,6 +1251,91 @@ function SettingsPage() {
               </>
             )}
           </TabsContent>
+
+          {/* ═══ BRANDING (Team / Admin) ═══ */}
+          {isAdmin && (
+          <TabsContent value="branding" className="mt-6 space-y-6">
+            <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
+              <h2 className="font-display font-semibold flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-primary" /> Organization Branding
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Customize how your certificates and invoices appear. Changes apply to all certificates you issue.
+              </p>
+
+              <div className="space-y-4">
+                <Field label="Organization Name">
+                  <Input value={orgName} onChange={e => setOrgName(e.target.value)} placeholder="Your Company" />
+                </Field>
+
+                <Field label="Organization Logo URL">
+                  <Input value={orgLogoUrl} onChange={e => setOrgLogoUrl(e.target.value)} placeholder="https://example.com/logo.png" />
+                </Field>
+
+                <Field label="Brand Color">
+                  <div className="relative mt-1">
+                    <input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
+                    <div className="w-full h-9 rounded-lg border flex items-center gap-2 px-2" style={{ background: brandColor + '22', borderColor: brandColor }}>
+                      <div className="h-5 w-5 rounded border" style={{ background: brandColor }} />
+                      <span className="text-xs font-mono">{brandColor}</span>
+                    </div>
+                  </div>
+                </Field>
+              </div>
+            </div>
+
+            {(subQ.data as any)?.pricing_plans?.name === "Team" && (
+              <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
+                <h2 className="font-display font-semibold flex items-center gap-2">
+                  <Building2 className="h-4 w-4 text-primary" /> Invoice Customization
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Custom invoice branding for your organization. These override the global invoice defaults.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Field label="Invoice company name"><Input value={invCompanyName} onChange={e => setInvCompanyName(e.target.value)} placeholder="Your Company" /></Field>
+                  <Field label="Invoice legal name"><Input value={invLegalName} onChange={e => setInvLegalName(e.target.value)} placeholder="Your Company Pvt. Ltd." /></Field>
+                  <Field label="GSTIN"><Input value={invGstin} onChange={e => setInvGstin(e.target.value)} placeholder="29XXXXX1234X1Z5" /></Field>
+                  <Field label="Invoice prefix"><Input value={invPrefix} onChange={e => setInvPrefix(e.target.value)} placeholder="INV" /></Field>
+                  <Field label="Invoice logo URL"><Input value={invLogoUrl} onChange={e => setInvLogoUrl(e.target.value)} placeholder="https://example.com/invoice-logo.png" /></Field>
+                  <Field label="Contact (email/phone)"><Input value={invContact} onChange={e => setInvContact(e.target.value)} placeholder="hello@company.com" /></Field>
+                  <div className="sm:col-span-2">
+                    <Field label="Invoice footer"><Input value={invFooter} onChange={e => setInvFooter(e.target.value)} placeholder="Thank you for your business!" /></Field>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end">
+              <Button onClick={async () => {
+                setSavingBranding(true);
+                try {
+                  const { error } = await supabase.from("profiles").update({
+                    org_name: orgName || null,
+                    org_logo_url: orgLogoUrl || null,
+                    brand_color: brandColor,
+                    invoice_company_name: invCompanyName || null,
+                    invoice_legal_name: invLegalName || null,
+                    invoice_gstin: invGstin || null,
+                    invoice_prefix: invPrefix || null,
+                    invoice_footer: invFooter || null,
+                    invoice_logo_url: invLogoUrl || null,
+                    invoice_contact: invContact || null,
+                  }).eq("id", user!.id);
+                  if (error) throw error;
+                  toast.success("Branding saved");
+                  qc.invalidateQueries({ queryKey: ["profile-full"] });
+                } catch (e: any) {
+                  toast.error(e.message);
+                } finally {
+                  setSavingBranding(false);
+                }
+              }} disabled={savingBranding}>
+                {savingBranding ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save Branding
+              </Button>
+            </div>
+          </TabsContent>
+          )}
         </Tabs>
       </div>
     </AppShell>

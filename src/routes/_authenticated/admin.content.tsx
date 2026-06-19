@@ -34,7 +34,8 @@ import {
   type CertDesign,
 } from "@/components/CertificateDesign";
 import { CertificateFullPreviewDialog } from "@/components/CertificateFullPreviewDialog";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, GripVertical } from "lucide-react";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -1384,7 +1385,9 @@ function CertTemplatesManager() {
         ? json
         : Array.isArray(json?.templates)
           ? json.templates
-          : [];
+          : json?.name
+            ? [json]
+            : [];
       if (!rows.length) return toast.error("No templates found in file");
       const clean = rows.map((r) => {
         const { id, created_by, created_at, updated_at, is_default, ...rest } = r ?? {};
@@ -2674,47 +2677,73 @@ function RoadmapManager() {
         <Button onClick={addItem}><Plus className="h-4 w-4 mr-2" /> Add item</Button>
       </div>
 
-      <div className="space-y-3">
-        {items.map((item) => (
-          <div key={item.id} className="rounded-xl border border-border/60 bg-card p-4">
-            <div className="flex items-center justify-between gap-3 mb-3">
-              <div className="flex items-center gap-2">
-                <select
-                  value={item.status}
-                  onChange={(e) => updateItem(item.id, { status: e.target.value as RoadmapItem["status"] })}
-                  className="text-xs border rounded px-1.5 py-0.5 bg-background"
-                >
-                  <option value="done">Shipped</option>
-                  <option value="progress">In progress</option>
-                  <option value="planned">Planned</option>
-                </select>
-              </div>
-              <div className="flex gap-1">
-                <Button size="sm" variant="ghost" onClick={() => setEditing(editing?.id === item.id ? null : item)}>
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
-                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteItem(item.id)}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </div>
+      <DragDropContext
+        onDragEnd={(result: DropResult) => {
+          if (!result.destination) return;
+          const reordered = Array.from(items);
+          const [moved] = reordered.splice(result.source.index, 1);
+          reordered.splice(result.destination.index, 0, moved);
+          setItems(reordered);
+        }}
+      >
+        <Droppable droppableId="roadmap">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-3">
+              {items.map((item, idx) => (
+                <Draggable key={item.id} draggableId={item.id} index={idx}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className={`rounded-xl border bg-card p-4 transition-shadow ${snapshot.isDragging ? "shadow-lg border-primary/40" : "border-border/60"}`}
+                    >
+                      <div className="flex items-center justify-between gap-3 mb-3">
+                        <div className="flex items-center gap-2">
+                          <button {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground p-0.5">
+                            <GripVertical className="h-4 w-4" />
+                          </button>
+                          <select
+                            value={item.status}
+                            onChange={(e) => updateItem(item.id, { status: e.target.value as RoadmapItem["status"] })}
+                            className="text-xs border rounded px-1.5 py-0.5 bg-background"
+                          >
+                            <option value="done">Shipped</option>
+                            <option value="progress">In progress</option>
+                            <option value="planned">Planned</option>
+                          </select>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="ghost" onClick={() => setEditing(editing?.id === item.id ? null : item)}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteItem(item.id)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                      {editing?.id === item.id ? (
+                        <div className="space-y-2">
+                          <Input value={item.title} onChange={(e) => updateItem(item.id, { title: e.target.value })} placeholder="Title" />
+                          <Input value={item.desc} onChange={(e) => updateItem(item.id, { desc: e.target.value })} placeholder="Description" />
+                        </div>
+                      ) : (
+                        <>
+                          <div className="font-semibold text-sm">{item.title || "Untitled"}</div>
+                          {item.desc && <div className="text-xs text-muted-foreground mt-0.5">{item.desc}</div>}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+              {items.length === 0 && (
+                <div className="text-center text-muted-foreground py-8">No roadmap items yet. Click "Add item" to start.</div>
+              )}
             </div>
-            {editing?.id === item.id ? (
-              <div className="space-y-2">
-                <Input value={item.title} onChange={(e) => updateItem(item.id, { title: e.target.value })} placeholder="Title" />
-                <Input value={item.desc} onChange={(e) => updateItem(item.id, { desc: e.target.value })} placeholder="Description" />
-              </div>
-            ) : (
-              <>
-                <div className="font-semibold text-sm">{item.title || "Untitled"}</div>
-                {item.desc && <div className="text-xs text-muted-foreground mt-0.5">{item.desc}</div>}
-              </>
-            )}
-          </div>
-        ))}
-        {items.length === 0 && (
-          <div className="text-center text-muted-foreground py-8">No roadmap items yet. Click "Add item" to start.</div>
-        )}
-      </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
       <div className="pt-2 sticky bottom-0 bg-background/95 backdrop-blur py-3">
         <Button onClick={save} disabled={saving}>

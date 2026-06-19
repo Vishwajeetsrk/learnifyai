@@ -20,6 +20,7 @@
     "@codesandbox/sandpack-themes": "^2.0.21",
     "@fontsource/dm-sans": "^5.2.8",
     "@fontsource/space-grotesk": "^5.2.10",
+    "@hello-pangea/dnd": "^18.0.1",
     "@hookform/resolvers": "^5.2.2",
     "@lovable.dev/cloud-auth-js": "^1.1.2",
     "@lovable.dev/vite-tanstack-config": "^2.1.1",

@@ -77,7 +77,17 @@ function CertificatePage() {
         template = tmpl;
       }
 
-      return { ...row, v2: certV2 ? { ...certV2, certificate_templates: template } : null } as any;
+      let issuerOrgLogoUrl = null;
+      if (row.created_by) {
+        const { data: issuerProfile } = await supabase
+          .from("profiles")
+          .select("org_logo_url")
+          .eq("id", row.created_by)
+          .maybeSingle();
+        issuerOrgLogoUrl = issuerProfile?.org_logo_url ?? null;
+      }
+
+      return { ...row, v2: certV2 ? { ...certV2, certificate_templates: template } : null, issuer_org_logo_url: issuerOrgLogoUrl } as any;
     },
   });
 
@@ -219,28 +229,40 @@ function CertificatePage() {
                 let content = el.content || "";
                 content = content.replace("{name}", ctx.name).replace("{course}", ctx.course).replace("{date}", ctx.date).replace("{certificate_id}", ctx.code);
                 
-                if (el.type === 'qr') {
+                  if (el.type === 'qr') {
+                    return (
+                      <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height }}>
+                        {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" />}
+                      </div>
+                    );
+                  }
+
+                  if (el.type === 'org_logo') {
+                    const logoUrl = (row.v2?.certificate_templates as any)?.org_logo_url || (row as any)?.issuer_org_logo_url;
+                    return logoUrl ? (
+                      <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width || 100, height: el.height || 80 }}>
+                        <img src={logoUrl} alt="Org Logo" className="w-full h-full object-contain" />
+                      </div>
+                    ) : null;
+                  }
+                  
                   return (
-                    <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height }}>
-                      {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" />}
+                    <div key={el.id} className="absolute whitespace-pre-wrap" style={{ 
+                      left: el.x, 
+                      top: el.y, 
+                      fontSize: el.fontSize || '16px', 
+                      fontFamily: el.fontFamily || 'Georgia, serif', 
+                      color: el.color || '#0f1b3d',
+                      textAlign: el.align || 'left',
+                      width: el.width || 'auto',
+                      fontWeight: el.fontWeight || 'normal',
+                      fontStyle: el.fontStyle || 'normal',
+                      textDecoration: el.textDecoration === 'underline' ? 'underline' : 'none',
+                      transform: el.align === 'center' ? 'translateX(-50%)' : el.align === 'right' ? 'translateX(-100%)' : 'none'
+                    }}>
+                      {content}
                     </div>
                   );
-                }
-                
-                return (
-                  <div key={el.id} className="absolute whitespace-pre-wrap" style={{ 
-                    left: el.x, 
-                    top: el.y, 
-                    fontSize: el.fontSize || '16px', 
-                    fontFamily: el.fontFamily || 'Georgia, serif', 
-                    color: el.color || '#0f1b3d',
-                    textAlign: el.align || 'left',
-                    width: el.width || 'auto',
-                    transform: el.align === 'center' ? 'translateX(-50%)' : el.align === 'right' ? 'translateX(-100%)' : 'none'
-                  }}>
-                    {content}
-                  </div>
-                );
               })
             ) : (
               <div className="w-full h-full flex flex-col items-center justify-center p-10 text-center" style={{ fontFamily: "'Georgia', serif" }}>

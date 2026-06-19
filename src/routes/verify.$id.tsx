@@ -36,7 +36,19 @@ function VerifyPage() {
       const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
 
       if (!row && !certV2) throw new Error("Credential not found or invalid.");
-      return { ...row, v2: certV2 } as any;
+
+      let issuerOrgLogoUrl = null;
+      const createdBy = certV2?.created_by || row?.created_by;
+      if (createdBy) {
+        const { data: issuerProfile } = await supabase
+          .from("profiles")
+          .select("org_logo_url")
+          .eq("id", createdBy)
+          .maybeSingle();
+        issuerOrgLogoUrl = issuerProfile?.org_logo_url ?? null;
+      }
+
+      return { ...row, v2: certV2, issuer_org_logo_url: issuerOrgLogoUrl } as any;
     },
   });
 
@@ -149,6 +161,15 @@ function VerifyPage() {
                       </div>
                     );
                   }
+
+                  if (el.type === 'org_logo') {
+                    const logoUrl = (row as any)?.issuer_org_logo_url;
+                    return logoUrl ? (
+                      <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width || 100, height: el.height || 80 }}>
+                        <img src={logoUrl} alt="Org Logo" className="w-full h-full object-contain" />
+                      </div>
+                    ) : null;
+                  }
                   
                   return (
                     <div key={el.id} className="absolute whitespace-pre-wrap" style={{ 
@@ -159,6 +180,9 @@ function VerifyPage() {
                       color: el.color,
                       textAlign: el.align,
                       width: el.width || 'auto',
+                      fontWeight: el.fontWeight || 'normal',
+                      fontStyle: el.fontStyle || 'normal',
+                      textDecoration: el.textDecoration === 'underline' ? 'underline' : 'none',
                       transform: el.align === 'center' ? 'translateX(-50%)' : el.align === 'right' ? 'translateX(-100%)' : 'none'
                     }}>
                       {content}

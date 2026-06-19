@@ -1,17 +1,19 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { motion } from "framer-motion";
-import { Plus, Trash2, Save, Image as ImageIcon, Type, Edit3, Settings, ShieldCheck, Palette, Square, LayoutGrid, Scissors } from "lucide-react";
+import { Plus, Trash2, Save, Image as ImageIcon, Type, Edit3, Settings, ShieldCheck, Palette, Square, LayoutGrid, Scissors, Bold, Italic, Underline, SmilePlus, ArrowUp, ArrowDown, Copy, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AppShell } from "@/components/AppShell";
 import { listTemplates, saveTemplate, deleteTemplate } from "@/lib/certificate-admin.functions";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin/certificates")({
   component: AdminCertificatesPage,
@@ -19,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/admin/certificates")({
 
 type CertElement = {
   id: string;
-  type: "text" | "image" | "qr";
+  type: "text" | "image" | "qr" | "org_logo";
   content?: string;
   url?: string;
   x: number;
@@ -30,6 +32,9 @@ type CertElement = {
   align?: "left" | "center" | "right";
   width?: number;
   height?: number;
+  fontWeight?: "normal" | "bold";
+  fontStyle?: "normal" | "italic";
+  textDecoration?: "none" | "underline";
 };
 
 type CertDesign = {
@@ -269,11 +274,11 @@ function applyTheme(t: typeof THEMES[0]): CertDesign {
 }
 
 const DEFAULT_ELEMENTS: CertElement[] = [
-  { id: "e1", type: "text", content: "{name}", x: 400, y: 220, fontSize: 48, fontFamily: "Playfair Display", color: "#1a1a1a", align: "center" },
-  { id: "e2", type: "text", content: "has successfully completed", x: 400, y: 300, fontSize: 18, fontFamily: "Inter", color: "#666666", align: "center" },
-  { id: "e3", type: "text", content: "{course}", x: 400, y: 360, fontSize: 32, fontFamily: "Inter", color: "#1a1a1a", align: "center" },
-  { id: "e4", type: "text", content: "Issued on: {date}", x: 400, y: 440, fontSize: 14, fontFamily: "Inter", color: "#666666", align: "center" },
-  { id: "e5", type: "text", content: "ID: {certificate_id}", x: 100, y: 540, fontSize: 12, fontFamily: "Inter", color: "#999999", align: "left" },
+  { id: "e1", type: "text", content: "{name}", x: 400, y: 220, fontSize: 48, fontFamily: "Playfair Display", color: "#1a1a1a", align: "center", fontWeight: "bold", fontStyle: "normal", textDecoration: "none" },
+  { id: "e2", type: "text", content: "has successfully completed", x: 400, y: 300, fontSize: 18, fontFamily: "Inter", color: "#666666", align: "center", fontWeight: "normal", fontStyle: "normal", textDecoration: "none" },
+  { id: "e3", type: "text", content: "{course}", x: 400, y: 360, fontSize: 32, fontFamily: "Inter", color: "#1a1a1a", align: "center", fontWeight: "bold", fontStyle: "normal", textDecoration: "none" },
+  { id: "e4", type: "text", content: "Issued on: {date}", x: 400, y: 440, fontSize: 14, fontFamily: "Inter", color: "#666666", align: "center", fontWeight: "normal", fontStyle: "normal", textDecoration: "none" },
+  { id: "e5", type: "text", content: "ID: {certificate_id}", x: 100, y: 540, fontSize: 12, fontFamily: "Inter", color: "#999999", align: "left", fontWeight: "normal", fontStyle: "normal", textDecoration: "none" },
   { id: "e6", type: "qr", x: 650, y: 470, width: 80, height: 80 },
 ];
 
@@ -371,7 +376,7 @@ function AdminCertificatesPage() {
       ...active,
       config_json: {
         ...active.config_json,
-        elements: [...active.config_json.elements, { id: Date.now().toString(), type: "text", content: "New Text", x: 100, y: 100, fontSize: 24, color: active.config_json.design.text_color, fontFamily: active.config_json.design.font_family, align: "left" }]
+        elements: [...active.config_json.elements, { id: Date.now().toString(), type: "text", content: "New Text", x: 100, y: 100, fontSize: 24, color: active.config_json.design.text_color, fontFamily: active.config_json.design.font_family, align: "left", fontWeight: "normal", fontStyle: "normal", textDecoration: "none" }]
       }
     })
   };
@@ -383,6 +388,17 @@ function AdminCertificatesPage() {
       config_json: {
         ...active.config_json,
         elements: [...active.config_json.elements, { id: Date.now().toString(), type: "image", url: "", x: 100, y: 100, width: 160, height: 120 }]
+      }
+    })
+  };
+
+  const addOrgLogo = () => {
+    if(!active) return;
+    setActive({
+      ...active,
+      config_json: {
+        ...active.config_json,
+        elements: [...active.config_json.elements, { id: Date.now().toString(), type: "org_logo", x: 60, y: 40, width: 100, height: 100 }]
       }
     })
   };
@@ -449,9 +465,14 @@ function AdminCertificatesPage() {
                       {els.map(el => {
                         if (el.type === 'text') {
                           return (
-                            <text key={el.id} x={el.x} y={el.y} fontSize={el.fontSize || 16} fill={el.color || design.text_color} fontFamily={el.fontFamily || 'Georgia, serif'} textAnchor={el.align === 'center' ? 'middle' : el.align === 'right' ? 'end' : 'start'} dominantBaseline="hanging">
+                            <text key={el.id} x={el.x} y={el.y} fontSize={el.fontSize || 16} fill={el.color || design.text_color} fontFamily={el.fontFamily || 'Georgia, serif'} textAnchor={el.align === 'center' ? 'middle' : el.align === 'right' ? 'end' : 'start'} dominantBaseline="hanging" fontWeight={el.fontWeight}>
                               {el.content}
                             </text>
+                          );
+                        }
+                        if (el.type === 'org_logo') {
+                          return (
+                            <rect key={el.id} x={el.x} y={el.y} width={el.width || 80} height={el.height || 60} rx="4" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3,2" />
                           );
                         }
                         return null;
@@ -488,6 +509,7 @@ function AdminCertificatesPage() {
                   <Button variant="ghost" size="sm" onClick={() => setActive(null)}>Cancel</Button>
                   <Button variant="outline" size="sm" onClick={addText}><Type className="h-4 w-4" /> Add Text</Button>
                   <Button variant="outline" size="sm" onClick={addImage}><ImageIcon className="h-4 w-4" /> Add Image</Button>
+                  <Button variant="outline" size="sm" onClick={addOrgLogo}><Building2 className="h-4 w-4" /> Org Logo</Button>
                 </div>
                 <Button onClick={handleSave} disabled={saving}><Save className="h-4 w-4" /> {saving ? "Saving..." : "Save Template"}</Button>
               </div>
@@ -510,7 +532,7 @@ function AdminCertificatesPage() {
                   {active.config_json.design.border_style === "ornate" && (
                     <div className="absolute inset-2 pointer-events-none z-0" style={{ border: `1px solid ${active.config_json.design.accent_color}88` }} />
                   )}
-                  {active.config_json.elements.map(el => (
+                  {active.config_json.elements.map((el, idx) => (
                     <motion.div
                       key={el.id}
                       drag
@@ -528,30 +550,47 @@ function AdminCertificatesPage() {
                       style={{
                         left: el.x,
                         top: el.y,
+                        width: el.width || (el.type === 'text' ? 'auto' : el.width),
+                        height: el.height || (el.type === 'text' ? 'auto' : el.height),
+                        zIndex: idx,
+                      }}
+                    >
+                      <div style={{
                         fontSize: el.fontSize,
                         fontFamily: el.fontFamily,
                         color: el.color,
                         textAlign: el.align,
-                        width: el.width,
-                        height: el.height,
-                        transform: el.align === 'center' ? 'translateX(-50%)' : el.align === 'right' ? 'translateX(-100%)' : 'none'
-                      }}
-                    >
-                      {el.type === 'text' && (el.content)}
-                      {el.type === 'image' && (
-                        el.url ? (
-                          <img src={el.url} alt="" className="w-full h-full object-contain" />
-                        ) : (
-                          <div className="w-full h-full bg-muted border border-dashed flex items-center justify-center text-[10px] text-muted-foreground">
-                            <ImageIcon className="h-6 w-6 opacity-40" />
+                        fontWeight: el.fontWeight || 'normal',
+                        fontStyle: el.fontStyle || 'normal',
+                        textDecoration: el.textDecoration === 'underline' ? 'underline' : 'none',
+                        display: 'flex',
+                        justifyContent: el.align === 'center' ? 'center' : el.align === 'right' ? 'flex-end' : 'flex-start',
+                        width: '100%',
+                        height: '100%',
+                        alignItems: el.type === 'image' || el.type === 'org_logo' ? 'center' : undefined,
+                      }}>
+                        {el.type === 'text' && el.content}
+                        {el.type === 'image' && (
+                          el.url ? (
+                            <img src={el.url} alt="" className="w-full h-full object-contain" />
+                          ) : (
+                            <div className="w-full h-full bg-muted border border-dashed flex items-center justify-center text-[10px] text-muted-foreground">
+                              <ImageIcon className="h-6 w-6 opacity-40" />
+                            </div>
+                          )
+                        )}
+                        {el.type === 'org_logo' && (
+                          <div className="w-full h-full bg-muted/30 border border-dashed flex items-center justify-center text-[10px] text-muted-foreground">
+                            <Building2 className="h-6 w-6 opacity-40" />
+                            <span className="ml-1">Org Logo</span>
                           </div>
-                        )
-                      )}
-                      {el.type === 'qr' && (
-                        <div className="w-full h-full bg-black/10 border border-dashed flex items-center justify-center text-[10px] text-muted-foreground">
-                          QR Code
-                        </div>
-                      )}
+                        )}
+                        {el.type === 'qr' && (
+                          <div className="w-full h-full bg-black/10 border border-dashed flex items-center justify-center text-[10px] text-muted-foreground">
+                            QR Code
+                          </div>
+                        )}
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -798,62 +837,129 @@ function AdminCertificatesPage() {
               </div>
 
               {/* Element Properties */}
-              {selectedEl && (
+              {selectedEl && (() => {
+                const el = active.config_json.elements.find(e => e.id === selectedEl);
+                if (!el) return null;
+                return (
                 <div className="border-t pt-5">
                   <h3 className="font-semibold flex items-center justify-between mb-4">
-                    Element Properties
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10" onClick={() => {
-                       setActive({...active, config_json: { ...active.config_json, elements: active.config_json.elements.filter(e => e.id !== selectedEl) }});
-                      setSelectedEl(null);
-                    }}><Trash2 className="h-4 w-4" /></Button>
+                    <span className="flex items-center gap-2">
+                      Element Properties
+                      <div className="flex gap-0.5">
+                        <button onClick={() => { const els = active.config_json.elements; const i = els.findIndex(e => e.id === selectedEl); if (i > 0) { const copy = [...els]; [copy[i-1], copy[i]] = [copy[i], copy[i-1]]; setActive({...active, config_json: {...active.config_json, elements: copy}}); } }} className="h-6 w-6 rounded hover:bg-accent flex items-center justify-center"><ArrowUp className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => { const els = active.config_json.elements; const i = els.findIndex(e => e.id === selectedEl); if (i < els.length-1) { const copy = [...els]; [copy[i], copy[i+1]] = [copy[i+1], copy[i]]; setActive({...active, config_json: {...active.config_json, elements: copy}}); } }} className="h-6 w-6 rounded hover:bg-accent flex items-center justify-center"><ArrowDown className="h-3.5 w-3.5" /></button>
+                      </div>
+                    </span>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-accent" onClick={() => {
+                        const els = active.config_json.elements;
+                        const i = els.findIndex(e => e.id === selectedEl);
+                        const copy = { ...els[i], id: Date.now().toString(), x: els[i].x + 20, y: els[i].y + 20 };
+                        const newEls = [...els];
+                        newEls.splice(i + 1, 0, copy);
+                        setActive({...active, config_json: {...active.config_json, elements: newEls}});
+                        setSelectedEl(copy.id);
+                      }}><Copy className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10" onClick={() => {
+                         setActive({...active, config_json: { ...active.config_json, elements: active.config_json.elements.filter(e => e.id !== selectedEl) }});
+                        setSelectedEl(null);
+                      }}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
                   </h3>
 
-                  {active.config_json.elements.find(e => e.id === selectedEl)?.type === 'text' && (
+                  {el.type === 'text' && (
                     <div className="space-y-3">
                       <div>
                         <Label className="text-xs">Content (Supports {'{name}'}, {'{course}'})</Label>
                         <Input
-                          value={active.config_json.elements.find(e => e.id === selectedEl)?.content}
+                          value={el.content}
                           onChange={e => updateActiveEl({ content: e.target.value })}
                           className="mt-1"
                         />
                       </div>
+
+                      {/* Formatting Bar */}
+                      <div className="flex items-center gap-1 flex-wrap p-2 bg-muted/40 rounded-lg border">
+                        <button onClick={() => updateActiveEl({ fontWeight: el.fontWeight === 'bold' ? 'normal' : 'bold' })} className={`p-1.5 rounded transition-colors ${el.fontWeight === 'bold' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent'}`}><Bold className="h-4 w-4" /></button>
+                        <button onClick={() => updateActiveEl({ fontStyle: el.fontStyle === 'italic' ? 'normal' : 'italic' })} className={`p-1.5 rounded transition-colors ${el.fontStyle === 'italic' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent'}`}><Italic className="h-4 w-4" /></button>
+                        <button onClick={() => updateActiveEl({ textDecoration: el.textDecoration === 'underline' ? 'none' : 'underline' })} className={`p-1.5 rounded transition-colors ${el.textDecoration === 'underline' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-accent'}`}><Underline className="h-4 w-4" /></button>
+                        <div className="w-px h-5 bg-border mx-1" />
+
+                        {/* Text Presets */}
+                        <Select onValueChange={(v: string) => {
+                          const sizes: Record<string, any> = { h1: { fontSize: 48, fontWeight: 'bold' }, h2: { fontSize: 36, fontWeight: 'bold' }, h3: { fontSize: 28, fontWeight: 'bold' }, h4: { fontSize: 22, fontWeight: 'bold' }, body: { fontSize: 18, fontWeight: 'normal' }, small: { fontSize: 13, fontWeight: 'normal' } };
+                          updateActiveEl(sizes[v] || {});
+                        }}>
+                          <SelectTrigger className="h-7 w-[80px] text-[10px] gap-0"><SelectValue placeholder="Style" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="h1">H1 - Title</SelectItem>
+                            <SelectItem value="h2">H2 - Subtitle</SelectItem>
+                            <SelectItem value="h3">H3 - Heading</SelectItem>
+                            <SelectItem value="h4">H4 - Subheading</SelectItem>
+                            <SelectItem value="body">Body text</SelectItem>
+                            <SelectItem value="small">Small text</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <div className="w-px h-5 bg-border mx-1" />
+
+                        {/* Emoji picker */}
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button className="p-1.5 rounded text-muted-foreground hover:bg-accent transition-colors"><SmilePlus className="h-4 w-4" /></button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-56 p-2" side="top" align="start">
+                            <div className="grid grid-cols-8 gap-0.5 max-h-40 overflow-y-auto">
+                              {["😀","😃","😄","😁","😅","😂","🤣","😊","😇","🙂","😉","😌","😍","🥰","😘","😗","😋","😛","😜","🤪","😝","🤑","🤗","🤭","🤔","🤐","😐","😑","😶","😏","😒","🙄","😬","😮","😯","😲","😳","🥺","😢","😭","😤","😡","🤬","😈","👿","💀","☠️","💩","🤡","👹","👺","👻","👽","🤖","👍","👎","👊","✊","🤛","🤜","👏","🙌","🤲","🤝","🙏","💪","✌️","🤞","🫶","❤️","💔","💖","💙","💚","💛","💜","🖤","🤍","🤎","💯","🔥","⭐","✨","🌟","💫","⚡","🌈","☀️","🌙","💡","📚","🏆","🥇","🎯","🎉","🎊","🎈","🚀","💻","📱","⌨️","🖥️","🎨","📝","✅","❌","❗","❓","💬","🗨️","👋","🖐️","✋","💅","👀","🧠","🗣️","💭"].map(e => (
+                                <button key={e} type="button" onClick={() => updateActiveEl({ content: (el.content || '') + e })} className="hover:bg-accent rounded p-1 text-lg leading-none">{e}</button>
+                              ))}
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <Label className="text-xs">Font Size</Label>
-                          <Input type="number" value={active.config_json.elements.find(e => e.id === selectedEl)?.fontSize} onChange={e => updateActiveEl({ fontSize: Number(e.target.value) })} className="mt-1" />
+                          <Input type="number" value={el.fontSize} onChange={e => updateActiveEl({ fontSize: Number(e.target.value) })} className="mt-1" />
                         </div>
                         <div>
                           <Label className="text-xs">Color</Label>
                           <div className="relative mt-1">
                             <input type="color" className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-                              value={active.config_json.elements.find(e => e.id === selectedEl)?.color}
+                              value={el.color || '#000000'}
                               onChange={e => updateActiveEl({ color: e.target.value })} />
                             <div className="w-full h-9 rounded-lg border flex items-center gap-2 px-2"
-                              style={{ background: (active.config_json.elements.find(e => e.id === selectedEl)?.color || '#000') + '22' }}>
-                              <div className="h-5 w-5 rounded border" style={{ background: active.config_json.elements.find(e => e.id === selectedEl)?.color }} />
-                              <span className="text-xs font-mono">{active.config_json.elements.find(e => e.id === selectedEl)?.color}</span>
+                              style={{ background: (el.color || '#000') + '22' }}>
+                              <div className="h-5 w-5 rounded border" style={{ background: el.color }} />
+                              <span className="text-xs font-mono">{el.color}</span>
                             </div>
                           </div>
                         </div>
                       </div>
+
+                      {/* Color Presets */}
+                      <div className="grid grid-cols-10 gap-1">
+                        {['#000000','#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#a855f7','#f43f5e','#84cc16','#0ea5e9','#64748b','#dc2626','#d97706','#7c3aed','#059669','#0284c7'].map(c => (
+                          <button key={c} onClick={() => updateActiveEl({ color: c })} className="h-5 w-5 rounded-full border" style={{ backgroundColor: c }} title={c} />
+                        ))}
+                      </div>
+
                       <div>
                         <Label className="text-xs">Font Family</Label>
-                        <Select value={active.config_json.elements.find(e => e.id === selectedEl)?.fontFamily} onValueChange={v => updateActiveEl({ fontFamily: v })}>
+                        <Select value={el.fontFamily} onValueChange={v => updateActiveEl({ fontFamily: v })}>
                           <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Inter">Inter (Sans)</SelectItem>
-                            <SelectItem value="Playfair Display">Playfair (Serif)</SelectItem>
-                            <SelectItem value="Roboto Mono">Roboto (Mono)</SelectItem>
-                            <SelectItem value="Cinzel">Cinzel (Serif)</SelectItem>
-                            <SelectItem value="Montserrat">Montserrat (Sans)</SelectItem>
-                            <SelectItem value="Great Vibes">Great Vibes (Script)</SelectItem>
+                            {FONTS.map(f => (
+                              <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                                {f.label} <span className="text-[10px] text-muted-foreground ml-1">({f.category})</span>
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
                       <div>
                         <Label className="text-xs">Alignment</Label>
-                        <Select value={active.config_json.elements.find(e => e.id === selectedEl)?.align} onValueChange={v => updateActiveEl({ align: v as any })}>
+                        <Select value={el.align} onValueChange={v => updateActiveEl({ align: v as any })}>
                           <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="left">Left</SelectItem>
@@ -864,12 +970,12 @@ function AdminCertificatesPage() {
                       </div>
                     </div>
                   )}
-                  {active.config_json.elements.find(e => e.id === selectedEl)?.type === 'image' && (
+                  {el.type === 'image' && (
                     <div className="space-y-3">
                       <div>
                         <Label className="text-xs">Image URL</Label>
                         <Input
-                          value={active.config_json.elements.find(e => e.id === selectedEl)?.url || ""}
+                          value={el.url || ""}
                           onChange={e => updateActiveEl({ url: e.target.value })}
                           placeholder="https://..."
                           className="mt-1"
@@ -878,22 +984,41 @@ function AdminCertificatesPage() {
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <Label className="text-xs">Width (px)</Label>
-                          <Input type="number" value={active.config_json.elements.find(e => e.id === selectedEl)?.width} onChange={e => updateActiveEl({ width: Number(e.target.value) })} className="mt-1" />
+                          <Input type="number" value={el.width} onChange={e => updateActiveEl({ width: Number(e.target.value) })} className="mt-1" />
                         </div>
                         <div>
                           <Label className="text-xs">Height (px)</Label>
-                          <Input type="number" value={active.config_json.elements.find(e => e.id === selectedEl)?.height} onChange={e => updateActiveEl({ height: Number(e.target.value) })} className="mt-1" />
+                          <Input type="number" value={el.height} onChange={e => updateActiveEl({ height: Number(e.target.value) })} className="mt-1" />
                         </div>
                       </div>
                     </div>
                   )}
-                  {active.config_json.elements.find(e => e.id === selectedEl)?.type === 'qr' && (
+                  {el.type === 'org_logo' && (
+                    <div className="space-y-3">
+                      <div className="text-sm text-muted-foreground">
+                        Displays your organization's logo from <strong>Settings → Branding</strong> when rendered on a certificate.
+                        Only visible for Team plan admins with org branding configured.
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs">Width (px)</Label>
+                          <Input type="number" value={el.width} onChange={e => updateActiveEl({ width: Number(e.target.value) })} className="mt-1" />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Height (px)</Label>
+                          <Input type="number" value={el.height} onChange={e => updateActiveEl({ height: Number(e.target.value) })} className="mt-1" />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {el.type === 'qr' && (
                     <div className="text-sm text-muted-foreground">
                       QR Codes automatically point to the certificate verification URL.
                     </div>
                   )}
                 </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         )}

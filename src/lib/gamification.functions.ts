@@ -195,7 +195,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
             current_streak: p?.current_streak ?? 0,
           };
         })
-        .sort((a, b) => b.weekly_xp - a.weekly_xp)
+        .sort((a, b) => b.weekly_xp - a.weekly_xp || a.id.localeCompare(b.id))
         .slice(0, 50);
     }
 
@@ -204,6 +204,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
       .select("id, full_name, avatar_url, xp, current_streak")
       .not("xp", "is", null)
       .order("xp", { ascending: false })
+      .order("id", { ascending: true })
       .limit(50);
 
     return (allTime ?? []).map((p) => ({ ...p, weekly_xp: 0 }));
@@ -277,7 +278,7 @@ export const getUserRank = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [allRes, profileRes] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, xp").not("xp", "is", null).order("xp", { ascending: false }),
+      supabaseAdmin.from("profiles").select("id, xp").not("xp", "is", null).order("xp", { ascending: false }).order("id", { ascending: true }),
       supabaseAdmin
         .from("profiles")
         .select("xp, current_streak, highest_streak, avatar_url, full_name")
