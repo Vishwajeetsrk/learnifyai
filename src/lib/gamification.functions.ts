@@ -280,7 +280,7 @@ export const getUserRank = createServerFn({ method: "GET" })
       supabaseAdmin.from("profiles").select("id, xp").not("xp", "is", null).order("xp", { ascending: false }),
       supabaseAdmin
         .from("profiles")
-        .select("xp, current_streak, highest_streak")
+        .select("xp, current_streak, highest_streak, avatar_url, full_name")
         .eq("id", data.userId)
         .maybeSingle(),
     ]);
@@ -307,6 +307,8 @@ export const getUserRank = createServerFn({ method: "GET" })
       rankBg: rankInfo.bg,
       streak: profile.current_streak,
       highestStreak: profile.highest_streak,
+      avatar_url: profile.avatar_url,
+      full_name: profile.full_name,
       nextLevelXp,
       currentLevelXp,
       levelTotal,

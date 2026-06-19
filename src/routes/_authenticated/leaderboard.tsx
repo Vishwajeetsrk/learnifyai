@@ -89,12 +89,15 @@ function LeaderboardPage() {
           <div className="rounded-2xl border bg-gradient-to-r from-primary/[0.04] to-primary/[0.02] p-5 mb-6 shadow-sm">
             <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary to-primary/60 grid place-items-center text-white font-bold text-lg shadow-md">
-                  #{my.rank}
-                </div>
+                <Avatar className="h-14 w-14 border-2 border-background shadow-md">
+                  {my.avatar_url ? <AvatarImage src={my.avatar_url} /> : null}
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary/60 text-white font-bold text-lg">
+                    {my.full_name ? my.full_name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase() : "#"}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm">Your Rank</span>
+                    <span className="font-semibold text-sm">#{my.rank} · {my.full_name ?? "Your Rank"}</span>
                     <RankBadgeSmall name={my.rankName} />
                     <Badge variant="outline" className="text-[10px]">
                       Lv.{my.level}
