@@ -839,7 +839,6 @@ function RealCohorts({ user }: { user: any }) {
               </div>
             </div>
             <DialogFooter>
-            <DialogFooter>
               <Button onClick={createCohort}>Create</Button>
             </DialogFooter>
           </DialogContent>
