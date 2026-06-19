@@ -30,15 +30,16 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate designer with 10 distinct theme presets (Executive Gold, Modern Corporate, University Style, Creator Academy, Nature Green, Royal Purple, Sunset Orange, Ocean Teal, Midnight Amber, Rose Gold), visual border pickers (double/solid/dashed/ornate/none), corner styles (diagonal/ribbon/none), background patterns (solid/dots/grid/stripes/gradient), color pickers, font selectors, and QR code integration. Live canvas preview with framer-motion drag-and-drop. Public verification and PDF download.
 
 ### 🎮 Playground (Coding IDE)
-- **Code Editor:** Full-featured Monaco editor with syntax highlighting, autocomplete, themes, line numbers, bracket pair colorization, and font ligatures. Supports 30+ languages with real SVG logos via Simple Icons CDN. Fullscreen mode.
+- **Code Editor:** Full-featured Monaco editor with syntax highlighting, autocomplete, themes, line numbers, bracket pair colorization, and font ligatures. Supports 30+ languages with real SVG logos via Simple Icons CDN. Fullscreen mode. Inline project title editing with rename support. Unsaved change indicator.
 - **Code Execution:** Run code via local Node.js VM (JS/TS) or self-hosted Piston API (other languages). Output console with stdout/stderr tabs, exit code, execution time. Copy and clear buttons.
 - **AI Assistant:** 7 AI tools — Explain Code, Fix Bugs, Optimize, Add Comments, Convert Language, Generate Unit Tests, Complete Code. Powered by OpenRouter. Results can be applied directly to editor.
-- **Web Playground:** Split-screen HTML/CSS/JS editor with live iframe preview. Refresh and download as HTML.
+- **Web Playground:** Split-screen HTML/CSS/JS editor with live iframe preview. Mobile/desktop preview toggle. Refresh and download as HTML. Responsive layout stacks editors vertically on mobile.
 - **React Sandbox:** Sandpack-powered React playground with multi-file support, live preview, and dependency management (React 18).
-- **Projects System:** Full CRUD for coding projects with Supabase persistence. Templates: blank, HTML-CSS-JS, React, Node.js. File explorer with create/rename/delete.
+- **Projects System:** Full CRUD for coding projects with Supabase persistence. Save directly from editor, reopen projects, rename inline, delete with confirmation. Templates: blank, HTML-CSS-JS, React, Node.js. File explorer with create/rename/delete.
 - **Coding Challenges:** 7 pre-seeded DSA problems (Two Sum, FizzBuzz, Valid Parentheses, Binary Search, etc.). Difficulty/category filtering. Points and solved tracking.
 - **Interview Mode:** Timed coding assessments with difficulty selection (easy/medium/hard) and adjustable duration. Score tracking and history.
 - **Leaderboard:** Points-based ranking with easy/medium/hard breakdown. Profile avatars and user identification.
+- **Responsive Design:** All playground pages adapt to mobile — editor stacks AI panel vertically, web playground stacks editors, projects show actions without hover on touch devices.
 
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons (with video URL validation), add practical assignments/projects, and create final test MCQs that students must pass (≥70%) to claim their certificate.
@@ -119,6 +120,14 @@ learnifyai/
 │   ├── components/         # Reusable UI components
 │   │   ├── admin/
 │   │   │   └── IssueCertificate.tsx  # Certificate issuance (form, preview, email log, retry)
+│   │   ├── playground/             # Playground components
+│   │   │   ├── CodeEditor.tsx       # Monaco editor wrapper (30+ languages, fullscreen)
+│   │   │   ├── LanguageSelector.tsx # Searchable language dropdown with SVG logos
+│   │   │   ├── OutputConsole.tsx    # Terminal output with stdout/stderr tabs, copy, clear
+│   │   │   ├── AIPanel.tsx          # AI assistant sidebar (explain, fix, optimize, etc.)
+│   │   │   ├── WebPlayground.tsx    # HTML/CSS/JS editor with live preview
+│   │   │   ├── ReactPlayground.tsx  # Sandpack React sandbox
+│   │   │   └── FileExplorer.tsx     # Project file tree (create/rename/delete)
 │   │   ├── CertificateDesign.tsx     # Cert renderer with 10 theme presets + drag-and-drop
 │   │   ├── AppShell.tsx              # App shell layout
 │   │   └── ui/                      # Shadcn UI primitives
@@ -128,6 +137,11 @@ learnifyai/
 │   │   ├── payment.functions.ts        # Cashfree order create + verify (pending/completed)
 │   │   ├── subscription.functions.ts   # Cashfree Subscriptions CRUD (sync plan, create/cancel/get subscription)
 │   │   ├── playground.functions.ts     # Code execution via Piston API (40+ languages)
+│   │   ├── playground/                 # Playground server functions
+│   │   │   ├── projects.ts             # Project CRUD (create, get, update, delete, duplicate, saveEditorCode)
+│   │   │   ├── execution.ts            # Code execution (Node.js VM for JS/TS, Piston for others)
+│   │   │   ├── ai.ts                   # AI code assistant (Explain, Fix, Optimize, etc.)
+│   │   │   └── challenges.ts           # Challenges, submissions, leaderboard, interviews
 │   │   ├── course.functions.ts         # Course purchase logic with duplicate enrollment protection
 │   │   ├── course-builder.functions.ts # AI Auto-Complete course generation
 │   │   ├── thumbnail.functions.ts      # AI thumbnail generation (7-tier fallback + SVG)
@@ -148,7 +162,14 @@ learnifyai/
 │   │   │   ├── pricing.tsx     # Subscription plans page with subscribe/cancel flow
 │   │   │   ├── playlist.tsx    # Course player with inline AI tutor + agent
 │   │   │   ├── studio.tsx      # Creator Studio — AI Auto-Complete + course defaults from profile settings
-│   │   │   ├── playground.tsx  # Multi-language code playground (Monaco + Piston)
+│   │   │   ├── playground.tsx            # Playground hub landing page
+│   │   │   ├── playground.editor.tsx     # Code editor with Monaco, save/load/rename/delete projects
+│   │   │   ├── playground.web.tsx        # Web playground (HTML/CSS/JS live preview)
+│   │   │   ├── playground.react.tsx      # React sandbox (Sandpack)
+│   │   │   ├── playground.projects.tsx   # Project management (CRUD, duplicate, delete)
+│   │   │   ├── playground.challenges.tsx # DSA challenges browser
+│   │   │   ├── playground.interview.tsx  # Timed coding interview mode
+│   │   │   └── playground.leaderboard.tsx# Points-based leaderboard
 │   │   │   └── ai-agent.tsx    # AI agent with chat, voice I/O, tool execution
 │   │   └── api/            # Serverless API endpoints
 │   │       └── webhooks/
@@ -161,6 +182,7 @@ learnifyai/
 │   └── migrations/         # PostgreSQL schema definitions and RLS policies
 │       ├── 20260618000001_group_link.sql             # Adds group_link column to cohorts
 │       ├── 20260618000002_subscriptions.sql          # Subscription tables (user_subscriptions, subscription_events, pricing_plans columns)
+│       ├── 20260619000000_playground_system.sql      # Playground tables (projects, files, runs, challenges, submissions, leaderboard, interviews)
 │       └── 20260619000001_cascade_delete.sql         # Cascade delete for certificate-related tables
 ├── package.json            # Dependencies and scripts
 ├── scripts/                # Utility scripts
@@ -172,15 +194,49 @@ learnifyai/
 
 ## 🧪 Playground & AI Agent
 
-### Multi-Language Playground (`/playground`)
-A full-featured code execution environment supporting 40+ languages:
-- **Editor:** Monaco Editor (VS Code-grade) with syntax highlighting, minimap, and multi-tab editing
-- **Languages:** JavaScript, TypeScript, Python, C++, C, Java, Go, Rust, Ruby, PHP, C#, SQL, Bash, and 30+ more
+### Coding Playground (`/playground`)
+A full-featured multi-module coding environment with 8 routes:
+
+#### Code Editor (`/playground/editor`)
+- **Editor:** Monaco Editor (VS Code-grade) with syntax highlighting, minimap, bracket pair colorization, font ligatures, and fullscreen mode
+- **Languages:** JavaScript, TypeScript, Python, C++, C, Java, Go, Rust, Ruby, PHP, C#, SQL, Bash, and 30+ more with real SVG logos
 - **Local JS/TS Execution:** JavaScript and TypeScript run locally via Node.js `vm.runInNewContext()` — no external API needed. TypeScript is auto-transpiled before execution.
-- **Other Languages:** Require a self-hosted Piston instance (public API is whitelist-only since Feb 2026). Set `PISTON_URL` in `.env` to your instance (see [engineer-man/piston](https://github.com/engineer-man/piston)).
+- **Other Languages:** Require a self-hosted Piston instance (public API is whitelist-only since Feb 2026). Set `PISTON_URL` in `.env` (see [engineer-man/piston](https://github.com/engineer-man/piston)).
 - **Stdin Input:** Pass input to your programs
-- **Output Panel:** Real-time stdout, stderr, and exit code display
-- **Run on Demand:** Execute code with a single click
+- **Output Panel:** Real-time stdout, stderr, exit code, and execution time display with copy/clear
+- **Save/Load Projects:** Save code to Supabase as a project; reopen from URL param. Inline rename with confirmation. Delete with confirm dialog. Unsaved changes indicator.
+- **AI Assistant:** 7 AI tools (Explain Code, Fix Bugs, Optimize, Add Comments, Convert Language, Generate Unit Tests, Complete Code) via OpenRouter. Results applyable to editor.
+
+#### Web Playground (`/playground/web`)
+- Split-screen HTML/CSS/JS editor with live iframe preview
+- Mobile/desktop preview toggle (375px mobile viewport)
+- Responsive stacked layout on mobile
+- Download as standalone HTML file
+
+#### React Sandbox (`/playground/react`)
+- Sandpack-powered React sandbox with file explorer and live preview
+- React 18 setup with multi-file support (App.jsx, index.jsx)
+
+#### Projects (`/playground/projects`)
+- Full CRUD project management with Supabase persistence
+- Cards with language icon, title, template badge, timestamp
+- Open, duplicate, and delete actions (always visible on touch devices)
+- Templates: blank, HTML-CSS-JS, React, Node.js
+
+#### Challenges (`/playground/challenges`)
+- 7 pre-seeded DSA problems: Two Sum, FizzBuzz, Valid Parentheses, Binary Search, Reverse Linked List, Palindrome Check, Fibonacci
+- Easy/medium/hard difficulty and category (algorithms, data-structures, javascript, python) filtering
+- Solved tracking with green checkmark badges
+
+#### Interview Mode (`/playground/interview`)
+- Timed coding assessments with configurable difficulty and duration (15-90 min)
+- Past assessments history with score tracking
+- Opens editor in new tab with interview context
+
+#### Leaderboard (`/playground/leaderboard`)
+- Points-based ranking with easy/medium/hard breakdown
+- Profile avatars and user identification
+- Medal indicators for top 3
 
 ### AI Agent
 An intelligent assistant embedded in the course player with tool execution capabilities:
@@ -191,12 +247,22 @@ An intelligent assistant embedded in the course player with tool execution capab
 
 ### Architecture
 ```
-Playground (Monaco Editor) ──► Node.js VM (JS/TS) or Piston API (other langs) ──► Output
-AI Agent (Chat + Voice) ──► OpenRouter (GPT-4o-mini) ──► Tool Calls
+Playground (8 routes)
+├── /editor        Monaco Editor + Output Console + AI Panel + Save/Load/Delete
+│   └── Execution: Node.js VM (JS/TS) or Piston API (other languages)
+├── /web           HTML/CSS/JS with live iframe preview
+├── /react         Sandpack React sandbox
+├── /projects      CRUD project management with Supabase
+├── /challenges    DSA problems with solved tracking
+├── /interview     Timed coding assessments
+├── /leaderboard   Points ranking with profiles
+└── / (hub)        Feature cards and quick start guide
+
+AI Assistant (Chat + Voice) ──► OpenRouter (GPT-4o-mini) ──► Tool Calls
                                    │
-                     ┌──────────────┴──────────────┐
-                     ▼                              ▼
-               Code Execution                Web Search API
+                      ┌──────────────┴──────────────┐
+                      ▼                              ▼
+                Code Execution                Web Search API
 ```
 
 ## 💳 Payment & Subscription Architecture

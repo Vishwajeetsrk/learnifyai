@@ -118,7 +118,7 @@ function ProjectsPage() {
                   <span className="capitalize">{p.template?.replace("-", " ")}</span>
                   {p.is_public && <span className="text-primary">Public</span>}
                 </div>
-                <div className="flex gap-1.5 mt-3 opacity-0 group-hover:opacity-100 transition">
+                <div className="flex gap-1.5 mt-3 sm:opacity-0 sm:group-hover:opacity-100 transition">
                   <Button asChild size="sm" variant="default" className="h-7 text-xs">
                     <Link to="/playground/editor" search={{ project: p.id } as any}><ExternalLink className="h-3 w-3 mr-1" /> Open</Link>
                   </Button>

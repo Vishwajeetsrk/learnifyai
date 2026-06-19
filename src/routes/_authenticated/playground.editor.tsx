@@ -1,17 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState, useCallback, useRef } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { AppShell } from "@/components/AppShell";
 import { CodeEditor } from "@/components/playground/CodeEditor";
 import { OutputConsole, EmptyOutput } from "@/components/playground/OutputConsole";
 import { LanguageSelector } from "@/components/playground/LanguageSelector";
 import { AIPanel } from "@/components/playground/AIPanel";
 import { executeCode } from "@/lib/playground/execution";
+import { saveEditorCode, deleteProject, getProject, getProjectFiles } from "@/lib/playground/projects";
 import { useServerFn } from "@tanstack/react-start";
-import { Play, Save, Download, Trash2, PanelRightOpen, PanelRightClose, Settings2 } from "lucide-react";
+import { useQuery as useRQ } from "@tanstack/react-query";
+import { Play, Save, Download, Trash2, PanelRightOpen, PanelRightClose, Folders, Pencil, Check, X, Globe, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const searchSchema = z.object({ project: z.string().optional() });
 
 export const Route = createFileRoute("/_authenticated/playground/editor")({
+  validateSearch: (s: Record<string, unknown>) => searchSchema.parse(s),
   head: () => ({ meta: [{ title: "Code Editor — Learnify AI" }] }),
   component: PlaygroundEditor,
 });
@@ -47,6 +53,8 @@ const DEFAULTS: Record<string, string> = {
 };
 
 function PlaygroundEditor() {
+  const navigate = useNavigate();
+  const { project: projectId } = Route.useSearch();
   const [language, setLanguage] = useState("javascript");
   const [code, setCode] = useState(DEFAULTS.javascript);
   const [stdin, setStdin] = useState("");
@@ -55,7 +63,49 @@ function PlaygroundEditor() {
   const [timeMs, setTimeMs] = useState<number | undefined>();
   const [showAi, setShowAi] = useState(true);
   const [fontSize, setFontSize] = useState(13);
+  const [projectTitle, setProjectTitle] = useState("");
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleInput, setTitleInput] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const execFn = useServerFn(executeCode);
+  const saveFn = useServerFn(saveEditorCode);
+  const deleteFn = useServerFn(deleteProject);
+  const getProjectFn = useServerFn(getProject);
+  const getProjectFilesFn = useServerFn(getProjectFiles);
+  const titleRef = useRef<HTMLInputElement>(null);
+
+  const { data: project } = useRQ({
+    enabled: !!projectId,
+    queryKey: ["playground-project", projectId],
+    queryFn: async () => {
+      const p = await getProjectFn({ data: { id: projectId! } });
+      return p;
+    },
+  });
+
+  const { data: files } = useRQ({
+    enabled: !!projectId,
+    queryKey: ["playground-project-files", projectId],
+    queryFn: async () => {
+      const f = await getProjectFilesFn({ data: { projectId: projectId! } });
+      return f;
+    },
+  });
+
+  useEffect(() => {
+    if (project) {
+      setProjectTitle(project.title ?? "Untitled");
+      setLanguage(project.language ?? "javascript");
+    }
+  }, [project]);
+
+  useEffect(() => {
+    if (files?.length) {
+      setCode(files[0].content ?? "");
+    }
+  }, [files]);
 
   const run = useCallback(async () => {
     setRunning(true);
@@ -81,11 +131,76 @@ function PlaygroundEditor() {
   }, [run]);
 
   const changeLanguage = (newLang: string) => {
-    if (code === DEFAULTS[language]) {
+    if (!projectId && code === DEFAULTS[language]) {
       setCode(DEFAULTS[newLang] ?? "");
     }
     setLanguage(newLang);
     setOutput(null);
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await saveFn({
+        data: {
+          projectId: projectId || undefined,
+          title: projectTitle || "Untitled Project",
+          code,
+          language,
+        },
+      });
+      if (res.created && res.projectId) {
+        navigate({ to: "/playground/editor", search: { project: res.projectId }, replace: true });
+      }
+      if (!projectTitle) setProjectTitle("Untitled Project");
+      setIsDirty(false);
+      toast.success("Project saved");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!projectId) return;
+    try {
+      await deleteFn({ data: { id: projectId } });
+      toast.success("Project deleted");
+      setShowDeleteConfirm(false);
+      navigate({ to: "/playground/editor", search: {}, replace: true });
+      setProjectTitle("");
+      setCode(DEFAULTS.javascript);
+      setLanguage("javascript");
+      setOutput(null);
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const startRename = () => {
+    setTitleInput(projectTitle);
+    setEditingTitle(true);
+    setTimeout(() => titleRef.current?.select(), 50);
+  };
+
+  const confirmRename = async () => {
+    const trimmed = titleInput.trim();
+    if (!trimmed) { setEditingTitle(false); return; }
+    setProjectTitle(trimmed);
+    setEditingTitle(false);
+    if (projectId) {
+      setSaving(true);
+      try {
+        await saveFn({ data: { projectId, title: trimmed, code, language } });
+        setIsDirty(false);
+        toast.success("Renamed");
+      } catch (err: any) {
+        toast.error(err.message);
+      } finally {
+        setSaving(false);
+      }
+    }
   };
 
   const clearOutput = () => setOutput(null);
@@ -102,51 +217,65 @@ function PlaygroundEditor() {
 
   const applyAiCode = (newCode: string) => {
     setCode(newCode);
+    setIsDirty(true);
   };
 
   return (
     <AppShell>
       <div className="h-[calc(100vh-3.5rem)] flex flex-col">
         {/* Top bar */}
-        <div className="flex items-center gap-2 px-4 py-2 border-b bg-card shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-1.5 sm:py-2 border-b bg-card shrink-0 flex-wrap">
+          <Link to="/playground" className="text-muted-foreground hover:text-foreground shrink-0"><Folders className="h-4 w-4" /></Link>
+          {editingTitle ? (
+            <div className="flex items-center gap-1">
+              <input ref={titleRef} value={titleInput} onChange={(e) => setTitleInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") confirmRename(); if (e.key === "Escape") setEditingTitle(false); }} className="h-7 w-40 sm:w-56 bg-muted border rounded px-2 text-xs font-medium outline-none focus:ring-1 focus:ring-primary" autoFocus />
+              <button onClick={confirmRename} className="p-1 rounded hover:bg-accent text-green-500"><Check className="h-3.5 w-3.5" /></button>
+              <button onClick={() => setEditingTitle(false)} className="p-1 rounded hover:bg-accent text-muted-foreground"><X className="h-3.5 w-3.5" /></button>
+            </div>
+          ) : (
+            <button onClick={startRename} className="flex items-center gap-1.5 text-sm font-medium max-w-[120px] sm:max-w-[200px] truncate hover:text-primary transition">
+              {projectTitle || "Untitled"}
+              <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100" />
+            </button>
+          )}
+          {isDirty && <span className="text-[10px] text-amber-400 font-medium shrink-0">● Unsaved</span>}
           <LanguageSelector value={language} onChange={changeLanguage} />
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground shrink-0">
             <span>Font:</span>
             <select value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))} className="bg-transparent border rounded px-1 py-0.5 text-[10px]">
               {[10, 11, 12, 13, 14, 16, 18, 20].map((s) => <option key={s} value={s}>{s}px</option>)}
             </select>
           </div>
-          <div className="flex-1" />
-          <span className="hidden md:inline text-[10px] text-muted-foreground">Ctrl+Enter to run</span>
-          <Button size="sm" variant="outline" onClick={downloadCode} title="Download code"><Download className="h-3.5 w-3.5" /></Button>
-          <Button size="sm" variant="outline" onClick={() => setShowAi(!showAi)} title="Toggle AI panel">
-            {showAi ? <PanelRightClose className="h-3.5 w-3.5" /> : <PanelRightOpen className="h-3.5 w-3.5" />}
-          </Button>
-          <Button size="sm" onClick={run} disabled={running}>
-            {running ? <span className="animate-pulse">Running...</span> : <><Play className="h-3.5 w-3.5 mr-1" /> Run</>}
-          </Button>
+          <div className="flex-1 min-w-[4px]" />
+          <div className="flex items-center gap-1">
+            <Link to="/playground/web" className="hidden sm:inline-flex p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition" title="Web Playground"><Globe className="h-3.5 w-3.5" /></Link>
+            <button onClick={downloadCode} className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition" title="Download code"><Download className="h-3.5 w-3.5" /></button>
+            <button onClick={() => setShowAi(!showAi)} className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition" title="AI Assistant">
+              {showAi ? <PanelRightClose className="h-3.5 w-3.5" /> : <PanelRightOpen className="h-3.5 w-3.5" />}
+            </button>
+            {projectId && (
+              <button onClick={() => setShowDeleteConfirm(true)} className="p-1.5 rounded-lg hover:bg-accent text-destructive hover:text-destructive transition" title="Delete project"><Trash2 className="h-3.5 w-3.5" /></button>
+            )}
+            <Button size="sm" variant="secondary" onClick={handleSave} disabled={saving} className="h-7 text-xs px-2">
+              {saving ? <Clock className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+              <span className="hidden sm:inline ml-1">Save</span>
+            </Button>
+            <Button size="sm" onClick={run} disabled={running} className="h-7 text-xs px-2">
+              {running ? <span className="animate-pulse text-[10px]">Run</span> : <><Play className="h-3 w-3" /><span className="hidden sm:inline ml-1">Run</span></>}
+            </Button>
+          </div>
         </div>
 
         {/* Editor + Output + AI */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden flex-col lg:flex-row">
           <div className="flex-1 flex flex-col min-w-0">
-            {/* Editor */}
             <div className="flex-1 min-h-0 border-b" onKeyDown={handleKeyDown}>
-              <CodeEditor language={language} value={code} onChange={setCode} fontSize={fontSize} />
+              <CodeEditor language={language} value={code} onChange={(v) => { setCode(v); setIsDirty(true); }} fontSize={fontSize} />
             </div>
-            {/* StdIn */}
             <div className="flex gap-2 px-3 py-1.5 bg-[#1e1e1e] border-b border-[#333]">
-              <textarea
-                value={stdin}
-                onChange={(e) => setStdin(e.target.value)}
-                placeholder="stdin input..."
-                className="flex-1 bg-transparent border border-[#333] rounded px-2 py-1 text-xs font-mono text-[#d4d4d4] resize-none placeholder:text-[#555] focus:outline-none focus:border-blue-500"
-                rows={1}
-                spellCheck={false}
-              />
+              <textarea value={stdin} onChange={(e) => setStdin(e.target.value)} placeholder="stdin input..." className="flex-1 bg-transparent border border-[#333] rounded px-2 py-1 text-xs font-mono text-[#d4d4d4] resize-none placeholder:text-[#555] focus:outline-none focus:border-blue-500" rows={1} spellCheck={false} />
             </div>
-            {/* Output */}
-            <div className="h-48 shrink-0">
+            <div className="h-36 sm:h-48 shrink-0">
               {output ? (
                 <OutputConsole stdout={output.stdout} stderr={output.stderr} exitCode={output.code} executionTimeMs={timeMs} isRunning={running} onClear={clearOutput} />
               ) : (
@@ -154,14 +283,27 @@ function PlaygroundEditor() {
               )}
             </div>
           </div>
-          {/* AI Panel */}
           {showAi && (
-            <div className="w-72 shrink-0 hidden lg:block">
+            <div className="w-full lg:w-72 shrink-0 lg:max-h-full border-t lg:border-t-0 lg:border-l">
               <AIPanel code={code} language={language} onCodeResult={applyAiCode} />
             </div>
           )}
         </div>
       </div>
+
+      {/* Delete confirm dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 px-4">
+          <div className="bg-card border rounded-xl p-6 max-w-sm w-full shadow-xl">
+            <h3 className="font-semibold text-lg">Delete Project</h3>
+            <p className="text-sm text-muted-foreground mt-2">Are you sure? This action cannot be undone.</p>
+            <div className="flex justify-end gap-2 mt-5">
+              <Button size="sm" variant="outline" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
+              <Button size="sm" variant="destructive" onClick={handleDelete}>Delete</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </AppShell>
   );
 }

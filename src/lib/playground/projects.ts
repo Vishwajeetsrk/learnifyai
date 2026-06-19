@@ -203,3 +203,53 @@ export const deleteFile = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { success: true };
   });
+
+export const saveEditorCode = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => z.object({
+    projectId: z.string().uuid().optional(),
+    title: z.string().min(1).max(200).default("Untitled Project"),
+    code: z.string().default(""),
+    language: z.string().default("javascript"),
+  }).parse(data))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const { projectId, title, code, language } = data;
+
+    if (projectId) {
+      const { data: existing } = await supabase
+        .from("playground_projects").select("user_id").eq("id", projectId).single();
+      if (!existing || existing.user_id !== userId) throw new Error("Not authorized");
+
+      await supabase.from("playground_projects").update({
+        title, language, updated_at: new Date().toISOString(),
+      }).eq("id", projectId);
+
+      const { data: files } = await supabase
+        .from("playground_files").select("id").eq("project_id", projectId).limit(1);
+      if (files?.length) {
+        await supabase.from("playground_files").update({
+          content: code, language, updated_at: new Date().toISOString(),
+        }).eq("id", files[0].id);
+      } else {
+        await supabase.from("playground_files").insert({
+          project_id: projectId, name: `main.${language}`, path: "/", content: code, language,
+        });
+      }
+
+      return { projectId, created: false };
+    }
+
+    const { data: project } = await supabase
+      .from("playground_projects")
+      .insert({ user_id: userId, title, language, template: "blank" })
+      .select()
+      .single();
+    if (!project) throw new Error("Failed to create project");
+
+    await supabase.from("playground_files").insert({
+      project_id: project.id, name: `main.${language}`, path: "/", content: code, language,
+    });
+
+    return { projectId: project.id, created: true };
+  });
