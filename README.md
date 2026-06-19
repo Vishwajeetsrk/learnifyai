@@ -17,7 +17,7 @@
 Learnify AI is built to empower both learners and creators by streamlining the entire educational lifecycle.
 
 ### 🎓 For Learners
-- **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + non-YouTube fallback).
+- **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + non-YouTube fallback). Notes tab includes a **Listen** button that reads instructor notes aloud via Web Speech API (TTS).
 - **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
 - **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution (Piston / local VM) and web search. Inline in course player.
 - **Multi-Language Playground:** Write, compile, and run code in 40+ languages (C, C++, Java, Python, JavaScript, TypeScript, Go, Rust, and more) using Monaco Editor. JS/TS runs locally via Node.js VM; other languages use Piston execution engine.
@@ -42,13 +42,12 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Reminders:** View, toggle, and delete scheduled reminders. Linked from AI Tools.
 
 ### ⚙️ Admin Features
+- **Transactions Dashboard:** Filter transactions by type (All, Top-up, Subscription, Course purchase, Creator earning, Withdrawal) with date range presets. Export to Excel (multi-sheet report) or CSV (filtered view).
 - **Coupon System:** Admin-managed discount codes (percent/flat) stored in DB — applied at checkout with real-time validation and cart UI.
 - **Pricing Plans Management:** Full CRUD for subscription plans (name, price INR, interval, features, badge, color, max courses, AI credits). One-click sync to Cashfree Subscriptions API.
 - **Cohort Management:** Create and manage cohorts of all types (live cohort, office hours, study group) with title, description, type, capacity, status, and date range. Table view with delete.
-- **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates (with "Open Designer" link to full WYSIWYG builder), FAQs, Legal Pages (Terms, Privacy, Refund), Coupons, Community Groups, and Roadmap.
+- **Content Manager:** Pricing Plans and Site Settings management.
 - **Legal Pages:** Fully editable Terms of Service, Privacy Policy, and Refund Policy — rendered from the database, editable via the admin Content Manager.
-- **Social Media Management:** Configurable Discord, Twitter/X, GitHub, LinkedIn, and YouTube links with icons in the footer. All managed through Site Settings.
-- **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, and custom settings.
 
 ---
 
@@ -109,9 +108,11 @@ learnifyai/
 │   │   └── agent.functions.ts          # AI agent with tool calling (code, web search)
 │   ├── routes/             # TanStack Start route tree
 │   │   ├── _authenticated/ # Protected routes
-│   │   │   ├── admin.tsx        # Admin panel: cohorts CRUD + pricing plans CRUD + sync to Cashfree
+│   │   │   ├── admin.tsx             # Admin overview: transactions dashboard (type filter, date range), user management, cohorts, withdrawals, export (Excel + CSV)
+│   │   │   ├── admin.content.tsx     # Content Manager: Pricing Plans CRUD, Site Settings
 │   │   │   ├── admin.certificates.tsx  # Drag-and-drop certificate designer (10 themes, borders, patterns)
-│   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree) + withdrawal (Cashfree Payouts)
+│   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree) + withdrawal (Cashfree Payouts) + invoice PDF download
+│   │   │   ├── cart.tsx        # Cart with coupon support, Cashfree checkout, enrollment
 │   │   │   ├── pricing.tsx     # Subscription plans page with subscribe/cancel flow
 │   │   │   ├── playlist.tsx    # Course player with inline AI tutor + agent
 │   │   │   ├── playground.tsx  # Multi-language code playground (Monaco + Piston)

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Loader2, Users, Sparkles, ArrowRight, BookOpen, MessageCircle, Video } from "lucide-react";
+import { Calendar, Loader2, Users, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { MarketingPage } from "@/components/MarketingPage";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,12 +32,6 @@ const KIND_LABEL: Record<string, string> = {
   study_group: "Study group",
 };
 
-const DEMO_SESSIONS = [
-  { id: "demo-1", title: "Intro to LLMs & Prompt Engineering", description: "A 4-week live cohort covering foundation models, prompt patterns, and practical RAG applications.", kind: "cohort", starts_at: new Date(Date.now() + 86400000 * 3).toISOString(), capacity: 25, status: "open" },
-  { id: "demo-2", title: "Weekly Office Hours — AI Builders", description: "Drop in with your project questions. Every Wednesday at 4pm UTC.", kind: "office_hours", starts_at: new Date(Date.now() + 86400000 * 2).toISOString(), capacity: 50, status: "live" },
-  { id: "demo-3", title: "Data Science Study Group", description: "Self-paced study group working through Kaggle competitions together.", kind: "study_group", starts_at: new Date(Date.now() + 86400000 * 5).toISOString(), capacity: 15, status: "open" },
-];
-
 function CommunityPage() {
   const q = useQuery({
     queryKey: ["community-cohorts"],
@@ -52,8 +46,7 @@ function CommunityPage() {
     },
   });
 
-  const sessions = q.data && q.data.length > 0 ? q.data : DEMO_SESSIONS;
-  const isDemo = !q.data || q.data.length === 0;
+  const sessions = q.data ?? [];
 
   return (
     <MarketingPage
@@ -61,15 +54,7 @@ function CommunityPage() {
       title="Learn together, build together"
       subtitle="Browse live cohorts, drop into office hours, or join a study group."
     >
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          {isDemo && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <Sparkles className="h-3 w-3" /> Showing example sessions —{" "}
-              <Link to="/cohorts" className="underline">sign in</Link> to see live data
-            </p>
-          )}
-        </div>
+      <div className="flex items-center justify-end mb-6">
         <Button asChild>
           <Link to="/cohorts">
             Open community dashboard <ArrowRight className="h-4 w-4" />
@@ -85,7 +70,7 @@ function CommunityPage() {
           {sessions.map((c: any) => (
             <Link
               key={c.id}
-              to={c.id.startsWith("demo-") ? "/community" : ("/cohorts/" + c.id) as any}
+              to={("/cohorts/" + c.id) as any}
               className="rounded-2xl border border-border/60 bg-card p-6 hover:shadow-lg transition group"
             >
               <div className="flex items-start justify-between gap-3">

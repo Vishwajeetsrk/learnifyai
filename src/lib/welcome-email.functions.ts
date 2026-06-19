@@ -35,7 +35,7 @@ async function sendResendEmail({
   // Try Resend first
   if (RESEND_API_KEY) {
     try {
-      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <onboarding@resend.dev>";
+      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
       const transporter = nodemailer.createTransport({
         host: "smtp.resend.com",
         port: 465,

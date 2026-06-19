@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
-import "jspdf-autotable";
+import { autoTable } from "jspdf-autotable";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Loader2,
@@ -210,7 +210,7 @@ function WalletPage() {
       doc.text(user.email ?? "Customer", 14, 62);
 
       // Table
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 75,
         headStyles: { fillColor: [79, 70, 229] },
         head: [["Description", "Amount"]],
@@ -224,7 +224,8 @@ function WalletPage() {
       // Footer
       doc.setFontSize(9);
       doc.setTextColor(150);
-      doc.text("This is a computer generated invoice and does not require a signature.", 14, (doc as any).lastAutoTable.finalY + 30);
+      const lastTable = (doc as any).lastAutoTable;
+      doc.text("This is a computer generated invoice and does not require a signature.", 14, (lastTable?.finalY ?? 200) + 30);
 
       doc.save(`Learnify_Invoice_${tx.id?.split("-")[0] ?? "NA"}.pdf`);
     } catch (err: any) {

@@ -22,6 +22,8 @@ import {
   X as XIcon,
   Check as CheckIcon,
   ShoppingCart,
+  Volume2,
+  VolumeX,
   FileCheck2,
   Paperclip,
   ExternalLink,
@@ -939,6 +941,25 @@ function LessonAiTabs({
   const [doubt, setDoubt] = useState<string>("");
   const [doubtQ, setDoubtQ] = useState<string>("");
   const [busy, setBusy] = useState<"" | "summary" | "exercise" | "doubt">("");
+  const [speaking, setSpeaking] = useState(false);
+  const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const speak = (text: string) => {
+    if (speaking) {
+      window.speechSynthesis.cancel();
+      setSpeaking(false);
+      return;
+    }
+    if (!text) return;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.rate = 0.9;
+    utter.onend = () => setSpeaking(false);
+    utter.onerror = () => setSpeaking(false);
+    synthRef.current = utter;
+    window.speechSynthesis.speak(utter);
+    setSpeaking(true);
+  };
 
   const run = async (action: "summary" | "exercise" | "doubt") => {
     setBusy(action);
@@ -991,7 +1012,13 @@ function LessonAiTabs({
         )}
       </TabsList>
 
-      <TabsContent value="notes" className="pt-4">
+      <TabsContent value="notes" className="pt-4 space-y-3">
+        {lesson.description && (
+          <Button variant="outline" size="sm" onClick={() => speak(lesson.description)}>
+            {speaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            {speaking ? "Stop" : "Listen"}
+          </Button>
+        )}
         <p className="text-sm text-muted-foreground whitespace-pre-wrap">
           {lesson.description || "No instructor notes for this lesson."}
         </p>

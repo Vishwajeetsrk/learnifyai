@@ -143,6 +143,29 @@ function AdminOverview() {
   const [preset, setPreset] = useState<RangePreset>("30d");
   const [from, setFrom] = useState<Date>(subDays(today, 29));
   const [to, setTo] = useState<Date>(today);
+  const [txFilter, setTxFilter] = useState<string>("all");
+
+  const TX_FILTERS = [
+    { value: "all", label: "All" },
+    { value: "topup", label: "Top-up" },
+    { value: "subscription", label: "Subscription" },
+    { value: "course", label: "Course purchase" },
+    { value: "creator", label: "Creator earning" },
+    { value: "withdrawal", label: "Withdrawal" },
+  ];
+
+  const txFilterFn = (t: { description?: string | null; type: string }) => {
+    if (txFilter === "all") return true;
+    const desc = (t.description ?? "").toLowerCase();
+    switch (txFilter) {
+      case "topup": return desc.includes("top-up") || desc.includes("topup");
+      case "subscription": return desc.includes("purchased plan");
+      case "course": return desc.includes("course purchase");
+      case "creator": return desc.includes("creator earning");
+      case "withdrawal": return desc.includes("withdrawal");
+      default: return true;
+    }
+  };
 
   const applyPreset = (p: RangePreset) => {
     setPreset(p);
@@ -310,6 +333,7 @@ function AdminOverview() {
 
   // ───────── DERIVED METRICS (range-aware) ─────────
   const tx = txQuery.data ?? [];
+  const filteredTx = useMemo(() => tx.filter(txFilterFn), [tx, txFilter]);
   const rangeRevenue = useMemo(
     () =>
       tx
@@ -408,6 +432,7 @@ function AdminOverview() {
       ["", ""],
       ["Metric", "Value"],
       ["Report period", rangeLabel],
+      ["Transaction filter", TX_FILTERS.find(f => f.value === txFilter)?.label ?? "All"],
       ["Total registered users", usersQuery.data?.total ?? 0],
       ["AI requests (last 24h)", aiReq24hQuery.data ?? 0],
       [`Revenue in period (INR)`, rangeRevenue],
@@ -498,6 +523,26 @@ function AdminOverview() {
     // ─── Download ───
     XLSX.writeFile(wb, `Learnify-Report_${fmtDate(from)}_to_${fmtDate(to)}.xlsx`);
     toast.success("Report downloaded!");
+  };
+
+  const handleExportCSV = () => {
+    const header = ["Date", "Type", "Status", "Description", "Amount (INR)"];
+    const rows = filteredTx.map((t) => [
+      format(new Date(t.created_at), "dd-MM-yyyy HH:mm"),
+      t.type,
+      t.status,
+      t.description ?? "",
+      Number(t.amount_inr),
+    ]);
+    const csv = [header.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Transactions_${fmtDate(from)}_to_${fmtDate(to)}_${txFilter}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("CSV downloaded!");
   };
 
   const refreshAll = () => qc.invalidateQueries({ queryKey: ["admin"] });
@@ -753,6 +798,9 @@ function AdminOverview() {
             <Button size="sm" onClick={handleExport}>
               <Download className="h-4 w-4" /> Export Excel
             </Button>
+            <Button size="sm" variant="outline" onClick={handleExportCSV}>
+              <Download className="h-4 w-4" /> Export CSV
+            </Button>
           </div>
         </div>
 
@@ -798,8 +846,23 @@ function AdminOverview() {
               />
             </div>
           </div>
-          <div className="mt-2 text-xs text-muted-foreground">
-            Showing data for <span className="font-medium text-foreground">{rangeLabel}</span>
+          <div className="mt-2 text-xs text-muted-foreground flex items-center justify-between">
+            <span>
+              Showing data for <span className="font-medium text-foreground">{rangeLabel}</span>
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Type:</span>
+              <Select value={txFilter} onValueChange={setTxFilter}>
+                <SelectTrigger className="h-7 text-xs w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TX_FILTERS.map((f) => (
+                    <SelectItem key={f.value} value={f.value} className="text-xs">{f.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -931,16 +994,17 @@ function AdminOverview() {
           <div className="px-6 py-4 border-b">
             <h2 className="font-display text-lg font-semibold">Transactions</h2>
             <p className="text-xs text-muted-foreground">
-              {tx.length} in {rangeLabel}
+              {filteredTx.length} of {tx.length} in {rangeLabel}
+              {txFilter !== "all" && ` · filtered: ${TX_FILTERS.find(f => f.value === txFilter)?.label}`}
             </p>
           </div>
           {txQuery.isLoading ? (
             <div className="p-10 grid place-items-center">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
-          ) : tx.length === 0 ? (
+          ) : filteredTx.length === 0 ? (
             <div className="p-10 text-sm text-muted-foreground text-center">
-              No transactions in this range.
+              No transactions{txFilter !== "all" ? " matching filter" : ""} in this range.
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -955,7 +1019,7 @@ function AdminOverview() {
                   </tr>
                 </thead>
                 <tbody>
-                  {tx.slice(0, 50).map((t) => (
+                  {filteredTx.map((t) => (
                     <tr key={t.id} className="border-t hover:bg-accent/30">
                       <td className="px-6 py-3 text-muted-foreground text-xs">
                         {format(new Date(t.created_at), "dd-MM-yyyy HH:mm")}
