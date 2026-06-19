@@ -31,7 +31,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons (with video URL validation), add practical assignments/projects, and create final test MCQs that students must pass (≥70%) to claim their certificate.
 - **Coaching Hub (5-tab production):** Scheduling (slot creation with Google Meet/Zoom — add/edit/delete, booking with user info collection), Messaging (real-time Supabase subscription, chat bubbles with timestamps, contact list from bookings), Client Roadmaps (milestone-based with progress bar, creator assigns to learner), Outcomes (quiz analytics, enrollment progress, cross-learner stats for creators), Cohorts (CRUD with learner management, WhatsApp share, live/scheduled/draft status).
-- **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management. Member avatars shown in list view, live countdown timer, pre-meeting toast notification (30 min window), and group chat / meeting link display in detail view.
+- **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management. Member avatars shown in list view, live countdown timer, pre-meeting toast notification (30 min window), group chat / meeting link display in detail view, and auto-open WhatsApp/Meet links on join.
 - **Creator Payouts:** Withdraw earnings via Cashfree Payouts (UPI or bank account).
 - **Automated Invoicing:** Professional PDF invoices with configurable company name, legal name, GSTIN, invoice prefix, footer text, **logo URL**, and **contact info** — downloadable from the wallet page.
 - **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 API providers (Gemini, Stability AI, OpenRouter FLUX, Hugging Face, Pollinations, Fal AI) plus a **local SVG gradient fallback** that always works — with word-wrapped title, text shadow, and contrast overlay for readability.
@@ -84,7 +84,7 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 | **AI Embeddings** | Gemini Embeddings (text-embedding-004) |
 | **Image Generation** | Gemini 2.0 Flash → Stability AI → OpenRouter (FLUX Pro) → Hugging Face → Pollinations AI → Fal AI → Local SVG gradient (7-tier fallback, always works) |
 | **Video Analysis** | YouTube Data API + Gemini summarization |
-| **Email** | Resend REST API (primary) → Brevo API → Resend SMTP → Brevo SMTP → Gmail SMTP (5-tier fallback) |
+| **Email** | Resend REST API (primary, 15s timeout) → Brevo API → Resend SMTP → Brevo SMTP → Gmail SMTP (5-tier fallback, skips SMTP if domain unverified) |
 | **Error Monitoring** | Sentry |
 | **Analytics** | PostHog |
 | **LLM Observability** | LangSmith |
