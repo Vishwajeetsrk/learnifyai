@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -97,7 +97,7 @@ function LeaderboardPage() {
                 </Avatar>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-sm">#{my.rank} · {my.full_name ?? "Your Rank"}</span>
+                    <Link to="/creators/$id" params={{ id: user?.id ?? "" }} className="font-semibold text-sm hover:underline">#{my.rank} · {my.full_name ?? "Your Rank"}</Link>
                     <RankBadgeSmall name={my.rankName} />
                     <Badge variant="outline" className="text-[10px]">
                       Lv.{my.level}
@@ -175,9 +175,13 @@ function LeaderboardPage() {
                       {i + 1}
                     </div>
                   </div>
-                  <span className="text-xs font-medium text-center leading-tight line-clamp-1">
+                  <Link
+                    to="/creators/$id"
+                    params={{ id: u.id }}
+                    className="text-xs font-medium text-center leading-tight line-clamp-1 hover:underline"
+                  >
                     {u.full_name}
-                  </span>
+                  </Link>
                   <RankBadgeSmall name={rankInfo.name} />
                   <div
                     className={`w-full rounded-t-xl border border-b-0 bg-card flex items-center justify-center ${heights[i]}`}
@@ -231,14 +235,13 @@ function LeaderboardPage() {
                       </Avatar>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span
-                            className={`text-sm font-medium truncate ${isMe ? "text-primary" : ""}`}
+                          <Link
+                            to="/creators/$id"
+                            params={{ id: u.id }}
+                            className={`text-sm font-medium truncate hover:underline ${isMe ? "text-primary" : "hover:text-foreground"}`}
                           >
                             {u.full_name}
-                            {isMe && (
-                              <span className="text-[10px] text-muted-foreground ml-1">(you)</span>
-                            )}
-                          </span>
+                          </Link>
                           <RankBadgeSmall name={rankInfo.name} />
                         </div>
                       </div>
