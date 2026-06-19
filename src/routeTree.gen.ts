@@ -65,7 +65,6 @@ import { Route as AuthenticatedPlaygroundEditorRouteImport } from './routes/_aut
 import { Route as AuthenticatedPlaygroundChallengesRouteImport } from './routes/_authenticated/playground.challenges'
 import { Route as AuthenticatedCreatorsIdRouteImport } from './routes/_authenticated/creators.$id'
 import { Route as AuthenticatedCreatorSubscribersRouteImport } from './routes/_authenticated/creator.subscribers'
-import { Route as AuthenticatedCreatorSettingsRouteImport } from './routes/_authenticated/creator.settings'
 import { Route as AuthenticatedCreatorEarningsRouteImport } from './routes/_authenticated/creator.earnings'
 import { Route as AuthenticatedCreatorCommentsRouteImport } from './routes/_authenticated/creator.comments'
 import { Route as AuthenticatedCoursesSlugRouteImport } from './routes/_authenticated/courses.$slug'
@@ -371,12 +370,6 @@ const AuthenticatedCreatorSubscribersRoute =
     path: '/subscribers',
     getParentRoute: () => AuthenticatedCreatorRoute,
   } as any)
-const AuthenticatedCreatorSettingsRoute =
-  AuthenticatedCreatorSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedCreatorRoute,
-  } as any)
 const AuthenticatedCreatorEarningsRoute =
   AuthenticatedCreatorEarningsRouteImport.update({
     id: '/earnings',
@@ -483,7 +476,6 @@ export interface FileRoutesByFullPath {
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/creator/comments': typeof AuthenticatedCreatorCommentsRoute
   '/creator/earnings': typeof AuthenticatedCreatorEarningsRoute
-  '/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/creators/$id': typeof AuthenticatedCreatorsIdRoute
   '/playground/challenges': typeof AuthenticatedPlaygroundChallengesRoute
@@ -550,7 +542,6 @@ export interface FileRoutesByTo {
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/creator/comments': typeof AuthenticatedCreatorCommentsRoute
   '/creator/earnings': typeof AuthenticatedCreatorEarningsRoute
-  '/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/creators/$id': typeof AuthenticatedCreatorsIdRoute
   '/playground/challenges': typeof AuthenticatedPlaygroundChallengesRoute
@@ -619,7 +610,6 @@ export interface FileRoutesById {
   '/_authenticated/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/_authenticated/creator/comments': typeof AuthenticatedCreatorCommentsRoute
   '/_authenticated/creator/earnings': typeof AuthenticatedCreatorEarningsRoute
-  '/_authenticated/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/_authenticated/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/_authenticated/creators/$id': typeof AuthenticatedCreatorsIdRoute
   '/_authenticated/playground/challenges': typeof AuthenticatedPlaygroundChallengesRoute
@@ -688,7 +678,6 @@ export interface FileRouteTypes {
     | '/courses/$slug'
     | '/creator/comments'
     | '/creator/earnings'
-    | '/creator/settings'
     | '/creator/subscribers'
     | '/creators/$id'
     | '/playground/challenges'
@@ -755,7 +744,6 @@ export interface FileRouteTypes {
     | '/courses/$slug'
     | '/creator/comments'
     | '/creator/earnings'
-    | '/creator/settings'
     | '/creator/subscribers'
     | '/creators/$id'
     | '/playground/challenges'
@@ -823,7 +811,6 @@ export interface FileRouteTypes {
     | '/_authenticated/courses/$slug'
     | '/_authenticated/creator/comments'
     | '/_authenticated/creator/earnings'
-    | '/_authenticated/creator/settings'
     | '/_authenticated/creator/subscribers'
     | '/_authenticated/creators/$id'
     | '/_authenticated/playground/challenges'
@@ -1263,13 +1250,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreatorSubscribersRouteImport
       parentRoute: typeof AuthenticatedCreatorRoute
     }
-    '/_authenticated/creator/settings': {
-      id: '/_authenticated/creator/settings'
-      path: '/settings'
-      fullPath: '/creator/settings'
-      preLoaderRoute: typeof AuthenticatedCreatorSettingsRouteImport
-      parentRoute: typeof AuthenticatedCreatorRoute
-    }
     '/_authenticated/creator/earnings': {
       id: '/_authenticated/creator/earnings'
       path: '/earnings'
@@ -1367,14 +1347,12 @@ const AuthenticatedCohortsRouteWithChildren =
 interface AuthenticatedCreatorRouteChildren {
   AuthenticatedCreatorCommentsRoute: typeof AuthenticatedCreatorCommentsRoute
   AuthenticatedCreatorEarningsRoute: typeof AuthenticatedCreatorEarningsRoute
-  AuthenticatedCreatorSettingsRoute: typeof AuthenticatedCreatorSettingsRoute
   AuthenticatedCreatorSubscribersRoute: typeof AuthenticatedCreatorSubscribersRoute
 }
 
 const AuthenticatedCreatorRouteChildren: AuthenticatedCreatorRouteChildren = {
   AuthenticatedCreatorCommentsRoute: AuthenticatedCreatorCommentsRoute,
   AuthenticatedCreatorEarningsRoute: AuthenticatedCreatorEarningsRoute,
-  AuthenticatedCreatorSettingsRoute: AuthenticatedCreatorSettingsRoute,
   AuthenticatedCreatorSubscribersRoute: AuthenticatedCreatorSubscribersRoute,
 }
 

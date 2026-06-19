@@ -321,11 +321,14 @@ Follow these instructions to get the project up and running locally.
 
    # Playground — all languages run via Wandbox API (free, no self-hosting)
 
-   # Email — Resend API (primary), uncomment Gmail for reliable fallback
+   # Email — Resend API (primary) → Gmail SMTP (reliable fallback)
    RESEND_API_KEY=re_xxx
-   # BREVO_API_KEY=your_v3_api_key
-   # GMAIL_EMAIL=your.email@gmail.com
-   # GMAIL_APP_PASSWORD=your-16-char-app-password
+   GMAIL_EMAIL=your.email@gmail.com
+   GMAIL_APP_PASSWORD=your-16-char-app-password
+   BREVO_SMTP_KEY=your_v3_api_key
+   BREVO_SMTP_SERVER=smtp-relay.brevo.com
+   BREVO_SMTP_PORT=587
+   BREVO_SMTP_LOGIN=your_brevo_login
    ```
 
 4. **Initialize the Database:**

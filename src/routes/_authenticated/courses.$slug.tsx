@@ -1985,6 +1985,7 @@ function FinalTestDialog({
   const [result, setResult] = useState<{ score: number; total: number; passed: boolean } | null>(
     null,
   );
+  const testAwardXp = useServerFn(awardXP);
 
   const q = useQuery({
     queryKey: ["mcqs", courseId],
@@ -2023,6 +2024,9 @@ function FinalTestDialog({
         if (row.passed) {
           toast.success("Certificate issued!");
           setLocalCelebrate(true);
+          testAwardXp({ data: { userId, amount: 50, source: "test" } }).then((r) => {
+            if (r.success) toast.success(`+50 XP for passing the test! 🔥`);
+          });
         }
       }
       setSubmitted(true);
