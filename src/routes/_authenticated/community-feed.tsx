@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/community-feed")({
 type PollData = { question: string; options: string[] };
 
 function CommunityPage() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
   const [content, setContent] = useState("");
   const [mediaFile, setMediaFile] = useState<File | null>(null);
@@ -40,6 +40,10 @@ function CommunityPage() {
   const [postType, setPostType] = useState<"post" | "poll" | "announcement">("post");
   const [pollQuestion, setPollQuestion] = useState("");
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentText, setEditCommentText] = useState("");
 
   const [colorOpen, setColorOpen] = useState(false);
   const [emojiOpen, setEmojiOpen] = useState(false);
@@ -226,11 +230,6 @@ function CommunityPage() {
       setCommentText("");
       qc.invalidateQueries({ queryKey: ["community-posts"] });
     }
-  };
-
-  const deleteComment = async (commentId: string) => {
-    const { error } = await supabase.from("post_comments" as any).delete().eq("id", commentId);
-    if (!error) qc.invalidateQueries({ queryKey: ["community-posts"] });
   };
 
   return (
@@ -445,7 +444,7 @@ function CommunityPage() {
                         </div>
                       </div>
                     </div>
-                    {user?.id === post.author_id && (
+                    {(user?.id === post.author_id || isAdmin) && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
@@ -453,6 +452,11 @@ function CommunityPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          {user?.id === post.author_id && post.post_type !== "poll" && (
+                            <DropdownMenuItem onClick={() => { setEditingPostId(post.id); setEditContent(post.content); }}>
+                              <FileText className="h-4 w-4 mr-2" /> Edit Post
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuItem className="text-destructive focus:bg-destructive/10" onClick={() => deletePost(post.id)}>
                             <Trash2 className="h-4 w-4 mr-2" /> Delete Post
                           </DropdownMenuItem>
@@ -463,6 +467,21 @@ function CommunityPage() {
                   
                   {isPoll && pollData ? (
                     <PollRenderer postId={post.id} pollData={pollData} votes={post.poll_votes ?? []} userId={user?.id} />
+                  ) : editingPostId === post.id ? (
+                    <div className="mb-4 space-y-2">
+                      <Textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={4} />
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={async () => {
+                          if (!editContent.trim()) return toast.error("Content cannot be empty");
+                          const { error } = await supabase.from("posts" as any).update({ content: editContent.trim() }).eq("id", post.id);
+                          if (error) return toast.error(error.message);
+                          toast.success("Post updated");
+                          setEditingPostId(null);
+                          qc.invalidateQueries({ queryKey: ["community-posts"] });
+                        }}>Save</Button>
+                        <Button size="sm" variant="outline" onClick={() => setEditingPostId(null)}>Cancel</Button>
+                      </div>
+                    </div>
                   ) : (
                     <div className="text-sm prose prose-sm dark:prose-invert max-w-none mb-4" dangerouslySetInnerHTML={{ __html: post.content }} />
                   )}
@@ -506,23 +525,60 @@ function CommunityPage() {
                     <div className="mt-4 pt-4 border-t space-y-4">
                       {post.comments?.length > 0 ? (
                         <div className="space-y-3">
-                          {post.comments.map((comment: any) => (
-                            <div key={comment.id} className="flex gap-2 text-sm">
-                              <Avatar className="h-6 w-6 mt-0.5">
+                          {post.comments.map((comment: any) => {
+                            const isCommentAuthor = user?.id === comment.author_id;
+                            return (
+                            <div key={comment.id} className="flex gap-2 text-sm group">
+                              <Avatar className="h-6 w-6 mt-0.5 shrink-0">
                                 <AvatarImage src={comment.author?.avatar_url} />
                                 <AvatarFallback>{comment.author?.full_name?.charAt(0) || "U"}</AvatarFallback>
                               </Avatar>
-                              <div className="flex-1">
+                              <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-0.5">
                                   <span className="text-xs font-semibold">{comment.author?.full_name || "User"}</span>
                                   <span className="text-[10px] text-muted-foreground">{comment.created_at ? formatDistanceToNow(new Date(comment.created_at), { addSuffix: true }) : ""}</span>
+                                  {(isCommentAuthor || isAdmin) && (
+                                    <div className="ml-auto flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      {isCommentAuthor && (
+                                        <button onClick={() => { setEditingCommentId(comment.id); setEditCommentText(comment.content); }} className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent" title="Edit">
+                                          <FileText className="h-3 w-3" />
+                                        </button>
+                                      )}
+                                      <button onClick={async () => {
+                                        if (!window.confirm("Delete this comment?")) return;
+                                        const { error } = await supabase.from("post_comments" as any).delete().eq("id", comment.id);
+                                        if (error) return toast.error(error.message);
+                                        qc.invalidateQueries({ queryKey: ["community-posts"] });
+                                      }} className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10" title="Delete">
+                                        <Trash2 className="h-3 w-3" />
+                                      </button>
+                                    </div>
+                                  )}
                                 </div>
-                                <div className="bg-accent/30 rounded-lg p-2.5">
-                                  <p className="text-muted-foreground whitespace-pre-wrap">{comment.content || "..."}</p>
-                                </div>
+                                {editingCommentId === comment.id ? (
+                                  <div className="space-y-1.5">
+                                    <Textarea value={editCommentText} onChange={(e) => setEditCommentText(e.target.value)} rows={2} className="min-h-[60px]" />
+                                    <div className="flex gap-1.5">
+                                      <Button size="sm" className="h-7 text-xs" onClick={async () => {
+                                        if (!editCommentText.trim()) return toast.error("Comment cannot be empty");
+                                        const { error } = await supabase.from("post_comments" as any).update({ content: editCommentText.trim() }).eq("id", comment.id);
+                                        if (error) return toast.error(error.message);
+                                        toast.success("Comment updated");
+                                        setEditingCommentId(null);
+                                        qc.invalidateQueries({ queryKey: ["community-posts"] });
+                                      }}>Save</Button>
+                                      <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setEditingCommentId(null)}>Cancel</Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="bg-accent/30 rounded-lg p-2.5">
+                                    <p className="text-muted-foreground whitespace-pre-wrap">{comment.content || "..."}</p>
+                                  </div>
+                                )}
                               </div>
                             </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       ) : (
                         <p className="text-xs text-muted-foreground text-center py-2">No comments yet. Start the conversation!</p>
