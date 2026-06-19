@@ -9,93 +9,44 @@ const RunCodeSchema = z.object({
   projectId: z.string().uuid().optional(),
 });
 
-const LANGUAGE_VERSIONS: Record<string, string> = {
-  javascript: "18.15.0",
-  typescript: "5.0.3",
-  python: "3.10.0",
-  python2: "2.7.18",
-  cpp: "10.2.0",
-  c: "10.2.0",
-  java: "15.0.2",
-  go: "1.16.2",
-  rust: "1.68.2",
-  ruby: "3.0.1",
-  php: "8.2.3",
-  swift: "5.3.3",
-  kotlin: "1.8.20",
-  scala: "3.2.2",
-  dart: "2.19.6",
-  elixir: "1.14.3",
-  haskell: "9.0.1",
-  lua: "5.4.4",
-  perl: "5.36.0",
-  r: "4.2.3",
-  bash: "5.2.15",
-  powershell: "7.3.4",
-  sql: "3.42.0",
-  csharp: "6.12.0",
-  fsharp: "7.0.200",
-  zig: "0.10.1",
-  ocaml: "4.14.0",
-  clojure: "1.11.1",
-  erlang: "25.2.2",
-  elm: "0.19.1",
-  julia: "1.8.5",
-  d: "2.100.0",
-  fortran: "11.3.0",
-  lisp: "2.1.2",
-  cobol: "3.1.2",
-  prolog: "8.4.2",
-  racket: "8.7.0",
-  nim: "1.6.8",
-  groovy: "4.0.9",
-  matlab: "R2020a",
-  assembly: "2.14.1",
-  vlang: "0.3.2",
+const WANDBOX_API = "https://wandbox.org/api";
+
+const LANGUAGE_COMPILER: Record<string, string> = {
+  javascript: "nodejs-20.17.0",
+  typescript: "typescript-5.6.2",
+  python: "cpython-head",
+  java: "openjdk-jdk-22+36",
+  cpp: "gcc-head",
+  c: "gcc-head-c",
+  csharp: "mono-6.12.0.199",
+  go: "go-1.23.2",
+  rust: "rust-1.82.0",
+  php: "php-8.3.12",
+  ruby: "ruby-4.0.2",
+  swift: "swift-6.0.1",
+  scala: "scala-3.5.1",
+  haskell: "ghc-9.10.1",
+  lua: "lua-5.4.7",
+  perl: "perl-5.42.0",
+  bash: "bash",
+  sql: "sqlite-3.46.1",
+  julia: "julia-1.10.5",
+  nim: "nim-2.2.10",
+  groovy: "groovy-4.0.23",
+  elixir: "elixir-1.17.3",
+  r: "r-4.4.1",
+  zig: "zig-head",
+  ocaml: "ocaml-5.2.0",
+  erlang: "erlang-27.1",
+  d: "dmd-2.109.1",
+  kotlin: "kotlin-2.0.21",
+  dart: "dart-3.5.3",
 };
 
-export const SUPPORTED_LANGUAGES = Object.keys(LANGUAGE_VERSIONS).sort();
+export const SUPPORTED_LANGUAGES = Object.keys(LANGUAGE_COMPILER).sort();
 
-const PISTON_DEAD_MSG = "Public Piston API is now whitelist-only since Feb 2026. " +
-  "For JS/TS, the playground uses local Node.js execution. " +
-  "For other languages, set the PISTON_URL env var to your self-hosted Piston instance " +
-  "(https://github.com/engineer-man/piston).";
-
-function tryRunWithJavascript(code: string, stdin: string) {
-  try {
-    const vm = require("node:vm");
-    let __stdout = "";
-    let __stderr = "";
-    const sandbox: Record<string, any> = {
-      console: {
-        log: (...args: any[]) => { __stdout += args.map((a: any) => typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)).join(" ") + "\n"; },
-        error: (...args: any[]) => { __stderr += args.map((a: any) => typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)).join(" ") + "\n"; },
-        warn: (...args: any[]) => { __stdout += args.map((a: any) => String(a)).join(" ") + "\n"; },
-      },
-      __stdin: stdin,
-      JSON, Math, Date, RegExp, Error, Array, Object, String, Number, Boolean, Map, Set, WeakMap, WeakSet, Promise,
-      parseInt, parseFloat, isNaN, isFinite, decodeURI, encodeURI, decodeURIComponent, encodeURIComponent,
-      Infinity, NaN, undefined, setTimeout, clearTimeout, setInterval, clearInterval,
-    };
-    const wrapped = `"use strict";\n${code}`;
-    const script = new vm.Script(wrapped, { timeout: 5000 });
-    script.runInNewContext(sandbox, { timeout: 5000 });
-    return { stdout: __stdout, stderr: __stderr, code: 0 };
-  } catch (err: any) {
-    return { stdout: "", stderr: err?.message ?? "Execution failed", code: 1 };
-  }
-}
-
-function transpileTs(code: string): string {
-  try {
-    const ts = require("typescript");
-    const result = ts.transpileModule(code, {
-      target: ts.ScriptTarget.ES2020,
-      noEmit: true,
-      removeComments: true,
-    });
-    return result?.outputText ?? code;
-  } catch { return code; }
+function pickCompiler(language: string): string {
+  return LANGUAGE_COMPILER[language] || language;
 }
 
 export const executeCode = createServerFn({ method: "POST" })
@@ -103,41 +54,34 @@ export const executeCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    const version = LANGUAGE_VERSIONS[data.language];
-    if (!version) return { success: false as const, error: `Unsupported language: ${data.language}` };
+    const compiler = pickCompiler(data.language);
 
     const startTime = Date.now();
     let stdout = "", stderr = "", exitCode = -1, status = "success";
 
     try {
-      if (data.language === "javascript" || data.language === "typescript") {
-        const jsCode = data.language === "typescript" ? transpileTs(data.code) : data.code;
-        const local = tryRunWithJavascript(jsCode, data.stdin);
-        stdout = local.stdout; stderr = local.stderr; exitCode = local.code;
-      } else {
-        const pistonUrl = process.env.PISTON_URL || "https://emkc.org/api/v2/piston";
-        const res = await fetch(`${pistonUrl}/execute`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            language: data.language, version,
-            files: [{ name: "code", content: data.code }],
-            stdin: data.stdin,
-            compile_timeout: 10000,
-            run_timeout: 5000,
-          }),
-        });
-        if (!res.ok) {
-          const text = await res.text().catch(() => "Unknown error");
-          const isDead = res.status === 401 || text.includes("whitelist");
-          if (pistonUrl.includes("emkc.org") && isDead) {
-            return { success: false as const, error: PISTON_DEAD_MSG };
-          }
-          throw new Error(`Piston error (${res.status}): ${text}`);
-        }
-        const json = await res.json();
-        const run = json.run || {};
-        stdout = run.stdout ?? ""; stderr = run.stderr ?? ""; exitCode = run.code ?? -1;
+      const res = await fetch(`${WANDBOX_API}/compile.json`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          compiler,
+          code: data.code,
+          stdin: data.stdin,
+          save: false,
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "Unknown error");
+        throw new Error(`Wandbox error (${res.status}): ${text.slice(0, 500)}`);
+      }
+
+      const json = await res.json();
+      stdout = json.output ?? "";
+      stderr = json.compiler_error ?? json.signal ?? "";
+      exitCode = json.status !== "0" ? 1 : 0;
+      if (!stdout && !stderr) {
+        stdout = json.program_message ?? "";
       }
     } catch (err: any) {
       stderr = err?.message ?? "Execution failed";
@@ -147,7 +91,6 @@ export const executeCode = createServerFn({ method: "POST" })
 
     const elapsed = Date.now() - startTime;
 
-    // Save run history
     try {
       await supabase.from("playground_runs").insert({
         user_id: userId,
@@ -194,7 +137,6 @@ export const executeTestCases = createServerFn({ method: "POST" })
     const results: { passed: boolean; input: any; expected: any; actual: any; error?: string }[] = [];
     for (const tc of data.testCases) {
       try {
-        // Build test harness
         const args = Object.values(tc.input as Record<string, any>).map((v) => JSON.stringify(v)).join(", ");
         const testCode = `${data.code}\n\nconsole.log(JSON.stringify(main(${args})));`;
         const res = await executeCode({ data: { language: data.language, code: testCode, stdin: "" }, context: null as any });

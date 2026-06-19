@@ -19,7 +19,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 ### 🎓 For Learners
 - **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + non-YouTube fallback). Notes tab includes a **Listen** button that reads instructor notes aloud via Web Speech API (TTS).
 - **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
-- **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution (Piston / local VM) and web search. Inline in course player.
+- **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution (Wandbox) and web search. Inline in course player.
 - **Playground Hub:** Standalone coding IDE at `/playground` with Monaco editor, AI assistant, web preview, React sandbox, projects management, DSA challenges, interview mode, and leaderboard. See **🎮 Playground** section below.
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
 - **Wallet & Integrated Payments:** Manage credits, top-up via Cashfree (UPI/card/netbanking), withdraw via Cashfree Payouts, purchase courses, and download invoices instantly.
@@ -31,7 +31,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 
 ### 🎮 Playground (Coding IDE)
 - **Code Editor:** Full-featured Monaco editor with syntax highlighting, autocomplete, themes, line numbers, bracket pair colorization, and font ligatures. Supports 30+ languages with real SVG logos via Simple Icons CDN. Fullscreen mode. Inline project title editing with rename support. Unsaved change indicator.
-- **Code Execution:** Run code via local Node.js VM (JS/TS) or self-hosted Piston API (other languages). Output console with stdout/stderr tabs, exit code, execution time. Copy and clear buttons.
+- **Code Execution:** Powered by Wandbox API — all 30+ languages run remotely via Wandbox. No self-hosting needed. Output console with stdout/stderr tabs, exit code, execution time. Copy and clear buttons.
 - **AI Assistant:** 7 AI tools — Explain Code, Fix Bugs, Optimize, Add Comments, Convert Language, Generate Unit Tests, Complete Code. Powered by OpenRouter. Results can be applied directly to editor.
 - **Web Playground:** Split-screen HTML/CSS/JS editor with live iframe preview. Mobile/desktop preview toggle. Refresh and download as HTML. Responsive layout stacks editors vertically on mobile.
 - **React Sandbox:** Sandpack-powered React playground with multi-file support, live preview, and dependency management (React 18).
@@ -103,7 +103,7 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 | **Analytics** | PostHog |
 | **LLM Observability** | LangSmith |
 | **AI Agent Framework** | CrewAI |
-| **Code Execution** | Piston (self-hosted) — 40+ languages including C, C++, Java, Python, PHP, SQLite. JS/TS runs locally via Node.js `vm` |
+| **Code Execution** | Wandbox API — 30+ languages (JavaScript, Python, Java, C++, Go, Rust, etc.) |
 | **Vector Database** | Supabase pgvector (material_chunks, match_material_chunks RPC) |
 | **OCR / Vision** | Mistral OCR (planned), Hugging Face models (fallback) |
 | **PDF Generation** | jsPDF & jsPDF-Autotable |
@@ -136,10 +136,10 @@ learnifyai/
 │   ├── lib/                # Utility + server functions
 │   │   ├── payment.functions.ts        # Cashfree order create + verify (pending/completed)
 │   │   ├── subscription.functions.ts   # Cashfree Subscriptions CRUD (sync plan, create/cancel/get subscription)
-│   │   ├── playground.functions.ts     # Code execution via Piston API (40+ languages)
+│   │   ├── playground.functions.ts     # Code execution via Wandbox API (30+ languages)
 │   │   ├── playground/                 # Playground server functions
 │   │   │   ├── projects.ts             # Project CRUD (create, get, update, delete, duplicate, saveEditorCode)
-│   │   │   ├── execution.ts            # Code execution (Node.js VM for JS/TS, Piston for others)
+│   │   │   ├── execution.ts            # Code execution via Wandbox API (30+ languages)
 │   │   │   ├── ai.ts                   # AI code assistant (Explain, Fix, Optimize, etc.)
 │   │   │   └── challenges.ts           # Challenges, submissions, leaderboard, interviews
 │   │   ├── course.functions.ts         # Course purchase logic with duplicate enrollment protection
@@ -201,7 +201,7 @@ A full-featured multi-module coding environment with 8 routes:
 - **Editor:** Monaco Editor (VS Code-grade) with syntax highlighting, minimap, bracket pair colorization, font ligatures, and fullscreen mode
 - **Languages:** JavaScript, TypeScript, Python, C++, C, Java, Go, Rust, Ruby, PHP, C#, SQL, Bash, and 30+ more with real SVG logos
 - **Local JS/TS Execution:** JavaScript and TypeScript run locally via Node.js `vm.runInNewContext()` — no external API needed. TypeScript is auto-transpiled before execution.
-- **Other Languages:** Require a self-hosted Piston instance (public API is whitelist-only since Feb 2026). Set `PISTON_URL` in `.env` (see [engineer-man/piston](https://github.com/engineer-man/piston)).
+- **All Languages:** Powered by Wandbox API — no self-hosting required. Supports JavaScript, TypeScript, Python, Java, C++, C, C#, Go, Rust, PHP, Ruby, Swift, Scala, Haskell, Lua, Perl, Bash, SQL, Julia, Nim, Groovy, Elixir, R, Zig, OCaml, Erlang, D, Kotlin, Dart, and more.
 - **Stdin Input:** Pass input to your programs
 - **Output Panel:** Real-time stdout, stderr, exit code, and execution time display with copy/clear
 - **Save/Load Projects:** Save code to Supabase as a project; reopen from URL param. Inline rename with confirmation. Delete with confirm dialog. Unsaved changes indicator.
@@ -249,7 +249,7 @@ An intelligent assistant embedded in the course player with tool execution capab
 ```
 Playground (8 routes)
 ├── /editor        Monaco Editor + Output Console + AI Panel + Save/Load/Delete
-│   └── Execution: Node.js VM (JS/TS) or Piston API (other languages)
+│   └── Execution: Wandbox API (30+ languages)
 ├── /web           HTML/CSS/JS with live iframe preview
 ├── /react         Sandpack React sandbox
 ├── /projects      CRUD project management with Supabase
@@ -310,10 +310,7 @@ Follow these instructions to get the project up and running locally.
    VITE_APP_URL=http://localhost:3000
    VITE_BASE_URL=http://localhost:3000
 
-   # Playground — JS/TS runs locally via Node.js VM (no API needed)
-   # For other languages (Python, C++, Java, etc.), self-host Piston:
-   # https://github.com/engineer-man/piston
-   # PISTON_URL=http://localhost:2000
+   # Playground — all languages run via Wandbox API (free, no self-hosting)
 
    # Email — Resend API (primary), uncomment Gmail for reliable fallback
    RESEND_API_KEY=re_xxx
