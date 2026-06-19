@@ -267,7 +267,7 @@ function CoursesPage() {
             </p>
           </div>
         ) : (
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
             {filtered.map((c) => (
               <Link
                 key={c.id}
@@ -301,14 +301,14 @@ function CoursesPage() {
                     {c.title}
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{c.description}</p>
-                  <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                  <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> {c.duration_minutes} min
+                      <Clock className="h-3 w-3 shrink-0" /> {c.duration_minutes} min
                     </span>
                     <span className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" /> 4.8
+                      <Star className="h-3 w-3 fill-amber-400 text-amber-400 shrink-0" /> 4.8
                     </span>
-                    <span className="font-semibold text-foreground">
+                    <span className="font-semibold text-foreground ml-auto">
                       {inr(Number(c.price_inr))}
                     </span>
                   </div>

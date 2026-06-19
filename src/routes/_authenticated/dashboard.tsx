@@ -177,7 +177,7 @@ function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
               {enrolled.map((e: any) => {
                 const cert = certMap.get(e.course_id);
                 const attempts = attemptsByCourse[e.course_id] ?? [];
@@ -210,18 +210,18 @@ function DashboardPage() {
                         )}
                       </div>
                     </Link>
-                    <div className="p-4 flex-1 flex flex-col gap-2">
-                      <div className="flex items-center gap-2 text-[10px] uppercase">
-                        <Badge variant="secondary" className="text-[10px]">
+                    <div className="p-4 flex-1 flex flex-col gap-2 min-w-0">
+                      <div className="flex items-center gap-2 text-[10px] uppercase flex-wrap">
+                        <Badge variant="secondary" className="text-[10px] shrink-0">
                           {e.courses?.category}
                         </Badge>
                         {cert && (
-                          <Badge className="text-[10px] bg-emerald-500 hover:bg-emerald-500">
+                          <Badge className="text-[10px] bg-emerald-500 hover:bg-emerald-500 shrink-0">
                             Certified
                           </Badge>
                         )}
                         {e.status === "completed" && !cert && (
-                          <Badge variant="outline" className="text-[10px]">
+                          <Badge variant="outline" className="text-[10px] shrink-0">
                             Done
                           </Badge>
                         )}
@@ -229,14 +229,14 @@ function DashboardPage() {
                       <Link
                         to="/courses/$slug"
                         params={{ slug: e.courses?.slug }}
-                        className="font-display font-semibold line-clamp-2 group-hover:text-primary transition"
+                        className="font-display font-semibold line-clamp-2 group-hover:text-primary transition break-words"
                       >
                         {e.courses?.title}
                       </Link>
-                      <div className="mt-1">
+                      <div className="mt-auto">
                         <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
-                          <span>{e.progress_pct}% complete</span>
-                          <span>{format(new Date(e.last_activity_at), "dd MMM")}</span>
+                          <span className="truncate">{e.progress_pct}% complete</span>
+                          <span className="shrink-0 ml-2">{format(new Date(e.last_activity_at), "dd MMM")}</span>
                         </div>
                         <Progress value={e.progress_pct} className="h-1.5" />
                         {attempts.length > 0 && (
@@ -246,19 +246,19 @@ function DashboardPage() {
                           </p>
                         )}
                       </div>
-                      <div className="mt-3 grid grid-cols-2 gap-2">
-                        <Button asChild size="sm" variant="default" className="h-8 text-xs">
+                      <div className="flex gap-2 flex-col sm:flex-row">
+                        <Button asChild size="sm" variant="default" className="h-8 text-xs flex-1">
                           <Link to="/courses/$slug" params={{ slug: e.courses?.slug }}>
-                            <PlayCircle className="h-3.5 w-3.5" /> {actionLabel}
+                            <PlayCircle className="h-3.5 w-3.5 shrink-0" /> {actionLabel}
                           </Link>
                         </Button>
-                        <Button asChild size="sm" variant="outline" className="h-8 text-xs">
+                        <Button asChild size="sm" variant="outline" className="h-8 text-xs flex-1">
                           <Link
                             to="/courses/$slug"
                             params={{ slug: e.courses?.slug }}
                             search={{ tab: "playground" } as any}
                           >
-                            <Code2 className="h-3.5 w-3.5" /> Playground
+                            <Code2 className="h-3.5 w-3.5 shrink-0" /> Playground
                           </Link>
                         </Button>
                       </div>
