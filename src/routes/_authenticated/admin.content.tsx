@@ -1049,10 +1049,10 @@ function PlanDialog({
             </div>
             <div>
               <Label>Interval</Label>
-              <Select value={form.interval || ""} onValueChange={(v) => setForm({ ...form, interval: v || null })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Select value={form.interval || "none"} onValueChange={(v) => setForm({ ...form, interval: v === "none" ? null : v })}>
+                <SelectTrigger><SelectValue placeholder="Select interval" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   <SelectItem value="month">Monthly</SelectItem>
                   <SelectItem value="year">Yearly</SelectItem>
                 </SelectContent>

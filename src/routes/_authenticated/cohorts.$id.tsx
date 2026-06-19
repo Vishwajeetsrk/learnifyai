@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
   ArrowLeft,
   Calendar,
@@ -156,6 +156,17 @@ function CohortDetail() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs.length]);
 
+  const notifiedRef = useRef(false);
+  useEffect(() => {
+    const cohort = data?.cohort;
+    if (!cohort || !isMember || notifiedRef.current) return;
+    const diffMs = new Date(cohort.starts_at).getTime() - Date.now();
+    if (diffMs > 0 && diffMs <= 30 * 60 * 1000) {
+      notifiedRef.current = true;
+      toast.info(`"${cohort.title}" starts in ${Math.ceil(diffMs / 60000)} min — check the meeting link!`, { duration: 10_000 });
+    }
+  }, [data?.cohort, isMember]);
+
   async function join() {
     if (!user) return navigate({ to: "/login" });
     const { error } = await supabase
@@ -259,13 +270,28 @@ function CohortDetail() {
           )}
 
           <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-            <div className="rounded-xl border p-3">
+            <div className="rounded-xl border p-3 relative">
               <div className="text-xs text-muted-foreground flex items-center gap-1">
                 <Calendar className="h-3 w-3" /> Starts
               </div>
               <div className="font-medium mt-1">
                 {format(new Date(c.starts_at), "dd MMM, HH:mm")}
               </div>
+              {c.status !== "ended" && c.status !== "cancelled" && (() => {
+                const diffMs = new Date(c.starts_at).getTime() - Date.now();
+                if (diffMs < 0 && c.status === "live") {
+                  return <span className="absolute top-1 right-1 flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" /></span>;
+                }
+                if (diffMs < 0) return null;
+                const hrs = Math.floor(diffMs / 3600000);
+                const mins = Math.floor((diffMs % 3600000) / 60000);
+                if (hrs >= 24) return null;
+                return (
+                  <span className="text-[10px] text-amber-600 font-medium mt-0.5 block">
+                    {hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`} from now
+                  </span>
+                );
+              })()}
             </div>
             <div className="rounded-xl border p-3">
               <div className="text-xs text-muted-foreground flex items-center gap-1">
@@ -287,6 +313,21 @@ function CohortDetail() {
                 </div>
                 <div className="font-medium mt-1 flex items-center gap-1 truncate">
                   Join call <ExternalLink className="h-3 w-3" />
+                </div>
+              </a>
+            )}
+            {c.group_link && (isMember || isHost) && (
+              <a
+                href={c.group_link}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl border p-3 hover:bg-accent flex flex-col"
+              >
+                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                  <MessageCircle className="h-3 w-3" /> Group chat
+                </div>
+                <div className="font-medium mt-1 flex items-center gap-1 truncate">
+                  Open chat <ExternalLink className="h-3 w-3" />
                 </div>
               </a>
             )}

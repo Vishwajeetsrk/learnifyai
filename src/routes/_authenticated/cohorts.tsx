@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Calendar, Loader2, Plus, Users, Video, BookOpen, Sparkles, Pencil, Trash2, MessageCircle } from "lucide-react";
+import { Calendar, Loader2, Plus, Users, Video, BookOpen, Sparkles, Pencil, Trash2, MessageCircle, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -66,7 +66,7 @@ function CohortsPage() {
       const { data, error } = await supabase
         .from("cohorts")
         .select(
-          "id, title, description, kind, starts_at, ends_at, capacity, status, creator_id, course_id",
+          "id, title, description, kind, starts_at, ends_at, capacity, status, creator_id, course_id, meeting_url, group_link",
         )
         .order("starts_at", { ascending: true })
         .limit(100);
@@ -96,10 +96,34 @@ function CohortsPage() {
       if (!ids.length) return new Map<string, number>();
       const { data } = await supabase
         .from("cohort_members")
-        .select("cohort_id")
+        .select("cohort_id, user_id")
         .in("cohort_id", ids);
       const m = new Map<string, number>();
-      for (const r of data ?? []) m.set(r.cohort_id, (m.get(r.cohort_id) ?? 0) + 1);
+      const userIdsByCohort = new Map<string, string[]>();
+      const allUserIds = new Set<string>();
+      for (const r of data ?? []) {
+        m.set(r.cohort_id, (m.get(r.cohort_id) ?? 0) + 1);
+        const uids = userIdsByCohort.get(r.cohort_id) ?? [];
+        uids.push(r.user_id);
+        userIdsByCohort.set(r.cohort_id, uids);
+        allUserIds.add(r.user_id);
+      }
+      return { counts: m, userIdsByCohort, allUserIds: [...allUserIds] };
+    },
+  });
+
+  const memberProfilesQuery = useQuery({
+    queryKey: ["cohort-member-profiles", (countsQuery.data as any)?.allUserIds?.join(",")],
+    enabled: !!(countsQuery.data as any)?.allUserIds?.length,
+    queryFn: async () => {
+      const ids = (countsQuery.data as any).allUserIds as string[];
+      if (!ids.length) return new Map<string, { avatar_url: string | null; full_name: string | null }>();
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, avatar_url, full_name")
+        .in("id", ids);
+      const m = new Map<string, { avatar_url: string | null; full_name: string | null }>();
+      for (const p of data ?? []) m.set(p.id, p);
       return m;
     },
   });
@@ -173,7 +197,9 @@ function CohortsPage() {
                 cohorts={k === "all" ? cohorts : filterBy(k)}
                 loading={cohortsQuery.isLoading}
                 joined={membersQuery.data ?? new Set()}
-                counts={countsQuery.data ?? new Map()}
+                counts={(countsQuery.data as any)?.counts ?? new Map()}
+                userIdsByCohort={(countsQuery.data as any)?.userIdsByCohort}
+                memberProfiles={memberProfilesQuery.data}
                 onJoin={joinCohort}
                 onLeave={leaveCohort}
                 userId={user?.id}
@@ -358,6 +384,8 @@ function CohortList({
   loading,
   joined,
   counts,
+  userIdsByCohort,
+  memberProfiles,
   onJoin,
   onLeave,
   userId,
@@ -369,6 +397,8 @@ function CohortList({
   loading: boolean;
   joined: Set<string>;
   counts: Map<string, number>;
+  userIdsByCohort?: Map<string, string[]>;
+  memberProfiles?: Map<string, { avatar_url: string | null; full_name: string | null }>;
   onJoin: (id: string) => void;
   onLeave: (id: string) => void;
   userId?: string;
@@ -430,6 +460,11 @@ function CohortList({
                   className="text-[10px] capitalize"
                 >
                   {c.status}
+                  {c.status !== "live" && c.status !== "ended" && c.status !== "cancelled" && (() => {
+                    const diffMs = new Date(c.starts_at).getTime() - Date.now();
+                    if (diffMs > 0 && diffMs <= 60 * 60 * 1000) return " · soon";
+                    return "";
+                  })()}
                 </Badge>
               </div>
             </div>
@@ -440,6 +475,29 @@ function CohortList({
               <span className="flex items-center gap-1">
                 <Users className="h-3 w-3" /> {memberCount}/{c.capacity}
               </span>
+              {memberCount > 0 && userIdsByCohort && memberProfiles && (
+                <span className="flex -space-x-1.5 ml-1">
+                  {(userIdsByCohort.get(c.id) ?? []).slice(0, 5).map((uid) => {
+                    const p = memberProfiles.get(uid);
+                    return (
+                      <div key={uid} className="h-5 w-5 rounded-full border border-background bg-muted overflow-hidden" title={p?.full_name ?? ""}>
+                        {p?.avatar_url ? (
+                          <img src={p.avatar_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-[7px] font-medium flex items-center justify-center h-full text-muted-foreground">
+                            {(p?.full_name ?? "?")[0]}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {memberCount > 5 && (
+                    <span className="h-5 w-5 rounded-full border border-background bg-muted flex items-center justify-center text-[7px] font-medium text-muted-foreground">
+                      +{memberCount - 5}
+                    </span>
+                  )}
+                </span>
+              )}
             </div>
             <div className="mt-4 flex gap-2">
               <Button asChild variant="outline" size="sm">

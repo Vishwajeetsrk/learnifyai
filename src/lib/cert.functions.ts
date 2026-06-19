@@ -11,8 +11,16 @@ function escapeHtml(s: string): string {
   );
 }
 
-const LOGO_URL =
-  "/favicon.ico";
+function resolveOrigin(): string {
+  const origin =
+    process.env.APP_URL ||
+    getRequestHeader("origin") ||
+    getRequestHeader("referer")?.replace(/^(https?:\/\/[^/]+).*/, "$1") ||
+    "https://learnifyaitool.vercel.app";
+  return origin.replace(/[^a-zA-Z0-9:/.\-_]/g, "");
+}
+
+const LOGO_URL = "https://learnifyaitool.vercel.app/favicon.ico";
 
 function buildHtml({
   courseTitle,
@@ -196,8 +204,9 @@ async function sendEmail({
       if (!resp.ok) {
         const body = await resp.text().catch(() => "");
         if (resp.status === 422 && body.includes("verified")) {
-          // Sender domain not verified — fall through to other providers
-          console.warn("Resend REST: sender not verified, trying alternatives...");
+          console.warn("Resend REST: sender domain not verified, trying alternatives...");
+        } else if (resp.status === 422 && body.includes("not configured")) {
+          console.warn("Resend REST: sender not configured, trying alternatives...");
         } else {
           throw new Error(`Resend API ${resp.status}: ${body.slice(0, 200)}`);
         }
@@ -285,10 +294,16 @@ async function sendEmail({
   }
 
   const hints: string[] = [];
-  if (!RESEND_API_KEY) hints.push("Set RESEND_API_KEY (free at resend.com)");
+  if (RESEND_API_KEY) {
+    hints.push("Resend sender domain not verified — add/verify a domain at resend.com/domains");
+  } else {
+    hints.push("Set RESEND_API_KEY (free at resend.com)");
+  }
   if (!BREVO_API_KEY) hints.push("Set BREVO_API_KEY (v3 API key from Brevo dashboard)");
-  if (!GMAIL_EMAIL) hints.push("Set GMAIL_EMAIL + GMAIL_APP_PASSWORD (free Gmail app password)");
-  throw new Error(`Email failed. ${hints.join("; ")}.`);
+  if (!GMAIL_EMAIL || !GMAIL_APP_PASSWORD) {
+    hints.push("Set GMAIL_EMAIL + GMAIL_APP_PASSWORD (free Gmail app password) for reliable fallback");
+  }
+  throw new Error(`Email delivery failed: all providers exhausted. ${hints.join("; ")}.`);
 }
 
 /** Test email sending — reports detailed provider results. */
@@ -351,15 +366,6 @@ export const testEmailSending = createServerFn({ method: "POST" })
 
     return { results };
   });
-
-function resolveOrigin(): string {
-  const origin =
-    process.env.APP_URL ||
-    getRequestHeader("origin") ||
-    getRequestHeader("referer")?.replace(/^(https?:\/\/[^/]+).*/, "$1") ||
-    "https://learnify.ai";
-  return origin.replace(/[^a-zA-Z0-9:/.\-_]/g, "");
-}
 
 /** Email a certificate link to the recipient (learner's own cert). */
 export const emailCertificate = createServerFn({ method: "POST" })
@@ -500,6 +506,9 @@ export const adminEmailCertificate = createServerFn({ method: "POST" })
           recipient_email: recipient,
           status: "pending",
           sent_by: userId,
+          attempt: 0,
+          max_attempts: 5,
+          next_retry_at: new Date(Date.now() + 30_000).toISOString(),
           idempotency_key: data.idempotencyKey,
         })
         .select("id")
@@ -607,7 +616,8 @@ export const retryPendingCertificateEmails = createServerFn({ method: "POST" })
       succeeded = 0,
       failed = 0;
     for (const row of rows ?? []) {
-      if (row.attempt >= row.max_attempts) continue;
+      const maxAttempts = row.max_attempts ?? 5;
+      if (row.attempt >= maxAttempts) continue;
       retried++;
       const { data: cert } = await supabase
         .from("certificates")
@@ -658,11 +668,11 @@ export const retryPendingCertificateEmails = createServerFn({ method: "POST" })
         await supabase
           .from("certificate_email_log")
           .update({
-            status: nextAttempt >= row.max_attempts ? "failed" : "pending",
+            status: nextAttempt >= maxAttempts ? "failed" : "pending",
             error: String(e?.message ?? e).slice(0, 500),
             attempt: nextAttempt,
             next_retry_at:
-              nextAttempt >= row.max_attempts
+              nextAttempt >= maxAttempts
                 ? null
                 : new Date(Date.now() + backoffMs).toISOString(),
           })
