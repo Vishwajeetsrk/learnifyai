@@ -102,6 +102,14 @@ export const createSubscription = createServerFn({ method: "POST" })
       p.cashfree_plan_id = await doSyncPlan(data.planId);
     }
 
+    const { data: profile } = await (supabaseAdmin as any)
+      .from("profiles")
+      .select("full_name, email")
+      .eq("id", uid)
+      .single();
+    const realName = profile?.full_name || uid.slice(0, 8);
+    const realEmail = profile?.email || `${uid.slice(0, 8)}@learnify.app`;
+
     const { appId, secretKey } = getCreds();
     const subId = `sub_${uid.slice(0, 8)}_${Date.now()}`;
     const baseUrl = process.env.VITE_APP_URL || "https://learnifyaitool.vercel.app";
@@ -114,8 +122,9 @@ export const createSubscription = createServerFn({ method: "POST" })
       body: JSON.stringify({
         subscription_id: subId,
         customer_details: {
-          customer_name: uid.slice(0, 8),
-          customer_email: `${uid.slice(0, 8)}@learnify.app`,
+          customer_id: uid,
+          customer_name: realName,
+          customer_email: realEmail,
           customer_phone: "9999999999",
         },
         plan_details: {
@@ -154,7 +163,8 @@ export const createSubscription = createServerFn({ method: "POST" })
         plan_id: data.planId,
         cashfree_subscription_id: sub.subscription_id || subId,
         cashfree_order_id: sub.cf_subscription_id || null,
-        status: "active",
+        status: "pending",
+        current_period_start: new Date().toISOString(),
         current_period_end: periodEnd.toISOString(),
         ai_credits_reset_at: new Date(Date.now() + 30 * 86400000).toISOString(),
       });

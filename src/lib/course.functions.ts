@@ -121,6 +121,10 @@ export const checkoutCart = createServerFn({ method: "POST" })
       }
     }
 
+    // Check plan course limit before enrolling
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await checkCourseLimit(supabaseAdmin, userId);
+
     // Create enrollments
     const rows = items.map((c: any) => ({
       user_id: userId,
@@ -156,7 +160,6 @@ export const checkoutCart = createServerFn({ method: "POST" })
       });
     }
     if (earningRows.length) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { error: earnErr } = await supabaseAdmin
         .from("wallet_transactions")
         .insert(earningRows);
@@ -177,12 +180,48 @@ export const checkoutCart = createServerFn({ method: "POST" })
     };
   });
 
+async function getActivePlanLimit(supabaseAdmin: any, userId: string): Promise<number> {
+  const { data: sub } = await supabaseAdmin
+    .from("user_subscriptions")
+    .select("plan:pricing_plans(max_courses)")
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .maybeSingle();
+  if (!sub?.plan?.max_courses) return -1;
+  return Number(sub.plan.max_courses);
+}
+
+async function isAdminUser(supabaseAdmin: any, userId: string): Promise<boolean> {
+  const { data } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId)
+    .in("role", ["super_admin", "admin"]);
+  return !!data?.length;
+}
+
+async function checkCourseLimit(supabaseAdmin: any, userId: string): Promise<void> {
+  if (await isAdminUser(supabaseAdmin, userId)) return;
+  const maxCourses = await getActivePlanLimit(supabaseAdmin, userId);
+  if (maxCourses < 0) return;
+  const { count } = await supabaseAdmin
+    .from("enrollments")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", userId);
+  if (count != null && count >= maxCourses) {
+    throw new Error(
+      `Your plan allows up to ${maxCourses} courses. Upgrade to Pro for unlimited access.`,
+    );
+  }
+}
+
 /* ---------------- Enroll free course directly ---------------- */
 export const enrollFree = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: course, error } = await supabase
       .from("courses")
       .select("id, price_inr")
@@ -190,6 +229,7 @@ export const enrollFree = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
     if (Number(course.price_inr) > 0) throw new Error("This is a paid course — add it to cart.");
+    await checkCourseLimit(supabaseAdmin, userId);
     const { error: e2 } = await supabase
       .from("enrollments")
       .upsert(

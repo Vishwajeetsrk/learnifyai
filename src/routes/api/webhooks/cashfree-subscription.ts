@@ -31,23 +31,27 @@ export const Route = createFileRoute("/api/webhooks/cashfree-subscription")({
           const eventType = event.type || event.event_type || "";
           const subscriptionId = event.data?.subscription?.subscription_id || event.subscription_id;
           const orderId = event.data?.order?.order_id || event.order_id;
-          const userId = event.data?.customer_details?.customer_id || event.customer_id;
 
           if (eventType === "SUBSCRIPTION_PAYMENT_SUCCESS" || eventType === "SUBSCRIPTION_CHARGE_SUCCESS") {
             if (subscriptionId) {
               const { data: sub } = await sb
                 .from("user_subscriptions")
-                .select("id, plan_id")
+                .select("id, plan_id, user_id")
                 .eq("cashfree_subscription_id", subscriptionId)
                 .maybeSingle();
 
               if (sub) {
+                const periodEnd = new Date();
+                periodEnd.setDate(periodEnd.getDate() + 30);
+
                 await sb
                   .from("user_subscriptions")
                   .update({
                     status: "active",
-                    current_period_end: new Date().toISOString(),
+                    current_period_start: new Date().toISOString(),
+                    current_period_end: periodEnd.toISOString(),
                     cashfree_order_id: orderId || sub.cashfree_order_id,
+                    ai_credits_reset_at: periodEnd.toISOString(),
                   })
                   .eq("id", sub.id);
 
@@ -56,26 +60,23 @@ export const Route = createFileRoute("/api/webhooks/cashfree-subscription")({
                   .select("ai_credits_monthly")
                   .eq("id", sub.plan_id)
                   .single();
-                if (plan?.ai_credits_monthly) {
-                  const { data: profile } = await sb
-                    .from("profiles")
-                    .select("credits_remaining, credits_used")
-                    .eq("id", userId)
-                    .single();
-                  if (profile) {
-                    await sb
-                      .from("profiles")
-                      .update({
-                        credits_remaining: (profile.credits_remaining || 0) + plan.ai_credits_monthly,
+                if (plan?.ai_credits_monthly && sub.user_id) {
+                  await sb
+                    .from("ai_credits")
+                    .upsert(
+                      {
+                        user_id: sub.user_id,
+                        credits_remaining: plan.ai_credits_monthly,
                         credits_used: 0,
-                      })
-                      .eq("id", userId);
-                  }
+                        updated_at: new Date().toISOString(),
+                      },
+                      { onConflict: "user_id" },
+                    );
                 }
 
                 await sb.from("subscription_events").insert({
                   subscription_id: sub.id,
-                  user_id: userId,
+                  user_id: sub.user_id,
                   event_type: eventType,
                   payload: { amount: event.data?.order?.order_amount, order_id: orderId },
                 });
