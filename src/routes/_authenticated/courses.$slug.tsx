@@ -371,21 +371,34 @@ function CourseDetail() {
         .catch(() => {});
     }
     const base = progressRows.find((p) => p.lesson_id === active.id)?.watched_seconds ?? 0;
+    const hasWatchedEnough = progressRows.find((p) => p.lesson_id === active.id)?.completed;
     const startedAt = Date.now();
+    let autoCompleted = !!hasWatchedEnough;
     const interval = window.setInterval(() => {
       const watched = Math.max(base + Math.floor((Date.now() - startedAt) / 1000), 1);
-      supabase
-        .from("lesson_progress")
-        .upsert(
-          {
-            user_id: user.id,
-            course_id: course.id,
-            lesson_id: active.id,
-            watched_seconds: watched,
-          },
-          { onConflict: "user_id,lesson_id" },
-        )
-        .then(() => {});
+      if (!autoCompleted && active.duration_minutes > 0 && watched >= active.duration_minutes * 60 * 0.9) {
+        autoCompleted = true;
+        supabase
+          .from("lesson_progress")
+          .upsert(
+            { user_id: user.id, course_id: course.id, lesson_id: active.id, watched_seconds: watched, completed: true },
+            { onConflict: "user_id,lesson_id" },
+          )
+          .then(() => {
+            qc.invalidateQueries({ queryKey: ["progress", course.id, user.id] });
+            recompute({ data: { courseId: course.id } })
+              .then(() => qc.invalidateQueries({ queryKey: ["enrollment", course.id, user.id] }))
+              .catch(() => {});
+          });
+      } else {
+        supabase
+          .from("lesson_progress")
+          .upsert(
+            { user_id: user.id, course_id: course.id, lesson_id: active.id, watched_seconds: watched },
+            { onConflict: "user_id,lesson_id" },
+          )
+          .then(() => {});
+      }
     }, 15000);
     return () => window.clearInterval(interval);
   }, [active?.id, course?.id, isEnrolled, markStarted, progressRows, qc, user?.id]);
@@ -1719,6 +1732,9 @@ function FinalTestSection({
               qc.invalidateQueries({ queryKey: ["my-certs"] });
               qc.invalidateQueries({ queryKey: ["my-attempts"] });
               qc.invalidateQueries({ queryKey: ["enrollments"] });
+              recompute({ data: { courseId } })
+                .then(() => qc.invalidateQueries({ queryKey: ["enrollment", courseId, userId] }))
+                .catch(() => {});
               setOpen(false);
               setCelebratePass(true);
               qc.invalidateQueries({ queryKey: ["profile-mini", userId] });
