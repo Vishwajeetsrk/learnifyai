@@ -46,8 +46,10 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Coupon System:** Admin-managed discount codes (percent/flat) stored in DB — applied at checkout with real-time validation and cart UI.
 - **Pricing Plans Management:** Full CRUD for subscription plans (name, price INR, interval, features, badge, color, max courses, AI credits). One-click sync to Cashfree Subscriptions API.
 - **Cohort Management:** Create and manage cohorts of all types (live cohort, office hours, study group) with title, description, type, capacity, status, and date range. Table view with delete.
-- **Content Manager:** Pricing Plans and Site Settings management.
+- **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates (with "Open Designer" link to full WYSIWYG builder), FAQs, Legal Pages (Terms, Privacy, Refund), Coupons, Community Groups, and Roadmap.
 - **Legal Pages:** Fully editable Terms of Service, Privacy Policy, and Refund Policy — rendered from the database, editable via the admin Content Manager.
+- **Social Media Management:** Configurable Discord, Twitter/X, GitHub, LinkedIn, and YouTube links with icons in the footer. All managed through Site Settings.
+- **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, invoice customisation (company name, GSTIN, invoice prefix), and custom settings.
 
 ---
 
@@ -109,7 +111,7 @@ learnifyai/
 │   ├── routes/             # TanStack Start route tree
 │   │   ├── _authenticated/ # Protected routes
 │   │   │   ├── admin.tsx             # Admin overview: transactions dashboard (type filter, date range), user management, cohorts, withdrawals, export (Excel + CSV)
-│   │   │   ├── admin.content.tsx     # Content Manager: Pricing Plans CRUD, Site Settings
+│   │   │   ├── admin.content.tsx     # Content Manager: Events, Jobs, Pricing Plans, Site Settings, Cert Templates, FAQs, Pages, Coupons, Community Groups, Roadmap
 │   │   │   ├── admin.certificates.tsx  # Drag-and-drop certificate designer (10 themes, borders, patterns)
 │   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree) + withdrawal (Cashfree Payouts) + invoice PDF download
 │   │   │   ├── cart.tsx        # Cart with coupon support, Cashfree checkout, enrollment
@@ -129,6 +131,8 @@ learnifyai/
 │       ├── 20260618000001_group_link.sql             # Adds group_link column to cohorts
 │       └── 20260618000002_subscriptions.sql          # Subscription tables (user_subscriptions, subscription_events, pricing_plans columns)
 ├── package.json            # Dependencies and scripts
+├── scripts/                # Utility scripts
+│   └── seed_courses.mjs    # Seed database with real courses
 └── README.md               # You are here!
 ```
 
@@ -211,7 +215,13 @@ Follow these instructions to get the project up and running locally.
 4. **Initialize the Database:**
    Run the Supabase migrations in your project's SQL editor or via the Supabase CLI to create all necessary tables (`wallet_transactions`, `posts`, `coaching_slots`, `user_subscriptions`, `subscription_events`, etc.) and Storage buckets (`community-uploads`, `course-videos`).
 
-5. **Start the development server:**
+5. **Seed the database with sample courses:**
+   ```bash
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key node scripts/seed_courses.mjs
+   ```
+   This populates the courses table with real course data (Full-Stack Next.js, UI/UX Design, WordPress, AI Prompt Engineering, Python Data Science, TypeScript Mastery).
+
+6. **Start the development server:**
    ```bash
    npm run dev
    ```

@@ -129,6 +129,21 @@ function WalletPage() {
   );
   const pendingTxs = txs.filter((t) => t.status === "pending" && t.type === "credit");
 
+  const invoiceSettingsQuery = useQuery({
+    queryKey: ["invoice-settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("site_settings").select("key,value").in("key", [
+        "invoice_company_name", "invoice_legal_name", "invoice_gstin",
+        "invoice_prefix", "invoice_footer",
+      ]);
+      const m: Record<string, string> = {};
+      for (const r of data ?? []) m[r.key] = r.value;
+      return m;
+    },
+    staleTime: 300_000,
+  });
+  const inv = invoiceSettingsQuery.data ?? {};
+
   async function submitTopup() {
     if (!user) return;
     const amt = Number(amount);
@@ -179,15 +194,21 @@ function WalletPage() {
     try {
       const doc = new jsPDF();
 
+      const companyName = inv.invoice_company_name || "Learnify AI";
+      const legalName = inv.invoice_legal_name || "Learnify EdTech Pvt. Ltd.";
+      const gstin = inv.invoice_gstin || "29XXXXX1234X1Z5";
+      const prefix = inv.invoice_prefix || "LRN";
+      const footerText = inv.invoice_footer || "This is a computer generated invoice and does not require a signature.";
+
       // Header
       doc.setFontSize(22);
       doc.setTextColor(79, 70, 229);
-      doc.text("Learnify AI", 14, 22);
+      doc.text(companyName, 14, 22);
 
       doc.setFontSize(10);
       doc.setTextColor(100);
-      doc.text("Learnify EdTech Pvt. Ltd.", 14, 30);
-      doc.text("GSTIN: 29XXXXX1234X1Z5", 14, 35);
+      doc.text(legalName, 14, 30);
+      doc.text(`GSTIN: ${gstin}`, 14, 35);
 
       doc.setFontSize(20);
       doc.setTextColor(0);
@@ -196,7 +217,7 @@ function WalletPage() {
       // Details
       doc.setFontSize(10);
       doc.setTextColor(50);
-      doc.text(`Invoice Number: LRN-${tx.id?.split("-")[0]?.toUpperCase() ?? "NA"}`, 150, 30);
+      doc.text(`Invoice Number: ${prefix}-${tx.id?.split("-")[0]?.toUpperCase() ?? "NA"}`, 150, 30);
       doc.text(`Date: ${tx.created_at ? format(new Date(tx.created_at), "dd MMM yyyy") : "N/A"}`, 150, 35);
 
       doc.setDrawColor(200);
@@ -225,9 +246,9 @@ function WalletPage() {
       doc.setFontSize(9);
       doc.setTextColor(150);
       const lastTable = (doc as any).lastAutoTable;
-      doc.text("This is a computer generated invoice and does not require a signature.", 14, (lastTable?.finalY ?? 200) + 30);
+      doc.text(footerText, 14, (lastTable?.finalY ?? 200) + 30);
 
-      doc.save(`Learnify_Invoice_${tx.id?.split("-")[0] ?? "NA"}.pdf`);
+      doc.save(`${companyName.replace(/\s+/g, "_")}_Invoice_${tx.id?.split("-")[0] ?? "NA"}.pdf`);
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to generate invoice");
     }

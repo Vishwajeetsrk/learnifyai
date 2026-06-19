@@ -1,5 +1,5 @@
 import { createFileRoute, useLocation, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -8,10 +8,33 @@ import {
   Plus,
   Pencil,
   Trash2,
+  Calendar as CalendarIcon,
+  Briefcase,
   ArrowLeft,
   Tag,
   Settings,
+  X,
+  Award,
+  HelpCircle,
+  Send,
+  FileText,
+  GitBranch,
+  Percent,
+  ShieldCheck,
+  Users,
 } from "lucide-react";
+import {
+  CertificateRender,
+  DEFAULT_DESIGN,
+  FONT_OPTIONS,
+  BORDER_STYLES,
+  CORNER_STYLES,
+  BACKGROUND_PATTERNS,
+  LAYOUTS,
+  type CertDesign,
+} from "@/components/CertificateDesign";
+import { CertificateFullPreviewDialog } from "@/components/CertificateFullPreviewDialog";
+import { Maximize2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,6 +72,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+
+// Heavy admin panels — code-split so initial admin page paints fast.
+const IssueCertificate = lazy(() => import("@/components/admin/IssueCertificate"));
+
+function LazyFallback() {
+  return (
+    <div className="flex justify-center py-16">
+      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/_authenticated/admin/content")({
   head: () => ({ meta: [{ title: "Content Manager — Learnify AI" }] }),
@@ -91,21 +125,36 @@ function AdminContentPage() {
     return "";
   })();
   const tabAlias =
-    ({} as Record<string, string>)[requestedTab] ?? requestedTab;
+    (
+      {
+        templates: "cert-templates",
+        certificate: "cert-templates",
+        certificates: "cert-templates",
+      } as Record<string, string>
+    )[requestedTab] ?? requestedTab;
   const tabFromUrl = [
+    "events",
+    "jobs",
     "pricing",
     "site",
+    "cert-templates",
+    "issue-cert",
+    "faqs",
+    "pages",
+    "roadmap",
+    "coupons",
+    "community",
   ].includes(tabAlias)
     ? tabAlias
-    : "pricing";
-  const [tab, setTab] = useState(tabFromUrl || "pricing");
+    : "events";
+  const [tab, setTab] = useState(tabFromUrl || "events");
 
   useEffect(() => {
     if (!loading && !isAdmin) navigate({ to: "/dashboard" });
   }, [loading, isAdmin, navigate]);
 
   useEffect(() => {
-    setTab(tabFromUrl || "pricing");
+    setTab(tabFromUrl || "events");
   }, [tabFromUrl]);
 
   if (loading || !isAdmin) {
@@ -140,6 +189,14 @@ function AdminContentPage() {
 
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="flex-wrap h-auto">
+            <TabsTrigger value="events">
+              <CalendarIcon className="h-4 w-4 mr-2" />
+              Events
+            </TabsTrigger>
+            <TabsTrigger value="jobs">
+              <Briefcase className="h-4 w-4 mr-2" />
+              Jobs
+            </TabsTrigger>
             <TabsTrigger value="pricing">
               <Tag className="h-4 w-4 mr-2" />
               Pricing
@@ -148,12 +205,70 @@ function AdminContentPage() {
               <Settings className="h-4 w-4 mr-2" />
               Site
             </TabsTrigger>
+            <TabsTrigger value="cert-templates">
+              <Award className="h-4 w-4 mr-2" />
+              Cert Templates
+            </TabsTrigger>
+            <TabsTrigger value="issue-cert">
+              <Send className="h-4 w-4 mr-2" />
+              Issue Cert
+            </TabsTrigger>
+            <TabsTrigger value="faqs">
+              <HelpCircle className="h-4 w-4 mr-2" />
+              FAQs
+            </TabsTrigger>
+            <TabsTrigger value="pages">
+              <FileText className="h-4 w-4 mr-2" />
+              Pages
+            </TabsTrigger>
+            <TabsTrigger value="roadmap">
+              <GitBranch className="h-4 w-4 mr-2" />
+              Roadmap
+            </TabsTrigger>
+            <TabsTrigger value="coupons">
+              <Percent className="h-4 w-4 mr-2" />
+              Coupons
+            </TabsTrigger>
+            <TabsTrigger value="community">
+              <Users className="h-4 w-4 mr-2" />
+              Community Groups
+            </TabsTrigger>
           </TabsList>
+          <TabsContent value="events" className="mt-6">
+            <EventsManager />
+          </TabsContent>
+          <TabsContent value="jobs" className="mt-6">
+            <JobsManager />
+          </TabsContent>
           <TabsContent value="pricing" className="mt-6">
             <PricingManager />
           </TabsContent>
           <TabsContent value="site" className="mt-6">
             <SiteSettingsManager />
+          </TabsContent>
+          <TabsContent value="cert-templates" className="mt-6">
+            <CertTemplatesManager />
+          </TabsContent>
+          <TabsContent value="issue-cert" className="mt-6">
+            <Suspense fallback={<LazyFallback />}>
+              <IssueCertificate />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="faqs" className="mt-6">
+            <FaqsManager />
+          </TabsContent>
+          <TabsContent value="pages" className="mt-6">
+            <PagesManager />
+          </TabsContent>
+          <TabsContent value="roadmap" className="mt-6">
+            <RoadmapManager />
+          </TabsContent>
+          <TabsContent value="coupons" className="mt-6">
+            <CouponManager />
+          </TabsContent>
+          <TabsContent value="community" className="mt-6">
+            <CohortsManager />
           </TabsContent>
         </Tabs>
       </div>
@@ -1026,6 +1141,12 @@ const SETTING_FIELDS: { key: string; label: string; placeholder: string }[] = [
     label: "Auto-close jobs past close date (true/false)",
     placeholder: "true",
   },
+  // Invoice customization
+  { key: "invoice_company_name", label: "Invoice company name", placeholder: "Learnify AI" },
+  { key: "invoice_legal_name", label: "Invoice legal name", placeholder: "Learnify EdTech Pvt. Ltd." },
+  { key: "invoice_gstin", label: "Invoice GSTIN", placeholder: "29XXXXX1234X1Z5" },
+  { key: "invoice_prefix", label: "Invoice number prefix", placeholder: "LRN" },
+  { key: "invoice_footer", label: "Invoice footer text", placeholder: "This is a computer generated invoice..." },
 ];
 
 function SiteSettingsManager() {
