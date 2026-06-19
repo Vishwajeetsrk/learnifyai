@@ -35,7 +35,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Creator Payouts:** Withdraw earnings via Cashfree Payouts (UPI or bank account).
 - **Automated Invoicing:** Professional PDF invoices with configurable company name, legal name, GSTIN, invoice prefix, footer text, **logo URL**, and **contact info** — downloadable from the wallet page.
 - **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 API providers (Gemini, Stability AI, OpenRouter FLUX, Hugging Face, Pollinations, Fal AI) plus a **local SVG gradient fallback** that always works — with word-wrapped title, text shadow, and contrast overlay for readability.
-- **AI Auto-Complete Course:** One-click button in Creator Studio that automatically fills missing videos (YouTube search), pulls transcripts & AI-summarizes into lesson content, generates 8 MCQs if none exist, and creates 2 assignments + 1 project. Course creation defaults pre-fill from your profile settings.
+- **AI Auto-Complete Course:** One-click button in Creator Studio that automatically fills missing videos (YouTube search), pulls transcripts & AI-summarizes into lesson content, generates 8 MCQs if none exist, creates 2 assignments + 1 project, and auto-generates a course thumbnail. Course creation defaults pre-fill from your profile settings.
 
 ### 📬 Inbox & Notifications
 - **Smart Notifications:** Wallet top-ups, withdrawals, new lessons, and certificate updates — each notification is clickable and links to the relevant page (courses, wallet, certificates, creator dashboard).
@@ -45,13 +45,14 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 ### ⚙️ Admin Features
 - **Transactions Dashboard:** Filter transactions by type (All, Top-up, Subscription, Course purchase, Creator earning, Withdrawal) with date range presets. Export to Excel (multi-sheet report) or CSV (filtered view).
 - **Coupon System:** Admin-managed discount codes (percent/flat) stored in DB — applied at checkout with real-time validation and cart UI.
-- **Pricing Plans Management:** Full CRUD for subscription plans (name, price INR, interval, features, badge, color, max courses, AI credits). One-click sync to Cashfree Subscriptions API.
+- **Pricing Plans Management:** Full CRUD for subscription plans (name, price INR, interval, features, badge, color, max courses, AI credits). One-click sync to Cashfree Subscriptions API. Free/one-time plans show "No recurring billing" instead of sync button.
 - **Cohort Management:** Create and manage cohorts of all types (live cohort, office hours, study group) with title, description, type, capacity, status, and date range. Table view with delete.
 - **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates (with "Open Designer" link to full WYSIWYG builder), FAQs, Legal Pages (Terms, Privacy, Refund), Coupons, Community Groups, and Roadmap.
 - **Legal Pages:** Fully editable Terms of Service, Privacy Policy, and Refund Policy — rendered from the database, editable via the admin Content Manager.
 - **Social Media Management:** Configurable Discord, Twitter/X, GitHub, LinkedIn, and YouTube links with icons in the footer. All managed through Site Settings.
 - **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, invoice customisation (company name, legal name, GSTIN, invoice prefix, footer, **logo URL**, **contact info**), and custom settings.
 - **Admin QA — Missing Videos:** Automated detection of lessons with empty/invalid video URLs and courses with zero lessons — table view with course name, lesson index, issue description, current URL, and direct link to Studio to fix.
+- **Transactions Management:** Full transaction table with date range presets (7d/30d/90d/month), type filter, status display (all statuses shown). Export to Excel (multi-sheet) or CSV. Per-transaction delete + bulk "Clear demo" button. Download all or filtered CSV.
 - **Certificate Issuance (System 2.0):** Full certificate lifecycle — issue certificates with score, course, template placeholders, and auto-email to learner. Audit log with filters (date, issuer, learner), CSV export, email delivery tracking (sent/pending/failed with retry), and per-certificate resend. Polling-based retry mechanism with exponential backoff (max 5 attempts).
 
 ---

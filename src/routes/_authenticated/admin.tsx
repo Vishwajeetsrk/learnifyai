@@ -525,9 +525,10 @@ function AdminOverview() {
     toast.success("Report downloaded!");
   };
 
-  const handleExportCSV = () => {
+  const handleExportCSV = (all = false) => {
+    const data = all ? (txQuery.data ?? []) : filteredTx;
     const header = ["Date", "Type", "Status", "Description", "Amount (INR)"];
-    const rows = filteredTx.map((t) => [
+    const rows = data.map((t: any) => [
       format(new Date(t.created_at), "dd-MM-yyyy HH:mm"),
       t.type,
       t.status,
@@ -539,10 +540,10 @@ function AdminOverview() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `Transactions_${fmtDate(from)}_to_${fmtDate(to)}_${txFilter}.csv`;
+    a.download = `Transactions_${fmtDate(from)}_to_${fmtDate(to)}${all ? "_all" : `_${txFilter}`}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("CSV downloaded!");
+    toast.success(all ? "All transactions downloaded!" : "CSV downloaded!");
   };
 
   const refreshAll = () => qc.invalidateQueries({ queryKey: ["admin"] });
@@ -798,8 +799,29 @@ function AdminOverview() {
             <Button size="sm" onClick={handleExport}>
               <Download className="h-4 w-4" /> Export Excel
             </Button>
-            <Button size="sm" variant="outline" onClick={handleExportCSV}>
-              <Download className="h-4 w-4" /> Export CSV
+            <Button size="sm" variant="outline" onClick={() => handleExportCSV()}>
+              <Download className="h-4 w-4" /> CSV
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => handleExportCSV(true)}>
+              <Download className="h-4 w-4" /> All CSV
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={async () => {
+                if (!window.confirm("Delete all demo/fake transactions? Real payment transactions will NOT be deleted.")) return;
+                const delFilter = "description.ilike.%demo%";
+                const { error } = await supabase
+                  .from("wallet_transactions")
+                  .delete()
+                  .or(`description.ilike.%demo%,description.ilike.%test%,description.ilike.%sample%`);
+                if (error) return toast.error(error.message);
+                toast.success("Demo transactions cleared");
+                qc.invalidateQueries({ queryKey: ["admin", "transactions"] });
+              }}
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 className="h-4 w-4" /> Clear demo
             </Button>
           </div>
         </div>
@@ -1016,6 +1038,7 @@ function AdminOverview() {
                     <th className="text-left px-6 py-3 font-medium">Status</th>
                     <th className="text-left px-6 py-3 font-medium">Description</th>
                     <th className="text-right px-6 py-3 font-medium">Amount</th>
+                    <th className="w-10"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1036,6 +1059,21 @@ function AdminOverview() {
                       <td className="px-6 py-3 text-muted-foreground">{t.description ?? "—"}</td>
                       <td className="px-6 py-3 text-right font-medium">
                         {inr(Number(t.amount_inr))}
+                      </td>
+                      <td className="px-2 py-3 text-right">
+                        <button
+                          onClick={async () => {
+                            if (!window.confirm("Delete this transaction? This cannot be undone.")) return;
+                            const { error } = await supabase.from("wallet_transactions").delete().eq("id", t.id);
+                            if (error) return toast.error(error.message);
+                            toast.success("Transaction deleted");
+                            qc.invalidateQueries({ queryKey: ["admin", "transactions"] });
+                          }}
+                          className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                          title="Delete transaction"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
                       </td>
                     </tr>
                   ))}

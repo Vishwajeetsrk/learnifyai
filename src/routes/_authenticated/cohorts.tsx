@@ -130,13 +130,20 @@ function CohortsPage() {
 
   async function joinCohort(id: string) {
     if (!user) return navigate({ to: "/login" });
+    const { data: cohort } = await supabase
+      .from("cohorts")
+      .select("meeting_url, group_link, title")
+      .eq("id", id)
+      .single();
     const { error } = await supabase
       .from("cohort_members")
       .insert({ cohort_id: id, user_id: user.id });
     if (error) return toast.error(error.message);
-    toast.success("Joined");
+    toast.success(`Joined "${cohort?.title ?? id}"`);
     qc.invalidateQueries({ queryKey: ["my-cohorts"] });
     qc.invalidateQueries({ queryKey: ["cohort-counts"] });
+    if (cohort?.group_link) window.open(cohort.group_link, "_blank");
+    if (cohort?.meeting_url) window.open(cohort.meeting_url, "_blank");
   }
 
   async function leaveCohort(id: string) {

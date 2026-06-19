@@ -248,40 +248,40 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       const lines: string[] = [];
       let line = "";
       for (const word of title.split(" ")) {
-        if ((line + " " + word).length > 30) { if (line) lines.push(line); line = word; }
+        if ((line + " " + word).length > 22) { if (line) lines.push(line); line = word; }
         else line = line ? line + " " + word : word;
       }
       if (line) lines.push(line);
-      const textYStart = 400;
-      const lineH = 100;
+      const fontSize = lines.length <= 2 ? 96 : lines.length === 3 ? 80 : 68;
+      const textYStart = lines.length <= 2 ? 420 : 380;
+      const lineH = lines.length <= 2 ? 120 : 100;
       const textLines = lines.slice(0, 4).map((l, i) =>
-        `<text x="768" y="${textYStart + i * lineH}" text-anchor="middle" fill="white" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="86" font-weight="900" letter-spacing="-1">${esc(l)}</text>`
+        `<text x="768" y="${textYStart + i * lineH}" text-anchor="middle" fill="white" font-family="system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="${fontSize}" font-weight="800" letter-spacing="-0.5">${esc(l)}</text>`
       ).join("\n        ");
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024">
         <defs>
           <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#1e1b4b"/>
-            <stop offset="50%" style="stop-color:#3730a3"/>
-            <stop offset="100%" style="stop-color:#4f46e5"/>
+            <stop offset="0%" style="stop-color:#0f172a"/>
+            <stop offset="50%" style="stop-color:#1e3a8a"/>
+            <stop offset="100%" style="stop-color:#3730a3"/>
           </linearGradient>
-          <filter id="textShadow" x="-10%" y="-10%" width="120%" height="120%">
-            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.5"/>
+          <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.7"/>
           </filter>
           <linearGradient id="overlay" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#000;stop-opacity:0.3"/>
-            <stop offset="100%" style="stop-color:#000;stop-opacity:0.6"/>
+            <stop offset="0%" style="stop-color:#000;stop-opacity:0.4"/>
+            <stop offset="100%" style="stop-color:#000;stop-opacity:0.7"/>
           </linearGradient>
-          <clipPath id="textClip"><rect x="0" y="340" width="1536" height="420" fill="black"/></clipPath>
         </defs>
         <rect width="1536" height="1024" fill="url(#bg)"/>
         <rect width="1536" height="1024" fill="url(#overlay)"/>
-        <circle cx="200" cy="900" r="500" fill="#fde68a" opacity="0.08"/>
-        <circle cx="1400" cy="200" r="400" fill="#c7d2fe" opacity="0.08"/>
-        <g filter="url(#textShadow)" clip-path="url(#textClip)">
+        <circle cx="200" cy="900" r="500" fill="#fde68a" opacity="0.06"/>
+        <circle cx="1400" cy="200" r="400" fill="#c7d2fe" opacity="0.06"/>
+        <g filter="url(#textShadow)">
           ${textLines}
         </g>
-        <text x="768" y="840" text-anchor="middle" fill="#c7d2fe" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="32" font-weight="600" letter-spacing="4">LEARNIFY AI</text>
-        <rect x="568" y="870" width="400" height="3" rx="1.5" fill="#fde68a" opacity="0.6"/>
+        <text x="768" y="860" text-anchor="middle" fill="#a5b4fc" font-family="system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="28" font-weight="600" letter-spacing="3">LEARNIFY AI</text>
+        <rect x="618" y="885" width="300" height="3" rx="1.5" fill="#fde68a" opacity="0.5"/>
       </svg>`;
       const base64 = Buffer.from(svg, "utf-8").toString("base64");
       return { dataUrl: `data:image/svg+xml;base64,${base64}` };

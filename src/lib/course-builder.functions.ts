@@ -307,7 +307,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
     // 1. Fetch course
     const { data: course, error: cErr } = await supabase
       .from("courses")
-      .select("id, title, description, category, level")
+      .select("id, title, description, category, level, thumbnail_url")
       .eq("id", data.courseId)
       .single();
     if (cErr || !course) throw new Error("Course not found.");
@@ -335,6 +335,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
       mcqsAdded: 0,
       assignmentsAdded: 0,
       projectsAdded: 0,
+      thumbnailGenerated: false,
       warnings: [] as string[],
     };
 
@@ -489,6 +490,27 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
         }
       } catch (e: any) {
         stats.warnings.push(`Assignment generation: ${e?.message ?? "error"}`);
+      }
+    }
+
+    // 6. Generate thumbnail if none exists
+    if (!course.thumbnail_url) {
+      try {
+        const { generateCourseThumbnail, buildThumbnailPrompt } = await import("./thumbnail.functions");
+        const prompt = buildThumbnailPrompt({
+          title: course.title,
+          category: course.category,
+          description: course.description,
+          style: "modern",
+          colors: "deep indigo to blue gradient",
+          customNotes: "",
+          lessonHint: (lessons ?? []).slice(0, 3).map((l: any) => l.title).join(", "),
+        });
+        const { dataUrl } = await generateCourseThumbnail({ data: { prompt, size: "1536x1024" } });
+        await supabaseAdmin.from("courses").update({ thumbnail_url: dataUrl }).eq("id", data.courseId);
+        stats.thumbnailGenerated = true;
+      } catch (e: any) {
+        stats.warnings.push(`Thumbnail generation: ${e?.message ?? "error"}`);
       }
     }
 

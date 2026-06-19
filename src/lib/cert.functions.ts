@@ -184,11 +184,16 @@ async function sendEmail({
   const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
   const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
 
-  // 1. Try Resend REST API (most reliable — works without SMTP domain verification)
+  let domainUnverified = false;
+
+  // 1. Try Resend REST API
   if (RESEND_API_KEY) {
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15_000);
       const resp = await fetch("https://api.resend.com/emails", {
         method: "POST",
+        signal: controller.signal,
         headers: {
           Authorization: `Bearer ${RESEND_API_KEY}`,
           "Content-Type": "application/json",
@@ -201,12 +206,12 @@ async function sendEmail({
           headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
         }),
       });
+      clearTimeout(timeout);
       if (!resp.ok) {
         const body = await resp.text().catch(() => "");
         if (resp.status === 422 && body.includes("verified")) {
+          domainUnverified = true;
           console.warn("Resend REST: sender domain not verified, trying alternatives...");
-        } else if (resp.status === 422 && body.includes("not configured")) {
-          console.warn("Resend REST: sender not configured, trying alternatives...");
         } else {
           throw new Error(`Resend API ${resp.status}: ${body.slice(0, 200)}`);
         }
@@ -224,12 +229,12 @@ async function sendEmail({
     try {
       return await sendViaBrevoApi({ to, subject, html });
     } catch (err: any) {
-      console.warn("Brevo API failed, trying Resend SMTP...", err?.message?.slice(0, 120));
+      console.warn("Brevo API failed, trying alternatives...", err?.message?.slice(0, 120));
     }
   }
 
-  // 3. Try Resend SMTP
-  if (RESEND_API_KEY) {
+  // 3. Try Resend SMTP (skip if REST already failed with domain verification)
+  if (RESEND_API_KEY && !domainUnverified) {
     try {
       const transporter = nodemailer.createTransport({
         host: "smtp.resend.com",
@@ -246,7 +251,7 @@ async function sendEmail({
       });
       return { messageId: info.messageId, provider: "resend-smtp" };
     } catch (err: any) {
-      console.warn("Resend SMTP failed, trying Brevo SMTP...", err?.message?.slice(0, 120));
+      console.warn("Resend SMTP failed, trying alternatives...", err?.message?.slice(0, 120));
     }
   }
 
