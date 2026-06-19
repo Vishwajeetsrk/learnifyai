@@ -62,17 +62,17 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     const hfKey = process.env.HF_API_KEY;
     const openrouterKey = process.env.OPENROUTER_API_KEY;
 
-    // 1. Gemini 2.5 Flash Image — best free tier, excellent text rendering
+    // 1. Gemini 2.0 Flash Image Generation — best free tier, excellent text rendering
     if (geminiKey) {
       try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${geminiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${geminiKey}`;
         const res = await fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: data.prompt.slice(0, 1400) }] }],
             generationConfig: {
-              responseModalities: ["image", "text"],
+              responseModalities: ["Image", "Text"],
             },
           }),
         });
@@ -241,9 +241,34 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       }
     }
 
-    throw new Error(
-      "Image generation failed. All providers exhausted. Check your API keys or try again later.",
-    );
+    // 7. Last resort: generate a local SVG thumbnail (always works, no API needed)
+    try {
+      const title = data.prompt.slice(0, 80).replace(/["<>]/g, "");
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#4f46e5"/>
+            <stop offset="100%" style="stop-color:#1e3a8a"/>
+          </linearGradient>
+          <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#fde68a;stop-opacity:0.3"/>
+            <stop offset="100%" style="stop-color:#fde68a;stop-opacity:0"/>
+          </linearGradient>
+        </defs>
+        <rect width="1536" height="1024" fill="url(#bg)"/>
+        <circle cx="200" cy="800" r="400" fill="url(#accent)"/>
+        <circle cx="1400" cy="200" r="300" fill="url(#accent)"/>
+        <text x="768" y="460" text-anchor="middle" fill="white" font-family="system-ui,-apple-system,sans-serif" font-size="72" font-weight="bold">${title}</text>
+        <text x="768" y="540" text-anchor="middle" fill="#c7d2fe" font-family="system-ui,-apple-system,sans-serif" font-size="28">Learnify AI</text>
+        <rect x="468" y="600" width="600" height="4" rx="2" fill="#fde68a" opacity="0.5"/>
+      </svg>`;
+      const base64 = Buffer.from(svg, "utf-8").toString("base64");
+      return { dataUrl: `data:image/svg+xml;base64,${base64}` };
+    } catch (_) {
+      throw new Error(
+        "Image generation failed. All providers exhausted. Check your API keys or try again later.",
+      );
+    }
   });
 
 export const THUMBNAIL_STYLES = [

@@ -31,11 +31,13 @@ async function sendResendEmail({
   const BREVO_SMTP_SERVER = process.env.BREVO_SMTP_SERVER;
   const BREVO_SMTP_PORT = process.env.BREVO_SMTP_PORT;
   const BREVO_SMTP_LOGIN = process.env.BREVO_SMTP_LOGIN;
+  const GMAIL_EMAIL = process.env.GMAIL_EMAIL;
+  const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
+  const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
 
   // Try Resend first
   if (RESEND_API_KEY) {
     try {
-      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
       const transporter = nodemailer.createTransport({
         host: "smtp.resend.com",
         port: 465,
@@ -73,20 +75,49 @@ async function sendResendEmail({
     }
   }
 
-  // Last resort: Brevo SMTP (requires authorized IP)
+  // Brevo SMTP (requires authorized IP in Brevo dashboard)
   if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
-    const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
-    const transporter = nodemailer.createTransport({
-      host: BREVO_SMTP_SERVER,
-      port: Number(BREVO_SMTP_PORT) || 587,
-      secure: false,
-      auth: { user: BREVO_SMTP_LOGIN, pass: BREVO_SMTP_KEY },
-    });
-    await transporter.sendMail({ from: emailFrom, to: [to], subject, html });
-    return;
+    try {
+      const transporter = nodemailer.createTransport({
+        host: BREVO_SMTP_SERVER,
+        port: Number(BREVO_SMTP_PORT) || 587,
+        secure: false,
+        auth: { user: BREVO_SMTP_LOGIN, pass: BREVO_SMTP_KEY },
+      });
+      await transporter.sendMail({ from: emailFrom, to: [to], subject, html });
+      return;
+    } catch (err: any) {
+      console.warn("Brevo SMTP failed, trying Gmail...", err?.message?.slice(0, 120));
+    }
   }
 
-  throw new Error("No email service configured. Set RESEND_API_KEY or BREVO_SMTP_KEY.");
+  // Last resort: Gmail SMTP (most reliable, no domain verification needed)
+  if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: { user: GMAIL_EMAIL, pass: GMAIL_APP_PASSWORD },
+      });
+      await transporter.sendMail({
+        from: `"Learnify AI" <${GMAIL_EMAIL}>`,
+        to: [to],
+        subject,
+        html,
+      });
+      return;
+    } catch (err: any) {
+      console.warn("Gmail SMTP failed:", err?.message?.slice(0, 120));
+      throw err;
+    }
+  }
+
+  const hints: string[] = [];
+  if (!RESEND_API_KEY) hints.push("Set RESEND_API_KEY (free at resend.com)");
+  if (!BREVO_SMTP_KEY) hints.push("Set BREVO_SMTP_KEY (free at brevo.com)");
+  if (!GMAIL_EMAIL) hints.push("Set GMAIL_EMAIL + GMAIL_APP_PASSWORD (free Gmail app password)");
+  throw new Error(`Email failed. ${hints.join("; ")}.`);
 }
 
 export const sendWelcomeEmail = createServerFn({ method: "POST" })

@@ -172,6 +172,9 @@ async function sendEmail({
   const BREVO_SMTP_SERVER = process.env.BREVO_SMTP_SERVER;
   const BREVO_SMTP_PORT = process.env.BREVO_SMTP_PORT;
   const BREVO_SMTP_LOGIN = process.env.BREVO_SMTP_LOGIN;
+  const GMAIL_EMAIL = process.env.GMAIL_EMAIL;
+  const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
+  const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
 
   // Try Brevo API first (most reliable, no domain verification needed)
   if (BREVO_API_KEY) {
@@ -191,7 +194,6 @@ async function sendEmail({
         secure: true,
         auth: { user: "resend", pass: RESEND_API_KEY },
       });
-      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
       const info = await transporter.sendMail({
         from: emailFrom,
         to: [to],
@@ -205,7 +207,7 @@ async function sendEmail({
     }
   }
 
-  // Last resort: Brevo SMTP (requires authorized IP in Brevo dashboard)
+  // Try Brevo SMTP (requires authorized IP in Brevo dashboard)
   if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
     try {
       const transporter = nodemailer.createTransport({
@@ -214,7 +216,6 @@ async function sendEmail({
         secure: false,
         auth: { user: BREVO_SMTP_LOGIN, pass: BREVO_SMTP_KEY },
       });
-      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
       const info = await transporter.sendMail({
         from: emailFrom,
         to: [to],
@@ -223,7 +224,28 @@ async function sendEmail({
       });
       return { messageId: info.messageId, provider: "brevo-smtp" };
     } catch (err: any) {
-      console.warn("Brevo SMTP failed:", err?.message?.slice(0, 120));
+      console.warn("Brevo SMTP failed, trying Gmail...", err?.message?.slice(0, 120));
+    }
+  }
+
+  // Last resort: Gmail SMTP (most reliable, no domain verification needed)
+  if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: { user: GMAIL_EMAIL, pass: GMAIL_APP_PASSWORD },
+      });
+      const info = await transporter.sendMail({
+        from: `"Learnify AI" <${GMAIL_EMAIL}>`,
+        to: [to],
+        subject,
+        html,
+      });
+      return { messageId: info.messageId, provider: "gmail" };
+    } catch (err: any) {
+      console.warn("Gmail SMTP failed:", err?.message?.slice(0, 120));
       throw err;
     }
   }
@@ -231,7 +253,7 @@ async function sendEmail({
   const hints: string[] = [];
   if (!RESEND_API_KEY) hints.push("Set RESEND_API_KEY (free at resend.com)");
   if (!BREVO_API_KEY) hints.push("Set BREVO_API_KEY (v3 API key from Brevo dashboard)");
-  else hints.push("Add your Vercel IP to Brevo SMTP authorized IPs, or set a valid BREVO_API_KEY");
+  if (!GMAIL_EMAIL) hints.push("Set GMAIL_EMAIL + GMAIL_APP_PASSWORD (free Gmail app password)");
   throw new Error(`Email failed. ${hints.join("; ")}.`);
 }
 

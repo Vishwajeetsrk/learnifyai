@@ -1147,6 +1147,8 @@ const SETTING_FIELDS: { key: string; label: string; placeholder: string }[] = [
   { key: "invoice_gstin", label: "Invoice GSTIN", placeholder: "29XXXXX1234X1Z5" },
   { key: "invoice_prefix", label: "Invoice number prefix", placeholder: "LRN" },
   { key: "invoice_footer", label: "Invoice footer text", placeholder: "This is a computer generated invoice..." },
+  { key: "invoice_logo_url", label: "Invoice logo URL", placeholder: "https://example.com/logo.png" },
+  { key: "invoice_contact", label: "Invoice contact (email/phone)", placeholder: "hello@learnify.ai · +91 98765 43210" },
 ];
 
 function SiteSettingsManager() {

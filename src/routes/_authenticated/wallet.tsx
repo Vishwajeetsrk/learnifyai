@@ -134,7 +134,7 @@ function WalletPage() {
     queryFn: async () => {
       const { data } = await supabase.from("site_settings").select("key,value").in("key", [
         "invoice_company_name", "invoice_legal_name", "invoice_gstin",
-        "invoice_prefix", "invoice_footer",
+        "invoice_prefix", "invoice_footer", "invoice_logo_url", "invoice_contact",
       ]);
       const m: Record<string, string> = {};
       for (const r of data ?? []) m[r.key] = r.value;
@@ -189,7 +189,7 @@ function WalletPage() {
     }
   }
 
-  function downloadInvoice(tx: any) {
+  async function downloadInvoice(tx: any) {
     if (!user) return;
     try {
       const doc = new jsPDF();
@@ -199,40 +199,78 @@ function WalletPage() {
       const gstin = inv.invoice_gstin || "29XXXXX1234X1Z5";
       const prefix = inv.invoice_prefix || "LRN";
       const footerText = inv.invoice_footer || "This is a computer generated invoice and does not require a signature.";
+      const logoUrl = inv.invoice_logo_url;
+      const contact = inv.invoice_contact;
+
+      // Logo (if configured) — fetch and convert to base64
+      let logoHeight = 0;
+      if (logoUrl) {
+        try {
+          const resp = await fetch(logoUrl);
+          const blob = await resp.blob();
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          doc.addImage(base64, "PNG", 14, 10, 36, 36);
+          logoHeight = 36;
+        } catch (e) {
+          console.warn("Invoice logo load failed:", e);
+        }
+      }
 
       // Header
+      const headerY = logoHeight > 0 ? 16 : 22;
       doc.setFontSize(22);
       doc.setTextColor(79, 70, 229);
-      doc.text(companyName, 14, 22);
+      doc.text(companyName, logoHeight > 0 ? 56 : 14, headerY);
 
+      let infoY = headerY + 8;
       doc.setFontSize(10);
       doc.setTextColor(100);
-      doc.text(legalName, 14, 30);
-      doc.text(`GSTIN: ${gstin}`, 14, 35);
+      doc.text(legalName, logoHeight > 0 ? 56 : 14, infoY);
 
+      infoY += 5;
+      doc.text(`GSTIN: ${gstin}`, logoHeight > 0 ? 56 : 14, infoY);
+
+      let rightY = headerY;
       doc.setFontSize(20);
       doc.setTextColor(0);
-      doc.text("INVOICE", 150, 22);
+      doc.text("INVOICE", 150, rightY);
 
-      // Details
+      rightY += 8;
       doc.setFontSize(10);
       doc.setTextColor(50);
-      doc.text(`Invoice Number: ${prefix}-${tx.id?.split("-")[0]?.toUpperCase() ?? "NA"}`, 150, 30);
-      doc.text(`Date: ${tx.created_at ? format(new Date(tx.created_at), "dd MMM yyyy") : "N/A"}`, 150, 35);
+      doc.text(`Invoice Number: ${prefix}-${tx.id?.split("-")[0]?.toUpperCase() ?? "NA"}`, 150, rightY);
+
+      rightY += 5;
+      doc.text(`Date: ${tx.created_at ? format(new Date(tx.created_at), "dd MMM yyyy") : "N/A"}`, 150, rightY);
+
+      // Contact (if configured)
+      let separatorY = Math.max(infoY, rightY) + 6;
+      if (contact) {
+        separatorY += 5;
+        doc.setFontSize(9);
+        doc.setTextColor(100);
+        doc.text(contact, logoHeight > 0 ? 56 : 14, separatorY - 3);
+      }
 
       doc.setDrawColor(200);
-      doc.line(14, 45, 196, 45);
+      doc.line(14, separatorY, 196, separatorY);
 
+      const billToY = separatorY + 10;
       doc.setFontSize(12);
       doc.setTextColor(0);
-      doc.text("Bill To:", 14, 55);
+      doc.text("Bill To:", 14, billToY);
       doc.setFontSize(10);
       doc.setTextColor(80);
-      doc.text(user.email ?? "Customer", 14, 62);
+      doc.text(user.email ?? "Customer", 14, billToY + 7);
 
       // Table
       autoTable(doc, {
-        startY: 75,
+        startY: billToY + 16,
         headStyles: { fillColor: [79, 70, 229] },
         head: [["Description", "Amount"]],
         body: [

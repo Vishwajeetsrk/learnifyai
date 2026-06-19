@@ -579,16 +579,9 @@ function CourseFormDialog({
       .single();
     setSaving(false);
     if (insertErr) return toast.error(insertErr.message);
-    toast.success("Course created");
+    toast.success("Course created! Now add lessons with videos, assignments, and the final test MCQs.", { duration: 6000 });
     onSaved();
     onClose();
-    try {
-      // Navigate to the newly created course page for immediate editing/preview
-      if (createdCourse?.slug)
-        navigate({ to: "/courses/$slug", params: { slug: createdCourse.slug } });
-    } catch {
-      // ignore navigation errors
-    }
   }
 
   async function copyCourseUrl() {
@@ -870,6 +863,14 @@ function CourseFormDialog({
           <div className="flex items-center gap-2 sm:col-span-2">
             <Switch checked={published} onCheckedChange={setPublished} />
             <Label className="!m-0">Published</Label>
+          </div>
+          <div className="sm:col-span-2 rounded-xl border border-indigo-100 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-950/20 p-4 text-sm space-y-1.5">
+            <p className="font-medium text-foreground">After saving the course:</p>
+            <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+              <li>Click <strong>Lessons</strong> to add video content — each lesson can have a YouTube or direct video URL</li>
+              <li>Click <strong>Assign.</strong> for practical tasks and projects</li>
+              <li>Click <strong>Test</strong> to add MCQs — students must pass (≥70%) to claim their certificate</li>
+            </ul>
           </div>
         </div>
         <DialogFooter>

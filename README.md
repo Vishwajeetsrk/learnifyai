@@ -29,12 +29,12 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate designer with 10 distinct theme presets (Executive Gold, Modern Corporate, University Style, Creator Academy, Nature Green, Royal Purple, Sunset Orange, Ocean Teal, Midnight Amber, Rose Gold), visual border pickers (double/solid/dashed/ornate/none), corner styles (diagonal/ribbon/none), background patterns (solid/dots/grid/stripes/gradient), color pickers, font selectors, and QR code integration. Live canvas preview with framer-motion drag-and-drop. Public verification and PDF download.
 
 ### 🚀 For Creators & Coaches
-- **Creator Studio:** Upload courses, manage lessons, and track enrollment.
-- **Coaching Hub:** Manage cohorts (create/launch/live with edit/delete/WhatsApp share + group chat links), track learner outcomes (quiz stats, course progress), build milestone-based learning roadmaps, and manage scheduling with Google Meet/Zoom integration (add/edit/delete slots with meeting links) — all backed by real Supabase data.
+- **Creator Studio:** Upload courses, manage lessons (with video URL validation), add practical assignments/projects, and create final test MCQs that students must pass (≥70%) to claim their certificate.
+- **Coaching Hub (5-tab production):** Scheduling (slot creation with Google Meet/Zoom — add/edit/delete, booking with user info collection), Messaging (real-time Supabase subscription, chat bubbles with timestamps, contact list from bookings), Client Roadmaps (milestone-based with progress bar, creator assigns to learner), Outcomes (quiz analytics, enrollment progress, cross-learner stats for creators), Cohorts (CRUD with learner management, WhatsApp share, live/scheduled/draft status).
 - **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management.
 - **Creator Payouts:** Withdraw earnings via Cashfree Payouts (UPI or bank account).
-- **Automated Invoicing:** Professional billing automatically handled for wallet top-ups.
-- **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 providers (Lovable, Gemini, Stability AI, Fal AI, Hugging Face, Pollinations AI).
+- **Automated Invoicing:** Professional PDF invoices with configurable company name, legal name, GSTIN, invoice prefix, footer text, **logo URL**, and **contact info** — downloadable from the wallet page.
+- **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 API providers (Gemini, Stability AI, OpenRouter FLUX, Hugging Face, Pollinations, Fal AI) plus a **local SVG gradient fallback** that always works.
 
 ### 📬 Inbox & Notifications
 - **Smart Notifications:** Wallet top-ups, withdrawals, new lessons, and certificate updates — each notification is clickable and links to the relevant page (courses, wallet, certificates, creator dashboard).
@@ -49,7 +49,8 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Content Manager:** Full CMS with tabs for Events, Jobs, Pricing Plans, Site Settings, Certificate Templates (with "Open Designer" link to full WYSIWYG builder), FAQs, Legal Pages (Terms, Privacy, Refund), Coupons, Community Groups, and Roadmap.
 - **Legal Pages:** Fully editable Terms of Service, Privacy Policy, and Refund Policy — rendered from the database, editable via the admin Content Manager.
 - **Social Media Management:** Configurable Discord, Twitter/X, GitHub, LinkedIn, and YouTube links with icons in the footer. All managed through Site Settings.
-- **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, invoice customisation (company name, GSTIN, invoice prefix), and custom settings.
+- **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, invoice customisation (company name, legal name, GSTIN, invoice prefix, footer, **logo URL**, **contact info**), and custom settings.
+- **Admin QA — Missing Videos:** Automated detection of lessons with empty/invalid video URLs and courses with zero lessons — table view with course name, lesson index, issue description, current URL, and direct link to Studio to fix.
 
 ---
 
@@ -78,9 +79,9 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 | **Payments** | Cashfree (wallet, checkout, subscriptions, payouts — no PayPal/manual) |
 | **AI Chat / Text** | OpenRouter, Gemini, Groq (3-tier fallback) |
 | **AI Embeddings** | Gemini Embeddings (text-embedding-004) |
-| **Image Generation** | Pollinations AI (free) → OpenRouter (FLUX Pro) → Gemini → Stability AI → Fal AI → Hugging Face (6-tier fallback) |
+| **Image Generation** | Gemini 2.0 Flash → Stability AI → OpenRouter (FLUX Pro) → Hugging Face → Pollinations AI → Fal AI → Local SVG gradient (7-tier fallback, always works) |
 | **Video Analysis** | YouTube Data API + Gemini summarization |
-| **Email** | Resend (primary), Brevo/SMTP (fallback) |
+| **Email** | Resend (primary), Brevo/SMTP (fallback), Gmail SMTP (last resort via app password) |
 | **Error Monitoring** | Sentry |
 | **Analytics** | PostHog |
 | **LLM Observability** | LangSmith |
@@ -112,6 +113,7 @@ learnifyai/
 │   │   ├── _authenticated/ # Protected routes
 │   │   │   ├── admin.tsx             # Admin overview: transactions dashboard (type filter, date range), user management, cohorts, withdrawals, export (Excel + CSV)
 │   │   │   ├── admin.content.tsx     # Content Manager: Events, Jobs, Pricing Plans, Site Settings, Cert Templates, FAQs, Pages, Coupons, Community Groups, Roadmap
+│   │   │   ├── admin.missing-videos.tsx  # Admin QA: detects lessons with empty/invalid video URLs + courses with no lessons
 │   │   │   ├── admin.certificates.tsx  # Drag-and-drop certificate designer (10 themes, borders, patterns)
 │   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree) + withdrawal (Cashfree Payouts) + invoice PDF download
 │   │   │   ├── cart.tsx        # Cart with coupon support, Cashfree checkout, enrollment
@@ -210,6 +212,10 @@ Follow these instructions to get the project up and running locally.
    CASHFREE_SECRET_KEY=your_cashfree_secret_key
    VITE_APP_URL=http://localhost:3000
    VITE_BASE_URL=http://localhost:3000
+
+   # Email (optional — uncomment and set Gmail app password for reliable delivery)
+   # GMAIL_EMAIL=your.email@gmail.com
+   # GMAIL_APP_PASSWORD=your-16-char-app-password
    ```
 
 4. **Initialize the Database:**
