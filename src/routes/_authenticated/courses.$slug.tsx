@@ -370,38 +370,45 @@ function CourseDetail() {
         })
         .catch(() => {});
     }
-    const base = progressRows.find((p) => p.lesson_id === active.id)?.watched_seconds ?? 0;
-    const hasWatchedEnough = progressRows.find((p) => p.lesson_id === active.id)?.completed;
-    const startedAt = Date.now();
-    let autoCompleted = !!hasWatchedEnough;
-    const interval = window.setInterval(() => {
-      const watched = Math.max(base + Math.floor((Date.now() - startedAt) / 1000), 1);
-      if (!autoCompleted && active.duration_minutes > 0 && watched >= active.duration_minutes * 60 * 0.9) {
-        autoCompleted = true;
-        supabase
-          .from("lesson_progress")
-          .upsert(
-            { user_id: user.id, course_id: course.id, lesson_id: active.id, watched_seconds: watched, completed: true },
-            { onConflict: "user_id,lesson_id" },
-          )
-          .then(() => {
-            qc.invalidateQueries({ queryKey: ["progress", course.id, user.id] });
-            recompute({ data: { courseId: course.id } })
-              .then(() => qc.invalidateQueries({ queryKey: ["enrollment", course.id, user.id] }))
-              .catch(() => {});
-          });
-      } else {
-        supabase
-          .from("lesson_progress")
-          .upsert(
-            { user_id: user.id, course_id: course.id, lesson_id: active.id, watched_seconds: watched },
-            { onConflict: "user_id,lesson_id" },
-          )
-          .then(() => {});
-      }
-    }, 15000);
-    return () => window.clearInterval(interval);
-  }, [active?.id, course?.id, isEnrolled, markStarted, progressRows, qc, user?.id]);
+  }, [active?.id, course?.id, isEnrolled, markStarted, qc, user?.id]);
+
+  const lastProgressWrite = useRef<number>(0);
+  const autoCompletedRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    if (active?.id) autoCompletedRef.current = completed.has(active.id);
+  }, [active?.id, completed]);
+
+  const handlePlayerProgress = useCallback(({ playedSeconds }: { playedSeconds: number }) => {
+    if (!user || !course || !active?.id || !isEnrolled) return;
+    const now = Date.now();
+    if (now - lastProgressWrite.current < 10000) return;
+    lastProgressWrite.current = now;
+    const watched = Math.round(playedSeconds);
+    if (!autoCompletedRef.current && active.duration_minutes > 0 && watched >= active.duration_minutes * 60 * 0.9) {
+      autoCompletedRef.current = true;
+      supabase
+        .from("lesson_progress")
+        .upsert(
+          { user_id: user.id, course_id: course.id, lesson_id: active.id, watched_seconds: watched, completed: true },
+          { onConflict: "user_id,lesson_id" },
+        )
+        .then(() => {
+          qc.invalidateQueries({ queryKey: ["progress", course.id, user.id] });
+          recompute({ data: { courseId: course.id } })
+            .then(() => qc.invalidateQueries({ queryKey: ["enrollment", course.id, user.id] }))
+            .catch(() => {});
+        });
+    } else {
+      supabase
+        .from("lesson_progress")
+        .upsert(
+          { user_id: user.id, course_id: course.id, lesson_id: active.id, watched_seconds: watched },
+          { onConflict: "user_id,lesson_id" },
+        )
+        .then(() => {});
+    }
+  }, [user, course, active, isEnrolled, qc]);
 
   const addToCart = async () => {
     if (!user || !course) return;
@@ -603,6 +610,7 @@ function CourseDetail() {
                   playbackRate={speed}
                   onError={() => setPlayerLoadFailed(true)}
                   onReady={() => setPlayerLoadFailed(false)}
+                  onProgress={handlePlayerProgress}
                   onEnded={() => {
                     if (active && user) {
                       if (!completed.has(active.id)) {
