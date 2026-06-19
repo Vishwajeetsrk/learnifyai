@@ -31,7 +31,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons (with video URL validation), add practical assignments/projects, and create final test MCQs that students must pass (≥70%) to claim their certificate.
 - **Coaching Hub (5-tab production):** Scheduling (slot creation with Google Meet/Zoom — add/edit/delete, booking with user info collection), Messaging (real-time Supabase subscription, chat bubbles with timestamps, contact list from bookings), Client Roadmaps (milestone-based with progress bar, creator assigns to learner), Outcomes (quiz analytics, enrollment progress, cross-learner stats for creators), Cohorts (CRUD with learner management, WhatsApp share, live/scheduled/draft status).
-- **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management.
+- **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management. Member avatars shown in list view, live countdown timer, pre-meeting toast notification (30 min window), and group chat / meeting link display in detail view.
 - **Creator Payouts:** Withdraw earnings via Cashfree Payouts (UPI or bank account).
 - **Automated Invoicing:** Professional PDF invoices with configurable company name, legal name, GSTIN, invoice prefix, footer text, **logo URL**, and **contact info** — downloadable from the wallet page.
 - **AI Thumbnail Generator:** Generate course thumbnails with auto-fallback across 6 API providers (Gemini, Stability AI, OpenRouter FLUX, Hugging Face, Pollinations, Fal AI) plus a **local SVG gradient fallback** that always works — with word-wrapped title, text shadow, and contrast overlay for readability.
@@ -52,6 +52,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Social Media Management:** Configurable Discord, Twitter/X, GitHub, LinkedIn, and YouTube links with icons in the footer. All managed through Site Settings.
 - **Site Settings:** Key-value store for contact emails, social links, auto-delete event/job rules, invoice customisation (company name, legal name, GSTIN, invoice prefix, footer, **logo URL**, **contact info**), and custom settings.
 - **Admin QA — Missing Videos:** Automated detection of lessons with empty/invalid video URLs and courses with zero lessons — table view with course name, lesson index, issue description, current URL, and direct link to Studio to fix.
+- **Certificate Issuance (System 2.0):** Full certificate lifecycle — issue certificates with score, course, template placeholders, and auto-email to learner. Audit log with filters (date, issuer, learner), CSV export, email delivery tracking (sent/pending/failed with retry), and per-certificate resend. Polling-based retry mechanism with exponential backoff (max 5 attempts).
 
 ---
 
@@ -101,7 +102,12 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 learnifyai/
 ├── public/                 # Static assets (images, fonts, favicons)
 ├── src/
-│   ├── components/         # Reusable UI components (Shadcn, AppShell, CustomVideoPlayer, etc.)
+│   ├── components/         # Reusable UI components
+│   │   ├── admin/
+│   │   │   └── IssueCertificate.tsx  # Certificate issuance (form, preview, email log, retry)
+│   │   ├── CertificateDesign.tsx     # Cert renderer with 10 theme presets + drag-and-drop
+│   │   ├── AppShell.tsx              # App shell layout
+│   │   └── ui/                      # Shadcn UI primitives
 │   ├── hooks/              # Custom React hooks (use-auth, etc.)
 │   ├── integrations/       # API clients (Supabase, Cashfree)
 │   ├── lib/                # Utility + server functions
@@ -109,6 +115,11 @@ learnifyai/
 │   │   ├── subscription.functions.ts   # Cashfree Subscriptions CRUD (sync plan, create/cancel/get subscription)
 │   │   ├── playground.functions.ts     # Code execution via Piston API (40+ languages)
 │   │   ├── course.functions.ts         # Course purchase logic with duplicate enrollment protection
+│   │   ├── course-builder.functions.ts # AI Auto-Complete course generation
+│   │   ├── thumbnail.functions.ts      # AI thumbnail generation (7-tier fallback + SVG)
+│   │   ├── youtube.functions.ts        # YouTube search, transcript fetch
+│   │   ├── cert.functions.ts           # Certificate email (5-tier cascade), adminEmailCertificate, retryPending
+│   │   ├── welcome-email.functions.ts  # Welcome email with same 5-tier cascade
 │   │   └── agent.functions.ts          # AI agent with tool calling (code, web search)
 │   ├── routes/             # TanStack Start route tree
 │   │   ├── _authenticated/ # Protected routes
@@ -116,6 +127,8 @@ learnifyai/
 │   │   │   ├── admin.content.tsx     # Content Manager: Events, Jobs, Pricing Plans, Site Settings, Cert Templates, FAQs, Pages, Coupons, Community Groups, Roadmap
 │   │   │   ├── admin.missing-videos.tsx  # Admin QA: detects lessons with empty/invalid video URLs + courses with no lessons
 │   │   │   ├── admin.certificates.tsx  # Drag-and-drop certificate designer (10 themes, borders, patterns)
+│   │   │   ├── cohorts.tsx     # Cohort list view — member avatars, group chat links, countdown timers
+│   │   │   ├── cohorts.$id.tsx # Cohort detail + chat + members panel + meeting links + pre-start notification
 │   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree) + withdrawal (Cashfree Payouts) + invoice PDF download
 │   │   │   ├── cart.tsx        # Cart with coupon support, Cashfree checkout, enrollment
 │   │   │   ├── pricing.tsx     # Subscription plans page with subscribe/cancel flow
@@ -215,7 +228,9 @@ Follow these instructions to get the project up and running locally.
    VITE_APP_URL=http://localhost:3000
    VITE_BASE_URL=http://localhost:3000
 
-   # Email (optional — uncomment and set Gmail app password for reliable delivery)
+   # Email — Resend API (primary), uncomment Gmail for reliable fallback
+   RESEND_API_KEY=re_xxx
+   # BREVO_API_KEY=your_v3_api_key
    # GMAIL_EMAIL=your.email@gmail.com
    # GMAIL_APP_PASSWORD=your-16-char-app-password
    ```
