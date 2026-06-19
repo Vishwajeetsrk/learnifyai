@@ -1132,19 +1132,97 @@ function Markdown({ children }: { children: string }) {
 
 // ---------- Inline Playground: Code (Monaco+Piston) + Web (HTML/CSS/JS preview) ----------
 
+const LANG_LOGOS: Record<string, string> = {
+  python: "https://cdn.simpleicons.org/python/3776AB",
+  javascript: "https://cdn.simpleicons.org/javascript/F7DF1E",
+  typescript: "https://cdn.simpleicons.org/typescript/3178C6",
+  cpp: "https://cdn.simpleicons.org/c%2B%2B/00599C",
+  c: "https://cdn.simpleicons.org/c/A8B9CC",
+  java: "https://cdn.simpleicons.org/java/007396",
+  go: "https://cdn.simpleicons.org/go/00ADD8",
+  rust: "https://cdn.simpleicons.org/rust/000000",
+  ruby: "https://cdn.simpleicons.org/ruby/CC342D",
+  php: "https://cdn.simpleicons.org/php/777BB4",
+  bash: "https://cdn.simpleicons.org/gnubash/4EAA25",
+  sql: "https://cdn.simpleicons.org/postgresql/4479A1",
+  swift: "https://cdn.simpleicons.org/swift/F05138",
+  kotlin: "https://cdn.simpleicons.org/kotlin/7F52FF",
+  scala: "https://cdn.simpleicons.org/scala/DC322F",
+  dart: "https://cdn.simpleicons.org/dart/0175C2",
+  elixir: "https://cdn.simpleicons.org/elixir/4B275F",
+  haskell: "https://cdn.simpleicons.org/haskell/5D4F85",
+  lua: "https://cdn.simpleicons.org/lua/2C2D72",
+  perl: "https://cdn.simpleicons.org/perl/39457E",
+  r: "https://cdn.simpleicons.org/r/276DC3",
+  csharp: "https://cdn.simpleicons.org/c%23/239120",
+  zig: "https://cdn.simpleicons.org/zig/F7A41D",
+  julia: "https://cdn.simpleicons.org/julia/9558B2",
+  lisp: "https://cdn.simpleicons.org/lisp/3F0000",
+  nim: "https://cdn.simpleicons.org/nim/FFE953",
+  groovy: "https://cdn.simpleicons.org/apachegroovy/4298B8",
+  powershell: "https://cdn.simpleicons.org/powershell/5391FE",
+};
+
+const LANG_COLORS: Record<string, string> = {
+  python: "#3776AB", javascript: "#F7DF1E", typescript: "#3178C6",
+  cpp: "#00599C", c: "#A8B9CC", java: "#007396", go: "#00ADD8",
+  rust: "#000000", ruby: "#CC342D", php: "#777BB4", bash: "#4EAA25",
+  sql: "#4479A1", swift: "#F05138", kotlin: "#7F52FF", scala: "#DC322F",
+  dart: "#0175C2", elixir: "#4B275F", haskell: "#5D4F85", lua: "#2C2D72",
+  perl: "#39457E", r: "#276DC3", csharp: "#239120", zig: "#F7A41D",
+  julia: "#9558B2", lisp: "#3F0000", nim: "#FFE953", groovy: "#4298B8",
+  powershell: "#5391FE",
+};
+
+function LanguageIcon({ id, className }: { id: string; className?: string }) {
+  const [failed, setFailed] = useState(false);
+  const url = LANG_LOGOS[id];
+  if (failed || !url) {
+    const color = LANG_COLORS[id] || "#666";
+    return (
+      <span className={`w-5 h-5 rounded grid place-items-center text-[8px] font-bold text-white shrink-0 ${className ?? ""}`} style={{ background: color }}>
+        {id.slice(0, 2).toUpperCase()}
+      </span>
+    );
+  }
+  return (
+    <img
+      src={url}
+      alt={id}
+      className={`w-5 h-5 shrink-0 ${className ?? ""}`}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 const PLAYGROUND_LANGS = [
-  { id: "python", label: "Python", color: "#3776AB", icon: "PY" },
-  { id: "javascript", label: "JavaScript", color: "#F7DF1E", icon: "JS" },
-  { id: "typescript", label: "TypeScript", color: "#3178C6", icon: "TS" },
-  { id: "cpp", label: "C++", color: "#00599C", icon: "C++" },
-  { id: "c", label: "C", color: "#A8B9CC", icon: "C" },
-  { id: "java", label: "Java", color: "#007396", icon: "JA" },
-  { id: "go", label: "Go", color: "#00ADD8", icon: "GO" },
-  { id: "rust", label: "Rust", color: "#000000", icon: "RS" },
-  { id: "ruby", label: "Ruby", color: "#CC342D", icon: "RB" },
-  { id: "php", label: "PHP", color: "#777BB4", icon: "PHP" },
-  { id: "bash", label: "Bash", color: "#4EAA25", icon: "SH" },
-  { id: "sql", label: "SQL", color: "#4479A1", icon: "SQL" },
+  { id: "python", label: "Python", color: "#3776AB" },
+  { id: "javascript", label: "JavaScript", color: "#F7DF1E" },
+  { id: "typescript", label: "TypeScript", color: "#3178C6" },
+  { id: "cpp", label: "C++", color: "#00599C" },
+  { id: "c", label: "C", color: "#A8B9CC" },
+  { id: "java", label: "Java", color: "#007396" },
+  { id: "go", label: "Go", color: "#00ADD8" },
+  { id: "rust", label: "Rust", color: "#000000" },
+  { id: "ruby", label: "Ruby", color: "#CC342D" },
+  { id: "php", label: "PHP", color: "#777BB4" },
+  { id: "swift", label: "Swift", color: "#F05138" },
+  { id: "kotlin", label: "Kotlin", color: "#7F52FF" },
+  { id: "dart", label: "Dart", color: "#0175C2" },
+  { id: "scala", label: "Scala", color: "#DC322F" },
+  { id: "elixir", label: "Elixir", color: "#4B275F" },
+  { id: "haskell", label: "Haskell", color: "#5D4F85" },
+  { id: "lua", label: "Lua", color: "#2C2D72" },
+  { id: "r", label: "R", color: "#276DC3" },
+  { id: "csharp", label: "C#", color: "#239120" },
+  { id: "zig", label: "Zig", color: "#F7A41D" },
+  { id: "julia", label: "Julia", color: "#9558B2" },
+  { id: "nim", label: "Nim", color: "#FFE953" },
+  { id: "perl", label: "Perl", color: "#39457E" },
+  { id: "groovy", label: "Groovy", color: "#4298B8" },
+  { id: "bash", label: "Bash", color: "#4EAA25" },
+  { id: "powershell", label: "PowerShell", color: "#5391FE" },
+  { id: "sql", label: "SQL", color: "#4479A1" },
 ];
 
 const PLAYGROUND_DEFAULTS: Record<string, string> = {
@@ -1199,6 +1277,8 @@ function CodeMode() {
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(null);
   const [langOpen, setLangOpen] = useState(false);
+  const [outputTab, setOutputTab] = useState<"stdout" | "stderr">("stdout");
+  const [fontSize, setFontSize] = useState(12);
   const execFn = useServerFn(executeCode);
   const activeLang = PLAYGROUND_LANGS.find((l) => l.id === lang) ?? PLAYGROUND_LANGS[0];
 
@@ -1216,32 +1296,33 @@ function CodeMode() {
     }
   }, [lang, code, stdin, execFn]);
 
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(); }
+  }, [run]);
+
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <div className="relative">
           <button
             onClick={() => setLangOpen(!langOpen)}
             className="flex items-center gap-1.5 h-8 text-xs rounded-lg border bg-card px-2 hover:bg-accent"
           >
-            <span className="w-5 h-5 rounded grid place-items-center text-[9px] font-bold text-white" style={{ background: activeLang.color }}>
-              {activeLang.icon}
-            </span>
+            <LanguageIcon id={activeLang.id} />
             {activeLang.label}
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
           </button>
           {langOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setLangOpen(false)} />
-              <div className="absolute top-full left-0 mt-1 z-20 w-44 rounded-lg border bg-popover shadow-lg overflow-hidden">
+              <div className="absolute top-full left-0 mt-1 z-20 w-52 max-h-72 overflow-y-auto rounded-lg border bg-popover shadow-lg">
                 {PLAYGROUND_LANGS.map((l) => (
                   <button
                     key={l.id}
                     onClick={() => { setLang(l.id); setCode(PLAYGROUND_DEFAULTS[l.id] ?? ""); setOutput(null); setLangOpen(false); }}
                     className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:bg-accent transition"
                   >
-                    <span className="w-5 h-5 rounded grid place-items-center text-[9px] font-bold text-white shrink-0" style={{ background: l.color }}>
-                      {l.icon}
-                    </span>
+                    <LanguageIcon id={l.id} />
                     {l.label}
                   </button>
                 ))}
@@ -1249,37 +1330,63 @@ function CodeMode() {
             </>
           )}
         </div>
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <span>Font:</span>
+          <select value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))} className="bg-transparent border rounded px-1 py-0.5 text-[10px]">
+            {[10, 11, 12, 13, 14, 16, 18, 20].map((s) => <option key={s} value={s}>{s}px</option>)}
+          </select>
+        </div>
         <div className="flex-1" />
+        <span className="hidden sm:inline text-[10px] text-muted-foreground">Ctrl+Enter to run</span>
         <Button size="sm" onClick={run} disabled={running}>
           {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
           Run
         </Button>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 min-h-[300px]">
-        <div className="rounded-lg border overflow-hidden">
+        <div className="rounded-lg border overflow-hidden" onKeyDown={handleKeyDown}>
           <Editor
             height="300px"
-            language={lang === "cpp" ? "cpp" : lang === "c" ? "c" : lang}
+            language={lang === "cpp" ? "cpp" : lang === "c" ? "c" : lang === "csharp" ? "csharp" : lang}
             theme="vs-dark"
             value={code}
             onChange={(v) => setCode(v ?? "")}
-            options={{ fontSize: 12, minimap: { enabled: false }, lineNumbers: "on", tabSize: 2, automaticLayout: true, padding: { top: 6 } }}
+            options={{ fontSize, minimap: { enabled: false }, lineNumbers: "on", tabSize: 2, automaticLayout: true, padding: { top: 6 } }}
           />
         </div>
         <div className="flex flex-col gap-2">
-          <div className="flex-1 rounded-lg border bg-card p-3 font-mono text-xs whitespace-pre-wrap overflow-auto min-h-[200px]">
+          <div className="flex-1 rounded-lg border bg-card overflow-hidden flex flex-col min-h-[200px]">
             {output ? (
               <>
-                {output.stdout && <div className="text-foreground">{output.stdout}</div>}
-                {output.stderr && <div className="text-destructive">{output.stderr}</div>}
-                <div className={output.code === 0 ? "text-green-500 mt-1" : "text-destructive mt-1"}>
-                  Exit code: {output.code}
+                <div className="flex border-b text-[10px]">
+                  <button onClick={() => setOutputTab("stdout")} className={`px-3 py-1.5 ${outputTab === "stdout" ? "bg-background font-semibold border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}>
+                    stdout {output.stdout ? `(${output.stdout.length}B)` : ""}
+                  </button>
+                  <button onClick={() => setOutputTab("stderr")} className={`px-3 py-1.5 ${outputTab === "stderr" ? "bg-background font-semibold border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}>
+                    stderr {output.stderr ? `(${output.stderr.length}B)` : ""}
+                  </button>
+                  <div className="flex-1" />
+                  <span className={`px-3 py-1.5 font-medium ${output.code === 0 ? "text-green-500" : "text-destructive"}`}>
+                    Exit {output.code}
+                  </span>
+                </div>
+                <div className="flex-1 p-3 font-mono text-xs whitespace-pre-wrap overflow-auto">
+                  {outputTab === "stdout" ? (
+                    output.stdout || <span className="text-muted-foreground italic">No output</span>
+                  ) : (
+                    output.stderr || <span className="text-muted-foreground italic">No errors</span>
+                  )}
                 </div>
               </>
             ) : (
-              <span className="text-muted-foreground">Press Run to execute</span>
+              <div className="flex-1 grid place-items-center text-muted-foreground text-xs p-4 text-center">
+                {running ? (
+                  <span className="animate-pulse">Running...</span>
+                ) : (
+                  <span>Press <kbd className="px-1.5 py-0.5 rounded border bg-muted font-mono text-[10px]">Run</kbd> or <kbd className="px-1.5 py-0.5 rounded border bg-muted font-mono text-[10px]">Ctrl+Enter</kbd> to execute</span>
+                )}
+              </div>
             )}
-            {running && <span className="text-muted-foreground animate-pulse">Running...</span>}
           </div>
           <textarea
             value={stdin}
@@ -1296,9 +1403,9 @@ function CodeMode() {
 }
 
 const WEB_TABS = [
-  { id: "html" as const, label: "HTML", color: "#E34F26" },
-  { id: "css" as const, label: "CSS", color: "#1572B6" },
-  { id: "js" as const, label: "JS", color: "#F7DF1E" },
+  { id: "html" as const, label: "HTML", color: "#E34F26", icon: "html5" },
+  { id: "css" as const, label: "CSS", color: "#1572B6", icon: "css3" },
+  { id: "js" as const, label: "JavaScript", color: "#F7DF1E", icon: "javascript" },
 ];
 
 function WebMode() {
@@ -1329,10 +1436,7 @@ function WebMode() {
                 tab === t.id ? "bg-background font-semibold" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              <span className="w-4 h-4 rounded grid place-items-center text-[7px] font-bold text-white" style={{ background: t.color }}>
-                {t.label}
-              </span>
-              {t.label}
+              <LanguageIcon id={t.icon} />
             </button>
           ))}
         </div>

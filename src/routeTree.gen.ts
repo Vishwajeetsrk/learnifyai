@@ -38,6 +38,7 @@ import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedPlaygroundRouteImport } from './routes/_authenticated/playground'
 import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -54,6 +55,13 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
 import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/api/webhooks/cashfree-subscription'
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
+import { Route as AuthenticatedPlaygroundWebRouteImport } from './routes/_authenticated/playground.web'
+import { Route as AuthenticatedPlaygroundReactRouteImport } from './routes/_authenticated/playground.react'
+import { Route as AuthenticatedPlaygroundProjectsRouteImport } from './routes/_authenticated/playground.projects'
+import { Route as AuthenticatedPlaygroundLeaderboardRouteImport } from './routes/_authenticated/playground.leaderboard'
+import { Route as AuthenticatedPlaygroundInterviewRouteImport } from './routes/_authenticated/playground.interview'
+import { Route as AuthenticatedPlaygroundEditorRouteImport } from './routes/_authenticated/playground.editor'
+import { Route as AuthenticatedPlaygroundChallengesRouteImport } from './routes/_authenticated/playground.challenges'
 import { Route as AuthenticatedCreatorsIdRouteImport } from './routes/_authenticated/creators.$id'
 import { Route as AuthenticatedCreatorSubscribersRouteImport } from './routes/_authenticated/creator.subscribers'
 import { Route as AuthenticatedCreatorSettingsRouteImport } from './routes/_authenticated/creator.settings'
@@ -212,6 +220,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedPlaygroundRoute = AuthenticatedPlaygroundRouteImport.update({
+  id: '/playground',
+  path: '/playground',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedLeaderboardRoute =
   AuthenticatedLeaderboardRouteImport.update({
     id: '/leaderboard',
@@ -298,6 +311,48 @@ const ApiWebhooksCashfreeRoute = ApiWebhooksCashfreeRouteImport.update({
   path: '/api/webhooks/cashfree',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPlaygroundWebRoute =
+  AuthenticatedPlaygroundWebRouteImport.update({
+    id: '/web',
+    path: '/web',
+    getParentRoute: () => AuthenticatedPlaygroundRoute,
+  } as any)
+const AuthenticatedPlaygroundReactRoute =
+  AuthenticatedPlaygroundReactRouteImport.update({
+    id: '/react',
+    path: '/react',
+    getParentRoute: () => AuthenticatedPlaygroundRoute,
+  } as any)
+const AuthenticatedPlaygroundProjectsRoute =
+  AuthenticatedPlaygroundProjectsRouteImport.update({
+    id: '/projects',
+    path: '/projects',
+    getParentRoute: () => AuthenticatedPlaygroundRoute,
+  } as any)
+const AuthenticatedPlaygroundLeaderboardRoute =
+  AuthenticatedPlaygroundLeaderboardRouteImport.update({
+    id: '/leaderboard',
+    path: '/leaderboard',
+    getParentRoute: () => AuthenticatedPlaygroundRoute,
+  } as any)
+const AuthenticatedPlaygroundInterviewRoute =
+  AuthenticatedPlaygroundInterviewRouteImport.update({
+    id: '/interview',
+    path: '/interview',
+    getParentRoute: () => AuthenticatedPlaygroundRoute,
+  } as any)
+const AuthenticatedPlaygroundEditorRoute =
+  AuthenticatedPlaygroundEditorRouteImport.update({
+    id: '/editor',
+    path: '/editor',
+    getParentRoute: () => AuthenticatedPlaygroundRoute,
+  } as any)
+const AuthenticatedPlaygroundChallengesRoute =
+  AuthenticatedPlaygroundChallengesRouteImport.update({
+    id: '/challenges',
+    path: '/challenges',
+    getParentRoute: () => AuthenticatedPlaygroundRoute,
+  } as any)
 const AuthenticatedCreatorsIdRoute = AuthenticatedCreatorsIdRouteImport.update({
   id: '/creators/$id',
   path: '/creators/$id',
@@ -402,6 +457,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/playground': typeof AuthenticatedPlaygroundRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
@@ -422,6 +478,13 @@ export interface FileRoutesByFullPath {
   '/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/creators/$id': typeof AuthenticatedCreatorsIdRoute
+  '/playground/challenges': typeof AuthenticatedPlaygroundChallengesRoute
+  '/playground/editor': typeof AuthenticatedPlaygroundEditorRoute
+  '/playground/interview': typeof AuthenticatedPlaygroundInterviewRoute
+  '/playground/leaderboard': typeof AuthenticatedPlaygroundLeaderboardRoute
+  '/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
+  '/playground/react': typeof AuthenticatedPlaygroundReactRoute
+  '/playground/web': typeof AuthenticatedPlaygroundWebRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/courses/': typeof AuthenticatedCoursesIndexRoute
@@ -460,6 +523,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/playground': typeof AuthenticatedPlaygroundRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
@@ -480,6 +544,13 @@ export interface FileRoutesByTo {
   '/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/creators/$id': typeof AuthenticatedCreatorsIdRoute
+  '/playground/challenges': typeof AuthenticatedPlaygroundChallengesRoute
+  '/playground/editor': typeof AuthenticatedPlaygroundEditorRoute
+  '/playground/interview': typeof AuthenticatedPlaygroundInterviewRoute
+  '/playground/leaderboard': typeof AuthenticatedPlaygroundLeaderboardRoute
+  '/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
+  '/playground/react': typeof AuthenticatedPlaygroundReactRoute
+  '/playground/web': typeof AuthenticatedPlaygroundWebRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/courses': typeof AuthenticatedCoursesIndexRoute
@@ -520,6 +591,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRoute
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/_authenticated/playground': typeof AuthenticatedPlaygroundRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
@@ -540,6 +612,13 @@ export interface FileRoutesById {
   '/_authenticated/creator/settings': typeof AuthenticatedCreatorSettingsRoute
   '/_authenticated/creator/subscribers': typeof AuthenticatedCreatorSubscribersRoute
   '/_authenticated/creators/$id': typeof AuthenticatedCreatorsIdRoute
+  '/_authenticated/playground/challenges': typeof AuthenticatedPlaygroundChallengesRoute
+  '/_authenticated/playground/editor': typeof AuthenticatedPlaygroundEditorRoute
+  '/_authenticated/playground/interview': typeof AuthenticatedPlaygroundInterviewRoute
+  '/_authenticated/playground/leaderboard': typeof AuthenticatedPlaygroundLeaderboardRoute
+  '/_authenticated/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
+  '/_authenticated/playground/react': typeof AuthenticatedPlaygroundReactRoute
+  '/_authenticated/playground/web': typeof AuthenticatedPlaygroundWebRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
@@ -580,6 +659,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inbox'
     | '/leaderboard'
+    | '/playground'
     | '/settings'
     | '/studio'
     | '/submissions'
@@ -600,6 +680,13 @@ export interface FileRouteTypes {
     | '/creator/settings'
     | '/creator/subscribers'
     | '/creators/$id'
+    | '/playground/challenges'
+    | '/playground/editor'
+    | '/playground/interview'
+    | '/playground/leaderboard'
+    | '/playground/projects'
+    | '/playground/react'
+    | '/playground/web'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/courses/'
@@ -638,6 +725,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inbox'
     | '/leaderboard'
+    | '/playground'
     | '/settings'
     | '/studio'
     | '/submissions'
@@ -658,6 +746,13 @@ export interface FileRouteTypes {
     | '/creator/settings'
     | '/creator/subscribers'
     | '/creators/$id'
+    | '/playground/challenges'
+    | '/playground/editor'
+    | '/playground/interview'
+    | '/playground/leaderboard'
+    | '/playground/projects'
+    | '/playground/react'
+    | '/playground/web'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/courses'
@@ -697,6 +792,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/inbox'
     | '/_authenticated/leaderboard'
+    | '/_authenticated/playground'
     | '/_authenticated/settings'
     | '/_authenticated/studio'
     | '/_authenticated/submissions'
@@ -717,6 +813,13 @@ export interface FileRouteTypes {
     | '/_authenticated/creator/settings'
     | '/_authenticated/creator/subscribers'
     | '/_authenticated/creators/$id'
+    | '/_authenticated/playground/challenges'
+    | '/_authenticated/playground/editor'
+    | '/_authenticated/playground/interview'
+    | '/_authenticated/playground/leaderboard'
+    | '/_authenticated/playground/projects'
+    | '/_authenticated/playground/react'
+    | '/_authenticated/playground/web'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/_authenticated/courses/'
@@ -958,6 +1061,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/playground': {
+      id: '/_authenticated/playground'
+      path: '/playground'
+      fullPath: '/playground'
+      preLoaderRoute: typeof AuthenticatedPlaygroundRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/leaderboard': {
       id: '/_authenticated/leaderboard'
       path: '/leaderboard'
@@ -1069,6 +1179,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/webhooks/cashfree'
       preLoaderRoute: typeof ApiWebhooksCashfreeRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/playground/web': {
+      id: '/_authenticated/playground/web'
+      path: '/web'
+      fullPath: '/playground/web'
+      preLoaderRoute: typeof AuthenticatedPlaygroundWebRouteImport
+      parentRoute: typeof AuthenticatedPlaygroundRoute
+    }
+    '/_authenticated/playground/react': {
+      id: '/_authenticated/playground/react'
+      path: '/react'
+      fullPath: '/playground/react'
+      preLoaderRoute: typeof AuthenticatedPlaygroundReactRouteImport
+      parentRoute: typeof AuthenticatedPlaygroundRoute
+    }
+    '/_authenticated/playground/projects': {
+      id: '/_authenticated/playground/projects'
+      path: '/projects'
+      fullPath: '/playground/projects'
+      preLoaderRoute: typeof AuthenticatedPlaygroundProjectsRouteImport
+      parentRoute: typeof AuthenticatedPlaygroundRoute
+    }
+    '/_authenticated/playground/leaderboard': {
+      id: '/_authenticated/playground/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/playground/leaderboard'
+      preLoaderRoute: typeof AuthenticatedPlaygroundLeaderboardRouteImport
+      parentRoute: typeof AuthenticatedPlaygroundRoute
+    }
+    '/_authenticated/playground/interview': {
+      id: '/_authenticated/playground/interview'
+      path: '/interview'
+      fullPath: '/playground/interview'
+      preLoaderRoute: typeof AuthenticatedPlaygroundInterviewRouteImport
+      parentRoute: typeof AuthenticatedPlaygroundRoute
+    }
+    '/_authenticated/playground/editor': {
+      id: '/_authenticated/playground/editor'
+      path: '/editor'
+      fullPath: '/playground/editor'
+      preLoaderRoute: typeof AuthenticatedPlaygroundEditorRouteImport
+      parentRoute: typeof AuthenticatedPlaygroundRoute
+    }
+    '/_authenticated/playground/challenges': {
+      id: '/_authenticated/playground/challenges'
+      path: '/challenges'
+      fullPath: '/playground/challenges'
+      preLoaderRoute: typeof AuthenticatedPlaygroundChallengesRouteImport
+      parentRoute: typeof AuthenticatedPlaygroundRoute
     }
     '/_authenticated/creators/$id': {
       id: '/_authenticated/creators/$id'
@@ -1202,6 +1361,35 @@ const AuthenticatedCreatorRouteChildren: AuthenticatedCreatorRouteChildren = {
 const AuthenticatedCreatorRouteWithChildren =
   AuthenticatedCreatorRoute._addFileChildren(AuthenticatedCreatorRouteChildren)
 
+interface AuthenticatedPlaygroundRouteChildren {
+  AuthenticatedPlaygroundChallengesRoute: typeof AuthenticatedPlaygroundChallengesRoute
+  AuthenticatedPlaygroundEditorRoute: typeof AuthenticatedPlaygroundEditorRoute
+  AuthenticatedPlaygroundInterviewRoute: typeof AuthenticatedPlaygroundInterviewRoute
+  AuthenticatedPlaygroundLeaderboardRoute: typeof AuthenticatedPlaygroundLeaderboardRoute
+  AuthenticatedPlaygroundProjectsRoute: typeof AuthenticatedPlaygroundProjectsRoute
+  AuthenticatedPlaygroundReactRoute: typeof AuthenticatedPlaygroundReactRoute
+  AuthenticatedPlaygroundWebRoute: typeof AuthenticatedPlaygroundWebRoute
+}
+
+const AuthenticatedPlaygroundRouteChildren: AuthenticatedPlaygroundRouteChildren =
+  {
+    AuthenticatedPlaygroundChallengesRoute:
+      AuthenticatedPlaygroundChallengesRoute,
+    AuthenticatedPlaygroundEditorRoute: AuthenticatedPlaygroundEditorRoute,
+    AuthenticatedPlaygroundInterviewRoute:
+      AuthenticatedPlaygroundInterviewRoute,
+    AuthenticatedPlaygroundLeaderboardRoute:
+      AuthenticatedPlaygroundLeaderboardRoute,
+    AuthenticatedPlaygroundProjectsRoute: AuthenticatedPlaygroundProjectsRoute,
+    AuthenticatedPlaygroundReactRoute: AuthenticatedPlaygroundReactRoute,
+    AuthenticatedPlaygroundWebRoute: AuthenticatedPlaygroundWebRoute,
+  }
+
+const AuthenticatedPlaygroundRouteWithChildren =
+  AuthenticatedPlaygroundRoute._addFileChildren(
+    AuthenticatedPlaygroundRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAiRoute: typeof AuthenticatedAiRoute
@@ -1216,6 +1404,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
   AuthenticatedLeaderboardRoute: typeof AuthenticatedLeaderboardRoute
+  AuthenticatedPlaygroundRoute: typeof AuthenticatedPlaygroundRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
@@ -1240,6 +1429,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRoute,
   AuthenticatedLeaderboardRoute: AuthenticatedLeaderboardRoute,
+  AuthenticatedPlaygroundRoute: AuthenticatedPlaygroundRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,
