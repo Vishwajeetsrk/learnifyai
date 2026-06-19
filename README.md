@@ -166,6 +166,7 @@ A full-featured code execution environment supporting 40+ languages:
 - **Editor:** Monaco Editor (VS Code-grade) with syntax highlighting, minimap, and multi-tab editing
 - **Languages:** JavaScript, TypeScript, Python, C++, C, Java, Go, Rust, Ruby, PHP, C#, SQL, Bash, and 30+ more
 - **Local JS/TS Execution:** JavaScript and TypeScript run locally via Node.js `vm.runInNewContext()` — no external API needed. TypeScript is auto-transpiled before execution.
+- **Other Languages:** Require a self-hosted Piston instance (public API is whitelist-only since Feb 2026). Set `PISTON_URL` in `.env` to your instance (see [engineer-man/piston](https://github.com/engineer-man/piston)).
 - **Stdin Input:** Pass input to your programs
 - **Output Panel:** Real-time stdout, stderr, and exit code display
 - **Run on Demand:** Execute code with a single click
@@ -231,6 +232,11 @@ Follow these instructions to get the project up and running locally.
    CASHFREE_SECRET_KEY=your_cashfree_secret_key
    VITE_APP_URL=http://localhost:3000
    VITE_BASE_URL=http://localhost:3000
+
+   # Playground — JS/TS runs locally via Node.js VM (no API needed)
+   # For other languages (Python, C++, Java, etc.), self-host Piston:
+   # https://github.com/engineer-man/piston
+   # PISTON_URL=http://localhost:2000
 
    # Email — Resend API (primary), uncomment Gmail for reliable fallback
    RESEND_API_KEY=re_xxx
