@@ -297,6 +297,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const db = supabaseAdmin ?? supabase;
 
     const apiKey = process.env.YOUTUBE_API_KEY;
     const aiConfigured = Boolean(
@@ -305,7 +306,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
     if (!aiConfigured) throw new Error("No AI provider configured (Gemini, Groq, or OpenRouter key required).");
 
     // 1. Fetch course
-    const { data: course, error: cErr } = await supabase
+    const { data: course, error: cErr } = await db
       .from("courses")
       .select("id, title, description, category, level, thumbnail_url")
       .eq("id", data.courseId)

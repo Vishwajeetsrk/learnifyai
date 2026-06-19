@@ -46,6 +46,11 @@ export function checkThumbnailPromptSafety(prompt: string): string | null {
   if (hit)
     return `Prompt contains restricted content ("${hit.trim()}"). Try a descriptive non-IP variant.`;
   if (prompt.trim().length < 8) return "Prompt is too short. Add a few descriptive words.";
+  // Reject file paths / image references — AI models can't read images from prompts
+  if (/\.(png|jpg|jpeg|gif|webp|bmp|svg)\b/i.test(prompt))
+    return "Image files cannot be used as prompts. Describe what you want the thumbnail to look like in words.";
+  if (/^[\w-]+\.[a-z]{2,4}$/.test(prompt.trim()))
+    return "That looks like a filename. Enter a text description of the thumbnail instead.";
   return null;
 }
 
@@ -248,40 +253,37 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       const lines: string[] = [];
       let line = "";
       for (const word of title.split(" ")) {
-        if ((line + " " + word).length > 22) { if (line) lines.push(line); line = word; }
+        if ((line + " " + word).length > 20) { if (line) lines.push(line); line = word; }
         else line = line ? line + " " + word : word;
       }
       if (line) lines.push(line);
-      const fontSize = lines.length <= 2 ? 96 : lines.length === 3 ? 80 : 68;
-      const textYStart = lines.length <= 2 ? 420 : 380;
-      const lineH = lines.length <= 2 ? 120 : 100;
-      const textLines = lines.slice(0, 4).map((l, i) =>
-        `<text x="768" y="${textYStart + i * lineH}" text-anchor="middle" fill="white" font-family="system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="${fontSize}" font-weight="800" letter-spacing="-0.5">${esc(l)}</text>`
-      ).join("\n        ");
+      const clamped = lines.slice(0, 4);
+      const fontSize = clamped.length <= 2 ? 110 : clamped.length === 3 ? 88 : 72;
+      const textYStart = clamped.length <= 2 ? 440 : 380;
+      const lineH = clamped.length <= 2 ? 130 : 110;
+      const padX = 60;
+      const padY = 20;
+      const textLines = clamped.map((l, i) => {
+        const y = textYStart + i * lineH;
+        const textW = l.length * fontSize * 0.55;
+        return `
+          <rect x="${768 - textW / 2 - padX}" y="${y - fontSize - padY + 14}" width="${textW + padX * 2}" height="${fontSize + padY * 2}" rx="12" fill="#000000" fill-opacity="0.55"/>
+          <text x="768" y="${y}" text-anchor="middle" fill="#ffffff" font-family="Arial,Helvetica,system-ui,sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="-0.5">${esc(l)}</text>`;
+      }).join("\n        ");
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024">
         <defs>
           <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" style="stop-color:#0f172a"/>
-            <stop offset="50%" style="stop-color:#1e3a8a"/>
-            <stop offset="100%" style="stop-color:#3730a3"/>
-          </linearGradient>
-          <filter id="textShadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000000" flood-opacity="0.7"/>
-          </filter>
-          <linearGradient id="overlay" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" style="stop-color:#000;stop-opacity:0.4"/>
-            <stop offset="100%" style="stop-color:#000;stop-opacity:0.7"/>
+            <stop offset="40%" style="stop-color:#1e1b4b"/>
+            <stop offset="100%" style="stop-color:#312e81"/>
           </linearGradient>
         </defs>
         <rect width="1536" height="1024" fill="url(#bg)"/>
-        <rect width="1536" height="1024" fill="url(#overlay)"/>
-        <circle cx="200" cy="900" r="500" fill="#fde68a" opacity="0.06"/>
-        <circle cx="1400" cy="200" r="400" fill="#c7d2fe" opacity="0.06"/>
-        <g filter="url(#textShadow)">
-          ${textLines}
-        </g>
-        <text x="768" y="860" text-anchor="middle" fill="#a5b4fc" font-family="system-ui,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="28" font-weight="600" letter-spacing="3">LEARNIFY AI</text>
-        <rect x="618" y="885" width="300" height="3" rx="1.5" fill="#fde68a" opacity="0.5"/>
+        <circle cx="200" cy="900" r="550" fill="#fde68a" opacity="0.05"/>
+        <circle cx="1400" cy="200" r="450" fill="#c7d2fe" opacity="0.05"/>
+        ${textLines}
+        <rect x="618" y="920" width="300" height="3" rx="1.5" fill="#a5b4fc" opacity="0.4"/>
+        <text x="768" y="895" text-anchor="middle" fill="#a5b4fc" font-family="Arial,Helvetica,system-ui,sans-serif" font-size="26" font-weight="700" letter-spacing="4">LEARNIFY AI</text>
       </svg>`;
       const base64 = Buffer.from(svg, "utf-8").toString("base64");
       return { dataUrl: `data:image/svg+xml;base64,${base64}` };
