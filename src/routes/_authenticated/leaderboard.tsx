@@ -1,9 +1,14 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Flame, Star, Trophy, Medal } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { Trophy, Flame, Star, Medal, Crown, TrendingUp, Loader2, Users } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { getLeaderboard } from "@/lib/gamification.functions";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { getLeaderboard, getUserRank, xpToLevel, levelToRank } from "@/lib/gamification.functions";
 
 export const Route = createFileRoute("/_authenticated/leaderboard")({
   head: () => ({ meta: [{ title: "Leaderboard — Learnify AI" }] }),
@@ -11,61 +16,251 @@ export const Route = createFileRoute("/_authenticated/leaderboard")({
 });
 
 function LeaderboardPage() {
-  const { data: topUsers, isLoading } = useQuery({
-    queryKey: ["leaderboard"],
-    queryFn: async () => await getLeaderboard(),
+  const { user } = useAuth();
+  const [period, setPeriod] = useState<"weekly" | "all">("weekly");
+
+  const fetchLb = useServerFn(getLeaderboard);
+  const fetchRank = useServerFn(getUserRank);
+
+  const lb = useQuery({
+    queryKey: ["leaderboard", period],
+    queryFn: () => fetchLb({ data: { period } }),
   });
+
+  const myRank = useQuery({
+    enabled: !!user,
+    queryKey: ["my-rank", user?.id],
+    queryFn: () => fetchRank({ data: { userId: user!.id } }),
+  });
+
+  const topUsers = lb.data ?? [];
+  const my = myRank.data;
+
+  const initials = (name: string) =>
+    name
+      .split(" ")
+      .map((s) => s[0])
+      .slice(0, 2)
+      .join("")
+      .toUpperCase();
+
+  const RankBadge = ({ rank }: { rank: number }) => {
+    if (rank === 1) return <Crown className="h-5 w-5 text-yellow-400 drop-shadow-sm" />;
+    if (rank === 2) return <Medal className="h-5 w-5 text-slate-300" />;
+    if (rank === 3) return <Medal className="h-5 w-5 text-amber-600" />;
+    return <span className="font-bold text-muted-foreground w-5 text-center text-sm">{rank}</span>;
+  };
+
+  const RankBadgeSmall = ({ name }: { name: string }) => {
+    const colors: Record<string, string> = {
+      Bronze: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
+      Silver: "bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+      Gold: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
+      Platinum: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
+      Diamond: "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300",
+    };
+    return (
+      <span
+        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${colors[name] ?? colors.Bronze}`}
+      >
+        {name}
+      </span>
+    );
+  };
 
   return (
     <AppShell>
       <div className="px-4 md:px-10 py-8 max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Trophy className="h-8 w-8 text-yellow-500" />
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 grid place-items-center shadow-lg">
+            <Trophy className="h-6 w-6 text-white" />
+          </div>
           <div>
-            <h1 className="text-3xl font-display font-bold">Leaderboard</h1>
-            <p className="text-muted-foreground text-sm">Top learners sorted by total XP.</p>
+            <h1 className="text-3xl font-display font-bold tracking-tight">Leaderboard</h1>
+            <p className="text-muted-foreground text-sm flex items-center gap-1.5 mt-0.5">
+              <TrendingUp className="h-3.5 w-3.5" /> Compete and rise to the top
+            </p>
           </div>
         </div>
 
-        <div className="bg-card border rounded-2xl overflow-hidden shadow-card">
-          {isLoading ? (
-            <div className="p-8 text-center text-muted-foreground">Loading ranks...</div>
-          ) : (topUsers || []).length === 0 ? (
-            <div className="p-8 text-center text-muted-foreground">No users yet.</div>
+        {/* Current user rank card */}
+        {my && (
+          <div className="rounded-2xl border bg-gradient-to-r from-primary/[0.04] to-primary/[0.02] p-5 mb-6 shadow-sm">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-4">
+                <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary to-primary/60 grid place-items-center text-white font-bold text-lg shadow-md">
+                  #{my.rank}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-sm">Your Rank</span>
+                    <RankBadgeSmall name={my.rankName} />
+                    <Badge variant="outline" className="text-[10px]">
+                      Lv.{my.level}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Star className="h-3 w-3 text-yellow-500" /> {my.xp.toLocaleString()} XP
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Flame className="h-3 w-3 text-orange-500" /> {my.streak} day streak
+                    </span>
+                    <span>of {my.total} users</span>
+                  </div>
+                  {/* Level progress bar */}
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="h-1.5 flex-1 max-w-40 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{ width: `${my.progress}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">
+                      {my.currentLevelXp.toLocaleString()} / {my.levelTotal.toLocaleString()} XP
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Period tabs */}
+        <div className="flex gap-1 mb-5 bg-muted/50 rounded-xl p-1 w-fit border">
+          <Button
+            variant={period === "weekly" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setPeriod("weekly")}
+            className="rounded-lg text-xs gap-1.5"
+          >
+            <Flame className="h-3.5 w-3.5" /> Weekly
+          </Button>
+          <Button
+            variant={period === "all" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setPeriod("all")}
+            className="rounded-lg text-xs gap-1.5"
+          >
+            <Trophy className="h-3.5 w-3.5" /> All Time
+          </Button>
+        </div>
+
+        {/* Podium */}
+        {topUsers.length >= 3 && period === "all" && (
+          <div className="flex items-end justify-center gap-3 mb-8">
+            {[1, 0, 2].map((i) => {
+              const u = topUsers[i];
+              if (!u) return null;
+              const level = xpToLevel(u.xp);
+              const rankInfo = levelToRank(level);
+              const heights = ["h-28", "h-36", "h-24"];
+              const badges = ["", "bg-yellow-400", "bg-slate-300", "bg-amber-600"];
+              return (
+                <div key={u.id} className="flex flex-col items-center gap-2 w-28">
+                  <div className="relative">
+                    <Avatar className="h-12 w-12 border-2 border-background shadow-md ring-2 ring-primary/20">
+                      {u.avatar_url && <AvatarImage src={u.avatar_url} />}
+                      <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                        {initials(u.full_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div
+                      className={`absolute -bottom-1 -right-1 h-5 w-5 rounded-full grid place-items-center text-[10px] font-bold text-white shadow ${badges[i + 1]}`}
+                    >
+                      {i + 1}
+                    </div>
+                  </div>
+                  <span className="text-xs font-medium text-center leading-tight line-clamp-1">
+                    {u.full_name}
+                  </span>
+                  <RankBadgeSmall name={rankInfo.name} />
+                  <div
+                    className={`w-full rounded-t-xl border border-b-0 bg-card flex items-center justify-center ${heights[i]}`}
+                  >
+                    <div className="text-center">
+                      <div className="font-bold text-xs">{u.xp.toLocaleString()}</div>
+                      <div className="text-[9px] text-muted-foreground">XP</div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* List */}
+        <div className="rounded-2xl border bg-card overflow-hidden shadow-sm">
+          {lb.isLoading ? (
+            <div className="p-12 text-center">
+              <Loader2 className="h-5 w-5 animate-spin text-primary mx-auto" />
+            </div>
+          ) : topUsers.length === 0 ? (
+            <div className="p-12 text-center">
+              <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">
+                {period === "weekly"
+                  ? "No activity this week yet. Start learning to earn XP!"
+                  : "No users yet."}
+              </p>
+            </div>
           ) : (
             <div className="divide-y">
-              {topUsers?.map((u, i) => {
-                const initials = (u.full_name || "User")
-                  .split(" ")
-                  .map((s) => s[0])
-                  .join("")
-                  .substring(0, 2)
-                  .toUpperCase();
-
-                let RankIcon = null;
-                if (i === 0) RankIcon = <Medal className="h-5 w-5 text-yellow-400" />;
-                else if (i === 1) RankIcon = <Medal className="h-5 w-5 text-gray-300" />;
-                else if (i === 2) RankIcon = <Medal className="h-5 w-5 text-amber-600" />;
-                else RankIcon = <span className="font-bold text-muted-foreground w-5 text-center">{i + 1}</span>;
-
+              {topUsers.map((u, i) => {
+                const level = xpToLevel(u.xp);
+                const rankInfo = levelToRank(level);
+                const isMe = u.id === user?.id;
                 return (
-                  <div key={u.id} className="flex items-center justify-between p-4 hover:bg-muted/30 transition">
-                    <div className="flex items-center gap-4">
-                      <div className="w-6 flex justify-center">{RankIcon}</div>
-                      <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                  <div
+                    key={u.id}
+                    className={`flex items-center justify-between p-3.5 sm:px-5 transition-colors ${isMe ? "bg-primary/[0.03]" : "hover:bg-muted/30"}`}
+                  >
+                    <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                      <div className="w-7 flex justify-center shrink-0">
+                        <RankBadge rank={i + 1} />
+                      </div>
+                      <Avatar className="h-9 w-9 sm:h-10 sm:w-10 border-2 border-background shadow-sm shrink-0">
                         {u.avatar_url && <AvatarImage src={u.avatar_url} />}
                         <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                          {initials}
+                          {initials(u.full_name)}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="font-medium text-sm">{u.full_name || "Anonymous Learner"}</div>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs font-semibold">
-                      <div className="flex items-center gap-1.5 text-orange-500 w-16">
-                        <Flame className="h-4 w-4" /> {u.current_streak ?? 0}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span
+                            className={`text-sm font-medium truncate ${isMe ? "text-primary" : ""}`}
+                          >
+                            {u.full_name}
+                            {isMe && (
+                              <span className="text-[10px] text-muted-foreground ml-1">(you)</span>
+                            )}
+                          </span>
+                          <RankBadgeSmall name={rankInfo.name} />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 text-yellow-500 w-20 justify-end">
-                        <Star className="h-4 w-4" fill="currentColor" /> {u.xp ?? 0} XP
+                    </div>
+                    <div className="flex items-center gap-3 sm:gap-5 shrink-0">
+                      <div className="hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground">
+                        <Flame className="h-3 w-3 text-orange-400" /> Lv.{level}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-yellow-500 font-semibold text-sm min-w-[70px] justify-end">
+                        <Star className="h-3.5 w-3.5" fill="currentColor" />
+                        {period === "weekly" ? (
+                          <span>
+                            {u.weekly_xp?.toLocaleString() ?? 0}{" "}
+                            <span className="text-[10px] font-normal text-muted-foreground">
+                              XP
+                            </span>
+                          </span>
+                        ) : (
+                          <span>
+                            {u.xp.toLocaleString()}{" "}
+                            <span className="text-[10px] font-normal text-muted-foreground">
+                              XP
+                            </span>
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -73,6 +268,14 @@ function LeaderboardPage() {
               })}
             </div>
           )}
+        </div>
+
+        {/* Info */}
+        <div className="mt-6 text-center text-[11px] text-muted-foreground">
+          <p>
+            Earn XP by completing lessons, passing tests, solving challenges, and maintaining
+            streaks.
+          </p>
         </div>
       </div>
     </AppShell>

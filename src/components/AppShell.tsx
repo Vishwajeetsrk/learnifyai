@@ -16,6 +16,8 @@ import {
   BarChart3,
   Users,
   Compass,
+  Trophy,
+  Medal,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -41,6 +43,8 @@ const nav: NavItem[] = [
   { to: "/community-feed", label: "Community", icon: Users },
   { to: "/coaching", label: "Coaching", icon: Compass },
   { to: "/courses", label: "Courses", icon: GraduationCap },
+  { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
+  { to: "/achievements", label: "Achievements", icon: Medal },
   { to: "/cart", label: "Cart", icon: ShoppingCart },
   { to: "/submissions", label: "Submissions", icon: FileCheck2 },
   // Playground accessible from Courses page

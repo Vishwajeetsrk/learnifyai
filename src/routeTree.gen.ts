@@ -52,6 +52,7 @@ import { Route as AuthenticatedApplyCreatorRouteImport } from './routes/_authent
 import { Route as AuthenticatedAiToolsRouteImport } from './routes/_authenticated/ai-tools'
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAchievementsRouteImport } from './routes/_authenticated/achievements'
 import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
 import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/api/webhooks/cashfree-subscription'
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
@@ -294,6 +295,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAchievementsRoute =
+  AuthenticatedAchievementsRouteImport.update({
+    id: '/achievements',
+    path: '/achievements',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCoursesIndexRoute =
   AuthenticatedCoursesIndexRouteImport.update({
     id: '/courses/',
@@ -444,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/roadmap': typeof RoadmapRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/achievements': typeof AuthenticatedAchievementsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ai': typeof AuthenticatedAiRoute
   '/ai-tools': typeof AuthenticatedAiToolsRoute
@@ -510,6 +518,7 @@ export interface FileRoutesByTo {
   '/roadmap': typeof RoadmapRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/achievements': typeof AuthenticatedAchievementsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ai': typeof AuthenticatedAiRoute
   '/ai-tools': typeof AuthenticatedAiToolsRoute
@@ -578,6 +587,7 @@ export interface FileRoutesById {
   '/roadmap': typeof RoadmapRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/_authenticated/achievements': typeof AuthenticatedAchievementsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/ai': typeof AuthenticatedAiRoute
   '/_authenticated/ai-tools': typeof AuthenticatedAiToolsRoute
@@ -646,6 +656,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/signup'
     | '/terms'
+    | '/achievements'
     | '/admin'
     | '/ai'
     | '/ai-tools'
@@ -712,6 +723,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/signup'
     | '/terms'
+    | '/achievements'
     | '/admin'
     | '/ai'
     | '/ai-tools'
@@ -779,6 +791,7 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/signup'
     | '/terms'
+    | '/_authenticated/achievements'
     | '/_authenticated/admin'
     | '/_authenticated/ai'
     | '/_authenticated/ai-tools'
@@ -1159,6 +1172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/achievements': {
+      id: '/_authenticated/achievements'
+      path: '/achievements'
+      fullPath: '/achievements'
+      preLoaderRoute: typeof AuthenticatedAchievementsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/courses/': {
       id: '/_authenticated/courses/'
       path: '/courses'
@@ -1391,6 +1411,7 @@ const AuthenticatedPlaygroundRouteWithChildren =
   )
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAchievementsRoute: typeof AuthenticatedAchievementsRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAiRoute: typeof AuthenticatedAiRoute
   AuthenticatedAiToolsRoute: typeof AuthenticatedAiToolsRoute
@@ -1416,6 +1437,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAchievementsRoute: AuthenticatedAchievementsRoute,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAiRoute: AuthenticatedAiRoute,
   AuthenticatedAiToolsRoute: AuthenticatedAiToolsRoute,

@@ -17,13 +17,14 @@
 Learnify AI is built to empower both learners and creators by streamlining the entire educational lifecycle.
 
 ### 🎓 For Learners
-- **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + non-YouTube fallback). Notes tab includes a **Listen** button that reads instructor notes aloud via Web Speech API (TTS).
+- **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + non-YouTube fallback). Notes tab includes a **Listen** button that reads instructor notes aloud via Web Speech API (TTS). Auto-plays next unlocked lesson on video end (800ms delay).
 - **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
 - **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution (Wandbox) and web search. Inline in course player.
 - **Playground Hub:** Standalone coding IDE at `/playground` with Monaco editor, AI assistant, web preview, React sandbox, projects management, DSA challenges, interview mode, and leaderboard. See **🎮 Playground** section below.
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
 - **Wallet & Integrated Payments:** Manage credits, top-up via Cashfree (UPI/card/netbanking), withdraw via Cashfree Payouts, purchase courses, and download invoices instantly.
 - **Pro Subscription Plans:** Monthly/yearly subscription plans powered by Cashfree Subscriptions API. Auto-credits AI credits every billing cycle.
+- **Leaderboard & Achievements:** XP-based leaderboard at `/leaderboard` with weekly/all-time tabs, podium display, rank badges (Crown/Medal), level system (Bronze/Silver/Gold/Platinum/Diamond), XP progress bar, and streak tracking. Achievements page at `/achievements` with categorized badges (XP Milestones, Course Badges, Streak Mastery, Test Champion, Challenge Solver) showing earned/locked state, date earned, and progress bars.
 - **Community Feed:** Share updates, post questions, attach media, create polls, post announcements, and engage with peers. Rich text editor with Bold, Italic, Underline, text color, font size, font family, heading dropdown, bullet/ordered lists, emoji picker, and text alignment. Complete with comment author avatars, live poll voting, and pinned announcements. Authors can edit/delete their own posts and comments; admins can edit/delete any post or comment.
 - **Dashboard — My Learning:** Enrolled courses grid with responsive layout (1-4 columns), progress bars, test attempt stats, Continue/Playground buttons. Responsive card design with `min-w-0`, `break-words`, and `flex-wrap` for small screens.
 - **Dynamic Roadmaps:** CMS-backed public roadmap showing shipped, in-progress, and planned features.
@@ -134,6 +135,7 @@ learnifyai/
 │   ├── hooks/              # Custom React hooks (use-auth, etc.)
 │   ├── integrations/       # API clients (Supabase, Cashfree)
 │   ├── lib/                # Utility + server functions
+│   │   ├── gamification.functions.ts   # XP award, leaderboard (weekly/all-time), achievements, level/rank helpers
 │   │   ├── payment.functions.ts        # Cashfree order create + verify (pending/completed)
 │   │   ├── subscription.functions.ts   # Cashfree Subscriptions CRUD (sync plan, create/cancel/get subscription)
 │   │   ├── playground.functions.ts     # Code execution via Wandbox API (30+ languages)
@@ -159,6 +161,9 @@ learnifyai/
 │   │   │   ├── cohorts.$id.tsx # Cohort detail + chat + members panel + meeting links + pre-start notification
 │   │   │   ├── wallet.tsx      # Wallet top-up (Cashfree) + withdrawal (Cashfree Payouts) + invoice PDF download
 │   │   │   ├── cart.tsx        # Cart with coupon support, Cashfree checkout, enrollment
+│   │   │   ├── leaderboard.tsx # XP leaderboard with weekly/all-time tabs, podium, level badges, progress bar
+│   │   │   ├── achievements.tsx # Achievements page with categorized badges, earned/locked state, progress bars
+│   │   │   ├── settings.tsx    # Unified 4-tab settings: Profile (avatar, username, socials, skills), Billing (subscription, wallet, withdrawals), Notifications, Settings (password, payouts, defaults)
 │   │   │   ├── pricing.tsx     # Subscription plans page with subscribe/cancel flow
 │   │   │   ├── playlist.tsx    # Course player with inline AI tutor + agent
 │   │   │   ├── studio.tsx      # Creator Studio — AI Auto-Complete + course defaults from profile settings
@@ -183,7 +188,11 @@ learnifyai/
 │       ├── 20260618000001_group_link.sql             # Adds group_link column to cohorts
 │       ├── 20260618000002_subscriptions.sql          # Subscription tables (user_subscriptions, subscription_events, pricing_plans columns)
 │       ├── 20260619000000_playground_system.sql      # Playground tables (projects, files, runs, challenges, submissions, leaderboard, interviews)
-│       └── 20260619000001_cascade_delete.sql         # Cascade delete for certificate-related tables
+│       ├── 20260619000001_cascade_delete.sql         # Cascade delete for certificate-related tables
+│       ├── 20260620000000_leaderboard_ranks.sql      # xp_log table for weekly XP tracking
+│       ├── 20260620000001_achievements_badges.sql    # Badges category & course_id columns
+│       ├── 20260620000002_settings_profile_fields.sql # Profiles: username, location, work, education, website, skills
+│       └── 20260620000003_withdrawal_delete_policy.sql # RLS policy for withdrawal delete
 ├── package.json            # Dependencies and scripts
 ├── scripts/                # Utility scripts
 │   └── seed_courses.mjs    # Seed database with real courses

@@ -66,7 +66,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { lessonAiHelper } from "@/lib/lesson-ai.functions";
 import { enrollFree, markCourseStarted, recomputeProgress } from "@/lib/course.functions";
-import { awardXP } from "@/lib/gamification.functions";
+import { awardXP, getCourseLearners } from "@/lib/gamification.functions";
 
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import {
@@ -130,7 +130,7 @@ function formatDuration(minutes: number) {
   const hoursStr = hours > 0 ? `${hours}h` : "";
   const minutesStr = remainingMinutes > 0 ? `${remainingMinutes}m` : "";
   const durationStr = [hoursStr, minutesStr].filter(Boolean).join(" ");
-  
+
   // Estimate daily learning load (assuming ~45 mins of dedicated focus/study per day)
   const daysLoad = Math.max(1, Math.ceil(minutes / 45));
   return `${durationStr} (${daysLoad} ${daysLoad === 1 ? "day" : "days"} load)`;
@@ -274,6 +274,13 @@ function CourseDetail() {
     },
   });
 
+  const fetchLearners = useServerFn(getCourseLearners);
+  const learnersQuery = useQuery({
+    enabled: !!course?.id,
+    queryKey: ["course-learners", course?.id],
+    queryFn: () => fetchLearners({ data: { courseId: course!.id, limit: 3 } }),
+  });
+
   const toggleCreatorSub = async () => {
     if (!user) return navigate({ to: "/login" });
     if (!creatorId || user.id === creatorId) return;
@@ -379,36 +386,54 @@ function CourseDetail() {
     if (active?.id) autoCompletedRef.current = completed.has(active.id);
   }, [active?.id, completed]);
 
-  const handlePlayerProgress = useCallback(({ playedSeconds }: { playedSeconds: number }) => {
-    if (!user || !course || !active?.id || !isEnrolled) return;
-    const now = Date.now();
-    if (now - lastProgressWrite.current < 10000) return;
-    lastProgressWrite.current = now;
-    const watched = Math.round(playedSeconds);
-    if (!autoCompletedRef.current && active.duration_minutes > 0 && watched >= active.duration_minutes * 60 * 0.9) {
-      autoCompletedRef.current = true;
-      supabase
-        .from("lesson_progress")
-        .upsert(
-          { user_id: user.id, course_id: course.id, lesson_id: active.id, watched_seconds: watched, completed: true },
-          { onConflict: "user_id,lesson_id" },
-        )
-        .then(() => {
-          qc.invalidateQueries({ queryKey: ["progress", course.id, user.id] });
-          recompute({ data: { courseId: course.id } })
-            .then(() => qc.invalidateQueries({ queryKey: ["enrollment", course.id, user.id] }))
-            .catch(() => {});
-        });
-    } else {
-      supabase
-        .from("lesson_progress")
-        .upsert(
-          { user_id: user.id, course_id: course.id, lesson_id: active.id, watched_seconds: watched },
-          { onConflict: "user_id,lesson_id" },
-        )
-        .then(() => {});
-    }
-  }, [user, course, active, isEnrolled, qc]);
+  const handlePlayerProgress = useCallback(
+    ({ playedSeconds }: { playedSeconds: number }) => {
+      if (!user || !course || !active?.id || !isEnrolled) return;
+      const now = Date.now();
+      if (now - lastProgressWrite.current < 10000) return;
+      lastProgressWrite.current = now;
+      const watched = Math.round(playedSeconds);
+      if (
+        !autoCompletedRef.current &&
+        active.duration_minutes > 0 &&
+        watched >= active.duration_minutes * 60 * 0.9
+      ) {
+        autoCompletedRef.current = true;
+        supabase
+          .from("lesson_progress")
+          .upsert(
+            {
+              user_id: user.id,
+              course_id: course.id,
+              lesson_id: active.id,
+              watched_seconds: watched,
+              completed: true,
+            },
+            { onConflict: "user_id,lesson_id" },
+          )
+          .then(() => {
+            qc.invalidateQueries({ queryKey: ["progress", course.id, user.id] });
+            recompute({ data: { courseId: course.id } })
+              .then(() => qc.invalidateQueries({ queryKey: ["enrollment", course.id, user.id] }))
+              .catch(() => {});
+          });
+      } else {
+        supabase
+          .from("lesson_progress")
+          .upsert(
+            {
+              user_id: user.id,
+              course_id: course.id,
+              lesson_id: active.id,
+              watched_seconds: watched,
+            },
+            { onConflict: "user_id,lesson_id" },
+          )
+          .then(() => {});
+      }
+    },
+    [user, course, active, isEnrolled, qc],
+  );
 
   const addToCart = async () => {
     if (!user || !course) return;
@@ -460,14 +485,16 @@ function CourseDetail() {
       );
     if (error) return toast.error(error.message);
     toast.success(!isDone ? "Lesson completed 🎉" : "Marked as not done");
-    
+
     if (!isDone) {
-      awardXPFn({ data: { userId: user.id, amount: 10 } }).then((res) => {
-        if (res.success) {
-          toast.success(`+10 XP Earned! 🔥 Streak: ${res.streak}`);
-          qc.invalidateQueries({ queryKey: ["profile-mini", user.id] });
-        }
-      }).catch(() => {});
+      awardXPFn({ data: { userId: user.id, amount: 10 } })
+        .then((res) => {
+          if (res.success) {
+            toast.success(`+10 XP Earned! 🔥 Streak: ${res.streak}`);
+            qc.invalidateQueries({ queryKey: ["profile-mini", user.id] });
+          }
+        })
+        .catch(() => {});
     }
 
     qc.invalidateQueries({ queryKey: ["progress", course.id, user.id] });
@@ -560,6 +587,41 @@ function CourseDetail() {
           )}
         </p>
 
+        {/* Learners count with avatars */}
+        {learnersQuery.data && learnersQuery.data.total > 0 && (
+          <div className="mt-3 flex items-center gap-2.5">
+            <div className="flex -space-x-2">
+              {learnersQuery.data.learners
+                .slice(0, 3)
+                .map(
+                  (
+                    l: { user_id: string; avatar_url: string | null; full_name: string | null },
+                    i: number,
+                  ) => (
+                    <div
+                      key={l.user_id ?? i}
+                      className="h-7 w-7 rounded-full border-2 border-card bg-muted overflow-hidden"
+                    >
+                      {l.avatar_url ? (
+                        <img src={l.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full grid place-items-center text-[9px] font-bold text-muted-foreground">
+                          {(l.full_name ?? "U")[0].toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                  ),
+                )}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              <span className="font-medium text-foreground">
+                +{learnersQuery.data.total.toLocaleString()}
+              </span>{" "}
+              learners
+            </span>
+          </div>
+        )}
+
         {/* Enrollment CTA */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {isEnrolled ? (
@@ -604,7 +666,11 @@ function CourseDetail() {
             {active && (
               <div className="flex items-center gap-2">
                 <h2 className="font-semibold text-base truncate">{active.title}</h2>
-                {active.is_preview && <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium shrink-0">Preview</span>}
+                {active.is_preview && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium shrink-0">
+                    Preview
+                  </span>
+                )}
               </div>
             )}
             <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
@@ -670,7 +736,8 @@ function CourseDetail() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-xs text-muted-foreground">
-                      {formatLessonTime(active.duration_minutes)}{active.is_preview ? " · Free preview" : ""}
+                      {formatLessonTime(active.duration_minutes)}
+                      {active.is_preview ? " · Free preview" : ""}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -809,22 +876,22 @@ function CourseDetail() {
                       />
                     ) : (
                       <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
-                        {(instructorProfile?.full_name || course.instructor).charAt(0).toUpperCase()}
+                        {(instructorProfile?.full_name || course.instructor)
+                          .charAt(0)
+                          .toUpperCase()}
                       </div>
                     )}
                   </Link>
+                ) : instructorProfile?.avatar_url ? (
+                  <img
+                    src={instructorProfile.avatar_url}
+                    alt={instructorProfile.full_name || course.instructor}
+                    className="h-12 w-12 rounded-full object-cover border-2 border-primary/20 shrink-0"
+                  />
                 ) : (
-                  instructorProfile?.avatar_url ? (
-                    <img
-                      src={instructorProfile.avatar_url}
-                      alt={instructorProfile.full_name || course.instructor}
-                      className="h-12 w-12 rounded-full object-cover border-2 border-primary/20 shrink-0"
-                    />
-                  ) : (
-                    <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
-                      {(instructorProfile?.full_name || course.instructor).charAt(0).toUpperCase()}
-                    </div>
-                  )
+                  <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
+                    {(instructorProfile?.full_name || course.instructor).charAt(0).toUpperCase()}
+                  </div>
                 )}
                 <div className="min-w-0 flex-1">
                   {course.created_by ? (
@@ -881,21 +948,24 @@ function CourseDetail() {
                   Expert instructor delivering high-quality learning experiences.
                 </p>
               )}
-              {instructorProfile?.social_links && typeof instructorProfile.social_links === "object" && (
-                <div className="flex flex-wrap gap-2 pt-2 border-t text-xs">
-                  {Object.entries(instructorProfile.social_links as Record<string, string>).map(([platform, url]) => (
-                    <a
-                      key={platform}
-                      href={url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-primary hover:underline capitalize"
-                    >
-                      {platform}
-                    </a>
-                  ))}
-                </div>
-              )}
+              {instructorProfile?.social_links &&
+                typeof instructorProfile.social_links === "object" && (
+                  <div className="flex flex-wrap gap-2 pt-2 border-t text-xs">
+                    {Object.entries(instructorProfile.social_links as Record<string, string>).map(
+                      ([platform, url]) => (
+                        <a
+                          key={platform}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary hover:underline capitalize"
+                        >
+                          {platform}
+                        </a>
+                      ),
+                    )}
+                  </div>
+                )}
             </div>
           </div>
         </div>
@@ -1197,13 +1267,33 @@ const LANG_LOGOS: Record<string, string> = {
 };
 
 const LANG_COLORS: Record<string, string> = {
-  python: "#3776AB", javascript: "#F7DF1E", typescript: "#3178C6",
-  cpp: "#00599C", c: "#A8B9CC", java: "#007396", go: "#00ADD8",
-  rust: "#000000", ruby: "#CC342D", php: "#777BB4", bash: "#4EAA25",
-  sql: "#4479A1", swift: "#F05138", kotlin: "#7F52FF", scala: "#DC322F",
-  dart: "#0175C2", elixir: "#4B275F", haskell: "#5D4F85", lua: "#2C2D72",
-  perl: "#39457E", r: "#276DC3", csharp: "#239120", zig: "#F7A41D",
-  julia: "#9558B2", lisp: "#3F0000", nim: "#FFE953", groovy: "#4298B8",
+  python: "#3776AB",
+  javascript: "#F7DF1E",
+  typescript: "#3178C6",
+  cpp: "#00599C",
+  c: "#A8B9CC",
+  java: "#007396",
+  go: "#00ADD8",
+  rust: "#000000",
+  ruby: "#CC342D",
+  php: "#777BB4",
+  bash: "#4EAA25",
+  sql: "#4479A1",
+  swift: "#F05138",
+  kotlin: "#7F52FF",
+  scala: "#DC322F",
+  dart: "#0175C2",
+  elixir: "#4B275F",
+  haskell: "#5D4F85",
+  lua: "#2C2D72",
+  perl: "#39457E",
+  r: "#276DC3",
+  csharp: "#239120",
+  zig: "#F7A41D",
+  julia: "#9558B2",
+  lisp: "#3F0000",
+  nim: "#FFE953",
+  groovy: "#4298B8",
   powershell: "#5391FE",
 };
 
@@ -1213,7 +1303,10 @@ function LanguageIcon({ id, className }: { id: string; className?: string }) {
   if (failed || !url) {
     const color = LANG_COLORS[id] || "#666";
     return (
-      <span className={`w-5 h-5 rounded grid place-items-center text-[8px] font-bold text-white shrink-0 ${className ?? ""}`} style={{ background: color }}>
+      <span
+        className={`w-5 h-5 rounded grid place-items-center text-[8px] font-bold text-white shrink-0 ${className ?? ""}`}
+        style={{ background: color }}
+      >
         {id.slice(0, 2).toUpperCase()}
       </span>
     );
@@ -1275,7 +1368,7 @@ const PLAYGROUND_DEFAULTS: Record<string, string> = {
 
 const WEB_DEFAULTS = {
   html: '<!doctype html>\n<html>\n  <head><meta charset="utf-8" /></head>\n  <body>\n    <h1>Hello, Learnify!</h1>\n    <p id="msg">Edit me — preview updates live.</p>\n    <button onclick="document.getElementById(\'msg\').innerText = \'Clicked!\'">Click me</button>\n  </body>\n</html>',
-  css: 'body { font-family: ui-sans-serif, system-ui; padding: 24px; }\nh1 { color: #4f46e5; }\nbutton { padding: 8px 14px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; }',
+  css: "body { font-family: ui-sans-serif, system-ui; padding: 24px; }\nh1 { color: #4f46e5; }\nbutton { padding: 8px 14px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; }",
   js: 'console.log("preview ready");',
 };
 
@@ -1308,7 +1401,9 @@ function CodeMode() {
   const [code, setCode] = useState(PLAYGROUND_DEFAULTS.python);
   const [stdin, setStdin] = useState("");
   const [running, setRunning] = useState(false);
-  const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(null);
+  const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(
+    null,
+  );
   const [langOpen, setLangOpen] = useState(false);
   const [outputTab, setOutputTab] = useState<"stdout" | "stderr">("stdout");
   const [fontSize, setFontSize] = useState(12);
@@ -1329,9 +1424,15 @@ function CodeMode() {
     }
   }, [lang, code, stdin, execFn]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); run(); }
-  }, [run]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        run();
+      }
+    },
+    [run],
+  );
 
   return (
     <>
@@ -1352,7 +1453,12 @@ function CodeMode() {
                 {PLAYGROUND_LANGS.map((l) => (
                   <button
                     key={l.id}
-                    onClick={() => { setLang(l.id); setCode(PLAYGROUND_DEFAULTS[l.id] ?? ""); setOutput(null); setLangOpen(false); }}
+                    onClick={() => {
+                      setLang(l.id);
+                      setCode(PLAYGROUND_DEFAULTS[l.id] ?? "");
+                      setOutput(null);
+                      setLangOpen(false);
+                    }}
                     className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left hover:bg-accent transition"
                   >
                     <LanguageIcon id={l.id} />
@@ -1365,14 +1471,28 @@ function CodeMode() {
         </div>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <span>Font:</span>
-          <select value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))} className="bg-transparent border rounded px-1 py-0.5 text-[10px]">
-            {[10, 11, 12, 13, 14, 16, 18, 20].map((s) => <option key={s} value={s}>{s}px</option>)}
+          <select
+            value={fontSize}
+            onChange={(e) => setFontSize(Number(e.target.value))}
+            className="bg-transparent border rounded px-1 py-0.5 text-[10px]"
+          >
+            {[10, 11, 12, 13, 14, 16, 18, 20].map((s) => (
+              <option key={s} value={s}>
+                {s}px
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex-1" />
-        <span className="hidden sm:inline text-[10px] text-muted-foreground">Ctrl+Enter to run</span>
+        <span className="hidden sm:inline text-[10px] text-muted-foreground">
+          Ctrl+Enter to run
+        </span>
         <Button size="sm" onClick={run} disabled={running}>
-          {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+          {running ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Play className="h-3.5 w-3.5" />
+          )}
           Run
         </Button>
       </div>
@@ -1380,11 +1500,20 @@ function CodeMode() {
         <div className="rounded-lg border overflow-hidden" onKeyDown={handleKeyDown}>
           <Editor
             height="300px"
-            language={lang === "cpp" ? "cpp" : lang === "c" ? "c" : lang === "csharp" ? "csharp" : lang}
+            language={
+              lang === "cpp" ? "cpp" : lang === "c" ? "c" : lang === "csharp" ? "csharp" : lang
+            }
             theme="vs-dark"
             value={code}
             onChange={(v) => setCode(v ?? "")}
-            options={{ fontSize, minimap: { enabled: false }, lineNumbers: "on", tabSize: 2, automaticLayout: true, padding: { top: 6 } }}
+            options={{
+              fontSize,
+              minimap: { enabled: false },
+              lineNumbers: "on",
+              tabSize: 2,
+              automaticLayout: true,
+              padding: { top: 6 },
+            }}
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -1392,23 +1521,33 @@ function CodeMode() {
             {output ? (
               <>
                 <div className="flex border-b text-[10px]">
-                  <button onClick={() => setOutputTab("stdout")} className={`px-3 py-1.5 ${outputTab === "stdout" ? "bg-background font-semibold border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}>
+                  <button
+                    onClick={() => setOutputTab("stdout")}
+                    className={`px-3 py-1.5 ${outputTab === "stdout" ? "bg-background font-semibold border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                  >
                     stdout {output.stdout ? `(${output.stdout.length}B)` : ""}
                   </button>
-                  <button onClick={() => setOutputTab("stderr")} className={`px-3 py-1.5 ${outputTab === "stderr" ? "bg-background font-semibold border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}>
+                  <button
+                    onClick={() => setOutputTab("stderr")}
+                    className={`px-3 py-1.5 ${outputTab === "stderr" ? "bg-background font-semibold border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+                  >
                     stderr {output.stderr ? `(${output.stderr.length}B)` : ""}
                   </button>
                   <div className="flex-1" />
-                  <span className={`px-3 py-1.5 font-medium ${output.code === 0 ? "text-green-500" : "text-destructive"}`}>
+                  <span
+                    className={`px-3 py-1.5 font-medium ${output.code === 0 ? "text-green-500" : "text-destructive"}`}
+                  >
                     Exit {output.code}
                   </span>
                 </div>
                 <div className="flex-1 p-3 font-mono text-xs whitespace-pre-wrap overflow-auto">
-                  {outputTab === "stdout" ? (
-                    output.stdout || <span className="text-muted-foreground italic">No output</span>
-                  ) : (
-                    output.stderr || <span className="text-muted-foreground italic">No errors</span>
-                  )}
+                  {outputTab === "stdout"
+                    ? output.stdout || (
+                        <span className="text-muted-foreground italic">No output</span>
+                      )
+                    : output.stderr || (
+                        <span className="text-muted-foreground italic">No errors</span>
+                      )}
                 </div>
               </>
             ) : (
@@ -1416,7 +1555,17 @@ function CodeMode() {
                 {running ? (
                   <span className="animate-pulse">Running...</span>
                 ) : (
-                  <span>Press <kbd className="px-1.5 py-0.5 rounded border bg-muted font-mono text-[10px]">Run</kbd> or <kbd className="px-1.5 py-0.5 rounded border bg-muted font-mono text-[10px]">Ctrl+Enter</kbd> to execute</span>
+                  <span>
+                    Press{" "}
+                    <kbd className="px-1.5 py-0.5 rounded border bg-muted font-mono text-[10px]">
+                      Run
+                    </kbd>{" "}
+                    or{" "}
+                    <kbd className="px-1.5 py-0.5 rounded border bg-muted font-mono text-[10px]">
+                      Ctrl+Enter
+                    </kbd>{" "}
+                    to execute
+                  </span>
                 )}
               </div>
             )}
@@ -1466,7 +1615,9 @@ function WebMode() {
               onClick={() => setTab(t.id)}
               className={cn(
                 "px-3 py-2 font-mono tracking-wide flex items-center gap-1.5",
-                tab === t.id ? "bg-background font-semibold" : "text-muted-foreground hover:text-foreground",
+                tab === t.id
+                  ? "bg-background font-semibold"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               <LanguageIcon id={t.icon} />
@@ -1480,12 +1631,24 @@ function WebMode() {
             theme="vs-dark"
             value={value}
             onChange={(v) => setValue(v ?? "")}
-            options={{ fontSize: 12, minimap: { enabled: false }, lineNumbers: "on", tabSize: 2, automaticLayout: true, padding: { top: 6 } }}
+            options={{
+              fontSize: 12,
+              minimap: { enabled: false },
+              lineNumbers: "on",
+              tabSize: 2,
+              automaticLayout: true,
+              padding: { top: 6 },
+            }}
           />
         </div>
       </div>
       <div className="rounded-lg border bg-white overflow-hidden min-h-[300px]">
-        <iframe title="Live preview" sandbox="allow-scripts" srcDoc={srcDoc} className="w-full h-full" />
+        <iframe
+          title="Live preview"
+          sandbox="allow-scripts"
+          srcDoc={srcDoc}
+          className="w-full h-full"
+        />
       </div>
     </div>
   );
@@ -1493,7 +1656,13 @@ function WebMode() {
 
 /* ---------- Inline AI Agent ---------- */
 
-type AgentStep = { type: string; thought?: string; name?: string; arguments?: any; result?: string };
+type AgentStep = {
+  type: string;
+  thought?: string;
+  name?: string;
+  arguments?: any;
+  result?: string;
+};
 type AgentMsg = { role: "user" | "assistant"; content: string; steps?: AgentStep[] };
 
 function CourseAiAgent({ lesson }: { lesson: Lesson }) {
@@ -1527,7 +1696,10 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
       });
       setMessages((p) => [...p, { role: "assistant", content: res.content, steps: res.steps }]);
     } catch (err: any) {
-      setMessages((p) => [...p, { role: "assistant", content: `Error: ${err?.message ?? "Something went wrong"}` }]);
+      setMessages((p) => [
+        ...p,
+        { role: "assistant", content: `Error: ${err?.message ?? "Something went wrong"}` },
+      ]);
     } finally {
       setBusy(false);
       setLiveStep(null);
@@ -1541,7 +1713,8 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
           <div className="text-center py-8 space-y-2">
             <Bot className="h-6 w-6 mx-auto text-muted-foreground" />
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              I can write code, run it, fix errors, search the web, and explain anything. Try: <em>"Write a Python function to reverse a linked list and test it"</em>
+              I can write code, run it, fix errors, search the web, and explain anything. Try:{" "}
+              <em>"Write a Python function to reverse a linked list and test it"</em>
             </p>
           </div>
         )}
@@ -1563,20 +1736,35 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
                           <Play className="h-3 w-3" /> Executed {step.arguments?.language || "code"}
                         </div>
                         {step.arguments?.code && (
-                          <pre className="text-[10px] bg-black/80 text-green-400 rounded p-2 overflow-x-auto leading-relaxed">{step.arguments.code}</pre>
+                          <pre className="text-[10px] bg-black/80 text-green-400 rounded p-2 overflow-x-auto leading-relaxed">
+                            {step.arguments.code}
+                          </pre>
                         )}
-                        {step.result && (() => {
-                          let r;
-                          try { r = JSON.parse(step.result); } catch { r = { stdout: step.result }; }
-                          const hasOutput = r.stdout || r.stderr;
-                          return hasOutput ? (
-                            <div className="text-[10px] font-mono bg-black/90 text-white rounded p-2 overflow-x-auto leading-relaxed">
-                              {r.stdout && <div>{r.stdout}</div>}
-                              {r.stderr && <div className="text-red-400">{r.stderr}</div>}
-                              {r.code !== undefined && <div className={r.code === 0 ? "text-green-400 mt-0.5" : "text-red-400 mt-0.5"}>Exit: {r.code}</div>}
-                            </div>
-                          ) : null;
-                        })()}
+                        {step.result &&
+                          (() => {
+                            let r;
+                            try {
+                              r = JSON.parse(step.result);
+                            } catch {
+                              r = { stdout: step.result };
+                            }
+                            const hasOutput = r.stdout || r.stderr;
+                            return hasOutput ? (
+                              <div className="text-[10px] font-mono bg-black/90 text-white rounded p-2 overflow-x-auto leading-relaxed">
+                                {r.stdout && <div>{r.stdout}</div>}
+                                {r.stderr && <div className="text-red-400">{r.stderr}</div>}
+                                {r.code !== undefined && (
+                                  <div
+                                    className={
+                                      r.code === 0 ? "text-green-400 mt-0.5" : "text-red-400 mt-0.5"
+                                    }
+                                  >
+                                    Exit: {r.code}
+                                  </div>
+                                )}
+                              </div>
+                            ) : null;
+                          })()}
                       </div>
                     )}
                     {step.type === "tool_call" && step.name === "web_search" && (
@@ -1593,10 +1781,19 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
                       components={{
-                        pre: ({ children }) => <pre className="bg-muted rounded-lg p-2 my-1 overflow-x-auto text-[10px]">{children}</pre>,
+                        pre: ({ children }) => (
+                          <pre className="bg-muted rounded-lg p-2 my-1 overflow-x-auto text-[10px]">
+                            {children}
+                          </pre>
+                        ),
                         code: ({ className, children }) => {
-                          if (className) return <code className={cn(className, "text-[10px]")}>{children}</code>;
-                          return <code className="bg-muted px-1 py-0.5 rounded text-[10px]">{children}</code>;
+                          if (className)
+                            return <code className={cn(className, "text-[10px]")}>{children}</code>;
+                          return (
+                            <code className="bg-muted px-1 py-0.5 rounded text-[10px]">
+                              {children}
+                            </code>
+                          );
                         },
                       }}
                     >
@@ -1622,7 +1819,12 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
         <Textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              send();
+            }
+          }}
           placeholder="Ask me to code, debug, explain, or solve anything..."
           className="min-h-[36px] max-h-[80px] resize-none text-xs"
           rows={1}
