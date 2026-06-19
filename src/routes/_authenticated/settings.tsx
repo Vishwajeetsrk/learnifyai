@@ -1008,7 +1008,7 @@ function SettingsPage() {
                               toast.success("Deleted");
                               qc.invalidateQueries({ queryKey: ["withdrawals"] });
                             }}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                            className="text-muted-foreground hover:text-destructive"
                             aria-label="Delete withdrawal"
                           >
                             <XCircle className="h-4 w-4" />

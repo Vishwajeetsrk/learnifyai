@@ -48,18 +48,17 @@ export function levelToRank(level: number) {
 
 export function xpToNextLevel(xp: number): number {
   const lvl = xpToLevel(xp);
-  const current = lvl * lvl * 100;
-  const next = (lvl + 1) * (lvl + 1) * 100;
-  return next - current;
+  return lvl * lvl * 100 - xp;
 }
 
 export function xpInCurrentLevel(xp: number): number {
   const lvl = xpToLevel(xp);
-  return xp - lvl * lvl * 100;
+  const current = (lvl - 1) * (lvl - 1) * 100;
+  return xp - current;
 }
 
 export function xpForLevel(level: number): number {
-  return level * level * 100;
+  return (level - 1) * (level - 1) * 100;
 }
 
 /* ── Award XP ──────────────────────────────────────────────────── */
@@ -127,8 +126,7 @@ export const awardXP = createServerFn({ method: "POST" })
 
     const { data: allBadges } = await supabaseAdmin
       .from("badges")
-      .select("id, xp_required")
-      .lte("xp_required", newXp);
+      .select("id, xp_required, streak_required, category");
 
     if (allBadges && allBadges.length > 0) {
       const { data: earnedBadges } = await supabaseAdmin
@@ -137,7 +135,12 @@ export const awardXP = createServerFn({ method: "POST" })
         .eq("user_id", data.userId);
 
       const earnedIds = new Set((earnedBadges || []).map((b) => b.badge_id));
-      const toAward = allBadges.filter((b) => !earnedIds.has(b.id));
+      const toAward = allBadges.filter((b) => {
+        if (earnedIds.has(b.id)) return false;
+        if (b.category === "xp" && b.xp_required !== null && newXp >= b.xp_required) return true;
+        if (b.category === "streak" && b.streak_required !== null && currentStreak >= b.streak_required) return true;
+        return false;
+      });
       if (toAward.length > 0) {
         await supabaseAdmin
           .from("user_badges")
@@ -199,6 +202,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
     const { data: allTime } = await supabaseAdmin
       .from("profiles")
       .select("id, full_name, avatar_url, xp, current_streak")
+      .not("xp", "is", null)
       .order("xp", { ascending: false })
       .limit(50);
 
@@ -273,7 +277,7 @@ export const getUserRank = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [allRes, profileRes] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, xp").order("xp", { ascending: false }),
+      supabaseAdmin.from("profiles").select("id, xp").not("xp", "is", null).order("xp", { ascending: false }),
       supabaseAdmin
         .from("profiles")
         .select("xp, current_streak, highest_streak")
