@@ -93,7 +93,7 @@ ${schemaHint(data.modules)}`;
           // Prioritize Hindi/English and filter by educational category to prevent songs
           const q = (ch.youtube_query || `${ch.title} ${data.topic} tutorial`).trim() + " in Hindi or English";
           try {
-            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=27&maxResults=1&videoEmbeddable=true&safeSearch=strict&q=${encodeURIComponent(q)}&key=${ytKey}`;
+            const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=27&maxResults=3&videoEmbeddable=true&safeSearch=strict&q=${encodeURIComponent(q)}&key=${ytKey}`;
             const r = await fetch(url);
             const j: any = await r.json().catch(() => ({}));
             if (!r.ok) {
@@ -113,8 +113,15 @@ ${schemaHint(data.modules)}`;
               }
               continue;
             }
-            const item = j.items?.[0];
-            const vid = item?.id?.videoId;
+            // Filter out music/meme videos from results
+            const pick = (j.items ?? []).find((item: any) => {
+              const t = (item.snippet?.title ?? "").toLowerCase();
+              if (t.includes("never gonna give") || t.includes("rick ast") || t.includes("music video") || t.includes("official video") || t.includes("song") || t.includes("ft.") || t.includes("lyric")) return false;
+              const ch = (item.snippet?.channelTitle ?? "").toLowerCase();
+              if (ch.includes("vevo") || ch.includes("music")) return false;
+              return true;
+            }) ?? j.items?.[0];
+            const vid = pick?.id?.videoId;
             if (vid) {
               foundVideoIds.push(vid);
               chMap.set(vid, ch);

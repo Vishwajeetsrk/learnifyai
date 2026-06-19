@@ -99,16 +99,24 @@ async function ytFetchVideoMeta(videoId: string, apiKey: string) {
 }
 
 export async function ytSearchTopVideo(query: string, apiKey: string) {
-  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&videoEmbeddable=true&relevanceLanguage=en&safeSearch=strict&q=${encodeURIComponent(query)}&key=${apiKey}`;
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=3&videoEmbeddable=true&videoCategoryId=27&relevanceLanguage=en&safeSearch=strict&q=${encodeURIComponent(query)}&key=${apiKey}`;
   const r = await fetchWithRetry(url);
   const body: any = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(explainYoutubeError(r.status, body));
-  const item = body.items?.[0];
-  if (!item?.id?.videoId) return null;
+  if (!body.items?.length) return null;
+  // Pick the first result whose title doesn't look like music/gaming/meme
+  const pick = body.items.find((item: any) => {
+    const t = (item.snippet?.title ?? "").toLowerCase();
+    if (t.includes("never gonna give") || t.includes("rick ast") || t.includes("music video") || t.includes("official video") || t.includes("song") || t.includes("ft.") || t.includes("lyric")) return false;
+    const ch = (item.snippet?.channelTitle ?? "").toLowerCase();
+    if (ch.includes("vevo") || ch.includes("music")) return false;
+    return true;
+  }) ?? body.items[0];
+  if (!pick?.id?.videoId) return null;
   return {
-    videoId: item.id.videoId as string,
-    title: item.snippet?.title as string,
-    channelTitle: item.snippet?.channelTitle as string,
+    videoId: pick.id.videoId as string,
+    title: pick.snippet?.title as string,
+    channelTitle: pick.snippet?.channelTitle as string,
   };
 }
 
