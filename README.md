@@ -20,7 +20,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + non-YouTube fallback). Notes tab includes a **Listen** button that reads instructor notes aloud via Web Speech API (TTS).
 - **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
 - **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution (Piston / local VM) and web search. Inline in course player.
-- **Multi-Language Playground:** Write, compile, and run code in 40+ languages (C, C++, Java, Python, JavaScript, TypeScript, Go, Rust, and more) using Monaco Editor. JS/TS runs locally via Node.js VM; other languages use Piston execution engine.
+- **Playground Hub:** Standalone coding IDE at `/playground` with Monaco editor, AI assistant, web preview, React sandbox, projects management, DSA challenges, interview mode, and leaderboard. See **🎮 Playground** section below.
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
 - **Wallet & Integrated Payments:** Manage credits, top-up via Cashfree (UPI/card/netbanking), withdraw via Cashfree Payouts, purchase courses, and download invoices instantly.
 - **Pro Subscription Plans:** Monthly/yearly subscription plans powered by Cashfree Subscriptions API. Auto-credits AI credits every billing cycle.
@@ -28,6 +28,17 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Dashboard — My Learning:** Enrolled courses grid with responsive layout (1-4 columns), progress bars, test attempt stats, Continue/Playground buttons. Responsive card design with `min-w-0`, `break-words`, and `flex-wrap` for small screens.
 - **Dynamic Roadmaps:** CMS-backed public roadmap showing shipped, in-progress, and planned features.
 - **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate designer with 10 distinct theme presets (Executive Gold, Modern Corporate, University Style, Creator Academy, Nature Green, Royal Purple, Sunset Orange, Ocean Teal, Midnight Amber, Rose Gold), visual border pickers (double/solid/dashed/ornate/none), corner styles (diagonal/ribbon/none), background patterns (solid/dots/grid/stripes/gradient), color pickers, font selectors, and QR code integration. Live canvas preview with framer-motion drag-and-drop. Public verification and PDF download.
+
+### 🎮 Playground (Coding IDE)
+- **Code Editor:** Full-featured Monaco editor with syntax highlighting, autocomplete, themes, line numbers, bracket pair colorization, and font ligatures. Supports 30+ languages with real SVG logos via Simple Icons CDN. Fullscreen mode.
+- **Code Execution:** Run code via local Node.js VM (JS/TS) or self-hosted Piston API (other languages). Output console with stdout/stderr tabs, exit code, execution time. Copy and clear buttons.
+- **AI Assistant:** 7 AI tools — Explain Code, Fix Bugs, Optimize, Add Comments, Convert Language, Generate Unit Tests, Complete Code. Powered by OpenRouter. Results can be applied directly to editor.
+- **Web Playground:** Split-screen HTML/CSS/JS editor with live iframe preview. Refresh and download as HTML.
+- **React Sandbox:** Sandpack-powered React playground with multi-file support, live preview, and dependency management (React 18).
+- **Projects System:** Full CRUD for coding projects with Supabase persistence. Templates: blank, HTML-CSS-JS, React, Node.js. File explorer with create/rename/delete.
+- **Coding Challenges:** 7 pre-seeded DSA problems (Two Sum, FizzBuzz, Valid Parentheses, Binary Search, etc.). Difficulty/category filtering. Points and solved tracking.
+- **Interview Mode:** Timed coding assessments with difficulty selection (easy/medium/hard) and adjustable duration. Score tracking and history.
+- **Leaderboard:** Points-based ranking with easy/medium/hard breakdown. Profile avatars and user identification.
 
 ### 🚀 For Creators & Coaches
 - **Creator Studio:** Upload courses, manage lessons (with video URL validation), add practical assignments/projects, and create final test MCQs that students must pass (≥70%) to claim their certificate.
