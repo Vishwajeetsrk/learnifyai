@@ -33,7 +33,10 @@ import {
   BellOff,
   Users,
   Bot,
+  Database,
   Terminal,
+  Globe,
+  Wrench,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -59,6 +62,10 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { agentChat } from "@/lib/agent.functions";
 import { executeCode } from "@/lib/playground.functions";
+import { PlaygroundAiDebugPanel } from "@/components/playground-ai-debug-panel";
+import { PlaygroundDatabase } from "@/components/playground-database";
+import { ApiTester } from "@/components/playground/ApiTester";
+import { PlaygroundTools } from "@/components/playground-tools";
 import Editor from "@monaco-editor/react";
 import { useAuth } from "@/hooks/use-auth";
 // isAdmin pulled from useAuth below
@@ -1373,25 +1380,53 @@ const WEB_DEFAULTS = {
 };
 
 function CodePlayground() {
-  const [mode, setMode] = useState<"code" | "web">("code");
+  const [mode, setMode] = useState<"code" | "web" | "database" | "api" | "tools">("code");
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2 border-b pb-2">
+      <div className="flex items-center gap-2 border-b pb-2 overflow-x-auto flex-nowrap scrollbar-none">
         <button
           onClick={() => setMode("code")}
-          className={`text-xs font-medium px-3 py-1.5 rounded-t transition ${mode === "code" ? "bg-primary/10 text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+          className={`text-xs font-medium px-3 py-1.5 rounded-t transition shrink-0 ${mode === "code" ? "bg-primary/10 text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
         >
           Code
         </button>
         <button
           onClick={() => setMode("web")}
-          className={`text-xs font-medium px-3 py-1.5 rounded-t transition ${mode === "web" ? "bg-primary/10 text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+          className={`text-xs font-medium px-3 py-1.5 rounded-t transition shrink-0 ${mode === "web" ? "bg-primary/10 text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
         >
           Web (HTML/CSS/JS)
         </button>
+        <button
+          onClick={() => setMode("database")}
+          className={`text-xs font-medium px-3 py-1.5 rounded-t transition shrink-0 ${mode === "database" ? "bg-primary/10 text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          <Database className="h-3.5 w-3.5 inline mr-1" /> Database
+        </button>
+        <button
+          onClick={() => setMode("api")}
+          className={`text-xs font-medium px-3 py-1.5 rounded-t transition shrink-0 ${mode === "api" ? "bg-primary/10 text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          <Globe className="h-3.5 w-3.5 inline mr-1" /> API Tester
+        </button>
+        <button
+          onClick={() => setMode("tools")}
+          className={`text-xs font-medium px-3 py-1.5 rounded-t transition shrink-0 ${mode === "tools" ? "bg-primary/10 text-primary border-b-2 border-primary" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          <Wrench className="h-3.5 w-3.5 inline mr-1" /> Dev Tools
+        </button>
       </div>
-      {mode === "code" ? <CodeMode /> : <WebMode />}
+      {mode === "code" ? (
+        <CodeMode />
+      ) : mode === "web" ? (
+        <WebMode />
+      ) : mode === "database" ? (
+        <PlaygroundDatabase />
+      ) : mode === "api" ? (
+        <ApiTester />
+      ) : (
+        <PlaygroundTools />
+      )}
     </div>
   );
 }
@@ -1580,6 +1615,15 @@ function CodeMode() {
           />
         </div>
       </div>
+      <PlaygroundAiDebugPanel
+        language={lang}
+        code={code}
+        stdout={output?.stdout ?? ""}
+        stderr={output?.stderr ?? ""}
+        exitCode={output?.code ?? null}
+        stdin={stdin}
+        onApplyFix={(next) => setCode(next)}
+      />
     </>
   );
 }

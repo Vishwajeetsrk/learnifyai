@@ -51,3 +51,5 @@ client_secret_*.json
 /playwright/.auth/
 
 supabase/.temp/
+/learnify playground/
+

@@ -1,63 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { LangKey, ProviderKey } from "./executors";
 
-function pistonUrl(): string {
-  return process.env.PISTON_URL || "https://emkc.org/api/v2/piston";
-}
-
-const PistonRequestSchema = z.object({
+const RunSchema = z.object({
   language: z.string().min(1).max(50),
   code: z.string().min(1).max(500_000),
   stdin: z.string().max(100_000).default(""),
 });
 
-const LANGUAGE_VERSIONS: Record<string, string> = {
-  javascript: "18.15.0",
-  typescript: "5.0.3",
-  python: "3.10.0",
-  python2: "2.7.18",
-  cpp: "10.2.0",
-  c: "10.2.0",
-  java: "15.0.2",
-  go: "1.16.2",
-  rust: "1.68.2",
-  ruby: "3.0.1",
-  php: "8.2.3",
-  swift: "5.3.3",
-  kotlin: "1.8.20",
-  scala: "3.2.2",
-  dart: "2.19.6",
-  elixir: "1.14.3",
-  haskell: "9.0.1",
-  lua: "5.4.4",
-  perl: "5.36.0",
-  r: "4.2.3",
-  bash: "5.2.15",
-  powershell: "7.3.4",
-  sql: "3.42.0",
-  csharp: "6.12.0",
-  fsharp: "7.0.200",
-  zig: "0.10.1",
-  ocaml: "4.14.0",
-  clojure: "1.11.1",
-  erlang: "25.2.2",
-  elm: "0.19.1",
-  julia: "1.8.5",
-  d: "2.100.0",
-  fortran: "11.3.0",
-  lisp: "2.1.2",
-  cobol: "3.1.2",
-  prolog: "8.4.2",
-  racket: "8.7.0",
-  nim: "1.6.8",
-  groovy: "4.0.9",
-  matlab: "R2020a",
-  assembly: "2.14.1",
-  vlang: "0.3.2",
-};
-
-export const SUPPORTED_LANGUAGES = Object.keys(LANGUAGE_VERSIONS).sort();
-
+// ---- JS/TS local VM execution (fast, no network) ----
 function tryRunWithJavascript(code: string, stdin: string) {
   try {
     const vm = require("node:vm");
@@ -81,79 +32,119 @@ function tryRunWithJavascript(code: string, stdin: string) {
   }
 }
 
-const PISTON_DEAD_MSG = "Public Piston API is now whitelist-only since Feb 2026. " +
-  "For JS/TS, the playground uses local Node.js execution. " +
-  "For other languages, set the PISTON_URL env var to your self-hosted Piston instance " +
-  "(https://github.com/engineer-man/piston).";
-
-export const executeCode = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => PistonRequestSchema.parse(data))
-  .handler(async ({ data }) => {
-    const version = LANGUAGE_VERSIONS[data.language];
-    if (!version) {
-      return { success: false as const, error: `Unsupported language: ${data.language}` };
-    }
-
-    // For JS/TS, try local Node.js VM execution first
-    if (data.language === "javascript" || data.language === "typescript") {
-      const jsCode = data.language === "typescript" ? transpileTs(data.code) : data.code;
-      const local = tryRunWithJavascript(jsCode, data.stdin);
-      return { success: true as const, ...local, signal: null };
-    }
-
-    try {
-      const base = pistonUrl();
-      const isDefaultApi = base.includes("emkc.org");
-      const res = await fetch(`${base}/execute`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          language: data.language,
-          version,
-          files: [{ name: "code", content: data.code }],
-          stdin: data.stdin,
-          compile_timeout: 10000,
-          run_timeout: 5000,
-        }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => "Unknown error");
-        const is401 = res.status === 401;
-        const isWhitelistError = text.includes("whitelist");
-        if (isDefaultApi && (is401 || isWhitelistError)) {
-          return {
-            success: false as const,
-            error: PISTON_DEAD_MSG,
-          };
-        }
-        return { success: false as const, error: `Piston API error (${res.status}): ${text}` };
-      }
-
-      const json = await res.json();
-      const run = json.run || {};
-      return {
-        success: true as const,
-        stdout: run.stdout ?? "",
-        stderr: run.stderr ?? "",
-        code: run.code ?? -1,
-        signal: run.signal ?? null,
-      };
-    } catch (err: any) {
-      return { success: false as const, error: err?.message ?? "Failed to execute code" };
-    }
-  });
-
 function transpileTs(code: string): string {
   try {
     const ts = require("typescript");
     const result = ts.transpileModule(code, {
-      target: ts.ScriptTarget.ES2020,
-      noEmit: true,
-      removeComments: true,
+      target: ts.ScriptTarget.ES2020, noEmit: true, removeComments: true,
     });
     return result?.outputText ?? code;
-  } catch {
-    return code;
-  }
+  } catch { return code; }
 }
+
+// ---- Multi-provider runners (Judge0, Wandbox, Piston) ----
+
+interface RunResult {
+  stdout: string; stderr: string; code: number | null; signal: string | null; provider: string;
+}
+
+const PISTON_URL = process.env.PISTON_URL || "https://emkc.org/api/v2/piston";
+const JUDGE0_URL = process.env.JUDGE0_URL || "https://ce.judge0.com";
+
+const PISTON_DEAD = "Public Piston is whitelist-only since Feb 2026. For non-JS/TS languages, Judge0 or Wandbox are used as fallback.";
+
+async function runJudge0(lang: string, source: string, stdin: string): Promise<RunResult> {
+  const spec = (await import("./executors")).LANGUAGES[lang as LangKey]?.judge0;
+  if (!spec) throw new Error(`Judge0: no config for ${lang}`);
+  const res = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ language_id: spec.id, source_code: source, stdin: stdin || undefined }),
+  });
+  const text = await res.text();
+  let data: any = {};
+  try { data = JSON.parse(text); } catch { /* ignore */ }
+  if (!res.ok) throw new Error(`Judge0 ${res.status}: ${data?.error || text.slice(0, 200)}`);
+  return {
+    stdout: data.stdout ?? "", stderr: (data.compile_output ?? "") + (data.stderr ?? ""),
+    code: data.exit_code ?? null, signal: data.signal ?? null, provider: "judge0",
+  };
+}
+
+async function runWandbox(lang: string, source: string, stdin: string): Promise<RunResult> {
+  const spec = (await import("./executors")).LANGUAGES[lang as LangKey]?.wandbox;
+  if (!spec) throw new Error(`Wandbox: no config for ${lang}`);
+  const res = await fetch("https://wandbox.org/api/compile.json", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code: source, compiler: spec.compiler, stdin }),
+  });
+  if (!res.ok) throw new Error(`Wandbox ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  const stderr = [data.compiler_error, data.program_error].filter(Boolean).join("\n");
+  return {
+    stdout: data.program_output ?? "", stderr,
+    code: data.status != null ? Number(data.status) : null, signal: data.signal ?? null, provider: "wandbox",
+  };
+}
+
+async function runPiston(lang: string, source: string, stdin: string): Promise<RunResult> {
+  const spec = (await import("./executors")).LANGUAGES[lang as LangKey]?.piston;
+  if (!spec) throw new Error(`Piston: no config for ${lang}`);
+  if (PISTON_URL.includes("emkc.org")) throw new Error(PISTON_DEAD);
+  const res = await fetch(`${PISTON_URL}/execute`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ language: spec.language, version: spec.version, stdin, files: [{ name: spec.filename, content: source }] }),
+  });
+  const text = await res.text();
+  let data: any = {};
+  try { data = JSON.parse(text); } catch { /* ignore */ }
+  if (!res.ok) throw new Error(`Piston ${res.status}: ${data?.message || text.slice(0, 200)}`);
+  const run = data.run ?? {};
+  const compile = data.compile ?? {};
+  return {
+    stdout: (compile.stdout ?? "") + (run.stdout ?? ""), stderr: (compile.stderr ?? "") + (run.stderr ?? ""),
+    code: run.code ?? compile.code ?? null, signal: run.signal ?? null, provider: "piston",
+  };
+}
+
+export const executeCode = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => RunSchema.parse(d))
+  .handler(async ({ data }) => {
+    // JS/TS: local VM (fastest)
+    if (data.language === "javascript" || data.language === "typescript") {
+      const jsCode = data.language === "typescript" ? transpileTs(data.code) : data.code;
+      const local = tryRunWithJavascript(jsCode, data.stdin);
+      return { success: true as const, ...local, signal: null, provider: "local" };
+    }
+
+    // Try Judge0 -> Wandbox -> Piston fallback chain
+    const order: (() => Promise<RunResult>)[] = [
+      () => runJudge0(data.language, data.code, data.stdin),
+      () => runWandbox(data.language, data.code, data.stdin),
+    ];
+    if (!PISTON_URL.includes("emkc.org")) {
+      order.push(() => runPiston(data.language, data.code, data.stdin));
+    }
+
+    for (let i = 0; i < order.length; i++) {
+      try {
+        const result = await order[i]();
+        return {
+          success: true as const, stdout: result.stdout, stderr: result.stderr,
+          code: result.code ?? 1, signal: result.signal, provider: result.provider,
+        };
+      } catch (err: any) {
+        const isLast = i === order.length - 1;
+        if (isLast) {
+          return {
+            success: false as const,
+            error: `All executors failed: ${err?.message ?? "Unknown error"}. The public Piston API is whitelist-only — set PISTON_URL to a self-hosted instance, or Judge0 should work for most languages.`,
+          };
+        }
+      }
+    }
+
+    return { success: false as const, error: "No executor available." };
+  });

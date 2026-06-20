@@ -1,5 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { executeCode } from "./playground.functions";
+
 
 const AGENT_MODEL = process.env.AGENT_MODEL || "openai/gpt-4o-mini";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
@@ -92,26 +94,22 @@ async function callOpenRouter(messages: any[]) {
 async function executeTool(name: string, args: any) {
   if (name === "execute_code") {
     try {
-      const piston = process.env.PISTON_URL || "https://emkc.org/api/v2/piston";
-      const apiRes = await fetch(`${piston}/execute`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const result = await executeCode({
+        data: {
           language: args.language || "python",
-          version: "*",
-          files: [{ name: "code", content: args.code || "" }],
+          code: args.code || "",
           stdin: args.stdin || "",
-          compile_timeout: 10000,
-          run_timeout: 5000,
-        }),
+        },
       });
-      if (!apiRes.ok) {
-        const text = await apiRes.text().catch(() => "Unknown error");
-        return JSON.stringify({ error: `API error (${apiRes.status}): ${text}` });
+      if (!result.success) {
+        return JSON.stringify({ error: result.error || "Execution failed" });
       }
-      const json = await apiRes.json();
-      const run = json.run || {};
-      return JSON.stringify({ stdout: run.stdout || "", stderr: run.stderr || "", code: run.code ?? -1 });
+      return JSON.stringify({
+        stdout: result.stdout || "",
+        stderr: result.stderr || "",
+        code: result.code ?? -1,
+        provider: result.provider,
+      });
     } catch (err: any) {
       return JSON.stringify({ error: err?.message ?? "Execution failed" });
     }

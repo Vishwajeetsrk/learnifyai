@@ -18,8 +18,9 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 
 ### 🎓 For Learners
 - **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + non-YouTube fallback). Notes tab includes a **Listen** button that reads instructor notes aloud via Web Speech API (TTS). Auto-plays next unlocked lesson on video end (800ms delay).
+- **Integrated In-Course Playground:** Code, Web, **Database**, **API Tester**, and **Dev Tools** playgrounds embedded directly in lesson tabs — write Python/JS/C++/Java/Rust and more with **multi-executor fallback** (Judge0 → Wandbox → Piston), build HTML/CSS/JS sandboxes with live preview, run in-browser **SQLite** queries with a visual Schema Builder, test REST APIs with custom headers, query body, and request history, or use 18+ client-side utility tools (Image Compressor, Base64, JWT decoder, Diff checker, etc.) offline. Each code playground comes with an **AI Debug Panel** (8 modes: Diagnose, Explain, Fix, Optimize, Convert, Tests, Docs, Generate) powered by OpenRouter.
 - **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
-- **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution (Wandbox) and web search. Inline in course player.
+- **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution (Judge0/Wandbox) and web search. Inline in course player.
 - **Playground Hub:** Standalone coding IDE at `/playground` with Monaco editor, AI assistant, web preview, React sandbox, projects management, DSA challenges, interview mode, and leaderboard. See **🎮 Playground** section below.
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
 - **Wallet & Integrated Payments:** Manage credits, top-up via Cashfree (UPI/card/netbanking), withdraw via Cashfree Payouts, purchase courses, and download invoices instantly.
@@ -32,9 +33,12 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 
 ### 🎮 Playground (Coding IDE)
 - **Code Editor:** Full-featured Monaco editor with syntax highlighting, autocomplete, themes, line numbers, bracket pair colorization, and font ligatures. Supports 30+ languages with real SVG logos via Simple Icons CDN. Fullscreen mode. Inline project title editing with rename support. Unsaved change indicator.
-- **Code Execution:** Powered by Wandbox API — all 30+ languages run remotely via Wandbox. No self-hosting needed. Output console with stdout/stderr tabs, exit code, execution time. Copy and clear buttons.
-- **AI Assistant:** 7 AI tools — Explain Code, Fix Bugs, Optimize, Add Comments, Convert Language, Generate Unit Tests, Complete Code. Powered by OpenRouter. Results can be applied directly to editor.
+- **Code Execution:** Multi-provider fallback chain — **Judge0 CE** (primary) → **Wandbox** (fallback) → **Piston** (tertiary, self-hosted only). JS/TS run locally via Node.js VM for instant results. Output console with stdout/stderr tabs, exit code, execution time. Copy and clear buttons.
+- **AI Assistant:** 8 AI tools — Diagnose, Explain, Fix Errors, Optimize, Convert Language, Generate Unit Tests, Add Docs, Generate Code. Powered by OpenRouter (4 fallback models). Results can be applied directly to editor via "Apply fix" button.
 - **Web Playground:** Split-screen HTML/CSS/JS editor with live iframe preview. Mobile/desktop preview toggle. Refresh and download as HTML. Responsive layout stacks editors vertically on mobile.
+- **Database Playground (SQLite):** In-browser SQLite via sql.js WASM — run queries, view results, create/alter tables visually with Schema Builder. Persists database state in localStorage. Integrated into course player as a lesson tab.
+- **API Tester:** Postman-style HTTP request builder and response inspector. Includes customizable request headers, JSON request body editor, execution response duration (in ms), response body formatting, history tracking (last 30 requests), request saving/bookmarking, and automatic multi-language request snippet generation (cURL, fetch, Axios, Node.js, Python, Swift, Dart, Kotlin).
+- **Dev Tools (18+ Utilities):** Client-side offline-ready developer utilities: Image Compressor, JSON ↔ CSV converter, Base64 encoder/decoder, URL encoder/decoder, JWT decoder, cryptographically secure UUID generator, SHA hash calculator, password generator, HEX/RGB/HSL color converter, RegExp tester with live highlights, Text Extractor (emails, URLs, numbers), Case Converter (camelCase, snake_case, etc.), URL Slugify, Timestamp Converter, Word/Character Counter, Lorem Ipsum generator, Text Diff comparison, and Number Base converter.
 - **React Sandbox:** Sandpack-powered React playground with multi-file support, live preview, and dependency management (React 18).
 - **Projects System:** Full CRUD for coding projects with Supabase persistence. Save directly from editor, reopen projects, rename inline, delete with confirmation. Templates: blank, HTML-CSS-JS, React, Node.js. File explorer with create/rename/delete.
 - **Coding Challenges:** 7 pre-seeded DSA problems (Two Sum, FizzBuzz, Valid Parentheses, Binary Search, etc.). Difficulty/category filtering. Points and solved tracking.
@@ -104,7 +108,7 @@ Learnify AI is built on the modern web stack for maximum performance and develop
 | **Analytics** | PostHog |
 | **LLM Observability** | LangSmith |
 | **AI Agent Framework** | CrewAI |
-| **Code Execution** | Wandbox API — 30+ languages (JavaScript, Python, Java, C++, Go, Rust, etc.) |
+| **Code Execution** | Judge0 CE (primary) → Wandbox (fallback) → Piston (self-hosted) — 30+ languages; JS/TS via local Node.js VM |
 | **Vector Database** | Supabase pgvector (material_chunks, match_material_chunks RPC) |
 | **OCR / Vision** | Mistral OCR (planned), Hugging Face models (fallback) |
 | **PDF Generation** | jsPDF & jsPDF-Autotable |
@@ -129,6 +133,8 @@ learnifyai/
 │   │   │   ├── WebPlayground.tsx    # HTML/CSS/JS editor with live preview
 │   │   │   ├── ReactPlayground.tsx  # Sandpack React sandbox
 │   │   │   └── FileExplorer.tsx     # Project file tree (create/rename/delete)
+│   │   ├── playground-ai-debug-panel.tsx  # AI Debug Panel (8 modes) for in-course playground
+│   │   ├── playground-database.tsx        # In-browser SQLite playground with Schema Builder
 │   │   ├── CertificateDesign.tsx     # Cert renderer with 10 theme presets + drag-and-drop
 │   │   ├── AppShell.tsx              # App shell layout
 │   │   └── ui/                      # Shadcn UI primitives
@@ -138,7 +144,9 @@ learnifyai/
 │   │   ├── gamification.functions.ts   # XP award, leaderboard (weekly/all-time), achievements, level/rank helpers
 │   │   ├── payment.functions.ts        # Cashfree order create + verify (pending/completed)
 │   │   ├── subscription.functions.ts   # Cashfree Subscriptions CRUD (sync plan, create/cancel/get subscription)
-│   │   ├── playground.functions.ts     # Code execution via Wandbox API (30+ languages)
+│   │   ├── executors.ts                # Multi-executor language definitions (Judge0/Wandbox/Piston configs)
+│   │   ├── playground.functions.ts     # Code execution with multi-provider fallback (Judge0→Wandbox→Piston)
+│   │   ├── playground-ai.functions.ts  # AI Debug Panel server function (OpenRouter + Vercel AI SDK)
 │   │   ├── playground/                 # Playground server functions
 │   │   │   ├── projects.ts             # Project CRUD (create, get, update, delete, duplicate, saveEditorCode)
 │   │   │   ├── execution.ts            # Code execution via Wandbox API (30+ languages)
@@ -248,6 +256,16 @@ A full-featured multi-module coding environment with 8 routes:
 - Points-based ranking with easy/medium/hard breakdown
 - Profile avatars and user identification
 - Medal indicators for top 3
+
+#### API Tester (In-Course Playground)
+- **HTTP Request Builder:** Custom HTTP headers, request body editor, method selector (GET, POST, PUT, DELETE, etc.).
+- **Response Inspector:** Formatted body output, status code with status text, execution time duration, and full response headers.
+- **Snippet Generator:** Generate ready-to-run client request snippets in cURL, JavaScript fetch, Axios, Node.js HTTPS, Python requests, Kotlin OkHttp, Swift URLSession, and Dart http.
+- **Saved Requests & History:** Save and rename favorite requests, and look back at a history of the last 30 executed requests.
+
+#### Dev Tools / Utilities (In-Course Playground)
+- **18+ Utilities:** Includes Image Compressor, JSON ↔ CSV, Base64 tool, URL encoder, JWT decoder, UUID generator, Hash generator, Password generator, Color converter, Regex tester, Text extractor, Case converter, Slugify, Timestamp converter, Word counter, Lorem Ipsum, Text diff, and Number Base converter.
+- **Privacy & Security:** Runs 100% locally in the browser with no remote servers or trackers involved.
 
 ### AI Agent
 An intelligent assistant embedded in the course player with tool execution capabilities:
