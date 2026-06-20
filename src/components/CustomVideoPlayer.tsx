@@ -32,7 +32,7 @@ function formatTime(seconds: number) {
 
 function extractYoutubeId(url: string): string | null {
   const m = url.match(
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
   );
   return m ? m[1] : null;
 }
@@ -226,16 +226,28 @@ export function CustomVideoPlayer({
 
     if (!youtubeApiLoaded) {
       youtubeApiLoaded = true;
+      (window as any)._ytReadyCallbacks = [createPlayer];
+      (window as any).onYouTubeIframeAPIReady = () => {
+        const callbacks = (window as any)._ytReadyCallbacks || [];
+        for (const cb of callbacks) {
+          try {
+            cb();
+          } catch (err) {
+            console.error("Error in YT API callback:", err);
+          }
+        }
+        (window as any)._ytReadyCallbacks = [];
+      };
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
-      tag.onload = () => {
-        (window as any).onYouTubeIframeAPIReady = createPlayer;
-      };
       document.head.appendChild(tag);
     } else if ((window as any).YT?.Player) {
       createPlayer();
     } else {
-      (window as any).onYouTubeIframeAPIReady = createPlayer;
+      if (!(window as any)._ytReadyCallbacks) {
+        (window as any)._ytReadyCallbacks = [];
+      }
+      (window as any)._ytReadyCallbacks.push(createPlayer);
     }
   }, [youtubeId]);
 

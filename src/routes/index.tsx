@@ -1,6 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/use-auth";
+import { useServerFn } from "@tanstack/react-start";
+import { createSubscription, cancelSubscription } from "@/lib/subscription.functions";
 
 import {
   ArrowRight,
@@ -17,6 +22,8 @@ import {
   BarChart3,
   PlayCircle,
   Check,
+  Loader2,
+  LogIn,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -401,6 +408,13 @@ type Plan = {
 };
 
 function PricingPlans() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const doSubscribe = useServerFn(createSubscription);
+  const doCancel = useServerFn(cancelSubscription);
+
   const { data: tiers, isLoading } = useQuery<Plan[]>({
     queryKey: ["pricing-plans-home"],
     queryFn: async () => {
@@ -419,56 +433,139 @@ function PricingPlans() {
     staleTime: 60_000,
   });
 
+  const currentSub = useQuery({
+    enabled: !!user,
+    queryKey: ["my-subscription", user?.id],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("user_subscriptions")
+        .select("*, plan:pricing_plans(*)")
+        .eq("user_id", user!.id)
+        .eq("status", "active")
+        .maybeSingle();
+      return data || null;
+    },
+  });
+
+  const handleSubscribe = async (planId: string) => {
+    if (!user) {
+      navigate({ to: "/login" });
+      return;
+    }
+    setLoadingPlan(planId);
+    try {
+      const sub = await doSubscribe({ data: { planId } });
+      if (sub.auth_link) window.location.href = sub.auth_link;
+      else toast.success("Subscription created! Check your dashboard.");
+      qc.invalidateQueries({ queryKey: ["my-subscription"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Subscription failed");
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
+
+  const handleCancel = async () => {
+    try {
+      await doCancel({ data: {} });
+      toast.success("Subscription cancelled");
+      qc.invalidateQueries({ queryKey: ["my-subscription"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Cancel failed");
+    }
+  };
+
+  const activePlanId = currentSub.data?.plan_id;
+
   if (isLoading)
-    return <div className="text-center text-sm text-muted-foreground py-10">Loading plans…</div>;
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
   if (!tiers?.length) return null;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-      {tiers.map((plan) => (
-        <div
-          key={plan.id}
-          className={`relative rounded-2xl border p-6 flex flex-col transition-all duration-300 hover:shadow-md ${
-            plan.highlighted
-              ? "border-primary/40 bg-primary/[0.04] shadow-primary/5 shadow-sm"
-              : "border-border bg-card"
-          }`}
-        >
-          {plan.badge && (
-            <div
-              className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-sm"
-              style={{ background: plan.color || "var(--primary)" }}
-            >
-              {plan.badge}
-            </div>
-          )}
-          <div className="mb-5">
-            <h3 className="font-semibold text-lg">{plan.name}</h3>
-            {plan.description && (
-              <p className="text-xs text-muted-foreground mt-1">{plan.description}</p>
-            )}
-          </div>
-          <div className="mb-5">
-            <span className="text-3xl font-bold">{plan.price_label}</span>
-          </div>
-          <ul className="space-y-2 text-xs flex-1 mb-6">
-            {plan.features.map((f, i) => (
-              <li key={i} className="flex items-start gap-2">
-                <Check className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
-          <Button
-            asChild
-            size="sm"
-            className="w-full"
-            variant={plan.highlighted ? "default" : "outline"}
+      {tiers.map((t) => {
+        const isCurrent = activePlanId === t.id;
+        const isFree = t.price_inr <= 0 && !t.interval;
+        const showSubscribe = !isFree && !isCurrent;
+        const showLogin = !user && !isFree;
+
+        return (
+          <div
+            key={t.id}
+            className={`relative rounded-2xl border p-8 flex flex-col transition-all duration-300 hover:shadow-lg ${
+              t.highlighted
+                ? "border-primary/50 bg-card shadow-xl shadow-primary/5 ring-1 ring-primary/20"
+                : "border-border/60 bg-card"
+            }`}
+            style={t.color ? { borderColor: isCurrent ? t.color : undefined } : undefined}
           >
-            <Link to={plan.cta_to}>{plan.cta_label}</Link>
-          </Button>
-        </div>
-      ))}
+            {(t.badge || isCurrent) && (
+              <div
+                className={`inline-flex self-start rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-wider mb-4 text-white shadow-sm`}
+                style={{ background: t.color || "#7c3aed" }}
+              >
+                {isCurrent ? "Your plan" : t.badge || "Most popular"}
+              </div>
+            )}
+            <h3 className="font-display text-2xl font-semibold">{t.name}</h3>
+            <div className="mt-3 text-4xl font-bold tracking-tight">{t.price_label}</div>
+            {t.description && (
+              <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>
+            )}
+            {t.ai_credits_monthly > 0 && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {t.ai_credits_monthly.toLocaleString("en-IN")} AI credits / mo
+              </p>
+            )}
+            <ul className="mt-6 space-y-3 text-sm flex-1 mb-6">
+              {t.features.map((f, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 w-full space-y-2">
+              {isCurrent ? (
+                <div className="flex gap-2">
+                  <Button className="flex-1" variant="outline" disabled>
+                    Active
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={handleCancel}>
+                    Cancel
+                  </Button>
+                </div>
+              ) : isFree ? (
+                <Button asChild className="w-full" variant="outline">
+                  <Link to="/signup">Get started free</Link>
+                </Button>
+              ) : showLogin ? (
+                <Button asChild className="w-full">
+                  <Link to="/login">
+                    <LogIn className="h-4 w-4 mr-1" /> Sign in to subscribe
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  variant={t.highlighted ? "default" : "outline"}
+                  onClick={() => handleSubscribe(t.id)}
+                  disabled={loadingPlan !== null}
+                >
+                  {loadingPlan === t.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {loadingPlan === t.id
+                    ? "Processing..."
+                    : `Subscribe ₹${t.price_inr}/${t.interval}`}
+                </Button>
+              )}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

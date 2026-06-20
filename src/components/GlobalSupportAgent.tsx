@@ -41,38 +41,47 @@ function BotAvatar({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shrink-0 shadow-sm",
+        "h-9 w-9 rounded-full bg-gradient-to-tr from-violet-600 via-primary to-cyan-500 p-[1.5px] shrink-0 shadow-lg relative flex items-center justify-center",
         className,
       )}
     >
-      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-white">
-        <rect
-          x="5"
-          y="8"
-          width="14"
-          height="10"
-          rx="2"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          fill="none"
-        />
-        <circle cx="9" cy="13" r="1" fill="currentColor" />
-        <circle cx="15" cy="13" r="1" fill="currentColor" />
-        <path
-          d="M12 15c0 0 1 1 2 0"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-        <path
-          d="M9 5l1.5 3h3L15 5"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path d="M7 6l-2 3M17 6l2 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
-      </svg>
+      <div className="h-full w-full rounded-full bg-slate-950 flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(139,92,246,0.4),transparent_70%)]" />
+        
+        <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+          <rect
+            x="4"
+            y="7"
+            width="16"
+            height="11"
+            rx="3"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            fill="none"
+          />
+          <circle cx="9" cy="12" r="1.2" fill="currentColor" />
+          <circle cx="15" cy="12" r="1.2" fill="currentColor" />
+          <path
+            d="M10 15c0.5 0.5 1.5 0.5 4 0"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+          <path
+            d="M12 7V4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
+          <circle
+            cx="12"
+            cy="3"
+            r="1"
+            fill="currentColor"
+          />
+          <rect x="2" y="11" width="2" height="3" rx="0.5" fill="currentColor" />
+          <rect x="20" y="11" width="2" height="3" rx="0.5" fill="currentColor" />
+        </svg>
+      </div>
     </div>
   );
 }
@@ -384,14 +393,22 @@ export function GlobalSupportAgent() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-end gap-2 group/widget">
+          {/* A small premium greeting pill that glows and bounces */}
+          <div className="bg-card/95 border shadow-xl rounded-2xl py-1.5 px-3 flex items-center gap-2 border-primary/30 backdrop-blur-md animate-bounce duration-[3000ms] cursor-pointer hover:border-primary transition" onClick={() => setOpen(true)}>
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+            <div className="text-left leading-tight pr-1">
+              <div className="text-[10px] font-bold text-foreground">Learnify Support</div>
+              <div className="text-[8px] text-muted-foreground">Online Assistant</div>
+            </div>
+          </div>
           <button
             onClick={() => setOpen(true)}
-            className="h-14 w-14 rounded-full bg-gradient-to-r from-violet-500 via-primary to-fuchsia-500 text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 hover:shadow-primary/30 hover:rotate-6 transition-all duration-300 group relative"
+            className="h-14 w-14 rounded-full bg-gradient-to-tr from-violet-600 via-primary to-fuchsia-500 text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 group relative border border-white/10 cursor-pointer"
             title="Open Help & Support"
           >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-500 via-primary to-fuchsia-500 animate-ping opacity-20 group-hover:opacity-30" />
-            <MessageSquare className="h-6 w-6 relative" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-violet-500 via-primary to-fuchsia-500 animate-ping opacity-20 group-hover:opacity-30" />
+            <BotAvatar className="h-11 w-11 border border-white/10" />
           </button>
         </div>
       )}

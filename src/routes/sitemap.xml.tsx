@@ -25,29 +25,31 @@ const PUBLIC_ROUTES = [
 
 export const Route = createFileRoute("/sitemap/xml")({
   server: {
-    handler: async () => {
-      const today = new Date().toISOString().split("T")[0];
+    handlers: {
+      GET: async () => {
+        const today = new Date().toISOString().split("T")[0];
 
-      const urls = PUBLIC_ROUTES.map(
-        (r) => `  <url>
+        const urls = PUBLIC_ROUTES.map(
+          (r) => `  <url>
     <loc>${BASE_URL}${r.path}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority}</priority>
   </url>`,
-      ).join("\n");
+        ).join("\n");
 
-      const xml = `<?xml version="1.0" encoding="UTF-8"?>
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls}
 </urlset>`;
 
-      return new Response(xml, {
-        headers: {
-          "Content-Type": "application/xml; charset=utf-8",
-          "Cache-Control": "public, max-age=3600, s-maxage=3600",
-        },
-      });
+        return new Response(xml, {
+          headers: {
+            "Content-Type": "application/xml; charset=utf-8",
+            "Cache-Control": "public, max-age=3600, s-maxage=3600",
+          },
+        });
+      },
     },
   },
 });

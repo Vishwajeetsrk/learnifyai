@@ -837,31 +837,7 @@ function AdminOverview() {
             <Button size="sm" variant="ghost" onClick={() => handleExportCSV(true)}>
               <Download className="h-4 w-4" /> All CSV
             </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={async () => {
-                if (
-                  !window.confirm(
-                    "Delete all demo/fake transactions? Real payment transactions will NOT be deleted.",
-                  )
-                )
-                  return;
-                const delFilter = "description.ilike.%demo%";
-                const { error } = await supabase
-                  .from("wallet_transactions")
-                  .delete()
-                  .or(
-                    `description.ilike.%demo%,description.ilike.%test%,description.ilike.%sample%`,
-                  );
-                if (error) return toast.error(error.message);
-                toast.success("Demo transactions cleared");
-                qc.invalidateQueries({ queryKey: ["admin", "transactions"] });
-              }}
-              className="text-destructive hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" /> Clear demo
-            </Button>
+
           </div>
         </div>
 

@@ -44,7 +44,7 @@ const DEFAULTS: Record<string, string> = {
   javascript: 'console.log("Hello, Learnify! 🚀");',
   typescript: 'const msg: string = "Hello, TypeScript!";\nconsole.log(msg);',
   python: 'print("Hello, Python!")',
-  java: 'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, Java!");\n  }\n}',
+  java: 'class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, Java!");\n  }\n}',
   cpp: '#include <iostream>\nint main() {\n  std::cout << "Hello, C++!" << std::endl;\n  return 0;\n}',
   c: '#include <stdio.h>\nint main() {\n  printf("Hello, C!\\n");\n  return 0;\n}',
   go: 'package main\nimport "fmt"\nfunc main() {\n  fmt.Println("Hello, Go!")\n}',

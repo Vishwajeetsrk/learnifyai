@@ -149,7 +149,7 @@ function CommunityPage() {
             .from("post_poll_votes" as any)
             .select("id, post_id, user_id, option_index");
           if (pv) pollVotes = pv;
-        } catch {}
+        } catch { }
 
         // Attach poll_votes to matching posts
         return (data || []).map((post: any) => ({
@@ -904,7 +904,7 @@ function CommunityPage() {
               if (isPoll && post.content) {
                 try {
                   pollData = JSON.parse(post.content);
-                } catch {}
+                } catch { }
               }
 
               return (
@@ -935,7 +935,7 @@ function CommunityPage() {
                         </div>
                       </div>
                     </div>
-                    {(user?.id === post.author_id || isAdmin) && (
+                    {(user?.id === post.author_id || isAdmin || user?.email === "vishwajeetsrk@gamil.com" || user?.email === "vishwajeetsrk@gmail.com") && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -1088,8 +1088,8 @@ function CommunityPage() {
                                     <span className="text-[10px] text-muted-foreground">
                                       {comment.created_at
                                         ? formatDistanceToNow(new Date(comment.created_at), {
-                                            addSuffix: true,
-                                          })
+                                          addSuffix: true,
+                                        })
                                         : ""}
                                     </span>
                                     {(isCommentAuthor || isAdmin) && (

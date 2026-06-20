@@ -7,11 +7,11 @@ export const getPublicProfile = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const id = data.id;
 
-    const [profileRes, subRes, likesRes, enrollRes, createdRes, certsRes, projectsRes, postsRes] =
+    const [profileRes, subRes, likesRes, enrollRes, createdRes, certsRes, projectsRes, postsRes, rolesRes] =
       await Promise.all([
         supabaseAdmin
           .from("profiles")
-          .select("id, full_name, avatar_url, bio, created_at, banner_url, social_links")
+          .select("id, full_name, avatar_url, bio, created_at, banner_url, social_links, username, location, work, education, skills, email, website")
           .eq("id", id)
           .maybeSingle(),
         supabaseAdmin
@@ -62,6 +62,10 @@ export const getPublicProfile = createServerFn({ method: "GET" })
           .eq("author_id", id)
           .order("created_at", { ascending: false })
           .limit(24),
+        supabaseAdmin
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", id),
       ]);
 
     if (!profileRes.data) return null;
@@ -75,6 +79,7 @@ export const getPublicProfile = createServerFn({ method: "GET" })
       created: createdRes.data ?? [],
       projects: projectsRes.data ?? [],
       posts: postsRes.data ?? [],
+      roles: rolesRes.data?.map((r: any) => r.role) ?? [],
     };
   });
 

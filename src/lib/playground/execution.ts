@@ -14,7 +14,7 @@ const WANDBOX_API = "https://wandbox.org/api";
 const LANGUAGE_COMPILER: Record<string, string> = {
   javascript: "nodejs-20.17.0",
   typescript: "typescript-5.6.2",
-  python: "cpython-head",
+  python: "cpython-3.12.7",
   java: "openjdk-jdk-22+36",
   cpp: "gcc-head",
   c: "gcc-head-c",

@@ -21,6 +21,10 @@ import {
   ExternalLink,
   Megaphone,
   MessageSquare,
+  Flame,
+  Code2,
+  Sparkles,
+  Brain,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { format } from "date-fns";
@@ -29,6 +33,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getPublicProfile } from "@/lib/profile.functions";
+import { getUserAchievements } from "@/lib/gamification.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -103,6 +108,13 @@ function PublicProfilePage() {
     queryFn: () => fetchProfile({ data: { id } }),
   });
 
+  const fetchAchievements = useServerFn(getUserAchievements);
+  const achievementsQ = useQuery({
+    enabled: !!id,
+    queryKey: ["public-profile-achievements", id],
+    queryFn: () => fetchAchievements({ data: { userId: id } }),
+  });
+
   const mySubQuery = useQuery({
     enabled: !!user && user.id !== id,
     queryKey: ["my-sub-to-creator", id, user?.id],
@@ -156,7 +168,7 @@ function PublicProfilePage() {
       </AppShell>
     );
 
-  const { profile, subscribers, likes, certificates, enrolled, created, projects, posts } = q.data;
+  const { profile, subscribers, likes, certificates, enrolled, created, projects, posts, roles = [] } = q.data;
   const name = profile.full_name ?? "Learner";
   const initials = name
     .split(" ")
@@ -252,230 +264,479 @@ function PublicProfilePage() {
             )}
           </div>
 
-          {profile.bio && (
-            <p className="text-sm mt-6 max-w-3xl whitespace-pre-wrap">{profile.bio}</p>
-          )}
-
-          <div className="flex flex-wrap gap-x-6 gap-y-2 mt-6 text-sm border-b pb-6">
-            <span className="flex items-center gap-2 text-muted-foreground">
-              <Heart className="h-4 w-4" />{" "}
-              <span className="font-medium text-foreground">{likes}</span> likes given
-            </span>
-            <span className="flex items-center gap-2 text-muted-foreground">
-              <Award className="h-4 w-4" />{" "}
-              <span className="font-medium text-foreground">{certificates}</span> certificates
-            </span>
-          </div>
-
-          <Tabs defaultValue="courses" className="mt-8">
-            <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-6">
-              <TabsTrigger
-                value="courses"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground"
-              >
-                <GraduationCap className="h-4 w-4 mr-1.5" /> Courses
-              </TabsTrigger>
-              <TabsTrigger
-                value="projects"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground"
-              >
-                <FileCode className="h-4 w-4 mr-1.5" /> Projects
-              </TabsTrigger>
-              <TabsTrigger
-                value="posts"
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground"
-              >
-                <MessageSquare className="h-4 w-4 mr-1.5" /> Posts
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="courses" className="space-y-8 pt-6">
-              {created.length > 0 && (
-                <section>
-                  <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
-                    <GraduationCap className="h-4 w-4 text-primary" /> Courses created
-                  </h2>
-                  <CourseGrid courses={created} />
-                </section>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 border-t pt-8">
+            {/* Left Column: Bio, Tabs */}
+            <div className="lg:col-span-8 space-y-6">
+              {profile.bio && (
+                <div className="bg-card rounded-2xl border p-6 shadow-sm">
+                  <h3 className="font-display font-semibold text-base mb-3">About</h3>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                    {profile.bio}
+                  </p>
+                </div>
               )}
 
-              <section>
-                <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
-                  <BookOpen className="h-4 w-4 text-primary" /> Enrolled courses
-                </h2>
-                {enrolled.length === 0 ? (
-                  <div className="rounded-2xl border bg-card p-10 text-center text-sm text-muted-foreground">
-                    No enrolled courses yet.
-                  </div>
-                ) : (
-                  <CourseGrid courses={enrolled} />
-                )}
-              </section>
-            </TabsContent>
+              <Tabs defaultValue="courses" className="w-full">
+                <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-6">
+                  <TabsTrigger
+                    value="courses"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground"
+                  >
+                    <GraduationCap className="h-4 w-4 mr-1.5" /> Courses
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="projects"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground"
+                  >
+                    <FileCode className="h-4 w-4 mr-1.5" /> Projects
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="posts"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground"
+                  >
+                    <MessageSquare className="h-4 w-4 mr-1.5" /> Posts
+                  </TabsTrigger>
+                </TabsList>
 
-            <TabsContent value="projects" className="space-y-6 pt-6">
-              {projects.length === 0 ? (
-                <div className="rounded-2xl border bg-card p-12 text-center flex flex-col items-center gap-3">
-                  <FileCode className="h-10 w-10 text-muted-foreground/40" />
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      No public projects yet
-                    </p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
-                      Projects saved in the Playground will appear here.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {projects.map((p: any) => (
-                    <div
-                      key={p.id}
-                      className="rounded-xl border bg-card p-4 hover:shadow-lg hover:border-primary/20 transition-all group flex flex-col justify-between"
-                    >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <FileCode className="h-4 w-4 text-primary" />
-                          </div>
-                          <Link
-                            to="/playground/editor"
-                            search={{ project: p.id } as any}
-                            className="font-semibold text-sm truncate hover:text-primary transition"
-                          >
-                            {p.title}
-                          </Link>
-                        </div>
-                        {p.description && (
-                          <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
-                            {p.description}
-                          </p>
-                        )}
+                <TabsContent value="courses" className="space-y-8 pt-6">
+                  {created.length > 0 && (
+                    <section>
+                      <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
+                        <GraduationCap className="h-4 w-4 text-primary" /> Courses created
+                      </h2>
+                      <CourseGrid courses={created} />
+                    </section>
+                  )}
+
+                  <section>
+                    <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-primary" /> Enrolled courses
+                    </h2>
+                    {enrolled.length === 0 ? (
+                      <div className="rounded-2xl border bg-card p-10 text-center text-sm text-muted-foreground">
+                        No enrolled courses yet.
                       </div>
-                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
-                        <span className="text-[10px] text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded-full font-mono font-medium">
-                          {p.language || "code"}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground/60">
-                          {p.updated_at
-                            ? formatDistanceToNow(new Date(p.updated_at), { addSuffix: true })
-                            : ""}
-                        </span>
+                    ) : (
+                      <CourseGrid courses={enrolled} />
+                    )}
+                  </section>
+                </TabsContent>
+
+                <TabsContent value="projects" className="space-y-6 pt-6">
+                  {projects.length === 0 ? (
+                    <div className="rounded-2xl border bg-card p-12 text-center flex flex-col items-center gap-3">
+                      <FileCode className="h-10 w-10 text-muted-foreground/40" />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          No public projects yet
+                        </p>
+                        <p className="text-xs text-muted-foreground/60 mt-1">
+                          Projects saved in the Playground will appear here.
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="posts" className="space-y-6 pt-6">
-              {posts.length === 0 ? (
-                <div className="rounded-2xl border bg-card p-12 text-center flex flex-col items-center gap-3">
-                  <MessageSquare className="h-10 w-10 text-muted-foreground/40" />
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      No community posts yet
-                    </p>
-                    <p className="text-xs text-muted-foreground/60 mt-1">
-                      Posts in the Community Feed will appear here.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {posts.map((post: any) => {
-                    const isPoll = post.post_type === "poll";
-                    const isAnnouncement = post.post_type === "announcement";
-                    let pollData: any = null;
-                    if (isPoll && post.content) {
-                      try {
-                        pollData = JSON.parse(post.content);
-                      } catch {}
-                    }
-
-                    return (
-                      <article
-                        key={post.id}
-                        className={cn(
-                          "bg-card rounded-2xl border shadow-sm p-5 hover:shadow-md transition-all",
-                          isAnnouncement ? "border-primary/30 ring-1 ring-primary/10" : "",
-                        )}
-                      >
-                        <div className="flex items-center gap-3 mb-3">
-                          <Avatar className="h-8 w-8 border-2 border-background shadow-sm">
-                            <AvatarImage src={post.author?.avatar_url} />
-                            <AvatarFallback className="text-xs">
-                              {post.author?.full_name?.charAt(0) || "U"}
-                            </AvatarFallback>
-                          </Avatar>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {projects.map((p: any) => (
+                        <div
+                          key={p.id}
+                          className="rounded-xl border bg-card p-4 hover:shadow-lg hover:border-primary/20 transition-all group flex flex-col justify-between"
+                        >
                           <div>
-                            <div className="font-semibold text-xs flex items-center gap-1.5">
-                              {post.author?.full_name || "User"}
-                              {isAnnouncement && (
-                                <Badge className="text-[9px] h-4">
-                                  <Megaphone className="h-2.5 w-2.5 mr-0.5" /> Announcement
-                                </Badge>
-                              )}
+                            <div className="flex items-center gap-2">
+                              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                <FileCode className="h-4 w-4 text-primary" />
+                              </div>
+                              <Link
+                                to="/playground/editor"
+                                search={{ project: p.id } as any}
+                                className="font-semibold text-sm truncate hover:text-primary transition"
+                              >
+                                {p.title}
+                              </Link>
                             </div>
-                            <div className="text-[10px] text-muted-foreground">
-                              {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-                            </div>
+                            {p.description && (
+                              <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
+                                {p.description}
+                              </p>
+                            )}
                           </div>
-                          <div className="ml-auto flex items-center gap-2 text-muted-foreground">
-                            <span className="flex items-center gap-1 text-[10px]">
-                              <Heart className="h-3 w-3" /> {post.likes?.length ?? 0}
+                          <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
+                            <span className="text-[10px] text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded-full font-mono font-medium">
+                              {p.language || "code"}
                             </span>
-                            <span className="flex items-center gap-1 text-[10px]">
-                              <MessageSquare className="h-3 w-3" /> {post.comments?.length ?? 0}
+                            <span className="text-[10px] text-muted-foreground/60">
+                              {p.updated_at
+                                ? formatDistanceToNow(new Date(p.updated_at), { addSuffix: true })
+                                : ""}
                             </span>
                           </div>
                         </div>
-                        {isPoll && pollData ? (
-                          <div className="mb-3 space-y-1.5">
-                            <p className="font-semibold text-xs">{pollData.question}</p>
-                            <div className="space-y-1">
-                              {pollData.options.map((option: string, optIdx: number) => (
-                                <div
-                                  key={optIdx}
-                                  className="p-2 border rounded-lg text-xs bg-muted/30 flex items-center gap-2"
-                                >
-                                  <span className="h-2 w-2 rounded-full border border-muted-foreground/40" />
-                                  {option}
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="posts" className="space-y-6 pt-6">
+                  {posts.length === 0 ? (
+                    <div className="rounded-2xl border bg-card p-12 text-center flex flex-col items-center gap-3">
+                      <MessageSquare className="h-10 w-10 text-muted-foreground/40" />
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          No community posts yet
+                        </p>
+                        <p className="text-xs text-muted-foreground/60 mt-1">
+                          Posts in the Community Feed will appear here.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {posts.map((post: any) => {
+                        const isPoll = post.post_type === "poll";
+                        const isAnnouncement = post.post_type === "announcement";
+                        let pollData: any = null;
+                        if (isPoll && post.content) {
+                          try {
+                            pollData = JSON.parse(post.content);
+                          } catch {}
+                        }
+
+                        return (
+                          <article
+                            key={post.id}
+                            className={cn(
+                              "bg-card rounded-2xl border shadow-sm p-5 hover:shadow-md transition-all",
+                              isAnnouncement ? "border-primary/30 ring-1 ring-primary/10" : "",
+                            )}
+                          >
+                            <div className="flex items-center gap-3 mb-3">
+                              <Avatar className="h-8 w-8 border-2 border-background shadow-sm">
+                                <AvatarImage src={post.author?.avatar_url} />
+                                <AvatarFallback className="text-xs">
+                                  {post.author?.full_name?.charAt(0) || "U"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-semibold text-xs flex items-center gap-1.5">
+                                  {post.author?.full_name || "User"}
+                                  {isAnnouncement && (
+                                    <Badge className="text-[9px] h-4">
+                                      <Megaphone className="h-2.5 w-2.5 mr-0.5" /> Announcement
+                                    </Badge>
+                                  )}
                                 </div>
-                              ))}
+                                <div className="text-[10px] text-muted-foreground">
+                                  {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                                </div>
+                              </div>
+                              <div className="ml-auto flex items-center gap-2 text-muted-foreground">
+                                <span className="flex items-center gap-1 text-[10px]">
+                                  <Heart className="h-3 w-3" /> {post.likes?.length ?? 0}
+                                </span>
+                                <span className="flex items-center gap-1 text-[10px]">
+                                  <MessageSquare className="h-3 w-3" /> {post.comments?.length ?? 0}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        ) : (
-                          <div
-                            className="text-xs prose prose-sm dark:prose-invert max-w-none mb-3"
-                            dangerouslySetInnerHTML={{ __html: post.content }}
-                          />
-                        )}
-                        {post.media_url && (
-                          <div className="mb-3 rounded-lg overflow-hidden border bg-muted/20">
-                            {post.media_type === "image" && (
-                              <img
-                                src={post.media_url}
-                                alt=""
-                                className="max-h-[300px] w-full object-contain"
+                            {isPoll && pollData ? (
+                              <div className="mb-3 space-y-1.5">
+                                <p className="font-semibold text-xs">{pollData.question}</p>
+                                <div className="space-y-1">
+                                  {pollData.options.map((option: string, optIdx: number) => (
+                                    <div
+                                      key={optIdx}
+                                      className="p-2 border rounded-lg text-xs bg-muted/30 flex items-center gap-2"
+                                    >
+                                      <span className="h-2 w-2 rounded-full border border-muted-foreground/40" />
+                                      {option}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ) : (
+                              <div
+                                className="text-xs prose prose-sm dark:prose-invert max-w-none mb-3"
+                                dangerouslySetInnerHTML={{ __html: post.content }}
                               />
                             )}
-                            {post.media_type === "video" && (
-                              <video
-                                src={post.media_url}
-                                controls
-                                className="max-h-[300px] w-full"
-                              />
+                            {post.media_url && (
+                              <div className="mb-3 rounded-lg overflow-hidden border bg-muted/20">
+                                {post.media_type === "image" && (
+                                  <img
+                                    src={post.media_url}
+                                    alt=""
+                                    className="max-h-[300px] w-full object-contain"
+                                  />
+                                )}
+                                {post.media_type === "video" && (
+                                  <video
+                                    src={post.media_url}
+                                    controls
+                                    className="max-h-[300px] w-full"
+                                  />
+                                )}
+                              </div>
                             )}
-                          </div>
-                        )}
-                      </article>
-                    );
-                  })}
+                          </article>
+                        );
+                      })}
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            {/* Right Column: Profile Details & Achievements Box */}
+            <div className="lg:col-span-4 space-y-6">
+              {/* Profile Details Box */}
+              <div className="bg-card rounded-2xl border p-6 shadow-sm space-y-4">
+                <h3 className="font-display font-semibold text-base border-b pb-2">Profile Details</h3>
+
+                <div className="space-y-4 text-sm">
+                  {/* Name */}
+                  <div>
+                    <div className="text-xs text-muted-foreground font-medium">Name</div>
+                    <div className="text-foreground mt-0.5 font-semibold">{profile.full_name || "Learner"}</div>
+                  </div>
+
+                  {/* Roles */}
+                  {roles && roles.length > 0 && (
+                    <div>
+                      <div className="text-xs text-muted-foreground font-medium mb-1">Role</div>
+                      <div className="flex flex-wrap gap-1">
+                        {roles.map((r: string) => {
+                          const isSuper = r === "super_admin";
+                          const isAdminRole = r === "admin";
+                          const isCreatorRole = r === "creator";
+                          return (
+                            <Badge
+                              key={r}
+                              className={cn(
+                                "text-[10px] font-semibold px-2 py-0.5 uppercase tracking-wider",
+                                isSuper
+                                  ? "bg-gradient-to-r from-red-500 to-rose-600 text-white border-0 shadow-md"
+                                  : isAdminRole
+                                    ? "bg-gradient-to-r from-violet-500 to-indigo-600 text-white border-0 shadow-sm"
+                                    : isCreatorRole
+                                      ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 shadow-sm"
+                                      : "bg-secondary text-secondary-foreground"
+                              )}
+                            >
+                              {r === "super_admin"
+                                ? "Super Admin"
+                                : r === "admin"
+                                  ? "Admin"
+                                  : r === "creator"
+                                    ? "Creator"
+                                    : r}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Username */}
+                  {profile.username && (
+                    <div>
+                      <div className="text-xs text-muted-foreground font-medium">Username</div>
+                      <div className="font-mono text-foreground mt-0.5">@{profile.username}</div>
+                    </div>
+                  )}
+
+                  {/* Email */}
+                  {profile.email && (
+                    <div>
+                      <div className="text-xs text-muted-foreground font-medium">Email</div>
+                      <div className="text-foreground mt-0.5 break-all">{profile.email}</div>
+                    </div>
+                  )}
+
+                  {/* Website */}
+                  {profile.website && (
+                    <div>
+                      <div className="text-xs text-muted-foreground font-medium">Website</div>
+                      <a
+                        href={profile.website.startsWith("http") ? profile.website : `https://${profile.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline flex items-center gap-1 mt-0.5"
+                      >
+                        <Globe className="h-3.5 w-3.5" />
+                        {profile.website.replace(/^https?:\/\/(www\.)?/, "")}
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Location */}
+                  {profile.location && (
+                    <div>
+                      <div className="text-xs text-muted-foreground font-medium">Location</div>
+                      <div className="text-foreground mt-0.5">{profile.location}</div>
+                    </div>
+                  )}
+
+                  {/* Work */}
+                  {profile.work && (
+                    <div>
+                      <div className="text-xs text-muted-foreground font-medium">Work</div>
+                      <div className="text-foreground mt-0.5">{profile.work}</div>
+                    </div>
+                  )}
+
+                  {/* Education */}
+                  {profile.education && (
+                    <div>
+                      <div className="text-xs text-muted-foreground font-medium">Education</div>
+                      <div className="text-foreground mt-0.5">{profile.education}</div>
+                    </div>
+                  )}
+
+                  {/* Bio */}
+                  {profile.bio && (
+                    <div>
+                      <div className="text-xs text-muted-foreground font-medium">Bio</div>
+                      <div className="text-foreground text-xs mt-0.5 whitespace-pre-wrap leading-relaxed">
+                        {profile.bio}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Skills */}
+                  {profile.skills && profile.skills.length > 0 && (
+                    <div className="pt-3 border-t">
+                      <div className="text-xs text-muted-foreground font-medium mb-1.5">Skills</div>
+                      <div className="flex flex-wrap gap-1">
+                        {profile.skills.map((skill: string) => (
+                          <Badge key={skill} variant="secondary" className="text-[10px] py-0.5">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Social links */}
+                  {profile.social_links && typeof profile.social_links === "object" && (
+                    <div className="pt-3 border-t space-y-2">
+                      <div className="text-xs text-muted-foreground font-medium">Social media</div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        {Object.entries(profile.social_links).map(([platform, url]) => {
+                          if (!url || typeof url !== "string" || url.trim() === "") return null;
+                          let displayName = platform.charAt(0).toUpperCase() + platform.slice(1);
+                          let icon = <Globe className="h-3.5 w-3.5" />;
+                          
+                          if (platform === "github") {
+                            icon = <Github className="h-3.5 w-3.5 text-slate-800 dark:text-slate-100" />;
+                            displayName = "GitHub";
+                          } else if (platform === "twitter" || platform === "x") {
+                            icon = <Twitter className="h-3.5 w-3.5 text-sky-500" />;
+                            displayName = "X (Twitter)";
+                          } else if (platform === "linkedin") {
+                            icon = <Linkedin className="h-3.5 w-3.5 text-blue-600" />;
+                            displayName = "LinkedIn";
+                          } else if (platform === "youtube") {
+                            icon = <Youtube className="h-3.5 w-3.5 text-red-600" />;
+                            displayName = "YouTube";
+                          } else if (platform === "instagram") {
+                            displayName = "Instagram";
+                          } else if (platform === "twitch") {
+                            displayName = "Twitch";
+                          } else if (platform === "tiktok") {
+                            displayName = "TikTok";
+                          }
+
+                          return (
+                            <a
+                              key={platform}
+                              href={url.startsWith("http") ? url : `https://${url}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors truncate p-1.5 rounded-lg hover:bg-secondary/40 border border-transparent hover:border-border"
+                            >
+                              {icon}
+                              <div className="truncate leading-tight">
+                                <div className="font-semibold text-foreground text-[11px]">{displayName}</div>
+                                <div className="text-[9px] text-muted-foreground truncate">
+                                  {url.replace(/^https?:\/\/(www\.)?/, "")}
+                                </div>
+                              </div>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </TabsContent>
-          </Tabs>
+              </div>
+
+              {/* Achievements Box */}
+              <div className="bg-card rounded-2xl border p-6 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b pb-2">
+                  <h3 className="font-display font-semibold text-base">Achievements</h3>
+                  <Badge variant="outline" className="text-[10px]">
+                    {achievementsQ.data?.filter((b: any) => b.earned).length ?? 0} Earned
+                  </Badge>
+                </div>
+
+                {achievementsQ.isLoading ? (
+                  <div className="py-6 flex justify-center">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  </div>
+                ) : !achievementsQ.data || achievementsQ.data.filter((b: any) => b.earned).length === 0 ? (
+                  <div className="text-center py-6 text-xs text-muted-foreground">
+                    No badges earned yet.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-4 gap-2">
+                    {achievementsQ.data
+                      .filter((b: any) => b.earned)
+                      .map((badge: any) => {
+                        let CatIcon = Award;
+                        let catColor = "from-yellow-400 to-orange-500";
+                        if (badge.category === "xp") {
+                          CatIcon = Sparkles;
+                          catColor = "from-yellow-400 to-orange-500";
+                        } else if (badge.category === "course") {
+                          CatIcon = BookOpen;
+                          catColor = "from-blue-500 to-cyan-500";
+                        } else if (badge.category === "streak") {
+                          CatIcon = Flame;
+                          catColor = "from-red-500 to-rose-500";
+                        } else if (badge.category === "test") {
+                          CatIcon = Brain;
+                          catColor = "from-purple-500 to-violet-500";
+                        } else if (badge.category === "challenge") {
+                          CatIcon = Code2;
+                          catColor = "from-emerald-500 to-teal-500";
+                        }
+
+                        return (
+                          <div
+                            key={badge.id}
+                            className="group relative flex flex-col items-center justify-center p-2 rounded-xl border bg-muted/20 hover:bg-muted/40 transition-all text-center cursor-default"
+                            title={`${badge.name}: ${badge.description || "Earned badge"}`}
+                          >
+                            <div
+                              className={cn(
+                                "h-9 w-9 rounded-full bg-gradient-to-br flex items-center justify-center shadow-sm text-white",
+                                catColor,
+                              )}
+                            >
+                              <CatIcon className="h-4.5 w-4.5" />
+                            </div>
+                            <span className="text-[9px] font-medium truncate w-full mt-1.5 block">
+                              {badge.name}
+                            </span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </AppShell>

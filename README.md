@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="160" />
+
 # Learnify AI
 
 **The AI-Native Learning Operating System**
@@ -23,10 +25,40 @@ Learnify AI is a full-stack, AI-powered learning platform that combines intellig
 
 - **AI Tutor** — Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)
 - **Interactive Course Player** — Video lessons, markdown notes, AI summaries, and practice exercises
-- **Code Playground** — Monaco editor with 15+ languages, AI debug panel, web preview, SQLite, API tester
+- **Code Playground** — Monaco editor with 25+ languages, AI debug panel, web preview, SQLite, and API tester
 - **Smart Notes** — Auto-generated flashcards, summaries, and quizzes from any lesson
 - **Gamification** — XP, streaks, badges, leaderboards, and achievements
 - **Wallet** — AI credits, course purchases, and withdrawals via Cashfree
+
+### Supported Playground Languages
+
+Learnify AI's playground features multi-language compilation powered by official APIs, enabling instant code runs for these runtimes:
+
+| Language | Official Badge | Compiler / Runtime |
+| :--- | :--- | :--- |
+| **JavaScript** | ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow?style=flat-square&logo=javascript) | Node.js 20.17 |
+| **TypeScript** | ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript) | TypeScript 5.6 |
+| **Python** | ![Python](https://img.shields.io/badge/Python-3.12-blue?style=flat-square&logo=python) | CPython 3.12.7 (Stable) |
+| **Java** | ![Java](https://img.shields.io/badge/Java-22-orange?style=flat-square&logo=openjdk) | OpenJDK JDK 22 |
+| **C++** | ![C++](https://img.shields.io/badge/C%2B%2B-17/20-blue?style=flat-square&logo=c%2B%2B) | GCC 14 |
+| **C** | ![C](https://img.shields.io/badge/C-ISO-blue?style=flat-square&logo=c) | GCC 14 C |
+| **C#** | ![C#](https://img.shields.io/badge/C%23-Mono-purple?style=flat-square&logo=c-sharp) | Mono 6.12 |
+| **Go** | ![Go](https://img.shields.io/badge/Go-1.23-blue?style=flat-square&logo=go) | Go 1.23.2 |
+| **Rust** | ![Rust](https://img.shields.io/badge/Rust-1.82-orange?style=flat-square&logo=rust) | Rust 1.82.0 |
+| **PHP** | ![PHP](https://img.shields.io/badge/PHP-8.3-purple?style=flat-square&logo=php) | PHP 8.3.12 |
+| **Ruby** | ![Ruby](https://img.shields.io/badge/Ruby-3.x-red?style=flat-square&logo=ruby) | Ruby 4.0.2 |
+| **Swift** | ![Swift](https://img.shields.io/badge/Swift-6.0-orange?style=flat-square&logo=swift) | Swift 6.0.1 |
+| **Kotlin** | ![Kotlin](https://img.shields.io/badge/Kotlin-2.0-purple?style=flat-square&logo=kotlin) | Kotlin 2.0.21 |
+| **Bash** | ![Bash](https://img.shields.io/badge/Bash-Shell-green?style=flat-square&logo=gnu-bash) | Bash 5.2 |
+| **SQL** | ![SQL](https://img.shields.io/badge/SQL-SQLite-blue?style=flat-square&logo=sqlite) | SQLite 3.46.1 |
+| **Dart** | ![Dart](https://img.shields.io/badge/Dart-3.5-blue?style=flat-square&logo=dart) | Dart 3.5.3 |
+| **Zig** | ![Zig](https://img.shields.io/badge/Zig-0.13-orange?style=flat-square&logo=zig) | Zig 0.13.0 |
+| **Julia** | ![Julia](https://img.shields.io/badge/Julia-1.10-purple?style=flat-square&logo=julia) | Julia 1.10.5 |
+| **Lua** | ![Lua](https://img.shields.io/badge/Lua-5.4-blue?style=flat-square&logo=lua) | Lua 5.4.7 |
+| **Haskell** | ![Haskell](https://img.shields.io/badge/Haskell-9.10-purple?style=flat-square&logo=haskell) | GHC 9.10.1 |
+| **Elixir** | ![Elixir](https://img.shields.io/badge/Elixir-1.17-purple?style=flat-square&logo=elixir) | Elixir 1.17.3 |
+| **Nim** | ![Nim](https://img.shields.io/badge/Nim-2.2-yellow?style=flat-square&logo=nim) | Nim 2.2.10 |
+| **R** | ![R](https://img.shields.io/badge/R-4.4-blue?style=flat-square&logo=r) | R 4.4.1 |
 
 ### For Creators
 
