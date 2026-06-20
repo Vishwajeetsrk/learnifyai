@@ -151,14 +151,14 @@ function LeaderboardPage() {
         </div>
 
         {/* Podium */}
-        {topUsers.length >= 3 && period === "all" && (
+        {topUsers.length >= 3 && (
           <div className="flex items-end justify-center gap-3 mb-8">
-            {[1, 0, 2].map((i) => {
+            {[0, 1, 2].map((i) => {
               const u = topUsers[i];
               if (!u) return null;
               const level = xpToLevel(u.xp);
               const rankInfo = levelToRank(level);
-              const heights = ["h-28", "h-36", "h-24"];
+              const heights = ["h-36", "h-28", "h-24"];
               const badges = ["", "bg-yellow-400", "bg-slate-300", "bg-amber-600"];
               return (
                 <div key={u.id} className="flex flex-col items-center gap-2 w-28">
@@ -187,7 +187,9 @@ function LeaderboardPage() {
                     className={`w-full rounded-t-xl border border-b-0 bg-card flex items-center justify-center ${heights[i]}`}
                   >
                     <div className="text-center">
-                      <div className="font-bold text-xs">{u.xp.toLocaleString()}</div>
+                      <div className="font-bold text-xs">
+                        {(period === "weekly" ? (u.weekly_xp ?? 0) : u.xp).toLocaleString()}
+                      </div>
                       <div className="text-[9px] text-muted-foreground">XP</div>
                     </div>
                   </div>
