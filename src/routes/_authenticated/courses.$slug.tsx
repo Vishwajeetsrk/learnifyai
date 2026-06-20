@@ -37,6 +37,7 @@ import {
   Terminal,
   Globe,
   Wrench,
+  GraduationCap,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -62,6 +63,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { agentChat } from "@/lib/agent.functions";
 import { executeCode } from "@/lib/playground.functions";
+import { gradeExercise } from "@/lib/exercise-grader.functions";
 import { PlaygroundAiDebugPanel } from "@/components/playground-ai-debug-panel";
 import { PlaygroundDatabase } from "@/components/playground-database";
 import { ApiTester } from "@/components/playground/ApiTester";
@@ -1212,7 +1214,7 @@ function LessonAiTabs({
             )}
             Generate practical exercise
           </Button>
-          {exercise && <Markdown>{exercise}</Markdown>}
+          {exercise && <div data-exercise-text><Markdown>{exercise}</Markdown></div>}
         </TabsContent>
       )}
 
@@ -1527,7 +1529,42 @@ function CodeMode({ course }: { course?: any }) {
   const [outputTab, setOutputTab] = useState<"stdout" | "stderr">("stdout");
   const [fontSize, setFontSize] = useState(12);
   const execFn = useServerFn(executeCode);
+  const gradeFn = useServerFn(gradeExercise);
   const activeLang = PLAYGROUND_LANGS.find((l) => l.id === lang) ?? PLAYGROUND_LANGS[0];
+
+  const [grading, setGrading] = useState(false);
+  const [gradeResult, setGradeResult] = useState<{
+    score: number; passed: boolean; summary: string; correctness: string;
+    suggestions: string[]; hints: string[];
+  } | null>(null);
+
+  const checkExercise = useCallback(async () => {
+    const exerciseText = document.querySelector<HTMLElement>('[data-exercise-text]')?.textContent;
+    if (!exerciseText) {
+      toast.error("No exercise loaded. Generate one in the Exercise tab first.");
+      return;
+    }
+    if (!code.trim()) {
+      toast.error("Write some code first.");
+      return;
+    }
+    setGrading(true);
+    setGradeResult(null);
+    try {
+      const res = await gradeFn({
+        data: {
+          language: lang, code,
+          stdout: output?.stdout ?? "", stderr: output?.stderr ?? "",
+          exitCode: output?.code ?? null, exercise: exerciseText,
+        },
+      });
+      setGradeResult(res);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Grading failed");
+    } finally {
+      setGrading(false);
+    }
+  }, [lang, code, output, gradeFn]);
 
   const run = useCallback(async () => {
     setRunning(true);
@@ -1614,7 +1651,48 @@ function CodeMode({ course }: { course?: any }) {
           )}
           Run
         </Button>
+        <Button size="sm" variant="secondary" onClick={checkExercise} disabled={grading}>
+          {grading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <GraduationCap className="h-3.5 w-3.5" />
+          )}
+          Check Exercise
+        </Button>
       </div>
+      {gradeResult && (
+        <div className="rounded-lg border p-3 space-y-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className={`font-semibold ${gradeResult.passed ? "text-green-500" : "text-amber-500"}`}>
+              {gradeResult.passed ? "Passed" : "Needs Work"} · Score: {gradeResult.score}/100
+            </span>
+            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+              <div className={`h-full rounded-full transition-all ${gradeResult.passed ? "bg-green-500" : "bg-amber-500"}`} style={{ width: `${gradeResult.score}%` }} />
+            </div>
+          </div>
+          <p className="text-muted-foreground">{gradeResult.summary}</p>
+          <p className="text-foreground/80">{gradeResult.correctness}</p>
+          {gradeResult.suggestions.length > 0 && (
+            <div>
+              <p className="font-medium text-foreground mt-1">Suggestions:</p>
+              <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
+                {gradeResult.suggestions.map((s, i) => <li key={i}>{s}</li>)}
+              </ul>
+            </div>
+          )}
+          {gradeResult.hints.length > 0 && (
+            <div>
+              <p className="font-medium text-foreground mt-1">Hints:</p>
+              <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
+                {gradeResult.hints.map((h, i) => <li key={i}>{h}</li>)}
+              </ul>
+            </div>
+          )}
+          <button onClick={() => setGradeResult(null)} className="text-[10px] text-muted-foreground hover:text-foreground">
+            Dismiss
+          </button>
+        </div>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 min-h-[300px]">
         <div className="rounded-lg border overflow-hidden" onKeyDown={handleKeyDown}>
           <Editor
