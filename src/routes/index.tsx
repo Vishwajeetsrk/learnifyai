@@ -16,6 +16,7 @@ import {
   MessageSquare,
   BarChart3,
   PlayCircle,
+  Check,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -25,6 +26,7 @@ import { InteractiveDemo } from "@/components/InteractiveDemo";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { getPlatformStats } from "@/lib/stats.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -310,36 +312,23 @@ function Index() {
         </div>
       </section>
 
-      {/* PRICING / CTA */}
+      {/* PRICING PLANS FROM DB */}
       <section id="pricing" className="container mx-auto px-6 pb-10">
-        <Reveal variant="scale">
-          <div className="rounded-3xl border border-border bg-card p-12 md:p-16 text-center shadow-card hover:shadow-glow transition-shadow duration-500">
-            <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight max-w-2xl mx-auto">
-              Your next skill is one <span className="text-gradient">conversation</span> away.
-            </h2>
-            <p className="mt-5 text-muted-foreground text-lg max-w-xl mx-auto">
-              Start free. Upgrade when you're ready for unlimited AI sessions and creator tools.
-            </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              <Button
-                asChild
-                size="lg"
-                className="bg-foreground text-background hover:bg-foreground/90 shadow-glow hover:-translate-y-0.5 transition-all"
-              >
-                <Link to="/signup">Create your account</Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="hover:-translate-y-0.5 transition-all"
-              >
-                <Link to="/pricing" search={{ subscribe: undefined }}>View pricing</Link>
-              </Button>
-            </div>
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 backdrop-blur px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-4">
+            Pricing
           </div>
-        </Reveal>
+          <h2 className="font-display text-3xl md:text-4xl font-semibold tracking-tight">
+            Simple, transparent <span className="text-gradient">pricing</span>
+          </h2>
+          <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+            Start free. Upgrade when you're ready for unlimited AI sessions and creator tools.
+          </p>
+        </div>
+        <PricingPlans />
       </section>
+
+      {/* FINAL CTA */}
 
       <SiteFooter />
     </div>
@@ -382,5 +371,77 @@ function LiveStats() {
         ))}
       </div>
     </section>
+  );
+}
+
+type Plan = {
+  id: string; name: string; price_label: string; description: string | null;
+  features: string[]; cta_label: string; cta_to: string; highlighted: boolean;
+  price_inr: number; interval: string | null; badge: string | null; color: string | null;
+  ai_credits_monthly: number; max_courses: number;
+};
+
+function PricingPlans() {
+  const { data: tiers, isLoading } = useQuery<Plan[]>({
+    queryKey: ["pricing-plans-home"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("pricing_plans")
+        .select("*")
+        .eq("active", true)
+        .order("order_index", { ascending: true });
+      if (error) throw error;
+      return ((data ?? []) as any[]).map((p) => ({
+        ...p,
+        features: Array.isArray(p.features) ? p.features : [],
+        price_inr: Number(p.price_inr || 0),
+      })) as Plan[];
+    },
+    staleTime: 60_000,
+  });
+
+  if (isLoading) return <div className="text-center text-sm text-muted-foreground py-10">Loading plans…</div>;
+  if (!tiers?.length) return null;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      {tiers.map((plan) => (
+        <div
+          key={plan.id}
+          className={`relative rounded-2xl border p-6 flex flex-col transition-all duration-300 hover:shadow-md ${
+            plan.highlighted
+              ? "border-primary/40 bg-primary/[0.04] shadow-primary/5 shadow-sm"
+              : "border-border bg-card"
+          }`}
+        >
+          {plan.badge && (
+            <div
+              className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-sm"
+              style={{ background: plan.color || "var(--primary)" }}
+            >
+              {plan.badge}
+            </div>
+          )}
+          <div className="mb-5">
+            <h3 className="font-semibold text-lg">{plan.name}</h3>
+            {plan.description && <p className="text-xs text-muted-foreground mt-1">{plan.description}</p>}
+          </div>
+          <div className="mb-5">
+            <span className="text-3xl font-bold">{plan.price_label}</span>
+          </div>
+          <ul className="space-y-2 text-xs flex-1 mb-6">
+            {plan.features.map((f, i) => (
+              <li key={i} className="flex items-start gap-2">
+                <Check className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                <span>{f}</span>
+              </li>
+            ))}
+          </ul>
+          <Button asChild size="sm" className="w-full" variant={plan.highlighted ? "default" : "outline"}>
+            <Link to={plan.cta_to}>{plan.cta_label}</Link>
+          </Button>
+        </div>
+      ))}
+    </div>
   );
 }
