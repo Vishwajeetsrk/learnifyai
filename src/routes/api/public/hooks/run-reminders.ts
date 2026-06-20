@@ -52,7 +52,8 @@ async function sendEmail(to: string, subject: string, html: string) {
   const brevoLogin = process.env.BREVO_SMTP_LOGIN;
   if (brevoKey && brevoServer && brevoLogin) {
     try {
-      const { createTransport } = await import("nodemailer");
+      const moduleName = "nodemailer";
+      const { createTransport } = await import(moduleName);
       const transporter = createTransport({
         host: brevoServer,
         port: Number(brevoPort) || 587,
@@ -71,7 +72,8 @@ async function sendEmail(to: string, subject: string, html: string) {
   const gmailEmail = process.env.GMAIL_EMAIL;
   const gmailPass = process.env.GMAIL_APP_PASSWORD;
   if (gmailEmail && gmailPass) {
-    const { createTransport } = await import("nodemailer");
+    const moduleName = "nodemailer";
+    const { createTransport } = await import(moduleName);
     const transporter = createTransport({
       host: "smtp.gmail.com",
       port: 587,

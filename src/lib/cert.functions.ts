@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import nodemailer from "nodemailer";
+// nodemailer is loaded lazily (dynamic import) — never bundled for the browser.
 
 function escapeHtml(s: string): string {
   return s.replace(
@@ -236,6 +236,8 @@ async function sendEmail({
   // 3. Try Resend SMTP (skip if REST already failed with domain verification)
   if (RESEND_API_KEY && !domainUnverified) {
     try {
+      const moduleName = "nodemailer";
+      const { default: nodemailer } = await import(moduleName);
       const transporter = nodemailer.createTransport({
         host: "smtp.resend.com",
         port: 465,
@@ -258,6 +260,8 @@ async function sendEmail({
   // 4. Try Brevo SMTP (requires authorized IP in Brevo dashboard)
   if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
     try {
+      const moduleName = "nodemailer";
+      const { default: nodemailer } = await import(moduleName);
       const transporter = nodemailer.createTransport({
         host: BREVO_SMTP_SERVER,
         port: Number(BREVO_SMTP_PORT) || 587,
@@ -279,6 +283,8 @@ async function sendEmail({
   // 5. Last resort: Gmail SMTP (no domain verification, just needs app password)
   if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
     try {
+      const moduleName = "nodemailer";
+      const { default: nodemailer } = await import(moduleName);
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,
@@ -395,6 +401,8 @@ export const testEmailSending = createServerFn({ method: "POST" })
       // Test Gmail SMTP
       if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
         try {
+          const moduleName = "nodemailer";
+          const { default: nodemailer } = await import(moduleName);
           const transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
             port: 587,

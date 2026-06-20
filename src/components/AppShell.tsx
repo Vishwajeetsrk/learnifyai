@@ -3,7 +3,6 @@ import {
   LayoutDashboard,
   Shield,
   GraduationCap,
-  Sparkles,
   Menu,
   Settings as SettingsIcon,
   Wallet as WalletIcon,
@@ -18,6 +17,7 @@ import {
   Compass,
   Trophy,
   Medal,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -55,7 +55,7 @@ const nav: NavItem[] = [
   { to: "/inbox", label: "Inbox", icon: Inbox },
   { to: "/wallet", label: "Wallet", icon: WalletIcon },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
-  { to: "/support", label: "Support", icon: Sparkles },
+
   { to: "/creator", label: "Creator", icon: BarChart3, creatorOnly: true },
   { to: "/studio", label: "Studio", icon: Clapperboard, creatorOnly: true },
   { to: "/admin", label: "Admin", icon: Shield, adminOnly: true },

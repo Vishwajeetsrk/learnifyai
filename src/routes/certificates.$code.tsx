@@ -267,8 +267,9 @@ function CertificatePage() {
                 if (el.type === "org_logo") {
                   const logoUrl =
                     (row.v2?.certificate_templates as any)?.org_logo_url ||
-                    (row as any)?.issuer_org_logo_url;
-                  return logoUrl ? (
+                    (row as any)?.issuer_org_logo_url ||
+                    "/logo.png";
+                  return (
                     <div
                       key={el.id}
                       className="absolute"
@@ -281,7 +282,7 @@ function CertificatePage() {
                     >
                       <img src={logoUrl} alt="Org Logo" className="w-full h-full object-contain" />
                     </div>
-                  ) : null;
+                  );
                 }
 
                 return (
@@ -316,6 +317,18 @@ function CertificatePage() {
                 className="w-full h-full flex flex-col items-center justify-center p-10 text-center"
                 style={{ fontFamily: "'Georgia', serif" }}
               >
+                {/* Logo in template fallback */}
+                <div className="mb-2">
+                  <img
+                    src={
+                      (row.v2?.certificate_templates as any)?.org_logo_url ||
+                      (row as any)?.issuer_org_logo_url ||
+                      "/logo.png"
+                    }
+                    alt="Logo"
+                    className="h-10 w-auto object-contain"
+                  />
+                </div>
                 <div className="text-4xl font-bold mb-3" style={{ color: "#c9a84c" }}>
                   Certificate of Completion
                 </div>

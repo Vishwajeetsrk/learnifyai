@@ -1226,7 +1226,10 @@ function LessonAiTabs({
 
       {hasToolAccess && (
         <TabsContent value="playground" className="pt-4">
-          <CodePlayground course={{ id: courseId, title: courseTitle, slug: courseSlug }} />
+          <CodePlayground
+            course={{ id: courseId, title: courseTitle, slug: courseSlug }}
+            exerciseText={exercise}
+          />
         </TabsContent>
       )}
     </Tabs>
@@ -1401,7 +1404,7 @@ const WEB_DEFAULTS = {
   js: 'console.log("preview ready");',
 };
 
-function CodePlayground({ course }: { course?: any }) {
+function CodePlayground({ course, exerciseText }: { course?: any; exerciseText?: string }) {
   const defaultMode = useMemo(() => {
     if (!course) return "code";
     const title = (course.title || "").toLowerCase();
@@ -1477,7 +1480,7 @@ function CodePlayground({ course }: { course?: any }) {
         </button>
       </div>
       {mode === "code" ? (
-        <CodeMode course={course} />
+        <CodeMode course={course} exerciseText={exerciseText} />
       ) : mode === "web" ? (
         <WebMode />
       ) : mode === "database" ? (
@@ -1491,7 +1494,7 @@ function CodePlayground({ course }: { course?: any }) {
   );
 }
 
-function CodeMode({ course }: { course?: any }) {
+function CodeMode({ course, exerciseText }: { course?: any; exerciseText?: string }) {
   const defaultLang = useMemo(() => {
     if (!course) return "python";
     const title = (course.title || "").toLowerCase();
@@ -1561,9 +1564,10 @@ function CodeMode({ course }: { course?: any }) {
   } | null>(null);
 
   const checkExercise = useCallback(async () => {
-    const exerciseText = document.querySelector<HTMLElement>("[data-exercise-text]")?.textContent;
-    if (!exerciseText) {
-      toast.error("No exercise loaded. Generate one in the Exercise tab first.");
+    // Use the exerciseText prop passed from parent (generated in Exercise tab)
+    const exerciseContent = exerciseText?.trim();
+    if (!exerciseContent) {
+      toast.error("No exercise loaded. Go to the Exercise tab and generate one first.");
       return;
     }
     if (!code.trim()) {
@@ -1580,7 +1584,7 @@ function CodeMode({ course }: { course?: any }) {
           stdout: output?.stdout ?? "",
           stderr: output?.stderr ?? "",
           exitCode: output?.code ?? null,
-          exercise: exerciseText,
+          exercise: exerciseContent,
         },
       });
       setGradeResult(res);
@@ -1676,6 +1680,8 @@ function CodeMode({ course }: { course?: any }) {
           )}
           Run
         </Button>
+        {/* Only show Check Exercise button when an exercise has been generated */}
+        {exerciseText && (
         <Button size="sm" variant="secondary" onClick={checkExercise} disabled={grading}>
           {grading ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1684,6 +1690,12 @@ function CodeMode({ course }: { course?: any }) {
           )}
           Check Exercise
         </Button>
+        )}
+        {!exerciseText && (
+          <span className="text-[10px] text-muted-foreground italic">
+            Generate an exercise in the Exercise tab to enable grading
+          </span>
+        )}
       </div>
       {gradeResult && (
         <div className="rounded-lg border p-3 space-y-2 text-xs">

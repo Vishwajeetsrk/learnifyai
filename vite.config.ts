@@ -15,9 +15,21 @@ export default defineConfig({
   nitro: process.env.VERCEL ? { preset: "vercel" } : { preset: "vercel" },
   vite: {
     envPrefix: ["VITE_", "NEXT_PUBLIC_"],
+    // Exclude nodemailer from client-side pre-bundling (dev server)
+    optimizeDeps: {
+      exclude: ["nodemailer"],
+    },
+    // Mark nodemailer as external for SSR so it's never evaluated in browser
+    ssr: {
+      external: ["nodemailer"],
+    },
     build: {
       chunkSizeWarningLimit: 1500, // Suppress the chunk size warning
       rollupOptions: {
+        // Prevent Node.js-only packages from being bundled for the browser.
+        // These are used ONLY in server functions (createServerFn) and must
+        // never appear in client-side JS. Vite cannot run them in the browser.
+        external: ["nodemailer", "nodemailer/lib/mailer/index.js"],
         onwarn(warning, warn) {
           if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
             return;

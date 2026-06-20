@@ -311,20 +311,7 @@ function CoursesPage() {
                 params={{ slug: c.slug }}
                 className="group rounded-2xl border bg-card overflow-hidden shadow-card hover:shadow-lg transition-all hover:-translate-y-0.5"
               >
-                <div className="aspect-video bg-muted overflow-hidden">
-                  {c.cover_url ? (
-                    <img
-                      src={c.cover_url}
-                      alt={c.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full grid place-items-center">
-                      <GraduationCap className="h-10 w-10 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
+                <div className="h-1.5 bg-gradient-to-r from-primary/70 via-primary to-primary/40 rounded-t-none" />
                 <div className="p-4">
                   <div className="flex items-center gap-2 text-[10px] uppercase tracking-wide text-muted-foreground">
                     <Badge variant="secondary" className="text-[10px]">

@@ -1,7 +1,17 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Check, Loader2, LogIn } from "lucide-react";
+import {
+  Check,
+  Loader2,
+  LogIn,
+  Zap,
+  Users,
+  Rocket,
+  ArrowRight,
+  Sparkles,
+  Star,
+} from "lucide-react";
 import { toast } from "sonner";
 import { MarketingPage } from "@/components/MarketingPage";
 import { Button } from "@/components/ui/button";
@@ -48,6 +58,9 @@ type Plan = {
   max_courses: number;
   cashfree_plan_id: string | null;
 };
+
+// Plan icons by order
+const PLAN_ICONS = [Zap, Rocket, Users];
 
 function PricingPage() {
   const { user } = useAuth();
@@ -141,15 +154,27 @@ function PricingPage() {
       title="Simple pricing. Real value."
       subtitle="Start free. Upgrade when Learnify becomes part of your routine."
     >
+      {/* Trust badges */}
+      <div className="flex flex-wrap justify-center gap-6 mb-12 text-sm text-muted-foreground">
+        {[
+          { icon: Star, label: "No hidden fees" },
+          { icon: Sparkles, label: "Cancel anytime" },
+          { icon: Check, label: "Instant access" },
+        ].map(({ icon: Icon, label }) => (
+          <div key={label} className="flex items-center gap-2">
+            <Icon className="h-4 w-4 text-primary" />
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+
       {isLoading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <div className="flex justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : error ? (
         <div className="space-y-3 rounded-3xl border border-destructive/20 bg-destructive/5 p-10 text-center">
-          <p className="text-lg font-semibold text-destructive">
-            Pricing is currently unavailable.
-          </p>
+          <p className="text-lg font-semibold text-destructive">Pricing is currently unavailable.</p>
           <p className="text-sm text-muted-foreground">
             We couldn&apos;t load the pricing details right now. Please refresh or try again later.
           </p>
@@ -157,85 +182,172 @@ function PricingPage() {
       ) : !tiers || tiers.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">Pricing coming soon.</p>
       ) : (
-        <div className="grid md:grid-cols-3 gap-6">
-          {tiers.map((t) => {
-            const isCurrent = activePlanId === t.id;
-            const isFree = t.price_inr <= 0 && !t.interval;
-            const showSubscribe = !isFree && !isCurrent;
-            const showLogin = !user && !isFree;
+        <>
+          {/* Pricing cards */}
+          <div className="grid md:grid-cols-3 gap-6 items-stretch">
+            {tiers.map((t, idx) => {
+              const isCurrent = activePlanId === t.id;
+              const isFree = t.price_inr <= 0 && !t.interval;
+              const hasPrice = t.price_inr > 0;
+              const PlanIcon = PLAN_ICONS[idx] ?? Zap;
+              const accentColor = t.color || "#7c3aed";
 
-            return (
-              <div
-                key={t.id}
-                className={`rounded-2xl border p-8 flex flex-col ${t.highlighted ? "border-primary/50 bg-card shadow-xl shadow-primary/10 ring-1 ring-primary/20" : "border-border/60 bg-card"}`}
-                style={t.color ? { borderColor: isCurrent ? t.color : undefined } : undefined}
-              >
-                {(t.badge || isCurrent) && (
+              return (
+                <div
+                  key={t.id}
+                  className={`relative rounded-3xl flex flex-col overflow-hidden transition-all duration-300 ${
+                    t.highlighted
+                      ? "shadow-2xl shadow-violet-500/20 scale-[1.02] border-2"
+                      : "border hover:shadow-xl hover:shadow-black/10 hover:-translate-y-1"
+                  }`}
+                  style={{
+                    borderColor: t.highlighted ? accentColor : undefined,
+                    background: t.highlighted
+                      ? `linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--card)) 100%)`
+                      : undefined,
+                  }}
+                >
+                  {/* Gradient top bar */}
                   <div
-                    className={`inline-flex self-start rounded-full px-3 py-1 text-xs font-medium mb-4 ${isCurrent ? "bg-primary text-primary-foreground" : "bg-primary text-primary-foreground"}`}
-                    style={
-                      isCurrent ? { background: t.color || "#7c3aed", color: "#fff" } : undefined
-                    }
-                  >
-                    {isCurrent ? "Your plan" : t.badge || "Most popular"}
-                  </div>
-                )}
-                <h3 className="font-display text-2xl font-semibold">{t.name}</h3>
-                <div className="mt-3 text-4xl font-bold tracking-tight">{t.price_label}</div>
-                {t.description && (
-                  <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>
-                )}
-                {t.ai_credits_monthly > 0 && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t.ai_credits_monthly.toLocaleString("en-IN")} AI credits / mo
-                  </p>
-                )}
-                <ul className="mt-6 space-y-3 text-sm flex-1">
-                  {t.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-8 w-full space-y-2">
-                  {isCurrent ? (
-                    <div className="flex gap-2">
-                      <Button className="flex-1" variant="outline" disabled>
-                        Active
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={handleCancel}>
-                        Cancel
-                      </Button>
-                    </div>
-                  ) : isFree ? (
-                    <Button asChild className="w-full" variant="outline">
-                      <Link to="/signup">Get started free</Link>
-                    </Button>
-                  ) : showLogin ? (
-                    <Button asChild className="w-full">
-                      <Link to="/login">
-                        <LogIn className="h-4 w-4 mr-1" /> Sign in to subscribe
-                      </Link>
-                    </Button>
-                  ) : (
-                    <Button
-                      className="w-full"
-                      variant={t.highlighted ? "default" : "outline"}
-                      onClick={() => handleSubscribe(t.id)}
-                      disabled={loadingPlan !== null}
+                    className="h-1.5 w-full"
+                    style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}99)` }}
+                  />
+
+                  {/* Popular badge */}
+                  {(t.badge || isCurrent) && (
+                    <div
+                      className="absolute top-5 right-5 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full text-white shadow-lg"
+                      style={{ background: accentColor }}
                     >
-                      {loadingPlan === t.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                      {loadingPlan === t.id
-                        ? "Processing..."
-                        : `Subscribe ₹${t.price_inr}/${t.interval}`}
-                    </Button>
+                      {isCurrent ? "Your plan" : t.badge}
+                    </div>
                   )}
+
+                  <div className="flex flex-col flex-1 p-8">
+                    {/* Icon + Name */}
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 shadow-md"
+                      style={{ background: `${accentColor}20` }}
+                    >
+                      <PlanIcon className="h-6 w-6" style={{ color: accentColor }} />
+                    </div>
+
+                    <h3 className="text-xl font-bold">{t.name}</h3>
+                    {t.description && (
+                      <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                        {t.description}
+                      </p>
+                    )}
+
+                    {/* Price */}
+                    <div className="mt-6 mb-1">
+                      <span className="text-5xl font-extrabold tracking-tight">{t.price_label}</span>
+                      {t.interval && (
+                        <span className="text-sm text-muted-foreground ml-1">/{t.interval}</span>
+                      )}
+                    </div>
+
+                    {/* AI Credits Prominent Label */}
+                    {t.ai_credits_monthly > 0 && (
+                      <div className="my-4 px-4 py-2 rounded-xl bg-primary/5 border border-primary/10 text-center">
+                        <span className="text-sm font-semibold text-primary">
+                          {t.ai_credits_monthly.toLocaleString("en-IN")} AI credits / mo
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Divider */}
+                    <div className="border-t border-border/40 my-5" />
+
+                    {/* Features */}
+                    <ul className="space-y-3 text-sm flex-1">
+                      {t.features.map((f, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <div
+                            className="mt-0.5 h-5 w-5 rounded-full flex items-center justify-center shrink-0"
+                            style={{ background: `${accentColor}18` }}
+                          >
+                            <Check className="h-3 w-3" style={{ color: accentColor }} />
+                          </div>
+                          <span className="text-foreground/80">{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* CTA */}
+                    <div className="mt-8 space-y-2">
+                      {isCurrent ? (
+                        <div className="flex gap-2">
+                          <Button className="flex-1" variant="outline" disabled>
+                            ✓ Active plan
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={handleCancel} className="text-muted-foreground">
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : !hasPrice ? (
+                        <Button asChild className="w-full h-11 text-sm font-semibold" variant={t.highlighted ? "default" : "outline"}>
+                          <Link to="/signup">
+                            {t.cta_label || "Get started free"}
+                            <ArrowRight className="h-4 w-4 ml-2" />
+                          </Link>
+                        </Button>
+                      ) : !user ? (
+                        <Button
+                          asChild
+                          className="w-full h-11 text-sm font-semibold"
+                          style={
+                            t.highlighted
+                              ? { background: accentColor, color: "#fff", border: "none" }
+                              : undefined
+                          }
+                        >
+                          <Link to="/login">
+                            <LogIn className="h-4 w-4 mr-2" />
+                            Sign in to subscribe
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button
+                          className="w-full h-11 text-sm font-semibold"
+                          onClick={() => handleSubscribe(t.id)}
+                          disabled={loadingPlan !== null}
+                          style={
+                            t.highlighted
+                              ? { background: accentColor, color: "#fff", border: "none" }
+                              : undefined
+                          }
+                        >
+                          {loadingPlan === t.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          ) : null}
+                          {loadingPlan === t.id
+                            ? "Processing..."
+                            : `Subscribe ₹${t.price_inr}/${t.interval === 'month' ? 'month' : t.interval}`}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+
+          {/* FAQ / reassurance strip */}
+          <div className="mt-16 rounded-2xl border border-border/50 bg-muted/30 px-8 py-7 text-center space-y-2">
+            <p className="text-sm font-medium">Have questions about which plan is right for you?</p>
+            <p className="text-sm text-muted-foreground">
+              All plans include a 7-day trial. No credit card required for Starter.{" "}
+              <a
+                href="mailto:hello@learnify.ai"
+                className="text-primary underline underline-offset-2 hover:opacity-80 transition"
+              >
+                Contact us
+              </a>{" "}
+              anytime.
+            </p>
+          </div>
+        </>
       )}
     </MarketingPage>
   );

@@ -262,6 +262,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v1.4.0 (June 2026)
+- ✅ **Email Template / Admin Page Fix**: Resolved client-side pre-bundling crash on the `/admin` page by converting literal dynamic imports of `nodemailer` to variable-based imports.
+- ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.
+- ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Configured the Team plan with an online checkout option at ₹4,999/month.
+
 ### v1.3.0 (June 2026)
 - 🔴 **CRITICAL FIX**: Resolved fatal JS bundle crash (`Cannot set properties of undefined — Activity`) that prevented React from hydrating on production, making all interactive elements non-functional
 - ✅ Sign In, Google OAuth, dark mode toggle, AI Toolkit demos now fully working

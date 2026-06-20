@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import nodemailer from "nodemailer";
+// nodemailer is loaded lazily via dynamic import so it is never bundled
+// into the client-side JavaScript bundle (it's a Node.js-only module).
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 // ─── HTML escape ──────────────────────────────────────────────────
@@ -101,6 +102,8 @@ export async function sendEmail({
   // 3. Try Brevo SMTP
   if (BREVO_SMTP_KEY && BREVO_SMTP_SERVER && BREVO_SMTP_LOGIN) {
     try {
+      const moduleName = "nodemailer";
+      const { default: nodemailer } = await import(moduleName);
       const transporter = nodemailer.createTransport({
         host: BREVO_SMTP_SERVER,
         port: Number(BREVO_SMTP_PORT) || 587,
@@ -118,6 +121,8 @@ export async function sendEmail({
   // 4. Try Gmail SMTP (most reliable fallback)
   if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
     try {
+      const moduleName = "nodemailer";
+      const { default: nodemailer } = await import(moduleName);
       const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,

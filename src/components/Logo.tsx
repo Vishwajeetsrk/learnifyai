@@ -2,23 +2,21 @@ import logoUrl from "@/assets/learnify-logo.png?url";
 import { cn } from "@/lib/utils";
 
 /**
- * Brand logo with guaranteed visibility across light/dark themes.
- * The source PNG is dark-on-transparent; in dark mode we wrap it on a
- * subtle white plate so the mark always reads.
+ * Brand logo displaying the official Learnify AI logo image.
+ * Uses a clean dark-mode filter inversion to ensure readability on dark themes
+ * without requiring a clunky white background box.
  */
 export function Logo({ className, height = "h-10" }: { className?: string; height?: string }) {
   return (
-    <span
-      className={cn(
-        "inline-flex items-center justify-center rounded-md transition-colors",
-        "dark:bg-white/95 dark:px-1.5 dark:py-0.5 dark:shadow-sm",
-        className,
-      )}
-    >
+    <span className={cn("inline-flex items-center justify-center transition-all", className)}>
       <img
         src={logoUrl}
         alt="Learnify AI"
-        className={cn(height, "w-auto object-contain")}
+        className={cn(
+          height,
+          "w-auto object-contain",
+          "dark:brightness-0 dark:invert", // Elegant dark mode transition: renders logo white on dark backgrounds
+        )}
         draggable={false}
       />
     </span>
