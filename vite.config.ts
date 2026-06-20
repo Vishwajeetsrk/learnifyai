@@ -39,20 +39,9 @@ export default defineConfig({
         output: {
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
-            if (id.includes("react-dom") || id.includes("react")) return "vendor-react";
-            if (id.includes("@tanstack")) return "vendor-tanstack";
-            if (id.includes("@supabase")) return "vendor-supabase";
-            if (id.includes("framer-motion")) return "vendor-motion";
-            if (
-              id.includes("react-markdown") ||
-              id.includes("remark-gfm") ||
-              id.includes("rehype-highlight") ||
-              id.includes("highlight.js")
-            )
-              return "vendor-markdown";
+            // Only split large leaf dependencies that have no circular imports with core library packages.
             if (id.includes("xlsx")) return "vendor-xlsx";
             if (id.includes("jspdf") || id.includes("html2canvas-pro")) return "vendor-pdf";
-            if (id.includes("youtube-transcript")) return "vendor-youtube";
             return "vendor";
           },
         },
