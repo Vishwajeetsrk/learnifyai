@@ -234,7 +234,11 @@ NEVER give shallow answers, a single resource, outdated stacks, generic boilerpl
               { role: "system", content: systemPrompt },
               ...(history ?? []).map((m) => {
                 let content: any = m.content;
-                if (m.role === "user" && m.content.includes("![") && m.content.includes("](data:image/")) {
+                if (
+                  m.role === "user" &&
+                  m.content.includes("![") &&
+                  m.content.includes("](data:image/")
+                ) {
                   const parts: any[] = [];
                   const imgRegex = /!\[.*?\]\((data:image\/[^;]+;base64,[^\)]+)\)/g;
                   let lastIndex = 0;
@@ -247,7 +251,7 @@ NEVER give shallow answers, a single resource, outdated stacks, generic boilerpl
                   }
                   const textAfter = m.content.substring(lastIndex).trim();
                   if (textAfter) parts.push({ type: "text", text: textAfter });
-                  
+
                   if (parts.length > 0) {
                     content = parts;
                   }

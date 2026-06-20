@@ -33,7 +33,6 @@ import type { ReactNode } from "react";
 import { GlobalSupportAgent } from "@/components/GlobalSupportAgent";
 
 interface NavItem {
-
   to: string;
   label: string;
   icon: typeof Sparkles;
@@ -177,4 +176,3 @@ export function AppShell({ children }: { children: ReactNode }) {
     </div>
   );
 }
-

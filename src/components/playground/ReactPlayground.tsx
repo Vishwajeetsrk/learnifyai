@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { SandpackProvider, SandpackLayout, SandpackCodeEditor, SandpackPreview, SandpackFileExplorer } from "@codesandbox/sandpack-react";
+import {
+  SandpackProvider,
+  SandpackLayout,
+  SandpackCodeEditor,
+  SandpackPreview,
+  SandpackFileExplorer,
+} from "@codesandbox/sandpack-react";
 import { aquaBlue } from "@codesandbox/sandpack-themes";
 import { RotateCcw } from "lucide-react";
 
@@ -53,16 +59,31 @@ export function ReactPlayground() {
         <span className="font-medium">React Sandbox</span>
         <span className="text-muted-foreground">— React 18, ES2022</span>
         <div className="flex-1" />
-        <button onClick={() => setKey((k) => k + 1)} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground" title="Reset">
+        <button
+          onClick={() => setKey((k) => k + 1)}
+          className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground"
+          title="Reset"
+        >
           <RotateCcw className="h-3.5 w-3.5" />
         </button>
       </div>
       <div className="flex-1 overflow-hidden" key={key}>
         {typeof window !== "undefined" && (
-          <SandpackProvider template="react" files={FILES} theme={aquaBlue} customSetup={SETUP} options={{ visibleFiles: ["/App.jsx", "/index.jsx"], activeFile: "/App.jsx" }}>
+          <SandpackProvider
+            template="react"
+            files={FILES}
+            theme={aquaBlue}
+            customSetup={SETUP}
+            options={{ visibleFiles: ["/App.jsx", "/index.jsx"], activeFile: "/App.jsx" }}
+          >
             <SandpackLayout style={{ borderRadius: 0, border: "none", height: "100%" }}>
               <SandpackFileExplorer style={{ height: "100%", minWidth: "150px" }} />
-              <SandpackCodeEditor style={{ height: "100%" }} showLineNumbers showInlineErrors showTabs />
+              <SandpackCodeEditor
+                style={{ height: "100%" }}
+                showLineNumbers
+                showInlineErrors
+                showTabs
+              />
               <SandpackPreview style={{ height: "100%" }} showRefreshButton showOpenInCodeSandbox />
             </SandpackLayout>
           </SandpackProvider>

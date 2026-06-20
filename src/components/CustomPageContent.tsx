@@ -40,15 +40,14 @@ export function CustomPageContent({ pageKey, title, subtitle, defaultContent, me
             <h1 className="text-3xl font-display font-bold">{title}</h1>
             <p className="text-muted-foreground text-sm mt-1">{subtitle}</p>
           </div>
-          {q.isLoading ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <div
+            className="prose prose-neutral dark:prose-invert max-w-3xl mx-auto"
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+          {q.isLoading && (
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             </div>
-          ) : (
-            <div
-              className="prose prose-neutral dark:prose-invert max-w-3xl mx-auto"
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
           )}
         </div>
       </main>

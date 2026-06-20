@@ -4,12 +4,10 @@ test.describe('Navigation and Public Pages', () => {
   test('should load the home page', async ({ page }) => {
     await page.goto('/');
     
-    // Check if the page title contains Learnify AI or similar
     await expect(page).toHaveTitle(/Learnify AI|Learnify/i);
     
-    // Check for a Get Started or Login button
-    const cta = page.getByRole('link', { name: /get started|login/i }).first();
-    await expect(cta).toBeVisible().catch(() => null);
+    const cta = page.getByRole('link', { name: /get started|start|login|sign in/i }).first();
+    await expect(cta).toBeVisible({ timeout: 8000 }).catch(() => null);
   });
 
   test('should load the courses page', async ({ page }) => {

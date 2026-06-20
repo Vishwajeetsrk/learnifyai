@@ -91,7 +91,14 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 h-8 text-xs rounded-lg border bg-card px-2 hover:bg-accent"
       >
-        <img src={LOGO_URL(active.id)} alt="" className="w-4 h-4 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+        <img
+          src={LOGO_URL(active.id)}
+          alt=""
+          className="w-4 h-4 shrink-0"
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = "none";
+          }}
+        />
         <span className="hidden sm:inline">{active.label}</span>
         <span className="sm:hidden">{active.id}</span>
         <ChevronDown className="h-3 w-3 text-muted-foreground" />
@@ -116,14 +123,29 @@ export function LanguageSelector({ value, onChange }: LanguageSelectorProps) {
               {filtered.map((l) => (
                 <button
                   key={l.id}
-                  onClick={() => { onChange(l.id); setOpen(false); setSearch(""); }}
+                  onClick={() => {
+                    onChange(l.id);
+                    setOpen(false);
+                    setSearch("");
+                  }}
                   className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs text-left transition ${value === l.id ? "bg-primary/10 text-primary" : "hover:bg-accent"}`}
                 >
-                  <img src={LOGO_URL(l.id)} alt="" className="w-4 h-4 shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                  <img
+                    src={LOGO_URL(l.id)}
+                    alt=""
+                    className="w-4 h-4 shrink-0"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
                   {l.label}
                 </button>
               ))}
-              {filtered.length === 0 && <div className="px-3 py-4 text-xs text-muted-foreground text-center">No languages found</div>}
+              {filtered.length === 0 && (
+                <div className="px-3 py-4 text-xs text-muted-foreground text-center">
+                  No languages found
+                </div>
+              )}
             </div>
           </div>
         </>

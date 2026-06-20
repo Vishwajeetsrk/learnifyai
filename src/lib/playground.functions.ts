@@ -16,12 +16,49 @@ function tryRunWithJavascript(code: string, stdin: string) {
     let __stderr = "";
     const sandbox = {
       console: {
-        log: (...args: any[]) => { __stdout += args.map((a: any) => typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)).join(" ") + "\n"; },
-        error: (...args: any[]) => { __stderr += args.map((a: any) => typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)).join(" ") + "\n"; },
-        warn: (...args: any[]) => { __stdout += args.map((a: any) => String(a)).join(" ") + "\n"; },
+        log: (...args: any[]) => {
+          __stdout +=
+            args
+              .map((a: any) => (typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)))
+              .join(" ") + "\n";
+        },
+        error: (...args: any[]) => {
+          __stderr +=
+            args
+              .map((a: any) => (typeof a === "object" ? JSON.stringify(a, null, 2) : String(a)))
+              .join(" ") + "\n";
+        },
+        warn: (...args: any[]) => {
+          __stdout += args.map((a: any) => String(a)).join(" ") + "\n";
+        },
       },
       __stdin: stdin,
-      JSON, Math, Date, RegExp, Error, Array, Object, String, Number, Boolean, Map, Set, WeakMap, WeakSet, Promise, parseInt, parseFloat, isNaN, isFinite, decodeURI, encodeURI, decodeURIComponent, encodeURIComponent, Infinity, NaN, undefined,
+      JSON,
+      Math,
+      Date,
+      RegExp,
+      Error,
+      Array,
+      Object,
+      String,
+      Number,
+      Boolean,
+      Map,
+      Set,
+      WeakMap,
+      WeakSet,
+      Promise,
+      parseInt,
+      parseFloat,
+      isNaN,
+      isFinite,
+      decodeURI,
+      encodeURI,
+      decodeURIComponent,
+      encodeURIComponent,
+      Infinity,
+      NaN,
+      undefined,
     };
     const wrapped = `"use strict";\n${code}`;
     const script = new vm.Script(wrapped, { timeout: 5000 });
@@ -36,22 +73,31 @@ function transpileTs(code: string): string {
   try {
     const ts = require("typescript");
     const result = ts.transpileModule(code, {
-      target: ts.ScriptTarget.ES2020, noEmit: true, removeComments: true,
+      target: ts.ScriptTarget.ES2020,
+      noEmit: true,
+      removeComments: true,
     });
     return result?.outputText ?? code;
-  } catch { return code; }
+  } catch {
+    return code;
+  }
 }
 
 // ---- Multi-provider runners (Judge0, Wandbox, Piston) ----
 
 interface RunResult {
-  stdout: string; stderr: string; code: number | null; signal: string | null; provider: string;
+  stdout: string;
+  stderr: string;
+  code: number | null;
+  signal: string | null;
+  provider: string;
 }
 
 const PISTON_URL = process.env.PISTON_URL || "https://emkc.org/api/v2/piston";
 const JUDGE0_URL = process.env.JUDGE0_URL || "https://ce.judge0.com";
 
-const PISTON_DEAD = "Public Piston is whitelist-only since Feb 2026. For non-JS/TS languages, Judge0 or Wandbox are used as fallback.";
+const PISTON_DEAD =
+  "Public Piston is whitelist-only since Feb 2026. For non-JS/TS languages, Judge0 or Wandbox are used as fallback.";
 
 async function runJudge0(lang: string, source: string, stdin: string): Promise<RunResult> {
   const spec = (await import("./executors")).LANGUAGES[lang as LangKey]?.judge0;
@@ -63,11 +109,18 @@ async function runJudge0(lang: string, source: string, stdin: string): Promise<R
   });
   const text = await res.text();
   let data: any = {};
-  try { data = JSON.parse(text); } catch { /* ignore */ }
+  try {
+    data = JSON.parse(text);
+  } catch {
+    /* ignore */
+  }
   if (!res.ok) throw new Error(`Judge0 ${res.status}: ${data?.error || text.slice(0, 200)}`);
   return {
-    stdout: data.stdout ?? "", stderr: (data.compile_output ?? "") + (data.stderr ?? ""),
-    code: data.exit_code ?? null, signal: data.signal ?? null, provider: "judge0",
+    stdout: data.stdout ?? "",
+    stderr: (data.compile_output ?? "") + (data.stderr ?? ""),
+    code: data.exit_code ?? null,
+    signal: data.signal ?? null,
+    provider: "judge0",
   };
 }
 
@@ -83,8 +136,11 @@ async function runWandbox(lang: string, source: string, stdin: string): Promise<
   const data = await res.json();
   const stderr = [data.compiler_error, data.program_error].filter(Boolean).join("\n");
   return {
-    stdout: data.program_output ?? "", stderr,
-    code: data.status != null ? Number(data.status) : null, signal: data.signal ?? null, provider: "wandbox",
+    stdout: data.program_output ?? "",
+    stderr,
+    code: data.status != null ? Number(data.status) : null,
+    signal: data.signal ?? null,
+    provider: "wandbox",
   };
 }
 
@@ -95,17 +151,29 @@ async function runPiston(lang: string, source: string, stdin: string): Promise<R
   const res = await fetch(`${PISTON_URL}/execute`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ language: spec.language, version: spec.version, stdin, files: [{ name: spec.filename, content: source }] }),
+    body: JSON.stringify({
+      language: spec.language,
+      version: spec.version,
+      stdin,
+      files: [{ name: spec.filename, content: source }],
+    }),
   });
   const text = await res.text();
   let data: any = {};
-  try { data = JSON.parse(text); } catch { /* ignore */ }
+  try {
+    data = JSON.parse(text);
+  } catch {
+    /* ignore */
+  }
   if (!res.ok) throw new Error(`Piston ${res.status}: ${data?.message || text.slice(0, 200)}`);
   const run = data.run ?? {};
   const compile = data.compile ?? {};
   return {
-    stdout: (compile.stdout ?? "") + (run.stdout ?? ""), stderr: (compile.stderr ?? "") + (run.stderr ?? ""),
-    code: run.code ?? compile.code ?? null, signal: run.signal ?? null, provider: "piston",
+    stdout: (compile.stdout ?? "") + (run.stdout ?? ""),
+    stderr: (compile.stderr ?? "") + (run.stderr ?? ""),
+    code: run.code ?? compile.code ?? null,
+    signal: run.signal ?? null,
+    provider: "piston",
   };
 }
 
@@ -132,8 +200,12 @@ export const executeCode = createServerFn({ method: "POST" })
       try {
         const result = await order[i]();
         return {
-          success: true as const, stdout: result.stdout, stderr: result.stderr,
-          code: result.code ?? 1, signal: result.signal, provider: result.provider,
+          success: true as const,
+          stdout: result.stdout,
+          stderr: result.stderr,
+          code: result.code ?? 1,
+          signal: result.signal,
+          provider: result.provider,
         };
       } catch (err: any) {
         const isLast = i === order.length - 1;

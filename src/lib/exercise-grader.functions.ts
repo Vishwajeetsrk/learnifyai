@@ -93,7 +93,9 @@ Grade this submission. Return only JSON.`;
           hints: parsed.hints ?? [],
           model,
         };
-      } catch { continue; }
+      } catch {
+        continue;
+      }
     }
 
     throw new Error("AI grading unavailable right now. Try again in a moment.");

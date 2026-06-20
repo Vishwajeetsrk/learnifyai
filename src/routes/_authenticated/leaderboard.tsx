@@ -92,12 +92,25 @@ function LeaderboardPage() {
                 <Avatar className="h-14 w-14 border-2 border-background shadow-md">
                   {my.avatar_url ? <AvatarImage src={my.avatar_url} /> : null}
                   <AvatarFallback className="bg-gradient-to-br from-primary to-primary/60 text-white font-bold text-lg">
-                    {my.full_name ? my.full_name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase() : "#"}
+                    {my.full_name
+                      ? my.full_name
+                          .split(" ")
+                          .map((n: string) => n[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()
+                      : "#"}
                   </AvatarFallback>
                 </Avatar>
                 <div>
                   <div className="flex items-center gap-2">
-                    <Link to="/creators/$id" params={{ id: user?.id ?? "" }} className="font-semibold text-sm hover:underline">#{my.rank} · {my.full_name ?? "Your Rank"}</Link>
+                    <Link
+                      to="/creators/$id"
+                      params={{ id: user?.id ?? "" }}
+                      className="font-semibold text-sm hover:underline"
+                    >
+                      #{my.rank} · {my.full_name ?? "Your Rank"}
+                    </Link>
                     <RankBadgeSmall name={my.rankName} />
                     <Badge variant="outline" className="text-[10px]">
                       Lv.{my.level}

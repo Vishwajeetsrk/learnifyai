@@ -57,7 +57,10 @@ export const executeCode = createServerFn({ method: "POST" })
     const compiler = pickCompiler(data.language);
 
     const startTime = Date.now();
-    let stdout = "", stderr = "", exitCode = -1, status = "success";
+    let stdout = "",
+      stderr = "",
+      exitCode = -1,
+      status = "success";
 
     try {
       const res = await fetch(`${WANDBOX_API}/compile.json`, {
@@ -104,7 +107,9 @@ export const executeCode = createServerFn({ method: "POST" })
         execution_time_ms: elapsed,
         status,
       });
-    } catch { /* non-fatal */ }
+    } catch {
+      /* non-fatal */
+    }
 
     return { success: true as const, stdout, stderr, code: exitCode, time_ms: elapsed };
   });
@@ -124,32 +129,60 @@ export const getRunHistory = createServerFn({ method: "GET" })
   });
 
 export const executeTestCases = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => z.object({
-    language: z.string(),
-    code: z.string(),
-    testCases: z.array(z.object({
-      input: z.any(),
-      expected: z.any(),
-    })),
-  }).parse(data))
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        language: z.string(),
+        code: z.string(),
+        testCases: z.array(
+          z.object({
+            input: z.any(),
+            expected: z.any(),
+          }),
+        ),
+      })
+      .parse(data),
+  )
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const results: { passed: boolean; input: any; expected: any; actual: any; error?: string }[] = [];
+    const results: { passed: boolean; input: any; expected: any; actual: any; error?: string }[] =
+      [];
     for (const tc of data.testCases) {
       try {
-        const args = Object.values(tc.input as Record<string, any>).map((v) => JSON.stringify(v)).join(", ");
+        const args = Object.values(tc.input as Record<string, any>)
+          .map((v) => JSON.stringify(v))
+          .join(", ");
         const testCode = `${data.code}\n\nconsole.log(JSON.stringify(main(${args})));`;
-        const res = await executeCode({ data: { language: data.language, code: testCode, stdin: "" } } as any);
+        const res = await executeCode({
+          data: { language: data.language, code: testCode, stdin: "" },
+        } as any);
         if (!res.success) {
-          results.push({ passed: false, input: tc.input, expected: tc.expected, actual: null, error: (res as any).error });
+          results.push({
+            passed: false,
+            input: tc.input,
+            expected: tc.expected,
+            actual: null,
+            error: (res as any).error,
+          });
         } else {
           const actual = JSON.parse((res as any).stdout?.trim() || "null");
           const passed = JSON.stringify(actual) === JSON.stringify(tc.expected);
           results.push({ passed, input: tc.input, expected: tc.expected, actual });
         }
       } catch (err: any) {
-        results.push({ passed: false, input: tc.input, expected: tc.expected, actual: null, error: err.message });
+        results.push({
+          passed: false,
+          input: tc.input,
+          expected: tc.expected,
+          actual: null,
+          error: err.message,
+        });
       }
     }
-    return { results, passed: results.every((r) => r.passed), total: results.length, passedCount: results.filter((r) => r.passed).length };
+    return {
+      results,
+      passed: results.every((r) => r.passed),
+      total: results.length,
+      passedCount: results.filter((r) => r.passed).length,
+    };
   });

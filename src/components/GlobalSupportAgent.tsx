@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import { Bot, MessageSquare, Send, X, Loader2, Sparkles, Trash2, ArrowRight, Play, Terminal, Brain } from "lucide-react";
+import {
+  Bot,
+  MessageSquare,
+  Send,
+  X,
+  Loader2,
+  Sparkles,
+  Trash2,
+  ArrowRight,
+  Play,
+  Terminal,
+  Brain,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
@@ -27,13 +39,38 @@ type Message = {
 
 function BotAvatar({ className }: { className?: string }) {
   return (
-    <div className={cn("h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shrink-0 shadow-sm", className)}>
+    <div
+      className={cn(
+        "h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shrink-0 shadow-sm",
+        className,
+      )}
+    >
       <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-white">
-        <rect x="5" y="8" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        <rect
+          x="5"
+          y="8"
+          width="14"
+          height="10"
+          rx="2"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          fill="none"
+        />
         <circle cx="9" cy="13" r="1" fill="currentColor" />
         <circle cx="15" cy="13" r="1" fill="currentColor" />
-        <path d="M12 15c0 0 1 1 2 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        <path d="M9 5l1.5 3h3L15 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          d="M12 15c0 0 1 1 2 0"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <path
+          d="M9 5l1.5 3h3L15 5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
         <path d="M7 6l-2 3M17 6l2 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
       </svg>
     </div>
@@ -168,7 +205,10 @@ export function GlobalSupportAgent() {
           </header>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20 scrollbar-thin">
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20 scrollbar-thin"
+          >
             {messages.length === 0 && showIntro && (
               <div className="text-center py-8 space-y-4 animate-in fade-in duration-300">
                 <div className="relative inline-flex">
@@ -179,7 +219,8 @@ export function GlobalSupportAgent() {
                 </div>
                 <h4 className="font-display font-semibold text-sm">How can I help you today?</h4>
                 <p className="text-xs text-muted-foreground max-w-[220px] mx-auto leading-relaxed">
-                  Ask me about courses, playground modes, assignments, coaching slots, or navigating the website.
+                  Ask me about courses, playground modes, assignments, coaching slots, or navigating
+                  the website.
                 </p>
                 <div className="grid gap-1.5 max-w-[240px] mx-auto pt-2">
                   {[
@@ -189,7 +230,10 @@ export function GlobalSupportAgent() {
                   ].map((s) => (
                     <button
                       key={s}
-                      onClick={() => { setInput(s); setShowIntro(false); }}
+                      onClick={() => {
+                        setInput(s);
+                        setShowIntro(false);
+                      }}
                       className="text-left text-[11px] border bg-card hover:bg-accent hover:border-primary/30 rounded-lg p-2.5 transition-all leading-snug group"
                     >
                       <span className="flex items-center gap-1.5">
@@ -207,14 +251,16 @@ export function GlobalSupportAgent() {
                 key={i}
                 className={cn(
                   "flex flex-col gap-1.5 animate-in slide-in-from-bottom-2 duration-200",
-                  m.role === "user" ? "items-end" : "items-start"
+                  m.role === "user" ? "items-end" : "items-start",
                 )}
                 style={{ animationDelay: `${i * 0.05}s` }}
               >
                 {m.role === "assistant" && (
                   <div className="flex items-center gap-2 pl-0.5">
                     <BotAvatar className="h-6 w-6" />
-                    <span className="text-[10px] font-medium text-muted-foreground">Learnify AI</span>
+                    <span className="text-[10px] font-medium text-muted-foreground">
+                      Learnify AI
+                    </span>
                   </div>
                 )}
                 <div
@@ -222,7 +268,7 @@ export function GlobalSupportAgent() {
                     "rounded-2xl px-3 py-2 text-xs leading-relaxed max-w-[85%] border shadow-sm",
                     m.role === "user"
                       ? "bg-primary text-primary-foreground border-primary rounded-tr-sm"
-                      : "bg-card text-card-foreground border-border rounded-tl-sm"
+                      : "bg-card text-card-foreground border-border rounded-tl-sm",
                   )}
                 >
                   <ReactMarkdown
@@ -243,10 +289,13 @@ export function GlobalSupportAgent() {
                         );
                       },
                       a: ({ href, children }) => (
-                        <a href={href} className="text-primary underline hover:text-primary/80 font-medium">
+                        <a
+                          href={href}
+                          className="text-primary underline hover:text-primary/80 font-medium"
+                        >
                           {children}
                         </a>
-                      )
+                      ),
                     }}
                   >
                     {m.content}
@@ -260,7 +309,8 @@ export function GlobalSupportAgent() {
                         {step.type === "tool_call" && step.name === "execute_code" && (
                           <details className="rounded-lg border border-primary/20 bg-primary/5 p-2 space-y-1.5">
                             <summary className="cursor-pointer flex items-center gap-1.5 font-medium text-primary hover:underline">
-                              <Play className="h-3 w-3" /> Executed {step.arguments?.language || "code"}
+                              <Play className="h-3 w-3" /> Executed{" "}
+                              {step.arguments?.language || "code"}
                             </summary>
                             {step.arguments?.code && (
                               <pre className="text-[9px] bg-black/80 text-green-400 rounded p-1.5 overflow-x-auto">
@@ -277,7 +327,9 @@ export function GlobalSupportAgent() {
                         {step.type === "tool_call" && step.name === "web_search" && (
                           <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-2 flex items-center gap-1.5 text-blue-600">
                             <Terminal className="h-3 w-3" />
-                            <span>Searched: <strong>{step.arguments?.query}</strong></span>
+                            <span>
+                              Searched: <strong>{step.arguments?.query}</strong>
+                            </span>
                           </div>
                         )}
                       </div>
@@ -292,8 +344,14 @@ export function GlobalSupportAgent() {
                 <BotAvatar className="h-6 w-6" />
                 <div className="rounded-lg border bg-card p-1 shadow-sm max-w-[85%]">
                   <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
-                    {liveStep === "Thinking..." ? <TypingDots /> : <Loader2 className="h-3 w-3 animate-spin ml-2" />}
-                    {liveStep && liveStep !== "Thinking..." && <span className="pr-2">{liveStep}</span>}
+                    {liveStep === "Thinking..." ? (
+                      <TypingDots />
+                    ) : (
+                      <Loader2 className="h-3 w-3 animate-spin ml-2" />
+                    )}
+                    {liveStep && liveStep !== "Thinking..." && (
+                      <span className="pr-2">{liveStep}</span>
+                    )}
                   </div>
                 </div>
               </div>

@@ -6,7 +6,6 @@ import {
   Users,
   ShieldAlert,
   Wallet,
-  Activity,
   BarChart3,
   Bell,
   Loader2,
@@ -26,6 +25,23 @@ import {
   VideoOff,
   Award,
 } from "lucide-react";
+
+function Activity({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
+  );
+}
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Area,
@@ -158,12 +174,18 @@ function AdminOverview() {
     if (txFilter === "all") return true;
     const desc = (t.description ?? "").toLowerCase();
     switch (txFilter) {
-      case "topup": return desc.includes("top-up") || desc.includes("topup");
-      case "subscription": return desc.includes("purchased plan");
-      case "course": return desc.includes("course purchase");
-      case "creator": return desc.includes("creator earning");
-      case "withdrawal": return desc.includes("withdrawal");
-      default: return true;
+      case "topup":
+        return desc.includes("top-up") || desc.includes("topup");
+      case "subscription":
+        return desc.includes("purchased plan");
+      case "course":
+        return desc.includes("course purchase");
+      case "creator":
+        return desc.includes("creator earning");
+      case "withdrawal":
+        return desc.includes("withdrawal");
+      default:
+        return true;
     }
   };
 
@@ -248,7 +270,9 @@ function AdminOverview() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cohorts")
-        .select("id, title, description, kind, starts_at, capacity, status, creator_id, created_at, meeting_url")
+        .select(
+          "id, title, description, kind, starts_at, capacity, status, creator_id, created_at, meeting_url",
+        )
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) throw error;
@@ -401,11 +425,7 @@ function AdminOverview() {
     const wb = XLSX.utils.book_new();
 
     // ─── Helper: style a sheet with column widths + header row bold ───
-    const styleSheet = (
-      ws: XLSX.WorkSheet,
-      widths: number[],
-      headerFill?: string,
-    ) => {
+    const styleSheet = (ws: XLSX.WorkSheet, widths: number[], headerFill?: string) => {
       ws["!cols"] = widths.map((w) => ({ wch: w }));
       // Freeze header row
       ws["!freeze"] = { xSplit: 0, ySplit: 1 };
@@ -432,7 +452,7 @@ function AdminOverview() {
       ["", ""],
       ["Metric", "Value"],
       ["Report period", rangeLabel],
-      ["Transaction filter", TX_FILTERS.find(f => f.value === txFilter)?.label ?? "All"],
+      ["Transaction filter", TX_FILTERS.find((f) => f.value === txFilter)?.label ?? "All"],
       ["Total registered users", usersQuery.data?.total ?? 0],
       ["AI requests (last 24h)", aiReq24hQuery.data ?? 0],
       [`Revenue in period (INR)`, rangeRevenue],
@@ -468,7 +488,9 @@ function AdminOverview() {
     XLSX.utils.book_append_sheet(wb, weeklyWs, "Weekly Revenue");
 
     // ─── 4. TRANSACTIONS ───
-    const txHeader = [["Transaction ID", "User ID", "Amount (₹)", "Type", "Status", "Description", "Date"]];
+    const txHeader = [
+      ["Transaction ID", "User ID", "Amount (₹)", "Type", "Status", "Description", "Date"],
+    ];
     const txRows = tx.map((t) => [
       t.id,
       t.user_id,
@@ -483,8 +505,10 @@ function AdminOverview() {
     XLSX.utils.book_append_sheet(wb, txWs, "Transactions");
 
     // ─── 5. USERS ───
-    const userRows = (usersQuery.data?.rows ?? []);
-    const usersHeader = [["User ID", "Full Name", "Email", "Roles", "Status", "AI Credits", "Joined", "Last Sign In"]];
+    const userRows = usersQuery.data?.rows ?? [];
+    const usersHeader = [
+      ["User ID", "Full Name", "Email", "Roles", "Status", "AI Credits", "Joined", "Last Sign In"],
+    ];
     const usersData = userRows.map((u) => [
       u.id,
       u.full_name ?? "",
@@ -563,9 +587,13 @@ function AdminOverview() {
   const [newPwd, setNewPwd] = useState("");
   const [cohortCreateOpen, setCohortCreateOpen] = useState(false);
   const [cohortForm, setCohortForm] = useState({
-    title: "", description: "", kind: "cohort",
+    title: "",
+    description: "",
+    kind: "cohort",
     starts_at: new Date(Date.now() + 86400000).toISOString().slice(0, 16),
-    capacity: "50", status: "draft", meeting_url: "",
+    capacity: "50",
+    status: "draft",
+    meeting_url: "",
   });
   const [newRoles, setNewRoles] = useState<AppRole[]>(["student"]);
   const [busy, setBusy] = useState(false);
@@ -790,7 +818,11 @@ function AdminOverview() {
             >
               <VideoOff className="h-4 w-4" /> Missing videos
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/certificates" })}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate({ to: "/admin/certificates" })}
+            >
               <Award className="h-4 w-4" /> Certificates
             </Button>
             <Button variant="outline" size="sm" onClick={refreshAll}>
@@ -809,12 +841,19 @@ function AdminOverview() {
               size="sm"
               variant="ghost"
               onClick={async () => {
-                if (!window.confirm("Delete all demo/fake transactions? Real payment transactions will NOT be deleted.")) return;
+                if (
+                  !window.confirm(
+                    "Delete all demo/fake transactions? Real payment transactions will NOT be deleted.",
+                  )
+                )
+                  return;
                 const delFilter = "description.ilike.%demo%";
                 const { error } = await supabase
                   .from("wallet_transactions")
                   .delete()
-                  .or(`description.ilike.%demo%,description.ilike.%test%,description.ilike.%sample%`);
+                  .or(
+                    `description.ilike.%demo%,description.ilike.%test%,description.ilike.%sample%`,
+                  );
                 if (error) return toast.error(error.message);
                 toast.success("Demo transactions cleared");
                 qc.invalidateQueries({ queryKey: ["admin", "transactions"] });
@@ -880,7 +919,9 @@ function AdminOverview() {
                 </SelectTrigger>
                 <SelectContent>
                   {TX_FILTERS.map((f) => (
-                    <SelectItem key={f.value} value={f.value} className="text-xs">{f.label}</SelectItem>
+                    <SelectItem key={f.value} value={f.value} className="text-xs">
+                      {f.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -1017,7 +1058,8 @@ function AdminOverview() {
             <h2 className="font-display text-lg font-semibold">Transactions</h2>
             <p className="text-xs text-muted-foreground">
               {filteredTx.length} of {tx.length} in {rangeLabel}
-              {txFilter !== "all" && ` · filtered: ${TX_FILTERS.find(f => f.value === txFilter)?.label}`}
+              {txFilter !== "all" &&
+                ` · filtered: ${TX_FILTERS.find((f) => f.value === txFilter)?.label}`}
             </p>
           </div>
           {txQuery.isLoading ? (
@@ -1063,8 +1105,12 @@ function AdminOverview() {
                       <td className="px-2 py-3 text-right">
                         <button
                           onClick={async () => {
-                            if (!window.confirm("Delete this transaction? This cannot be undone.")) return;
-                            const { error } = await supabase.from("wallet_transactions").delete().eq("id", t.id);
+                            if (!window.confirm("Delete this transaction? This cannot be undone."))
+                              return;
+                            const { error } = await supabase
+                              .from("wallet_transactions")
+                              .delete()
+                              .eq("id", t.id);
                             if (error) return toast.error(error.message);
                             toast.success("Transaction deleted");
                             qc.invalidateQueries({ queryKey: ["admin", "transactions"] });
@@ -1113,29 +1159,50 @@ function AdminOverview() {
             <div>
               <h2 className="font-display text-lg font-semibold">Cohorts</h2>
               <p className="text-xs text-muted-foreground">
-                {adminCohortsQuery.data?.length ?? 0} total · manage cohorts, office hours, study groups
+                {adminCohortsQuery.data?.length ?? 0} total · manage cohorts, office hours, study
+                groups
               </p>
             </div>
             <Dialog open={cohortCreateOpen} onOpenChange={setCohortCreateOpen}>
               <DialogTrigger asChild>
-                <Button size="sm"><Plus className="h-4 w-4" /> Create</Button>
+                <Button size="sm">
+                  <Plus className="h-4 w-4" /> Create
+                </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-lg">
-                <DialogHeader><DialogTitle>Create cohort</DialogTitle></DialogHeader>
+                <DialogHeader>
+                  <DialogTitle>Create cohort</DialogTitle>
+                </DialogHeader>
                 <div className="space-y-4">
                   <div className="space-y-1.5">
                     <Label>Title</Label>
-                    <Input value={cohortForm.title} onChange={e => setCohortForm(f => ({ ...f, title: e.target.value }))} maxLength={120} />
+                    <Input
+                      value={cohortForm.title}
+                      onChange={(e) => setCohortForm((f) => ({ ...f, title: e.target.value }))}
+                      maxLength={120}
+                    />
                   </div>
                   <div className="space-y-1.5">
                     <Label>Description</Label>
-                    <Textarea value={cohortForm.description} onChange={e => setCohortForm(f => ({ ...f, description: e.target.value }))} rows={2} maxLength={500} />
+                    <Textarea
+                      value={cohortForm.description}
+                      onChange={(e) =>
+                        setCohortForm((f) => ({ ...f, description: e.target.value }))
+                      }
+                      rows={2}
+                      maxLength={500}
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <Label>Type</Label>
-                      <Select value={cohortForm.kind} onValueChange={v => setCohortForm(f => ({ ...f, kind: v }))}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                      <Select
+                        value={cohortForm.kind}
+                        onValueChange={(v) => setCohortForm((f) => ({ ...f, kind: v }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="cohort">Live cohort</SelectItem>
                           <SelectItem value="office_hours">Office hours</SelectItem>
@@ -1145,8 +1212,13 @@ function AdminOverview() {
                     </div>
                     <div className="space-y-1.5">
                       <Label>Status</Label>
-                      <Select value={cohortForm.status} onValueChange={v => setCohortForm(f => ({ ...f, status: v }))}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                      <Select
+                        value={cohortForm.status}
+                        onValueChange={(v) => setCohortForm((f) => ({ ...f, status: v }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="draft">Draft</SelectItem>
                           <SelectItem value="live">Live</SelectItem>
@@ -1158,39 +1230,67 @@ function AdminOverview() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                       <Label>Starts at</Label>
-                      <Input type="datetime-local" value={cohortForm.starts_at} onChange={e => setCohortForm(f => ({ ...f, starts_at: e.target.value }))} />
+                      <Input
+                        type="datetime-local"
+                        value={cohortForm.starts_at}
+                        onChange={(e) =>
+                          setCohortForm((f) => ({ ...f, starts_at: e.target.value }))
+                        }
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <Label>Capacity</Label>
-                      <Input type="number" min={1} max={10000} value={cohortForm.capacity} onChange={e => setCohortForm(f => ({ ...f, capacity: e.target.value }))} />
+                      <Input
+                        type="number"
+                        min={1}
+                        max={10000}
+                        value={cohortForm.capacity}
+                        onChange={(e) => setCohortForm((f) => ({ ...f, capacity: e.target.value }))}
+                      />
                     </div>
                   </div>
                   <div className="space-y-1.5">
                     <Label>Meeting URL</Label>
-                    <Input value={cohortForm.meeting_url} onChange={e => setCohortForm(f => ({ ...f, meeting_url: e.target.value }))} placeholder="https://" />
+                    <Input
+                      value={cohortForm.meeting_url}
+                      onChange={(e) =>
+                        setCohortForm((f) => ({ ...f, meeting_url: e.target.value }))
+                      }
+                      placeholder="https://"
+                    />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button onClick={async () => {
-                    if (!cohortForm.title.trim()) return toast.error("Title required");
-                    const { error } = await supabase.from("cohorts").insert({
-                      title: cohortForm.title.trim(),
-                      description: cohortForm.description.trim() || null,
-                      kind: cohortForm.kind,
-                      starts_at: new Date(cohortForm.starts_at).toISOString(),
-                      capacity: Math.max(1, Number(cohortForm.capacity) || 50),
-                      status: cohortForm.status,
-                      meeting_url: cohortForm.meeting_url.trim() || null,
-                      creator_id: user?.id ?? "",
-                    });
-                    if (error) return toast.error(error.message);
-                    toast.success("Cohort created");
-                    setCohortCreateOpen(false);
-                    setCohortForm({ title: "", description: "", kind: "cohort", starts_at: new Date(Date.now() + 86400000).toISOString().slice(0, 16), capacity: "50", status: "draft", meeting_url: "" });
-                    qc.invalidateQueries({ queryKey: ["admin", "cohorts"] });
-                    qc.invalidateQueries({ queryKey: ["cohorts"] });
-                    qc.invalidateQueries({ queryKey: ["community-cohorts"] });
-                  }}>
+                  <Button
+                    onClick={async () => {
+                      if (!cohortForm.title.trim()) return toast.error("Title required");
+                      const { error } = await supabase.from("cohorts").insert({
+                        title: cohortForm.title.trim(),
+                        description: cohortForm.description.trim() || null,
+                        kind: cohortForm.kind,
+                        starts_at: new Date(cohortForm.starts_at).toISOString(),
+                        capacity: Math.max(1, Number(cohortForm.capacity) || 50),
+                        status: cohortForm.status,
+                        meeting_url: cohortForm.meeting_url.trim() || null,
+                        creator_id: user?.id ?? "",
+                      });
+                      if (error) return toast.error(error.message);
+                      toast.success("Cohort created");
+                      setCohortCreateOpen(false);
+                      setCohortForm({
+                        title: "",
+                        description: "",
+                        kind: "cohort",
+                        starts_at: new Date(Date.now() + 86400000).toISOString().slice(0, 16),
+                        capacity: "50",
+                        status: "draft",
+                        meeting_url: "",
+                      });
+                      qc.invalidateQueries({ queryKey: ["admin", "cohorts"] });
+                      qc.invalidateQueries({ queryKey: ["cohorts"] });
+                      qc.invalidateQueries({ queryKey: ["community-cohorts"] });
+                    }}
+                  >
                     <Plus className="h-4 w-4" /> Create
                   </Button>
                 </DialogFooter>
@@ -1198,7 +1298,9 @@ function AdminOverview() {
             </Dialog>
           </div>
           {adminCohortsQuery.isLoading ? (
-            <div className="p-8 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="p-8 grid place-items-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
           ) : !adminCohortsQuery.data || adminCohortsQuery.data.length === 0 ? (
             <div className="p-8 text-center text-sm text-muted-foreground">No cohorts yet.</div>
           ) : (
@@ -1219,23 +1321,44 @@ function AdminOverview() {
                     <tr key={c.id} className="border-t hover:bg-accent/30">
                       <td className="px-4 md:px-6 py-3 font-medium">{c.title}</td>
                       <td className="px-4 md:px-6 py-3 capitalize">{c.kind.replace("_", " ")}</td>
-                      <td className="px-4 md:px-6 py-3"><Badge variant={c.status === "live" ? "default" : c.status === "draft" ? "secondary" : "outline"} className="text-[10px] capitalize">{c.status}</Badge></td>
-                      <td className="px-4 md:px-6 py-3 text-muted-foreground text-xs">{c.starts_at ? format(new Date(c.starts_at), "dd MMM HH:mm") : "—"}</td>
+                      <td className="px-4 md:px-6 py-3">
+                        <Badge
+                          variant={
+                            c.status === "live"
+                              ? "default"
+                              : c.status === "draft"
+                                ? "secondary"
+                                : "outline"
+                          }
+                          className="text-[10px] capitalize"
+                        >
+                          {c.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 md:px-6 py-3 text-muted-foreground text-xs">
+                        {c.starts_at ? format(new Date(c.starts_at), "dd MMM HH:mm") : "—"}
+                      </td>
                       <td className="px-4 md:px-6 py-3">{c.capacity}</td>
                       <td className="px-4 md:px-6 py-3">
                         <div className="flex items-center gap-1">
                           <Button size="sm" variant="ghost" asChild>
-                            <Link to="/cohorts/$id" params={{ id: c.id }}>View</Link>
+                            <Link to="/cohorts/$id" params={{ id: c.id }}>
+                              View
+                            </Link>
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={async () => {
-                            const confirmed = window.confirm("Delete this cohort?");
-                            if (!confirmed) return;
-                            await supabase.from("cohorts").delete().eq("id", c.id);
-                            toast.success("Deleted");
-                            qc.invalidateQueries({ queryKey: ["admin", "cohorts"] });
-                            qc.invalidateQueries({ queryKey: ["cohorts"] });
-                            qc.invalidateQueries({ queryKey: ["community-cohorts"] });
-                          }}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={async () => {
+                              const confirmed = window.confirm("Delete this cohort?");
+                              if (!confirmed) return;
+                              await supabase.from("cohorts").delete().eq("id", c.id);
+                              toast.success("Deleted");
+                              qc.invalidateQueries({ queryKey: ["admin", "cohorts"] });
+                              qc.invalidateQueries({ queryKey: ["cohorts"] });
+                              qc.invalidateQueries({ queryKey: ["community-cohorts"] });
+                            }}
+                          >
                             <Trash2 className="h-3.5 w-3.5 text-destructive" />
                           </Button>
                         </div>
@@ -1828,16 +1951,16 @@ function ApprovalsSection({
                   href={a.portfolio_url}
                   target="_blank"
                   rel="noreferrer"
-                    className="text-xs text-primary underline"
-                  >
-                    {a.portfolio_url}
-                  </a>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                  className="text-xs text-primary underline"
+                >
+                  {a.portfolio_url}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -2035,7 +2158,8 @@ function WithdrawalsSection({
         <div>
           <h2 className="font-display text-lg font-semibold">Creator withdrawals · Payouts</h2>
           <p className="text-xs text-muted-foreground">
-            {pending.length} pending · {withdrawals.length} total · Wallet debited upfront via Cashfree Payouts
+            {pending.length} pending · {withdrawals.length} total · Wallet debited upfront via
+            Cashfree Payouts
           </p>
         </div>
         <Badge variant={pending.length ? "default" : "secondary"} className="text-[10px]">
@@ -2108,5 +2232,3 @@ function formatDest(w: WithdrawalRow): string {
     return [saved.account_name, saved.account_number, saved.ifsc].filter(Boolean).join(" · ");
   return "";
 }
-
-

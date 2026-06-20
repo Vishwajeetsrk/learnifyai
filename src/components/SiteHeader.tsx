@@ -26,7 +26,11 @@ export function SiteHeader() {
           <Link to="/coaches" className="hover:text-foreground transition">
             Coaches
           </Link>
-          <Link to="/pricing" search={{ subscribe: undefined }} className="hover:text-foreground transition">
+          <Link
+            to="/pricing"
+            search={{ subscribe: undefined }}
+            className="hover:text-foreground transition"
+          >
             Pricing
           </Link>
         </nav>

@@ -138,7 +138,12 @@ export const awardXP = createServerFn({ method: "POST" })
       const toAward = (allBadges as any[]).filter((b: any) => {
         if (earnedIds.has(b.id)) return false;
         if (b.category === "xp" && b.xp_required !== null && newXp >= b.xp_required) return true;
-        if (b.category === "streak" && b.streak_required !== null && currentStreak >= b.streak_required) return true;
+        if (
+          b.category === "streak" &&
+          b.streak_required !== null &&
+          currentStreak >= b.streak_required
+        )
+          return true;
         return false;
       });
       if (toAward.length > 0) {
@@ -171,7 +176,8 @@ export const getLeaderboard = createServerFn({ method: "GET" })
         .gte("created_at", weekStart.toISOString());
 
       const map = new Map<string, number>();
-      for (const l of (logs as any[]) ?? []) map.set(l.user_id, (map.get(l.user_id) ?? 0) + l.amount);
+      for (const l of (logs as any[]) ?? [])
+        map.set(l.user_id, (map.get(l.user_id) ?? 0) + l.amount);
 
       if (map.size === 0) return [];
 
@@ -278,7 +284,12 @@ export const getUserRank = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [allRes, profileRes] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, xp").not("xp", "is", null).order("xp", { ascending: false }).order("id", { ascending: true }),
+      supabaseAdmin
+        .from("profiles")
+        .select("id, xp")
+        .not("xp", "is", null)
+        .order("xp", { ascending: false })
+        .order("id", { ascending: true }),
       supabaseAdmin
         .from("profiles")
         .select("xp, current_streak, highest_streak, avatar_url, full_name")

@@ -1,4 +1,4 @@
-declare module 'sql.js' {
+declare module "sql.js" {
   export interface QueryExecResult {
     columns: string[];
     values: any[][];

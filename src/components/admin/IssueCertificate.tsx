@@ -764,8 +764,12 @@ export default function IssueCertificate() {
                           {r.recipient_email ?? ""}
                         </div>
                       </td>
-                      <td className="px-4 py-2 text-xs hidden sm:table-cell">{r.template_name ?? "—"}</td>
-                      <td className="px-4 py-2 text-xs hidden md:table-cell">{r.course_title ?? "—"}</td>
+                      <td className="px-4 py-2 text-xs hidden sm:table-cell">
+                        {r.template_name ?? "—"}
+                      </td>
+                      <td className="px-4 py-2 text-xs hidden md:table-cell">
+                        {r.course_title ?? "—"}
+                      </td>
                       <td className="px-4 py-2 text-xs hidden md:table-cell">
                         {r.total > 0 ? `${r.score}/${r.total}` : "—"}
                       </td>
@@ -808,7 +812,9 @@ export default function IssueCertificate() {
                           ) : (
                             <>
                               <Mail className="h-3 w-3 sm:mr-1" />
-                              <span className="hidden sm:inline">{status === "sent" ? "Resend" : "Send"}</span>
+                              <span className="hidden sm:inline">
+                                {status === "sent" ? "Resend" : "Send"}
+                              </span>
                             </>
                           )}
                         </Button>

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Award, ShieldCheck, CheckCircle2, Download, Printer, ExternalLink } from "lucide-react";
 import { format } from "date-fns";
@@ -26,7 +26,9 @@ function VerifyPage() {
       // Find the certificate by code or verification ID
       const { data: certV2, error: v2Err } = await supabase
         .from("certificates")
-        .select("*, courses(title, instructor), profiles(full_name, email), certificate_templates(*)")
+        .select(
+          "*, courses(title, instructor), profiles(full_name, email), certificate_templates(*)",
+        )
         .eq("code", id)
         .maybeSingle();
 
@@ -61,7 +63,14 @@ function VerifyPage() {
   }, [id]);
 
   if (q.isLoading) {
-    return <div className="min-h-screen grid place-items-center"><div className="animate-pulse flex flex-col items-center gap-4"><ShieldCheck className="h-10 w-10 text-muted-foreground" /><p>Verifying Blockchain Signature...</p></div></div>;
+    return (
+      <div className="min-h-screen grid place-items-center">
+        <div className="animate-pulse flex flex-col items-center gap-4">
+          <ShieldCheck className="h-10 w-10 text-muted-foreground" />
+          <p>Verifying Blockchain Signature...</p>
+        </div>
+      </div>
+    );
   }
 
   if (q.error || !q.data) {
@@ -69,14 +78,19 @@ function VerifyPage() {
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
         <Award className="h-16 w-16 text-muted-foreground mb-4" />
         <h1 className="text-2xl font-bold mb-2">Invalid Credential</h1>
-        <p className="text-muted-foreground max-w-md mx-auto">This certificate ID does not exist in our verifiable credential registry.</p>
-        <Button asChild className="mt-6"><Link to="/">Go Home</Link></Button>
+        <p className="text-muted-foreground max-w-md mx-auto">
+          This certificate ID does not exist in our verifiable credential registry.
+        </p>
+        <Button asChild className="mt-6">
+          <Link to="/">Go Home</Link>
+        </Button>
       </div>
     );
   }
 
   const row = q.data;
-  const learnerName = row.v2?.profiles?.full_name || row.recipient_name || row.learner_name || "Learner";
+  const learnerName =
+    row.v2?.profiles?.full_name || row.recipient_name || row.learner_name || "Learner";
   const courseTitle = row.v2?.courses?.title || row.course_title || "Course";
   const issueDate = format(new Date(row.v2?.issued_at || row.issued_at), "dd MMM yyyy");
 
@@ -123,7 +137,9 @@ function VerifyPage() {
         <div className="flex items-center justify-between mb-8 print:hidden">
           <h1 className="text-xl font-display font-bold">Credential Registry</h1>
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" onClick={() => window.print()}><Printer className="h-4 w-4" /> Print</Button>
+            <Button size="sm" variant="outline" onClick={() => window.print()}>
+              <Printer className="h-4 w-4" /> Print
+            </Button>
             <Button size="sm" onClick={handleDownloadPdf} disabled={downloading}>
               <Download className="h-4 w-4" /> Save PDF
             </Button>
@@ -134,64 +150,118 @@ function VerifyPage() {
           {/* Top Info Bar */}
           <div className="bg-slate-100 p-6 border-b flex flex-col md:flex-row gap-6 justify-between items-start md:items-center print:hidden">
             <div>
-              <div className="text-sm text-muted-foreground uppercase tracking-widest font-semibold mb-1">Recipient</div>
+              <div className="text-sm text-muted-foreground uppercase tracking-widest font-semibold mb-1">
+                Recipient
+              </div>
               <div className="text-xl font-bold">{learnerName}</div>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground uppercase tracking-widest font-semibold mb-1">Achievement</div>
+              <div className="text-sm text-muted-foreground uppercase tracking-widest font-semibold mb-1">
+                Achievement
+              </div>
               <div className="text-xl font-bold">{courseTitle}</div>
             </div>
             <div>
-              <div className="text-sm text-muted-foreground uppercase tracking-widest font-semibold mb-1">Issue Date</div>
+              <div className="text-sm text-muted-foreground uppercase tracking-widest font-semibold mb-1">
+                Issue Date
+              </div>
               <div className="text-xl font-bold text-primary">{issueDate}</div>
             </div>
           </div>
 
           <div className="p-8 bg-slate-100/50">
             {row.v2?.certificate_templates ? (
-              <div ref={certRef} className="relative w-full mx-auto overflow-hidden shadow-2xl bg-white" style={{ aspectRatio: "1.414 / 1", backgroundImage: row.v2.certificate_templates.bg_image_url ? `url(${row.v2.certificate_templates.bg_image_url})` : 'none', backgroundSize: 'cover' }}>
+              <div
+                ref={certRef}
+                className="relative w-full mx-auto overflow-hidden shadow-2xl bg-white"
+                style={{
+                  aspectRatio: "1.414 / 1",
+                  backgroundImage: row.v2.certificate_templates.bg_image_url
+                    ? `url(${row.v2.certificate_templates.bg_image_url})`
+                    : "none",
+                  backgroundSize: "cover",
+                }}
+              >
                 {row.v2.certificate_templates.config_json?.elements?.map((el: any) => {
                   let content = el.content || "";
-                  content = content.replace("{name}", ctx.name).replace("{course}", ctx.course).replace("{date}", ctx.date).replace("{certificate_id}", ctx.code);
-                  
-                  if (el.type === 'qr') {
+                  content = content
+                    .replace("{name}", ctx.name)
+                    .replace("{course}", ctx.course)
+                    .replace("{date}", ctx.date)
+                    .replace("{certificate_id}", ctx.code);
+
+                  if (el.type === "qr") {
                     return (
-                      <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height }}>
+                      <div
+                        key={el.id}
+                        className="absolute"
+                        style={{ left: el.x, top: el.y, width: el.width, height: el.height }}
+                      >
                         {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" />}
                       </div>
                     );
                   }
 
-                  if (el.type === 'org_logo') {
+                  if (el.type === "org_logo") {
                     const logoUrl = (row as any)?.issuer_org_logo_url;
                     return logoUrl ? (
-                      <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width || 100, height: el.height || 80 }}>
-                        <img src={logoUrl} alt="Org Logo" className="w-full h-full object-contain" />
+                      <div
+                        key={el.id}
+                        className="absolute"
+                        style={{
+                          left: el.x,
+                          top: el.y,
+                          width: el.width || 100,
+                          height: el.height || 80,
+                        }}
+                      >
+                        <img
+                          src={logoUrl}
+                          alt="Org Logo"
+                          className="w-full h-full object-contain"
+                        />
                       </div>
                     ) : null;
                   }
-                  
+
                   return (
-                    <div key={el.id} className="absolute whitespace-pre-wrap" style={{ 
-                      left: el.x, 
-                      top: el.y, 
-                      fontSize: el.fontSize, 
-                      fontFamily: el.fontFamily, 
-                      color: el.color,
-                      textAlign: el.align,
-                      width: el.width || 'auto',
-                      fontWeight: el.fontWeight || 'normal',
-                      fontStyle: el.fontStyle || 'normal',
-                      textDecoration: el.textDecoration === 'underline' ? 'underline' : 'none',
-                      transform: el.align === 'center' ? 'translateX(-50%)' : el.align === 'right' ? 'translateX(-100%)' : 'none'
-                    }}>
+                    <div
+                      key={el.id}
+                      className="absolute whitespace-pre-wrap"
+                      style={{
+                        left: el.x,
+                        top: el.y,
+                        fontSize: el.fontSize,
+                        fontFamily: el.fontFamily,
+                        color: el.color,
+                        textAlign: el.align,
+                        width: el.width || "auto",
+                        fontWeight: el.fontWeight || "normal",
+                        fontStyle: el.fontStyle || "normal",
+                        textDecoration: el.textDecoration === "underline" ? "underline" : "none",
+                        transform:
+                          el.align === "center"
+                            ? "translateX(-50%)"
+                            : el.align === "right"
+                              ? "translateX(-100%)"
+                              : "none",
+                      }}
+                    >
                       {content}
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <CertificateRender ref={certRef} design={row.design_snapshot ? { ...DEFAULT_DESIGN, ...row.design_snapshot } : DEFAULT_DESIGN} ctx={ctx} />
+              <CertificateRender
+                ref={certRef}
+                design={
+                  row.design_snapshot
+                    ? { ...DEFAULT_DESIGN, ...row.design_snapshot }
+                    : DEFAULT_DESIGN
+                }
+                ctx={ctx}
+              />
             )}
           </div>
         </div>
@@ -199,12 +269,15 @@ function VerifyPage() {
         <div className="mt-12 text-center text-sm text-muted-foreground print:hidden">
           <ShieldCheck className="h-8 w-8 mx-auto mb-2 opacity-50" />
           <p>This credential has been verified using cryptographic proofs.</p>
-          <a href="https://learnify.ai" className="text-primary hover:underline flex items-center justify-center gap-1 mt-2">
+          <a
+            href="https://learnify.ai"
+            className="text-primary hover:underline flex items-center justify-center gap-1 mt-2"
+          >
             Learn more about Learnify AI <ExternalLink className="h-3 w-3" />
           </a>
         </div>
       </div>
-      
+
       <style>{`
         @media print {
           body { background: white !important; }

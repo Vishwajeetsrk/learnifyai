@@ -77,21 +77,36 @@ function getProfileBorderClass(url: string | null | undefined): string {
   if (!match) return "";
   const border = decodeURIComponent(match[1]);
   switch (border) {
-    case "neon-blue": return "ring-2 ring-blue-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(96,165,250,0.5)]";
-    case "neon-pink": return "ring-2 ring-pink-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,114,182,0.5)]";
-    case "neon-green": return "ring-2 ring-green-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(74,222,128,0.5)]";
-    case "gold-gradient": return "ring-2 ring-amber-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,191,36,0.5)]";
-    case "rainbow-glow": return "ring-2 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)] animate-pulse";
-    case "dashed-red": return "border-2 border-dashed border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]";
-    case "royal-purple": return "ring-2 ring-purple-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)]";
-    case "retro-orange": return "ring-2 ring-orange-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,146,60,0.5)]";
-    case "ocean-teal": return "ring-2 ring-teal-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(45,212,191,0.5)]";
-    case "sunset-amber": return "ring-2 ring-amber-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(245,158,11,0.5)]";
-    case "cyber-cyan": return "ring-2 ring-cyan-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(34,211,238,0.5)]";
-    case "fire-ruby": return "ring-2 ring-rose-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,63,94,0.5)]";
-    case "ice-crystal": return "ring-2 ring-sky-200 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(186,230,253,0.5)]";
-    case "midnight-glow": return "ring-2 ring-indigo-600 ring-offset-2 ring-offset-background shadow-[0_0_20px_rgba(79,70,229,0.6)]";
-    default: return "";
+    case "neon-blue":
+      return "ring-2 ring-blue-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(96,165,250,0.5)]";
+    case "neon-pink":
+      return "ring-2 ring-pink-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,114,182,0.5)]";
+    case "neon-green":
+      return "ring-2 ring-green-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(74,222,128,0.5)]";
+    case "gold-gradient":
+      return "ring-2 ring-amber-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,191,36,0.5)]";
+    case "rainbow-glow":
+      return "ring-2 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)] animate-pulse";
+    case "dashed-red":
+      return "border-2 border-dashed border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]";
+    case "royal-purple":
+      return "ring-2 ring-purple-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)]";
+    case "retro-orange":
+      return "ring-2 ring-orange-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,146,60,0.5)]";
+    case "ocean-teal":
+      return "ring-2 ring-teal-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(45,212,191,0.5)]";
+    case "sunset-amber":
+      return "ring-2 ring-amber-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(245,158,11,0.5)]";
+    case "cyber-cyan":
+      return "ring-2 ring-cyan-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(34,211,238,0.5)]";
+    case "fire-ruby":
+      return "ring-2 ring-rose-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,63,94,0.5)]";
+    case "ice-crystal":
+      return "ring-2 ring-sky-200 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(186,230,253,0.5)]";
+    case "midnight-glow":
+      return "ring-2 ring-indigo-600 ring-offset-2 ring-offset-background shadow-[0_0_20px_rgba(79,70,229,0.6)]";
+    default:
+      return "";
   }
 }
 
@@ -291,7 +306,7 @@ function SettingsPage() {
       params += `&skinColor=${skinColor}`;
       params += `&clothingColor=${clothingColor}`;
       params += `&hairColor=${hairColor}`;
-      
+
       let pixHair = "short01";
       if (hairStyle.startsWith("long")) pixHair = "long01";
       else if (hairStyle.includes("Round")) pixHair = "short02";
@@ -364,7 +379,8 @@ function SettingsPage() {
       params += `&mouth=${lorMouth}`;
 
       let lorCloth = "shirt";
-      if (clothingStyle.includes("hoodie") || clothingStyle.includes("sweater")) lorCloth = "sweater";
+      if (clothingStyle.includes("hoodie") || clothingStyle.includes("sweater"))
+        lorCloth = "sweater";
       else if (clothingStyle.includes("blazer")) lorCloth = "dress";
       params += `&clothing=${lorCloth}`;
     }
@@ -415,11 +431,16 @@ function SettingsPage() {
       if (u.searchParams.has("mouth")) setMouthStyle(u.searchParams.get("mouth")!);
       if (u.searchParams.has("eyes")) setEyesStyle(u.searchParams.get("eyes")!);
       if (u.searchParams.has("clothing")) setClothingStyle(u.searchParams.get("clothing")!);
-      if (u.searchParams.has("clothingColor")) setClothingColor(u.searchParams.get("clothingColor")!);
-      if (u.searchParams.has("accessories") || u.searchParams.get("accessoriesProbability") === "0") {
+      if (u.searchParams.has("clothingColor"))
+        setClothingColor(u.searchParams.get("clothingColor")!);
+      if (
+        u.searchParams.has("accessories") ||
+        u.searchParams.get("accessoriesProbability") === "0"
+      ) {
         setAccessoriesStyle(u.searchParams.get("accessories") || "none");
       }
-      if (u.searchParams.has("profile_border")) setProfileBorder(u.searchParams.get("profile_border")!);
+      if (u.searchParams.has("profile_border"))
+        setProfileBorder(u.searchParams.get("profile_border")!);
     } catch {}
   }, [cartoonOpen]);
 
@@ -446,25 +467,74 @@ function SettingsPage() {
     const hairColors = ["2c1b18", "4a3728", "724124", "b58143", "c93305", "ecdcbf", "f59797"];
     setHairColor(hairColors[Math.floor(Math.random() * hairColors.length)]);
 
-    const clothColors = ["262e3d", "3c4f76", "a7e0e2", "92b558", "e53935", "ffb300", "6f2da8", "e2b4bd", "5c6f68"];
+    const clothColors = [
+      "262e3d",
+      "3c4f76",
+      "a7e0e2",
+      "92b558",
+      "e53935",
+      "ffb300",
+      "6f2da8",
+      "e2b4bd",
+      "5c6f68",
+    ];
     setClothingColor(clothColors[Math.floor(Math.random() * clothColors.length)]);
 
-    const maleHairs = ["shortHairTheCaesar", "shortHairShortFlat", "shortHairShortRound", "shortHairShortWaved", "shortHairShortCurly", "shortHairShaggyMullet", "noHair"];
-    const femaleHairs = ["longHairStraight", "longHairStraight2", "longHairCurly", "longHairCurvy", "longHairBob", "longHairMiaWallace", "longHairBun", "longHairDreads", "longHairBigHair"];
+    const maleHairs = [
+      "shortHairTheCaesar",
+      "shortHairShortFlat",
+      "shortHairShortRound",
+      "shortHairShortWaved",
+      "shortHairShortCurly",
+      "shortHairShaggyMullet",
+      "noHair",
+    ];
+    const femaleHairs = [
+      "longHairStraight",
+      "longHairStraight2",
+      "longHairCurly",
+      "longHairCurvy",
+      "longHairBob",
+      "longHairMiaWallace",
+      "longHairBun",
+      "longHairDreads",
+      "longHairBigHair",
+    ];
     const isMale = Math.random() > 0.5;
     setHairGender(isMale ? "male" : "female");
-    setHairStyle(isMale ? maleHairs[Math.floor(Math.random() * maleHairs.length)] : femaleHairs[Math.floor(Math.random() * femaleHairs.length)]);
+    setHairStyle(
+      isMale
+        ? maleHairs[Math.floor(Math.random() * maleHairs.length)]
+        : femaleHairs[Math.floor(Math.random() * femaleHairs.length)],
+    );
 
     const eyes = ["default", "happy", "wink", "surprised", "squint", "side", "hearts", "close"];
     setEyesStyle(eyes[Math.floor(Math.random() * eyes.length)]);
 
-    const mouths = ["default", "smile", "sad", "concerned", "disbelief", "grimace", "scream", "tongue"];
+    const mouths = [
+      "default",
+      "smile",
+      "sad",
+      "concerned",
+      "disbelief",
+      "grimace",
+      "scream",
+      "tongue",
+    ];
     setMouthStyle(mouths[Math.floor(Math.random() * mouths.length)]);
 
     const accessories = ["none", "prescription01", "round", "sunglasses", "wayfarer", "kurt"];
     setAccessoriesStyle(accessories[Math.floor(Math.random() * accessories.length)]);
 
-    const clothes = ["shirtCrewNeck", "shirtVNeck", "hoodie", "collarAndSweater", "blazerAndShirt", "overall", "graphicShirt"];
+    const clothes = [
+      "shirtCrewNeck",
+      "shirtVNeck",
+      "hoodie",
+      "collarAndSweater",
+      "blazerAndShirt",
+      "overall",
+      "graphicShirt",
+    ];
     setClothingStyle(clothes[Math.floor(Math.random() * clothes.length)]);
 
     toast.success("Randomized all features!");
@@ -519,7 +589,6 @@ function SettingsPage() {
     toast.success("Cover image removed");
     qc.invalidateQueries({ queryKey: ["profile-full"] });
   }
-
 
   const [prefs, setPrefs] = useState<NotifPrefs>({
     new_subscriber: true,
@@ -989,7 +1058,12 @@ function SettingsPage() {
                 <h2 className="font-display font-semibold flex items-center gap-2 text-lg">
                   <UserIcon className="h-4.5 w-4.5 text-primary" /> Profile Settings
                 </h2>
-                <Button asChild variant="outline" size="sm" className="text-xs gap-1.5 rounded-full hover:bg-primary/5 hover:text-primary transition-colors">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="text-xs gap-1.5 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
+                >
                   <Link to="/u/$id" params={{ id: user?.id ?? "" }}>
                     <ExternalLink className="h-3.5 w-3.5" /> View Public Profile
                   </Link>
@@ -997,7 +1071,12 @@ function SettingsPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-5">
-                <Avatar className={cn("h-24 w-24 border-4 border-card shadow-md shrink-0", getProfileBorderClass(avatarSignedUrl))}>
+                <Avatar
+                  className={cn(
+                    "h-24 w-24 border-4 border-card shadow-md shrink-0",
+                    getProfileBorderClass(avatarSignedUrl),
+                  )}
+                >
                   {avatarSignedUrl ? <AvatarImage src={avatarSignedUrl} /> : null}
                   <AvatarFallback className="text-2xl bg-primary/10 text-primary">
                     {initials}
@@ -1015,7 +1094,12 @@ function SettingsPage() {
                       e.target.value = "";
                     }}
                   />
-                  <Button size="sm" type="button" onClick={() => fileInput.current?.click()} disabled={uploading}>
+                  <Button
+                    size="sm"
+                    type="button"
+                    onClick={() => fileInput.current?.click()}
+                    disabled={uploading}
+                  >
                     {uploading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -1023,8 +1107,14 @@ function SettingsPage() {
                     )}
                     Upload photo
                   </Button>
-                  <Button size="sm" type="button" variant="outline" onClick={() => setCartoonOpen(true)}>
-                    <Sparkles className="h-4 w-4 text-yellow-500 fill-yellow-500" /> Customize Character
+                  <Button
+                    size="sm"
+                    type="button"
+                    variant="outline"
+                    onClick={() => setCartoonOpen(true)}
+                  >
+                    <Sparkles className="h-4 w-4 text-yellow-500 fill-yellow-500" /> Customize
+                    Character
                   </Button>
                   {profileQ.data?.avatar_url ? (
                     <Button size="sm" type="button" variant="outline" onClick={removeAvatar}>
@@ -1039,7 +1129,9 @@ function SettingsPage() {
 
               {/* Profile Border Customization */}
               <div className="grid gap-2 border bg-card/40 p-4 rounded-xl">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Profile Border Style</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Profile Border Style
+                </Label>
                 <div className="flex flex-wrap items-center gap-3">
                   <Select
                     value={profileBorder}
@@ -1057,7 +1149,10 @@ function SettingsPage() {
                         } else {
                           nextUrl = val === "none" ? baseUrl : `${baseUrl}?profile_border=${val}`;
                         }
-                        await supabase.from("profiles").update({ avatar_url: nextUrl }).eq("id", user!.id);
+                        await supabase
+                          .from("profiles")
+                          .update({ avatar_url: nextUrl })
+                          .eq("id", user!.id);
                         qc.invalidateQueries({ queryKey: ["profile-full"] });
                         toast.success("Profile border updated!");
                       }
@@ -1094,7 +1189,10 @@ function SettingsPage() {
                         } else {
                           nextUrl = `${baseUrl}?profile_border=${rand}`;
                         }
-                        await supabase.from("profiles").update({ avatar_url: nextUrl }).eq("id", user!.id);
+                        await supabase
+                          .from("profiles")
+                          .update({ avatar_url: nextUrl })
+                          .eq("id", user!.id);
                         qc.invalidateQueries({ queryKey: ["profile-full"] });
                         toast.success("Randomized profile border!");
                       }
@@ -1107,10 +1205,16 @@ function SettingsPage() {
 
               {/* Cover Image (Banner) */}
               <div className="space-y-3 border bg-card/40 p-4 rounded-xl">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cover Image (Banner)</Label>
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Cover Image (Banner)
+                </Label>
                 <div className="relative w-full h-32 rounded-xl border bg-muted overflow-hidden flex items-center justify-center group shadow-inner">
                   {bannerSignedUrl ? (
-                    <img src={bannerSignedUrl} alt="Cover Preview" className="w-full h-full object-cover" />
+                    <img
+                      src={bannerSignedUrl}
+                      alt="Cover Preview"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <div className="text-xs text-muted-foreground flex flex-col items-center gap-1.5">
                       <ImageIcon className="h-6 w-6 text-muted-foreground/60 animate-pulse" />
@@ -1130,7 +1234,12 @@ function SettingsPage() {
                       e.target.value = "";
                     }}
                   />
-                  <Button size="sm" type="button" onClick={() => fileInputBanner.current?.click()} disabled={uploadingBanner}>
+                  <Button
+                    size="sm"
+                    type="button"
+                    onClick={() => fileInputBanner.current?.click()}
+                    disabled={uploadingBanner}
+                  >
                     {uploadingBanner ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -1154,10 +1263,12 @@ function SettingsPage() {
                 <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-yellow-500 fill-yellow-500" /> Customize Your Character
+                      <Sparkles className="h-5 w-5 text-yellow-500 fill-yellow-500" /> Customize
+                      Your Character
                     </DialogTitle>
                     <DialogDescription>
-                      Design your own custom cartoon avatar. Change styles, colors, gender, expressions, and clothing!
+                      Design your own custom cartoon avatar. Change styles, colors, gender,
+                      expressions, and clothing!
                     </DialogDescription>
                   </DialogHeader>
 
@@ -1166,13 +1277,19 @@ function SettingsPage() {
                     <div className="md:col-span-5 flex flex-col items-center gap-4 bg-muted/30 p-4 rounded-xl border">
                       {/* Live Preview */}
                       <div className="relative h-40 w-40 rounded-full border-4 border-background bg-card shadow-lg overflow-hidden flex items-center justify-center">
-                        <img src={currentCartoonUrl} className="h-full w-full object-cover" alt="Avatar Preview" />
+                        <img
+                          src={currentCartoonUrl}
+                          className="h-full w-full object-cover"
+                          alt="Avatar Preview"
+                        />
                       </div>
 
                       <div className="w-full space-y-3">
                         {/* Character Style Selection */}
                         <div className="space-y-1">
-                          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Art Style</Label>
+                          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Art Style
+                          </Label>
                           <div className="grid grid-cols-2 gap-1 text-xs">
                             {CARTOON_STYLES.map((style) => (
                               <button
@@ -1201,7 +1318,9 @@ function SettingsPage() {
 
                         {/* Seed Input */}
                         <div className="space-y-1">
-                          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Base Seed</Label>
+                          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                            Base Seed
+                          </Label>
                           <div className="flex gap-2">
                             <Input
                               value={seed}
@@ -1209,7 +1328,12 @@ function SettingsPage() {
                               placeholder="Type anything to randomize base features..."
                               className="flex-1 text-xs h-9 bg-card"
                             />
-                            <Button size="sm" variant="outline" className="h-9 text-xs shrink-0" onClick={randomizeSeed}>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-9 text-xs shrink-0"
+                              onClick={randomizeSeed}
+                            >
                               Randomize
                             </Button>
                           </div>
@@ -1221,17 +1345,28 @@ function SettingsPage() {
                     <div className="md:col-span-7 flex flex-col">
                       <Tabs defaultValue="face" className="w-full">
                         <TabsList className="w-full grid grid-cols-3">
-                          <TabsTrigger value="face" className="text-xs">Face & Hair</TabsTrigger>
-                          <TabsTrigger value="expressions" className="text-xs">Expression</TabsTrigger>
-                          <TabsTrigger value="clothing" className="text-xs">Clothing</TabsTrigger>
+                          <TabsTrigger value="face" className="text-xs">
+                            Face & Hair
+                          </TabsTrigger>
+                          <TabsTrigger value="expressions" className="text-xs">
+                            Expression
+                          </TabsTrigger>
+                          <TabsTrigger value="clothing" className="text-xs">
+                            Clothing
+                          </TabsTrigger>
                         </TabsList>
 
                         {/* Face & Hair Tab */}
                         <TabsContent value="face" className="space-y-4 pt-3">
                           {/* Skin Color Picker */}
-                          {(selectedStyle === "avataaars" || selectedStyle === "adventurer" || selectedStyle === "pixel-art" || selectedStyle === "lorelei") && (
+                          {(selectedStyle === "avataaars" ||
+                            selectedStyle === "adventurer" ||
+                            selectedStyle === "pixel-art" ||
+                            selectedStyle === "lorelei") && (
                             <div className="space-y-1.5">
-                              <Label className="text-xs font-semibold text-muted-foreground">Skin Color</Label>
+                              <Label className="text-xs font-semibold text-muted-foreground">
+                                Skin Color
+                              </Label>
                               <div className="flex flex-wrap gap-2">
                                 {[
                                   { val: "ffdbb4", color: "#ffdbb4", label: "Very Light" },
@@ -1246,13 +1381,17 @@ function SettingsPage() {
                                     type="button"
                                     onClick={() => setSkinColor(skin.val)}
                                     className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
-                                      skinColor === skin.val ? "border-primary scale-110 shadow-sm" : "border-border"
+                                      skinColor === skin.val
+                                        ? "border-primary scale-110 shadow-sm"
+                                        : "border-border"
                                     }`}
                                     style={{ backgroundColor: skin.color }}
                                     title={skin.label}
                                   >
                                     {skinColor === skin.val && (
-                                      <Check className={`h-3 w-3 ${skin.val === "ffdbb4" || skin.val === "f8d25c" ? "text-slate-800" : "text-white"}`} />
+                                      <Check
+                                        className={`h-3 w-3 ${skin.val === "ffdbb4" || skin.val === "f8d25c" ? "text-slate-800" : "text-white"}`}
+                                      />
                                     )}
                                   </button>
                                 ))}
@@ -1272,10 +1411,16 @@ function SettingsPage() {
                                     type="button"
                                     onClick={() => {
                                       setHairGender("male");
-                                      setHairStyle(selectedStyle === "adventurer" ? "short01" : "shortHairShortFlat");
+                                      setHairStyle(
+                                        selectedStyle === "adventurer"
+                                          ? "short01"
+                                          : "shortHairShortFlat",
+                                      );
                                     }}
                                     className={`px-2 py-0.5 rounded transition ${
-                                      hairGender === "male" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                                      hairGender === "male"
+                                        ? "bg-background text-foreground shadow-sm"
+                                        : "text-muted-foreground"
                                     }`}
                                   >
                                     {selectedStyle === "bottts" ? "Antenna / Bulb" : "Male / Short"}
@@ -1284,10 +1429,16 @@ function SettingsPage() {
                                     type="button"
                                     onClick={() => {
                                       setHairGender("female");
-                                      setHairStyle(selectedStyle === "adventurer" ? "long01" : "longHairStraight");
+                                      setHairStyle(
+                                        selectedStyle === "adventurer"
+                                          ? "long01"
+                                          : "longHairStraight",
+                                      );
                                     }}
                                     className={`px-2 py-0.5 rounded transition ${
-                                      hairGender === "female" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                                      hairGender === "female"
+                                        ? "bg-background text-foreground shadow-sm"
+                                        : "text-muted-foreground"
                                     }`}
                                   >
                                     {selectedStyle === "bottts" ? "Radar / Horn" : "Female / Long"}
@@ -1296,7 +1447,7 @@ function SettingsPage() {
                               </div>
                               <div className="grid grid-cols-3 gap-1.5 max-h-32 overflow-y-auto pr-1">
                                 {(hairGender === "male"
-                                  ? (selectedStyle === "bottts"
+                                  ? selectedStyle === "bottts"
                                     ? [
                                         { id: "shortHairShortFlat", label: "Antenna" },
                                         { id: "shortHairShortRound", label: "Bulb" },
@@ -1312,8 +1463,8 @@ function SettingsPage() {
                                         { id: "shortHairShortCurly", label: "Short Curly" },
                                         { id: "shortHairShaggyMullet", label: "Mullet" },
                                         { id: "noHair", label: "Bald" },
-                                      ])
-                                  : (selectedStyle === "bottts"
+                                      ]
+                                  : selectedStyle === "bottts"
                                     ? [
                                         { id: "shortHairShortFlat", label: "Antenna" },
                                         { id: "shortHairShortRound", label: "Bulb" },
@@ -1331,7 +1482,7 @@ function SettingsPage() {
                                         { id: "longHairBun", label: "Hair Bun" },
                                         { id: "longHairDreads", label: "Dreads" },
                                         { id: "longHairBigHair", label: "Big Hair" },
-                                      ])
+                                      ]
                                 ).map((hair) => (
                                   <button
                                     key={hair.id}
@@ -1351,9 +1502,14 @@ function SettingsPage() {
                           )}
 
                           {/* Hair Color Picker */}
-                          {(selectedStyle === "avataaars" || selectedStyle === "adventurer" || selectedStyle === "pixel-art" || selectedStyle === "lorelei") && (
+                          {(selectedStyle === "avataaars" ||
+                            selectedStyle === "adventurer" ||
+                            selectedStyle === "pixel-art" ||
+                            selectedStyle === "lorelei") && (
                             <div className="space-y-1.5">
-                              <Label className="text-xs font-semibold text-muted-foreground">Hair Color</Label>
+                              <Label className="text-xs font-semibold text-muted-foreground">
+                                Hair Color
+                              </Label>
                               <div className="flex flex-wrap gap-2">
                                 {[
                                   { val: "2c1b18", color: "#2c1b18", label: "Black" },
@@ -1369,13 +1525,17 @@ function SettingsPage() {
                                     type="button"
                                     onClick={() => setHairColor(hair.val)}
                                     className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
-                                      hairColor === hair.val ? "border-primary scale-110 shadow-sm" : "border-border"
+                                      hairColor === hair.val
+                                        ? "border-primary scale-110 shadow-sm"
+                                        : "border-border"
                                     }`}
                                     style={{ backgroundColor: hair.color }}
                                     title={hair.label}
                                   >
                                     {hairColor === hair.val && (
-                                      <Check className={`h-3 w-3 ${hair.val === "ecdcbf" || hair.val === "f59797" ? "text-slate-800" : "text-white"}`} />
+                                      <Check
+                                        className={`h-3 w-3 ${hair.val === "ecdcbf" || hair.val === "f59797" ? "text-slate-800" : "text-white"}`}
+                                      />
                                     )}
                                   </button>
                                 ))}
@@ -1388,7 +1548,9 @@ function SettingsPage() {
                         <TabsContent value="expressions" className="space-y-4 pt-3">
                           {/* Eyes Selector */}
                           <div className="space-y-1.5">
-                            <Label className="text-xs font-semibold text-muted-foreground">Eyes Expression</Label>
+                            <Label className="text-xs font-semibold text-muted-foreground">
+                              Eyes Expression
+                            </Label>
                             <Select value={eyesStyle} onValueChange={setEyesStyle}>
                               <SelectTrigger className="w-full text-xs">
                                 <SelectValue placeholder="Select eyes style" />
@@ -1414,7 +1576,9 @@ function SettingsPage() {
 
                           {/* Mouth Selector */}
                           <div className="space-y-1.5">
-                            <Label className="text-xs font-semibold text-muted-foreground">Mouth Expression</Label>
+                            <Label className="text-xs font-semibold text-muted-foreground">
+                              Mouth Expression
+                            </Label>
                             <Select value={mouthStyle} onValueChange={setMouthStyle}>
                               <SelectTrigger className="w-full text-xs">
                                 <SelectValue placeholder="Select mouth style" />
@@ -1439,10 +1603,14 @@ function SettingsPage() {
                           </div>
 
                           {/* Accessories Selector */}
-                          {(selectedStyle === "avataaars" || selectedStyle === "adventurer" || selectedStyle === "bottts") && (
+                          {(selectedStyle === "avataaars" ||
+                            selectedStyle === "adventurer" ||
+                            selectedStyle === "bottts") && (
                             <div className="space-y-1.5">
                               <Label className="text-xs font-semibold text-muted-foreground">
-                                {selectedStyle === "bottts" ? "Robot Side Attachment" : "Accessories"}
+                                {selectedStyle === "bottts"
+                                  ? "Robot Side Attachment"
+                                  : "Accessories"}
                               </Label>
                               <Select value={accessoriesStyle} onValueChange={setAccessoriesStyle}>
                                 <SelectTrigger className="w-full text-xs">
@@ -1478,9 +1646,13 @@ function SettingsPage() {
                         {/* Clothing Tab */}
                         <TabsContent value="clothing" className="space-y-4 pt-3">
                           {/* Clothing Style */}
-                          {(selectedStyle === "avataaars" || selectedStyle === "pixel-art" || selectedStyle === "lorelei") && (
+                          {(selectedStyle === "avataaars" ||
+                            selectedStyle === "pixel-art" ||
+                            selectedStyle === "lorelei") && (
                             <div className="space-y-1.5">
-                              <Label className="text-xs font-semibold text-muted-foreground">Clothing Style</Label>
+                              <Label className="text-xs font-semibold text-muted-foreground">
+                                Clothing Style
+                              </Label>
                               <Select value={clothingStyle} onValueChange={setClothingStyle}>
                                 <SelectTrigger className="w-full text-xs">
                                   <SelectValue placeholder="Select clothing style" />
@@ -1511,8 +1683,8 @@ function SettingsPage() {
                                 {selectedStyle === "bottts"
                                   ? "Robot Metal Color"
                                   : selectedStyle === "fun-emoji"
-                                  ? "Background Color"
-                                  : "Clothing Color"}
+                                    ? "Background Color"
+                                    : "Clothing Color"}
                               </Label>
                               <div className="flex flex-wrap gap-2">
                                 {[
@@ -1531,13 +1703,17 @@ function SettingsPage() {
                                     type="button"
                                     onClick={() => setClothingColor(c.val)}
                                     className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
-                                      clothingColor === c.val ? "border-primary scale-110 shadow-sm" : "border-border"
+                                      clothingColor === c.val
+                                        ? "border-primary scale-110 shadow-sm"
+                                        : "border-border"
                                     }`}
                                     style={{ backgroundColor: c.color }}
                                     title={c.label}
                                   >
                                     {clothingColor === c.val && (
-                                      <Check className={`h-3 w-3 ${c.val === "a7e0e2" || c.val === "ffb300" || c.val === "e2b4bd" ? "text-slate-800" : "text-white"}`} />
+                                      <Check
+                                        className={`h-3 w-3 ${c.val === "a7e0e2" || c.val === "ffb300" || c.val === "e2b4bd" ? "text-slate-800" : "text-white"}`}
+                                      />
                                     )}
                                   </button>
                                 ))}
@@ -1550,14 +1726,29 @@ function SettingsPage() {
                   </div>
 
                   <DialogFooter className="border-t pt-4 flex items-center justify-between">
-                    <Button variant="outline" type="button" onClick={randomizeAllFeatures} className="text-xs h-9 gap-1 mr-auto">
-                      <Sparkles className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" /> Randomize All
+                    <Button
+                      variant="outline"
+                      type="button"
+                      onClick={randomizeAllFeatures}
+                      className="text-xs h-9 gap-1 mr-auto"
+                    >
+                      <Sparkles className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" /> Randomize
+                      All
                     </Button>
                     <div className="flex gap-2">
-                      <Button variant="outline" type="button" onClick={() => setCartoonOpen(false)} className="text-xs h-9">
+                      <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => setCartoonOpen(false)}
+                        className="text-xs h-9"
+                      >
                         Cancel
                       </Button>
-                      <Button onClick={saveCartoonAvatar} disabled={savingCartoon} className="text-xs h-9">
+                      <Button
+                        onClick={saveCartoonAvatar}
+                        disabled={savingCartoon}
+                        className="text-xs h-9"
+                      >
                         {savingCartoon ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
                         Use Character Avatar
                       </Button>
@@ -1671,11 +1862,11 @@ function SettingsPage() {
                     maxLength={30}
                     id="custom-skill-input"
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
+                      if (e.key === "Enter") {
                         const val = (e.target as HTMLInputElement).value.trim();
                         if (val && !skills.includes(val)) {
                           setSkills([...skills, val]);
-                          (e.target as HTMLInputElement).value = '';
+                          (e.target as HTMLInputElement).value = "";
                         }
                       }
                     }}
@@ -1686,11 +1877,13 @@ function SettingsPage() {
                     variant="outline"
                     className="h-8 text-xs shrink-0"
                     onClick={() => {
-                      const input = document.getElementById('custom-skill-input') as HTMLInputElement;
+                      const input = document.getElementById(
+                        "custom-skill-input",
+                      ) as HTMLInputElement;
                       const val = input?.value?.trim();
                       if (val && !skills.includes(val)) {
                         setSkills([...skills, val]);
-                        input.value = '';
+                        input.value = "";
                       }
                     }}
                   >
@@ -2236,87 +2429,157 @@ function SettingsPage() {
 
           {/* ═══ BRANDING (Team / Admin) ═══ */}
           {isAdmin && (
-          <TabsContent value="branding" className="mt-6 space-y-6">
-            <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
-              <h2 className="font-display font-semibold flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-primary" /> Organization Branding
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Customize how your certificates and invoices appear. Changes apply to all certificates you issue.
-              </p>
-
-              <div className="space-y-4">
-                <Field label="Organization Name">
-                  <Input value={orgName} onChange={e => setOrgName(e.target.value)} placeholder="Your Company" />
-                </Field>
-
-                <Field label="Organization Logo URL">
-                  <Input value={orgLogoUrl} onChange={e => setOrgLogoUrl(e.target.value)} placeholder="https://example.com/logo.png" />
-                </Field>
-
-                <Field label="Brand Color">
-                  <div className="relative mt-1">
-                    <input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)} className="absolute inset-0 opacity-0 w-full h-full cursor-pointer" />
-                    <div className="w-full h-9 rounded-lg border flex items-center gap-2 px-2" style={{ background: brandColor + '22', borderColor: brandColor }}>
-                      <div className="h-5 w-5 rounded border" style={{ background: brandColor }} />
-                      <span className="text-xs font-mono">{brandColor}</span>
-                    </div>
-                  </div>
-                </Field>
-              </div>
-            </div>
-
-            {(subQ.data as any)?.pricing_plans?.name === "Team" && (
+            <TabsContent value="branding" className="mt-6 space-y-6">
               <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
                 <h2 className="font-display font-semibold flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-primary" /> Invoice Customization
+                  <Building2 className="h-4 w-4 text-primary" /> Organization Branding
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Custom invoice branding for your organization. These override the global invoice defaults.
+                  Customize how your certificates and invoices appear. Changes apply to all
+                  certificates you issue.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Field label="Invoice company name"><Input value={invCompanyName} onChange={e => setInvCompanyName(e.target.value)} placeholder="Your Company" /></Field>
-                  <Field label="Invoice legal name"><Input value={invLegalName} onChange={e => setInvLegalName(e.target.value)} placeholder="Your Company Pvt. Ltd." /></Field>
-                  <Field label="GSTIN"><Input value={invGstin} onChange={e => setInvGstin(e.target.value)} placeholder="29XXXXX1234X1Z5" /></Field>
-                  <Field label="Invoice prefix"><Input value={invPrefix} onChange={e => setInvPrefix(e.target.value)} placeholder="INV" /></Field>
-                  <Field label="Invoice logo URL"><Input value={invLogoUrl} onChange={e => setInvLogoUrl(e.target.value)} placeholder="https://example.com/invoice-logo.png" /></Field>
-                  <Field label="Contact (email/phone)"><Input value={invContact} onChange={e => setInvContact(e.target.value)} placeholder="hello@company.com" /></Field>
-                  <div className="sm:col-span-2">
-                    <Field label="Invoice footer"><Input value={invFooter} onChange={e => setInvFooter(e.target.value)} placeholder="Thank you for your business!" /></Field>
-                  </div>
+
+                <div className="space-y-4">
+                  <Field label="Organization Name">
+                    <Input
+                      value={orgName}
+                      onChange={(e) => setOrgName(e.target.value)}
+                      placeholder="Your Company"
+                    />
+                  </Field>
+
+                  <Field label="Organization Logo URL">
+                    <Input
+                      value={orgLogoUrl}
+                      onChange={(e) => setOrgLogoUrl(e.target.value)}
+                      placeholder="https://example.com/logo.png"
+                    />
+                  </Field>
+
+                  <Field label="Brand Color">
+                    <div className="relative mt-1">
+                      <input
+                        type="color"
+                        value={brandColor}
+                        onChange={(e) => setBrandColor(e.target.value)}
+                        className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                      />
+                      <div
+                        className="w-full h-9 rounded-lg border flex items-center gap-2 px-2"
+                        style={{ background: brandColor + "22", borderColor: brandColor }}
+                      >
+                        <div
+                          className="h-5 w-5 rounded border"
+                          style={{ background: brandColor }}
+                        />
+                        <span className="text-xs font-mono">{brandColor}</span>
+                      </div>
+                    </div>
+                  </Field>
                 </div>
               </div>
-            )}
 
-            <div className="flex justify-end">
-              <Button onClick={async () => {
-                setSavingBranding(true);
-                try {
-                  const { error } = await supabase.from("profiles").update({
-                    org_name: orgName || null,
-                    org_logo_url: orgLogoUrl || null,
-                    brand_color: brandColor,
-                    invoice_company_name: invCompanyName || null,
-                    invoice_legal_name: invLegalName || null,
-                    invoice_gstin: invGstin || null,
-                    invoice_prefix: invPrefix || null,
-                    invoice_footer: invFooter || null,
-                    invoice_logo_url: invLogoUrl || null,
-                    invoice_contact: invContact || null,
-                  }).eq("id", user!.id);
-                  if (error) throw error;
-                  toast.success("Branding saved");
-                  qc.invalidateQueries({ queryKey: ["profile-full"] });
-                } catch (e: any) {
-                  toast.error(e.message);
-                } finally {
-                  setSavingBranding(false);
-                }
-              }} disabled={savingBranding}>
-                {savingBranding ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save Branding
-              </Button>
-            </div>
-          </TabsContent>
+              {(subQ.data as any)?.pricing_plans?.name === "Team" && (
+                <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
+                  <h2 className="font-display font-semibold flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-primary" /> Invoice Customization
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Custom invoice branding for your organization. These override the global invoice
+                    defaults.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Field label="Invoice company name">
+                      <Input
+                        value={invCompanyName}
+                        onChange={(e) => setInvCompanyName(e.target.value)}
+                        placeholder="Your Company"
+                      />
+                    </Field>
+                    <Field label="Invoice legal name">
+                      <Input
+                        value={invLegalName}
+                        onChange={(e) => setInvLegalName(e.target.value)}
+                        placeholder="Your Company Pvt. Ltd."
+                      />
+                    </Field>
+                    <Field label="GSTIN">
+                      <Input
+                        value={invGstin}
+                        onChange={(e) => setInvGstin(e.target.value)}
+                        placeholder="29XXXXX1234X1Z5"
+                      />
+                    </Field>
+                    <Field label="Invoice prefix">
+                      <Input
+                        value={invPrefix}
+                        onChange={(e) => setInvPrefix(e.target.value)}
+                        placeholder="INV"
+                      />
+                    </Field>
+                    <Field label="Invoice logo URL">
+                      <Input
+                        value={invLogoUrl}
+                        onChange={(e) => setInvLogoUrl(e.target.value)}
+                        placeholder="https://example.com/invoice-logo.png"
+                      />
+                    </Field>
+                    <Field label="Contact (email/phone)">
+                      <Input
+                        value={invContact}
+                        onChange={(e) => setInvContact(e.target.value)}
+                        placeholder="hello@company.com"
+                      />
+                    </Field>
+                    <div className="sm:col-span-2">
+                      <Field label="Invoice footer">
+                        <Input
+                          value={invFooter}
+                          onChange={(e) => setInvFooter(e.target.value)}
+                          placeholder="Thank you for your business!"
+                        />
+                      </Field>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end">
+                <Button
+                  onClick={async () => {
+                    setSavingBranding(true);
+                    try {
+                      const { error } = await supabase
+                        .from("profiles")
+                        .update({
+                          org_name: orgName || null,
+                          org_logo_url: orgLogoUrl || null,
+                          brand_color: brandColor,
+                          invoice_company_name: invCompanyName || null,
+                          invoice_legal_name: invLegalName || null,
+                          invoice_gstin: invGstin || null,
+                          invoice_prefix: invPrefix || null,
+                          invoice_footer: invFooter || null,
+                          invoice_logo_url: invLogoUrl || null,
+                          invoice_contact: invContact || null,
+                        })
+                        .eq("id", user!.id);
+                      if (error) throw error;
+                      toast.success("Branding saved");
+                      qc.invalidateQueries({ queryKey: ["profile-full"] });
+                    } catch (e: any) {
+                      toast.error(e.message);
+                    } finally {
+                      setSavingBranding(false);
+                    }
+                  }}
+                  disabled={savingBranding}
+                >
+                  {savingBranding ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save
+                  Branding
+                </Button>
+              </div>
+            </TabsContent>
           )}
         </Tabs>
       </div>

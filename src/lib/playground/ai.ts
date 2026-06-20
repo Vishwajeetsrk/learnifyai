@@ -3,13 +3,19 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const AI_ACTIONS: Record<string, string> = {
-  explain: "Explain the following code in detail, line by line. Include what each part does and why it works that way.",
+  explain:
+    "Explain the following code in detail, line by line. Include what each part does and why it works that way.",
   fix: "Find and fix bugs in the following code. Explain what was wrong and how you fixed it. Return ONLY the fixed code.",
-  optimize: "Optimize the following code for better performance, readability, and best practices. Explain the changes made. Return ONLY the optimized code.",
-  comment: "Add detailed comments to the following code explaining each section. Return the code with comments added.",
-  convert: "Convert the following code from one language to another. Preserve the exact same logic and functionality.",
-  unittest: "Write comprehensive unit tests for the following code. Include edge cases, happy paths, and error cases.",
-  complete: "Complete the following code. Infer the developer's intent from context and fill in missing parts.",
+  optimize:
+    "Optimize the following code for better performance, readability, and best practices. Explain the changes made. Return ONLY the optimized code.",
+  comment:
+    "Add detailed comments to the following code explaining each section. Return the code with comments added.",
+  convert:
+    "Convert the following code from one language to another. Preserve the exact same logic and functionality.",
+  unittest:
+    "Write comprehensive unit tests for the following code. Include edge cases, happy paths, and error cases.",
+  complete:
+    "Complete the following code. Infer the developer's intent from context and fill in missing parts.",
 };
 
 const AISchema = z.object({

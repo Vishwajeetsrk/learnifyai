@@ -40,7 +40,9 @@ async function hasEndpoints(model: string, key: string): Promise<boolean> {
     if (!res.ok) return false;
     const body = (await res.json()) as { data?: { endpoints?: unknown[] } };
     return Array.isArray(body?.data?.endpoints) && body.data!.endpoints!.length > 0;
-  } catch { return true; }
+  } catch {
+    return true;
+  }
 }
 
 export const playgroundAiDebug = createServerFn({ method: "POST" })
@@ -58,10 +60,7 @@ export const playgroundAiDebug = createServerFn({ method: "POST" })
 - If the code already runs cleanly, suggest one improvement and still include the full updated program.
 - Keep prose under 200 words. Use markdown.`;
 
-    const ctx = [
-      `Language: ${data.language}`,
-      `Exit code: ${data.exitCode ?? "n/a"}`,
-    ].join(" · ");
+    const ctx = [`Language: ${data.language}`, `Exit code: ${data.exitCode ?? "n/a"}`].join(" · ");
 
     const user = `${ctx}
 
@@ -95,7 +94,9 @@ ${data.question || "Diagnose any issue and return the full fixed program."}`;
       try {
         const { text } = await generateText({ model: provider(model), messages });
         return { reply: text, model };
-      } catch { continue; }
+      } catch {
+        continue;
+      }
     }
 
     throw new Error("OpenRouter has no working free model right now. Try again in a moment.");

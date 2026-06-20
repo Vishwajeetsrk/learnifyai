@@ -53,7 +53,10 @@ function CourseCardLearners({ courseId }: { courseId: string }) {
           <img
             key={l.user_id ?? i}
             className="inline-block h-5 w-5 rounded-full ring-2 ring-card bg-muted object-cover"
-            src={l.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`}
+            src={
+              l.avatar_url ||
+              `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`
+            }
             alt=""
           />
         ))}
@@ -113,7 +116,9 @@ function CoursesPage() {
         .eq("user_id", user!.id);
       if (error) throw error;
       const map: Record<string, boolean> = {};
-      (data ?? []).forEach((r: any) => { map[r.course_id as string] = true; });
+      (data ?? []).forEach((r: any) => {
+        map[r.course_id as string] = true;
+      });
       return map;
     },
   });
@@ -128,7 +133,9 @@ function CoursesPage() {
         .eq("user_id", user!.id);
       if (error) throw error;
       const map: Record<string, boolean> = {};
-      (data ?? []).forEach((r: any) => { map[r.course_id as string] = true; });
+      (data ?? []).forEach((r: any) => {
+        map[r.course_id as string] = true;
+      });
       return map;
     },
   });

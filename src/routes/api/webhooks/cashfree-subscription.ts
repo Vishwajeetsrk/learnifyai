@@ -13,18 +13,26 @@ export const Route = createFileRoute("/api/webhooks/cashfree-subscription")({
           if (secretKey) {
             const encoder = new TextEncoder();
             const key = await crypto.subtle.importKey(
-              "raw", encoder.encode(secretKey),
+              "raw",
+              encoder.encode(secretKey),
               { name: "HMAC", hash: "SHA-256" },
-              false, ["verify"],
+              false,
+              ["verify"],
             );
             const expected = Array.from(
               new Uint8Array(await crypto.subtle.sign("HMAC", key, encoder.encode(body))),
-            ).map((b) => b.toString(16).padStart(2, "0")).join("");
+            )
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
             if (sig !== expected) console.warn("Cashfree subscription webhook: invalid signature");
           }
 
           let event: any;
-          try { event = JSON.parse(body); } catch { event = { type: body }; }
+          try {
+            event = JSON.parse(body);
+          } catch {
+            event = { type: body };
+          }
 
           const sb = supabaseAdmin as any;
 
@@ -32,7 +40,10 @@ export const Route = createFileRoute("/api/webhooks/cashfree-subscription")({
           const subscriptionId = event.data?.subscription?.subscription_id || event.subscription_id;
           const orderId = event.data?.order?.order_id || event.order_id;
 
-          if (eventType === "SUBSCRIPTION_PAYMENT_SUCCESS" || eventType === "SUBSCRIPTION_CHARGE_SUCCESS") {
+          if (
+            eventType === "SUBSCRIPTION_PAYMENT_SUCCESS" ||
+            eventType === "SUBSCRIPTION_CHARGE_SUCCESS"
+          ) {
             if (subscriptionId) {
               const { data: sub } = await sb
                 .from("user_subscriptions")
@@ -61,17 +72,15 @@ export const Route = createFileRoute("/api/webhooks/cashfree-subscription")({
                   .eq("id", sub.plan_id)
                   .single();
                 if (plan?.ai_credits_monthly && sub.user_id) {
-                  await sb
-                    .from("ai_credits")
-                    .upsert(
-                      {
-                        user_id: sub.user_id,
-                        credits_remaining: plan.ai_credits_monthly,
-                        credits_used: 0,
-                        updated_at: new Date().toISOString(),
-                      },
-                      { onConflict: "user_id" },
-                    );
+                  await sb.from("ai_credits").upsert(
+                    {
+                      user_id: sub.user_id,
+                      credits_remaining: plan.ai_credits_monthly,
+                      credits_used: 0,
+                      updated_at: new Date().toISOString(),
+                    },
+                    { onConflict: "user_id" },
+                  );
                 }
 
                 await sb.from("subscription_events").insert({

@@ -2,16 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import {
-  Loader2,
-  ShoppingCart,
-  Trash2,
-  CreditCard,
-  ArrowRight,
-  Tag,
-  Check,
-  X,
-} from "lucide-react";
+import { Loader2, ShoppingCart, Trash2, CreditCard, ArrowRight, Tag, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
@@ -342,7 +333,9 @@ function CartPage() {
                 <label className="text-xs font-medium">Payment method</label>
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs flex items-center gap-2">
                   <CreditCard className="h-4 w-4 text-primary shrink-0" />
-                  <span>Secure checkout via <strong>Cashfree</strong> (card, UPI, netbanking).</span>
+                  <span>
+                    Secure checkout via <strong>Cashfree</strong> (card, UPI, netbanking).
+                  </span>
                 </div>
               </div>
 
@@ -363,7 +356,6 @@ function CartPage() {
                   <span>{inr(total)}</span>
                 </div>
               </div>
-
 
               <Button className="w-full" onClick={pay} disabled={paying || items.length === 0}>
                 {paying ? (

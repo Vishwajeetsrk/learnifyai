@@ -9,7 +9,6 @@ import {
   Plus,
   IndianRupee,
   CreditCard,
-
   ArrowDownToLine,
   TrendingUp,
   TrendingDown,
@@ -22,7 +21,11 @@ import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
-import { createCashfreeOrder, verifyCashfreePayment, processCashfreePayout } from "@/lib/payment.functions";
+import {
+  createCashfreeOrder,
+  verifyCashfreePayment,
+  processCashfreePayout,
+} from "@/lib/payment.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -132,10 +135,18 @@ function WalletPage() {
   const invoiceSettingsQuery = useQuery({
     queryKey: ["invoice-settings"],
     queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("key,value").in("key", [
-        "invoice_company_name", "invoice_legal_name", "invoice_gstin",
-        "invoice_prefix", "invoice_footer", "invoice_logo_url", "invoice_contact",
-      ]);
+      const { data } = await supabase
+        .from("site_settings")
+        .select("key,value")
+        .in("key", [
+          "invoice_company_name",
+          "invoice_legal_name",
+          "invoice_gstin",
+          "invoice_prefix",
+          "invoice_footer",
+          "invoice_logo_url",
+          "invoice_contact",
+        ]);
       const m: Record<string, string> = {};
       for (const r of data ?? []) m[r.key] = r.value || "";
       return m;
@@ -149,7 +160,7 @@ function WalletPage() {
     const amt = Number(amount);
     if (!amt || amt < 50) return toast.error("Minimum amount is ₹50");
     if (amt > 100000) return toast.error("Maximum amount is ₹1,00,000");
-    
+
     setSubmitting(true);
     try {
       const order = await createOrder({ data: { amountInr: amt, email: user?.email } });
@@ -195,14 +206,26 @@ function WalletPage() {
       const doc = new jsPDF();
 
       // Check user's own branding settings (Team plan admins can customize)
-      const { data: profileBrand } = await supabase.from("profiles").select("invoice_company_name, invoice_legal_name, invoice_gstin, invoice_prefix, invoice_footer, invoice_logo_url, invoice_contact, org_name, org_logo_url").eq("id", user.id).maybeSingle();
+      const { data: profileBrand } = await supabase
+        .from("profiles")
+        .select(
+          "invoice_company_name, invoice_legal_name, invoice_gstin, invoice_prefix, invoice_footer, invoice_logo_url, invoice_contact, org_name, org_logo_url",
+        )
+        .eq("id", user.id)
+        .maybeSingle();
 
-      const companyName = profileBrand?.invoice_company_name || inv.invoice_company_name || "Learnify AI";
-      const legalName = profileBrand?.invoice_legal_name || inv.invoice_legal_name || "Learnify EdTech Pvt. Ltd.";
+      const companyName =
+        profileBrand?.invoice_company_name || inv.invoice_company_name || "Learnify AI";
+      const legalName =
+        profileBrand?.invoice_legal_name || inv.invoice_legal_name || "Learnify EdTech Pvt. Ltd.";
       const gstin = profileBrand?.invoice_gstin || inv.invoice_gstin || "29XXXXX1234X1Z5";
       const prefix = profileBrand?.invoice_prefix || inv.invoice_prefix || "LRN";
-      const footerText = profileBrand?.invoice_footer || inv.invoice_footer || "This is a computer generated invoice and does not require a signature.";
-      const logoUrl = profileBrand?.invoice_logo_url || profileBrand?.org_logo_url || inv.invoice_logo_url;
+      const footerText =
+        profileBrand?.invoice_footer ||
+        inv.invoice_footer ||
+        "This is a computer generated invoice and does not require a signature.";
+      const logoUrl =
+        profileBrand?.invoice_logo_url || profileBrand?.org_logo_url || inv.invoice_logo_url;
       const contact = profileBrand?.invoice_contact || inv.invoice_contact;
 
       // Logo (if configured) — fetch and convert to base64
@@ -246,10 +269,18 @@ function WalletPage() {
       rightY += 8;
       doc.setFontSize(10);
       doc.setTextColor(50);
-      doc.text(`Invoice Number: ${prefix}-${tx.id?.split("-")[0]?.toUpperCase() ?? "NA"}`, 150, rightY);
+      doc.text(
+        `Invoice Number: ${prefix}-${tx.id?.split("-")[0]?.toUpperCase() ?? "NA"}`,
+        150,
+        rightY,
+      );
 
       rightY += 5;
-      doc.text(`Date: ${tx.created_at ? format(new Date(tx.created_at), "dd MMM yyyy") : "N/A"}`, 150, rightY);
+      doc.text(
+        `Date: ${tx.created_at ? format(new Date(tx.created_at), "dd MMM yyyy") : "N/A"}`,
+        150,
+        rightY,
+      );
 
       // Contact (if configured)
       let separatorY = Math.max(infoY, rightY) + 6;
@@ -276,9 +307,7 @@ function WalletPage() {
         startY: billToY + 16,
         headStyles: { fillColor: [79, 70, 229] },
         head: [["Description", "Amount"]],
-        body: [
-          [tx.description ?? "Wallet Top-up", `INR ${Number(tx.amount_inr ?? 0).toFixed(2)}`],
-        ],
+        body: [[tx.description ?? "Wallet Top-up", `INR ${Number(tx.amount_inr ?? 0).toFixed(2)}`]],
         foot: [["Total Paid", `INR ${Number(tx.amount_inr ?? 0).toFixed(2)}`]],
         footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: "bold" },
       });
@@ -394,17 +423,17 @@ function WalletPage() {
             </h3>
             <ul className="space-y-2">
               {pendingTxs.map((t) => (
-                <li
-                  key={t.id}
-                  className="flex items-center justify-between text-sm"
-                >
+                <li key={t.id} className="flex items-center justify-between text-sm">
                   <div>
                     <div className="font-medium">{inr(Number(t.amount_inr))}</div>
                     <div className="text-xs text-muted-foreground">
                       Cashfree · {format(new Date(t.created_at), "dd MMM HH:mm")}
                     </div>
                   </div>
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 hover:bg-blue-100">
+                  <Badge
+                    variant="secondary"
+                    className="bg-blue-100 text-blue-800 hover:bg-blue-100"
+                  >
                     Processing
                   </Badge>
                 </li>
@@ -503,9 +532,7 @@ function TopUpDialogContent({
     <DialogContent className="sm:max-w-md">
       <DialogHeader>
         <DialogTitle>Add money to wallet</DialogTitle>
-        <DialogDescription>
-          Top up instantly via Cashfree (card/UPI/netbanking).
-        </DialogDescription>
+        <DialogDescription>Top up instantly via Cashfree (card/UPI/netbanking).</DialogDescription>
       </DialogHeader>
       <div className="space-y-5">
         <div className="space-y-2">
@@ -536,7 +563,8 @@ function TopUpDialogContent({
         </div>
         <div className="text-xs text-emerald-800 rounded-lg bg-emerald-50 p-3 border border-emerald-200 flex items-center gap-2">
           <CreditCard className="h-4 w-4 shrink-0" />
-          You will be redirected to Cashfree to securely add funds instantly via card, UPI, or netbanking.
+          You will be redirected to Cashfree to securely add funds instantly via card, UPI, or
+          netbanking.
         </div>
       </div>
       <DialogFooter>
@@ -728,7 +756,8 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
             </div>
             <DialogFooter>
               <Button onClick={submit} disabled={submitting}>
-                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Withdraw via Cashfree
+                {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Withdraw via
+                Cashfree
               </Button>
             </DialogFooter>
           </DialogContent>

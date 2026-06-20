@@ -20,7 +20,9 @@ function LeaderboardPage() {
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("playground_leaderboard")
-        .select("user_id, total_points, challenges_solved, easy_solved, medium_solved, hard_solved, total_runs, updated_at")
+        .select(
+          "user_id, total_points, challenges_solved, easy_solved, medium_solved, hard_solved, total_runs, updated_at",
+        )
         .order("total_points", { ascending: false })
         .limit(100);
       const userIds = (data ?? []).map((r: any) => r.user_id);
@@ -51,17 +53,23 @@ function LeaderboardPage() {
           <Trophy className="h-6 w-6 text-amber-500" />
           <div>
             <h1 className="font-display text-2xl font-semibold">Leaderboard</h1>
-            <p className="text-sm text-muted-foreground">Top coders ranked by challenges solved and points earned.</p>
+            <p className="text-sm text-muted-foreground">
+              Top coders ranked by challenges solved and points earned.
+            </p>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="py-20 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          <div className="py-20 grid place-items-center">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
         ) : !entries?.length ? (
           <div className="rounded-2xl border bg-card p-12 text-center text-muted-foreground">
             <Trophy className="h-10 w-10 mx-auto mb-3 opacity-30" />
             <p className="font-medium">No entries yet</p>
-            <p className="text-sm mt-1">Solve challenges to earn points and appear on the leaderboard.</p>
+            <p className="text-sm mt-1">
+              Solve challenges to earn points and appear on the leaderboard.
+            </p>
           </div>
         ) : (
           <div className="rounded-xl border bg-card overflow-hidden">
@@ -77,14 +85,22 @@ function LeaderboardPage() {
                 const isMe = user?.id === entry.user_id;
                 const medal = medalEmoji(entry.rank);
                 return (
-                  <div key={entry.user_id} className={cn("grid grid-cols-12 gap-2 px-4 py-3 text-sm items-center", isMe ? "bg-primary/5" : "hover:bg-accent/30")}>
+                  <div
+                    key={entry.user_id}
+                    className={cn(
+                      "grid grid-cols-12 gap-2 px-4 py-3 text-sm items-center",
+                      isMe ? "bg-primary/5" : "hover:bg-accent/30",
+                    )}
+                  >
                     <div className="col-span-1 text-center font-bold text-xs">
                       {medal || <span className="text-muted-foreground">{entry.rank}</span>}
                     </div>
                     <div className="col-span-5 flex items-center gap-2.5 min-w-0">
                       <Avatar className="h-7 w-7 border shrink-0">
                         <AvatarImage src={entry.profile?.avatar_url} />
-                        <AvatarFallback className="text-[10px]">{entry.profile?.full_name?.charAt(0) || "?"}</AvatarFallback>
+                        <AvatarFallback className="text-[10px]">
+                          {entry.profile?.full_name?.charAt(0) || "?"}
+                        </AvatarFallback>
                       </Avatar>
                       <span className={cn("truncate", isMe && "font-semibold text-primary")}>
                         {entry.profile?.full_name || "Anonymous"}
@@ -97,7 +113,9 @@ function LeaderboardPage() {
                       <span className="text-amber-500">{entry.medium_solved}M</span>{" "}
                       <span className="text-red-500">{entry.hard_solved}H</span>
                     </div>
-                    <div className="col-span-2 text-right text-xs text-muted-foreground">{entry.total_runs}</div>
+                    <div className="col-span-2 text-right text-xs text-muted-foreground">
+                      {entry.total_runs}
+                    </div>
                   </div>
                 );
               })}

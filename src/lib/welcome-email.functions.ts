@@ -17,15 +17,7 @@ function escapeHtml(value: string) {
 
 import nodemailer from "nodemailer";
 
-async function sendEmail({
-  to,
-  subject,
-  html,
-}: {
-  to: string;
-  subject: string;
-  html: string;
-}) {
+async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   const BREVO_SMTP_KEY = process.env.BREVO_SMTP_KEY;
   const BREVO_SMTP_SERVER = process.env.BREVO_SMTP_SERVER;

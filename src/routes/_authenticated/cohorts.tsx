@@ -1,7 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Calendar, Loader2, Plus, Users, Video, BookOpen, Sparkles, Pencil, Trash2, MessageCircle, ExternalLink } from "lucide-react";
+import {
+  Calendar,
+  Loader2,
+  Plus,
+  Users,
+  Video,
+  BookOpen,
+  Sparkles,
+  Pencil,
+  Trash2,
+  MessageCircle,
+  ExternalLink,
+} from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -117,7 +129,8 @@ function CohortsPage() {
     enabled: !!(countsQuery.data as any)?.allUserIds?.length,
     queryFn: async () => {
       const ids = (countsQuery.data as any).allUserIds as string[];
-      if (!ids.length) return new Map<string, { avatar_url: string | null; full_name: string | null }>();
+      if (!ids.length)
+        return new Map<string, { avatar_url: string | null; full_name: string | null }>();
       const { data } = await supabase
         .from("profiles")
         .select("id, avatar_url, full_name")
@@ -211,7 +224,10 @@ function CohortsPage() {
                 onLeave={leaveCohort}
                 userId={user?.id}
                 isAdmin={isAdmin}
-                onEdit={(c) => { setEditingCohort(c); setEditOpen(true); }}
+                onEdit={(c) => {
+                  setEditingCohort(c);
+                  setEditOpen(true);
+                }}
                 onDelete={(id) => setDeleteId(id)}
               />
             </TabsContent>
@@ -221,8 +237,13 @@ function CohortsPage() {
         <EditCohortDialog
           cohort={editingCohort}
           open={editOpen}
-          onOpenChange={(v) => { setEditOpen(v); if (!v) setEditingCohort(null); }}
-          onSaved={() => { qc.invalidateQueries({ queryKey: ["cohorts"] }); }}
+          onOpenChange={(v) => {
+            setEditOpen(v);
+            if (!v) setEditingCohort(null);
+          }}
+          onSaved={() => {
+            qc.invalidateQueries({ queryKey: ["cohorts"] });
+          }}
         />
 
         <DeleteCohortDialog
@@ -238,7 +259,15 @@ function CohortsPage() {
   );
 }
 
-function DeleteCohortDialog({ deleteId, onClose, onDeleted }: { deleteId: string | null; onClose: () => void; onDeleted: () => void }) {
+function DeleteCohortDialog({
+  deleteId,
+  onClose,
+  onDeleted,
+}: {
+  deleteId: string | null;
+  onClose: () => void;
+  onDeleted: () => void;
+}) {
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete() {
@@ -253,7 +282,12 @@ function DeleteCohortDialog({ deleteId, onClose, onDeleted }: { deleteId: string
   }
 
   return (
-    <AlertDialog open={!!deleteId} onOpenChange={(v) => { if (!v) onClose(); }}>
+    <AlertDialog
+      open={!!deleteId}
+      onOpenChange={(v) => {
+        if (!v) onClose();
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete cohort?</AlertDialogTitle>
@@ -270,7 +304,17 @@ function DeleteCohortDialog({ deleteId, onClose, onDeleted }: { deleteId: string
   );
 }
 
-function EditCohortDialog({ cohort, open, onOpenChange, onSaved }: { cohort: any; open: boolean; onOpenChange: (v: boolean) => void; onSaved: () => void }) {
+function EditCohortDialog({
+  cohort,
+  open,
+  onOpenChange,
+  onSaved,
+}: {
+  cohort: any;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onSaved: () => void;
+}) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [kind, setKind] = useState("cohort");
@@ -331,13 +375,20 @@ function EditCohortDialog({ cohort, open, onOpenChange, onSaved }: { cohort: any
           </div>
           <div className="space-y-1.5">
             <Label>Description</Label>
-            <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500} />
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              maxLength={500}
+            />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Type</Label>
               <Select value={kind} onValueChange={setKind}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="cohort">Live cohort</SelectItem>
                   <SelectItem value="office_hours">Office hours</SelectItem>
@@ -348,7 +399,9 @@ function EditCohortDialog({ cohort, open, onOpenChange, onSaved }: { cohort: any
             <div className="space-y-1.5">
               <Label>Status</Label>
               <Select value={status} onValueChange={setStatus}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="live">Live</SelectItem>
@@ -360,20 +413,38 @@ function EditCohortDialog({ cohort, open, onOpenChange, onSaved }: { cohort: any
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Starts at</Label>
-              <Input type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} />
+              <Input
+                type="datetime-local"
+                value={startsAt}
+                onChange={(e) => setStartsAt(e.target.value)}
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Capacity</Label>
-              <Input type="number" min={1} max={1000} value={capacity} onChange={(e) => setCapacity(e.target.value)} />
+              <Input
+                type="number"
+                min={1}
+                max={1000}
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
+              />
             </div>
           </div>
           <div className="space-y-1.5">
             <Label>Meeting URL</Label>
-            <Input value={meetingUrl} onChange={(e) => setMeetingUrl(e.target.value)} placeholder="https://" />
+            <Input
+              value={meetingUrl}
+              onChange={(e) => setMeetingUrl(e.target.value)}
+              placeholder="https://"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Group chat link (WhatsApp / Discord)</Label>
-            <Input value={groupLink} onChange={(e) => setGroupLink(e.target.value)} placeholder="https://chat.whatsapp.com/..." />
+            <Input
+              value={groupLink}
+              onChange={(e) => setGroupLink(e.target.value)}
+              placeholder="https://chat.whatsapp.com/..."
+            />
           </div>
         </div>
         <DialogFooter>
@@ -454,10 +525,16 @@ function CohortList({
               <div className="flex items-center gap-1 shrink-0">
                 {(isAdmin || c.creator_id === userId) && (
                   <>
-                    <button onClick={() => onEdit?.(c)} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground">
+                    <button
+                      onClick={() => onEdit?.(c)}
+                      className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground"
+                    >
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
-                    <button onClick={() => onDelete?.(c.id)} className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-destructive">
+                    <button
+                      onClick={() => onDelete?.(c.id)}
+                      className="p-1 rounded hover:bg-accent text-muted-foreground hover:text-destructive"
+                    >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </>
@@ -467,11 +544,14 @@ function CohortList({
                   className="text-[10px] capitalize"
                 >
                   {c.status}
-                  {c.status !== "live" && c.status !== "ended" && c.status !== "cancelled" && (() => {
-                    const diffMs = new Date(c.starts_at).getTime() - Date.now();
-                    if (diffMs > 0 && diffMs <= 60 * 60 * 1000) return " · soon";
-                    return "";
-                  })()}
+                  {c.status !== "live" &&
+                    c.status !== "ended" &&
+                    c.status !== "cancelled" &&
+                    (() => {
+                      const diffMs = new Date(c.starts_at).getTime() - Date.now();
+                      if (diffMs > 0 && diffMs <= 60 * 60 * 1000) return " · soon";
+                      return "";
+                    })()}
                 </Badge>
               </div>
             </div>
@@ -487,7 +567,11 @@ function CohortList({
                   {(userIdsByCohort.get(c.id) ?? []).slice(0, 5).map((uid) => {
                     const p = memberProfiles.get(uid);
                     return (
-                      <div key={uid} className="h-5 w-5 rounded-full border border-background bg-muted overflow-hidden" title={p?.full_name ?? ""}>
+                      <div
+                        key={uid}
+                        className="h-5 w-5 rounded-full border border-background bg-muted overflow-hidden"
+                        title={p?.full_name ?? ""}
+                      >
                         {p?.avatar_url ? (
                           <img src={p.avatar_url} alt="" className="h-full w-full object-cover" />
                         ) : (
@@ -513,7 +597,12 @@ function CohortList({
                 </Link>
               </Button>
               {c.group_link && (
-                <a href={c.group_link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                <a
+                  href={c.group_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                >
                   <MessageCircle className="h-3 w-3" /> Group chat
                 </a>
               )}

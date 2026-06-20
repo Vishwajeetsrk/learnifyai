@@ -32,6 +32,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifyIdRouteImport } from './routes/verify.$id'
 import { Route as UIdRouteImport } from './routes/u.$id'
+import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as CertificatesCodeRouteImport } from './routes/certificates.$code'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedWorkspaceRouteImport } from './routes/_authenticated/workspace'
@@ -189,6 +190,11 @@ const VerifyIdRoute = VerifyIdRouteImport.update({
 const UIdRoute = UIdRouteImport.update({
   id: '/u/$id',
   path: '/u/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapXmlRoute = SitemapXmlRouteImport.update({
+  id: '/sitemap/xml',
+  path: '/sitemap/xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CertificatesCodeRoute = CertificatesCodeRouteImport.update({
@@ -480,6 +486,7 @@ export interface FileRoutesByFullPath {
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
   '/certificates/$code': typeof CertificatesCodeRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
   '/verify/$id': typeof VerifyIdRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
@@ -548,6 +555,7 @@ export interface FileRoutesByTo {
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
   '/certificates/$code': typeof CertificatesCodeRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
   '/verify/$id': typeof VerifyIdRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
@@ -618,6 +626,7 @@ export interface FileRoutesById {
   '/_authenticated/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
   '/certificates/$code': typeof CertificatesCodeRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
   '/verify/$id': typeof VerifyIdRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
@@ -688,6 +697,7 @@ export interface FileRouteTypes {
     | '/workspace'
     | '/api/chat'
     | '/certificates/$code'
+    | '/sitemap/xml'
     | '/u/$id'
     | '/verify/$id'
     | '/admin/certificates'
@@ -756,6 +766,7 @@ export interface FileRouteTypes {
     | '/workspace'
     | '/api/chat'
     | '/certificates/$code'
+    | '/sitemap/xml'
     | '/u/$id'
     | '/verify/$id'
     | '/admin/certificates'
@@ -825,6 +836,7 @@ export interface FileRouteTypes {
     | '/_authenticated/workspace'
     | '/api/chat'
     | '/certificates/$code'
+    | '/sitemap/xml'
     | '/u/$id'
     | '/verify/$id'
     | '/_authenticated/admin/certificates'
@@ -874,6 +886,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
   CertificatesCodeRoute: typeof CertificatesCodeRoute
+  SitemapXmlRoute: typeof SitemapXmlRoute
   UIdRoute: typeof UIdRoute
   VerifyIdRoute: typeof VerifyIdRoute
   ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
@@ -1042,6 +1055,13 @@ declare module '@tanstack/react-router' {
       path: '/u/$id'
       fullPath: '/u/$id'
       preLoaderRoute: typeof UIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap/xml': {
+      id: '/sitemap/xml'
+      path: '/sitemap/xml'
+      fullPath: '/sitemap/xml'
+      preLoaderRoute: typeof SitemapXmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/certificates/$code': {
@@ -1509,6 +1529,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
   CertificatesCodeRoute: CertificatesCodeRoute,
+  SitemapXmlRoute: SitemapXmlRoute,
   UIdRoute: UIdRoute,
   VerifyIdRoute: VerifyIdRoute,
   ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,

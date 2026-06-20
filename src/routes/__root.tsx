@@ -102,10 +102,47 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      {
+        rel: "sitemap",
+        type: "application/xml",
+        href: "/sitemap.xml",
+      },
     ],
     scripts: [
       {
         children: `(function(){try{var m=localStorage.getItem('ui.mode')||'system';var c=localStorage.getItem('ui.color')||'indigo';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;if(d)r.classList.add('dark');if(c&&c!=='indigo')r.setAttribute('data-theme',c);r.classList.add('no-theme-transition');setTimeout(function(){r.classList.remove('no-theme-transition')},0);}catch(e){}})();`,
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Learnify AI",
+          url: "https://learnifyaitool.vercel.app",
+          logo: "https://learnifyaitool.vercel.app/assets/learnify-logo-DVspKPzy.png",
+          description:
+            "The AI-native learning OS: intelligent tutoring, creator economy, gamification, and career growth.",
+          sameAs: [],
+          contactPoint: {
+            "@type": "ContactPoint",
+            contactType: "customer service",
+            email: "hello@learnify.ai",
+          },
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Learnify AI",
+          url: "https://learnifyaitool.vercel.app",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://learnifyaitool.vercel.app/courses?search={search_term_string}",
+            "query-input": "required name=search_term_string",
+          },
+        }),
       },
     ],
   }),

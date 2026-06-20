@@ -56,11 +56,13 @@ function CertificatePage() {
   const q = useQuery({
     queryKey: ["cert", code],
     queryFn: async () => {
-      const { data: rpcData, error } = await supabase.rpc("get_certificate_by_code", { _code: code });
+      const { data: rpcData, error } = await supabase.rpc("get_certificate_by_code", {
+        _code: code,
+      });
       if (error) throw error;
       const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
       if (!row) throw new Error("Certificate not found");
-      
+
       const { data: certV2 } = await supabase
         .from("certificates")
         .select("template_id")
@@ -87,7 +89,11 @@ function CertificatePage() {
         issuerOrgLogoUrl = issuerProfile?.org_logo_url ?? null;
       }
 
-      return { ...row, v2: certV2 ? { ...certV2, certificate_templates: template } : null, issuer_org_logo_url: issuerOrgLogoUrl } as any;
+      return {
+        ...row,
+        v2: certV2 ? { ...certV2, certificate_templates: template } : null,
+        issuer_org_logo_url: issuerOrgLogoUrl,
+      } as any;
     },
   });
 
@@ -192,7 +198,10 @@ function CertificatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-violet-100 py-6 sm:py-12 px-4" style={{ colorScheme: "light" }}>
+    <div
+      className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-violet-100 py-6 sm:py-12 px-4"
+      style={{ colorScheme: "light" }}
+    >
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between gap-2 mb-4 print:hidden flex-wrap">
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
@@ -223,59 +232,111 @@ function CertificatePage() {
         </div>
 
         {row.v2?.certificate_templates ? (
-          <div ref={certRef} className="relative w-full mx-auto overflow-hidden shadow-2xl" style={{ aspectRatio: "1.414 / 1", background: row.v2.certificate_templates.bg_image_url ? `#fdfbf5 url(${row.v2.certificate_templates.bg_image_url}) center/cover no-repeat` : "#fdfbf5", colorScheme: "light" }}>
+          <div
+            ref={certRef}
+            className="relative w-full mx-auto overflow-hidden shadow-2xl"
+            style={{
+              aspectRatio: "1.414 / 1",
+              background: row.v2.certificate_templates.bg_image_url
+                ? `#fdfbf5 url(${row.v2.certificate_templates.bg_image_url}) center/cover no-repeat`
+                : "#fdfbf5",
+              colorScheme: "light",
+            }}
+          >
             {row.v2.certificate_templates.config_json?.elements?.length > 0 ? (
               row.v2.certificate_templates.config_json.elements.map((el: any) => {
                 let content = el.content || "";
-                content = content.replace("{name}", ctx.name).replace("{course}", ctx.course).replace("{date}", ctx.date).replace("{certificate_id}", ctx.code);
-                
-                  if (el.type === 'qr') {
-                    return (
-                      <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width, height: el.height }}>
-                        {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" />}
-                      </div>
-                    );
-                  }
+                content = content
+                  .replace("{name}", ctx.name)
+                  .replace("{course}", ctx.course)
+                  .replace("{date}", ctx.date)
+                  .replace("{certificate_id}", ctx.code);
 
-                  if (el.type === 'org_logo') {
-                    const logoUrl = (row.v2?.certificate_templates as any)?.org_logo_url || (row as any)?.issuer_org_logo_url;
-                    return logoUrl ? (
-                      <div key={el.id} className="absolute" style={{ left: el.x, top: el.y, width: el.width || 100, height: el.height || 80 }}>
-                        <img src={logoUrl} alt="Org Logo" className="w-full h-full object-contain" />
-                      </div>
-                    ) : null;
-                  }
-                  
+                if (el.type === "qr") {
                   return (
-                    <div key={el.id} className="absolute whitespace-pre-wrap" style={{ 
-                      left: el.x, 
-                      top: el.y, 
-                      fontSize: el.fontSize || '16px', 
-                      fontFamily: el.fontFamily || 'Georgia, serif', 
-                      color: el.color || '#0f1b3d',
-                      textAlign: el.align || 'left',
-                      width: el.width || 'auto',
-                      fontWeight: el.fontWeight || 'normal',
-                      fontStyle: el.fontStyle || 'normal',
-                      textDecoration: el.textDecoration === 'underline' ? 'underline' : 'none',
-                      transform: el.align === 'center' ? 'translateX(-50%)' : el.align === 'right' ? 'translateX(-100%)' : 'none'
-                    }}>
-                      {content}
+                    <div
+                      key={el.id}
+                      className="absolute"
+                      style={{ left: el.x, top: el.y, width: el.width, height: el.height }}
+                    >
+                      {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" />}
                     </div>
                   );
+                }
+
+                if (el.type === "org_logo") {
+                  const logoUrl =
+                    (row.v2?.certificate_templates as any)?.org_logo_url ||
+                    (row as any)?.issuer_org_logo_url;
+                  return logoUrl ? (
+                    <div
+                      key={el.id}
+                      className="absolute"
+                      style={{
+                        left: el.x,
+                        top: el.y,
+                        width: el.width || 100,
+                        height: el.height || 80,
+                      }}
+                    >
+                      <img src={logoUrl} alt="Org Logo" className="w-full h-full object-contain" />
+                    </div>
+                  ) : null;
+                }
+
+                return (
+                  <div
+                    key={el.id}
+                    className="absolute whitespace-pre-wrap"
+                    style={{
+                      left: el.x,
+                      top: el.y,
+                      fontSize: el.fontSize || "16px",
+                      fontFamily: el.fontFamily || "Georgia, serif",
+                      color: el.color || "#0f1b3d",
+                      textAlign: el.align || "left",
+                      width: el.width || "auto",
+                      fontWeight: el.fontWeight || "normal",
+                      fontStyle: el.fontStyle || "normal",
+                      textDecoration: el.textDecoration === "underline" ? "underline" : "none",
+                      transform:
+                        el.align === "center"
+                          ? "translateX(-50%)"
+                          : el.align === "right"
+                            ? "translateX(-100%)"
+                            : "none",
+                    }}
+                  >
+                    {content}
+                  </div>
+                );
               })
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center p-10 text-center" style={{ fontFamily: "'Georgia', serif" }}>
-                <div className="text-4xl font-bold mb-3" style={{ color: '#c9a84c' }}>Certificate of Completion</div>
-                <div className="text-xs uppercase tracking-widest mb-4 text-gray-500">This is to certify that</div>
-                <div className="text-3xl font-bold mb-3" style={{ color: '#0f1b3d' }}>{ctx.name}</div>
+              <div
+                className="w-full h-full flex flex-col items-center justify-center p-10 text-center"
+                style={{ fontFamily: "'Georgia', serif" }}
+              >
+                <div className="text-4xl font-bold mb-3" style={{ color: "#c9a84c" }}>
+                  Certificate of Completion
+                </div>
+                <div className="text-xs uppercase tracking-widest mb-4 text-gray-500">
+                  This is to certify that
+                </div>
+                <div className="text-3xl font-bold mb-3" style={{ color: "#0f1b3d" }}>
+                  {ctx.name}
+                </div>
                 <div className="text-sm text-gray-600 max-w-md leading-relaxed mb-6">
                   has successfully completed the course <strong>{ctx.course}</strong> on {ctx.date}.
                 </div>
-                <div className="border-t pt-3 text-xs uppercase tracking-widest text-gray-500" style={{ borderColor: '#c9a84c' }}>
-                  {row.v2.certificate_templates.signatory_name || 'Learnify AI'}
+                <div
+                  className="border-t pt-3 text-xs uppercase tracking-widest text-gray-500"
+                  style={{ borderColor: "#c9a84c" }}
+                >
+                  {row.v2.certificate_templates.signatory_name || "Learnify AI"}
                 </div>
-                <div className="mt-2 text-[10px] text-gray-400">{ctx.qrDataUrl && <img src={qrDataUrl} alt="QR" className="h-12 w-12 mx-auto" />}</div>
+                <div className="mt-2 text-[10px] text-gray-400">
+                  {ctx.qrDataUrl && <img src={qrDataUrl} alt="QR" className="h-12 w-12 mx-auto" />}
+                </div>
                 <div className="text-[10px] font-mono mt-1 text-gray-400">{ctx.code}</div>
               </div>
             )}

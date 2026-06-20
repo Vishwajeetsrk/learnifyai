@@ -5,9 +5,15 @@ export const Route = createFileRoute("/terms")({
   head: () => ({
     meta: [
       { title: "Terms of Service — Learnify AI" },
-      { name: "description", content: "Learnify AI Terms of Service — your rights and responsibilities." },
+      {
+        name: "description",
+        content: "Learnify AI Terms of Service — your rights and responsibilities.",
+      },
       { property: "og:title", content: "Terms of Service — Learnify AI" },
-      { property: "og:description", content: "The terms governing your use of the Learnify AI platform." },
+      {
+        property: "og:description",
+        content: "The terms governing your use of the Learnify AI platform.",
+      },
     ],
   }),
   component: () => (

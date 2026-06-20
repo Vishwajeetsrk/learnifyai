@@ -236,7 +236,9 @@ function DashboardPage() {
                       <div className="mt-auto">
                         <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
                           <span className="truncate">{e.progress_pct}% complete</span>
-                          <span className="shrink-0 ml-2">{format(new Date(e.last_activity_at), "dd MMM")}</span>
+                          <span className="shrink-0 ml-2">
+                            {format(new Date(e.last_activity_at), "dd MMM")}
+                          </span>
                         </div>
                         <Progress value={e.progress_pct} className="h-1.5" />
                         {attempts.length > 0 && (
@@ -487,7 +489,10 @@ function DashboardCommunity() {
                   {c.kind?.replace("_", " ")} · {c.status}
                 </p>
               </div>
-              <Badge variant={c.status === "live" ? "default" : "outline"} className="text-[10px] capitalize shrink-0">
+              <Badge
+                variant={c.status === "live" ? "default" : "outline"}
+                className="text-[10px] capitalize shrink-0"
+              >
                 {c.status}
               </Badge>
             </div>

@@ -24,27 +24,74 @@ export const Route = createFileRoute("/roadmap")({
 });
 
 const defaults = [
-  { id: "1", status: "done", title: "AI Tutor & Doubt Solver", desc: "Multi-model chat with course context." },
-  { id: "2", status: "done", title: "Courses, Modules & Lessons", desc: "Full course builder with assignments and MCQ tests." },
-  { id: "3", status: "done", title: "Wallet & Cart Checkout", desc: "Top-up, paid course enrollment, transaction history." },
-  { id: "4", status: "done", title: "Certificates", desc: "Issue, design, PDF download, QR verify, email delivery." },
-  { id: "5", status: "progress", title: "Cohort Live Sessions", desc: "Scheduled live rooms with recordings." },
-  { id: "6", status: "progress", title: "Creator Payouts", desc: "Automatic monthly creator settlements." },
+  {
+    id: "1",
+    status: "done",
+    title: "AI Tutor & Doubt Solver",
+    desc: "Multi-model chat with course context.",
+  },
+  {
+    id: "2",
+    status: "done",
+    title: "Courses, Modules & Lessons",
+    desc: "Full course builder with assignments and MCQ tests.",
+  },
+  {
+    id: "3",
+    status: "done",
+    title: "Wallet & Cart Checkout",
+    desc: "Top-up, paid course enrollment, transaction history.",
+  },
+  {
+    id: "4",
+    status: "done",
+    title: "Certificates",
+    desc: "Issue, design, PDF download, QR verify, email delivery.",
+  },
+  {
+    id: "5",
+    status: "progress",
+    title: "Cohort Live Sessions",
+    desc: "Scheduled live rooms with recordings.",
+  },
+  {
+    id: "6",
+    status: "progress",
+    title: "Creator Payouts",
+    desc: "Automatic monthly creator settlements.",
+  },
   { id: "7", status: "planned", title: "Mobile App", desc: "iOS + Android with offline lessons." },
-  { id: "8", status: "planned", title: "Skill Graph & Career AI", desc: "Personalized career paths with skill gap analysis." },
+  {
+    id: "8",
+    status: "planned",
+    title: "Skill Graph & Career AI",
+    desc: "Personalized career paths with skill gap analysis.",
+  },
 ];
 
 const icon = { done: CheckCircle2, progress: Loader2, planned: Circle } as const;
-const labelClass = { done: "text-emerald-500", progress: "text-amber-500", planned: "text-muted-foreground" } as const;
+const labelClass = {
+  done: "text-emerald-500",
+  progress: "text-amber-500",
+  planned: "text-muted-foreground",
+} as const;
 const labelText = { done: "Shipped", progress: "In progress", planned: "Planned" } as const;
 
 function RoadmapPage() {
   const q = useQuery({
     queryKey: ["public-roadmap"],
     queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("value").eq("key", "roadmap_items").single();
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "roadmap_items")
+        .single();
       if (data?.value) {
-        try { return JSON.parse(data.value as string) as typeof defaults; } catch { return defaults; }
+        try {
+          return JSON.parse(data.value as string) as typeof defaults;
+        } catch {
+          return defaults;
+        }
       }
       return defaults;
     },
@@ -60,7 +107,9 @@ function RoadmapPage() {
       subtitle="A living view of what we're shipping next."
     >
       {q.isLoading ? (
-        <div className="py-16 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+        <div className="py-16 grid place-items-center">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
       ) : (
         <div className="space-y-4">
           {items.map((it: any) => {

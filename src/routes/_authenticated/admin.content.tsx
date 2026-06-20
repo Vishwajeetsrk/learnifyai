@@ -902,41 +902,61 @@ function PricingManager() {
       ) : (
         <div className="space-y-2">
           {plans.map((p) => (
-            <div
-              key={p.id}
-              className="rounded-xl border border-border/60 bg-card p-4"
-            >
+            <div key={p.id} className="rounded-xl border border-border/60 bg-card p-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold truncate flex items-center gap-2">
-                    {p.name} <span className="text-xs text-muted-foreground">· {p.price_label}</span>
+                    {p.name}{" "}
+                    <span className="text-xs text-muted-foreground">· {p.price_label}</span>
                     {p.highlighted && (
-                      <span className="text-xs rounded-full bg-primary/10 text-primary px-2 py-0.5">Featured</span>
+                      <span className="text-xs rounded-full bg-primary/10 text-primary px-2 py-0.5">
+                        Featured
+                      </span>
                     )}
                     {!p.active && (
-                      <span className="text-xs rounded-full bg-muted px-2 py-0.5 text-muted-foreground">Hidden</span>
+                      <span className="text-xs rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+                        Hidden
+                      </span>
                     )}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5">
-                    {p.interval ? `${p.interval}ly` : "One-time"} · {p.ai_credits_monthly > 0 ? `${(p.ai_credits_monthly).toLocaleString("en-IN")} AI credits/mo` : "No AI credits"}
-                    {p.cashfree_plan_id ? ` · Synced to Cashfree` : p.price_inr > 0 && p.interval ? ` · Not synced` : ` · No recurring billing`}
+                    {p.interval ? `${p.interval}ly` : "One-time"} ·{" "}
+                    {p.ai_credits_monthly > 0
+                      ? `${p.ai_credits_monthly.toLocaleString("en-IN")} AI credits/mo`
+                      : "No AI credits"}
+                    {p.cashfree_plan_id
+                      ? ` · Synced to Cashfree`
+                      : p.price_inr > 0 && p.interval
+                        ? ` · Not synced`
+                        : ` · No recurring billing`}
                   </div>
                 </div>
                 <div className="flex gap-2 shrink-0">
                   {p.price_inr > 0 && p.interval && !p.cashfree_plan_id && (
-                    <Button size="sm" variant="outline" onClick={async () => {
-                      try {
-                        await doSyncPlan({ data: { planId: p.id } });
-                        toast.success("Plan synced to Cashfree");
-                        qc.invalidateQueries({ queryKey: ["admin-plans"] });
-                      } catch (e: any) {
-                        toast.error(e?.message || "Sync failed");
-                      }
-                    }}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        try {
+                          await doSyncPlan({ data: { planId: p.id } });
+                          toast.success("Plan synced to Cashfree");
+                          qc.invalidateQueries({ queryKey: ["admin-plans"] });
+                        } catch (e: any) {
+                          toast.error(e?.message || "Sync failed");
+                        }
+                      }}
+                    >
                       Sync to Cashfree
                     </Button>
                   )}
-                  <Button size="sm" variant="outline" onClick={() => { setEditing(p); setOpen(true); }}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditing(p);
+                      setOpen(true);
+                    }}
+                  >
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setDeleteId(p.id)}>
@@ -1019,7 +1039,10 @@ function PlanDialog({
     setSaving(true);
     const payload = {
       ...form,
-      features: form.features.split("\n").map((s: string) => s.trim()).filter(Boolean),
+      features: form.features
+        .split("\n")
+        .map((s: string) => s.trim())
+        .filter(Boolean),
     };
     await onSaved(payload);
     setSaving(false);
@@ -1036,22 +1059,39 @@ function PlanDialog({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Name</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Pro" />
+              <Input
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Pro"
+              />
             </div>
             <div>
               <Label>Price label</Label>
-              <Input value={form.price_label} onChange={(e) => setForm({ ...form, price_label: e.target.value })} placeholder="₹499/mo" />
+              <Input
+                value={form.price_label}
+                onChange={(e) => setForm({ ...form, price_label: e.target.value })}
+                placeholder="₹499/mo"
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Price INR</Label>
-              <Input type="number" value={form.price_inr} onChange={(e) => setForm({ ...form, price_inr: Number(e.target.value) || 0 })} />
+              <Input
+                type="number"
+                value={form.price_inr}
+                onChange={(e) => setForm({ ...form, price_inr: Number(e.target.value) || 0 })}
+              />
             </div>
             <div>
               <Label>Interval</Label>
-              <Select value={form.interval || "none"} onValueChange={(v) => setForm({ ...form, interval: v === "none" ? null : v })}>
-                <SelectTrigger><SelectValue placeholder="Select interval" /></SelectTrigger>
+              <Select
+                value={form.interval || "none"}
+                onValueChange={(v) => setForm({ ...form, interval: v === "none" ? null : v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select interval" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>
                   <SelectItem value="month">Monthly</SelectItem>
@@ -1063,48 +1103,87 @@ function PlanDialog({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>AI credits / mo</Label>
-              <Input type="number" value={form.ai_credits_monthly} onChange={(e) => setForm({ ...form, ai_credits_monthly: Number(e.target.value) || 0 })} />
+              <Input
+                type="number"
+                value={form.ai_credits_monthly}
+                onChange={(e) =>
+                  setForm({ ...form, ai_credits_monthly: Number(e.target.value) || 0 })
+                }
+              />
             </div>
             <div>
               <Label>Max courses (-1 = unlimited)</Label>
-              <Input type="number" value={form.max_courses} onChange={(e) => setForm({ ...form, max_courses: Number(e.target.value) || -1 })} />
+              <Input
+                type="number"
+                value={form.max_courses}
+                onChange={(e) => setForm({ ...form, max_courses: Number(e.target.value) || -1 })}
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Badge</Label>
-              <Input value={form.badge || ""} onChange={(e) => setForm({ ...form, badge: e.target.value })} placeholder="Most popular" />
+              <Input
+                value={form.badge || ""}
+                onChange={(e) => setForm({ ...form, badge: e.target.value })}
+                placeholder="Most popular"
+              />
             </div>
             <div>
               <Label>Color</Label>
-              <Input value={form.color || ""} onChange={(e) => setForm({ ...form, color: e.target.value })} placeholder="#7c3aed" />
+              <Input
+                value={form.color || ""}
+                onChange={(e) => setForm({ ...form, color: e.target.value })}
+                placeholder="#7c3aed"
+              />
             </div>
           </div>
           <div>
             <Label>Description</Label>
-            <Textarea rows={2} value={form.description ?? ""} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <Textarea
+              rows={2}
+              value={form.description ?? ""}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
           </div>
           <div>
             <Label>Features (one per line)</Label>
-            <Textarea rows={4} value={form.features} onChange={(e) => setForm({ ...form, features: e.target.value })} placeholder="Unlimited courses&#10;Advanced AI tools&#10;Certificates" />
+            <Textarea
+              rows={4}
+              value={form.features}
+              onChange={(e) => setForm({ ...form, features: e.target.value })}
+              placeholder="Unlimited courses&#10;Advanced AI tools&#10;Certificates"
+            />
           </div>
           <div className="grid grid-cols-3 gap-3 items-end">
             <div>
               <Label>Order</Label>
-              <Input type="number" value={form.order_index} onChange={(e) => setForm({ ...form, order_index: Number(e.target.value) || 0 })} />
+              <Input
+                type="number"
+                value={form.order_index}
+                onChange={(e) => setForm({ ...form, order_index: Number(e.target.value) || 0 })}
+              />
             </div>
             <div className="flex items-center gap-2 pb-2">
-              <Switch checked={form.highlighted} onCheckedChange={(v) => setForm({ ...form, highlighted: v })} />
+              <Switch
+                checked={form.highlighted}
+                onCheckedChange={(v) => setForm({ ...form, highlighted: v })}
+              />
               <Label className="cursor-pointer">Featured</Label>
             </div>
             <div className="flex items-center gap-2 pb-2">
-              <Switch checked={form.active !== false} onCheckedChange={(v) => setForm({ ...form, active: v })} />
+              <Switch
+                checked={form.active !== false}
+                onCheckedChange={(v) => setForm({ ...form, active: v })}
+              />
               <Label className="cursor-pointer">Active</Label>
             </div>
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
           <Button onClick={save} disabled={saving}>
             {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
             Save
@@ -1144,12 +1223,28 @@ const SETTING_FIELDS: { key: string; label: string; placeholder: string }[] = [
   },
   // Invoice customization
   { key: "invoice_company_name", label: "Invoice company name", placeholder: "Learnify AI" },
-  { key: "invoice_legal_name", label: "Invoice legal name", placeholder: "Learnify EdTech Pvt. Ltd." },
+  {
+    key: "invoice_legal_name",
+    label: "Invoice legal name",
+    placeholder: "Learnify EdTech Pvt. Ltd.",
+  },
   { key: "invoice_gstin", label: "Invoice GSTIN", placeholder: "29XXXXX1234X1Z5" },
   { key: "invoice_prefix", label: "Invoice number prefix", placeholder: "LRN" },
-  { key: "invoice_footer", label: "Invoice footer text", placeholder: "This is a computer generated invoice..." },
-  { key: "invoice_logo_url", label: "Invoice logo URL", placeholder: "https://example.com/logo.png" },
-  { key: "invoice_contact", label: "Invoice contact (email/phone)", placeholder: "hello@learnify.ai · +91 98765 43210" },
+  {
+    key: "invoice_footer",
+    label: "Invoice footer text",
+    placeholder: "This is a computer generated invoice...",
+  },
+  {
+    key: "invoice_logo_url",
+    label: "Invoice logo URL",
+    placeholder: "https://example.com/logo.png",
+  },
+  {
+    key: "invoice_contact",
+    label: "Invoice contact (email/phone)",
+    placeholder: "hello@learnify.ai · +91 98765 43210",
+  },
 ];
 
 function SiteSettingsManager() {
@@ -1468,7 +1563,14 @@ function CertTemplatesManager() {
                   >
                     <ShieldCheck className="h-3.5 w-3.5" />
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => { setEditing(t); setOpen(true); }}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setEditing(t);
+                      setOpen(true);
+                    }}
+                  >
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => setDeleteId(t.id)}>
@@ -2552,8 +2654,12 @@ function PagesManager() {
         .in("key", keys);
       if (error) throw error;
       const m: Record<string, string> = {};
-      (data ?? []).forEach((r: any) => { m[r.key] = r.value ?? ""; });
-      keys.forEach((k) => { if (!(k in m)) m[k] = ""; });
+      (data ?? []).forEach((r: any) => {
+        m[r.key] = r.value ?? "";
+      });
+      keys.forEach((k) => {
+        if (!(k in m)) m[k] = "";
+      });
       return m;
     },
   });
@@ -2572,7 +2678,12 @@ function PagesManager() {
     qc.invalidateQueries({ queryKey: ["admin-page-content"] });
   };
 
-  if (isLoading) return <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center py-10">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    );
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -2606,18 +2717,58 @@ function PagesManager() {
 
 // ─────────────────────────── Roadmap Manager ───────────────────────────
 
-type RoadmapItem = { id: string; status: "done" | "progress" | "planned"; title: string; desc: string };
+type RoadmapItem = {
+  id: string;
+  status: "done" | "progress" | "planned";
+  title: string;
+  desc: string;
+};
 
 const ROADMAP_KEY = "roadmap_items";
 const DEFAULT_ROADMAP: RoadmapItem[] = [
-  { id: "1", status: "done", title: "AI Tutor & Doubt Solver", desc: "Multi-model chat with course context." },
-  { id: "2", status: "done", title: "Courses, Modules & Lessons", desc: "Full course builder with assignments and MCQ tests." },
-  { id: "3", status: "done", title: "Wallet & Cart Checkout", desc: "Top-up, paid course enrollment, transaction history." },
-  { id: "4", status: "done", title: "Certificates", desc: "Issue, design, PDF download, QR verify, email delivery." },
-  { id: "5", status: "progress", title: "Cohort Live Sessions", desc: "Scheduled live rooms with recordings." },
-  { id: "6", status: "progress", title: "Creator Payouts", desc: "Automatic monthly creator settlements." },
+  {
+    id: "1",
+    status: "done",
+    title: "AI Tutor & Doubt Solver",
+    desc: "Multi-model chat with course context.",
+  },
+  {
+    id: "2",
+    status: "done",
+    title: "Courses, Modules & Lessons",
+    desc: "Full course builder with assignments and MCQ tests.",
+  },
+  {
+    id: "3",
+    status: "done",
+    title: "Wallet & Cart Checkout",
+    desc: "Top-up, paid course enrollment, transaction history.",
+  },
+  {
+    id: "4",
+    status: "done",
+    title: "Certificates",
+    desc: "Issue, design, PDF download, QR verify, email delivery.",
+  },
+  {
+    id: "5",
+    status: "progress",
+    title: "Cohort Live Sessions",
+    desc: "Scheduled live rooms with recordings.",
+  },
+  {
+    id: "6",
+    status: "progress",
+    title: "Creator Payouts",
+    desc: "Automatic monthly creator settlements.",
+  },
   { id: "7", status: "planned", title: "Mobile App", desc: "iOS + Android with offline lessons." },
-  { id: "8", status: "planned", title: "Skill Graph & Career AI", desc: "Personalized career paths with skill gap analysis." },
+  {
+    id: "8",
+    status: "planned",
+    title: "Skill Graph & Career AI",
+    desc: "Personalized career paths with skill gap analysis.",
+  },
 ];
 
 function RoadmapManager() {
@@ -2629,22 +2780,31 @@ function RoadmapManager() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-roadmap"],
     queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("value").eq("key", ROADMAP_KEY).single();
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", ROADMAP_KEY)
+        .single();
       if (data?.value) {
-        try { return JSON.parse(data.value as string) as RoadmapItem[]; } catch { return DEFAULT_ROADMAP; }
+        try {
+          return JSON.parse(data.value as string) as RoadmapItem[];
+        } catch {
+          return DEFAULT_ROADMAP;
+        }
       }
       return DEFAULT_ROADMAP;
     },
   });
 
-  useEffect(() => { if (data) setItems(data); }, [data]);
+  useEffect(() => {
+    if (data) setItems(data);
+  }, [data]);
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase.from("site_settings").upsert(
-      { key: ROADMAP_KEY, value: JSON.stringify(items) },
-      { onConflict: "key" },
-    );
+    const { error } = await supabase
+      .from("site_settings")
+      .upsert({ key: ROADMAP_KEY, value: JSON.stringify(items) }, { onConflict: "key" });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Roadmap saved");
@@ -2652,7 +2812,12 @@ function RoadmapManager() {
   };
 
   const addItem = () => {
-    const newItem: RoadmapItem = { id: Date.now().toString(), status: "planned", title: "", desc: "" };
+    const newItem: RoadmapItem = {
+      id: Date.now().toString(),
+      status: "planned",
+      title: "",
+      desc: "",
+    };
     setItems([...items, newItem]);
     setEditing(newItem);
   };
@@ -2666,7 +2831,12 @@ function RoadmapManager() {
     setItems(items.map((i) => (i.id === id ? { ...i, ...updates } : i)));
   };
 
-  if (isLoading) return <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center py-10">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    );
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -2674,7 +2844,9 @@ function RoadmapManager() {
         <p className="text-sm text-muted-foreground">
           Manage the public roadmap shown at /roadmap. Add, edit, or reorder items.
         </p>
-        <Button onClick={addItem}><Plus className="h-4 w-4 mr-2" /> Add item</Button>
+        <Button onClick={addItem}>
+          <Plus className="h-4 w-4 mr-2" /> Add item
+        </Button>
       </div>
 
       <DragDropContext
@@ -2699,12 +2871,19 @@ function RoadmapManager() {
                     >
                       <div className="flex items-center justify-between gap-3 mb-3">
                         <div className="flex items-center gap-2">
-                          <button {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground p-0.5">
+                          <button
+                            {...provided.dragHandleProps}
+                            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground p-0.5"
+                          >
                             <GripVertical className="h-4 w-4" />
                           </button>
                           <select
                             value={item.status}
-                            onChange={(e) => updateItem(item.id, { status: e.target.value as RoadmapItem["status"] })}
+                            onChange={(e) =>
+                              updateItem(item.id, {
+                                status: e.target.value as RoadmapItem["status"],
+                              })
+                            }
                             className="text-xs border rounded px-1.5 py-0.5 bg-background"
                           >
                             <option value="done">Shipped</option>
@@ -2713,23 +2892,42 @@ function RoadmapManager() {
                           </select>
                         </div>
                         <div className="flex gap-1">
-                          <Button size="sm" variant="ghost" onClick={() => setEditing(editing?.id === item.id ? null : item)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setEditing(editing?.id === item.id ? null : item)}
+                          >
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
-                          <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteItem(item.id)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive"
+                            onClick={() => deleteItem(item.id)}
+                          >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </div>
                       {editing?.id === item.id ? (
                         <div className="space-y-2">
-                          <Input value={item.title} onChange={(e) => updateItem(item.id, { title: e.target.value })} placeholder="Title" />
-                          <Input value={item.desc} onChange={(e) => updateItem(item.id, { desc: e.target.value })} placeholder="Description" />
+                          <Input
+                            value={item.title}
+                            onChange={(e) => updateItem(item.id, { title: e.target.value })}
+                            placeholder="Title"
+                          />
+                          <Input
+                            value={item.desc}
+                            onChange={(e) => updateItem(item.id, { desc: e.target.value })}
+                            placeholder="Description"
+                          />
                         </div>
                       ) : (
                         <>
                           <div className="font-semibold text-sm">{item.title || "Untitled"}</div>
-                          {item.desc && <div className="text-xs text-muted-foreground mt-0.5">{item.desc}</div>}
+                          {item.desc && (
+                            <div className="text-xs text-muted-foreground mt-0.5">{item.desc}</div>
+                          )}
                         </>
                       )}
                     </div>
@@ -2738,7 +2936,9 @@ function RoadmapManager() {
               ))}
               {provided.placeholder}
               {items.length === 0 && (
-                <div className="text-center text-muted-foreground py-8">No roadmap items yet. Click "Add item" to start.</div>
+                <div className="text-center text-muted-foreground py-8">
+                  No roadmap items yet. Click "Add item" to start.
+                </div>
               )}
             </div>
           )}
@@ -2770,22 +2970,31 @@ function CouponManager() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-coupons"],
     queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("value").eq("key", COUPON_KEY).maybeSingle();
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", COUPON_KEY)
+        .maybeSingle();
       if (data?.value) {
-        try { return JSON.parse(data.value as string); } catch { return DEFAULT_COUPONS; }
+        try {
+          return JSON.parse(data.value as string);
+        } catch {
+          return DEFAULT_COUPONS;
+        }
       }
       return DEFAULT_COUPONS;
     },
   });
 
-  useEffect(() => { if (data) setItems(data); }, [data]);
+  useEffect(() => {
+    if (data) setItems(data);
+  }, [data]);
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase.from("site_settings").upsert(
-      { key: COUPON_KEY, value: JSON.stringify(items) },
-      { onConflict: "key" },
-    );
+    const { error } = await supabase
+      .from("site_settings")
+      .upsert({ key: COUPON_KEY, value: JSON.stringify(items) }, { onConflict: "key" });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Coupons saved");
@@ -2805,7 +3014,12 @@ function CouponManager() {
     setItems(items.map((item, idx) => (idx === i ? { ...item, ...updates } : item)));
   };
 
-  if (isLoading) return <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center py-10">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    );
 
   return (
     <div className="space-y-5 max-w-3xl">
@@ -2813,7 +3027,9 @@ function CouponManager() {
         <p className="text-sm text-muted-foreground">
           Manage coupon codes. Users can apply these at checkout for discounts.
         </p>
-        <Button onClick={addItem}><Plus className="h-4 w-4 mr-2" /> Add coupon</Button>
+        <Button onClick={addItem}>
+          <Plus className="h-4 w-4 mr-2" /> Add coupon
+        </Button>
       </div>
 
       <div className="space-y-3">
@@ -2856,14 +3072,21 @@ function CouponManager() {
                   Active
                 </label>
               </div>
-              <Button size="sm" variant="ghost" className="text-destructive" onClick={() => deleteItem(i)}>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-destructive"
+                onClick={() => deleteItem(i)}
+              >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
         ))}
         {items.length === 0 && (
-          <div className="text-center text-muted-foreground py-8">No coupons yet. Click "Add coupon" to start.</div>
+          <div className="text-center text-muted-foreground py-8">
+            No coupons yet. Click "Add coupon" to start.
+          </div>
         )}
       </div>
 
@@ -2960,10 +3183,15 @@ function CohortsManager() {
               <div className="min-w-0 flex-1">
                 <div className="font-semibold truncate flex items-center gap-2">
                   {c.title}
-                  <Badge variant={c.status === "live" ? "default" : "outline"} className="text-[10px] capitalize">
+                  <Badge
+                    variant={c.status === "live" ? "default" : "outline"}
+                    className="text-[10px] capitalize"
+                  >
                     {c.status}
                   </Badge>
-                  <span className="text-xs text-muted-foreground capitalize">{c.kind?.replace("_", " ")}</span>
+                  <span className="text-xs text-muted-foreground capitalize">
+                    {c.kind?.replace("_", " ")}
+                  </span>
                 </div>
                 <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-3">
                   <span>{c.starts_at ? format(new Date(c.starts_at), "PP") : "—"}</span>
@@ -3059,7 +3287,9 @@ function CohortDialog({
     };
     const { error } = form.id
       ? await (supabase as any).from("cohorts").update(payload).eq("id", form.id)
-      : await (supabase as any).from("cohorts").insert({ ...payload, creator_id: form.creator_id || undefined });
+      : await (supabase as any)
+          .from("cohorts")
+          .insert({ ...payload, creator_id: form.creator_id || undefined });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success(form.id ? "Group updated" : "Group created");
@@ -3087,11 +3317,18 @@ function CohortDialog({
         <div className="space-y-3">
           <div>
             <Label>Title</Label>
-            <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+            <Input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
           </div>
           <div>
             <Label>Description</Label>
-            <Textarea rows={3} value={form.description ?? ""} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            <Textarea
+              rows={3}
+              value={form.description ?? ""}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -3122,11 +3359,19 @@ function CohortDialog({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Start date</Label>
-              <Input type="datetime-local" value={localStarts} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} />
+              <Input
+                type="datetime-local"
+                value={localStarts}
+                onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
+              />
             </div>
             <div>
               <Label>Capacity</Label>
-              <Input type="number" value={form.capacity ?? ""} onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) || null })} />
+              <Input
+                type="number"
+                value={form.capacity ?? ""}
+                onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) || null })}
+              />
             </div>
           </div>
           <div>

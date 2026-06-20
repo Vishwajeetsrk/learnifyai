@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /wallet
+Disallow: /inbox
+Disallow: /studio
+Disallow: /creator/
+Disallow: /playground
+Disallow: /ai
+Disallow: /ai-tools
+Disallow: /coaching
+Disallow: /cohorts
+Disallow: /community-feed
+Disallow: /leaderboard
+Disallow: /achievements
+Disallow: /certificates
+Disallow: /submissions
+Disallow: /workspace
+Disallow: /support
+
+Sitemap: https://learnifyaitool.vercel.app/sitemap.xml

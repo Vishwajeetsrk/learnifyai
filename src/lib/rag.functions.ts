@@ -2,7 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-const GEMINI_EMBEDDING_URL = "https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent";
+const GEMINI_EMBEDDING_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent";
 
 /**
  * Generate a 768-dimensional embedding using Gemini
@@ -44,7 +45,7 @@ function chunkText(text: string, maxCharsPerChunk = 1500): string[] {
     }
     currentChunk += paragraph + "\n\n";
   }
-  
+
   if (currentChunk.trim().length > 0) {
     chunks.push(currentChunk.trim());
   }
@@ -66,18 +67,18 @@ export const processCourseMaterial = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
 
     // 1. Verify user is creator of course
-    const { data: course, error: courseErr } = await supabase
+    const { data: course, error: courseErr } = (await supabase
       .from("courses" as any)
       .select("created_by")
       .eq("id", data.courseId)
-      .single() as any;
+      .single()) as any;
 
     if (courseErr || !course || course.created_by !== userId) {
       throw new Error("Unauthorized to add materials to this course.");
     }
 
     // 2. Insert material record
-    const { data: material, error: matErr } = await supabase
+    const { data: material, error: matErr } = (await supabase
       .from("course_materials" as any)
       .insert({
         course_id: data.courseId,
@@ -85,7 +86,7 @@ export const processCourseMaterial = createServerFn({ method: "POST" })
         material_type: data.type,
       })
       .select()
-      .single() as any;
+      .single()) as any;
 
     if (matErr || !material) throw new Error("Failed to create material record.");
 
@@ -97,15 +98,13 @@ export const processCourseMaterial = createServerFn({ method: "POST" })
     for (const textChunk of chunks) {
       try {
         const embedding = await generateEmbedding(textChunk);
-        
-        await supabase
-          .from("material_chunks" as any)
-          .insert({
-            material_id: material.id,
-            course_id: data.courseId,
-            content: textChunk,
-            embedding, // inserting vector array directly is supported by supabase-js
-          });
+
+        await supabase.from("material_chunks" as any).insert({
+          material_id: material.id,
+          course_id: data.courseId,
+          content: textChunk,
+          embedding, // inserting vector array directly is supported by supabase-js
+        });
       } catch (e) {
         console.error("Embedding chunk failed:", e);
         // Continue with other chunks even if one fails

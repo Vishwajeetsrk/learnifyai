@@ -152,16 +152,16 @@ export const runAiTool = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => Input.parse(d))
   .handler(async ({ data, context }) => {
     let ragContext = "";
-    
+
     // If it's a doubt and we have a courseId, fetch RAG context
     if (data.action === "doubt" && data.courseId) {
       try {
-        const { searchCourseContext } = await import('./rag.functions');
-        const matches = await searchCourseContext({ 
-          data: { courseId: data.courseId, query: data.question, limit: 3 }, 
-          context 
+        const { searchCourseContext } = await import("./rag.functions");
+        const matches = await searchCourseContext({
+          data: { courseId: data.courseId, query: data.question, limit: 3 },
+          context,
         } as any);
-        
+
         if (matches && matches.length > 0) {
           ragContext = matches.map((m: any) => m.content).join("\n\n---\n\n");
         }

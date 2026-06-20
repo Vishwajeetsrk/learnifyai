@@ -90,10 +90,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
       ]),
     );
 
-    const baseIds = new Set([
-      ...(profiles ?? []).map((p) => p.id),
-      ...authUsers.map((u) => u.id),
-    ]);
+    const baseIds = new Set([...(profiles ?? []).map((p) => p.id), ...authUsers.map((u) => u.id)]);
 
     const rows = Array.from(baseIds).map((id) => {
       const p = profileById.get(id);
@@ -230,7 +227,11 @@ export const adminSetUserRoles = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
 
-    if (data.userId === context.userId && !data.roles.includes("super_admin") && !data.roles.includes("admin")) {
+    if (
+      data.userId === context.userId &&
+      !data.roles.includes("super_admin") &&
+      !data.roles.includes("admin")
+    ) {
       throw new Error("You cannot remove admin access from your own account");
     }
 

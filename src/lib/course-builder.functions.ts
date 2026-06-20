@@ -91,7 +91,9 @@ ${schemaHint(data.modules)}`;
         for (const ch of mod.chapters ?? []) {
           if (quotaBlocked) break outer;
           // Prioritize Hindi/English and filter by educational category to prevent songs
-          const q = (ch.youtube_query || `${ch.title} ${data.topic} tutorial`).trim() + " in Hindi or English";
+          const q =
+            (ch.youtube_query || `${ch.title} ${data.topic} tutorial`).trim() +
+            " in Hindi or English";
           try {
             const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoCategoryId=27&maxResults=3&videoEmbeddable=true&safeSearch=strict&q=${encodeURIComponent(q)}&key=${ytKey}`;
             const r = await fetch(url);
@@ -114,13 +116,23 @@ ${schemaHint(data.modules)}`;
               continue;
             }
             // Filter out music/meme videos from results
-            const pick = (j.items ?? []).find((item: any) => {
-              const t = (item.snippet?.title ?? "").toLowerCase();
-              if (t.includes("never gonna give") || t.includes("rick ast") || t.includes("music video") || t.includes("official video") || t.includes("song") || t.includes("ft.") || t.includes("lyric")) return false;
-              const ch = (item.snippet?.channelTitle ?? "").toLowerCase();
-              if (ch.includes("vevo") || ch.includes("music")) return false;
-              return true;
-            }) ?? j.items?.[0];
+            const pick =
+              (j.items ?? []).find((item: any) => {
+                const t = (item.snippet?.title ?? "").toLowerCase();
+                if (
+                  t.includes("never gonna give") ||
+                  t.includes("rick ast") ||
+                  t.includes("music video") ||
+                  t.includes("official video") ||
+                  t.includes("song") ||
+                  t.includes("ft.") ||
+                  t.includes("lyric")
+                )
+                  return false;
+                const ch = (item.snippet?.channelTitle ?? "").toLowerCase();
+                if (ch.includes("vevo") || ch.includes("music")) return false;
+                return true;
+              }) ?? j.items?.[0];
             const vid = pick?.id?.videoId;
             if (vid) {
               foundVideoIds.push(vid);
@@ -310,7 +322,8 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
     const aiConfigured = Boolean(
       process.env.GEMINI_API_KEY || process.env.GROQ_API_KEY || process.env.OPENROUTER_API_KEY,
     );
-    if (!aiConfigured) throw new Error("No AI provider configured (Gemini, Groq, or OpenRouter key required).");
+    if (!aiConfigured)
+      throw new Error("No AI provider configured (Gemini, Groq, or OpenRouter key required).");
 
     // 1. Fetch course
     const { data: course, error: cErr } = await db
@@ -504,7 +517,8 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
     // 6. Generate thumbnail if none exists
     if (!(course as any).cover_url) {
       try {
-        const { generateCourseThumbnail, buildThumbnailPrompt } = await import("./thumbnail.functions");
+        const { generateCourseThumbnail, buildThumbnailPrompt } =
+          await import("./thumbnail.functions");
         const c = course as any;
         const prompt = buildThumbnailPrompt({
           title: c.title,
@@ -513,7 +527,10 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
           style: "modern",
           colors: "deep indigo to blue gradient",
           customNotes: "",
-          lessonHint: (lessons ?? []).slice(0, 3).map((l: any) => l.title).join(", "),
+          lessonHint: (lessons ?? [])
+            .slice(0, 3)
+            .map((l: any) => l.title)
+            .join(", "),
         });
         const { dataUrl } = await generateCourseThumbnail({ data: { prompt, size: "1536x1024" } });
         await supabaseAdmin.from("courses").update({ cover_url: dataUrl }).eq("id", data.courseId);
@@ -553,4 +570,3 @@ export const generateLessonNotes = createServerFn({ method: "POST" })
     const content = j.choices?.[0]?.message?.content ?? "";
     return { notes: content };
   });
-

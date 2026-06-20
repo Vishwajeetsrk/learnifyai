@@ -58,11 +58,13 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
 export const verifyCashfreePayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { amountInr: number; method: string; cashfree_order_id: string }) =>
-    z.object({
-      amountInr: z.number(),
-      method: z.string(),
-      cashfree_order_id: z.string(),
-    }).parse(d),
+    z
+      .object({
+        amountInr: z.number(),
+        method: z.string(),
+        cashfree_order_id: z.string(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     if (!context.userId) throw new Error("Unauthorized");
@@ -108,7 +110,9 @@ export const verifyCashfreePayment = createServerFn({ method: "POST" })
       return { success: true };
     }
 
-    throw new Error("Payment not confirmed by Cashfree. Order status: " + (orderData.order_status || "unknown"));
+    throw new Error(
+      "Payment not confirmed by Cashfree. Order status: " + (orderData.order_status || "unknown"),
+    );
   });
 
 export const processCashfreePayout = createServerFn({ method: "POST" })
@@ -173,9 +177,7 @@ export const processCashfreePayout = createServerFn({ method: "POST" })
         transfer_currency: "INR",
         transfer_mode: data.method === "upi" ? "upi" : "banktransfer",
         transfer_details: {
-          ...(data.method === "upi"
-            ? { upi: { upi_id: data.destination } }
-            : {}),
+          ...(data.method === "upi" ? { upi: { upi_id: data.destination } } : {}),
         },
       }),
     });
@@ -183,12 +185,20 @@ export const processCashfreePayout = createServerFn({ method: "POST" })
     if (!payoutRes.ok) {
       const errText = await payoutRes.text();
       console.error("Cashfree payout failed:", errText);
-      return { success: true, pending: true, note: "Withdrawal recorded. Payout will be processed manually." };
+      return {
+        success: true,
+        pending: true,
+        note: "Withdrawal recorded. Payout will be processed manually.",
+      };
     }
 
     await supabaseAdmin
       .from("creator_withdrawals")
-      .update({ status: "paid", processed_at: new Date().toISOString(), processed_by: context.userId })
+      .update({
+        status: "paid",
+        processed_at: new Date().toISOString(),
+        processed_by: context.userId,
+      })
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false })
       .limit(1);

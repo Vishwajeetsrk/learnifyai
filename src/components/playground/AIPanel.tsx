@@ -1,5 +1,19 @@
 import { useState, useRef, useEffect } from "react";
-import { Sparkles, Loader2, Lightbulb, Bug, Zap, MessageSquare, Repeat, Beaker, Wand2, Copy, Check, X, ChevronDown } from "lucide-react";
+import {
+  Sparkles,
+  Loader2,
+  Lightbulb,
+  Bug,
+  Zap,
+  MessageSquare,
+  Repeat,
+  Beaker,
+  Wand2,
+  Copy,
+  Check,
+  X,
+  ChevronDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
@@ -84,7 +98,10 @@ export function AIPanel({ code, language, onCodeResult }: AIPanelProps) {
 
   return (
     <div className="flex flex-col h-full bg-card border-l">
-      <button onClick={() => setCollapsed(!collapsed)} className="flex items-center gap-2 px-3 py-2 border-b text-xs font-medium hover:bg-accent">
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="flex items-center gap-2 px-3 py-2 border-b text-xs font-medium hover:bg-accent"
+      >
         <Sparkles className="h-3.5 w-3.5 text-amber-500" />
         AI Assistant
         <ChevronDown className={`h-3 w-3 ml-auto transition ${collapsed ? "rotate-180" : ""}`} />
@@ -113,7 +130,11 @@ export function AIPanel({ code, language, onCodeResult }: AIPanelProps) {
 
           {activeAction === "convert" && (
             <div className="px-2.5 py-2">
-              <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)} className="w-full text-xs rounded border bg-muted px-2 py-1">
+              <select
+                value={targetLang}
+                onChange={(e) => setTargetLang(e.target.value)}
+                className="w-full text-xs rounded border bg-muted px-2 py-1"
+              >
                 <option value="python">Python</option>
                 <option value="javascript">JavaScript</option>
                 <option value="typescript">TypeScript</option>
@@ -134,13 +155,29 @@ export function AIPanel({ code, language, onCodeResult }: AIPanelProps) {
             <div ref={resultRef} className="mt-2 border rounded-lg overflow-hidden">
               <div className="flex items-center gap-1 px-2 py-1 bg-muted/50 border-b text-[10px]">
                 <span className="flex-1 font-medium truncate">Result</span>
-                <button onClick={applyResult} className="p-0.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground" title="Apply to editor">
+                <button
+                  onClick={applyResult}
+                  className="p-0.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground"
+                  title="Apply to editor"
+                >
                   <Wand2 className="h-3 w-3" />
                 </button>
-                <button onClick={copyResult} className="p-0.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground" title="Copy">
-                  {copied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                <button
+                  onClick={copyResult}
+                  className="p-0.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground"
+                  title="Copy"
+                >
+                  {copied ? (
+                    <Check className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
                 </button>
-                <button onClick={() => setResult(null)} className="p-0.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground" title="Close">
+                <button
+                  onClick={() => setResult(null)}
+                  className="p-0.5 rounded hover:bg-accent text-muted-foreground hover:text-foreground"
+                  title="Close"
+                >
                   <X className="h-3 w-3" />
                 </button>
               </div>

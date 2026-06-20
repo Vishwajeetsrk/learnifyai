@@ -1,16 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  Sparkles,
-  DollarSign,
-  Megaphone,
-  Users,
-  Check,
-  Loader2,
-  Send,
-  Video,
-} from "lucide-react";
+import { Sparkles, DollarSign, Megaphone, Users, Check, Loader2, Send, Video } from "lucide-react";
 import { MarketingPage } from "@/components/MarketingPage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -346,7 +337,9 @@ function CreatorsPage() {
                   <h4 className="font-semibold text-xs text-foreground mb-1">
                     System Design Interview Prep
                   </h4>
-                  <p className="text-xs text-muted-foreground">Upcoming Live Session • 45/50 RSVPed</p>
+                  <p className="text-xs text-muted-foreground">
+                    Upcoming Live Session • 45/50 RSVPed
+                  </p>
                 </div>
 
                 {cohortStatus === "idle" && (

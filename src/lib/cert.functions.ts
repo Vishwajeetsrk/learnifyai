@@ -306,7 +306,9 @@ async function sendEmail({
   }
   if (!BREVO_API_KEY) hints.push("Set BREVO_API_KEY (v3 API key from Brevo dashboard)");
   if (!GMAIL_EMAIL || !GMAIL_APP_PASSWORD) {
-    hints.push("Set GMAIL_EMAIL + GMAIL_APP_PASSWORD (free Gmail app password) for reliable fallback");
+    hints.push(
+      "Set GMAIL_EMAIL + GMAIL_APP_PASSWORD (free Gmail app password) for reliable fallback",
+    );
   }
   throw new Error(`Email delivery failed: all providers exhausted. ${hints.join("; ")}.`);
 }
@@ -332,14 +334,32 @@ export const testEmailSending = createServerFn({ method: "POST" })
         try {
           const r = await fetch("https://api.resend.com/emails", {
             method: "POST",
-            headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
-            body: JSON.stringify({ from: emailFrom, to: [email], subject: "Learnify AI — test email", html: testHtml }),
+            headers: {
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: emailFrom,
+              to: [email],
+              subject: "Learnify AI — test email",
+              html: testHtml,
+            }),
           });
           const body = await r.text().catch(() => "");
-          results.push({ provider: `Resend REST → ${email}`, ok: r.ok, error: r.ok ? undefined : `${r.status}: ${body.slice(0, 120)}` });
-        } catch (e: any) { results.push({ provider: `Resend REST → ${email}`, ok: false, error: e?.message }); }
+          results.push({
+            provider: `Resend REST → ${email}`,
+            ok: r.ok,
+            error: r.ok ? undefined : `${r.status}: ${body.slice(0, 120)}`,
+          });
+        } catch (e: any) {
+          results.push({ provider: `Resend REST → ${email}`, ok: false, error: e?.message });
+        }
       } else {
-        results.push({ provider: `Resend REST → ${email}`, ok: false, error: "No RESEND_API_KEY set" });
+        results.push({
+          provider: `Resend REST → ${email}`,
+          ok: false,
+          error: "No RESEND_API_KEY set",
+        });
       }
 
       // Test Brevo API
@@ -348,24 +368,55 @@ export const testEmailSending = createServerFn({ method: "POST" })
           const r = await fetch("https://api.brevo.com/v3/smtp/email", {
             method: "POST",
             headers: { "api-key": BREVO_API_KEY, "Content-Type": "application/json" },
-            body: JSON.stringify({ sender: { name: "Learnify AI", email: "noreply@learnify.ai" }, to: [{ email }], subject: "Learnify AI — test email", htmlContent: `<p>Test email</p>` }),
+            body: JSON.stringify({
+              sender: { name: "Learnify AI", email: "noreply@learnify.ai" },
+              to: [{ email }],
+              subject: "Learnify AI — test email",
+              htmlContent: `<p>Test email</p>`,
+            }),
           });
           const body = await r.text().catch(() => "");
-          results.push({ provider: `Brevo API → ${email}`, ok: r.ok, error: r.ok ? undefined : `${r.status}: ${body.slice(0, 120)}` });
-        } catch (e: any) { results.push({ provider: `Brevo API → ${email}`, ok: false, error: e?.message }); }
+          results.push({
+            provider: `Brevo API → ${email}`,
+            ok: r.ok,
+            error: r.ok ? undefined : `${r.status}: ${body.slice(0, 120)}`,
+          });
+        } catch (e: any) {
+          results.push({ provider: `Brevo API → ${email}`, ok: false, error: e?.message });
+        }
       } else {
-        results.push({ provider: `Brevo API → ${email}`, ok: false, error: "No BREVO_API_KEY set" });
+        results.push({
+          provider: `Brevo API → ${email}`,
+          ok: false,
+          error: "No BREVO_API_KEY set",
+        });
       }
 
       // Test Gmail SMTP
       if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
         try {
-          const transporter = nodemailer.createTransport({ host: "smtp.gmail.com", port: 587, secure: false, auth: { user: GMAIL_EMAIL, pass: GMAIL_APP_PASSWORD } });
-          const info = await transporter.sendMail({ from: `"Learnify AI" <${GMAIL_EMAIL}>`, to: [email], subject: "Learnify AI — test email", html: `<p>Test email from Gmail</p>` });
+          const transporter = nodemailer.createTransport({
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
+            auth: { user: GMAIL_EMAIL, pass: GMAIL_APP_PASSWORD },
+          });
+          const info = await transporter.sendMail({
+            from: `"Learnify AI" <${GMAIL_EMAIL}>`,
+            to: [email],
+            subject: "Learnify AI — test email",
+            html: `<p>Test email from Gmail</p>`,
+          });
           results.push({ provider: `Gmail SMTP → ${email}`, ok: true, error: undefined });
-        } catch (e: any) { results.push({ provider: `Gmail SMTP → ${email}`, ok: false, error: e?.message }); }
+        } catch (e: any) {
+          results.push({ provider: `Gmail SMTP → ${email}`, ok: false, error: e?.message });
+        }
       } else {
-        results.push({ provider: `Gmail SMTP → ${email}`, ok: false, error: "GMAIL_EMAIL or GMAIL_APP_PASSWORD not set" });
+        results.push({
+          provider: `Gmail SMTP → ${email}`,
+          ok: false,
+          error: "GMAIL_EMAIL or GMAIL_APP_PASSWORD not set",
+        });
       }
     }
 
@@ -677,9 +728,7 @@ export const retryPendingCertificateEmails = createServerFn({ method: "POST" })
             error: String(e?.message ?? e).slice(0, 500),
             attempt: nextAttempt,
             next_retry_at:
-              nextAttempt >= maxAttempts
-                ? null
-                : new Date(Date.now() + backoffMs).toISOString(),
+              nextAttempt >= maxAttempts ? null : new Date(Date.now() + backoffMs).toISOString(),
           })
           .eq("id", row.id);
         failed++;

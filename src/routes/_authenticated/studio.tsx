@@ -28,7 +28,12 @@ import {
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { runAiTool } from "@/lib/ai-tools.functions";
-import { generateFullCourse, materializeCourse, autoCompleteCourse, generateLessonNotes } from "@/lib/course-builder.functions";
+import {
+  generateFullCourse,
+  materializeCourse,
+  autoCompleteCourse,
+  generateLessonNotes,
+} from "@/lib/course-builder.functions";
 import {
   verifyYoutubeKey,
   startCourseEnrichment,
@@ -425,7 +430,10 @@ function StudioPage() {
 
       <AssignmentsManagerDialog course={manageAssignFor} onClose={() => setManageAssignFor(null)} />
 
-      <ProjectsManagerDialog course={manageProjectsFor} onClose={() => setManageProjectsFor(null)} />
+      <ProjectsManagerDialog
+        course={manageProjectsFor}
+        onClose={() => setManageProjectsFor(null)}
+      />
 
       <SubmissionsReviewDialog course={reviewSubFor} onClose={() => setReviewSubFor(null)} />
 
@@ -492,9 +500,7 @@ function StudioPage() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setAutoCompleteResult(null)}>
-              Done
-            </AlertDialogAction>
+            <AlertDialogAction onClick={() => setAutoCompleteResult(null)}>Done</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -630,7 +636,9 @@ function CourseFormDialog({
               if (d.level) setLevel(d.level);
               if (d.price_inr !== undefined) setPrice(d.price_inr);
             }
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
         })();
       }
     }
@@ -689,7 +697,10 @@ function CourseFormDialog({
       .single();
     setSaving(false);
     if (insertErr) return toast.error(insertErr.message);
-    toast.success("Course created! Now add lessons with videos, assignments, and the final test MCQs.", { duration: 6000 });
+    toast.success(
+      "Course created! Now add lessons with videos, assignments, and the final test MCQs.",
+      { duration: 6000 },
+    );
     onSaved();
     onClose();
   }
@@ -977,9 +988,17 @@ function CourseFormDialog({
           <div className="sm:col-span-2 rounded-xl border border-indigo-100 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-950/20 p-4 text-sm space-y-1.5">
             <p className="font-medium text-foreground">After saving the course:</p>
             <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-              <li>Click <strong>Lessons</strong> to add video content — each lesson can have a YouTube or direct video URL</li>
-              <li>Click <strong>Assign.</strong> for practical tasks and projects</li>
-              <li>Click <strong>Test</strong> to add MCQs — students must pass (≥70%) to claim their certificate</li>
+              <li>
+                Click <strong>Lessons</strong> to add video content — each lesson can have a YouTube
+                or direct video URL
+              </li>
+              <li>
+                Click <strong>Assign.</strong> for practical tasks and projects
+              </li>
+              <li>
+                Click <strong>Test</strong> to add MCQs — students must pass (≥70%) to claim their
+                certificate
+              </li>
             </ul>
           </div>
         </div>
@@ -2419,7 +2438,13 @@ function AiThumbnailDialog({
 
 /* ---------- Projects Manager ---------- */
 
-function ProjectsManagerDialog({ course, onClose }: { course: Course | null; onClose: () => void }) {
+function ProjectsManagerDialog({
+  course,
+  onClose,
+}: {
+  course: Course | null;
+  onClose: () => void;
+}) {
   const qc = useQueryClient();
   const [items, setItems] = useState<any[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -2481,10 +2506,13 @@ function ProjectsManagerDialog({ course, onClose }: { course: Course | null; onC
         </DialogHeader>
         <div className="space-y-3">
           <div className="flex justify-end">
-            <Button size="sm" onClick={() => {
-              setItems([...items, { title: "", prompt: "", starter_code: "" }]);
-              setEditingIndex(items.length);
-            }}>
+            <Button
+              size="sm"
+              onClick={() => {
+                setItems([...items, { title: "", prompt: "", starter_code: "" }]);
+                setEditingIndex(items.length);
+              }}
+            >
               <Plus className="h-4 w-4 mr-1" /> Add project
             </Button>
           </div>
@@ -2492,24 +2520,33 @@ function ProjectsManagerDialog({ course, onClose }: { course: Course | null; onC
             <div key={i} className="rounded-xl border border-border/60 bg-card p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">Project #{i + 1}</span>
-                <Button size="sm" variant="ghost" className="text-destructive" onClick={() => {
-                  setItems(items.filter((_, idx) => idx !== i));
-                  if (editingIndex === i) setEditingIndex(null);
-                }}>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-destructive"
+                  onClick={() => {
+                    setItems(items.filter((_, idx) => idx !== i));
+                    if (editingIndex === i) setEditingIndex(null);
+                  }}
+                >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
               <Input
                 value={p.title}
                 onChange={(e) => {
-                  const copy = [...items]; copy[i] = { ...copy[i], title: e.target.value }; setItems(copy);
+                  const copy = [...items];
+                  copy[i] = { ...copy[i], title: e.target.value };
+                  setItems(copy);
                 }}
                 placeholder="Project title (e.g. Build a Todo App)"
               />
               <textarea
                 value={p.prompt}
                 onChange={(e) => {
-                  const copy = [...items]; copy[i] = { ...copy[i], prompt: e.target.value }; setItems(copy);
+                  const copy = [...items];
+                  copy[i] = { ...copy[i], prompt: e.target.value };
+                  setItems(copy);
                 }}
                 placeholder="Project description / instructions"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm min-h-[80px]"
@@ -2517,7 +2554,9 @@ function ProjectsManagerDialog({ course, onClose }: { course: Course | null; onC
               <Input
                 value={p.starter_code ?? ""}
                 onChange={(e) => {
-                  const copy = [...items]; copy[i] = { ...copy[i], starter_code: e.target.value }; setItems(copy);
+                  const copy = [...items];
+                  copy[i] = { ...copy[i], starter_code: e.target.value };
+                  setItems(copy);
                 }}
                 placeholder="Starter code URL (optional)"
               />
@@ -2528,7 +2567,9 @@ function ProjectsManagerDialog({ course, onClose }: { course: Course | null; onC
           )}
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button onClick={() => save(items)}>Save projects</Button>
         </DialogFooter>
       </DialogContent>

@@ -36,8 +36,14 @@ type NotifAction = { to: string; label: string; icon?: any } | null;
 function getNotifAction(title: string, body: string | null): NotifAction {
   const t = title.toLowerCase();
   const b = (body ?? "").toLowerCase();
-  if (t.startsWith("new lesson")) return { to: "/courses", label: "View course", icon: GraduationCap };
-  if (t.includes("withdrawal") || t.includes("wallet") || b.includes("wallet") || b.includes("credited"))
+  if (t.startsWith("new lesson"))
+    return { to: "/courses", label: "View course", icon: GraduationCap };
+  if (
+    t.includes("withdrawal") ||
+    t.includes("wallet") ||
+    b.includes("wallet") ||
+    b.includes("credited")
+  )
     return { to: "/wallet", label: "View wallet", icon: Wallet };
   if (t.includes("certificate") || b.includes("certificate"))
     return { to: "/certificates", label: "View certificates", icon: Award };
@@ -69,7 +75,9 @@ function FlashcardViewer({ body }: { body: string }) {
     <div className="mt-3 space-y-3">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{cards.length} cards</span>
-        <span>{idx + 1} / {cards.length}</span>
+        <span>
+          {idx + 1} / {cards.length}
+        </span>
       </div>
       <div
         className="relative w-full aspect-[2/1] cursor-pointer select-none"
@@ -78,24 +86,49 @@ function FlashcardViewer({ body }: { body: string }) {
       >
         <div
           className="absolute inset-0 rounded-xl border-2 bg-card transition-transform duration-300"
-          style={{ transformStyle: "preserve-3d", transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
+          style={{
+            transformStyle: "preserve-3d",
+            transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          }}
         >
-          <div className="absolute inset-0 flex items-center justify-center p-6" style={{ backfaceVisibility: "hidden" }}>
+          <div
+            className="absolute inset-0 flex items-center justify-center p-6"
+            style={{ backfaceVisibility: "hidden" }}
+          >
             <p className="text-center font-medium text-sm">{card.front}</p>
           </div>
-          <div className="absolute inset-0 flex items-center justify-center p-6 bg-primary/5" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+          <div
+            className="absolute inset-0 flex items-center justify-center p-6 bg-primary/5"
+            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+          >
             <p className="text-center text-sm text-muted-foreground">{card.back}</p>
           </div>
         </div>
       </div>
       <div className="flex items-center justify-center gap-2">
-        <Button size="sm" variant="outline" disabled={idx === 0} onClick={() => { setFlipped(false); setIdx(idx - 1); }}>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={idx === 0}
+          onClick={() => {
+            setFlipped(false);
+            setIdx(idx - 1);
+          }}
+        >
           Previous
         </Button>
         <Button size="sm" variant="outline" onClick={() => setFlipped(!flipped)}>
           <RotateCcw className="h-3 w-3 mr-1" /> Flip
         </Button>
-        <Button size="sm" variant="outline" disabled={idx >= cards.length - 1} onClick={() => { setFlipped(false); setIdx(idx + 1); }}>
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={idx >= cards.length - 1}
+          onClick={() => {
+            setFlipped(false);
+            setIdx(idx + 1);
+          }}
+        >
           Next
         </Button>
       </div>
@@ -214,9 +247,7 @@ function InboxPage() {
                           {n.body}
                         </p>
                       )}
-                      {n.body && isFlashcard && (
-                        <FlashcardViewer body={n.body} />
-                      )}
+                      {n.body && isFlashcard && <FlashcardViewer body={n.body} />}
                       <div className="flex items-center gap-3 mt-2">
                         <p className="text-[11px] text-muted-foreground">
                           {format(new Date(n.created_at), "dd MMM yyyy · HH:mm")}
@@ -228,7 +259,10 @@ function InboxPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col gap-1 shrink-0" onClick={e => e.stopPropagation()}>
+                    <div
+                      className="flex flex-col gap-1 shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {!n.read && (
                         <Button size="sm" variant="ghost" onClick={() => markRead(n.id)}>
                           Mark read
@@ -257,7 +291,11 @@ function InboxPage() {
               </p>
             ) : (
               (reminders.data ?? []).map((r) => (
-                <div key={r.id} className="border rounded-lg p-3 sm:p-4 flex gap-3 cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => navigate({ to: "/ai-tools" })}>
+                <div
+                  key={r.id}
+                  className="border rounded-lg p-3 sm:p-4 flex gap-3 cursor-pointer hover:bg-accent/50 transition-colors"
+                  onClick={() => navigate({ to: "/ai-tools" })}
+                >
                   <div className="h-9 w-9 rounded-lg bg-primary/10 grid place-items-center shrink-0">
                     <Clock className="h-4 w-4 text-primary" />
                   </div>
@@ -281,22 +319,22 @@ function InboxPage() {
                     </div>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <div className="flex flex-col gap-1" onClick={e => e.stopPropagation()}>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => toggleActive(r.id, r.active)}
-                    >
-                      <Power
-                        className={cn(
-                          "h-4 w-4",
-                          r.active ? "text-emerald-500" : "text-muted-foreground",
-                        )}
-                      />
-                    </Button>
-                    <Button size="icon" variant="ghost" onClick={() => delReminder(r.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <div className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => toggleActive(r.id, r.active)}
+                      >
+                        <Power
+                          className={cn(
+                            "h-4 w-4",
+                            r.active ? "text-emerald-500" : "text-muted-foreground",
+                          )}
+                        />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => delReminder(r.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
                     </div>
                   </div>
                 </div>

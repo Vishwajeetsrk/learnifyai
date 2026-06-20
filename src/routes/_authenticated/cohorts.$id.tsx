@@ -32,8 +32,12 @@ export const Route = createFileRoute("/_authenticated/cohorts/$id")({
     <AppShell>
       <div className="py-20 text-center max-w-lg mx-auto px-4">
         <p className="text-lg font-semibold text-destructive">Could not load cohort</p>
-        <p className="text-sm text-muted-foreground mt-2">{(error as Error)?.message || "Something went wrong. Please try again."}</p>
-        <a href="/cohorts" className="inline-flex mt-4 text-sm text-primary hover:underline">← Back to cohorts</a>
+        <p className="text-sm text-muted-foreground mt-2">
+          {(error as Error)?.message || "Something went wrong. Please try again."}
+        </p>
+        <a href="/cohorts" className="inline-flex mt-4 text-sm text-primary hover:underline">
+          ← Back to cohorts
+        </a>
       </div>
     </AppShell>
   ),
@@ -91,14 +95,19 @@ function CohortDetail() {
           .in("id", memberIds);
         memberProfiles = data ?? [];
       }
-      const profileMap = Object.fromEntries(
-        (memberProfiles as any[]).map((p: any) => [p.id, p]),
-      );
+      const profileMap = Object.fromEntries((memberProfiles as any[]).map((p: any) => [p.id, p]));
       const enriched = (messages ?? []).map((m: any) => ({
         ...m,
         profile: profileMap[m.sender_id] ?? { full_name: "Unknown", avatar_url: null },
       }));
-      return { cohort: c, members: members ?? [], memberProfiles, profileMap, creator, messages: enriched };
+      return {
+        cohort: c,
+        members: members ?? [],
+        memberProfiles,
+        profileMap,
+        creator,
+        messages: enriched,
+      };
     },
   });
 
@@ -130,7 +139,9 @@ function CohortDetail() {
         },
       )
       .subscribe();
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      supabase.removeChannel(ch);
+    };
   }, [id, isMember, data?.messages?.length]);
 
   // Realtime: online presence
@@ -148,7 +159,9 @@ function CohortDetail() {
         await ch.track({ online_at: new Date().toISOString() });
       }
     });
-    return () => { supabase.removeChannel(ch); };
+    return () => {
+      supabase.removeChannel(ch);
+    };
   }, [id, user, isMember]);
 
   // Scroll to bottom on new messages
@@ -163,7 +176,10 @@ function CohortDetail() {
     const diffMs = new Date(cohort.starts_at).getTime() - Date.now();
     if (diffMs > 0 && diffMs <= 30 * 60 * 1000) {
       notifiedRef.current = true;
-      toast.info(`"${cohort.title}" starts in ${Math.ceil(diffMs / 60000)} min — check the meeting link!`, { duration: 10_000 });
+      toast.info(
+        `"${cohort.title}" starts in ${Math.ceil(diffMs / 60000)} min — check the meeting link!`,
+        { duration: 10_000 },
+      );
     }
   }, [data?.cohort, isMember]);
 
@@ -277,21 +293,28 @@ function CohortDetail() {
               <div className="font-medium mt-1">
                 {format(new Date(c.starts_at), "dd MMM, HH:mm")}
               </div>
-              {c.status !== "ended" && c.status !== "cancelled" && (() => {
-                const diffMs = new Date(c.starts_at).getTime() - Date.now();
-                if (diffMs < 0 && c.status === "live") {
-                  return <span className="absolute top-1 right-1 flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" /></span>;
-                }
-                if (diffMs < 0) return null;
-                const hrs = Math.floor(diffMs / 3600000);
-                const mins = Math.floor((diffMs % 3600000) / 60000);
-                if (hrs >= 24) return null;
-                return (
-                  <span className="text-[10px] text-amber-600 font-medium mt-0.5 block">
-                    {hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`} from now
-                  </span>
-                );
-              })()}
+              {c.status !== "ended" &&
+                c.status !== "cancelled" &&
+                (() => {
+                  const diffMs = new Date(c.starts_at).getTime() - Date.now();
+                  if (diffMs < 0 && c.status === "live") {
+                    return (
+                      <span className="absolute top-1 right-1 flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                      </span>
+                    );
+                  }
+                  if (diffMs < 0) return null;
+                  const hrs = Math.floor(diffMs / 3600000);
+                  const mins = Math.floor((diffMs % 3600000) / 60000);
+                  if (hrs >= 24) return null;
+                  return (
+                    <span className="text-[10px] text-amber-600 font-medium mt-0.5 block">
+                      {hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`} from now
+                    </span>
+                  );
+                })()}
             </div>
             <div className="rounded-xl border p-3">
               <div className="text-xs text-muted-foreground flex items-center gap-1">
@@ -360,9 +383,7 @@ function CohortDetail() {
                 <MessageCircle className="h-4 w-4" />
                 {showChat ? "Members" : "Group chat"}
               </span>
-              <ChevronDown
-                className={`h-4 w-4 transition ${showChat ? "rotate-180" : ""}`}
-              />
+              <ChevronDown className={`h-4 w-4 transition ${showChat ? "rotate-180" : ""}`} />
             </button>
 
             <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -399,7 +420,9 @@ function CohortDetail() {
                                   {initials(m.profile?.full_name ?? "?")}
                                 </AvatarFallback>
                               </Avatar>
-                              <div className={`max-w-[75%] ${isMe ? "items-end" : ""} flex flex-col`}>
+                              <div
+                                className={`max-w-[75%] ${isMe ? "items-end" : ""} flex flex-col`}
+                              >
                                 <div className="flex items-baseline gap-2 mb-0.5">
                                   <span className="text-[11px] font-medium text-muted-foreground">
                                     {isMe ? "You" : (m.profile?.full_name ?? "Unknown")}
@@ -440,11 +463,7 @@ function CohortDetail() {
                       maxLength={2000}
                       className="flex-1"
                     />
-                    <Button
-                      size="icon"
-                      onClick={handleSend}
-                      disabled={!text.trim() || sending}
-                    >
+                    <Button size="icon" onClick={handleSend} disabled={!text.trim() || sending}>
                       {sending ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
@@ -459,8 +478,7 @@ function CohortDetail() {
               <div className={showChat ? "" : "sm:col-span-3"}>
                 <div className="rounded-2xl border bg-card p-4 shadow-sm">
                   <h2 className="font-medium text-sm flex items-center gap-2 mb-3">
-                    <Users className="h-4 w-4" />{" "}
-                    {memberCount}{" "}
+                    <Users className="h-4 w-4" /> {memberCount}{" "}
                     {memberCount === 1 ? "member" : "members"}
                   </h2>
                   {memberCount === 0 ? (
@@ -478,9 +496,7 @@ function CohortDetail() {
                             >
                               <div className="relative">
                                 <Avatar className="h-8 w-8">
-                                  {p.avatar_url ? (
-                                    <AvatarImage src={p.avatar_url} />
-                                  ) : null}
+                                  {p.avatar_url ? <AvatarImage src={p.avatar_url} /> : null}
                                   <AvatarFallback className="text-[10px]">
                                     {initials(p.full_name ?? "U")}
                                   </AvatarFallback>

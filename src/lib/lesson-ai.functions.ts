@@ -17,7 +17,7 @@ const SYSTEM = `You are Learnify AI — a senior technical mentor. Provide direc
 
 function buildPrompt(d: z.infer<typeof Input>, ragContext?: string) {
   const ctx = `Course: ${d.courseTitle}\nLesson: ${d.lessonTitle}${d.lessonDescription ? `\nLesson notes: ${d.lessonDescription}` : ""}`;
-  
+
   let basePrompt = "";
   if (d.action === "summary") {
     basePrompt = `${ctx}\n\nProduce a short, structured lesson summary with these sections (use brief bullet points):\n## Key Takeaways (3-5 short bullets)\n## Core Concepts Explained (briefly)\n## Real-World Applications\n## Quick Recap (1 short line)`;
@@ -100,10 +100,10 @@ export const lessonAiHelper = createServerFn({ method: "POST" })
     let ragContext = "";
     if (data.action === "doubt" && data.question) {
       try {
-        const { searchCourseContext } = await import('./rag.functions');
-        const matches = await searchCourseContext({ 
-          data: { courseId: data.courseId, query: data.question, limit: 3 }, 
-          context 
+        const { searchCourseContext } = await import("./rag.functions");
+        const matches = await searchCourseContext({
+          data: { courseId: data.courseId, query: data.question, limit: 3 },
+          context,
         } as any);
         if (matches && matches.length > 0) {
           ragContext = matches.map((m: any) => m.content).join("\n\n---\n\n");

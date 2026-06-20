@@ -2,7 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { executeCode } from "./playground.functions";
 
-
 const AGENT_MODEL = process.env.AGENT_MODEL || "openai/gpt-4o-mini";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -11,7 +10,8 @@ const TOOLS = [
     type: "function" as const,
     function: {
       name: "execute_code",
-      description: "Execute code in a sandbox and return stdout, stderr, and exit code. Supports python, javascript, typescript, cpp, c, java, go, rust, ruby, php, bash, sql.",
+      description:
+        "Execute code in a sandbox and return stdout, stderr, and exit code. Supports python, javascript, typescript, cpp, c, java, go, rust, ruby, php, bash, sql.",
       parameters: {
         type: "object",
         properties: {
@@ -27,7 +27,8 @@ const TOOLS = [
     type: "function" as const,
     function: {
       name: "web_search",
-      description: "Search the web for current information. Returns up to 5 results with title, snippet, and link.",
+      description:
+        "Search the web for current information. Returns up to 5 results with title, snippet, and link.",
       parameters: {
         type: "object",
         properties: {
@@ -60,35 +61,48 @@ const MessageSchema = z.object({
   lessonContext: z.string().max(4000).optional(),
 });
 
+const FALLBACK_MODELS = [
+  "openai/gpt-4o-mini",
+  "meta-llama/llama-3.3-70b-instruct:free",
+  "deepseek/deepseek-chat-v3.1:free",
+  "mistralai/mistral-small-3.2-24b-instruct:free",
+];
+
 async function callOpenRouter(messages: any[]) {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
 
-  const res = await fetch(OPENROUTER_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://learnifyaitool.vercel.app",
-    },
-    body: JSON.stringify({
-      model: AGENT_MODEL,
-      messages: [
-        { role: "system", content: AGENT_SYSTEM },
-        ...messages.slice(-20),
-      ],
-      tools: TOOLS,
-      tool_choice: "auto",
-      max_tokens: 2048,
-    }),
-  });
+  const models = [AGENT_MODEL, ...FALLBACK_MODELS.filter((m) => m !== AGENT_MODEL)];
+  let lastError: unknown;
 
-  if (!res.ok) {
-    const text = await res.text().catch(() => "Unknown");
-    throw new Error(`OpenRouter error (${res.status}): ${text}`);
+  for (const model of models) {
+    try {
+      const res = await fetch(OPENROUTER_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+          "HTTP-Referer": "https://learnifyaitool.vercel.app",
+        },
+        body: JSON.stringify({
+          model,
+          messages: [{ role: "system", content: AGENT_SYSTEM }, ...messages.slice(-20)],
+          tools: TOOLS,
+          tool_choice: "auto",
+          max_tokens: 2048,
+        }),
+      });
+
+      if (res.ok) return res.json();
+
+      const text = await res.text().catch(() => "Unknown");
+      lastError = new Error(`OpenRouter error (${res.status}) on ${model}: ${text}`);
+    } catch (e) {
+      lastError = e;
+    }
   }
 
-  return res.json();
+  throw lastError ?? new Error("All models failed");
 }
 
 async function executeTool(name: string, args: any) {
@@ -125,7 +139,9 @@ async function executeTool(name: string, args: any) {
       if (!apiRes.ok) return JSON.stringify({ message: "Search unavailable" });
       const json = await apiRes.json();
       const results = (json.organic_results || []).slice(0, 5).map((r: any) => ({
-        title: r.title, snippet: r.snippet, link: r.link,
+        title: r.title,
+        snippet: r.snippet,
+        link: r.link,
       }));
       return JSON.stringify(results.length ? results : { message: "No results" });
     } catch (err: any) {
@@ -141,10 +157,21 @@ export const agentChat = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const messages: any[] = [
       ...(data.history ?? []).map((m: any) => ({ role: m.role, content: m.content })),
-      { role: "user", content: data.lessonContext ? `Lesson context: ${data.lessonContext}\n\n${data.content}` : data.content },
+      {
+        role: "user",
+        content: data.lessonContext
+          ? `Lesson context: ${data.lessonContext}\n\n${data.content}`
+          : data.content,
+      },
     ];
 
-    const steps: { type: string; thought?: string; name?: string; arguments?: any; result?: string }[] = [];
+    const steps: {
+      type: string;
+      thought?: string;
+      name?: string;
+      arguments?: any;
+      result?: string;
+    }[] = [];
     let rounds = 0;
 
     while (rounds < 5) {

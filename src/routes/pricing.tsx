@@ -11,7 +11,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { createSubscription, cancelSubscription } from "@/lib/subscription.functions";
 
 export const Route = createFileRoute("/pricing")({
-  validateSearch: (s: Record<string, unknown>) => ({ subscribe: s.subscribe as string | undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    subscribe: s.subscribe as string | undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Pricing — Learnify AI" },
@@ -64,7 +66,11 @@ function PricingPage() {
     }
   }, [subscribe]);
 
-  const { data: tiers, isLoading, error } = useQuery<Plan[]>({
+  const {
+    data: tiers,
+    isLoading,
+    error,
+  } = useQuery<Plan[]>({
     queryKey: ["pricing-plans"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -82,6 +88,7 @@ function PricingPage() {
       })) as Plan[];
     },
     retry: false,
+    enabled: typeof window !== "undefined",
   });
 
   const currentSub = useQuery({
@@ -99,7 +106,10 @@ function PricingPage() {
   });
 
   const handleSubscribe = async (planId: string) => {
-    if (!user) { navigate({ to: "/login" }); return; }
+    if (!user) {
+      navigate({ to: "/login" });
+      return;
+    }
     setLoadingPlan(planId);
     try {
       const sub = await doSubscribe({ data: { planId } });
@@ -137,8 +147,12 @@ function PricingPage() {
         </div>
       ) : error ? (
         <div className="space-y-3 rounded-3xl border border-destructive/20 bg-destructive/5 p-10 text-center">
-          <p className="text-lg font-semibold text-destructive">Pricing is currently unavailable.</p>
-          <p className="text-sm text-muted-foreground">We couldn&apos;t load the pricing details right now. Please refresh or try again later.</p>
+          <p className="text-lg font-semibold text-destructive">
+            Pricing is currently unavailable.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            We couldn&apos;t load the pricing details right now. Please refresh or try again later.
+          </p>
         </div>
       ) : !tiers || tiers.length === 0 ? (
         <p className="text-center text-muted-foreground py-12">Pricing coming soon.</p>
@@ -159,16 +173,22 @@ function PricingPage() {
                 {(t.badge || isCurrent) && (
                   <div
                     className={`inline-flex self-start rounded-full px-3 py-1 text-xs font-medium mb-4 ${isCurrent ? "bg-primary text-primary-foreground" : "bg-primary text-primary-foreground"}`}
-                    style={isCurrent ? { background: t.color || "#7c3aed", color: "#fff" } : undefined}
+                    style={
+                      isCurrent ? { background: t.color || "#7c3aed", color: "#fff" } : undefined
+                    }
                   >
                     {isCurrent ? "Your plan" : t.badge || "Most popular"}
                   </div>
                 )}
                 <h3 className="font-display text-2xl font-semibold">{t.name}</h3>
                 <div className="mt-3 text-4xl font-bold tracking-tight">{t.price_label}</div>
-                {t.description && <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>}
+                {t.description && (
+                  <p className="mt-2 text-sm text-muted-foreground">{t.description}</p>
+                )}
                 {t.ai_credits_monthly > 0 && (
-                  <p className="text-xs text-muted-foreground mt-1">{t.ai_credits_monthly.toLocaleString("en-IN")} AI credits / mo</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {t.ai_credits_monthly.toLocaleString("en-IN")} AI credits / mo
+                  </p>
                 )}
                 <ul className="mt-6 space-y-3 text-sm flex-1">
                   {t.features.map((f, i) => (
@@ -194,7 +214,9 @@ function PricingPage() {
                     </Button>
                   ) : showLogin ? (
                     <Button asChild className="w-full">
-                      <Link to="/login"><LogIn className="h-4 w-4 mr-1" /> Sign in to subscribe</Link>
+                      <Link to="/login">
+                        <LogIn className="h-4 w-4 mr-1" /> Sign in to subscribe
+                      </Link>
                     </Button>
                   ) : (
                     <Button
@@ -204,7 +226,9 @@ function PricingPage() {
                       disabled={loadingPlan !== null}
                     >
                       {loadingPlan === t.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                      {loadingPlan === t.id ? "Processing..." : `Subscribe ₹${t.price_inr}/${t.interval}`}
+                      {loadingPlan === t.id
+                        ? "Processing..."
+                        : `Subscribe ₹${t.price_inr}/${t.interval}`}
                     </Button>
                   )}
                 </div>

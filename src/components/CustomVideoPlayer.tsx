@@ -1,5 +1,14 @@
 import { useRef, useState, useEffect, useCallback, useMemo } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize, Loader2, Settings, Subtitles } from "lucide-react";
+import {
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Maximize,
+  Loader2,
+  Settings,
+  Subtitles,
+} from "lucide-react";
 
 interface CustomVideoPlayerProps {
   url: string;
@@ -88,7 +97,17 @@ export function CustomVideoPlayer({
       const qualities = player.getAvailableQualityLevels();
       if (qualities && qualities.length > 0) {
         // Preference array from best to lowest
-        const hdQualities = ["highres", "hd2160", "hd1440", "hd1080", "hd720", "large", "medium", "small", "tiny"];
+        const hdQualities = [
+          "highres",
+          "hd2160",
+          "hd1440",
+          "hd1080",
+          "hd720",
+          "large",
+          "medium",
+          "small",
+          "tiny",
+        ];
         const best = qualities.find((q: string) => hdQualities.includes(q)) || qualities[0];
         if (best) {
           player.setPlaybackQuality(best);
@@ -257,28 +276,36 @@ export function CustomVideoPlayer({
     }
   }, [playing, youtubeId]);
 
-  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!durationRef.current) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pct = (e.clientX - rect.left) / rect.width;
-    const targetTime = pct * durationRef.current;
-    
-    if (youtubeId) {
-      const api = playerApiRef.current;
-      if (api) api.seekTo(targetTime, true);
-    } else {
-      const video = videoRef.current;
-      if (video) video.currentTime = targetTime;
-    }
-    setCurrentTime(targetTime);
-  }, [youtubeId]);
+  const handleSeek = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (!durationRef.current) return;
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      const targetTime = pct * durationRef.current;
+
+      if (youtubeId) {
+        const api = playerApiRef.current;
+        if (api) api.seekTo(targetTime, true);
+      } else {
+        const video = videoRef.current;
+        if (video) video.currentTime = targetTime;
+      }
+      setCurrentTime(targetTime);
+    },
+    [youtubeId],
+  );
 
   const toggleMute = useCallback(() => {
     if (youtubeId) {
       const api = playerApiRef.current;
       if (!api) return;
-      if (muted) { api.unMute(); setMuted(false); }
-      else { api.mute(); setMuted(true); }
+      if (muted) {
+        api.unMute();
+        setMuted(false);
+      } else {
+        api.mute();
+        setMuted(true);
+      }
     } else {
       const video = videoRef.current;
       if (!video) return;
@@ -287,27 +314,30 @@ export function CustomVideoPlayer({
     }
   }, [muted, youtubeId]);
 
-  const handleVolume = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = Number(e.target.value);
-    volumeRef.current = v;
-    setVolume(v);
-    
-    if (youtubeId) {
-      const api = playerApiRef.current;
-      if (api) api.setVolume(v * 100);
-    } else {
-      const video = videoRef.current;
-      if (video) video.volume = v;
-    }
-    
-    if (v === 0) {
-      setMuted(true);
-      if (!youtubeId && videoRef.current) videoRef.current.muted = true;
-    } else {
-      setMuted(false);
-      if (!youtubeId && videoRef.current) videoRef.current.muted = false;
-    }
-  }, [youtubeId]);
+  const handleVolume = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const v = Number(e.target.value);
+      volumeRef.current = v;
+      setVolume(v);
+
+      if (youtubeId) {
+        const api = playerApiRef.current;
+        if (api) api.setVolume(v * 100);
+      } else {
+        const video = videoRef.current;
+        if (video) video.volume = v;
+      }
+
+      if (v === 0) {
+        setMuted(true);
+        if (!youtubeId && videoRef.current) videoRef.current.muted = true;
+      } else {
+        setMuted(false);
+        if (!youtubeId && videoRef.current) videoRef.current.muted = false;
+      }
+    },
+    [youtubeId],
+  );
 
   const toggleFullscreen = useCallback(() => {
     if (!containerRef.current) return;
@@ -318,33 +348,39 @@ export function CustomVideoPlayer({
     }
   }, []);
 
-  const handleSpeedChange = useCallback((rate: number) => {
-    if (youtubeId) {
-      const api = playerApiRef.current;
-      if (api) {
-        api.setPlaybackRate(rate);
-        setPlaybackRate(rate);
-      }
-    } else {
-      const video = videoRef.current;
-      if (video) {
-        video.playbackRate = rate;
-        setPlaybackRate(rate);
-      }
-    }
-  }, [youtubeId]);
-
-  const handleQualityChange = useCallback((q: string) => {
-    const api = playerApiRef.current;
-    if (api && youtubeId) {
-      if (q === "auto") {
-        api.setPlaybackQuality("default");
+  const handleSpeedChange = useCallback(
+    (rate: number) => {
+      if (youtubeId) {
+        const api = playerApiRef.current;
+        if (api) {
+          api.setPlaybackRate(rate);
+          setPlaybackRate(rate);
+        }
       } else {
-        api.setPlaybackQuality(q);
+        const video = videoRef.current;
+        if (video) {
+          video.playbackRate = rate;
+          setPlaybackRate(rate);
+        }
       }
-      setQuality(q);
-    }
-  }, [youtubeId]);
+    },
+    [youtubeId],
+  );
+
+  const handleQualityChange = useCallback(
+    (q: string) => {
+      const api = playerApiRef.current;
+      if (api && youtubeId) {
+        if (q === "auto") {
+          api.setPlaybackQuality("default");
+        } else {
+          api.setPlaybackQuality(q);
+        }
+        setQuality(q);
+      }
+    },
+    [youtubeId],
+  );
 
   const toggleCaptions = useCallback(() => {
     const api = playerApiRef.current;
@@ -394,7 +430,10 @@ export function CustomVideoPlayer({
   };
 
   useEffect(() => {
-    if (!playing) { setShowControls(true); return; }
+    if (!playing) {
+      setShowControls(true);
+      return;
+    }
     if (settingsOpen) return;
     const timer = setTimeout(() => setShowControls(false), 3000);
     return () => clearTimeout(timer);
@@ -407,7 +446,9 @@ export function CustomVideoPlayer({
       ref={containerRef}
       className="relative w-full aspect-video bg-black overflow-hidden rounded-xl group"
       onMouseMove={() => setShowControls(true)}
-      onMouseLeave={() => { if (playing && !settingsOpen) setShowControls(false); }}
+      onMouseLeave={() => {
+        if (playing && !settingsOpen) setShowControls(false);
+      }}
     >
       {/* Cover Overlay / Custom Play Button */}
       {!hasStarted && (
@@ -434,7 +475,7 @@ export function CustomVideoPlayer({
             {/* Pulsing ring */}
             <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping opacity-75 group-hover/btn:animate-none" />
             <div className="absolute -inset-1.5 rounded-full bg-gradient-to-r from-primary to-indigo-500 opacity-25 blur-md group-hover/btn:opacity-50 transition duration-300" />
-            
+
             <Play className="h-8 w-8 fill-current ml-1.5 transition-transform duration-300 group-hover/btn:scale-110" />
           </button>
         </div>
@@ -449,7 +490,10 @@ export function CustomVideoPlayer({
           src={url}
           className="absolute inset-0 w-full h-full object-contain"
           playsInline
-          onError={() => { setError(true); if (onError) onError(null); }}
+          onError={() => {
+            setError(true);
+            if (onError) onError(null);
+          }}
           onLoadedMetadata={handleHtml5Metadata}
           onTimeUpdate={(e) => {
             const ct = e.currentTarget.currentTime;
@@ -462,7 +506,11 @@ export function CustomVideoPlayer({
               onProgress({
                 playedSeconds: ct,
                 played: durationRef.current > 0 ? ct / durationRef.current : 0,
-                loaded: e.currentTarget.buffered.length > 0 ? e.currentTarget.buffered.end(e.currentTarget.buffered.length - 1) / durationRef.current : 0
+                loaded:
+                  e.currentTarget.buffered.length > 0
+                    ? e.currentTarget.buffered.end(e.currentTarget.buffered.length - 1) /
+                      durationRef.current
+                    : 0,
               });
             }
           }}
@@ -494,9 +542,7 @@ export function CustomVideoPlayer({
       )}
 
       {/* Transparent Click-to-Play/Pause Overlay */}
-      {hasStarted && (
-        <div className="absolute inset-0 z-10 cursor-pointer" onClick={togglePlay} />
-      )}
+      {hasStarted && <div className="absolute inset-0 z-10 cursor-pointer" onClick={togglePlay} />}
 
       {/* Video Control Bar */}
       <div
@@ -509,7 +555,10 @@ export function CustomVideoPlayer({
             className="relative h-1.5 bg-white/20 rounded-full cursor-pointer mb-3 group/progress hover:h-2.5 transition-all"
             onClick={handleSeek}
           >
-            <div className="absolute inset-y-0 left-0 bg-primary rounded-full" style={{ width: `${played * 100}%` }} />
+            <div
+              className="absolute inset-y-0 left-0 bg-primary rounded-full"
+              style={{ width: `${played * 100}%` }}
+            />
             <div
               className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-primary rounded-full shadow opacity-0 group-hover/progress:opacity-100 transition-opacity"
               style={{ left: `${played * 100}%` }}
@@ -517,7 +566,10 @@ export function CustomVideoPlayer({
           </div>
 
           <div className="flex items-center gap-1.5 text-white">
-            <button onClick={togglePlay} className="p-1 hover:text-white/80 cursor-pointer shrink-0">
+            <button
+              onClick={togglePlay}
+              className="p-1 hover:text-white/80 cursor-pointer shrink-0"
+            >
               {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </button>
 
@@ -527,7 +579,11 @@ export function CustomVideoPlayer({
 
             <div className="flex items-center gap-1 ml-1 shrink-0">
               <button onClick={toggleMute} className="p-1 hover:text-white/80 cursor-pointer">
-                {muted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                {muted || volume === 0 ? (
+                  <VolumeX className="h-4 w-4" />
+                ) : (
+                  <Volume2 className="h-4 w-4" />
+                )}
               </button>
               <input
                 type="range"
@@ -568,14 +624,18 @@ export function CustomVideoPlayer({
                   onMouseEnter={() => setShowControls(true)}
                 >
                   <div className="px-3 py-2 border-b border-white/10">
-                    <span className="text-[11px] font-semibold text-white/70 uppercase tracking-wider">Speed</span>
+                    <span className="text-[11px] font-semibold text-white/70 uppercase tracking-wider">
+                      Speed
+                    </span>
                     <div className="grid grid-cols-4 gap-1 mt-1.5">
                       {SPEEDS.map((s) => (
                         <button
                           key={s}
                           onClick={() => handleSpeedChange(s)}
                           className={`text-xs rounded px-1 py-1 transition ${
-                            playbackRate === s ? "bg-primary text-white" : "text-white/70 hover:bg-white/10"
+                            playbackRate === s
+                              ? "bg-primary text-white"
+                              : "text-white/70 hover:bg-white/10"
                           }`}
                         >
                           {s}x
@@ -585,14 +645,18 @@ export function CustomVideoPlayer({
                   </div>
                   {youtubeId && (
                     <div className="px-3 py-2">
-                      <span className="text-[11px] font-semibold text-white/70 uppercase tracking-wider">Quality</span>
+                      <span className="text-[11px] font-semibold text-white/70 uppercase tracking-wider">
+                        Quality
+                      </span>
                       <div className="space-y-0.5 mt-1.5 max-h-28 overflow-y-auto">
                         {["auto", ...availableQualities].map((q) => (
                           <button
                             key={q}
                             onClick={() => handleQualityChange(q)}
                             className={`block w-full text-left text-xs rounded px-2 py-1 transition ${
-                              quality === q ? "bg-primary text-white" : "text-white/70 hover:bg-white/10"
+                              quality === q
+                                ? "bg-primary text-white"
+                                : "text-white/70 hover:bg-white/10"
                             }`}
                           >
                             {QUALITY_LABELS[q] || q}
@@ -605,7 +669,10 @@ export function CustomVideoPlayer({
               )}
             </div>
 
-            <button onClick={toggleFullscreen} className="p-1 hover:text-white/80 cursor-pointer shrink-0">
+            <button
+              onClick={toggleFullscreen}
+              className="p-1 hover:text-white/80 cursor-pointer shrink-0"
+            >
               <Maximize className="h-4 w-4" />
             </button>
           </div>

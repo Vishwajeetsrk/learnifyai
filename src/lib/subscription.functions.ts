@@ -156,18 +156,16 @@ export const createSubscription = createServerFn({ method: "POST" })
     if (p.interval === "month") periodEnd.setMonth(periodEnd.getMonth() + 1);
     else periodEnd.setFullYear(periodEnd.getFullYear() + 1);
 
-    const { error: insErr } = await (supabaseAdmin as any)
-      .from("user_subscriptions")
-      .insert({
-        user_id: uid,
-        plan_id: data.planId,
-        cashfree_subscription_id: sub.subscription_id || subId,
-        cashfree_order_id: sub.cf_subscription_id || null,
-        status: "pending",
-        current_period_start: new Date().toISOString(),
-        current_period_end: periodEnd.toISOString(),
-        ai_credits_reset_at: new Date(Date.now() + 30 * 86400000).toISOString(),
-      });
+    const { error: insErr } = await (supabaseAdmin as any).from("user_subscriptions").insert({
+      user_id: uid,
+      plan_id: data.planId,
+      cashfree_subscription_id: sub.subscription_id || subId,
+      cashfree_order_id: sub.cf_subscription_id || null,
+      status: "pending",
+      current_period_start: new Date().toISOString(),
+      current_period_end: periodEnd.toISOString(),
+      ai_credits_reset_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+    });
     if (insErr) throw new Error(insErr.message);
 
     return {

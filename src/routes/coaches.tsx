@@ -433,7 +433,9 @@ function CoachesPage() {
                   <h4 className="font-semibold text-xs text-foreground mb-1">
                     System Design Interview Prep
                   </h4>
-                  <p className="text-xs text-muted-foreground">Upcoming Live Session • 45/50 RSVPed</p>
+                  <p className="text-xs text-muted-foreground">
+                    Upcoming Live Session • 45/50 RSVPed
+                  </p>
                 </div>
 
                 {cohortStatus === "idle" && (

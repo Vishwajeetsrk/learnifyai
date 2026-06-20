@@ -572,7 +572,7 @@ export function AiToolsShowcase() {
             )}
           </div>
         );
-      case "flashcards":
+      case "flashcards": {
         const flashcards = [
           {
             q: "What is a Closure in JavaScript?",
@@ -673,6 +673,7 @@ export function AiToolsShowcase() {
             </div>
           </div>
         );
+      }
       default:
         return null;
     }

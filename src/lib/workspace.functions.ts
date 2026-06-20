@@ -14,18 +14,30 @@ export const getMyWorkspace = createServerFn({ method: "GET" })
       .maybeSingle();
 
     if (member?.workspace_id) {
-      const { data: ws } = await supabase.from("workspaces").select("*").eq("id", member.workspace_id).single();
+      const { data: ws } = await supabase
+        .from("workspaces")
+        .select("*")
+        .eq("id", member.workspace_id)
+        .single();
       return ws;
     } else {
       // Auto-create personal workspace
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const { data: user } = await supabaseAdmin.auth.admin.getUserById(userId);
-      const name = user.user?.user_metadata?.full_name ? `${user.user.user_metadata.full_name}'s Workspace` : "Personal Workspace";
-      
-      const { data: ws, error } = await supabaseAdmin.from("workspaces").insert({ name, created_by: userId }).select().single();
+      const name = user.user?.user_metadata?.full_name
+        ? `${user.user.user_metadata.full_name}'s Workspace`
+        : "Personal Workspace";
+
+      const { data: ws, error } = await supabaseAdmin
+        .from("workspaces")
+        .insert({ name, created_by: userId })
+        .select()
+        .single();
       if (error) throw new Error(error.message);
 
-      await supabaseAdmin.from("workspace_members").insert({ workspace_id: ws.id, user_id: userId, role: "owner" });
+      await supabaseAdmin
+        .from("workspace_members")
+        .insert({ workspace_id: ws.id, user_id: userId, role: "owner" });
       return ws;
     }
   });
@@ -46,14 +58,18 @@ export const listProjects = createServerFn({ method: "GET" })
 
 export const createProject = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ workspaceId: z.string(), name: z.string(), description: z.string().optional() }).parse(d))
+  .inputValidator((d: unknown) =>
+    z
+      .object({ workspaceId: z.string(), name: z.string(), description: z.string().optional() })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase.from("projects").insert({
       workspace_id: data.workspaceId,
       name: data.name,
       description: data.description,
-      created_by: userId
+      created_by: userId,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -76,7 +92,16 @@ export const getProjectTasks = createServerFn({ method: "GET" })
 
 export const createTask = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ projectId: z.string(), title: z.string(), status: z.string(), description: z.string().optional() }).parse(d))
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        projectId: z.string(),
+        title: z.string(),
+        status: z.string(),
+        description: z.string().optional(),
+      })
+      .parse(d),
+  )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase.from("tasks").insert({
@@ -84,7 +109,7 @@ export const createTask = createServerFn({ method: "POST" })
       title: data.title,
       status: data.status,
       description: data.description,
-      created_by: userId
+      created_by: userId,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -95,7 +120,10 @@ export const updateTaskStatus = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ taskId: z.string(), status: z.string() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { error } = await supabase.from("tasks").update({ status: data.status }).eq("id", data.taskId);
+    const { error } = await supabase
+      .from("tasks")
+      .update({ status: data.status })
+      .eq("id", data.taskId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

@@ -102,8 +102,18 @@ function MissingVideosPage() {
               Lessons with empty or invalid video URLs that can break the player.
             </p>
           </div>
-          <Button size="sm" variant="outline" onClick={() => { lessonsQ.refetch(); emptyCoursesQ.refetch(); }}>
-            <RefreshCw className={`h-4 w-4 ${lessonsQ.isFetching || emptyCoursesQ.isFetching ? "animate-spin" : ""}`} /> Refresh
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              lessonsQ.refetch();
+              emptyCoursesQ.refetch();
+            }}
+          >
+            <RefreshCw
+              className={`h-4 w-4 ${lessonsQ.isFetching || emptyCoursesQ.isFetching ? "animate-spin" : ""}`}
+            />{" "}
+            Refresh
           </Button>
         </div>
 
@@ -116,7 +126,8 @@ function MissingVideosPage() {
         {rows.length > 0 && (
           <div className="rounded-2xl border bg-card overflow-hidden mb-6">
             <div className="px-4 py-2 text-xs font-medium text-muted-foreground border-b bg-muted/20">
-              {rows.length} lesson{rows.length === 1 ? "" : "s"} with missing/invalid video URL{rows.length === 1 ? "" : "s"}
+              {rows.length} lesson{rows.length === 1 ? "" : "s"} with missing/invalid video URL
+              {rows.length === 1 ? "" : "s"}
             </div>
             <Table>
               <TableHeader>
@@ -170,7 +181,8 @@ function MissingVideosPage() {
         {emptyCourses.length > 0 && (
           <div className="rounded-2xl border bg-card overflow-hidden">
             <div className="px-4 py-2 text-xs font-medium text-muted-foreground border-b bg-muted/20">
-              {emptyCourses.length} course{emptyCourses.length === 1 ? "" : "s"} with no lessons (no content at all)
+              {emptyCourses.length} course{emptyCourses.length === 1 ? "" : "s"} with no lessons (no
+              content at all)
             </div>
             <Table>
               <TableHeader>
@@ -186,9 +198,13 @@ function MissingVideosPage() {
                     <TableCell className="font-medium">{c.title}</TableCell>
                     <TableCell>
                       {c.published ? (
-                        <Badge variant="outline" className="text-[10px]">Live</Badge>
+                        <Badge variant="outline" className="text-[10px]">
+                          Live
+                        </Badge>
                       ) : (
-                        <Badge variant="secondary" className="text-[10px]">Draft</Badge>
+                        <Badge variant="secondary" className="text-[10px]">
+                          Draft
+                        </Badge>
                       )}
                     </TableCell>
                     <TableCell className="text-right">

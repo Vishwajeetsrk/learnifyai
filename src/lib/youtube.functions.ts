@@ -105,13 +105,23 @@ export async function ytSearchTopVideo(query: string, apiKey: string) {
   if (!r.ok) throw new Error(explainYoutubeError(r.status, body));
   if (!body.items?.length) return null;
   // Pick the first result whose title doesn't look like music/gaming/meme
-  const pick = body.items.find((item: any) => {
-    const t = (item.snippet?.title ?? "").toLowerCase();
-    if (t.includes("never gonna give") || t.includes("rick ast") || t.includes("music video") || t.includes("official video") || t.includes("song") || t.includes("ft.") || t.includes("lyric")) return false;
-    const ch = (item.snippet?.channelTitle ?? "").toLowerCase();
-    if (ch.includes("vevo") || ch.includes("music")) return false;
-    return true;
-  }) ?? body.items[0];
+  const pick =
+    body.items.find((item: any) => {
+      const t = (item.snippet?.title ?? "").toLowerCase();
+      if (
+        t.includes("never gonna give") ||
+        t.includes("rick ast") ||
+        t.includes("music video") ||
+        t.includes("official video") ||
+        t.includes("song") ||
+        t.includes("ft.") ||
+        t.includes("lyric")
+      )
+        return false;
+      const ch = (item.snippet?.channelTitle ?? "").toLowerCase();
+      if (ch.includes("vevo") || ch.includes("music")) return false;
+      return true;
+    }) ?? body.items[0];
   if (!pick?.id?.videoId) return null;
   return {
     videoId: pick.id.videoId as string,
@@ -570,4 +580,3 @@ export const searchYoutubeVideo = createServerFn({ method: "POST" })
       url: `https://www.youtube.com/watch?v=${hit.videoId}`,
     };
   });
-

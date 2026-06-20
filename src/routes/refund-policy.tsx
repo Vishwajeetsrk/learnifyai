@@ -5,9 +5,15 @@ export const Route = createFileRoute("/refund-policy")({
   head: () => ({
     meta: [
       { title: "Refund Policy — Learnify AI" },
-      { name: "description", content: "Learnify AI refund policy for course purchases and wallet top-ups." },
+      {
+        name: "description",
+        content: "Learnify AI refund policy for course purchases and wallet top-ups.",
+      },
       { property: "og:title", content: "Refund Policy — Learnify AI" },
-      { property: "og:description", content: "Our refund and cancellation policy for paid courses and credits." },
+      {
+        property: "og:description",
+        content: "Our refund and cancellation policy for paid courses and credits.",
+      },
     ],
   }),
   component: () => (

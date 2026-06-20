@@ -106,7 +106,7 @@ const emptyAuthContext: AuthContextValue = {
   user: null,
   session: null,
   roles: [],
-  loading: true,
+  loading: false,
   isAuthenticated: false,
   hasRole: () => false,
   isAdmin: false,

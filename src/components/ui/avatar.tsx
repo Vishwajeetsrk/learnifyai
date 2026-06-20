@@ -29,10 +29,12 @@ const Avatar = React.forwardRef<
               borderClass = "ring-2 ring-emerald-400 ring-offset-2 ring-offset-background";
               break;
             case "gold-gradient":
-              borderClass = "ring-2 ring-amber-400 ring-offset-2 ring-offset-background animate-pulse";
+              borderClass =
+                "ring-2 ring-amber-400 ring-offset-2 ring-offset-background animate-pulse";
               break;
             case "rainbow-glow":
-              borderClass = "ring-2 ring-violet-500 ring-offset-2 ring-offset-background animate-pulse";
+              borderClass =
+                "ring-2 ring-violet-500 ring-offset-2 ring-offset-background animate-pulse";
               break;
             case "dashed-red":
               borderClass = "ring-2 ring-rose-500 ring-dashed ring-offset-2 ring-offset-background";
@@ -57,7 +59,7 @@ const Avatar = React.forwardRef<
       className={cn(
         "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full transition-all duration-300",
         borderClass,
-        className
+        className,
       )}
       {...props}
     >

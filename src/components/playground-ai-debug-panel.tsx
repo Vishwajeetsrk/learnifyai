@@ -1,21 +1,92 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, Check, Loader2, Sparkles, BookOpen, Wrench, Zap, RefreshCcw, FileText, FlaskConical, Pencil } from "lucide-react";
+import {
+  AlertTriangle,
+  Check,
+  Loader2,
+  Sparkles,
+  BookOpen,
+  Wrench,
+  Zap,
+  RefreshCcw,
+  FileText,
+  FlaskConical,
+  Pencil,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { playgroundAiDebug } from "@/lib/playground-ai.functions";
 
-type ActionKey = "diagnose" | "explain" | "fix" | "optimize" | "convert" | "tests" | "docs" | "generate";
+type ActionKey =
+  | "diagnose"
+  | "explain"
+  | "fix"
+  | "optimize"
+  | "convert"
+  | "tests"
+  | "docs"
+  | "generate";
 
-const ACTIONS: { key: ActionKey; label: string; Icon: typeof Sparkles; prompt: (lang: string, q: string) => string }[] = [
-  { key: "diagnose", label: "Diagnose",   Icon: Sparkles,     prompt: (_l, q) => q || "Diagnose any issue and return the full fixed program." },
-  { key: "explain",  label: "Explain",    Icon: BookOpen,     prompt: (_l) => "Explain what this code does step by step in plain language. Then re-output the same code unchanged so the editor stays intact." },
-  { key: "fix",      label: "Fix errors", Icon: Wrench,       prompt: () => "Find and fix any bugs or runtime errors. Return the corrected full program." },
-  { key: "optimize", label: "Optimize",   Icon: Zap,          prompt: () => "Refactor for readability and performance. Keep behaviour identical. Return the optimized full program." },
-  { key: "convert",  label: "Convert",    Icon: RefreshCcw,   prompt: (_l, q) => `Convert this program to ${q || "TypeScript"}. Return the converted full program in a fenced code block tagged with the target language.` },
-  { key: "tests",    label: "Tests",      Icon: FlaskConical, prompt: (l) => `Write unit tests for this ${l} program using the language's standard test conventions. Return the test file as a fenced code block.` },
-  { key: "docs",     label: "Docs",       Icon: FileText,     prompt: () => "Add concise docstrings/comments to every public function or type. Return the documented full program." },
-  { key: "generate", label: "Generate",   Icon: Pencil,       prompt: (l, q) => `Generate ${l} code that does the following: ${q || "describe what you want in the input box."} Return only the program in a fenced code block.` },
+const ACTIONS: {
+  key: ActionKey;
+  label: string;
+  Icon: typeof Sparkles;
+  prompt: (lang: string, q: string) => string;
+}[] = [
+  {
+    key: "diagnose",
+    label: "Diagnose",
+    Icon: Sparkles,
+    prompt: (_l, q) => q || "Diagnose any issue and return the full fixed program.",
+  },
+  {
+    key: "explain",
+    label: "Explain",
+    Icon: BookOpen,
+    prompt: (_l) =>
+      "Explain what this code does step by step in plain language. Then re-output the same code unchanged so the editor stays intact.",
+  },
+  {
+    key: "fix",
+    label: "Fix errors",
+    Icon: Wrench,
+    prompt: () => "Find and fix any bugs or runtime errors. Return the corrected full program.",
+  },
+  {
+    key: "optimize",
+    label: "Optimize",
+    Icon: Zap,
+    prompt: () =>
+      "Refactor for readability and performance. Keep behaviour identical. Return the optimized full program.",
+  },
+  {
+    key: "convert",
+    label: "Convert",
+    Icon: RefreshCcw,
+    prompt: (_l, q) =>
+      `Convert this program to ${q || "TypeScript"}. Return the converted full program in a fenced code block tagged with the target language.`,
+  },
+  {
+    key: "tests",
+    label: "Tests",
+    Icon: FlaskConical,
+    prompt: (l) =>
+      `Write unit tests for this ${l} program using the language's standard test conventions. Return the test file as a fenced code block.`,
+  },
+  {
+    key: "docs",
+    label: "Docs",
+    Icon: FileText,
+    prompt: () =>
+      "Add concise docstrings/comments to every public function or type. Return the documented full program.",
+  },
+  {
+    key: "generate",
+    label: "Generate",
+    Icon: Pencil,
+    prompt: (l, q) =>
+      `Generate ${l} code that does the following: ${q || "describe what you want in the input box."} Return only the program in a fenced code block.`,
+  },
 ];
 
 interface Props {
@@ -47,7 +118,13 @@ function extractFix(reply: string, language: string): string | null {
 }
 
 export function PlaygroundAiDebugPanel({
-  language, code, stdout, stderr, exitCode, stdin, onApplyFix,
+  language,
+  code,
+  stdout,
+  stderr,
+  exitCode,
+  stdin,
+  onApplyFix,
 }: Props) {
   const ask = useServerFn(playgroundAiDebug);
   const [question, setQuestion] = useState("");
@@ -74,7 +151,11 @@ export function PlaygroundAiDebugPanel({
     try {
       const res = await ask({
         data: {
-          language, code: code || "(empty)", stdout, stderr, exitCode,
+          language,
+          code: code || "(empty)",
+          stdout,
+          stderr,
+          exitCode,
           question: act.prompt(language, question.trim()),
         },
       });
@@ -108,12 +189,15 @@ export function PlaygroundAiDebugPanel({
           const Icon = a.Icon;
           const active = a.key === action;
           return (
-            <button key={a.key} onClick={() => setAction(a.key)}
+            <button
+              key={a.key}
+              onClick={() => setAction(a.key)}
               className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] transition ${
                 active
                   ? "border-primary/60 bg-primary/15 text-foreground"
                   : "border-border bg-background text-foreground/80 hover:bg-muted hover:text-foreground"
-              }`}>
+              }`}
+            >
               <Icon className="h-3 w-3" /> {a.label}
             </button>
           );
@@ -124,15 +208,23 @@ export function PlaygroundAiDebugPanel({
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           placeholder={
-            action === "convert" ? "Target language (e.g. Rust, TypeScript)…"
-            : action === "generate" ? "Describe what you want to build…"
-            : "Optional details (or leave blank)…"
+            action === "convert"
+              ? "Target language (e.g. Rust, TypeScript)…"
+              : action === "generate"
+                ? "Describe what you want to build…"
+                : "Optional details (or leave blank)…"
           }
           className="h-8 flex-1 rounded-md border border-input bg-background px-2 text-xs text-foreground outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
-          onKeyDown={(e) => { if (e.key === "Enter" && !loading) run(); }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !loading) run();
+          }}
         />
         <Button size="sm" onClick={() => run()} disabled={loading}>
-          {loading ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <currentAction.Icon className="mr-1 h-3.5 w-3.5" />}
+          {loading ? (
+            <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <currentAction.Icon className="mr-1 h-3.5 w-3.5" />
+          )}
           {currentAction.label}
         </Button>
       </div>

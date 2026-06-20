@@ -19,15 +19,17 @@ export const listTemplates = createServerFn({ method: "GET" })
 
 export const saveTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => 
-    z.object({
-      id: z.string().uuid().optional(),
-      name: z.string(),
-      type: z.string(),
-      layout: z.string(),
-      bg_image_url: z.string().optional().nullable(),
-      config_json: z.any()
-    }).parse(d)
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        id: z.string().uuid().optional(),
+        name: z.string(),
+        type: z.string(),
+        layout: z.string(),
+        bg_image_url: z.string().optional().nullable(),
+        config_json: z.any(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -42,7 +44,7 @@ export const saveTemplate = createServerFn({ method: "POST" })
           layout: data.layout,
           bg_image_url: data.bg_image_url,
           config_json: data.config_json,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq("id", data.id);
       if (error) throw new Error(error.message);
@@ -56,7 +58,7 @@ export const saveTemplate = createServerFn({ method: "POST" })
           layout: data.layout,
           bg_image_url: data.bg_image_url,
           config_json: data.config_json,
-          created_by: userId
+          created_by: userId,
         })
         .select("id")
         .single();
@@ -70,10 +72,7 @@ export const deleteTemplate = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin
-      .from("certificate_templates")
-      .delete()
-      .eq("id", data.id);
+    const { error } = await supabaseAdmin.from("certificate_templates").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

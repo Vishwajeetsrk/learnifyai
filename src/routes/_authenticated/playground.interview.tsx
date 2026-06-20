@@ -44,7 +44,9 @@ function InterviewPage() {
     if (!title.trim()) return toast.error("Enter a title for your interview");
     setCreating(true);
     try {
-      const result = await createFn({ data: { title: title.trim(), difficulty: difficulty as any, durationMinutes: minutes } });
+      const result = await createFn({
+        data: { title: title.trim(), difficulty: difficulty as any, durationMinutes: minutes },
+      });
       toast.success("Interview started!");
       setTitle("");
       window.open(`/playground/editor?interview=${result.interview.id}`, "_blank");
@@ -62,7 +64,9 @@ function InterviewPage() {
           <Zap className="h-6 w-6 text-primary" />
           <div>
             <h1 className="font-display text-2xl font-semibold">Interview Mode</h1>
-            <p className="text-sm text-muted-foreground">Timed coding assessments with test cases and scoring.</p>
+            <p className="text-sm text-muted-foreground">
+              Timed coding assessments with test cases and scoring.
+            </p>
           </div>
         </div>
 
@@ -72,23 +76,55 @@ function InterviewPage() {
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Title</label>
-                <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Frontend Coding Round" />
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Frontend Coding Round"
+                />
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {["easy", "medium", "hard"].map((d) => (
-                  <button key={d} onClick={() => setDifficulty(d)} className={cn("px-3 py-2 rounded-lg text-xs border capitalize transition", difficulty === d ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent")}>{d}</button>
+                  <button
+                    key={d}
+                    onClick={() => setDifficulty(d)}
+                    className={cn(
+                      "px-3 py-2 rounded-lg text-xs border capitalize transition",
+                      difficulty === d
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "hover:bg-accent",
+                    )}
+                  >
+                    {d}
+                  </button>
                 ))}
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Duration (minutes)</label>
+                <label className="text-xs font-medium text-muted-foreground">
+                  Duration (minutes)
+                </label>
                 <div className="flex gap-2 mt-1">
                   {[15, 30, 45, 60, 90].map((m) => (
-                    <button key={m} onClick={() => setMinutes(m)} className={cn("px-3 py-1.5 rounded-lg text-xs border transition", minutes === m ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent")}>{m}m</button>
+                    <button
+                      key={m}
+                      onClick={() => setMinutes(m)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs border transition",
+                        minutes === m
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "hover:bg-accent",
+                      )}
+                    >
+                      {m}m
+                    </button>
                   ))}
                 </div>
               </div>
               <Button onClick={startInterview} disabled={creating} className="w-full">
-                {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+                {creating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
                 Start Assessment
               </Button>
             </div>
@@ -104,16 +140,28 @@ function InterviewPage() {
             ) : (
               <div className="space-y-2 max-h-80 overflow-y-auto">
                 {interviews.map((i: any) => (
-                  <div key={i.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 text-sm">
+                  <div
+                    key={i.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-muted/30 text-sm"
+                  >
                     <div>
                       <div className="font-medium">{i.title}</div>
                       <div className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                         <Badge className="text-[10px] capitalize">{i.difficulty}</Badge>
-                        <span>{i.answered}/{i.total_questions} answered</span>
+                        <span>
+                          {i.answered}/{i.total_questions} answered
+                        </span>
                         {i.score !== null && <span>Score: {i.score}%</span>}
                       </div>
                     </div>
-                    <Badge className={cn("text-[10px]", i.status === "completed" ? "bg-green-500/10 text-green-500" : "bg-amber-500/10 text-amber-500")}>
+                    <Badge
+                      className={cn(
+                        "text-[10px]",
+                        i.status === "completed"
+                          ? "bg-green-500/10 text-green-500"
+                          : "bg-amber-500/10 text-amber-500",
+                      )}
+                    >
                       {i.status.replace("_", " ")}
                     </Badge>
                   </div>

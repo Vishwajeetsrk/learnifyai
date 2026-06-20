@@ -154,7 +154,11 @@ function ImageCompressor() {
   }
 
   return (
-    <Card icon={FileImage} title="Image compressor" desc="Re-encode PNG/JPEG with adjustable quality.">
+    <Card
+      icon={FileImage}
+      title="Image compressor"
+      desc="Re-encode PNG/JPEG with adjustable quality."
+    >
       <input
         ref={fileRef}
         type="file"
@@ -174,7 +178,12 @@ function ImageCompressor() {
         />
         <span className="w-6 text-right tabular-nums">{Math.round(quality * 100)}</span>
       </div>
-      <Button size="sm" className="h-7 text-[10px]" onClick={() => fileRef.current?.click()} disabled={busy}>
+      <Button
+        size="sm"
+        className="h-7 text-[10px]"
+        onClick={() => fileRef.current?.click()}
+        disabled={busy}
+      >
         <Upload className="mr-1 h-3 w-3" /> Choose image
       </Button>
       {outUrl && (
@@ -244,7 +253,12 @@ function JsonCsvConverter() {
           Convert
         </Button>
         {output && (
-          <Button size="sm" variant="outline" className="h-7 text-[10px]" onClick={() => copy(output)}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-[10px]"
+            onClick={() => copy(output)}
+          >
             Copy
           </Button>
         )}
@@ -268,7 +282,11 @@ function Base64Tool() {
 
   function run() {
     try {
-      setOut(mode === "enc" ? btoa(unescape(encodeURIComponent(text))) : decodeURIComponent(escape(atob(text))));
+      setOut(
+        mode === "enc"
+          ? btoa(unescape(encodeURIComponent(text)))
+          : decodeURIComponent(escape(atob(text))),
+      );
     } catch {
       toast.error("Invalid input");
     }
@@ -378,7 +396,11 @@ function JwtDecoder() {
   }, [token]);
 
   return (
-    <Card icon={ShieldCheck} title="JWT decoder" desc="Inspect header/payload (no signature check).">
+    <Card
+      icon={ShieldCheck}
+      title="JWT decoder"
+      desc="Inspect header/payload (no signature check)."
+    >
       <textarea
         value={token}
         onChange={(e) => setToken(e.target.value)}
@@ -419,7 +441,11 @@ function UuidGenerator() {
   }
   useEffect(gen, []); // initial
   return (
-    <Card icon={Fingerprint} title="UUID generator" desc="Generate cryptographically secure v4 UUIDs.">
+    <Card
+      icon={Fingerprint}
+      title="UUID generator"
+      desc="Generate cryptographically secure v4 UUIDs."
+    >
       <div className="flex items-center gap-1.5 text-[10px]">
         <label className="text-muted-foreground shrink-0">Count</label>
         <input
@@ -439,7 +465,12 @@ function UuidGenerator() {
           <pre className="max-h-20 overflow-auto rounded border bg-card/40 p-1 font-mono text-[9px]">
             {ids.join("\n")}
           </pre>
-          <Button size="sm" variant="outline" className="h-7 text-[10px]" onClick={() => copy(ids.join("\n"))}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-7 text-[10px]"
+            onClick={() => copy(ids.join("\n"))}
+          >
             Copy all
           </Button>
         </>
@@ -463,7 +494,11 @@ function HashGenerator() {
     );
   }
   return (
-    <Card icon={KeyRound} title="Hash generator" desc="Compute SHA hashes directly using Web Crypto API.">
+    <Card
+      icon={KeyRound}
+      title="Hash generator"
+      desc="Compute SHA hashes directly using Web Crypto API."
+    >
       <Tabs
         value={algo}
         onChange={setAlgo}
@@ -522,7 +557,11 @@ function PasswordGenerator() {
   }
   useEffect(gen, []); // initial
   return (
-    <Card icon={Sparkles} title="Password generator" desc="Cryptographically random and custom length.">
+    <Card
+      icon={Sparkles}
+      title="Password generator"
+      desc="Cryptographically random and custom length."
+    >
       <div className="flex items-center gap-1.5 text-[10px]">
         <label className="text-muted-foreground shrink-0">Len</label>
         <input
@@ -670,7 +709,11 @@ function RegexTester() {
   }, [pattern, flags, input]);
 
   return (
-    <Card icon={CodeIcon} title="Regex tester" desc="Test JS RegExp patterns with match highlights.">
+    <Card
+      icon={CodeIcon}
+      title="Regex tester"
+      desc="Test JS RegExp patterns with match highlights."
+    >
       <div className="flex gap-1.5">
         <input
           value={pattern}
@@ -708,7 +751,11 @@ function RegexTester() {
 /* ---------- Text extractor ---------- */
 function TextExtractor() {
   const [text, setText] = useState("");
-  const [result, setResult] = useState<{ emails: string[]; urls: string[]; numbers: string[] } | null>(null);
+  const [result, setResult] = useState<{
+    emails: string[];
+    urls: string[];
+    numbers: string[];
+  } | null>(null);
   function run() {
     const emails = Array.from(new Set(text.match(/[\w.+-]+@[\w-]+\.[\w.-]+/g) ?? []));
     const urls = Array.from(new Set(text.match(/https?:\/\/[^\s)]+/g) ?? []));
@@ -716,7 +763,11 @@ function TextExtractor() {
     setResult({ emails, urls, numbers });
   }
   return (
-    <Card icon={Scan} title="Text extractor" desc="Pull emails, URLs, and numbers out of text blocks.">
+    <Card
+      icon={Scan}
+      title="Text extractor"
+      desc="Pull emails, URLs, and numbers out of text blocks."
+    >
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -733,7 +784,9 @@ function TextExtractor() {
               <summary className="cursor-pointer font-semibold capitalize text-[10px]">
                 {k} ({result[k].length})
               </summary>
-              <pre className="mt-1 max-h-16 overflow-auto text-muted-foreground text-[9px] leading-normal">{result[k].join("\n") || "—"}</pre>
+              <pre className="mt-1 max-h-16 overflow-auto text-muted-foreground text-[9px] leading-normal">
+                {result[k].join("\n") || "—"}
+              </pre>
             </details>
           ))}
         </div>
@@ -751,7 +804,9 @@ function CaseConverter() {
       UPPER: text.toUpperCase(),
       lower: text.toLowerCase(),
       Title: text.replace(/\w\S*/g, (w) => w[0].toUpperCase() + w.slice(1).toLowerCase()),
-      camelCase: words.map((w, i) => (i === 0 ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1).toLowerCase())).join(""),
+      camelCase: words
+        .map((w, i) => (i === 0 ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1).toLowerCase()))
+        .join(""),
       PascalCase: words.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(""),
       snake_case: words.map((w) => w.toLowerCase()).join("_"),
       "kebab-case": words.map((w) => w.toLowerCase()).join("-"),
@@ -837,7 +892,11 @@ function TimestampConverter() {
   }, [input]);
 
   return (
-    <Card icon={Clock} title="Timestamp converter" desc="Convert between Unix timestamps and ISO/local dates.">
+    <Card
+      icon={Clock}
+      title="Timestamp converter"
+      desc="Convert between Unix timestamps and ISO/local dates."
+    >
       <div className="flex gap-1.5">
         <input
           value={input}
@@ -845,11 +904,18 @@ function TimestampConverter() {
           placeholder="Unix or ISO date"
           className="h-7 flex-1 rounded border bg-background px-1.5 font-mono text-[10px]"
         />
-        <Button size="sm" variant="outline" className="h-7 text-[10px]" onClick={() => setInput(String(Math.floor(Date.now() / 1000)))}>
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-7 text-[10px]"
+          onClick={() => setInput(String(Math.floor(Date.now() / 1000)))}
+        >
           Now
         </Button>
       </div>
-      {parsed && "error" in parsed && <p className="text-[10px] text-destructive">{parsed.error}</p>}
+      {parsed && "error" in parsed && (
+        <p className="text-[10px] text-destructive">{parsed.error}</p>
+      )}
       {parsed && "iso" in parsed && (
         <div className="grid gap-0.5 text-[10px]">
           {(["iso", "local", "unix", "ms"] as const).map((k) => (
@@ -880,7 +946,11 @@ function WordCounter() {
     return { chars, charsNoSpace, words, lines, sentences };
   }, [text]);
   return (
-    <Card icon={Calculator} title="Word counter" desc="Live count of characters, words, lines, and sentences.">
+    <Card
+      icon={Calculator}
+      title="Word counter"
+      desc="Live count of characters, words, lines, and sentences."
+    >
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
@@ -900,13 +970,18 @@ function WordCounter() {
 }
 
 /* ---------- Lorem ipsum ---------- */
-const LOREM_WORDS = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute irure in reprehenderit voluptate velit esse cillum eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum".split(" ");
+const LOREM_WORDS =
+  "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation ullamco laboris nisi aliquip ex ea commodo consequat duis aute irure in reprehenderit voluptate velit esse cillum eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt culpa qui officia deserunt mollit anim id est laborum".split(
+    " ",
+  );
 
 function LoremIpsum() {
   const [count, setCount] = useState(3);
   const [unit, setUnit] = useState<"paragraphs" | "sentences" | "words">("paragraphs");
   const text = useMemo(() => {
-    function word() { return LOREM_WORDS[Math.floor(Math.random() * LOREM_WORDS.length)]; }
+    function word() {
+      return LOREM_WORDS[Math.floor(Math.random() * LOREM_WORDS.length)];
+    }
     function sentence() {
       const n = 6 + Math.floor(Math.random() * 12);
       const words = Array.from({ length: n }, word);
@@ -923,7 +998,11 @@ function LoremIpsum() {
     return Array.from({ length: n }, paragraph).join("\n\n");
   }, [count, unit]);
   return (
-    <Card icon={Pilcrow} title="Lorem ipsum" desc="Generate placeholder text in paragraphs, sentences, or words.">
+    <Card
+      icon={Pilcrow}
+      title="Lorem ipsum"
+      desc="Generate placeholder text in paragraphs, sentences, or words."
+    >
       <div className="flex flex-wrap items-center gap-1.5">
         <input
           type="number"
@@ -933,10 +1012,29 @@ function LoremIpsum() {
           onChange={(e) => setCount(Number(e.target.value) || 1)}
           className="h-7 w-12 rounded border bg-background px-1 text-center text-[10px]"
         />
-        <Tabs value={unit} options={[{ value: "paragraphs", label: "Para" }, { value: "sentences", label: "Sent" }, { value: "words", label: "Words" }]} onChange={setUnit} />
-        <Button size="sm" variant="outline" className="ml-auto h-7 text-[10px]" onClick={() => copy(text)}>Copy</Button>
+        <Tabs
+          value={unit}
+          options={[
+            { value: "paragraphs", label: "Para" },
+            { value: "sentences", label: "Sent" },
+            { value: "words", label: "Words" },
+          ]}
+          onChange={setUnit}
+        />
+        <Button
+          size="sm"
+          variant="outline"
+          className="ml-auto h-7 text-[10px]"
+          onClick={() => copy(text)}
+        >
+          Copy
+        </Button>
       </div>
-      <textarea readOnly value={text} className="h-16 resize-y rounded border bg-background p-1.5 font-mono text-[10px]" />
+      <textarea
+        readOnly
+        value={text}
+        className="h-16 resize-y rounded border bg-background p-1.5 font-mono text-[10px]"
+      />
     </Card>
   );
 }
@@ -949,17 +1047,26 @@ function TextDiff() {
     const la = a.split(/\r?\n/);
     const lb = b.split(/\r?\n/);
     // Simple LCS line diff
-    const m = la.length, n = lb.length;
+    const m = la.length,
+      n = lb.length;
     const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
-    for (let i = m - 1; i >= 0; i--) for (let j = n - 1; j >= 0; j--) {
-      dp[i][j] = la[i] === lb[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
-    }
+    for (let i = m - 1; i >= 0; i--)
+      for (let j = n - 1; j >= 0; j--) {
+        dp[i][j] = la[i] === lb[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
     const out: { t: "=" | "-" | "+"; v: string }[] = [];
-    let i = 0, j = 0;
+    let i = 0,
+      j = 0;
     while (i < m && j < n) {
-      if (la[i] === lb[j]) { out.push({ t: "=", v: la[i] }); i++; j++; }
-      else if (dp[i + 1][j] >= dp[i][j + 1]) { out.push({ t: "-", v: la[i++] }); }
-      else { out.push({ t: "+", v: lb[j++] }); }
+      if (la[i] === lb[j]) {
+        out.push({ t: "=", v: la[i] });
+        i++;
+        j++;
+      } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+        out.push({ t: "-", v: la[i++] });
+      } else {
+        out.push({ t: "+", v: lb[j++] });
+      }
     }
     while (i < m) out.push({ t: "-", v: la[i++] });
     while (j < n) out.push({ t: "+", v: lb[j++] });
@@ -968,13 +1075,33 @@ function TextDiff() {
   return (
     <Card icon={Diff} title="Text diff" desc="Line-by-line diff comparison of two text blocks.">
       <div className="grid gap-1.5 sm:grid-cols-2">
-        <textarea value={a} onChange={(e) => setA(e.target.value)} className="h-16 resize-y rounded border bg-background p-1.5 font-mono text-[10px]" placeholder="Original" />
-        <textarea value={b} onChange={(e) => setB(e.target.value)} className="h-16 resize-y rounded border bg-background p-1.5 font-mono text-[10px]" placeholder="Changed" />
+        <textarea
+          value={a}
+          onChange={(e) => setA(e.target.value)}
+          className="h-16 resize-y rounded border bg-background p-1.5 font-mono text-[10px]"
+          placeholder="Original"
+        />
+        <textarea
+          value={b}
+          onChange={(e) => setB(e.target.value)}
+          className="h-16 resize-y rounded border bg-background p-1.5 font-mono text-[10px]"
+          placeholder="Changed"
+        />
       </div>
       <pre className="max-h-24 overflow-auto rounded border bg-background p-1.5 font-mono text-[9px] leading-relaxed">
         {diff.map((d, idx) => (
-          <div key={idx} className={d.t === "+" ? "bg-green-500/10 text-green-600 font-bold" : d.t === "-" ? "bg-red-500/10 text-red-600 font-bold" : "text-muted-foreground"}>
-            <span className="select-none pr-1 opacity-60">{d.t === "=" ? " " : d.t}</span>{d.v || "\u00a0"}
+          <div
+            key={idx}
+            className={
+              d.t === "+"
+                ? "bg-green-500/10 text-green-600 font-bold"
+                : d.t === "-"
+                  ? "bg-red-500/10 text-red-600 font-bold"
+                  : "text-muted-foreground"
+            }
+          >
+            <span className="select-none pr-1 opacity-60">{d.t === "=" ? " " : d.t}</span>
+            {d.v || "\u00a0"}
           </div>
         ))}
       </pre>
@@ -991,22 +1118,54 @@ function NumberBase() {
       const n = parseInt(value.replace(/^0[xob]/i, ""), base);
       if (!Number.isFinite(n)) return null;
       return n;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }, [value, base]);
   return (
-    <Card icon={Calculator} title="Number base converter" desc="Convert between Bin, Oct, Dec, and Hex.">
+    <Card
+      icon={Calculator}
+      title="Number base converter"
+      desc="Convert between Bin, Oct, Dec, and Hex."
+    >
       <div className="flex flex-wrap items-center gap-1.5">
-        <input value={value} onChange={(e) => setValue(e.target.value)} className="h-7 flex-1 rounded border bg-background px-1.5 font-mono text-[10px]" />
-        <Tabs<string> value={String(base)} options={[{ value: "2", label: "Bin" }, { value: "8", label: "Oct" }, { value: "10", label: "Dec" }, { value: "16", label: "Hex" }]} onChange={(v) => setBase(Number(v) as 2 | 8 | 10 | 16)} />
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          className="h-7 flex-1 rounded border bg-background px-1.5 font-mono text-[10px]"
+        />
+        <Tabs<string>
+          value={String(base)}
+          options={[
+            { value: "2", label: "Bin" },
+            { value: "8", label: "Oct" },
+            { value: "10", label: "Dec" },
+            { value: "16", label: "Hex" },
+          ]}
+          onChange={(v) => setBase(Number(v) as 2 | 8 | 10 | 16)}
+        />
       </div>
       {num === null ? (
         <p className="text-[10px] text-destructive">Invalid for base {base}</p>
       ) : (
         <div className="grid gap-0.5 text-[10px]">
-          {([["BIN", 2], ["OCT", 8], ["DEC", 10], ["HEX", 16]] as const).map(([label, b]) => (
-            <button key={label} onClick={() => copy(num.toString(b))} className="flex items-center justify-between gap-1.5 rounded border bg-background px-1.5 py-0.5 hover:border-primary text-left">
+          {(
+            [
+              ["BIN", 2],
+              ["OCT", 8],
+              ["DEC", 10],
+              ["HEX", 16],
+            ] as const
+          ).map(([label, b]) => (
+            <button
+              key={label}
+              onClick={() => copy(num.toString(b))}
+              className="flex items-center justify-between gap-1.5 rounded border bg-background px-1.5 py-0.5 hover:border-primary text-left"
+            >
               <span className="shrink-0 text-muted-foreground text-[8px]">{label}</span>
-              <span className="truncate font-mono">{b === 16 ? num.toString(16).toUpperCase() : num.toString(b)}</span>
+              <span className="truncate font-mono">
+                {b === 16 ? num.toString(16).toUpperCase() : num.toString(b)}
+              </span>
             </button>
           ))}
         </div>
@@ -1016,4 +1175,5 @@ function NumberBase() {
 }
 
 // Suppress unused import warnings
-void Braces; void QrCode;
+void Braces;
+void QrCode;

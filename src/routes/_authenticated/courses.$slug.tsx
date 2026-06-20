@@ -612,11 +612,13 @@ function CourseDetail() {
                       className="h-7 w-7 rounded-full border-2 border-card bg-muted overflow-hidden"
                     >
                       <img
-                        src={l.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`}
+                        src={
+                          l.avatar_url ||
+                          `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`
+                        }
                         alt=""
                         className="h-full w-full object-cover"
                       />
-
                     </div>
                   ),
                 )}
@@ -1214,7 +1216,11 @@ function LessonAiTabs({
             )}
             Generate practical exercise
           </Button>
-          {exercise && <div data-exercise-text><Markdown>{exercise}</Markdown></div>}
+          {exercise && (
+            <div data-exercise-text>
+              <Markdown>{exercise}</Markdown>
+            </div>
+          )}
         </TabsContent>
       )}
 
@@ -1224,7 +1230,6 @@ function LessonAiTabs({
         </TabsContent>
       )}
     </Tabs>
-
   );
 }
 
@@ -1401,7 +1406,7 @@ function CodePlayground({ course }: { course?: any }) {
     if (!course) return "code";
     const title = (course.title || "").toLowerCase();
     const slug = (course.slug || "").toLowerCase();
-    
+
     // If it's WordPress, frontend, web development, HTML, CSS, React, etc. -> default to "web"
     if (
       title.includes("wordpress") ||
@@ -1495,10 +1500,23 @@ function CodeMode({ course }: { course?: any }) {
     if (title.includes("python") || slug.includes("python")) return "python";
     if (title.includes("typescript") || slug.includes("typescript")) return "typescript";
     if (title.includes("javascript") || slug.includes("javascript")) return "javascript";
-    if (title.includes("php") || title.includes("wordpress") || slug.includes("php") || slug.includes("wordpress")) return "php";
+    if (
+      title.includes("php") ||
+      title.includes("wordpress") ||
+      slug.includes("php") ||
+      slug.includes("wordpress")
+    )
+      return "php";
     if (title.includes("java") || slug.includes("java")) return "java";
-    if (title.includes("cpp") || title.includes("c++") || slug.includes("cpp") || slug.includes("cplusplus")) return "cpp";
-    if (title.includes("c#") || title.includes("csharp") || slug.includes("csharp")) return "csharp";
+    if (
+      title.includes("cpp") ||
+      title.includes("c++") ||
+      slug.includes("cpp") ||
+      slug.includes("cplusplus")
+    )
+      return "cpp";
+    if (title.includes("c#") || title.includes("csharp") || slug.includes("csharp"))
+      return "csharp";
     if (title.includes("go") || slug.includes("go")) return "go";
     if (title.includes("rust") || slug.includes("rust")) return "rust";
     if (title.includes("ruby") || slug.includes("ruby")) return "ruby";
@@ -1534,12 +1552,16 @@ function CodeMode({ course }: { course?: any }) {
 
   const [grading, setGrading] = useState(false);
   const [gradeResult, setGradeResult] = useState<{
-    score: number; passed: boolean; summary: string; correctness: string;
-    suggestions: string[]; hints: string[];
+    score: number;
+    passed: boolean;
+    summary: string;
+    correctness: string;
+    suggestions: string[];
+    hints: string[];
   } | null>(null);
 
   const checkExercise = useCallback(async () => {
-    const exerciseText = document.querySelector<HTMLElement>('[data-exercise-text]')?.textContent;
+    const exerciseText = document.querySelector<HTMLElement>("[data-exercise-text]")?.textContent;
     if (!exerciseText) {
       toast.error("No exercise loaded. Generate one in the Exercise tab first.");
       return;
@@ -1553,9 +1575,12 @@ function CodeMode({ course }: { course?: any }) {
     try {
       const res = await gradeFn({
         data: {
-          language: lang, code,
-          stdout: output?.stdout ?? "", stderr: output?.stderr ?? "",
-          exitCode: output?.code ?? null, exercise: exerciseText,
+          language: lang,
+          code,
+          stdout: output?.stdout ?? "",
+          stderr: output?.stderr ?? "",
+          exitCode: output?.code ?? null,
+          exercise: exerciseText,
         },
       });
       setGradeResult(res);
@@ -1663,11 +1688,16 @@ function CodeMode({ course }: { course?: any }) {
       {gradeResult && (
         <div className="rounded-lg border p-3 space-y-2 text-xs">
           <div className="flex items-center gap-2">
-            <span className={`font-semibold ${gradeResult.passed ? "text-green-500" : "text-amber-500"}`}>
+            <span
+              className={`font-semibold ${gradeResult.passed ? "text-green-500" : "text-amber-500"}`}
+            >
               {gradeResult.passed ? "Passed" : "Needs Work"} · Score: {gradeResult.score}/100
             </span>
             <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-              <div className={`h-full rounded-full transition-all ${gradeResult.passed ? "bg-green-500" : "bg-amber-500"}`} style={{ width: `${gradeResult.score}%` }} />
+              <div
+                className={`h-full rounded-full transition-all ${gradeResult.passed ? "bg-green-500" : "bg-amber-500"}`}
+                style={{ width: `${gradeResult.score}%` }}
+              />
             </div>
           </div>
           <p className="text-muted-foreground">{gradeResult.summary}</p>
@@ -1676,7 +1706,9 @@ function CodeMode({ course }: { course?: any }) {
             <div>
               <p className="font-medium text-foreground mt-1">Suggestions:</p>
               <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
-                {gradeResult.suggestions.map((s, i) => <li key={i}>{s}</li>)}
+                {gradeResult.suggestions.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
               </ul>
             </div>
           )}
@@ -1684,11 +1716,16 @@ function CodeMode({ course }: { course?: any }) {
             <div>
               <p className="font-medium text-foreground mt-1">Hints:</p>
               <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground">
-                {gradeResult.hints.map((h, i) => <li key={i}>{h}</li>)}
+                {gradeResult.hints.map((h, i) => (
+                  <li key={i}>{h}</li>
+                ))}
               </ul>
             </div>
           )}
-          <button onClick={() => setGradeResult(null)} className="text-[10px] text-muted-foreground hover:text-foreground">
+          <button
+            onClick={() => setGradeResult(null)}
+            className="text-[10px] text-muted-foreground hover:text-foreground"
+          >
             Dismiss
           </button>
         </div>
@@ -1870,7 +1907,6 @@ function WebMode() {
     </div>
   );
 }
-
 
 /* ---------- Inline AI Agent ---------- */
 

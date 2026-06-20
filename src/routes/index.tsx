@@ -216,13 +216,22 @@ function Index() {
             channels.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90 hover:-translate-y-0.5 transition-all">
+            <Button
+              asChild
+              size="lg"
+              className="bg-foreground text-background hover:bg-foreground/90 hover:-translate-y-0.5 transition-all"
+            >
               <Link to="/cohorts">
                 <Users className="mr-1.5 h-4 w-4" />
                 Browse groups
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="hover:-translate-y-0.5 transition-all">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="hover:-translate-y-0.5 transition-all"
+            >
               <Link to="/community">
                 <MessageSquare className="mr-1.5 h-4 w-4" />
                 Community feed
@@ -375,10 +384,20 @@ function LiveStats() {
 }
 
 type Plan = {
-  id: string; name: string; price_label: string; description: string | null;
-  features: string[]; cta_label: string; cta_to: string; highlighted: boolean;
-  price_inr: number; interval: string | null; badge: string | null; color: string | null;
-  ai_credits_monthly: number; max_courses: number;
+  id: string;
+  name: string;
+  price_label: string;
+  description: string | null;
+  features: string[];
+  cta_label: string;
+  cta_to: string;
+  highlighted: boolean;
+  price_inr: number;
+  interval: string | null;
+  badge: string | null;
+  color: string | null;
+  ai_credits_monthly: number;
+  max_courses: number;
 };
 
 function PricingPlans() {
@@ -400,7 +419,8 @@ function PricingPlans() {
     staleTime: 60_000,
   });
 
-  if (isLoading) return <div className="text-center text-sm text-muted-foreground py-10">Loading plans…</div>;
+  if (isLoading)
+    return <div className="text-center text-sm text-muted-foreground py-10">Loading plans…</div>;
   if (!tiers?.length) return null;
 
   return (
@@ -424,7 +444,9 @@ function PricingPlans() {
           )}
           <div className="mb-5">
             <h3 className="font-semibold text-lg">{plan.name}</h3>
-            {plan.description && <p className="text-xs text-muted-foreground mt-1">{plan.description}</p>}
+            {plan.description && (
+              <p className="text-xs text-muted-foreground mt-1">{plan.description}</p>
+            )}
           </div>
           <div className="mb-5">
             <span className="text-3xl font-bold">{plan.price_label}</span>
@@ -437,7 +459,12 @@ function PricingPlans() {
               </li>
             ))}
           </ul>
-          <Button asChild size="sm" className="w-full" variant={plan.highlighted ? "default" : "outline"}>
+          <Button
+            asChild
+            size="sm"
+            className="w-full"
+            variant={plan.highlighted ? "default" : "outline"}
+          >
             <Link to={plan.cta_to}>{plan.cta_label}</Link>
           </Button>
         </div>

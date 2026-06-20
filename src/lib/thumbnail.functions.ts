@@ -84,11 +84,15 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
 
         if (res.ok) {
           const json = (await res.json()) as {
-            candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { mimeType: string; data: string } }> } }>;
+            candidates?: Array<{
+              content?: { parts?: Array<{ inlineData?: { mimeType: string; data: string } }> };
+            }>;
           };
-          const inline = json.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+          const inline = json.candidates?.[0]?.content?.parts?.find((p) => p.inlineData);
           if (inline?.inlineData?.data) {
-            return { dataUrl: `data:${inline.inlineData.mimeType};base64,${inline.inlineData.data}` };
+            return {
+              dataUrl: `data:${inline.inlineData.mimeType};base64,${inline.inlineData.data}`,
+            };
           }
         } else {
           const txt = await res.text().catch(() => "");
@@ -124,7 +128,7 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
         });
 
         if (res.ok) {
-          const json = await res.json() as { image?: string };
+          const json = (await res.json()) as { image?: string };
           if (json.image) return { dataUrl: `data:image/webp;base64,${json.image}` };
         } else {
           const txt = await res.text().catch(() => "");
@@ -152,7 +156,9 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
         });
 
         if (res.ok) {
-          const json = (await res.json()) as { choices?: Array<{ message?: { content?: string } }> };
+          const json = (await res.json()) as {
+            choices?: Array<{ message?: { content?: string } }>;
+          };
           const content = json.choices?.[0]?.message?.content || "";
           const m = content.match(/https?:\/\/[^\s"}]+\.(png|jpg|jpeg|webp)/i);
           if (m) return { dataUrl: m[0] };
@@ -168,14 +174,17 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     // 4. Hugging Face (free fallback)
     if (hfKey) {
       try {
-        const res = await fetch("https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${hfKey}`,
-            "Content-Type": "application/json",
+        const res = await fetch(
+          "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${hfKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ inputs: data.prompt.slice(0, 500) }),
           },
-          body: JSON.stringify({ inputs: data.prompt.slice(0, 500) }),
-        });
+        );
         if (res.ok) {
           const blob = await res.arrayBuffer();
           const base64 = Buffer.from(blob).toString("base64");
@@ -209,7 +218,9 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
         } else if (res.ok) {
           const text = await res.text().catch(() => "");
           if (text.length > 100 && !text.includes("<html")) {
-            try { JSON.parse(text); } catch {
+            try {
+              JSON.parse(text);
+            } catch {
               const base64 = Buffer.from(text, "binary").toString("base64");
               return { dataUrl: `data:image/jpeg;base64,${base64}` };
             }
@@ -231,13 +242,18 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
           },
           body: JSON.stringify({
             prompt: data.prompt,
-            image_size: data.size === "1536x1024" ? "landscape_4_3" : data.size === "1024x1536" ? "portrait_4_3" : "square_hd",
+            image_size:
+              data.size === "1536x1024"
+                ? "landscape_4_3"
+                : data.size === "1024x1536"
+                  ? "portrait_4_3"
+                  : "square_hd",
             num_images: 1,
             output_format: "jpeg",
           }),
         });
         if (res.ok) {
-          const json = await res.json() as { images?: Array<{ url?: string }> };
+          const json = (await res.json()) as { images?: Array<{ url?: string }> };
           const url = json.images?.[0]?.url;
           if (url) return { dataUrl: url };
         }
@@ -249,12 +265,19 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
     // 7. Last resort: generate a local SVG thumbnail (always works, no API needed)
     try {
       const title = data.prompt.slice(0, 80).replace(/["<>]/g, "");
-      const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+      const esc = (s: string) =>
+        s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
       const lines: string[] = [];
       let line = "";
       for (const word of title.split(" ")) {
-        if ((line + " " + word).length > 20) { if (line) lines.push(line); line = word; }
-        else line = line ? line + " " + word : word;
+        if ((line + " " + word).length > 20) {
+          if (line) lines.push(line);
+          line = word;
+        } else line = line ? line + " " + word : word;
       }
       if (line) lines.push(line);
       const clamped = lines.slice(0, 4);
@@ -263,13 +286,15 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       const lineH = clamped.length <= 2 ? 130 : 110;
       const padX = 60;
       const padY = 20;
-      const textLines = clamped.map((l, i) => {
-        const y = textYStart + i * lineH;
-        const textW = l.length * fontSize * 0.55;
-        return `
+      const textLines = clamped
+        .map((l, i) => {
+          const y = textYStart + i * lineH;
+          const textW = l.length * fontSize * 0.55;
+          return `
           <rect x="${768 - textW / 2 - padX}" y="${y - fontSize - padY + 14}" width="${textW + padX * 2}" height="${fontSize + padY * 2}" rx="12" fill="#000000" fill-opacity="0.55"/>
           <text x="768" y="${y}" text-anchor="middle" fill="#ffffff" font-family="Arial,Helvetica,system-ui,sans-serif" font-size="${fontSize}" font-weight="900" letter-spacing="-0.5">${esc(l)}</text>`;
-      }).join("\n        ");
+        })
+        .join("\n        ");
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024">
         <defs>
           <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">

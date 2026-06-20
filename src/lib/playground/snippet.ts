@@ -8,17 +8,25 @@ export interface SnippetInput {
   body: string;
 }
 
-export type SnippetLang = "curl" | "fetch" | "axios" | "node" | "python" | "kotlin" | "swift" | "dart";
+export type SnippetLang =
+  | "curl"
+  | "fetch"
+  | "axios"
+  | "node"
+  | "python"
+  | "kotlin"
+  | "swift"
+  | "dart";
 
 export const SNIPPET_LANGS: { id: SnippetLang; label: string }[] = [
-  { id: "curl",   label: "cURL" },
-  { id: "fetch",  label: "JavaScript (fetch)" },
-  { id: "axios",  label: "JavaScript (axios)" },
-  { id: "node",   label: "Node (https)" },
+  { id: "curl", label: "cURL" },
+  { id: "fetch", label: "JavaScript (fetch)" },
+  { id: "axios", label: "JavaScript (axios)" },
+  { id: "node", label: "Node (https)" },
   { id: "python", label: "Python (requests)" },
   { id: "kotlin", label: "Kotlin (OkHttp)" },
-  { id: "swift",  label: "Swift (URLSession)" },
-  { id: "dart",   label: "Dart (http)" },
+  { id: "swift", label: "Swift (URLSession)" },
+  { id: "dart", label: "Dart (http)" },
 ];
 
 function headerEntries(h: SnippetInput["headers"]) {
@@ -27,7 +35,9 @@ function headerEntries(h: SnippetInput["headers"]) {
 function hasBody(req: SnippetInput) {
   return !["GET", "HEAD"].includes(req.method) && req.body.trim().length > 0;
 }
-function esc(s: string) { return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"'); }
+function esc(s: string) {
+  return s.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
 
 export function buildSnippet(lang: SnippetLang, req: SnippetInput): string {
   const headers = headerEntries(req.headers);
@@ -40,13 +50,19 @@ export function buildSnippet(lang: SnippetLang, req: SnippetInput): string {
     }
     case "fetch": {
       const init: string[] = [`  method: "${req.method}"`];
-      if (headers.length) init.push(`  headers: {\n${headers.map(([k, v]) => `    "${esc(k)}": "${esc(v)}"`).join(",\n")}\n  }`);
+      if (headers.length)
+        init.push(
+          `  headers: {\n${headers.map(([k, v]) => `    "${esc(k)}": "${esc(v)}"`).join(",\n")}\n  }`,
+        );
       if (hasBody(req)) init.push(`  body: ${JSON.stringify(req.body)}`);
       return `const res = await fetch("${req.url}", {\n${init.join(",\n")}\n});\nconst data = await res.text();\nconsole.log(data);`;
     }
     case "axios": {
       const cfg: string[] = [`  method: "${req.method.toLowerCase()}"`, `  url: "${req.url}"`];
-      if (headers.length) cfg.push(`  headers: {\n${headers.map(([k, v]) => `    "${esc(k)}": "${esc(v)}"`).join(",\n")}\n  }`);
+      if (headers.length)
+        cfg.push(
+          `  headers: {\n${headers.map(([k, v]) => `    "${esc(k)}": "${esc(v)}"`).join(",\n")}\n  }`,
+        );
       if (hasBody(req)) cfg.push(`  data: ${JSON.stringify(req.body)}`);
       return `import axios from "axios";\nconst res = await axios({\n${cfg.join(",\n")}\n});\nconsole.log(res.data);`;
     }
@@ -57,7 +73,9 @@ export function buildSnippet(lang: SnippetLang, req: SnippetInput): string {
       const lines: string[] = ["import requests", ""];
       lines.push(`headers = ${JSON.stringify(Object.fromEntries(headers), null, 2)}`);
       if (hasBody(req)) lines.push(`data = ${JSON.stringify(req.body)}`);
-      lines.push(`res = requests.request("${req.method}", "${req.url}", headers=headers${hasBody(req) ? ", data=data" : ""})`);
+      lines.push(
+        `res = requests.request("${req.method}", "${req.url}", headers=headers${hasBody(req) ? ", data=data" : ""})`,
+      );
       lines.push(`print(res.status_code, res.text)`);
       return lines.join("\n");
     }
@@ -71,11 +89,17 @@ export function buildSnippet(lang: SnippetLang, req: SnippetInput): string {
       ];
       for (const [k, v] of headers) lines.push(`  .addHeader("${esc(k)}", "${esc(v)}")`);
       if (hasBody(req)) {
-        lines.push(`  .method("${req.method}", "${esc(req.body)}".toRequestBody("application/json".toMediaType()))`);
+        lines.push(
+          `  .method("${req.method}", "${esc(req.body)}".toRequestBody("application/json".toMediaType()))`,
+        );
       } else {
         lines.push(`  .method("${req.method}", null)`);
       }
-      lines.push(`  .build()`, ``, `client.newCall(request).execute().use { println(it.body?.string()) }`);
+      lines.push(
+        `  .build()`,
+        ``,
+        `client.newCall(request).execute().use { println(it.body?.string()) }`,
+      );
       return lines.join("\n");
     }
     case "swift": {
@@ -85,9 +109,16 @@ export function buildSnippet(lang: SnippetLang, req: SnippetInput): string {
         `var request = URLRequest(url: URL(string: "${req.url}")!)`,
         `request.httpMethod = "${req.method}"`,
       ];
-      for (const [k, v] of headers) lines.push(`request.addValue("${esc(v)}", forHTTPHeaderField: "${esc(k)}")`);
-      if (hasBody(req)) lines.push(`request.httpBody = ${JSON.stringify(req.body)}.data(using: .utf8)`);
-      lines.push(``, `URLSession.shared.dataTask(with: request) { data, _, _ in`, `  if let d = data { print(String(data: d, encoding: .utf8) ?? "") }`, `}.resume()`);
+      for (const [k, v] of headers)
+        lines.push(`request.addValue("${esc(v)}", forHTTPHeaderField: "${esc(k)}")`);
+      if (hasBody(req))
+        lines.push(`request.httpBody = ${JSON.stringify(req.body)}.data(using: .utf8)`);
+      lines.push(
+        ``,
+        `URLSession.shared.dataTask(with: request) { data, _, _ in`,
+        `  if let d = data { print(String(data: d, encoding: .utf8) ?? "") }`,
+        `}.resume()`,
+      );
       return lines.join("\n");
     }
     case "dart": {

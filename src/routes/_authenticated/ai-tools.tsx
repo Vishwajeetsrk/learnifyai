@@ -324,13 +324,13 @@ function HistoryView({ row }: { row: any }) {
                         "text-left text-sm rounded-md border px-3 py-2 flex items-center gap-2",
                         isCorrect
                           ? "border-emerald-500/60 bg-emerald-500/10 font-medium text-emerald-900 dark:text-emerald-100"
-                          : "text-muted-foreground"
+                          : "text-muted-foreground",
                       )}
                     >
                       <span
                         className={cn(
                           "text-xs w-5",
-                          isCorrect ? "text-emerald-500 font-bold" : "text-muted-foreground"
+                          isCorrect ? "text-emerald-500 font-bold" : "text-muted-foreground",
                         )}
                       >
                         {String.fromCharCode(65 + idx)}.

@@ -75,7 +75,12 @@ function EventsPage() {
               >
                 {e.image_url && (
                   <div className="shrink-0 w-full md:w-48 aspect-video rounded-xl overflow-hidden bg-muted">
-                    <img src={e.image_url} alt={e.title} className="w-full h-full object-cover" loading="lazy" />
+                    <img
+                      src={e.image_url}
+                      alt={e.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">

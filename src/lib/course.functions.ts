@@ -4,7 +4,12 @@ import { z } from "zod";
 
 /* ---------------- Checkout: wallet → enrollment ---------------- */
 
-export type CouponDef = { type: "percent" | "flat"; value: number; label: string; active?: boolean };
+export type CouponDef = {
+  type: "percent" | "flat";
+  value: number;
+  label: string;
+  active?: boolean;
+};
 
 // Fallback hardcoded coupons used only when DB fetch fails
 const FALLBACK_COUPONS: Record<string, CouponDef> = {
@@ -24,20 +29,22 @@ async function loadCoupons(supabase: any): Promise<Record<string, CouponDef>> {
       const parsed = JSON.parse(data.value as string) as Array<CouponDef & { code: string }>;
       const map: Record<string, CouponDef> = {};
       for (const c of parsed) {
-        if (c.active !== false) map[c.code.toUpperCase()] = { type: c.type, value: c.value, label: c.label };
+        if (c.active !== false)
+          map[c.code.toUpperCase()] = { type: c.type, value: c.value, label: c.label };
       }
       return Object.keys(map).length > 0 ? map : FALLBACK_COUPONS;
     }
-  } catch { /* fallback */ }
+  } catch {
+    /* fallback */
+  }
   return FALLBACK_COUPONS;
 }
 
 /** Server fn to fetch active coupons for the cart page */
-export const getActiveCoupons = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    return loadCoupons(supabaseAdmin);
-  });
+export const getActiveCoupons = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  return loadCoupons(supabaseAdmin);
+});
 
 function computeDiscount(
   subtotal: number,
@@ -54,7 +61,12 @@ function computeDiscount(
 export const checkoutCart = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({ coupon: z.string().max(32).optional().nullable(), skipWallet: z.boolean().optional() }).parse(d ?? {}),
+    z
+      .object({
+        coupon: z.string().max(32).optional().nullable(),
+        skipWallet: z.boolean().optional(),
+      })
+      .parse(d ?? {}),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
