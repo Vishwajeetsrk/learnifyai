@@ -36,6 +36,8 @@ export function Reveal({
       viewport={{ once, amount }}
       variants={variants[variant]}
       transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
+      // Ensure content is visible even if JS partially fails (noscript safety)
+      style={{ willChange: "opacity, transform" }}
     >
       {children}
     </motion.div>
