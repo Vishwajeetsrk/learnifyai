@@ -667,6 +667,7 @@ function SettingsPage() {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="India"
+                    autoComplete="off"
                   />
                 </Field>
                 <Field label="Work">
@@ -698,7 +699,7 @@ function SettingsPage() {
               </Field>
 
               <Field label="Skills">
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-1.5 mb-2">
                   {SKILL_OPTIONS.map((s) => {
                     const active = skills.includes(s);
                     return (
@@ -714,6 +715,39 @@ function SettingsPage() {
                       </button>
                     );
                   })}
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add custom skill..."
+                    className="h-8 text-xs flex-1"
+                    maxLength={30}
+                    id="custom-skill-input"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const val = (e.target as HTMLInputElement).value.trim();
+                        if (val && !skills.includes(val)) {
+                          setSkills([...skills, val]);
+                          (e.target as HTMLInputElement).value = '';
+                        }
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs shrink-0"
+                    onClick={() => {
+                      const input = document.getElementById('custom-skill-input') as HTMLInputElement;
+                      const val = input?.value?.trim();
+                      if (val && !skills.includes(val)) {
+                        setSkills([...skills, val]);
+                        input.value = '';
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
                 </div>
               </Field>
 
