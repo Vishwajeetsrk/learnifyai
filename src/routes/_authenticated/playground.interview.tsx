@@ -30,7 +30,7 @@ function InterviewPage() {
     enabled: !!user,
     queryKey: ["playground-interviews"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("playground_interviews")
         .select("*")
         .eq("user_id", user!.id)

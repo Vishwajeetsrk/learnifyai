@@ -9,7 +9,7 @@ export const getChallenges = createServerFn({ method: "GET" })
   }).optional().parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase } = context;
+    const supabase = context.supabase as any;
     let query = supabase
       .from("playground_challenges")
       .select("id, title, slug, difficulty, category, language, points, hints, created_at")
@@ -25,7 +25,7 @@ export const getChallenge = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => z.object({ slug: z.string() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase } = context;
+    const supabase = context.supabase as any;
     const { data: challenge, error } = await supabase
       .from("playground_challenges")
       .select("*")
@@ -49,7 +49,8 @@ export const submitChallenge = createServerFn({ method: "POST" })
   }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
 
     const { error } = await supabase.from("playground_submissions").insert({
       user_id: userId,
@@ -99,7 +100,8 @@ export const submitChallenge = createServerFn({ method: "POST" })
 export const getUserSubmissions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { data, error } = await supabase
       .from("playground_submissions")
       .select("id, challenge_id, language, passed, score, total_points, execution_time_ms, created_at, challenge:challenge_id(title, slug, difficulty)")
@@ -112,7 +114,7 @@ export const getUserSubmissions = createServerFn({ method: "GET" })
 
 export const getLeaderboard = createServerFn({ method: "GET" })
   .handler(async () => {
-    const { supabase } = await import("@/integrations/supabase/client");
+    const supabase = (await import("@/integrations/supabase/client")).supabase as any;
     const { data, error } = await supabase
       .from("playground_leaderboard")
       .select("user_id, total_points, challenges_solved, easy_solved, medium_solved, hard_solved, total_runs, updated_at")
@@ -140,7 +142,8 @@ export const createInterview = createServerFn({ method: "POST" })
   }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { data: challenges, error } = await supabase
       .from("playground_challenges")
       .select("id, title, difficulty, points")

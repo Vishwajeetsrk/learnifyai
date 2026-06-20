@@ -553,3 +553,21 @@ export const regenerateCourseFromYouTube = createServerFn({ method: "POST" })
     if (cErr || !course) throw new Error("Course not found.");
     return { ok: true, ranBy: userId, courseId: data.courseId, courseTitle: course.title };
   });
+
+export const searchYoutubeVideo = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ query: z.string().min(1).max(200) }).parse(d))
+  .handler(async ({ data }) => {
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    if (!apiKey) throw new Error("YOUTUBE_API_KEY is not configured.");
+    const hit = await ytSearchTopVideo(data.query, apiKey);
+    if (!hit) throw new Error("No videos found.");
+    return {
+      ok: true,
+      videoId: hit.videoId,
+      title: hit.title,
+      channelTitle: hit.channelTitle,
+      url: `https://www.youtube.com/watch?v=${hit.videoId}`,
+    };
+  });
+

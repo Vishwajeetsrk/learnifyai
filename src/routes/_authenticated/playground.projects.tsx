@@ -29,7 +29,7 @@ function ProjectsPage() {
     enabled: !!user,
     queryKey: ["playground-projects"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("playground_projects")
         .select("id, title, description, language, template, is_public, tags, created_at, updated_at")
         .eq("user_id", user!.id)

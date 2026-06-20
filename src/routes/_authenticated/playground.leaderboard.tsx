@@ -18,7 +18,7 @@ function LeaderboardPage() {
   const { data: entries, isLoading } = useQuery({
     queryKey: ["playground-leaderboard"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("playground_leaderboard")
         .select("user_id, total_points, challenges_solved, easy_solved, medium_solved, hard_solved, total_runs, updated_at")
         .order("total_points", { ascending: false })

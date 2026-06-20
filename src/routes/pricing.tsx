@@ -60,7 +60,7 @@ function PricingPage() {
     if (subscribe === "ok") {
       toast.success("Subscription successful! Welcome aboard.");
       navigate({ to: "/pricing", search: { subscribe: undefined }, replace: true });
-      qc.invalidate({ queryKey: ["user-subscription"] });
+      qc.invalidateQueries({ queryKey: ["user-subscription"] });
     }
   }, [subscribe]);
 

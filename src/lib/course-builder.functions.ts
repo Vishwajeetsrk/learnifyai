@@ -528,3 +528,28 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
       stats,
     };
   });
+
+export const generateLessonNotes = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        title: z.string().min(1).max(300),
+        courseTitle: z.string().min(1).max(300),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    const prompt = `Write a detailed, structured, educational note/description (max 500 characters) for a lesson titled "${data.title}" inside a course named "${data.courseTitle}". Explain the core concept, key takeaways, and a quick summary. Output clean, concise text (markdown allowed but short).`;
+    const res = await callUserAiChat({
+      messages: [
+        { role: "system", content: "You are an expert curriculum assistant." },
+        { role: "user", content: prompt },
+      ],
+    });
+    if (!res.ok) throw new Error("AI failed to generate notes");
+    const j: any = await res.json();
+    const content = j.choices?.[0]?.message?.content ?? "";
+    return { notes: content };
+  });
+

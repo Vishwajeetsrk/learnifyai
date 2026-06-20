@@ -49,7 +49,7 @@ export function SiteFooter() {
           <ul className="space-y-2.5 text-sm text-muted-foreground">
             <li><Link to="/features" className="hover:text-foreground transition">Features</Link></li>
             <li><Link to="/ai-tools" className="hover:text-foreground transition">AI Tools</Link></li>
-            <li><Link to="/pricing" className="hover:text-foreground transition">Pricing</Link></li>
+            <li><Link to="/pricing" search={{ subscribe: undefined }} className="hover:text-foreground transition">Pricing</Link></li>
             <li><Link to="/roadmap" className="hover:text-foreground transition">Roadmap</Link></li>
           </ul>
         </div>

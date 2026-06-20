@@ -28,11 +28,12 @@ import {
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { runAiTool } from "@/lib/ai-tools.functions";
-import { generateFullCourse, materializeCourse, autoCompleteCourse } from "@/lib/course-builder.functions";
+import { generateFullCourse, materializeCourse, autoCompleteCourse, generateLessonNotes } from "@/lib/course-builder.functions";
 import {
   verifyYoutubeKey,
   startCourseEnrichment,
   listCourseEnrichmentRuns,
+  searchYoutubeVideo,
 } from "@/lib/youtube.functions";
 import {
   generateCourseThumbnail,
@@ -1038,6 +1039,7 @@ function LessonsDialog({ course, onClose }: { course: Course | null; onClose: ()
             <LessonForm
               lesson={editing}
               courseId={course.id}
+              courseTitle={course.title}
               nextOrder={lessonsQuery.data?.length ?? 0}
               onCancel={() => {
                 setEditing(null);
@@ -1126,12 +1128,14 @@ function LessonsDialog({ course, onClose }: { course: Course | null; onClose: ()
 function LessonForm({
   lesson,
   courseId,
+  courseTitle = "",
   nextOrder,
   onCancel,
   onSaved,
 }: {
   lesson: Lesson | null;
   courseId: string;
+  courseTitle?: string;
   nextOrder: number;
   onCancel: () => void;
   onSaved: () => void;
@@ -1144,6 +1148,50 @@ function LessonForm({
   const [isPreview, setIsPreview] = useState(lesson?.is_preview ?? false);
   const [saving, setSaving] = useState(false);
   const videoError = useMemo(() => validateLessonVideoUrl(videoUrl), [videoUrl]);
+
+  const searchVideoFn = useServerFn(searchYoutubeVideo);
+  const generateNotesFn = useServerFn(generateLessonNotes);
+  const [searchingVideo, setSearchingVideo] = useState(false);
+  const [generatingNotes, setGeneratingNotes] = useState(false);
+
+  async function handleAiFindVideo() {
+    if (!title.trim()) return toast.error("Please enter a lesson title first.");
+    setSearchingVideo(true);
+    try {
+      const res = await searchVideoFn({ data: { query: title } });
+      if (res && res.url) {
+        setVideoUrl(res.url);
+        toast.success(`Found video: ${res.title}`);
+      } else {
+        toast.error("No video found for this title.");
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Error searching for video.");
+    } finally {
+      setSearchingVideo(false);
+    }
+  }
+
+  async function handleAiWriteNotes() {
+    if (!title.trim()) return toast.error("Please enter a lesson title first.");
+    setGeneratingNotes(true);
+    try {
+      const res = await generateNotesFn({
+        data: {
+          title: title.trim(),
+          courseTitle: courseTitle || "General Course",
+        },
+      });
+      if (res && res.notes) {
+        setDescription(res.notes);
+        toast.success("AI generated summary and notes!");
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Error generating notes.");
+    } finally {
+      setGeneratingNotes(false);
+    }
+  }
 
   async function save() {
     if (!title.trim()) return toast.error("Title required");
@@ -1175,12 +1223,30 @@ function LessonForm({
       </div>
       <div className="space-y-1.5 sm:col-span-2">
         <Label>Video URL (YouTube link or direct video)</Label>
-        <Input
-          value={videoUrl}
-          onChange={(e) => setVideoUrl(e.target.value)}
-          placeholder="https://www.youtube.com/watch?v=…"
-          aria-invalid={!!videoError}
-        />
+        <div className="flex gap-2">
+          <Input
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            placeholder="https://www.youtube.com/watch?v=…"
+            aria-invalid={!!videoError}
+            className="flex-1"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleAiFindVideo}
+            disabled={searchingVideo}
+            className="h-10 text-xs shrink-0 flex items-center gap-1.5 bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary"
+          >
+            {searchingVideo ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Youtube className="h-3.5 w-3.5 text-red-500 fill-red-500" />
+            )}
+            AI Find Video
+          </Button>
+        </div>
         {videoError ? (
           <p className="text-[11px] text-destructive">{videoError}</p>
         ) : (
@@ -1208,7 +1274,24 @@ function LessonForm({
         />
       </div>
       <div className="space-y-1.5 sm:col-span-2">
-        <Label>Description</Label>
+        <div className="flex items-center justify-between">
+          <Label>Description</Label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleAiWriteNotes}
+            disabled={generatingNotes}
+            className="h-7 text-[10px] flex items-center gap-1.5 text-primary hover:text-primary hover:bg-primary/5 px-2"
+          >
+            {generatingNotes ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Sparkles className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+            )}
+            AI Write Notes
+          </Button>
+        </div>
         <Textarea
           rows={3}
           maxLength={500}

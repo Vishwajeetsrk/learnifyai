@@ -376,6 +376,7 @@ function UpgradePlans() {
         </h2>
         <Link
           to="/pricing"
+          search={{ subscribe: undefined }}
           className="text-xs text-primary hover:underline inline-flex items-center gap-1"
         >
           Compare all <ArrowRight className="h-3 w-3" />

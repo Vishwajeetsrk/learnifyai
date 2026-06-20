@@ -30,8 +30,10 @@ import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { GlobalSupportAgent } from "@/components/GlobalSupportAgent";
 
 interface NavItem {
+
   to: string;
   label: string;
   icon: typeof Sparkles;
@@ -170,6 +172,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <main className="flex-1 min-w-0">{children}</main>
       </div>
+      <GlobalSupportAgent />
     </div>
   );
 }
+

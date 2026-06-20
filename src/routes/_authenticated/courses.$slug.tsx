@@ -609,13 +609,12 @@ function CourseDetail() {
                       key={l.user_id ?? i}
                       className="h-7 w-7 rounded-full border-2 border-card bg-muted overflow-hidden"
                     >
-                      {l.avatar_url ? (
-                        <img src={l.avatar_url} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <div className="h-full w-full grid place-items-center text-[9px] font-bold text-muted-foreground">
-                          {(l.full_name ?? "U")[0].toUpperCase()}
-                        </div>
-                      )}
+                      <img
+                        src={l.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+
                     </div>
                   ),
                 )}
@@ -1058,6 +1057,15 @@ function LessonAiTabs({
   const [speaking, setSpeaking] = useState(false);
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
 
+  const stripMarkdown = (raw: string) => {
+    return raw
+      .replace(/#+\s+/g, "")
+      .replace(/[*_`~]/g, "")
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, "$1")
+      .replace(/-\s+/g, "")
+      .trim();
+  };
+
   const speak = (text: string) => {
     if (speaking) {
       window.speechSynthesis.cancel();
@@ -1065,7 +1073,8 @@ function LessonAiTabs({
       return;
     }
     if (!text) return;
-    const utter = new SpeechSynthesisUtterance(text);
+    const cleanText = stripMarkdown(text);
+    const utter = new SpeechSynthesisUtterance(cleanText);
     utter.lang = "en-US";
     utter.rate = 0.9;
     utter.onend = () => setSpeaking(false);
@@ -1119,9 +1128,6 @@ function LessonAiTabs({
             <TabsTrigger value="playground" className="gap-1.5">
               <Code2 className="h-3.5 w-3.5" /> Playground
             </TabsTrigger>
-            <TabsTrigger value="ai-agent" className="gap-1.5">
-              <Bot className="h-3.5 w-3.5" /> AI Agent
-            </TabsTrigger>
           </>
         )}
       </TabsList>
@@ -1159,6 +1165,12 @@ function LessonAiTabs({
                 disabled={busy === "summary"}
               >
                 <RefreshCcw className="h-3.5 w-3.5" /> Regenerate
+              </Button>
+            )}
+            {summary && (
+              <Button variant="outline" size="sm" onClick={() => speak(summary)}>
+                {speaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                {speaking ? "Stop" : "Listen"}
               </Button>
             )}
           </div>
@@ -1209,13 +1221,8 @@ function LessonAiTabs({
           <CodePlayground course={{ id: courseId, title: courseTitle, slug: courseSlug }} />
         </TabsContent>
       )}
-
-      {hasToolAccess && (
-        <TabsContent value="ai-agent" className="pt-4">
-          <CourseAiAgent lesson={lesson} />
-        </TabsContent>
-      )}
     </Tabs>
+
   );
 }
 
@@ -1727,53 +1734,65 @@ function WebMode() {
   const setValue = tab === "html" ? setHtml : tab === "css" ? setCss : setJs;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[300px]">
-      <div className="rounded-lg border bg-card overflow-hidden flex flex-col">
-        <div className="flex border-b bg-muted/40 text-xs">
-          {WEB_TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={cn(
-                "px-3 py-2 font-mono tracking-wide flex items-center gap-1.5",
-                tab === t.id
-                  ? "bg-background font-semibold"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <LanguageIcon id={t.icon} />
-            </button>
-          ))}
+    <div className="flex flex-col gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 min-h-[300px]">
+        <div className="rounded-lg border bg-card overflow-hidden flex flex-col">
+          <div className="flex border-b bg-muted/40 text-xs">
+            {WEB_TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={cn(
+                  "px-3 py-2 font-mono tracking-wide flex items-center gap-1.5",
+                  tab === t.id
+                    ? "bg-background font-semibold"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <LanguageIcon id={t.icon} />
+              </button>
+            ))}
+          </div>
+          <div className="flex-1">
+            <Editor
+              height="300px"
+              language={tab === "js" ? "javascript" : "html"}
+              theme="vs-dark"
+              value={value}
+              onChange={(v) => setValue(v ?? "")}
+              options={{
+                fontSize: 12,
+                minimap: { enabled: false },
+                lineNumbers: "on",
+                tabSize: 2,
+                automaticLayout: true,
+                padding: { top: 6 },
+              }}
+            />
+          </div>
         </div>
-        <div className="flex-1">
-          <Editor
-            height="300px"
-            language={tab === "js" ? "javascript" : "html"}
-            theme="vs-dark"
-            value={value}
-            onChange={(v) => setValue(v ?? "")}
-            options={{
-              fontSize: 12,
-              minimap: { enabled: false },
-              lineNumbers: "on",
-              tabSize: 2,
-              automaticLayout: true,
-              padding: { top: 6 },
-            }}
+        <div className="rounded-lg border bg-white overflow-hidden min-h-[300px]">
+          <iframe
+            title="Live preview"
+            sandbox="allow-scripts"
+            srcDoc={srcDoc}
+            className="w-full h-full"
           />
         </div>
       </div>
-      <div className="rounded-lg border bg-white overflow-hidden min-h-[300px]">
-        <iframe
-          title="Live preview"
-          sandbox="allow-scripts"
-          srcDoc={srcDoc}
-          className="w-full h-full"
-        />
-      </div>
+      <PlaygroundAiDebugPanel
+        language={tab === "html" ? "html" : tab === "css" ? "css" : "javascript"}
+        code={value}
+        stdout=""
+        stderr=""
+        exitCode={null}
+        stdin=""
+        onApplyFix={(next) => setValue(next)}
+      />
     </div>
   );
 }
+
 
 /* ---------- Inline AI Agent ---------- */
 

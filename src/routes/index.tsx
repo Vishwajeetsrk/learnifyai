@@ -334,7 +334,7 @@ function Index() {
                 variant="outline"
                 className="hover:-translate-y-0.5 transition-all"
               >
-                <Link to="/pricing">View pricing</Link>
+                <Link to="/pricing" search={{ subscribe: undefined }}>View pricing</Link>
               </Button>
             </div>
           </div>

@@ -17,15 +17,6 @@ export default defineConfig({
     envPrefix: ["VITE_", "NEXT_PUBLIC_"],
     build: {
       chunkSizeWarningLimit: 1500, // Suppress the chunk size warning
-    },
-  },
-  tanstackStart: {
-    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
-    // nitro/vite builds from this
-    server: { entry: "server" },
-  },
-  build: {
-    chunkSizeWarningLimit: 1000,
       rollupOptions: {
         onwarn(warning, warn) {
           if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
@@ -35,24 +26,30 @@ export default defineConfig({
         },
         output: {
           manualChunks(id) {
-          if (!id.includes("node_modules")) return;
-          if (id.includes("react-dom") || id.includes("react")) return "vendor-react";
-          if (id.includes("@tanstack")) return "vendor-tanstack";
-          if (id.includes("@supabase")) return "vendor-supabase";
-          if (id.includes("framer-motion")) return "vendor-motion";
-          if (
-            id.includes("react-markdown") ||
-            id.includes("remark-gfm") ||
-            id.includes("rehype-highlight") ||
-            id.includes("highlight.js")
-          )
-            return "vendor-markdown";
-          if (id.includes("xlsx")) return "vendor-xlsx";
-          if (id.includes("jspdf") || id.includes("html2canvas-pro")) return "vendor-pdf";
-          if (id.includes("youtube-transcript")) return "vendor-youtube";
-          return "vendor";
+            if (!id.includes("node_modules")) return;
+            if (id.includes("react-dom") || id.includes("react")) return "vendor-react";
+            if (id.includes("@tanstack")) return "vendor-tanstack";
+            if (id.includes("@supabase")) return "vendor-supabase";
+            if (id.includes("framer-motion")) return "vendor-motion";
+            if (
+              id.includes("react-markdown") ||
+              id.includes("remark-gfm") ||
+              id.includes("rehype-highlight") ||
+              id.includes("highlight.js")
+            )
+              return "vendor-markdown";
+            if (id.includes("xlsx")) return "vendor-xlsx";
+            if (id.includes("jspdf") || id.includes("html2canvas-pro")) return "vendor-pdf";
+            if (id.includes("youtube-transcript")) return "vendor-youtube";
+            return "vendor";
+          },
         },
       },
     },
+  },
+  tanstackStart: {
+    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
+    // nitro/vite builds from this
+    server: { entry: "server" },
   },
 });

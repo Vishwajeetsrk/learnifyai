@@ -100,7 +100,7 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/settings">
+          <Link to="/u/$id" params={{ id: user?.id ?? "" }}>
             <UserIcon className="h-4 w-4" /> Profile
           </Link>
         </DropdownMenuItem>

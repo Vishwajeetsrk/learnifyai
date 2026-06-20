@@ -137,7 +137,7 @@ function WalletPage() {
         "invoice_prefix", "invoice_footer", "invoice_logo_url", "invoice_contact",
       ]);
       const m: Record<string, string> = {};
-      for (const r of data ?? []) m[r.key] = r.value;
+      for (const r of data ?? []) m[r.key] = r.value || "";
       return m;
     },
     staleTime: 300_000,

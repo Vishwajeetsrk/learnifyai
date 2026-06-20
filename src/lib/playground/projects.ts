@@ -37,7 +37,8 @@ export const createProject = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => CreateProjectSchema.parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { title, language, template } = data;
 
     const { data: project, error } = await supabase
@@ -64,7 +65,8 @@ export const createProject = createServerFn({ method: "POST" })
 export const getProjects = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { data, error } = await supabase
       .from("playground_projects")
       .select("id, title, description, language, template, is_public, tags, created_at, updated_at")
@@ -78,7 +80,8 @@ export const getProject = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { data: project, error } = await supabase
       .from("playground_projects")
       .select("*")
@@ -94,7 +97,8 @@ export const updateProject = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => UpdateProjectSchema.parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { id, ...updates } = data;
     const { data: existing } = await supabase
       .from("playground_projects").select("user_id").eq("id", id).single();
@@ -110,7 +114,8 @@ export const deleteProject = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { data: existing } = await supabase
       .from("playground_projects").select("user_id").eq("id", data.id).single();
     if (!existing || existing.user_id !== userId) throw new Error("Not authorized");
@@ -123,7 +128,8 @@ export const duplicateProject = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { data: project } = await supabase
       .from("playground_projects").select("*").eq("id", data.id).single();
     if (!project) throw new Error("Project not found");
@@ -147,7 +153,8 @@ export const getProjectFiles = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) => z.object({ projectId: z.string().uuid() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { data: project } = await supabase
       .from("playground_projects").select("user_id, is_public").eq("id", data.projectId).single();
     if (!project) throw new Error("Project not found");
@@ -169,7 +176,8 @@ export const saveFile = createServerFn({ method: "POST" })
   }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { data: project } = await supabase
       .from("playground_projects").select("user_id").eq("id", data.projectId).single();
     if (!project || project.user_id !== userId) throw new Error("Not authorized");
@@ -192,7 +200,8 @@ export const deleteFile = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => z.object({ fileId: z.string().uuid() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { data: file } = await supabase
       .from("playground_files").select("project_id").eq("id", data.fileId).single();
     if (!file) throw new Error("File not found");
@@ -213,7 +222,8 @@ export const saveEditorCode = createServerFn({ method: "POST" })
   }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const supabase = context.supabase as any;
+    const { userId } = context;
     const { projectId, title, code, language } = data;
 
     if (projectId) {

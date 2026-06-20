@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { PlaygroundAiDebugPanel } from "../playground-ai-debug-panel";
+
 import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -299,9 +301,25 @@ export function ApiTester() {
           )}
         </div>
       </div>
+      <PlaygroundAiDebugPanel
+        language="json"
+        code={state.tab === "body" ? state.body : state.url}
+        stdout={res?.body ?? ""}
+        stderr={error ?? ""}
+        exitCode={error ? 1 : (res ? 0 : null)}
+        stdin=""
+        onApplyFix={(next) => {
+          if (state.tab === "body") {
+            setState((s) => ({ ...s, body: next }));
+          } else {
+            setState((s) => ({ ...s, url: next }));
+          }
+        }}
+      />
     </div>
   );
 }
+
 
 function TabBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (

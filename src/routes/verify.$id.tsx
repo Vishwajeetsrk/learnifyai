@@ -38,7 +38,7 @@ function VerifyPage() {
       if (!row && !certV2) throw new Error("Credential not found or invalid.");
 
       let issuerOrgLogoUrl = null;
-      const createdBy = certV2?.created_by || row?.created_by;
+      const createdBy = (certV2 as any)?.created_by || (row as any)?.created_by;
       if (createdBy) {
         const { data: issuerProfile } = await supabase
           .from("profiles")

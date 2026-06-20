@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { enrollFree } from "@/lib/course.functions";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
+import { getCourseLearners } from "@/lib/gamification.functions";
 
 export const Route = createFileRoute("/_authenticated/courses/")({
   head: () => ({ meta: [{ title: "Courses — Learnify AI" }] }),
@@ -35,6 +36,34 @@ const inr = (n: number) =>
         currency: "INR",
         maximumFractionDigits: 0,
       }).format(n);
+
+function CourseCardLearners({ courseId }: { courseId: string }) {
+  const getLearners = useServerFn(getCourseLearners);
+  const { data } = useQuery({
+    queryKey: ["course-learners", courseId],
+    queryFn: () => getLearners({ data: { courseId, limit: 3 } }),
+  });
+
+  if (!data || data.total === 0) return null;
+
+  return (
+    <div className="mt-3 flex items-center gap-1.5">
+      <div className="flex -space-x-1.5 overflow-hidden">
+        {data.learners.map((l, i) => (
+          <img
+            key={l.user_id ?? i}
+            className="inline-block h-5 w-5 rounded-full ring-2 ring-card bg-muted object-cover"
+            src={l.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`}
+            alt=""
+          />
+        ))}
+      </div>
+      <span className="text-[10px] text-muted-foreground font-medium">
+        +{data.total} learner{data.total > 1 ? "s" : ""}
+      </span>
+    </div>
+  );
+}
 
 const FIXED_CATEGORIES = [
   "All",
@@ -301,6 +330,7 @@ function CoursesPage() {
                     {c.title}
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{c.description}</p>
+                  <CourseCardLearners courseId={c.id} />
                   <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3 shrink-0" /> {c.duration_minutes} min

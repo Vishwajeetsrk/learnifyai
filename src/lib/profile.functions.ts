@@ -7,7 +7,7 @@ export const getPublicProfile = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const id = data.id;
 
-    const [profileRes, subRes, likesRes, enrollRes, createdRes, certsRes] = await Promise.all([
+    const [profileRes, subRes, likesRes, enrollRes, createdRes, certsRes, projectsRes, postsRes] = await Promise.all([
       supabaseAdmin
         .from("profiles")
         .select("id, full_name, avatar_url, bio, created_at, banner_url, social_links")
@@ -38,6 +38,25 @@ export const getPublicProfile = createServerFn({ method: "GET" })
         .from("certificates")
         .select("*", { count: "exact", head: true })
         .eq("user_id", id),
+      supabaseAdmin
+        .from("playground_projects")
+        .select("id, title, description, language, template, is_public, tags, created_at, updated_at")
+        .eq("user_id", id)
+        .eq("is_public", true)
+        .order("updated_at", { ascending: false })
+        .limit(24),
+      supabaseAdmin
+        .from("posts" as any)
+        .select(`
+          *,
+          author:profiles!posts_author_id_fkey (id, full_name, avatar_url),
+          likes:post_likes(id, user_id),
+          comments:post_comments(id, content, author_id, created_at, author:author_id(id, full_name, avatar_url)),
+          saves:post_saves(id, user_id)
+        `)
+        .eq("author_id", id)
+        .order("created_at", { ascending: false })
+        .limit(24),
     ]);
 
     if (!profileRes.data) return null;
@@ -49,6 +68,8 @@ export const getPublicProfile = createServerFn({ method: "GET" })
       certificates: certsRes.count ?? 0,
       enrolled: (enrollRes.data ?? []).map((e: any) => e.courses).filter(Boolean),
       created: createdRes.data ?? [],
+      projects: projectsRes.data ?? [],
+      posts: postsRes.data ?? [],
     };
   });
 

@@ -18,6 +18,7 @@ import {
   Scan,
   ScrollText,
   ShieldCheck,
+  Sparkles,
   Type,
   Upload,
 } from "lucide-react";

@@ -78,11 +78,11 @@ function CertificatePage() {
       }
 
       let issuerOrgLogoUrl = null;
-      if (row.created_by) {
+      if ((row as any).created_by) {
         const { data: issuerProfile } = await supabase
           .from("profiles")
           .select("org_logo_url")
-          .eq("id", row.created_by)
+          .eq("id", (row as any).created_by)
           .maybeSingle();
         issuerOrgLogoUrl = issuerProfile?.org_logo_url ?? null;
       }

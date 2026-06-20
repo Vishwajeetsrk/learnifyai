@@ -3,6 +3,8 @@ import type { Database, SqlJsStatic } from "sql.js";
 import { Database as DbIcon, Loader2, Play, RefreshCw, Table as TableIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { PlaygroundAiDebugPanel } from "@/components/playground-ai-debug-panel";
+
 
 interface ExecResult {
   ms: number;
@@ -141,39 +143,50 @@ export function PlaygroundDatabase() {
       <div className="min-h-0 flex-1 overflow-hidden">
         {tab === "schema" && <SchemaView db={dbRef.current} onChange={() => { persistDb(); force((n) => n + 1); }} />}
         {tab === "sql" && (
-          <div className="grid h-full grid-rows-2 divide-y">
-            <textarea
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-              className="h-full w-full resize-none bg-muted/30 p-2 font-mono text-xs outline-none"
-              spellCheck={false}
-              placeholder="SELECT * FROM ..."
-            />
-            <div className="overflow-auto p-2 text-xs">
-              {error && <div className="rounded bg-destructive/15 p-2 text-destructive-foreground">{error}</div>}
-              {!error && !result && <div className="text-muted-foreground">Run a query to see results.</div>}
-              {result?.blocks.map((b, i) => (
-                <div key={i} className="mb-2 overflow-auto rounded border">
-                  <table className="w-full text-[11px]">
-                    <thead className="bg-muted/50">
-                      <tr>{b.columns.map((c) => <th key={c} className="px-2 py-1 text-left font-medium">{c}</th>)}</tr>
-                    </thead>
-                    <tbody>
-                      {b.rows.map((r, ri) => (
-                        <tr key={ri} className="border-t">
-                          {r.map((cell, ci) => (
-                            <td key={ci} className="px-2 py-1 font-mono">{cell === null ? <span className="opacity-50">NULL</span> : String(cell)}</td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ))}
-              {result && result.blocks.length === 0 && (
-                <div className="text-muted-foreground">OK · {result.rowsChanged} row(s) modified in {result.ms} ms.</div>
-              )}
+          <div className="flex h-full flex-col divide-y overflow-y-auto">
+            <div className="grid grid-rows-2 divide-y min-h-[300px] shrink-0">
+              <textarea
+                value={source}
+                onChange={(e) => setSource(e.target.value)}
+                className="h-full w-full resize-none bg-muted/30 p-2 font-mono text-xs outline-none"
+                spellCheck={false}
+                placeholder="SELECT * FROM ..."
+              />
+              <div className="overflow-auto p-2 text-xs bg-card/10">
+                {error && <div className="rounded bg-destructive/15 p-2 text-destructive-foreground">{error}</div>}
+                {!error && !result && <div className="text-muted-foreground">Run a query to see results.</div>}
+                {result?.blocks.map((b, i) => (
+                  <div key={i} className="mb-2 overflow-auto rounded border">
+                    <table className="w-full text-[11px]">
+                      <thead className="bg-muted/50">
+                        <tr>{b.columns.map((c) => <th key={c} className="px-2 py-1 text-left font-medium">{c}</th>)}</tr>
+                      </thead>
+                      <tbody>
+                        {b.rows.map((r, ri) => (
+                          <tr key={ri} className="border-t">
+                            {r.map((cell, ci) => (
+                              <td key={ci} className="px-2 py-1 font-mono">{cell === null ? <span className="opacity-50">NULL</span> : String(cell)}</td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+                {result && result.blocks.length === 0 && (
+                  <div className="text-muted-foreground">OK · {result.rowsChanged} row(s) modified in {result.ms} ms.</div>
+                )}
+              </div>
             </div>
+            <PlaygroundAiDebugPanel
+              language="sql"
+              code={source}
+              stdout={result?.blocks.length === 0 ? "OK. Rows modified: " + result.rowsChanged : result?.blocks.map(b => b.columns.join(",") + "\n" + b.rows.map(r => r.join(",")).join("\n")).join("\n\n") ?? ""}
+              stderr={error ?? ""}
+              exitCode={error ? 1 : (result ? 0 : null)}
+              stdin=""
+              onApplyFix={(next) => setSource(next)}
+            />
           </div>
         )}
       </div>

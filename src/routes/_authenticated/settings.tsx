@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -21,6 +21,8 @@ import {
   XCircle,
   Building2,
   Sparkles,
+  Image as ImageIcon,
+  ExternalLink,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -140,12 +142,28 @@ function SettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [avatarSignedUrl, setAvatarSignedUrl] = useState<string | null>(null);
+  const [bannerSignedUrl, setBannerSignedUrl] = useState<string | null>(null);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const fileInputBanner = useRef<HTMLInputElement>(null);
+  const [profileBorder, setProfileBorder] = useState("none");
 
   /* ── Cartoon Character customization ── */
   const [cartoonOpen, setCartoonOpen] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState("avataaars"); // Default to avataaars since it is highly customizable
   const [seed, setSeed] = useState("Learnify");
   const [savingCartoon, setSavingCartoon] = useState(false);
+
+  const BORDER_OPTIONS = [
+    { id: "none", label: "None" },
+    { id: "neon-blue", label: "Neon Blue" },
+    { id: "neon-pink", label: "Neon Pink" },
+    { id: "neon-green", label: "Neon Green" },
+    { id: "gold-gradient", label: "Gold Gradient" },
+    { id: "rainbow-glow", label: "Rainbow Glow" },
+    { id: "dashed-red", label: "Dashed Red" },
+    { id: "royal-purple", label: "Royal Purple" },
+    { id: "retro-orange", label: "Retro Orange" },
+  ];
 
   // Granular customization states
   const [skinColor, setSkinColor] = useState("ffdbb4"); // Default skin
@@ -186,7 +204,6 @@ function SettingsPage() {
       }
     } else if (selectedStyle === "adventurer") {
       params += `&skinColor=${skinColor}`;
-      // Map hair style
       let advHair = "short01";
       if (hairStyle.startsWith("long")) {
         advHair = hairStyle.includes("Curly") ? "long02" : "long01";
@@ -208,9 +225,121 @@ function SettingsPage() {
       if (accessoriesStyle && accessoriesStyle !== "none") {
         params += `&features=${accessoriesStyle === "prescription01" || accessoriesStyle === "prescription02" ? "spectacles" : "sunglasses"}`;
       }
-    } else if (selectedStyle === "lorelei") {
-      params += `&hairColor=${hairColor}`;
+    } else if (selectedStyle === "bottts") {
+      params += `&baseColor=${clothingColor}`;
+      let botEyes = "happy";
+      if (eyesStyle === "happy") botEyes = "happy";
+      else if (eyesStyle === "wink") botEyes = "round";
+      else if (eyesStyle === "surprised") botEyes = "sensor";
+      else if (eyesStyle === "squint") botEyes = "squint";
+      else if (eyesStyle === "close") botEyes = "frame2";
+      else botEyes = "frame1";
+      params += `&eyes=${botEyes}`;
+
+      let botMouth = "smile";
+      if (mouthStyle === "smile") botMouth = "smile";
+      else if (mouthStyle === "sad") botMouth = "bite";
+      else if (mouthStyle === "concerned") botMouth = "closed";
+      else if (mouthStyle === "disbelief") botMouth = "grill01";
+      else if (mouthStyle === "grimace") botMouth = "grill02";
+      else botMouth = "smile";
+      params += `&mouth=${botMouth}`;
+
+      let botTop = "antenna";
+      if (hairStyle.includes("Flat")) botTop = "pyramid";
+      else if (hairStyle.includes("Round")) botTop = "bulb";
+      else if (hairStyle.includes("Curly")) botTop = "horn";
+      else if (hairStyle.includes("Wavy")) botTop = "radar";
+      else botTop = "antenna";
+      params += `&top=${botTop}`;
+
+      if (accessoriesStyle && accessoriesStyle !== "none") {
+        params += `&sides=${accessoriesStyle === "prescription01" ? "antenna" : accessoriesStyle === "round" ? "earphones" : "cable"}`;
+      }
+    } else if (selectedStyle === "pixel-art") {
       params += `&skinColor=${skinColor}`;
+      params += `&clothingColor=${clothingColor}`;
+      params += `&hairColor=${hairColor}`;
+      
+      let pixHair = "short01";
+      if (hairStyle.startsWith("long")) pixHair = "long01";
+      else if (hairStyle.includes("Round")) pixHair = "short02";
+      else if (hairStyle.includes("Curly")) pixHair = "short03";
+      else if (hairStyle === "noHair") pixHair = "bald";
+      params += `&hair=${pixHair}`;
+
+      let pixEyes = "normal";
+      if (eyesStyle === "happy") pixEyes = "happy";
+      else if (eyesStyle === "squint") pixEyes = "squint";
+      else if (eyesStyle === "close") pixEyes = "closed";
+      else if (eyesStyle === "wink") pixEyes = "angry";
+      params += `&eyes=${pixEyes}`;
+
+      let pixMouth = "normal";
+      if (mouthStyle === "smile") pixMouth = "smile";
+      else if (mouthStyle === "sad") pixMouth = "sad";
+      else if (mouthStyle === "scream") pixMouth = "open";
+      params += `&mouth=${pixMouth}`;
+
+      let pixCloth = "tshirt";
+      if (clothingStyle.includes("hoodie")) pixCloth = "hoodie";
+      else if (clothingStyle.includes("collar")) pixCloth = "shirt";
+      else if (clothingStyle.includes("overall")) pixCloth = "overall";
+      params += `&clothing=${pixCloth}`;
+    } else if (selectedStyle === "fun-emoji") {
+      let emEyes = "normal";
+      if (eyesStyle === "happy") emEyes = "cute";
+      else if (eyesStyle === "wink") emEyes = "wink";
+      else if (eyesStyle === "surprised") emEyes = "stars";
+      else if (eyesStyle === "hearts") emEyes = "love";
+      else if (eyesStyle === "close") emEyes = "dizzy";
+      params += `&eyes=${emEyes}`;
+
+      let emMouth = "smile";
+      if (mouthStyle === "smile") emMouth = "smile";
+      else if (mouthStyle === "sad") emMouth = "sad";
+      else if (mouthStyle === "scream") emMouth = "shouting";
+      else if (mouthStyle === "tongue") emMouth = "tongue";
+      else if (mouthStyle === "concerned") emMouth = "kiss";
+      else if (mouthStyle === "disbelief") emMouth = "neutral";
+      params += `&mouth=${emMouth}`;
+
+      params += `&backgroundColor=${clothingColor}`;
+    } else if (selectedStyle === "lorelei") {
+      params += `&skinColor=${skinColor}`;
+      params += `&hairColor=${hairColor}`;
+      params += `&clothingColor=${clothingColor}`;
+
+      let lorHair = "hair01";
+      if (hairStyle.includes("Mia")) lorHair = "hair02";
+      else if (hairStyle.includes("Bob")) lorHair = "hair03";
+      else if (hairStyle.includes("Bun")) lorHair = "hair04";
+      else if (hairStyle.includes("Flat")) lorHair = "hair05";
+      else if (hairStyle.includes("Round")) lorHair = "hair06";
+      else if (hairStyle.includes("Curly")) lorHair = "hair07";
+      else if (hairStyle.includes("Mullet")) lorHair = "hair08";
+      params += `&hair=${lorHair}`;
+
+      let lorEyes = "default";
+      if (eyesStyle === "happy") lorEyes = "happy";
+      else if (eyesStyle === "wink") lorEyes = "wink";
+      else if (eyesStyle === "close") lorEyes = "content";
+      params += `&eyes=${lorEyes}`;
+
+      let lorMouth = "default";
+      if (mouthStyle === "smile") lorMouth = "smile";
+      else if (mouthStyle === "sad") lorMouth = "serious";
+      else if (mouthStyle === "tongue") lorMouth = "open";
+      params += `&mouth=${lorMouth}`;
+
+      let lorCloth = "shirt";
+      if (clothingStyle.includes("hoodie") || clothingStyle.includes("sweater")) lorCloth = "sweater";
+      else if (clothingStyle.includes("blazer")) lorCloth = "dress";
+      params += `&clothing=${lorCloth}`;
+    }
+
+    if (profileBorder && profileBorder !== "none") {
+      params += `&profile_border=${profileBorder}`;
     }
 
     return baseUrl + params;
@@ -242,6 +371,96 @@ function SettingsPage() {
     let res = "";
     for (let i = 0; i < 8; i++) res += chars[Math.floor(Math.random() * chars.length)];
     setSeed(res);
+  }
+
+  function randomizeAllFeatures() {
+    const style = CARTOON_STYLES[Math.floor(Math.random() * CARTOON_STYLES.length)].id;
+    setSelectedStyle(style);
+
+    const border = BORDER_OPTIONS[Math.floor(Math.random() * BORDER_OPTIONS.length)].id;
+    setProfileBorder(border);
+
+    const newSeed = Math.random().toString(36).substring(2, 10);
+    setSeed(newSeed);
+
+    const skins = ["ffdbb4", "edb98a", "fd9841", "d08b5b", "ae5d29", "614335"];
+    setSkinColor(skins[Math.floor(Math.random() * skins.length)]);
+
+    const hairColors = ["2c1b18", "4a3728", "724124", "b58143", "c93305", "ecdcbf", "f59797"];
+    setHairColor(hairColors[Math.floor(Math.random() * hairColors.length)]);
+
+    const clothColors = ["262e3d", "3c4f76", "a7e0e2", "92b558", "e53935", "ffb300", "6f2da8", "e2b4bd", "5c6f68"];
+    setClothingColor(clothColors[Math.floor(Math.random() * clothColors.length)]);
+
+    const maleHairs = ["shortHairTheCaesar", "shortHairShortFlat", "shortHairShortRound", "shortHairShortWaved", "shortHairShortCurly", "shortHairShaggyMullet", "noHair"];
+    const femaleHairs = ["longHairStraight", "longHairStraight2", "longHairCurly", "longHairCurvy", "longHairBob", "longHairMiaWallace", "longHairBun", "longHairDreads", "longHairBigHair"];
+    const isMale = Math.random() > 0.5;
+    setHairGender(isMale ? "male" : "female");
+    setHairStyle(isMale ? maleHairs[Math.floor(Math.random() * maleHairs.length)] : femaleHairs[Math.floor(Math.random() * femaleHairs.length)]);
+
+    const eyes = ["default", "happy", "wink", "surprised", "squint", "side", "hearts", "close"];
+    setEyesStyle(eyes[Math.floor(Math.random() * eyes.length)]);
+
+    const mouths = ["default", "smile", "sad", "concerned", "disbelief", "grimace", "scream", "tongue"];
+    setMouthStyle(mouths[Math.floor(Math.random() * mouths.length)]);
+
+    const accessories = ["none", "prescription01", "round", "sunglasses", "wayfarer", "kurt"];
+    setAccessoriesStyle(accessories[Math.floor(Math.random() * accessories.length)]);
+
+    const clothes = ["shirtCrewNeck", "shirtVNeck", "hoodie", "collarAndSweater", "blazerAndShirt", "overall", "graphicShirt"];
+    setClothingStyle(clothes[Math.floor(Math.random() * clothes.length)]);
+
+    toast.success("Randomized all features!");
+  }
+
+  async function handleBannerUpload(file: File) {
+    if (!user) return;
+    if (file.size > 5 * 1024 * 1024) return toast.error("Image must be < 5MB");
+    if (!file.type.startsWith("image/")) return toast.error("Pick an image file");
+    setUploadingBanner(true);
+    try {
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${user.id}/cover-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const publicUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+      const old = profileQ.data?.banner_url;
+      if (old) {
+        const bucketBase = supabase.storage.from("avatars").getPublicUrl("").data.publicUrl;
+        if (old.startsWith(bucketBase)) {
+          const oldPath = old.replace(bucketBase + (bucketBase.endsWith("/") ? "" : "/"), "");
+          if (oldPath && oldPath !== path) await supabase.storage.from("avatars").remove([oldPath]);
+        } else if (!old.startsWith("http") && old !== path) {
+          await supabase.storage.from("avatars").remove([old]);
+        }
+      }
+      await supabase.from("profiles").update({ banner_url: publicUrl }).eq("id", user.id);
+      toast.success("Cover image updated");
+      qc.invalidateQueries({ queryKey: ["profile-full"] });
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setUploadingBanner(false);
+    }
+  }
+
+  async function removeBanner() {
+    if (!user) return;
+    const old = profileQ.data?.banner_url;
+    if (old) {
+      const bucketBase = supabase.storage.from("avatars").getPublicUrl("").data.publicUrl;
+      if (old.startsWith(bucketBase)) {
+        const oldPath = old.replace(bucketBase + (bucketBase.endsWith("/") ? "" : "/"), "");
+        if (oldPath) await supabase.storage.from("avatars").remove([oldPath]);
+      } else if (!old.startsWith("http")) {
+        await supabase.storage.from("avatars").remove([old]);
+      }
+    }
+    await supabase.from("profiles").update({ banner_url: null }).eq("id", user.id);
+    toast.success("Cover image removed");
+    qc.invalidateQueries({ queryKey: ["profile-full"] });
   }
 
 
@@ -405,8 +624,16 @@ function SettingsPage() {
     const path = profileQ.data?.avatar_url;
     if (!path) {
       setAvatarSignedUrl(null);
+      setProfileBorder("none");
       return;
     }
+    const borderMatch = path.match(/[?&]profile_border=([^&]+)/);
+    if (borderMatch) {
+      setProfileBorder(decodeURIComponent(borderMatch[1]));
+    } else {
+      setProfileBorder("none");
+    }
+
     if (path.startsWith("http")) {
       setAvatarSignedUrl(path);
       return;
@@ -414,6 +641,20 @@ function SettingsPage() {
     const { data } = supabase.storage.from("avatars").getPublicUrl(path);
     setAvatarSignedUrl(data.publicUrl);
   }, [profileQ.data?.avatar_url]);
+
+  useEffect(() => {
+    const path = profileQ.data?.banner_url;
+    if (!path) {
+      setBannerSignedUrl(null);
+      return;
+    }
+    if (path.startsWith("http")) {
+      setBannerSignedUrl(path);
+      return;
+    }
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    setBannerSignedUrl(data.publicUrl);
+  }, [profileQ.data?.banner_url]);
 
   /* ── Username availability ── */
   useEffect(() => {
@@ -578,7 +819,13 @@ function SettingsPage() {
           return;
         }
         if (result.payment?.payment_status === "PAID") {
-          await verifyTopup({ data: { orderId: order.order_id } });
+          await verifyTopup({
+            data: {
+              amountInr: n,
+              method: "online",
+              cashfree_order_id: order.order_id,
+            },
+          });
           toast.success(`₹${n.toLocaleString("en-IN")} added to wallet`);
           qc.invalidateQueries({ queryKey: ["wallet-tx"] });
           setTopupOpen(false);
@@ -681,9 +928,16 @@ function SettingsPage() {
           {/* ═══ PROFILE ═══ */}
           <TabsContent value="profile" className="mt-6 space-y-6">
             <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
-              <h2 className="font-display font-semibold flex items-center gap-2">
-                <UserIcon className="h-4 w-4 text-primary" /> Profile
-              </h2>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+                <h2 className="font-display font-semibold flex items-center gap-2 text-lg">
+                  <UserIcon className="h-4.5 w-4.5 text-primary" /> Profile Settings
+                </h2>
+                <Button asChild variant="outline" size="sm" className="text-xs gap-1.5 rounded-full hover:bg-primary/5 hover:text-primary transition-colors">
+                  <Link to="/u/$id" params={{ id: user?.id ?? "" }}>
+                    <ExternalLink className="h-3.5 w-3.5" /> View Public Profile
+                  </Link>
+                </Button>
+              </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-5">
                 <Avatar className="h-24 w-24 border-4 border-card shadow-md shrink-0">
@@ -704,7 +958,7 @@ function SettingsPage() {
                       e.target.value = "";
                     }}
                   />
-                  <Button size="sm" onClick={() => fileInput.current?.click()} disabled={uploading}>
+                  <Button size="sm" type="button" onClick={() => fileInput.current?.click()} disabled={uploading}>
                     {uploading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
@@ -712,17 +966,129 @@ function SettingsPage() {
                     )}
                     Upload photo
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setCartoonOpen(true)}>
+                  <Button size="sm" type="button" variant="outline" onClick={() => setCartoonOpen(true)}>
                     <Sparkles className="h-4 w-4 text-yellow-500 fill-yellow-500" /> Customize Character
                   </Button>
                   {profileQ.data?.avatar_url ? (
-                    <Button size="sm" variant="outline" onClick={removeAvatar}>
+                    <Button size="sm" type="button" variant="outline" onClick={removeAvatar}>
                       <Trash2 className="h-4 w-4" /> Remove
                     </Button>
                   ) : null}
                   <p className="w-full text-[10px] text-muted-foreground text-center sm:text-left">
                     Recommended 1:1 ratio &lt; 5 MB
                   </p>
+                </div>
+              </div>
+
+              {/* Profile Border Customization */}
+              <div className="grid gap-2 border bg-card/40 p-4 rounded-xl">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Profile Border Style</Label>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Select
+                    value={profileBorder}
+                    onValueChange={async (val) => {
+                      setProfileBorder(val);
+                      const currentUrl = profileQ.data?.avatar_url;
+                      if (currentUrl) {
+                        let baseUrl = currentUrl.split(/[?#]/)[0];
+                        let nextUrl = "";
+                        if (currentUrl.includes("api.dicebear.com")) {
+                          const urlObj = new URL(currentUrl);
+                          urlObj.searchParams.set("profile_border", val);
+                          if (val === "none") urlObj.searchParams.delete("profile_border");
+                          nextUrl = urlObj.toString();
+                        } else {
+                          nextUrl = val === "none" ? baseUrl : `${baseUrl}?profile_border=${val}`;
+                        }
+                        await supabase.from("profiles").update({ avatar_url: nextUrl }).eq("id", user!.id);
+                        qc.invalidateQueries({ queryKey: ["profile-full"] });
+                        toast.success("Profile border updated!");
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-48 text-xs">
+                      <SelectValue placeholder="Select a border" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BORDER_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.id} value={opt.id} className="text-xs">
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="text-xs"
+                    onClick={async () => {
+                      const avail = BORDER_OPTIONS.filter((b) => b.id !== "none");
+                      const rand = avail[Math.floor(Math.random() * avail.length)].id;
+                      setProfileBorder(rand);
+                      const currentUrl = profileQ.data?.avatar_url;
+                      if (currentUrl) {
+                        let baseUrl = currentUrl.split(/[?#]/)[0];
+                        let nextUrl = "";
+                        if (currentUrl.includes("api.dicebear.com")) {
+                          const urlObj = new URL(currentUrl);
+                          urlObj.searchParams.set("profile_border", rand);
+                          nextUrl = urlObj.toString();
+                        } else {
+                          nextUrl = `${baseUrl}?profile_border=${rand}`;
+                        }
+                        await supabase.from("profiles").update({ avatar_url: nextUrl }).eq("id", user!.id);
+                        qc.invalidateQueries({ queryKey: ["profile-full"] });
+                        toast.success("Randomized profile border!");
+                      }
+                    }}
+                  >
+                    <Sparkles className="h-3.5 w-3.5 mr-1" /> Randomize Border
+                  </Button>
+                </div>
+              </div>
+
+              {/* Cover Image (Banner) */}
+              <div className="space-y-3 border bg-card/40 p-4 rounded-xl">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cover Image (Banner)</Label>
+                <div className="relative w-full h-32 rounded-xl border bg-muted overflow-hidden flex items-center justify-center group shadow-inner">
+                  {bannerSignedUrl ? (
+                    <img src={bannerSignedUrl} alt="Cover Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-xs text-muted-foreground flex flex-col items-center gap-1.5">
+                      <ImageIcon className="h-6 w-6 text-muted-foreground/60 animate-pulse" />
+                      No cover image set
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={fileInputBanner}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleBannerUpload(f);
+                      e.target.value = "";
+                    }}
+                  />
+                  <Button size="sm" type="button" onClick={() => fileInputBanner.current?.click()} disabled={uploadingBanner}>
+                    {uploadingBanner ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    Upload cover
+                  </Button>
+                  {profileQ.data?.banner_url ? (
+                    <Button size="sm" type="button" variant="outline" onClick={removeBanner}>
+                      <Trash2 className="h-4 w-4" /> Remove
+                    </Button>
+                  ) : null}
+                  <span className="text-[10px] text-muted-foreground">
+                    Recommended 3:1 ratio &lt; 5 MB
+                  </span>
                 </div>
               </div>
 
@@ -796,17 +1162,17 @@ function SettingsPage() {
 
                     {/* Right Column: Customization Controls */}
                     <div className="md:col-span-7 flex flex-col">
-                      {selectedStyle === "avataaars" || selectedStyle === "adventurer" || selectedStyle === "lorelei" ? (
-                        <Tabs defaultValue="face" className="w-full">
-                          <TabsList className="w-full grid grid-cols-3">
-                            <TabsTrigger value="face" className="text-xs">Face & Hair</TabsTrigger>
-                            <TabsTrigger value="expressions" className="text-xs" disabled={selectedStyle === "lorelei"}>Expression</TabsTrigger>
-                            <TabsTrigger value="clothing" className="text-xs" disabled={selectedStyle === "lorelei"}>Clothing</TabsTrigger>
-                          </TabsList>
+                      <Tabs defaultValue="face" className="w-full">
+                        <TabsList className="w-full grid grid-cols-3">
+                          <TabsTrigger value="face" className="text-xs">Face & Hair</TabsTrigger>
+                          <TabsTrigger value="expressions" className="text-xs">Expression</TabsTrigger>
+                          <TabsTrigger value="clothing" className="text-xs">Clothing</TabsTrigger>
+                        </TabsList>
 
-                          {/* Face & Hair Tab */}
-                          <TabsContent value="face" className="space-y-4 pt-3">
-                            {/* Skin Color Picker */}
+                        {/* Face & Hair Tab */}
+                        <TabsContent value="face" className="space-y-4 pt-3">
+                          {/* Skin Color Picker */}
+                          {(selectedStyle === "avataaars" || selectedStyle === "adventurer" || selectedStyle === "pixel-art" || selectedStyle === "lorelei") && (
                             <div className="space-y-1.5">
                               <Label className="text-xs font-semibold text-muted-foreground">Skin Color</Label>
                               <div className="flex flex-wrap gap-2">
@@ -835,42 +1201,53 @@ function SettingsPage() {
                                 ))}
                               </div>
                             </div>
+                          )}
 
-                            {/* Hair Style selection */}
-                            {selectedStyle !== "lorelei" && (
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between">
-                                  <Label className="text-xs font-semibold text-muted-foreground">Hair Style</Label>
-                                  <div className="flex bg-muted rounded-lg p-0.5 text-[10px] font-medium border">
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setHairGender("male");
-                                        setHairStyle("shortHairShortFlat");
-                                      }}
-                                      className={`px-2 py-0.5 rounded transition ${
-                                        hairGender === "male" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
-                                      }`}
-                                    >
-                                      Male / Short
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setHairGender("female");
-                                        setHairStyle("longHairStraight");
-                                      }}
-                                      className={`px-2 py-0.5 rounded transition ${
-                                        hairGender === "female" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
-                                      }`}
-                                    >
-                                      Female / Long
-                                    </button>
-                                  </div>
+                          {/* Hair Style selection */}
+                          {selectedStyle !== "fun-emoji" && (
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <Label className="text-xs font-semibold text-muted-foreground">
+                                  {selectedStyle === "bottts" ? "Robot Head Style" : "Hair Style"}
+                                </Label>
+                                <div className="flex bg-muted rounded-lg p-0.5 text-[10px] font-medium border">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setHairGender("male");
+                                      setHairStyle(selectedStyle === "adventurer" ? "short01" : "shortHairShortFlat");
+                                    }}
+                                    className={`px-2 py-0.5 rounded transition ${
+                                      hairGender === "male" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                                    }`}
+                                  >
+                                    {selectedStyle === "bottts" ? "Antenna / Bulb" : "Male / Short"}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setHairGender("female");
+                                      setHairStyle(selectedStyle === "adventurer" ? "long01" : "longHairStraight");
+                                    }}
+                                    className={`px-2 py-0.5 rounded transition ${
+                                      hairGender === "female" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                                    }`}
+                                  >
+                                    {selectedStyle === "bottts" ? "Radar / Horn" : "Female / Long"}
+                                  </button>
                                 </div>
-                                <div className="grid grid-cols-3 gap-1.5 max-h-32 overflow-y-auto pr-1">
-                                  {(hairGender === "male"
+                              </div>
+                              <div className="grid grid-cols-3 gap-1.5 max-h-32 overflow-y-auto pr-1">
+                                {(hairGender === "male"
+                                  ? (selectedStyle === "bottts"
                                     ? [
+                                        { id: "shortHairShortFlat", label: "Antenna" },
+                                        { id: "shortHairShortRound", label: "Bulb" },
+                                        { id: "shortHairShortCurly", label: "Horn" },
+                                        { id: "shortHairShortWaved", label: "Radar" },
+                                        { id: "shortHairTheCaesar", label: "Pyramid" },
+                                      ]
+                                    : [
                                         { id: "shortHairTheCaesar", label: "Caesar Cut" },
                                         { id: "shortHairShortFlat", label: "Short Flat" },
                                         { id: "shortHairShortRound", label: "Short Round" },
@@ -878,6 +1255,14 @@ function SettingsPage() {
                                         { id: "shortHairShortCurly", label: "Short Curly" },
                                         { id: "shortHairShaggyMullet", label: "Mullet" },
                                         { id: "noHair", label: "Bald" },
+                                      ])
+                                  : (selectedStyle === "bottts"
+                                    ? [
+                                        { id: "shortHairShortFlat", label: "Antenna" },
+                                        { id: "shortHairShortRound", label: "Bulb" },
+                                        { id: "shortHairShortCurly", label: "Horn" },
+                                        { id: "shortHairShortWaved", label: "Radar" },
+                                        { id: "shortHairTheCaesar", label: "Pyramid" },
                                       ]
                                     : [
                                         { id: "longHairStraight", label: "Long Straight" },
@@ -889,26 +1274,27 @@ function SettingsPage() {
                                         { id: "longHairBun", label: "Hair Bun" },
                                         { id: "longHairDreads", label: "Dreads" },
                                         { id: "longHairBigHair", label: "Big Hair" },
-                                      ]
-                                  ).map((hair) => (
-                                    <button
-                                      key={hair.id}
-                                      type="button"
-                                      onClick={() => setHairStyle(hair.id)}
-                                      className={`rounded-md border p-1 text-center text-[10px] font-medium transition leading-snug truncate ${
-                                        hairStyle === hair.id
-                                          ? "border-primary bg-primary/5 text-primary"
-                                          : "border-border hover:bg-muted"
-                                      }`}
-                                    >
-                                      {hair.label}
-                                    </button>
-                                  ))}
-                                </div>
+                                      ])
+                                ).map((hair) => (
+                                  <button
+                                    key={hair.id}
+                                    type="button"
+                                    onClick={() => setHairStyle(hair.id)}
+                                    className={`rounded-md border p-1 text-center text-[10px] font-medium transition leading-snug truncate ${
+                                      hairStyle === hair.id
+                                        ? "border-primary bg-primary/5 text-primary"
+                                        : "border-border hover:bg-muted"
+                                    }`}
+                                  >
+                                    {hair.label}
+                                  </button>
+                                ))}
                               </div>
-                            )}
+                            </div>
+                          )}
 
-                            {/* Hair Color Picker */}
+                          {/* Hair Color Picker */}
+                          {(selectedStyle === "avataaars" || selectedStyle === "adventurer" || selectedStyle === "pixel-art" || selectedStyle === "lorelei") && (
                             <div className="space-y-1.5">
                               <Label className="text-xs font-semibold text-muted-foreground">Hair Color</Label>
                               <div className="flex flex-wrap gap-2">
@@ -938,92 +1324,104 @@ function SettingsPage() {
                                 ))}
                               </div>
                             </div>
-                          </TabsContent>
+                          )}
+                        </TabsContent>
 
-                          {/* Expressions Tab */}
-                          <TabsContent value="expressions" className="space-y-4 pt-3">
-                            {/* Eyes Selector */}
+                        {/* Expressions Tab */}
+                        <TabsContent value="expressions" className="space-y-4 pt-3">
+                          {/* Eyes Selector */}
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold text-muted-foreground">Eyes Expression</Label>
+                            <Select value={eyesStyle} onValueChange={setEyesStyle}>
+                              <SelectTrigger className="w-full text-xs">
+                                <SelectValue placeholder="Select eyes style" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[
+                                  { id: "default", label: "Default" },
+                                  { id: "happy", label: "Happy" },
+                                  { id: "wink", label: "Wink / Playful" },
+                                  { id: "surprised", label: "Surprised" },
+                                  { id: "squint", label: "Squint" },
+                                  { id: "side", label: "Side Eye" },
+                                  { id: "hearts", label: "Loving / Hearts" },
+                                  { id: "close", label: "Closed / Sleepy" },
+                                ].map((eye) => (
+                                  <SelectItem key={eye.id} value={eye.id} className="text-xs">
+                                    {eye.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Mouth Selector */}
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold text-muted-foreground">Mouth Expression</Label>
+                            <Select value={mouthStyle} onValueChange={setMouthStyle}>
+                              <SelectTrigger className="w-full text-xs">
+                                <SelectValue placeholder="Select mouth style" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[
+                                  { id: "default", label: "Default" },
+                                  { id: "smile", label: "Smile" },
+                                  { id: "sad", label: "Sad / Frown" },
+                                  { id: "concerned", label: "Concerned" },
+                                  { id: "disbelief", label: "Disbelief" },
+                                  { id: "grimace", label: "Grimace" },
+                                  { id: "scream", label: "Scream" },
+                                  { id: "tongue", label: "Tongue Out" },
+                                ].map((m) => (
+                                  <SelectItem key={m.id} value={m.id} className="text-xs">
+                                    {m.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Accessories Selector */}
+                          {(selectedStyle === "avataaars" || selectedStyle === "adventurer" || selectedStyle === "bottts") && (
                             <div className="space-y-1.5">
-                              <Label className="text-xs font-semibold text-muted-foreground">Eyes Expression</Label>
-                              <Select value={eyesStyle} onValueChange={setEyesStyle}>
+                              <Label className="text-xs font-semibold text-muted-foreground">
+                                {selectedStyle === "bottts" ? "Robot Side Attachment" : "Accessories"}
+                              </Label>
+                              <Select value={accessoriesStyle} onValueChange={setAccessoriesStyle}>
                                 <SelectTrigger className="w-full text-xs">
-                                  <SelectValue placeholder="Select eyes style" />
+                                  <SelectValue placeholder="Select accessories" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {[
-                                    { id: "default", label: "Default" },
-                                    { id: "happy", label: "Happy" },
-                                    { id: "wink", label: "Wink / Playful" },
-                                    { id: "surprised", label: "Surprised" },
-                                    { id: "squint", label: "Squint" },
-                                    { id: "side", label: "Side Eye" },
-                                    { id: "hearts", label: "Loving / Hearts" },
-                                    { id: "close", label: "Closed / Sleepy" },
-                                  ].map((eye) => (
-                                    <SelectItem key={eye.id} value={eye.id} className="text-xs">
-                                      {eye.label}
+                                  {(selectedStyle === "bottts"
+                                    ? [
+                                        { id: "none", label: "None" },
+                                        { id: "prescription01", label: "Antenna" },
+                                        { id: "round", label: "Earphones" },
+                                        { id: "sunglasses", label: "Cables" },
+                                      ]
+                                    : [
+                                        { id: "none", label: "None" },
+                                        { id: "prescription01", label: "Regular Glasses" },
+                                        { id: "round", label: "Round Glasses" },
+                                        { id: "sunglasses", label: "Sunglasses" },
+                                        { id: "wayfarer", label: "Wayfarer Shades" },
+                                        { id: "kurt", label: "Round Sunnies" },
+                                      ]
+                                  ).map((acc) => (
+                                    <SelectItem key={acc.id} value={acc.id} className="text-xs">
+                                      {acc.label}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
                             </div>
+                          )}
+                        </TabsContent>
 
-                            {/* Mouth Selector */}
-                            <div className="space-y-1.5">
-                              <Label className="text-xs font-semibold text-muted-foreground">Mouth Expression</Label>
-                              <Select value={mouthStyle} onValueChange={setMouthStyle}>
-                                <SelectTrigger className="w-full text-xs">
-                                  <SelectValue placeholder="Select mouth style" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {[
-                                    { id: "default", label: "Default" },
-                                    { id: "smile", label: "Smile" },
-                                    { id: "sad", label: "Sad / Frown" },
-                                    { id: "concerned", label: "Concerned" },
-                                    { id: "disbelief", label: "Disbelief" },
-                                    { id: "grimace", label: "Grimace" },
-                                    { id: "scream", label: "Scream" },
-                                    { id: "tongue", label: "Tongue Out" },
-                                  ].map((m) => (
-                                    <SelectItem key={m.id} value={m.id} className="text-xs">
-                                      {m.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            {/* Accessories Selector */}
-                            {selectedStyle !== "lorelei" && (
-                              <div className="space-y-1.5">
-                                <Label className="text-xs font-semibold text-muted-foreground">Accessories</Label>
-                                <Select value={accessoriesStyle} onValueChange={setAccessoriesStyle}>
-                                  <SelectTrigger className="w-full text-xs">
-                                    <SelectValue placeholder="Select accessories" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {[
-                                      { id: "none", label: "None" },
-                                      { id: "prescription01", label: "Regular Glasses" },
-                                      { id: "round", label: "Round Glasses" },
-                                      { id: "sunglasses", label: "Sunglasses" },
-                                      { id: "wayfarer", label: "Wayfarer Shades" },
-                                      { id: "kurt", label: "Round Sunnies" },
-                                    ].map((acc) => (
-                                      <SelectItem key={acc.id} value={acc.id} className="text-xs">
-                                        {acc.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            )}
-                          </TabsContent>
-
-                          {/* Clothing Tab */}
-                          <TabsContent value="clothing" className="space-y-4 pt-3">
-                            {/* Clothing Style */}
+                        {/* Clothing Tab */}
+                        <TabsContent value="clothing" className="space-y-4 pt-3">
+                          {/* Clothing Style */}
+                          {(selectedStyle === "avataaars" || selectedStyle === "pixel-art" || selectedStyle === "lorelei") && (
                             <div className="space-y-1.5">
                               <Label className="text-xs font-semibold text-muted-foreground">Clothing Style</Label>
                               <Select value={clothingStyle} onValueChange={setClothingStyle}>
@@ -1047,10 +1445,18 @@ function SettingsPage() {
                                 </SelectContent>
                               </Select>
                             </div>
+                          )}
 
-                            {/* Clothing Color Picker */}
+                          {/* Clothing Color Picker */}
+                          {selectedStyle !== "adventurer" && (
                             <div className="space-y-1.5">
-                              <Label className="text-xs font-semibold text-muted-foreground">Clothing Color</Label>
+                              <Label className="text-xs font-semibold text-muted-foreground">
+                                {selectedStyle === "bottts"
+                                  ? "Robot Metal Color"
+                                  : selectedStyle === "fun-emoji"
+                                  ? "Background Color"
+                                  : "Clothing Color"}
+                              </Label>
                               <div className="flex flex-wrap gap-2">
                                 {[
                                   { val: "262e3d", color: "#262e3d", label: "Navy" },
@@ -1080,28 +1486,25 @@ function SettingsPage() {
                                 ))}
                               </div>
                             </div>
-                          </TabsContent>
-                        </Tabs>
-                      ) : (
-                        <div className="flex flex-col items-center justify-center flex-1 py-10 text-center text-muted-foreground border border-dashed rounded-xl p-4 bg-muted/15">
-                          <Sparkles className="h-8 w-8 text-yellow-500 mb-2 animate-bounce" />
-                          <p className="text-xs font-semibold">Artistic Preset Style Selected</p>
-                          <p className="text-[11px] max-w-xs mt-1">
-                            This style (like Robot, Pixel Art, or Fun Emoji) is automatically generated. Change the Base Seed or click Randomize to design features!
-                          </p>
-                        </div>
-                      )}
+                          )}
+                        </TabsContent>
+                      </Tabs>
                     </div>
                   </div>
 
-                  <DialogFooter className="border-t pt-4">
-                    <Button variant="outline" onClick={() => setCartoonOpen(false)} className="text-xs h-9">
-                      Cancel
+                  <DialogFooter className="border-t pt-4 flex items-center justify-between">
+                    <Button variant="outline" type="button" onClick={randomizeAllFeatures} className="text-xs h-9 gap-1 mr-auto">
+                      <Sparkles className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" /> Randomize All
                     </Button>
-                    <Button onClick={saveCartoonAvatar} disabled={savingCartoon} className="text-xs h-9">
-                      {savingCartoon ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
-                      Use Character Avatar
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button variant="outline" type="button" onClick={() => setCartoonOpen(false)} className="text-xs h-9">
+                        Cancel
+                      </Button>
+                      <Button onClick={saveCartoonAvatar} disabled={savingCartoon} className="text-xs h-9">
+                        {savingCartoon ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                        Use Character Avatar
+                      </Button>
+                    </div>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>

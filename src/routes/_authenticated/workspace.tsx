@@ -86,7 +86,7 @@ function WorkspacePage() {
   const handleDrop = async (e: React.DragEvent, status: string) => {
     e.preventDefault();
     if (!draggedTaskId || !activeProjectId) return;
-    const task = tasksQ.data?.find((t) => t.id === draggedTaskId);
+    const task = tasksQ.data?.find((t: any) => t.id === draggedTaskId);
     if (task && task.status !== status) {
       // Optimistic update
       qc.setQueryData(["tasks", activeProjectId], (old: any[]) =>
@@ -129,7 +129,7 @@ function WorkspacePage() {
           
           <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-2">Projects</div>
           <div className="flex-1 overflow-y-auto space-y-1">
-            {projects.map((p) => (
+            {projects.map((p: any) => (
               <button
                 key={p.id}
                 onClick={() => setActiveProjectId(p.id)}
@@ -156,7 +156,7 @@ function WorkspacePage() {
             <>
               <div className="h-14 border-b bg-white flex items-center justify-between px-6 shrink-0">
                 <div className="flex items-center gap-4">
-                  <h1 className="font-semibold">{projects.find(p => p.id === activeProjectId)?.name}</h1>
+                  <h1 className="font-semibold">{projects.find((p: any) => p.id === activeProjectId)?.name}</h1>
                   <div className="h-4 w-px bg-slate-200" />
                   <div className="flex gap-1">
                     <Button variant="ghost" size="sm" className="h-8 bg-slate-100"><LayoutGrid className="h-4 w-4 mr-2" /> Board</Button>
@@ -186,7 +186,7 @@ function WorkspacePage() {
                         <col.icon className={`h-4 w-4 ${col.color}`} />
                         {col.title}
                         <span className="ml-2 text-xs text-muted-foreground bg-slate-200 px-2 py-0.5 rounded-full">
-                          {tasks.filter((t) => t.status === col.id).length}
+                          {tasks.filter((t: any) => t.status === col.id).length}
                         </span>
                       </div>
                       <Button variant="ghost" size="icon" className="h-6 w-6"><Plus className="h-4 w-4 text-muted-foreground" onClick={() => { setTaskStatus(col.id); setNewTaskOpen(true); }} /></Button>
@@ -194,7 +194,7 @@ function WorkspacePage() {
 
                     <div className="flex-1 overflow-y-auto p-1 space-y-3 min-h-[150px]">
                       <AnimatePresence>
-                        {tasks.filter((t) => t.status === col.id).map((task) => (
+                        {tasks.filter((t: any) => t.status === col.id).map((task: any) => (
                           <motion.div
                             key={task.id}
                             layout
@@ -242,7 +242,7 @@ function WorkspacePage() {
                           </motion.div>
                         ))}
                       </AnimatePresence>
-                      {tasks.filter((t) => t.status === col.id).length === 0 && (
+                      {tasks.filter((t: any) => t.status === col.id).length === 0 && (
                         <div className="h-full w-full border-2 border-dashed border-slate-200 rounded-lg flex items-center justify-center text-sm text-slate-400 py-6">
                           Drop tasks here
                         </div>
