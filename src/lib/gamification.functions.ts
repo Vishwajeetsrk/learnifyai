@@ -134,17 +134,17 @@ export const awardXP = createServerFn({ method: "POST" })
         .select("badge_id")
         .eq("user_id", data.userId);
 
-      const earnedIds = new Set((earnedBadges || []).map((b) => b.badge_id));
-      const toAward = allBadges.filter((b) => {
+      const earnedIds = new Set((earnedBadges || []).map((b: any) => b.badge_id));
+      const toAward = (allBadges as any[]).filter((b: any) => {
         if (earnedIds.has(b.id)) return false;
         if (b.category === "xp" && b.xp_required !== null && newXp >= b.xp_required) return true;
         if (b.category === "streak" && b.streak_required !== null && currentStreak >= b.streak_required) return true;
         return false;
       });
       if (toAward.length > 0) {
-        await supabaseAdmin
+        await (supabaseAdmin as any)
           .from("user_badges")
-          .insert(toAward.map((b) => ({ user_id: data.userId, badge_id: b.id })));
+          .insert(toAward.map((b: any) => ({ user_id: data.userId, badge_id: b.id })));
       }
     }
 

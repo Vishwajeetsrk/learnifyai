@@ -139,7 +139,7 @@ export const executeTestCases = createServerFn({ method: "POST" })
       try {
         const args = Object.values(tc.input as Record<string, any>).map((v) => JSON.stringify(v)).join(", ");
         const testCode = `${data.code}\n\nconsole.log(JSON.stringify(main(${args})));`;
-        const res = await executeCode({ data: { language: data.language, code: testCode, stdin: "" }, context: null as any });
+        const res = await executeCode({ data: { language: data.language, code: testCode, stdin: "" } } as any);
         if (!res.success) {
           results.push({ passed: false, input: tc.input, expected: tc.expected, actual: null, error: (res as any).error });
         } else {

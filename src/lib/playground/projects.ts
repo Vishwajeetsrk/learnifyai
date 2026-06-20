@@ -103,7 +103,7 @@ export const updateProject = createServerFn({ method: "POST" })
     const { data: existing } = await supabase
       .from("playground_projects").select("user_id").eq("id", id).single();
     if (!existing || existing.user_id !== userId) throw new Error("Not authorized");
-    updates.updated_at = new Date().toISOString() as any;
+    (updates as any).updated_at = new Date().toISOString();
     const { data: project, error } = await supabase
       .from("playground_projects").update(updates).eq("id", id).select().single();
     if (error) throw new Error(error.message);

@@ -38,7 +38,7 @@ export const getPublicProfile = createServerFn({ method: "GET" })
         .from("certificates")
         .select("*", { count: "exact", head: true })
         .eq("user_id", id),
-      supabaseAdmin
+      (supabaseAdmin as any)
         .from("playground_projects")
         .select("id, title, description, language, template, is_public, tags, created_at, updated_at")
         .eq("user_id", id)
