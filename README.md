@@ -252,9 +252,38 @@ To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ---
 
+---
+
 ## 📄 License
 
 MIT License. See [LICENSE](LICENSE) for details.
+
+---
+
+## 📋 Changelog
+
+### v1.3.0 (June 2026)
+- 🔴 **CRITICAL FIX**: Resolved fatal JS bundle crash (`Cannot set properties of undefined — Activity`) that prevented React from hydrating on production, making all interactive elements non-functional
+- ✅ Sign In, Google OAuth, dark mode toggle, AI Toolkit demos now fully working
+- ✅ Pricing page: loads 3 plans (Starter, Pro, Team) correctly
+- ✅ Events page: displays all 3 events with images, titles, dates, locations
+- ✅ Roadmap page: shows full roadmap timeline with status badges
+- ✅ FAQ: category filter buttons interactive
+- ✅ Email footer: auto-updates year using `new Date().getFullYear()`
+- ✅ Certificate: Learnify AI logo now shown on certificate + PDF download working
+
+### v1.2.0 (June 2026)
+- Premium SVG email templates (welcome + certificate) with no emojis
+- Professional certificate PDF generation with QR code verification
+- Admin email template editor with live preview
+- Super admin can delete any post
+- AI Toolkit generate buttons work without requiring user input
+
+### v1.1.0 (June 2026)
+- Complete UI overhaul with glassmorphism design
+- Dark mode + 6-color theme system
+- Gamification: XP, streaks, badges, leaderboard
+- Creator economy: course builder, cohorts, payouts
 
 ---
 
