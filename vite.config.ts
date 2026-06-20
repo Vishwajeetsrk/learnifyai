@@ -24,7 +24,7 @@ export default defineConfig({
       external: ["nodemailer"],
     },
     build: {
-      chunkSizeWarningLimit: 1500, // Suppress the chunk size warning
+      chunkSizeWarningLimit: 2500, // Suppress the chunk size warning
       rollupOptions: {
         // Prevent Node.js-only packages from being bundled for the browser.
         // These are used ONLY in server functions (createServerFn) and must

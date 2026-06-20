@@ -121,7 +121,7 @@ const APP_ROLES = ["super_admin", "admin", "creator", "student"] as const;
 type AppRole = (typeof APP_ROLES)[number];
 
 // Activity SVG icon (placed after all imports to avoid bundle initialization crash)
-function Activity({ className }: { className?: string }) {
+function ActivityIcon({ className }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -785,7 +785,7 @@ function AdminOverview() {
     {
       label: "AI requests (24h)",
       value: aiReq24hQuery.isLoading ? "…" : (aiReq24hQuery.data ?? 0).toLocaleString("en-IN"),
-      icon: Activity,
+      icon: ActivityIcon,
       tint: "from-violet-500/30 to-violet-500/0",
     },
     {
@@ -2015,7 +2015,7 @@ function AiCostPanel({
       <div className="px-6 py-4 border-b flex items-center justify-between">
         <div>
           <h2 className="font-display text-lg font-semibold flex items-center gap-2">
-            <Activity className="h-4 w-4 text-primary" /> AI cost (real-time)
+            <ActivityIcon className="h-4 w-4 text-primary" /> AI cost (real-time)
           </h2>
           <p className="text-xs text-muted-foreground">
             {rangeLabel} · {rows.length.toLocaleString("en-IN")} requests
