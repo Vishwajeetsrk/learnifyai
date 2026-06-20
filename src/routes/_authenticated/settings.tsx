@@ -20,6 +20,7 @@ import {
   KeyRound,
   XCircle,
   Building2,
+  Sparkles,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -139,6 +140,50 @@ function SettingsPage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [avatarSignedUrl, setAvatarSignedUrl] = useState<string | null>(null);
+
+  /* ── Cartoon Character customization ── */
+  const [cartoonOpen, setCartoonOpen] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState("adventurer");
+  const [seed, setSeed] = useState("Learnify");
+  const [savingCartoon, setSavingCartoon] = useState(false);
+
+  const CARTOON_STYLES = [
+    { id: "adventurer", label: "Adventurer" },
+    { id: "bottts", label: "Robot" },
+    { id: "pixel-art", label: "Pixel Art" },
+    { id: "fun-emoji", label: "Fun Emoji" },
+    { id: "lorelei", label: "Lorelei" },
+    { id: "avataaars", label: "Casual Character" },
+  ];
+
+  const currentCartoonUrl = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${encodeURIComponent(seed)}`;
+
+  async function saveCartoonAvatar() {
+    if (!user) return;
+    setSavingCartoon(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ avatar_url: currentCartoonUrl })
+        .eq("id", user.id);
+      if (error) throw error;
+      toast.success("Character avatar updated!");
+      qc.invalidateQueries({ queryKey: ["profile-full"] });
+      setCartoonOpen(false);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to save avatar");
+    } finally {
+      setSavingCartoon(false);
+    }
+  }
+
+  function randomizeSeed() {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let res = "";
+    for (let i = 0; i < 8; i++) res += chars[Math.floor(Math.random() * chars.length)];
+    setSeed(res);
+  }
+
 
   const [prefs, setPrefs] = useState<NotifPrefs>({
     new_subscriber: true,
@@ -607,6 +652,9 @@ function SettingsPage() {
                     )}
                     Upload photo
                   </Button>
+                  <Button size="sm" variant="outline" onClick={() => setCartoonOpen(true)}>
+                    <Sparkles className="h-4 w-4 text-yellow-500 fill-yellow-500" /> Customize Character
+                  </Button>
                   {profileQ.data?.avatar_url ? (
                     <Button size="sm" variant="outline" onClick={removeAvatar}>
                       <Trash2 className="h-4 w-4" /> Remove
@@ -617,6 +665,72 @@ function SettingsPage() {
                   </p>
                 </div>
               </div>
+
+              {/* Cartoon Character Customization Dialog */}
+              <Dialog open={cartoonOpen} onOpenChange={setCartoonOpen}>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Customize Character</DialogTitle>
+                    <DialogDescription>
+                      Design your own cartoon avatar. Change styles or seeds to randomize details.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-3 flex flex-col items-center">
+                    {/* Live Preview */}
+                    <div className="relative h-28 w-28 rounded-full border-4 border-muted overflow-hidden shadow-inner bg-accent/20 flex items-center justify-center">
+                      <img src={currentCartoonUrl} className="h-full w-full object-cover" alt="Avatar Preview" />
+                    </div>
+
+                    <div className="w-full space-y-3">
+                      {/* Character Style Selection */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Style</label>
+                        <div className="grid grid-cols-3 gap-1 text-xs">
+                          {CARTOON_STYLES.map((style) => (
+                            <button
+                              key={style.id}
+                              type="button"
+                              onClick={() => setSelectedStyle(style.id)}
+                              className={`rounded-md border p-1.5 text-center font-medium transition ${
+                                selectedStyle === style.id
+                                  ? "border-primary bg-primary/10 text-primary"
+                                  : "border-border hover:bg-muted"
+                              }`}
+                            >
+                              {style.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Seed Input */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Character Seed (Unique Key)</label>
+                        <div className="flex gap-2">
+                          <Input
+                            value={seed}
+                            onChange={(e) => setSeed(e.target.value)}
+                            placeholder="Type anything to change features..."
+                            className="flex-1 text-xs h-8"
+                          />
+                          <Button size="sm" variant="outline" className="h-8 text-xs shrink-0" onClick={randomizeSeed}>
+                            Randomize
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setCartoonOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={saveCartoonAvatar} disabled={savingCartoon}>
+                      {savingCartoon ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                      Use character
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
 
               <div className="grid sm:grid-cols-2 gap-4">
                 <Field label="Name">

@@ -769,6 +769,7 @@ function CourseDetail() {
                   key={active.id}
                   courseId={course.id}
                   courseTitle={course.title}
+                  courseSlug={course.slug}
                   lesson={active}
                   initialTab={initialTab}
                   hasToolAccess={hasFullToolAccess}
@@ -1035,12 +1036,14 @@ type Lesson = {
 function LessonAiTabs({
   courseId,
   courseTitle,
+  courseSlug,
   lesson,
   initialTab,
   hasToolAccess,
 }: {
   courseId: string;
   courseTitle: string;
+  courseSlug?: string;
   lesson: Lesson;
   initialTab?: CourseTab;
   hasToolAccess: boolean;
@@ -1202,7 +1205,7 @@ function LessonAiTabs({
 
       {hasToolAccess && (
         <TabsContent value="playground" className="pt-4">
-          <CodePlayground />
+          <CodePlayground course={{ id: courseId, title: courseTitle, slug: courseSlug }} />
         </TabsContent>
       )}
 
@@ -1246,7 +1249,7 @@ const LANG_LOGOS: Record<string, string> = {
   python: "https://cdn.simpleicons.org/python/3776AB",
   javascript: "https://cdn.simpleicons.org/javascript/F7DF1E",
   typescript: "https://cdn.simpleicons.org/typescript/3178C6",
-  cpp: "https://cdn.simpleicons.org/c%2B%2B/00599C",
+  cpp: "https://cdn.simpleicons.org/cplusplus/00599C",
   c: "https://cdn.simpleicons.org/c/A8B9CC",
   java: "https://cdn.simpleicons.org/java/007396",
   go: "https://cdn.simpleicons.org/go/00ADD8",
@@ -1254,7 +1257,7 @@ const LANG_LOGOS: Record<string, string> = {
   ruby: "https://cdn.simpleicons.org/ruby/CC342D",
   php: "https://cdn.simpleicons.org/php/777BB4",
   bash: "https://cdn.simpleicons.org/gnubash/4EAA25",
-  sql: "https://cdn.simpleicons.org/postgresql/4479A1",
+  sql: "https://cdn.simpleicons.org/sqlite/003B57",
   swift: "https://cdn.simpleicons.org/swift/F05138",
   kotlin: "https://cdn.simpleicons.org/kotlin/7F52FF",
   scala: "https://cdn.simpleicons.org/scala/DC322F",
@@ -1264,13 +1267,15 @@ const LANG_LOGOS: Record<string, string> = {
   lua: "https://cdn.simpleicons.org/lua/2C2D72",
   perl: "https://cdn.simpleicons.org/perl/39457E",
   r: "https://cdn.simpleicons.org/r/276DC3",
-  csharp: "https://cdn.simpleicons.org/c%23/239120",
+  csharp: "https://cdn.simpleicons.org/csharp/239120",
   zig: "https://cdn.simpleicons.org/zig/F7A41D",
   julia: "https://cdn.simpleicons.org/julia/9558B2",
   lisp: "https://cdn.simpleicons.org/lisp/3F0000",
   nim: "https://cdn.simpleicons.org/nim/FFE953",
   groovy: "https://cdn.simpleicons.org/apachegroovy/4298B8",
   powershell: "https://cdn.simpleicons.org/powershell/5391FE",
+  html5: "https://cdn.simpleicons.org/html5/E34F26",
+  css3: "https://cdn.simpleicons.org/css3/1572B6",
 };
 
 const LANG_COLORS: Record<string, string> = {
@@ -1285,7 +1290,7 @@ const LANG_COLORS: Record<string, string> = {
   ruby: "#CC342D",
   php: "#777BB4",
   bash: "#4EAA25",
-  sql: "#4479A1",
+  sql: "#003B57",
   swift: "#F05138",
   kotlin: "#7F52FF",
   scala: "#DC322F",
@@ -1302,6 +1307,8 @@ const LANG_COLORS: Record<string, string> = {
   nim: "#FFE953",
   groovy: "#4298B8",
   powershell: "#5391FE",
+  html5: "#E34F26",
+  css3: "#1572B6",
 };
 
 function LanguageIcon({ id, className }: { id: string; className?: string }) {
@@ -1379,8 +1386,46 @@ const WEB_DEFAULTS = {
   js: 'console.log("preview ready");',
 };
 
-function CodePlayground() {
-  const [mode, setMode] = useState<"code" | "web" | "database" | "api" | "tools">("code");
+function CodePlayground({ course }: { course?: any }) {
+  const defaultMode = useMemo(() => {
+    if (!course) return "code";
+    const title = (course.title || "").toLowerCase();
+    const slug = (course.slug || "").toLowerCase();
+    
+    // If it's WordPress, frontend, web development, HTML, CSS, React, etc. -> default to "web"
+    if (
+      title.includes("wordpress") ||
+      title.includes("web development") ||
+      title.includes("frontend") ||
+      title.includes("html") ||
+      title.includes("css") ||
+      title.includes("react") ||
+      slug.includes("wordpress") ||
+      slug.includes("web") ||
+      slug.includes("frontend") ||
+      slug.includes("react")
+    ) {
+      return "web";
+    }
+    // If it's database, SQL, Postgres, SQLite, etc. -> default to "database"
+    if (
+      title.includes("database") ||
+      title.includes("sql") ||
+      title.includes("postgres") ||
+      title.includes("sqlite") ||
+      slug.includes("database") ||
+      slug.includes("sql")
+    ) {
+      return "database";
+    }
+    return "code";
+  }, [course]);
+
+  const [mode, setMode] = useState<"code" | "web" | "database" | "api" | "tools">(defaultMode);
+
+  useEffect(() => {
+    setMode(defaultMode);
+  }, [defaultMode]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -1417,7 +1462,7 @@ function CodePlayground() {
         </button>
       </div>
       {mode === "code" ? (
-        <CodeMode />
+        <CodeMode course={course} />
       ) : mode === "web" ? (
         <WebMode />
       ) : mode === "database" ? (
@@ -1431,9 +1476,40 @@ function CodePlayground() {
   );
 }
 
-function CodeMode() {
-  const [lang, setLang] = useState("python");
-  const [code, setCode] = useState(PLAYGROUND_DEFAULTS.python);
+function CodeMode({ course }: { course?: any }) {
+  const defaultLang = useMemo(() => {
+    if (!course) return "python";
+    const title = (course.title || "").toLowerCase();
+    const slug = (course.slug || "").toLowerCase();
+
+    if (title.includes("python") || slug.includes("python")) return "python";
+    if (title.includes("typescript") || slug.includes("typescript")) return "typescript";
+    if (title.includes("javascript") || slug.includes("javascript")) return "javascript";
+    if (title.includes("php") || title.includes("wordpress") || slug.includes("php") || slug.includes("wordpress")) return "php";
+    if (title.includes("java") || slug.includes("java")) return "java";
+    if (title.includes("cpp") || title.includes("c++") || slug.includes("cpp") || slug.includes("cplusplus")) return "cpp";
+    if (title.includes("c#") || title.includes("csharp") || slug.includes("csharp")) return "csharp";
+    if (title.includes("go") || slug.includes("go")) return "go";
+    if (title.includes("rust") || slug.includes("rust")) return "rust";
+    if (title.includes("ruby") || slug.includes("ruby")) return "ruby";
+    if (title.includes("bash") || slug.includes("bash")) return "bash";
+    if (title.includes("kotlin") || slug.includes("kotlin")) return "kotlin";
+    if (title.includes("swift") || slug.includes("swift")) return "swift";
+    if (title.includes("dart") || slug.includes("dart")) return "dart";
+    if (title.includes("scala") || slug.includes("scala")) return "scala";
+    if (title.includes("sql") || slug.includes("sql")) return "sql";
+
+    return "python";
+  }, [course]);
+
+  const [lang, setLang] = useState(defaultLang);
+  const [code, setCode] = useState(PLAYGROUND_DEFAULTS[defaultLang] ?? PLAYGROUND_DEFAULTS.python);
+
+  useEffect(() => {
+    setLang(defaultLang);
+    setCode(PLAYGROUND_DEFAULTS[defaultLang] ?? PLAYGROUND_DEFAULTS.python);
+    setOutput(null);
+  }, [defaultLang]);
   const [stdin, setStdin] = useState("");
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(
