@@ -56,6 +56,7 @@ const nav: NavItem[] = [
   { to: "/inbox", label: "Inbox", icon: Inbox },
   { to: "/wallet", label: "Wallet", icon: WalletIcon },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
+  { to: "/support", label: "Support", icon: Sparkles },
   { to: "/creator", label: "Creator", icon: BarChart3, creatorOnly: true },
   { to: "/studio", label: "Studio", icon: Clapperboard, creatorOnly: true },
   { to: "/admin", label: "Admin", icon: Shield, adminOnly: true },

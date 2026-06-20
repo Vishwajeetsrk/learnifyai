@@ -30,7 +30,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Leaderboard & Achievements:** XP-based leaderboard at `/leaderboard` with weekly/all-time tabs, custom left-to-right podium display (Ranks 1, 2, and 3) for both Weekly and All-time periods, rank badges (Crown/Medal), level system (Bronze/Silver/Gold/Platinum/Diamond), XP progress bar, and streak tracking. Achievements page at `/achievements` with categorized badges (XP Milestones, Course Badges, Streak Mastery, Test Champion, Challenge Solver) showing earned/locked state, date earned, and progress bars.
 - **Community Feed:** Share updates, post questions, attach media, create polls, post announcements, and engage with peers. Rich text editor with Bold, Italic, Underline, text color, font size, font family, heading dropdown, bullet/ordered lists, emoji picker, and text alignment. Complete with comment author avatars, live poll voting, and pinned announcements. Authors can edit/delete their own posts and comments; admins can edit/delete any post or comment.
 - **Dashboard — My Learning:** Enrolled courses grid with responsive layout (1-4 columns), progress bars, test attempt stats, Continue/Playground buttons. Responsive card design with `min-w-0`, `break-words`, and `flex-wrap` for small screens.
-- **Profile Cartoon Character Customization:** Custom design personalized cartoon avatars in the Profile tab in Settings, selecting from multiple cartoon styles (Casual Character, Adventurer, Robot, Pixel Art, Fun Emoji, Lorelei). Offers full detail-level customizability including face color/skin tone, male/female hair styles, hair color, expressions (eyes, mouth), clothing style, clothing color, accessories, or randomize. Powered by the Dicebear API.
+- **Profile Cartoon Character Customization:** Custom design personalized cartoon avatars in the Profile tab in Settings, selecting from 6 cartoon styles (Casual Character, Adventurer, Robot, Pixel Art, Fun Emoji, Lorelei). Offers full detail-level customizability including face color/skin tone, male/female hair styles, hair color, expressions (eyes, mouth), clothing style, clothing color, accessories, and 15 profile border styles (neon, gradient, rainbow, dashed, etc.) with CSS glow effects — all rendered on both settings preview and public profile page. Automatically restores your previous customization when re-opening the dialog. Powered by Dicebear API.
 - **Dynamic Roadmaps:** CMS-backed public roadmap showing shipped, in-progress, and planned features.
 - **Verifiable Certificates (System 2.0):** Drag-and-drop WYSIWYG certificate designer with 10 distinct theme presets (Executive Gold, Modern Corporate, University Style, Creator Academy, Nature Green, Royal Purple, Sunset Orange, Ocean Teal, Midnight Amber, Rose Gold), visual border pickers (double/solid/dashed/ornate/none), corner styles (diagonal/ribbon/none), background patterns (solid/dots/grid/stripes/gradient), color pickers, font selectors, and QR code integration. Rich text formatting bar (Bold/Italic/Underline, text presets H1-H4/Body/Small, emoji picker, 20-color preset grid, per-element font overrides from 12 fonts). **Organization Logo** element type renders the issuer's org branding on certificates. Z-index layering, duplicate, and delete controls. Live canvas preview with fixed framer-motion drag-and-drop (no CSS transform conflicts). Public verification and PDF download.
 
@@ -139,8 +139,8 @@ learnifyai/
 │   │   ├── playground-ai-debug-panel.tsx  # AI Debug Panel (8 modes) for in-course playground
 │   │   ├── playground-database.tsx        # In-browser SQLite playground with Schema Builder
 │   │   ├── CertificateDesign.tsx     # Cert renderer with 10 theme presets + drag-and-drop
-│   │   ├── AppShell.tsx              # App shell layout + GlobalSupportAgent floating chat bubble
-│   │   ├── GlobalSupportAgent.tsx    # Full-screen floating AI support chat (OpenRouter, multi-turn)
+│   │   ├── AppShell.tsx              # App shell layout with sidebar nav including Support link + GlobalSupportAgent floating chat bubble
+│   │   ├── GlobalSupportAgent.tsx    # Floating AI support chat bubble across all pages — animated avatar, typing indicator, tool execution display (OpenRouter, multi-turn)
 │   │   └── ui/                      # Shadcn UI primitives
 │   ├── hooks/              # Custom React hooks (use-auth, etc.)
 │   ├── integrations/       # API clients (Supabase, Cashfree)
@@ -176,7 +176,8 @@ learnifyai/
 │   │   │   ├── cart.tsx        # Cart with coupon support, Cashfree checkout, enrollment
 │   │   │   ├── leaderboard.tsx # XP leaderboard with weekly/all-time tabs, podium, level badges, progress bar
 │   │   │   ├── achievements.tsx # Achievements page with categorized badges, earned/locked state, progress bars
-│   │   │   ├── settings.tsx    # Unified 5-tab settings: Profile (with View Public Profile link), Billing, Notifications, Settings, Branding (org name, logo, brand color, invoice customization — admin/Team only)
+│   │   │   ├── settings.tsx    # Unified 5-tab settings: Profile (with View Public Profile link, custom cartoon character designer with 6 art styles, 15 profile border styles, cover image upload), Billing, Notifications, Settings, Branding (org name, logo, brand color, invoice customization — admin/Team only)
+│   │   │   ├── support.tsx     # Standalone support chat page — AI assistant with full conversation history
 │   │   │   ├── pricing.tsx     # Subscription plans page with subscribe/cancel flow
 │   │   │   ├── playlist.tsx    # Course player with inline AI tutor + agent
 │   │   │   ├── studio.tsx      # Creator Studio — AI Auto-Complete + course defaults from profile settings

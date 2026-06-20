@@ -70,6 +70,30 @@ const inr = (n: number) =>
     maximumFractionDigits: 0,
   }).format(n);
 
+function getProfileBorderClass(url: string | null | undefined): string {
+  if (!url) return "";
+  const match = url.match(/[?&]profile_border=([^&]+)/);
+  if (!match) return "";
+  const border = decodeURIComponent(match[1]);
+  switch (border) {
+    case "neon-blue": return "ring-2 ring-blue-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(96,165,250,0.5)]";
+    case "neon-pink": return "ring-2 ring-pink-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,114,182,0.5)]";
+    case "neon-green": return "ring-2 ring-green-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(74,222,128,0.5)]";
+    case "gold-gradient": return "ring-2 ring-amber-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,191,36,0.5)]";
+    case "rainbow-glow": return "ring-2 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)] animate-pulse";
+    case "dashed-red": return "border-2 border-dashed border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]";
+    case "royal-purple": return "ring-2 ring-purple-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)]";
+    case "retro-orange": return "ring-2 ring-orange-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,146,60,0.5)]";
+    case "ocean-teal": return "ring-2 ring-teal-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(45,212,191,0.5)]";
+    case "sunset-amber": return "ring-2 ring-amber-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(245,158,11,0.5)]";
+    case "cyber-cyan": return "ring-2 ring-cyan-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(34,211,238,0.5)]";
+    case "fire-ruby": return "ring-2 ring-rose-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,63,94,0.5)]";
+    case "ice-crystal": return "ring-2 ring-sky-200 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(186,230,253,0.5)]";
+    case "midnight-glow": return "ring-2 ring-indigo-600 ring-offset-2 ring-offset-background shadow-[0_0_20px_rgba(79,70,229,0.6)]";
+    default: return "";
+  }
+}
+
 const SKILL_OPTIONS = [
   "HTML",
   "CSS",
@@ -163,6 +187,12 @@ function SettingsPage() {
     { id: "dashed-red", label: "Dashed Red" },
     { id: "royal-purple", label: "Royal Purple" },
     { id: "retro-orange", label: "Retro Orange" },
+    { id: "ocean-teal", label: "Ocean Teal" },
+    { id: "sunset-amber", label: "Sunset Amber" },
+    { id: "cyber-cyan", label: "Cyber Cyan" },
+    { id: "fire-ruby", label: "Fire Ruby" },
+    { id: "ice-crystal", label: "Ice Crystal" },
+    { id: "midnight-glow", label: "Midnight Glow" },
   ];
 
   // Granular customization states
@@ -365,6 +395,32 @@ function SettingsPage() {
       setSavingCartoon(false);
     }
   }
+
+  /* ── Parse existing avatar into cartoon controls ── */
+  useEffect(() => {
+    if (!cartoonOpen) return;
+    const url = profileQ.data?.avatar_url;
+    if (!url || !url.includes("api.dicebear.com")) return;
+    try {
+      const u = new URL(url);
+      const pathParts = u.pathname.split("/");
+      const styleFromUrl = pathParts.find((p) => CARTOON_STYLES.some((s) => s.id === p));
+      if (styleFromUrl) setSelectedStyle(styleFromUrl);
+      const seedVal = u.searchParams.get("seed") || "Learnify";
+      setSeed(seedVal);
+      if (u.searchParams.has("skinColor")) setSkinColor(u.searchParams.get("skinColor")!);
+      if (u.searchParams.has("top")) setHairStyle(u.searchParams.get("top")!);
+      if (u.searchParams.has("hairColor")) setHairColor(u.searchParams.get("hairColor")!);
+      if (u.searchParams.has("mouth")) setMouthStyle(u.searchParams.get("mouth")!);
+      if (u.searchParams.has("eyes")) setEyesStyle(u.searchParams.get("eyes")!);
+      if (u.searchParams.has("clothing")) setClothingStyle(u.searchParams.get("clothing")!);
+      if (u.searchParams.has("clothingColor")) setClothingColor(u.searchParams.get("clothingColor")!);
+      if (u.searchParams.has("accessories") || u.searchParams.get("accessoriesProbability") === "0") {
+        setAccessoriesStyle(u.searchParams.get("accessories") || "none");
+      }
+      if (u.searchParams.has("profile_border")) setProfileBorder(u.searchParams.get("profile_border")!);
+    } catch {}
+  }, [cartoonOpen]);
 
   function randomizeSeed() {
     const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -940,7 +996,7 @@ function SettingsPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row items-center gap-5">
-                <Avatar className="h-24 w-24 border-4 border-card shadow-md shrink-0">
+                <Avatar className={cn("h-24 w-24 border-4 border-card shadow-md shrink-0", getProfileBorderClass(avatarSignedUrl))}>
                   {avatarSignedUrl ? <AvatarImage src={avatarSignedUrl} /> : null}
                   <AvatarFallback className="text-2xl bg-primary/10 text-primary">
                     {initials}

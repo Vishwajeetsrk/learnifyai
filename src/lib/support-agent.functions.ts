@@ -78,7 +78,7 @@ async function callOpenRouter(messages: any[]) {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://learnifyai.vercel.app",
+      "HTTP-Referer": "https://learnifyaitool.vercel.app",
     },
     body: JSON.stringify({
       model: AGENT_MODEL,

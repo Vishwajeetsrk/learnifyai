@@ -25,7 +25,7 @@ function buildProvider(key: string) {
     baseURL: "https://openrouter.ai/api/v1",
     headers: {
       Authorization: `Bearer ${key}`,
-      "HTTP-Referer": "https://learnify.ai",
+      "HTTP-Referer": "https://learnifyaitool.vercel.app",
       "X-Title": "Learnify AI Playground",
     },
   });

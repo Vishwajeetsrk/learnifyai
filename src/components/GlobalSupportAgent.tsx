@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from "react";
-import { Bot, MessageSquare, Send, X, Loader2, Sparkles, Trash2, ArrowRight, Play, Terminal } from "lucide-react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { Bot, MessageSquare, Send, X, Loader2, Sparkles, Trash2, ArrowRight, Play, Terminal, Brain } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
@@ -25,6 +25,35 @@ type Message = {
   steps?: Step[];
 };
 
+function BotAvatar({ className }: { className?: string }) {
+  return (
+    <div className={cn("h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shrink-0 shadow-sm", className)}>
+      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-white">
+        <rect x="5" y="8" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        <circle cx="9" cy="13" r="1" fill="currentColor" />
+        <circle cx="15" cy="13" r="1" fill="currentColor" />
+        <path d="M12 15c0 0 1 1 2 0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M9 5l1.5 3h3L15 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M7 6l-2 3M17 6l2 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
+function TypingDots() {
+  return (
+    <div className="flex items-center gap-1.5 px-3 py-2">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="h-1.5 w-1.5 rounded-full bg-primary/50 animate-bounce"
+          style={{ animationDelay: `${i * 0.15}s`, animationDuration: "0.8s" }}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function GlobalSupportAgent() {
   const { user, isAdmin, isCreator } = useAuth();
   const path = useRouterState({ select: (s) => s.location.pathname });
@@ -35,6 +64,7 @@ export function GlobalSupportAgent() {
   const [liveStep, setLiveStep] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatFn = useServerFn(supportChat);
+  const [showIntro, setShowIntro] = useState(true);
 
   const userContext = useMemo(() => {
     if (!user) return "Anonymous Visitor";
@@ -42,10 +72,6 @@ export function GlobalSupportAgent() {
     const role = isAdmin ? "Admin" : isCreator ? "Creator" : "Student";
     return `Name: ${name}, Email: ${user.email}, Role: ${role}`;
   }, [user, isAdmin, isCreator]);
-
-  function useMemo<T>(fn: () => T, deps: any[]): T {
-    return fn(); // Simple inline fallback since useMemo is not imported
-  }
 
   useEffect(() => {
     if (open) {
@@ -59,6 +85,7 @@ export function GlobalSupportAgent() {
     if (!input.trim() || busy) return;
     const q = input.trim();
     setInput("");
+    setShowIntro(false);
     setMessages((p) => [...p, { role: "user", content: q }]);
     setBusy(true);
     setLiveStep("Thinking...");
@@ -89,33 +116,42 @@ export function GlobalSupportAgent() {
   const clear = () => {
     if (confirm("Clear support chat history?")) {
       setMessages([]);
+      setShowIntro(true);
       toast.success("History cleared");
     }
   };
 
-  if (!user) return null; // Only show support widget to authenticated users
+  if (!user) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
       {open ? (
         <div className="w-96 max-w-[calc(100vw-2rem)] h-[550px] max-h-[calc(100vh-8rem)] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
-          <header className="bg-gradient-to-r from-primary to-violet-600 text-primary-foreground px-4 py-3 flex items-center justify-between shrink-0 shadow-sm">
-            <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 animate-pulse" />
+          <header className="bg-gradient-to-r from-violet-600 via-primary to-fuchsia-600 text-primary-foreground px-4 py-3 flex items-center justify-between shrink-0 shadow-sm relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1),transparent_60%)]" />
+            <div className="flex items-center gap-2.5 relative">
+              <div className="relative">
+                <BotAvatar />
+                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-background animate-ping" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-background" />
+              </div>
               <div>
-                <h3 className="font-display font-semibold text-sm">Learnify Support</h3>
+                <h3 className="font-display font-semibold text-sm flex items-center gap-1.5">
+                  Learnify Support
+                  <Sparkles className="h-3 w-3 text-yellow-200" />
+                </h3>
                 <div className="flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span className="h-1 w-1 rounded-full bg-emerald-400" />
                   <span className="text-[10px] opacity-90">Online Assistant</span>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 relative">
               {messages.length > 0 && (
                 <button
                   onClick={clear}
-                  className="p-1 rounded-md hover:bg-white/10 transition text-primary-foreground/80 hover:text-white"
+                  className="p-1.5 rounded-md hover:bg-white/10 transition text-primary-foreground/80 hover:text-white"
                   title="Clear history"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -123,7 +159,7 @@ export function GlobalSupportAgent() {
               )}
               <button
                 onClick={() => setOpen(false)}
-                className="p-1 rounded-md hover:bg-white/10 transition text-primary-foreground/80 hover:text-white"
+                className="p-1.5 rounded-md hover:bg-white/10 transition text-primary-foreground/80 hover:text-white"
                 title="Close chat"
               >
                 <X className="h-4 w-4" />
@@ -132,15 +168,18 @@ export function GlobalSupportAgent() {
           </header>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20">
-            {messages.length === 0 && (
-              <div className="text-center py-10 space-y-3">
-                <div className="h-10 w-10 rounded-2xl bg-primary/10 grid place-items-center mx-auto text-primary">
-                  <Sparkles className="h-5 w-5" />
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/20 scrollbar-thin">
+            {messages.length === 0 && showIntro && (
+              <div className="text-center py-8 space-y-4 animate-in fade-in duration-300">
+                <div className="relative inline-flex">
+                  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 grid place-items-center mx-auto text-white shadow-lg">
+                    <Brain className="h-7 w-7" />
+                  </div>
+                  <span className="absolute -top-1 -right-1 text-lg">👋</span>
                 </div>
                 <h4 className="font-display font-semibold text-sm">How can I help you today?</h4>
-                <p className="text-xs text-muted-foreground max-w-[240px] mx-auto leading-relaxed">
-                  Ask me about courses, playground modes, assignments, coaching slots, or navigating around the website.
+                <p className="text-xs text-muted-foreground max-w-[220px] mx-auto leading-relaxed">
+                  Ask me about courses, playground modes, assignments, coaching slots, or navigating the website.
                 </p>
                 <div className="grid gap-1.5 max-w-[240px] mx-auto pt-2">
                   {[
@@ -150,10 +189,13 @@ export function GlobalSupportAgent() {
                   ].map((s) => (
                     <button
                       key={s}
-                      onClick={() => setInput(s)}
-                      className="text-left text-[11px] border bg-card hover:bg-accent rounded-lg p-2.5 transition leading-snug"
+                      onClick={() => { setInput(s); setShowIntro(false); }}
+                      className="text-left text-[11px] border bg-card hover:bg-accent hover:border-primary/30 rounded-lg p-2.5 transition-all leading-snug group"
                     >
-                      {s}
+                      <span className="flex items-center gap-1.5">
+                        <ArrowRight className="h-3 w-3 text-primary opacity-0 group-hover:opacity-100 transition -ml-0.5" />
+                        {s}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -161,13 +203,26 @@ export function GlobalSupportAgent() {
             )}
 
             {messages.map((m, i) => (
-              <div key={i} className={cn("flex flex-col gap-1.5", m.role === "user" ? "items-end" : "items-start")}>
+              <div
+                key={i}
+                className={cn(
+                  "flex flex-col gap-1.5 animate-in slide-in-from-bottom-2 duration-200",
+                  m.role === "user" ? "items-end" : "items-start"
+                )}
+                style={{ animationDelay: `${i * 0.05}s` }}
+              >
+                {m.role === "assistant" && (
+                  <div className="flex items-center gap-2 pl-0.5">
+                    <BotAvatar className="h-6 w-6" />
+                    <span className="text-[10px] font-medium text-muted-foreground">Learnify AI</span>
+                  </div>
+                )}
                 <div
                   className={cn(
                     "rounded-2xl px-3 py-2 text-xs leading-relaxed max-w-[85%] border shadow-sm",
                     m.role === "user"
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-card text-card-foreground border-border"
+                      ? "bg-primary text-primary-foreground border-primary rounded-tr-sm"
+                      : "bg-card text-card-foreground border-border rounded-tl-sm"
                   )}
                 >
                   <ReactMarkdown
@@ -233,9 +288,13 @@ export function GlobalSupportAgent() {
             ))}
 
             {busy && (
-              <div className="rounded-lg border border-muted bg-muted/20 p-2.5 animate-pulse max-w-[85%]">
-                <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
-                  <Loader2 className="h-3 w-3 animate-spin" /> {liveStep || "Working..."}
+              <div className="flex items-start gap-2">
+                <BotAvatar className="h-6 w-6" />
+                <div className="rounded-lg border bg-card p-1 shadow-sm max-w-[85%]">
+                  <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+                    {liveStep === "Thinking..." ? <TypingDots /> : <Loader2 className="h-3 w-3 animate-spin ml-2" />}
+                    {liveStep && liveStep !== "Thinking..." && <span className="pr-2">{liveStep}</span>}
+                  </div>
                 </div>
               </div>
             )}
@@ -260,20 +319,23 @@ export function GlobalSupportAgent() {
               size="icon"
               onClick={send}
               disabled={!input.trim() || busy}
-              className="shrink-0 rounded-xl h-[38px] w-[38px]"
+              className="shrink-0 rounded-xl h-[38px] w-[38px] bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             </Button>
           </div>
         </div>
       ) : (
-        <button
-          onClick={() => setOpen(true)}
-          className="h-12 w-12 rounded-full bg-gradient-to-r from-primary to-violet-600 text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-105 hover:shadow-primary/25 hover:rotate-3 transition duration-300"
-          title="Open Help & Support"
-        >
-          <MessageSquare className="h-5 w-5" />
-        </button>
+        <div className="flex flex-col items-end gap-2">
+          <button
+            onClick={() => setOpen(true)}
+            className="h-14 w-14 rounded-full bg-gradient-to-r from-violet-500 via-primary to-fuchsia-500 text-primary-foreground shadow-2xl flex items-center justify-center hover:scale-110 hover:shadow-primary/30 hover:rotate-6 transition-all duration-300 group relative"
+            title="Open Help & Support"
+          >
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-500 via-primary to-fuchsia-500 animate-ping opacity-20 group-hover:opacity-30" />
+            <MessageSquare className="h-6 w-6 relative" />
+          </button>
+        </div>
       )}
     </div>
   );
