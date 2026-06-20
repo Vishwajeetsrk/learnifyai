@@ -36,27 +36,14 @@ export default defineConfig({
         output: {
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
-            if (id.includes("react-dom") || id.includes("react") || id.includes("scheduler")) return "vendor-react";
-            if (id.includes("@tanstack")) return "vendor-tanstack";
-            if (id.includes("@supabase")) return "vendor-supabase";
-            if (id.includes("framer-motion")) return "vendor-motion";
-            if (
-              id.includes("react-markdown") ||
-              id.includes("remark-gfm") ||
-              id.includes("rehype-highlight") ||
-              id.includes("highlight.js")
-            )
-              return "vendor-markdown";
+            // Split out large, self-contained libraries to reduce vendor chunk size.
+            // Core libraries (react, react-dom, @tanstack, @supabase) must remain in the default 'vendor'
+            // chunk to avoid circular dependencies and runtime initialization crashes.
             if (id.includes("xlsx")) return "vendor-xlsx";
             if (id.includes("jspdf") || id.includes("html2canvas-pro")) return "vendor-pdf";
-            if (id.includes("youtube-transcript")) return "vendor-youtube";
-            if (id.includes("lucide-react")) return "vendor-icons";
-            if (id.includes("sonner")) return "vendor-toast";
-            if (id.includes("date-fns")) return "vendor-dates";
-            if (id.includes("react-day-picker")) return "vendor-daypicker";
-            if (id.includes("zod")) return "vendor-zod";
-            if (id.includes("axios")) return "vendor-axios";
-            if (id.includes("cmdk") || id.includes("@radix-ui")) return "vendor-radix";
+            if (id.includes("recharts")) return "vendor-charts";
+            if (id.includes("highlight.js")) return "vendor-highlight";
+            if (id.includes("@tiptap")) return "vendor-editor";
             return "vendor";
           },
         },
