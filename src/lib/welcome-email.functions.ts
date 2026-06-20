@@ -185,7 +185,7 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
 </div>
 </td></tr>
 <tr><td style="background:#0f172a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;border-top:1px solid #1e293b;">
-<p style="margin:0;color:#475569;font-size:12px;">© 2025 Learnify AI · <a href="https://learnifyaitool.vercel.app" style="color:#6366f1;text-decoration:none;">learnifyaitool.vercel.app</a></p>
+<p style="margin:0;color:#475569;font-size:12px;">© ${new Date().getFullYear()} Learnify AI · <a href="https://learnifyaitool.vercel.app" style="color:#6366f1;text-decoration:none;">learnifyaitool.vercel.app</a></p>
 </td></tr>
 </table></td></tr></table>
 </body></html>`;

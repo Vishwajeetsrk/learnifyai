@@ -130,7 +130,7 @@ function emailFooter() {
       <a href="https://learnifyaitool.vercel.app/contact" style="color:#475569;text-decoration:none;font-size:12px;margin:0 12px;">Contact</a>
     </div>
     <p style="margin:0;color:#334155;font-size:11px;line-height:1.6;">
-      © 2025 Learnify AI · Made with care for lifelong learners<br/>
+      © ${new Date().getFullYear()} Learnify AI · Made with care for lifelong learners<br/>
       <span style="color:#1e293b;">You're receiving this because you have an account at Learnify AI</span>
     </p>
   </td></tr>`;

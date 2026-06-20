@@ -30,22 +30,6 @@ import {
   Save,
 } from "lucide-react";
 
-function Activity({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-    </svg>
-  );
-}
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Area,
@@ -135,6 +119,24 @@ import {
 
 const APP_ROLES = ["super_admin", "admin", "creator", "student"] as const;
 type AppRole = (typeof APP_ROLES)[number];
+
+// Activity SVG icon (placed after all imports to avoid bundle initialization crash)
+function Activity({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
+  );
+}
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin Command Center — Learnify AI" }] }),
