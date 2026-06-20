@@ -24,11 +24,8 @@ export default defineConfig({
       external: ["nodemailer"],
     },
     build: {
-      chunkSizeWarningLimit: 2500, // Suppress the chunk size warning
+      chunkSizeWarningLimit: 2500,
       rollupOptions: {
-        // Prevent Node.js-only packages from being bundled for the browser.
-        // These are used ONLY in server functions (createServerFn) and must
-        // never appear in client-side JS. Vite cannot run them in the browser.
         external: ["nodemailer", "nodemailer/lib/mailer/index.js"],
         onwarn(warning, warn) {
           if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
@@ -39,9 +36,27 @@ export default defineConfig({
         output: {
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
-            // Only split large leaf dependencies that have no circular imports with core library packages.
+            if (id.includes("react-dom") || id.includes("react") || id.includes("scheduler")) return "vendor-react";
+            if (id.includes("@tanstack")) return "vendor-tanstack";
+            if (id.includes("@supabase")) return "vendor-supabase";
+            if (id.includes("framer-motion")) return "vendor-motion";
+            if (
+              id.includes("react-markdown") ||
+              id.includes("remark-gfm") ||
+              id.includes("rehype-highlight") ||
+              id.includes("highlight.js")
+            )
+              return "vendor-markdown";
             if (id.includes("xlsx")) return "vendor-xlsx";
             if (id.includes("jspdf") || id.includes("html2canvas-pro")) return "vendor-pdf";
+            if (id.includes("youtube-transcript")) return "vendor-youtube";
+            if (id.includes("lucide-react")) return "vendor-icons";
+            if (id.includes("sonner")) return "vendor-toast";
+            if (id.includes("date-fns")) return "vendor-dates";
+            if (id.includes("react-day-picker")) return "vendor-daypicker";
+            if (id.includes("zod")) return "vendor-zod";
+            if (id.includes("axios")) return "vendor-axios";
+            if (id.includes("cmdk") || id.includes("@radix-ui")) return "vendor-radix";
             return "vendor";
           },
         },
