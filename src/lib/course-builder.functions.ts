@@ -391,19 +391,19 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
                   {
                     role: "system",
                     content:
-                      "You write concise, technically accurate chapter notes from raw video transcripts. Output clean markdown only.",
+                      "You write concise, technically accurate chapter notes from raw video transcripts. Output clean HTML tags only. Do NOT use markdown symbols like **, ##, ### or bullet dashes. Use HTML lists, paragraphs, headers, and colored spans for visual styling.",
                   },
                   {
                     role: "user",
-                    content: `Chapter title: "${lesson.title}".\nFrom the transcript below, produce:\n- 4-8 bullet "Key takeaways"\n- "Detailed notes" (3-6 short paragraphs)\n- "Glossary" of 3-6 important terms with one-line definitions.\nDo not invent facts not present in the transcript.\n\nTRANSCRIPT:\n${transcript.slice(0, 15_000)}`,
+                    content: `Chapter title: "${lesson.title}".\nFrom the transcript below, produce a highly professional chapter summary formatted as clean HTML (no markdown markers or fences at all):\n1. "Key takeaways" (use a styled header <h3> and a bulleted <ul> list)\n2. "Detailed notes" (use a styled header <h3> and 3-6 short paragraphs with <p>)\n3. "Glossary" (use a styled header <h3> and a <ul> list defining 3-6 important terms)\n\nStyling rules:\n- Headers: Use <h3 style="color: #a78bfa; font-size: 1.125rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem;">\n- Bold text / terms: Use <strong style="color: #67e8f9;">\n- Bullet items: Use <li style="list-style-type: disc; margin-left: 1.25rem; margin-top: 0.25rem; margin-bottom: 0.25rem; color: #cbd5e1;">\n- Paragraphs: Use <p style="line-height: 1.625; margin-bottom: 0.75rem; color: #cbd5e1;">\n- Highlights: Use <span style="color: #818cf8; font-weight: 600;">\nDo not invent facts not present in the transcript.\n\nTRANSCRIPT:\n${transcript.slice(0, 15_000)}`,
                   },
                 ],
               });
               if (summary.ok) {
                 const j: any = await summary.json();
-                const summaryMd = (j.choices?.[0]?.message?.content as string) ?? "";
-                if (summaryMd) {
-                  newContent = `## ${lesson.title}\n\n${lesson.description ?? ""}\n\n### Recommended video\n[${hit.title} — ${hit.channelTitle}](${videoUrl})\n\n${summaryMd}\n`;
+                const summaryHtml = (j.choices?.[0]?.message?.content as string) ?? "";
+                if (summaryHtml) {
+                  newContent = `<h2 style="color: #8b5cf6; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem;">${lesson.title}</h2>\n\n<p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">${lesson.description ?? ""}</p>\n\n<h4 style="color: #6366f1; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem;">Recommended video</h4>\n<p style="margin-bottom: 1.5rem;"><a href="${videoUrl}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline; font-weight: 500;">${hit.title} — ${hit.channelTitle}</a></p>\n\n${summaryHtml}\n`;
                   stats.transcriptsAdded++;
                 }
               }
@@ -411,7 +411,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
           }
 
           if (!newContent.includes(videoUrl)) {
-            newContent = `${newContent}\n\n### Recommended video\n[${hit.title} — ${hit.channelTitle}](${videoUrl})\n`;
+            newContent = `${newContent}\n\n<h4 style="color: #6366f1; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem;">Recommended video</h4>\n<p><a href="${videoUrl}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline; font-weight: 500;">${hit.title} — ${hit.channelTitle}</a></p>\n`;
           }
 
           await supabaseAdmin

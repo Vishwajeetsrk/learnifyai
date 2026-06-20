@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { LessonSocial } from "@/components/LessonSocial";
 
 import { CustomVideoPlayer } from "@/components/CustomVideoPlayer";
@@ -571,16 +572,6 @@ function CourseDetail() {
           {course.title}
         </h1>
         <p className="text-muted-foreground mt-1 text-sm max-w-3xl">{course.description}</p>
-        {course.cover_url && (
-          <div className="mt-4 overflow-hidden rounded-2xl border bg-muted max-w-4xl aspect-video">
-            <img
-              src={course.cover_url}
-              alt={`${course.title} cover`}
-              className="h-full w-full object-cover"
-              loading="lazy"
-            />
-          </div>
-        )}
         <p className="text-xs text-muted-foreground mt-2">
           By{" "}
           {course.created_by ? (
@@ -1256,7 +1247,7 @@ function LockedCourseTools() {
 function Markdown({ children }: { children: string }) {
   return (
     <div className="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:text-foreground prose-code:before:hidden prose-code:after:hidden">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{children}</ReactMarkdown>
     </div>
   );
 }
@@ -2046,6 +2037,7 @@ function CourseAiAgent({ lesson }: { lesson: Lesson }) {
                   <div className="rounded-xl px-3 py-2 text-xs leading-relaxed max-w-[85%] bg-card border">
                     <ReactMarkdown
                       remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeRaw]}
                       components={{
                         pre: ({ children }) => (
                           <pre className="bg-muted rounded-lg p-2 my-1 overflow-x-auto text-[10px]">

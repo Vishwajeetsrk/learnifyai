@@ -327,3 +327,50 @@ export const recomputeProgress = createServerFn({ method: "POST" })
       .eq("course_id", data.courseId);
     return { pct, completed };
   });
+
+/* ---------------- Suggest course category ---------------- */
+export const suggestCourseCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        title: z.string().max(300),
+        description: z.string().max(2000).optional(),
+      })
+      .parse(d ?? {}),
+  )
+  .handler(async ({ data }) => {
+    const { callUserAiChat } = await import("@/lib/user-ai");
+
+    const SYSTEM = `You are a curriculum categorizer. Analyze the course title and description, then suggest a single, most fitting category name.
+If possible, match or adapt to one of these standard categories:
+- Development
+- Design
+- Marketing
+- AI & Data
+- Business
+- Personal Growth
+
+If none fit perfectly, suggest a custom 1-3 word capitalized category (e.g. "Finance", "Cybersecurity"). Respond with ONLY the category name. No explanations, no punctuation, no surrounding text.`;
+
+    const prompt = `Course Title: "${data.title}"\nDescription: "${data.description ?? ""}"`;
+
+    try {
+      const res = await callUserAiChat({
+        messages: [
+          { role: "system", content: SYSTEM },
+          { role: "user", content: prompt },
+        ],
+        temperature: 0.1,
+      });
+
+      if (!res.ok) throw new Error(`AI suggestion failed with status ${res.status}`);
+      const json = await res.json();
+      const text = (json.choices?.[0]?.message?.content ?? "").trim();
+      const category = text.replace(/^["']|["']$/g, "").trim();
+      return { category: category || "Development" };
+    } catch (err: any) {
+      console.error("suggestCourseCategory error:", err);
+      return { category: "Development" };
+    }
+  });

@@ -31,7 +31,12 @@ function formatTime(seconds: number) {
 }
 
 function extractYoutubeId(url: string): string | null {
-  const m = url.match(
+  if (!url) return null;
+  const trimmed = url.trim();
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return trimmed;
+  }
+  const m = trimmed.match(
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
   );
   return m ? m[1] : null;
@@ -138,6 +143,28 @@ export function CustomVideoPlayer({
       }
     }
   }, [youtubeId, setHighQuality]);
+
+  // Reset player when URL changes
+  useEffect(() => {
+    setHasStarted(false);
+    setReady(false);
+    setPlaying(false);
+    setLoading(true);
+    setError(false);
+    setCurrentTime(0);
+    setBuffered(0);
+    wantsPlayRef.current = false;
+    playerReadyRef.current = false;
+    
+    // For HTML5 video elements, we must call .load() on the video element when src changes
+    if (!youtubeId && videoRef.current) {
+      try {
+        videoRef.current.load();
+      } catch (err) {
+        console.error("Error loading HTML5 video:", err);
+      }
+    }
+  }, [url, youtubeId]);
 
   useEffect(() => {
     if (!youtubeId) {
@@ -249,6 +276,17 @@ export function CustomVideoPlayer({
       }
       (window as any)._ytReadyCallbacks.push(createPlayer);
     }
+
+    return () => {
+      if (playerApiRef.current) {
+        try {
+          playerApiRef.current.destroy();
+        } catch (e) {
+          console.error("Error destroying YT player:", e);
+        }
+        playerApiRef.current = null;
+      }
+    };
   }, [youtubeId]);
 
   useEffect(() => {

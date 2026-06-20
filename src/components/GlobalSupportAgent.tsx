@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supportChat } from "@/lib/support-agent.functions";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -103,6 +104,7 @@ function TypingDots() {
 export function GlobalSupportAgent() {
   const { user, isAdmin, isCreator } = useAuth();
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const isLeft = path.startsWith("/studio") || path.startsWith("/admin");
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -170,7 +172,7 @@ export function GlobalSupportAgent() {
   if (!user) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className={cn("fixed bottom-6 z-50 flex flex-col", isLeft ? "left-6 items-start" : "right-6 items-end")}>
       {open ? (
         <div className="w-96 max-w-[calc(100vw-2rem)] h-[550px] max-h-[calc(100vh-8rem)] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
@@ -282,6 +284,7 @@ export function GlobalSupportAgent() {
                 >
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw]}
                     components={{
                       pre: ({ children }) => (
                         <pre className="bg-muted rounded-lg p-2 my-1 overflow-x-auto text-[10px]">
@@ -393,7 +396,7 @@ export function GlobalSupportAgent() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col items-end gap-2 group/widget">
+        <div className={cn("flex flex-col gap-2 group/widget", isLeft ? "items-start" : "items-end")}>
           {/* A small premium greeting pill that glows and bounces */}
           <div className="bg-card/95 border shadow-xl rounded-2xl py-1.5 px-3 flex items-center gap-2 border-primary/30 backdrop-blur-md animate-bounce duration-[3000ms] cursor-pointer hover:border-primary transition" onClick={() => setOpen(true)}>
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />

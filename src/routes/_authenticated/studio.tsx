@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { runAiTool } from "@/lib/ai-tools.functions";
+import { suggestCourseCategory } from "@/lib/course.functions";
 import {
   generateFullCourse,
   materializeCourse,
@@ -546,6 +547,29 @@ function CourseFormDialog({
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("General");
+  const suggestCategoryFn = useServerFn(suggestCourseCategory);
+  const [suggestingCategory, setSuggestingCategory] = useState(false);
+
+  async function handleSuggestCategory() {
+    if (!title.trim()) return;
+    setSuggestingCategory(true);
+    try {
+      const res = await suggestCategoryFn({
+        data: {
+          title,
+          description,
+        },
+      });
+      if (res?.category) {
+        setCategory(res.category);
+        toast.success(`Category suggested: ${res.category}`);
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to suggest category");
+    } finally {
+      setSuggestingCategory(false);
+    }
+  }
   const [level, setLevel] = useState("Beginner");
   const [price, setPrice] = useState(0);
   const [instructor, setInstructor] = useState("Learnify AI");
@@ -776,7 +800,36 @@ function CourseFormDialog({
           </div>
           <div className="space-y-1.5">
             <Label>Category</Label>
-            <Input value={category} onChange={(e) => setCategory(e.target.value)} maxLength={50} />
+            <div className="flex gap-2">
+              <Input
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                maxLength={50}
+                list="course-categories-list"
+                placeholder="e.g. Development"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleSuggestCategory}
+                disabled={suggestingCategory || !title.trim()}
+              >
+                {suggestingCategory ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+                AI
+              </Button>
+            </div>
+            <datalist id="course-categories-list">
+              <option value="Development" />
+              <option value="Design" />
+              <option value="Marketing" />
+              <option value="AI & Data" />
+              <option value="Business" />
+              <option value="Personal Growth" />
+            </datalist>
           </div>
           <div className="space-y-1.5">
             <Label>Level</Label>

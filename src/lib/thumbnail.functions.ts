@@ -326,6 +326,11 @@ export const THUMBNAIL_STYLES = [
     hint: "vibrant gradient, large bold typography, high contrast",
   },
   {
+    id: "retro_flat",
+    label: "Retro Flat Vector",
+    hint: "mint green or flat pastel background, bold offset 3D shadow text, clean 2D vector illustrations, wireframes, cursor arrow, retro comic outline aesthetic",
+  },
+  {
     id: "minimal",
     label: "Minimal Clean",
     hint: "white background, thin sans-serif type, subtle accent shape",
