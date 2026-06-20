@@ -111,47 +111,101 @@ Learnify AI's playground features **multi-language compilation** powered by Wand
 ### Prerequisites
 
 - Node.js v18+
-- Supabase project (free tier works)
+- Supabase project (PostgreSQL database instance + Auth + Storage)
 - Cashfree merchant account (for payments)
-- At least one AI provider key (OpenRouter, Gemini, or Groq)
+- At least one AI provider key (Gemini, OpenRouter, or Groq)
 - Gmail App Password or Resend API key (for emails)
 
-### Setup
+### Setup & Run Guide
 
+Follow these steps to set up and run the platform locally:
+
+#### 1. Clone & Install Dependencies
 ```bash
-# Clone
+# Clone the repository
 git clone https://github.com/Vishwajeetsrk/learnifyai.git
 cd learnifyai
 
-# Install dependencies
+# Install npm packages
 npm install
+```
 
-# Configure environment
+#### 2. Environment Configuration
+Duplicate the example environment file and update it with your actual service credentials:
+```bash
 cp .env.example .env.local
-# Edit .env.local with your Supabase URL, keys, and API keys
+```
+Then edit `.env.local` to fill in your API keys, database URL, and Supabase credentials.
 
-# Run database migrations
+#### 3. Database Setup & Migrations
+Before running the app, create the database schema in your Supabase project. You can run migrations using the Supabase CLI:
+```bash
 npx supabase db push
+```
+Alternatively, to directly synchronize migrations via a PostgreSQL connection client:
+```bash
+node scripts/sync-migrations.cjs
+```
 
-# Start dev server
+#### 4. Seed Initial Data
+Once migrations have finished, seed the essential starting records (pricing plans, courses, events, jobs):
+```bash
+# Seed pricing plans (Starter, Pro, Team)
+node seed_pricing_plans.cjs
+
+# Seed launch event and job openings
+node seed-event-job.mjs
+
+# (Optional) Seed standard developer courses
+node scripts/seed_courses.mjs
+```
+
+#### 5. Run the Local Development Server
+Start the client application in development mode:
+```bash
 npm run dev
+```
+Open [http://localhost:8080](http://localhost:8080) (or the port shown in your terminal) to access the application.
+
+#### 6. Build and Preview (Production Check)
+To compile a production bundle and run the server locally:
+```bash
+# Build the application
+npm run build
+
+# Preview the built production output
+npm run preview
+```
+
+#### 7. Quality Checks & Verification
+Keep the codebase clean and verify logic using the following quality assurance commands:
+```bash
+# Run linting
+npm run lint
+
+# Format the codebase
+npm run format
+
+# Run E2E Playwright tests
+npx playwright test
 ```
 
 ### Environment Variables
 
 | Variable | Required | Description |
 | --- | --- | --- |
+| `DATABASE_URL` | ✅ | PostgreSQL connection string (for running migrations & seeds) |
 | `VITE_SUPABASE_URL` | ✅ | Supabase project URL |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅ | Supabase anon/public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Supabase service role key (server-side) |
-| `OPENROUTER_API_KEY` | ⚡ | OpenRouter API key for AI features |
-| `GEMINI_API_KEY` | ⚡ | Google Gemini API key |
-| `GROQ_API_KEY` | ⚡ | Groq API key |
-| `CASHFREE_APP_ID` | 💰 | Cashfree payment gateway |
-| `CASHFREE_SECRET_KEY` | 💰 | Cashfree secret key |
-| `GMAIL_EMAIL` | 📧 | Gmail address for sending emails |
-| `GMAIL_APP_PASSWORD` | 📧 | Gmail App Password (16-char) |
-| `RESEND_API_KEY` | 📧 | Resend API key (fallback/primary) |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Supabase service role key (secure server-side access) |
+| `OPENROUTER_API_KEY` | ⚡ | OpenRouter API key for AI tutoring and features |
+| `GEMINI_API_KEY` | ⚡ | Google Gemini API key (fallback or primary AI model) |
+| `GROQ_API_KEY` | ⚡ | Groq API key (for fast inference models) |
+| `CASHFREE_APP_ID` | 💰 | Cashfree payment gateway App ID |
+| `CASHFREE_SECRET_KEY` | 💰 | Cashfree payment gateway Secret Key |
+| `GMAIL_EMAIL` | 📧 | Gmail address for sending automated transactional emails |
+| `GMAIL_APP_PASSWORD` | 📧 | Gmail 16-character App Password |
+| `RESEND_API_KEY` | 📧 | Resend API key (email service fallback) |
 
 ---
 

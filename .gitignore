@@ -42,6 +42,8 @@ env
 client_secret_*.json
 .vercel
 .env*
+!.env.example
+
 
 # Playwright
 /test-results/

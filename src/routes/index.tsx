@@ -597,7 +597,7 @@ function PricingPlans() {
                       <ArrowRight className="h-4 w-4 ml-2" />
                     </Link>
                   </Button>
-                ) : showLogin ? (
+                ) : !user ? (
                   <Button asChild className="w-full h-11 text-sm font-semibold">
                     <Link to="/login">
                       <LogIn className="h-4 w-4 mr-2" /> Sign in to subscribe
