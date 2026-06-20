@@ -37,20 +37,26 @@ function LoginPage() {
   };
 
   const handleGoogle = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
 
-    if (error) {
-      toast.error(error.message ?? "Google sign-in failed");
-      return;
-    }
+      if (error) {
+        toast.error(error.message ?? "Google sign-in failed");
+        return;
+      }
 
-    if (data?.url) {
-      window.location.href = data.url;
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error("Unable to start Google sign-in. Check Supabase OAuth configuration.");
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? "Google sign-in encountered an error");
     }
   };
 

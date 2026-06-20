@@ -35,6 +35,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
+    // Safety timeout — if Supabase never responds, show the UI anyway after 5s
+    const safetyTimer = setTimeout(() => setLoading(false), 5000);
+
     // Register auth listener first
     const {
       data: { subscription },
@@ -58,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth
       .getSession()
       .then(({ data }) => {
+        clearTimeout(safetyTimer);
         setSession(data.session);
         if (data.session?.access_token) {
           document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=31536000; SameSite=Lax`;
@@ -70,10 +74,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error("Failed to restore Supabase session", error);
       })
       .finally(() => {
+        clearTimeout(safetyTimer);
         setLoading(false);
       });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(safetyTimer);
+    };
   }, []);
 
   const value: AuthContextValue = {
