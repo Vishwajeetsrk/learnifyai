@@ -18,6 +18,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 
 ### 🎓 For Learners
 - **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + unified HTML5 fallback). Features a premium cover overlay using the course thumbnail/cover image with an animated, glowing custom play button, hiding standard YouTube buttons/controls. Automatically selects and suggests the highest available quality resolution (HD/1080p/720p) for YouTube playback. Notes tab includes a **Listen** button that reads instructor notes aloud via Web Speech API (TTS). Auto-plays next unlocked lesson on video end (800ms delay).
+- **AI-Powered Exercise Grader:** Generate practical exercises from any lesson, write your solution in the integrated playground, and click **Check Exercise** for instant AI grading — score (0-100), pass/fail, structured correctness feedback, improvement suggestions, and actionable hints. Bridges the Exercise tab with the Playground for an end-to-end practice workflow.
 - **Integrated In-Course Playground:** Code, Web, **Database**, **API Tester**, and **Dev Tools** playgrounds embedded directly in lesson tabs — write Python/JS/C++/Java/Rust and more with **multi-executor fallback** (Judge0 → Wandbox → Piston), build HTML/CSS/JS sandboxes with live preview, run in-browser **SQLite** queries with a visual Schema Builder, test REST APIs with custom headers, query body, and request history, or use 18+ client-side utility tools (Image Compressor, Base64, JWT decoder, Diff checker, etc.) offline. Each code playground comes with an **AI Debug Panel** (8 modes: Diagnose, Explain, Fix, Optimize, Convert, Tests, Docs, Generate) powered by OpenRouter. Adaptive default mode (e.g. Web mode for WordPress/Frontend courses, Database mode for SQL courses) and course-aware programming language selection automatically adjust based on the current course title or slug.
 - **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
 - **Global Support Agent:** Floating AI chat bot (💬 bubble) available across the entire platform for any page — answers questions about courses, payments, features, and account support for learners, creators, and admins alike. Powered by OpenRouter with multi-turn memory.
@@ -148,6 +149,7 @@ learnifyai/
 │   │   ├── payment.functions.ts        # Cashfree order create + verify (pending/completed)
 │   │   ├── subscription.functions.ts   # Cashfree Subscriptions CRUD (sync plan, create/cancel/get subscription)
 │   │   ├── executors.ts                # Multi-executor language definitions (Judge0/Wandbox/Piston configs)
+│   │   ├── exercise-grader.functions.ts # AI-powered coding exercise grader (score, feedback, hints)
 │   │   ├── playground.functions.ts     # Code execution with multi-provider fallback (Judge0→Wandbox→Piston)
 │   │   ├── playground-ai.functions.ts  # AI Debug Panel server function (OpenRouter + Vercel AI SDK)
 │   │   ├── playground/                 # Playground server functions
