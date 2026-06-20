@@ -69,6 +69,12 @@ export function AiToolsShowcase() {
     }, 1200);
   };
 
+  // Trigger with default demo content if nothing typed
+  const triggerDemo = (defaultText: string) => {
+    if (!demoText.trim()) setDemoText(defaultText);
+    handleSimulate();
+  };
+
   const renderInteractiveDemo = () => {
     switch (selectedTool) {
       case "quiz":
@@ -108,9 +114,7 @@ export function AiToolsShowcase() {
                     type="button"
                     size="sm"
                     className="w-full text-xs"
-                    onClick={() => {
-                      if (demoText.trim()) handleSimulate();
-                    }}
+                    onClick={() => triggerDemo("React Hooks")}
                   >
                     Generate Quiz
                   </Button>
@@ -228,9 +232,7 @@ export function AiToolsShowcase() {
                     type="button"
                     size="sm"
                     className="w-full text-xs"
-                    onClick={() => {
-                      if (demoText.trim()) handleSimulate();
-                    }}
+                    onClick={() => triggerDemo("How does CSS Flexbox work?")}
                   >
                     Solve Doubt
                   </Button>
@@ -318,9 +320,7 @@ export function AiToolsShowcase() {
                     type="button"
                     size="sm"
                     className="w-full text-xs"
-                    onClick={() => {
-                      if (demoText.trim()) handleSimulate();
-                    }}
+                    onClick={() => triggerDemo("Full-Stack Developer")}
                   >
                     Generate Roadmap
                   </Button>
@@ -417,9 +417,7 @@ export function AiToolsShowcase() {
                     type="button"
                     size="sm"
                     className="w-full text-xs"
-                    onClick={() => {
-                      if (demoText.trim()) handleSimulate();
-                    }}
+                    onClick={() => triggerDemo("SQL Joins")}
                   >
                     Schedule Spaced Reviews
                   </Button>
@@ -517,9 +515,7 @@ export function AiToolsShowcase() {
                     type="button"
                     size="sm"
                     className="w-full text-xs"
-                    onClick={() => {
-                      if (demoText.trim()) handleSimulate();
-                    }}
+                    onClick={() => triggerDemo("https://youtube.com/watch?v=dQw4w9WgXcQ")}
                   >
                     Synthesize Video
                   </Button>

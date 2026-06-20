@@ -81,17 +81,21 @@ function RoadmapPage() {
   const q = useQuery({
     queryKey: ["public-roadmap"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", "roadmap_items")
-        .single();
-      if (data?.value) {
-        try {
-          return JSON.parse(data.value as string) as typeof defaults;
-        } catch {
-          return defaults;
+      try {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "roadmap_items")
+          .single();
+        if (data?.value) {
+          try {
+            return JSON.parse(data.value as string) as typeof defaults;
+          } catch {
+            return defaults;
+          }
         }
+      } catch {
+        // DB not available or table missing — use defaults
       }
       return defaults;
     },

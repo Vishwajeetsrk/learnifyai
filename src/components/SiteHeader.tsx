@@ -36,7 +36,8 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          {loading ? null : isAuthenticated ? (
+          {/* While loading, show Sign In / Get Started optimistically (not authenticated yet) */}
+          {isAuthenticated && !loading ? (
             <Button
               asChild
               size="sm"

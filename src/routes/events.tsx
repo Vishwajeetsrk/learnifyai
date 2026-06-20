@@ -37,16 +37,21 @@ function EventsPage() {
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["events-public"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .gte("starts_at", new Date(Date.now() - 86400_000 * 30).toISOString())
-        .order("starts_at", { ascending: true });
-      if (error) {
-        console.warn("Events DB query failed:", error);
-        throw error;
+      try {
+        const { data, error } = await supabase
+          .from("events")
+          .select("*")
+          .gte("starts_at", new Date(Date.now() - 86400_000 * 30).toISOString())
+          .order("starts_at", { ascending: true });
+        if (error) {
+          console.warn("Events DB query failed:", error);
+          return [];
+        }
+        return (data ?? []) as EventRow[];
+      } catch (err) {
+        console.warn("Events fetch caught exception:", err);
+        return [];
       }
-      return (data ?? []) as EventRow[];
     },
   });
 

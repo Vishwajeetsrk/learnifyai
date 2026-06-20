@@ -87,8 +87,8 @@ function PricingPage() {
         ai_credits_monthly: Number(p.ai_credits_monthly || 0),
       })) as Plan[];
     },
-    retry: false,
-    enabled: typeof window !== "undefined",
+    retry: 2,
+    staleTime: 60_000,
   });
 
   const currentSub = useQuery({
