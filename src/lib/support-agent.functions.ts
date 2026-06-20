@@ -2,7 +2,9 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { executeCode } from "./playground.functions";
 
-const AGENT_MODEL = process.env.AGENT_MODEL || "openai/gpt-4o-mini";
+const AGENT_MODEL = process.env.AGENT_MODEL || "";
+const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 const FALLBACK_MODELS = [
@@ -78,41 +80,73 @@ const SupportMessageSchema = z.object({
   currentPath: z.string().max(500).optional(),
 });
 
-async function callOpenRouter(messages: any[]) {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
+// Provider cascade: Groq (working) → Gemini → OpenRouter (last resort)
+const AI_PROVIDERS = [
+  {
+    name: "Groq",
+    url: GROQ_URL,
+    getKey: () => process.env.GROQ_API_KEY,
+    models: ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile"],
+    extraHeaders: {} as Record<string, string>,
+  },
+  {
+    name: "Gemini",
+    url: GEMINI_URL,
+    getKey: () => process.env.GEMINI_API_KEY,
+    models: ["gemini-2.5-flash"],
+    extraHeaders: {} as Record<string, string>,
+  },
+  {
+    name: "OpenRouter",
+    url: OPENROUTER_URL,
+    getKey: () => process.env.OPENROUTER_API_KEY,
+    models: AGENT_MODEL
+      ? [AGENT_MODEL, ...FALLBACK_MODELS.filter((m) => m !== AGENT_MODEL)]
+      : FALLBACK_MODELS,
+    extraHeaders: { "HTTP-Referer": "https://learnifyaitool.vercel.app" } as Record<string, string>,
+  },
+];
 
-  const models = [AGENT_MODEL, ...FALLBACK_MODELS.filter((m) => m !== AGENT_MODEL)];
-  let lastError: unknown;
+async function callAI(messages: any[], systemPrompt: string) {
+  const errors: string[] = [];
 
-  for (const model of models) {
-    try {
-      const res = await fetch(OPENROUTER_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-          "HTTP-Referer": "https://learnifyaitool.vercel.app",
-        },
-        body: JSON.stringify({
-          model,
-          messages: [{ role: "system", content: SUPPORT_SYSTEM }, ...messages.slice(-20)],
-          tools: TOOLS,
-          tool_choice: "auto",
-          max_tokens: 2048,
-        }),
-      });
+  for (const provider of AI_PROVIDERS) {
+    const apiKey = provider.getKey();
+    if (!apiKey?.trim()) continue;
 
-      if (res.ok) return res.json();
+    for (const model of provider.models) {
+      try {
+        const res = await fetch(provider.url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+            ...provider.extraHeaders,
+          },
+          body: JSON.stringify({
+            model,
+            messages: [{ role: "system", content: systemPrompt }, ...messages.slice(-20)],
+            tools: TOOLS,
+            tool_choice: "auto",
+            max_tokens: 2048,
+          }),
+        });
 
-      const text = await res.text().catch(() => "Unknown");
-      lastError = new Error(`OpenRouter error (${res.status}) on ${model}: ${text}`);
-    } catch (e) {
-      lastError = e;
+        if (res.ok) return res.json();
+
+        const text = await res.text().catch(() => "Unknown");
+        if (res.status === 401 || res.status === 403) {
+          errors.push(`${provider.name}/${model}: auth failed (${res.status})`);
+          break;
+        }
+        errors.push(`${provider.name}/${model}: ${res.status} ${text.slice(0, 100)}`);
+      } catch (e: any) {
+        errors.push(`${provider.name}/${model}: ${e?.message}`);
+      }
     }
   }
 
-  throw lastError ?? new Error("All models failed");
+  throw new Error(`All AI providers failed: ${errors.join(" | ")}`);
 }
 
 async function executeTool(name: string, args: any) {
@@ -184,7 +218,7 @@ export const supportChat = createServerFn({ method: "POST" })
 
     while (rounds < 5) {
       rounds++;
-      const json = await callOpenRouter(messages);
+      const json = await callAI(messages, SUPPORT_SYSTEM);
       const choice = json.choices?.[0];
       if (!choice) throw new Error("No response from model");
 

@@ -7,13 +7,7 @@ type ChatBody = {
 
 const USER_AI_PROVIDERS = [
   {
-    name: "Gemini API",
-    keyEnv: "GEMINI_API_KEY",
-    url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-    fastModel: "gemini-2.5-flash",
-    proModel: "gemini-2.5-pro",
-  },
-  {
+    // Groq: fastest, free tier, works well
     name: "Groq",
     keyEnv: "GROQ_API_KEY",
     url: "https://api.groq.com/openai/v1/chat/completions",
@@ -21,6 +15,15 @@ const USER_AI_PROVIDERS = [
     proModel: "llama-3.3-70b-versatile",
   },
   {
+    // Gemini: best quality, falls back if quota exceeded
+    name: "Gemini API",
+    keyEnv: "GEMINI_API_KEY",
+    url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+    fastModel: "gemini-2.5-flash",
+    proModel: "gemini-2.5-pro",
+  },
+  {
+    // OpenRouter: last resort fallback
     name: "OpenRouter",
     keyEnv: "OPENROUTER_API_KEY",
     url: "https://openrouter.ai/api/v1/chat/completions",
