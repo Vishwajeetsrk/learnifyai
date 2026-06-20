@@ -5,50 +5,56 @@ import * as AvatarPrimitive from "@radix-ui/react-avatar";
 
 import { cn } from "@/lib/utils";
 
+export function getProfileBorderClass(url: string | null | undefined): string {
+  if (!url) return "";
+  const match = url.match(/[?&]profile_border=([^&]+)/);
+  if (!match) return "";
+  const border = decodeURIComponent(match[1]);
+  switch (border) {
+    case "neon-blue":
+      return "ring-2 ring-blue-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(96,165,250,0.5)]";
+    case "neon-pink":
+      return "ring-2 ring-pink-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,114,182,0.5)]";
+    case "neon-green":
+      return "ring-2 ring-green-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(74,222,128,0.5)]";
+    case "gold-gradient":
+      return "ring-2 ring-amber-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,191,36,0.5)]";
+    case "rainbow-glow":
+      return "ring-2 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)] animate-pulse";
+    case "dashed-red":
+      return "border-2 border-dashed border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]";
+    case "royal-purple":
+      return "ring-2 ring-purple-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)]";
+    case "retro-orange":
+      return "ring-2 ring-orange-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,146,60,0.5)]";
+    case "ocean-teal":
+      return "ring-2 ring-teal-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(45,212,191,0.5)]";
+    case "sunset-amber":
+      return "ring-2 ring-amber-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(245,158,11,0.5)]";
+    case "cyber-cyan":
+      return "ring-2 ring-cyan-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(34,211,238,0.5)]";
+    case "fire-ruby":
+      return "ring-2 ring-rose-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,63,94,0.5)]";
+    case "ice-crystal":
+      return "ring-2 ring-sky-200 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(186,230,253,0.5)]";
+    case "midnight-glow":
+      return "ring-2 ring-indigo-600 ring-offset-2 ring-offset-background shadow-[0_0_20px_rgba(79,70,229,0.6)]";
+    default:
+      return "";
+  }
+}
+
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->(({ className, children, ...props }, ref) => {
+>((({ className, children, ...props }, ref) => {
   let borderClass = "";
 
   React.Children.forEach(children, (child) => {
     if (React.isValidElement(child) && (child.props as any)?.src) {
       const src = (child.props as any).src;
       if (typeof src === "string") {
-        const match = src.match(/[?&]profile_border=([^&]+)/);
-        if (match) {
-          const borderType = match[1];
-          switch (borderType) {
-            case "neon-blue":
-              borderClass = "ring-2 ring-cyan-400 ring-offset-2 ring-offset-background";
-              break;
-            case "neon-pink":
-              borderClass = "ring-2 ring-pink-500 ring-offset-2 ring-offset-background";
-              break;
-            case "neon-green":
-              borderClass = "ring-2 ring-emerald-400 ring-offset-2 ring-offset-background";
-              break;
-            case "gold-gradient":
-              borderClass =
-                "ring-2 ring-amber-400 ring-offset-2 ring-offset-background animate-pulse";
-              break;
-            case "rainbow-glow":
-              borderClass =
-                "ring-2 ring-violet-500 ring-offset-2 ring-offset-background animate-pulse";
-              break;
-            case "dashed-red":
-              borderClass = "ring-2 ring-rose-500 ring-dashed ring-offset-2 ring-offset-background";
-              break;
-            case "royal-purple":
-              borderClass = "ring-2 ring-fuchsia-500 ring-offset-2 ring-offset-background";
-              break;
-            case "retro-orange":
-              borderClass = "ring-2 ring-orange-500 ring-offset-2 ring-offset-background";
-              break;
-            default:
-              break;
-          }
-        }
+        borderClass = getProfileBorderClass(src);
       }
     }
   });
@@ -66,7 +72,7 @@ const Avatar = React.forwardRef<
       {children}
     </AvatarPrimitive.Root>
   );
-});
+}));
 Avatar.displayName = AvatarPrimitive.Root.displayName;
 
 const AvatarImage = React.forwardRef<

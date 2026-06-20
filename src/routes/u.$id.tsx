@@ -33,51 +33,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getPublicProfile } from "@/lib/profile.functions";
-import { getUserAchievements } from "@/lib/gamification.functions";
+import { getUserAchievements, xpToLevel, levelToRank } from "@/lib/gamification.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-
-function getProfileBorderClass(url: string | null | undefined): string {
-  if (!url) return "";
-  const match = url.match(/[?&]profile_border=([^&]+)/);
-  if (!match) return "";
-  const border = decodeURIComponent(match[1]);
-  switch (border) {
-    case "neon-blue":
-      return "ring-2 ring-blue-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(96,165,250,0.5)]";
-    case "neon-pink":
-      return "ring-2 ring-pink-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,114,182,0.5)]";
-    case "neon-green":
-      return "ring-2 ring-green-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(74,222,128,0.5)]";
-    case "gold-gradient":
-      return "ring-2 ring-amber-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,191,36,0.5)]";
-    case "rainbow-glow":
-      return "ring-2 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)] animate-pulse";
-    case "dashed-red":
-      return "border-2 border-dashed border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]";
-    case "royal-purple":
-      return "ring-2 ring-purple-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)]";
-    case "retro-orange":
-      return "ring-2 ring-orange-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,146,60,0.5)]";
-    case "ocean-teal":
-      return "ring-2 ring-teal-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(45,212,191,0.5)]";
-    case "sunset-amber":
-      return "ring-2 ring-amber-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(245,158,11,0.5)]";
-    case "cyber-cyan":
-      return "ring-2 ring-cyan-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(34,211,238,0.5)]";
-    case "fire-ruby":
-      return "ring-2 ring-rose-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,63,94,0.5)]";
-    case "ice-crystal":
-      return "ring-2 ring-sky-200 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(186,230,253,0.5)]";
-    case "midnight-glow":
-      return "ring-2 ring-indigo-600 ring-offset-2 ring-offset-background shadow-[0_0_20px_rgba(79,70,229,0.6)]";
-    default:
-      return "";
-  }
-}
+import { getProfileBorderClass } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/u/$id")({
   head: ({ params }) => ({
@@ -177,6 +139,11 @@ function PublicProfilePage() {
     .join("")
     .toUpperCase();
 
+  const xp = (profile as any).xp ?? 0;
+  const streak = (profile as any).current_streak ?? 0;
+  const level = xpToLevel(xp);
+  const rankInfo = levelToRank(level);
+
   const socialLinks = (
     profile.social_links && typeof profile.social_links === "object"
       ? Object.values(profile.social_links).filter(
@@ -214,6 +181,22 @@ function PublicProfilePage() {
 
             <div className="flex-1 min-w-0 mt-4 sm:mt-0 mb-1">
               <h1 className="font-display text-3xl font-bold tracking-tight">{name}</h1>
+
+              {/* Gamification Stats */}
+              <div className="flex flex-wrap items-center gap-2 mt-1.5 mb-2">
+                <Badge className={cn("text-xs font-semibold px-2 py-0.5 rounded-lg border shadow-sm", rankInfo.bg, rankInfo.color)}>
+                  🏆 {rankInfo.name}
+                </Badge>
+                <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 rounded-lg border bg-background/50 text-indigo-500 border-indigo-200 dark:border-indigo-900/50">
+                  ⚡ Lv. {level}
+                </Badge>
+                <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 rounded-lg border bg-background/50 text-amber-500 border-amber-200 dark:border-amber-900/50">
+                  ⭐ {xp.toLocaleString()} XP
+                </Badge>
+                <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 rounded-lg border bg-background/50 text-orange-500 border-orange-200 dark:border-orange-900/50">
+                  🔥 {streak} {streak === 1 ? "day streak" : "days streak"}
+                </Badge>
+              </div>
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1 text-sm text-muted-foreground">
                 <span className="font-medium text-foreground">{subscribers} subscribers</span>

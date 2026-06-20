@@ -192,6 +192,7 @@ function SettingsPage() {
   const [selectedStyle, setSelectedStyle] = useState("avataaars"); // Default to avataaars since it is highly customizable
   const [seed, setSeed] = useState("Learnify");
   const [savingCartoon, setSavingCartoon] = useState(false);
+  const [avatarBackgroundColor, setAvatarBackgroundColor] = useState("transparent");
 
   const BORDER_OPTIONS = [
     { id: "none", label: "None" },
@@ -214,7 +215,7 @@ function SettingsPage() {
   // Granular customization states
   const [skinColor, setSkinColor] = useState("ffdbb4"); // Default skin
   const [hairGender, setHairGender] = useState<"male" | "female">("male"); // Short vs Long hair filter
-  const [hairStyle, setHairStyle] = useState("shortHairShortFlat"); // Default hair style
+  const [hairStyle, setHairStyle] = useState("shortFlat"); // Default hair style
   const [hairColor, setHairColor] = useState("4a3728"); // Default hair color
   const [mouthStyle, setMouthStyle] = useState("default"); // Default mouth
   const [eyesStyle, setEyesStyle] = useState("default"); // Default eyes
@@ -237,7 +238,11 @@ function SettingsPage() {
 
     if (selectedStyle === "avataaars") {
       params += `&skinColor=${skinColor}`;
-      params += `&top=${hairStyle}`;
+      if (hairStyle === "noHair") {
+        params += `&topProbability=0`;
+      } else {
+        params += `&top=${hairStyle}`;
+      }
       params += `&hairColor=${hairColor}`;
       params += `&mouth=${mouthStyle}`;
       params += `&eyes=${eyesStyle}`;
@@ -251,18 +256,21 @@ function SettingsPage() {
     } else if (selectedStyle === "adventurer") {
       params += `&skinColor=${skinColor}`;
       let advHair = "short01";
-      if (hairStyle.startsWith("long")) {
-        advHair = hairStyle.includes("Curly") ? "long02" : "long01";
-      } else if (hairStyle.includes("Bob")) {
-        advHair = "bob";
-      } else if (hairStyle.includes("Curly")) {
-        advHair = "curl";
-      } else if (hairStyle.includes("Dreads")) {
-        advHair = "braids";
-      } else if (hairStyle === "noHair") {
-        advHair = "bald";
+      if (hairGender === "female") {
+        advHair = (hairStyle === "curly" || hairStyle === "curvy") ? "long02" : "long01";
+        if (hairStyle === "bob" || hairStyle === "miaWallace") {
+          advHair = "bob";
+        }
       } else {
-        advHair = "short02";
+        if (hairStyle === "noHair") {
+          advHair = "bald";
+        } else if (hairStyle === "shortCurly" || hairStyle === "curly") {
+          advHair = "curl";
+        } else if (hairStyle === "dreads") {
+          advHair = "braids";
+        } else {
+          advHair = "short02";
+        }
       }
       params += `&hair=${advHair}`;
       params += `&hairColor=${hairColor}`;
@@ -292,10 +300,12 @@ function SettingsPage() {
       params += `&mouth=${botMouth}`;
 
       let botTop = "antenna";
-      if (hairStyle.includes("Flat")) botTop = "pyramid";
-      else if (hairStyle.includes("Round")) botTop = "bulb";
-      else if (hairStyle.includes("Curly")) botTop = "horn";
-      else if (hairStyle.includes("Wavy")) botTop = "radar";
+      const h = hairStyle.toLowerCase();
+      if (h.includes("flat")) botTop = "antenna";
+      else if (h.includes("round")) botTop = "bulb";
+      else if (h.includes("curly")) botTop = "horn";
+      else if (h.includes("waved") || h.includes("wavy")) botTop = "radar";
+      else if (h.includes("caesar")) botTop = "pyramid";
       else botTop = "antenna";
       params += `&top=${botTop}`;
 
@@ -308,10 +318,13 @@ function SettingsPage() {
       params += `&hairColor=${hairColor}`;
 
       let pixHair = "short01";
-      if (hairStyle.startsWith("long")) pixHair = "long01";
-      else if (hairStyle.includes("Round")) pixHair = "short02";
-      else if (hairStyle.includes("Curly")) pixHair = "short03";
-      else if (hairStyle === "noHair") pixHair = "bald";
+      if (hairGender === "female") {
+        pixHair = "long01";
+      } else {
+        if (hairStyle === "noHair") pixHair = "bald";
+        else if (hairStyle.toLowerCase().includes("round")) pixHair = "short02";
+        else if (hairStyle.toLowerCase().includes("curly")) pixHair = "short03";
+      }
       params += `&hair=${pixHair}`;
 
       let pixEyes = "normal";
@@ -357,13 +370,14 @@ function SettingsPage() {
       params += `&clothingColor=${clothingColor}`;
 
       let lorHair = "hair01";
-      if (hairStyle.includes("Mia")) lorHair = "hair02";
-      else if (hairStyle.includes("Bob")) lorHair = "hair03";
-      else if (hairStyle.includes("Bun")) lorHair = "hair04";
-      else if (hairStyle.includes("Flat")) lorHair = "hair05";
-      else if (hairStyle.includes("Round")) lorHair = "hair06";
-      else if (hairStyle.includes("Curly")) lorHair = "hair07";
-      else if (hairStyle.includes("Mullet")) lorHair = "hair08";
+      const h = hairStyle.toLowerCase();
+      if (h.includes("mia")) lorHair = "hair02";
+      else if (h.includes("bob")) lorHair = "hair03";
+      else if (h.includes("bun")) lorHair = "hair04";
+      else if (h.includes("flat")) lorHair = "hair05";
+      else if (h.includes("round")) lorHair = "hair06";
+      else if (h.includes("curl") || h.includes("curv")) lorHair = "hair07";
+      else if (h.includes("mullet")) lorHair = "hair08";
       params += `&hair=${lorHair}`;
 
       let lorEyes = "default";
@@ -387,6 +401,10 @@ function SettingsPage() {
 
     if (profileBorder && profileBorder !== "none") {
       params += `&profile_border=${profileBorder}`;
+    }
+
+    if (avatarBackgroundColor) {
+      params += `&backgroundColor=${avatarBackgroundColor}`;
     }
 
     return baseUrl + params;
@@ -441,6 +459,11 @@ function SettingsPage() {
       }
       if (u.searchParams.has("profile_border"))
         setProfileBorder(u.searchParams.get("profile_border")!);
+      if (u.searchParams.has("backgroundColor")) {
+        setAvatarBackgroundColor(u.searchParams.get("backgroundColor")!);
+      } else {
+        setAvatarBackgroundColor("transparent");
+      }
     } catch {}
   }, [cartoonOpen]);
 
@@ -480,25 +503,28 @@ function SettingsPage() {
     ];
     setClothingColor(clothColors[Math.floor(Math.random() * clothColors.length)]);
 
+    const bgColors = ["transparent", "b6e3f4", "c0aede", "d1d4f9", "ffd5dc", "ffdfb4", "c9f2c9", "f3f4f6", "ffd000"];
+    setAvatarBackgroundColor(bgColors[Math.floor(Math.random() * bgColors.length)]);
+
     const maleHairs = [
-      "shortHairTheCaesar",
-      "shortHairShortFlat",
-      "shortHairShortRound",
-      "shortHairShortWaved",
-      "shortHairShortCurly",
-      "shortHairShaggyMullet",
+      "theCaesar",
+      "shortFlat",
+      "shortRound",
+      "shortWaved",
+      "shortCurly",
+      "shaggyMullet",
       "noHair",
     ];
     const femaleHairs = [
-      "longHairStraight",
-      "longHairStraight2",
-      "longHairCurly",
-      "longHairCurvy",
-      "longHairBob",
-      "longHairMiaWallace",
-      "longHairBun",
-      "longHairDreads",
-      "longHairBigHair",
+      "straight01",
+      "straight02",
+      "curly",
+      "curvy",
+      "bob",
+      "miaWallace",
+      "bun",
+      "dreads",
+      "bigHair",
     ];
     const isMale = Math.random() > 0.5;
     setHairGender(isMale ? "male" : "female");
@@ -851,7 +877,8 @@ function SettingsPage() {
           await supabase.storage.from("avatars").remove([old]);
         }
       }
-      await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("id", user.id);
+      const finalUrl = profileBorder && profileBorder !== "none" ? `${publicUrl}?profile_border=${profileBorder}` : publicUrl;
+      await supabase.from("profiles").update({ avatar_url: finalUrl }).eq("id", user.id);
       toast.success("Photo updated");
       qc.invalidateQueries({ queryKey: ["profile-full"] });
     } catch (e) {
@@ -1299,7 +1326,7 @@ function SettingsPage() {
                                   setSelectedStyle(style.id);
                                   // Update defaults based on style to prevent glitchy params
                                   if (style.id === "avataaars") {
-                                    setHairStyle("shortHairShortFlat");
+                                    setHairStyle("shortFlat");
                                   } else if (style.id === "adventurer") {
                                     setHairStyle("short01");
                                   }
@@ -1344,7 +1371,7 @@ function SettingsPage() {
                     {/* Right Column: Customization Controls */}
                     <div className="md:col-span-7 flex flex-col">
                       <Tabs defaultValue="face" className="w-full">
-                        <TabsList className="w-full grid grid-cols-3">
+                        <TabsList className="w-full grid grid-cols-4">
                           <TabsTrigger value="face" className="text-xs">
                             Face & Hair
                           </TabsTrigger>
@@ -1353,6 +1380,9 @@ function SettingsPage() {
                           </TabsTrigger>
                           <TabsTrigger value="clothing" className="text-xs">
                             Clothing
+                          </TabsTrigger>
+                          <TabsTrigger value="background" className="text-xs">
+                            Background
                           </TabsTrigger>
                         </TabsList>
 
@@ -1414,7 +1444,7 @@ function SettingsPage() {
                                       setHairStyle(
                                         selectedStyle === "adventurer"
                                           ? "short01"
-                                          : "shortHairShortFlat",
+                                          : "shortFlat",
                                       );
                                     }}
                                     className={`px-2 py-0.5 rounded transition ${
@@ -1432,7 +1462,7 @@ function SettingsPage() {
                                       setHairStyle(
                                         selectedStyle === "adventurer"
                                           ? "long01"
-                                          : "longHairStraight",
+                                          : "straight01",
                                       );
                                     }}
                                     className={`px-2 py-0.5 rounded transition ${
@@ -1449,39 +1479,39 @@ function SettingsPage() {
                                 {(hairGender === "male"
                                   ? selectedStyle === "bottts"
                                     ? [
-                                        { id: "shortHairShortFlat", label: "Antenna" },
-                                        { id: "shortHairShortRound", label: "Bulb" },
-                                        { id: "shortHairShortCurly", label: "Horn" },
-                                        { id: "shortHairShortWaved", label: "Radar" },
-                                        { id: "shortHairTheCaesar", label: "Pyramid" },
+                                        { id: "shortFlat", label: "Antenna" },
+                                        { id: "shortRound", label: "Bulb" },
+                                        { id: "shortCurly", label: "Horn" },
+                                        { id: "shortWaved", label: "Radar" },
+                                        { id: "theCaesar", label: "Pyramid" },
                                       ]
                                     : [
-                                        { id: "shortHairTheCaesar", label: "Caesar Cut" },
-                                        { id: "shortHairShortFlat", label: "Short Flat" },
-                                        { id: "shortHairShortRound", label: "Short Round" },
-                                        { id: "shortHairShortWaved", label: "Short Wavy" },
-                                        { id: "shortHairShortCurly", label: "Short Curly" },
-                                        { id: "shortHairShaggyMullet", label: "Mullet" },
+                                        { id: "theCaesar", label: "Caesar Cut" },
+                                        { id: "shortFlat", label: "Short Flat" },
+                                        { id: "shortRound", label: "Short Round" },
+                                        { id: "shortWaved", label: "Short Wavy" },
+                                        { id: "shortCurly", label: "Short Curly" },
+                                        { id: "shaggyMullet", label: "Mullet" },
                                         { id: "noHair", label: "Bald" },
                                       ]
                                   : selectedStyle === "bottts"
                                     ? [
-                                        { id: "shortHairShortFlat", label: "Antenna" },
-                                        { id: "shortHairShortRound", label: "Bulb" },
-                                        { id: "shortHairShortCurly", label: "Horn" },
-                                        { id: "shortHairShortWaved", label: "Radar" },
-                                        { id: "shortHairTheCaesar", label: "Pyramid" },
+                                        { id: "shortFlat", label: "Antenna" },
+                                        { id: "shortRound", label: "Bulb" },
+                                        { id: "shortCurly", label: "Horn" },
+                                        { id: "shortWaved", label: "Radar" },
+                                        { id: "theCaesar", label: "Pyramid" },
                                       ]
                                     : [
-                                        { id: "longHairStraight", label: "Long Straight" },
-                                        { id: "longHairStraight2", label: "Straight Parted" },
-                                        { id: "longHairCurly", label: "Long Curly" },
-                                        { id: "longHairCurvy", label: "Long Curvy" },
-                                        { id: "longHairBob", label: "Bob Cut" },
-                                        { id: "longHairMiaWallace", label: "Mia Cut" },
-                                        { id: "longHairBun", label: "Hair Bun" },
-                                        { id: "longHairDreads", label: "Dreads" },
-                                        { id: "longHairBigHair", label: "Big Hair" },
+                                        { id: "straight01", label: "Long Straight" },
+                                        { id: "straight02", label: "Straight Parted" },
+                                        { id: "curly", label: "Long Curly" },
+                                        { id: "curvy", label: "Long Curvy" },
+                                        { id: "bob", label: "Bob Cut" },
+                                        { id: "miaWallace", label: "Mia Cut" },
+                                        { id: "bun", label: "Hair Bun" },
+                                        { id: "dreads", label: "Dreads" },
+                                        { id: "bigHair", label: "Big Hair" },
                                       ]
                                 ).map((hair) => (
                                   <button
@@ -1720,6 +1750,52 @@ function SettingsPage() {
                               </div>
                             </div>
                           )}
+                        </TabsContent>
+
+                        {/* Background Tab */}
+                        <TabsContent value="background" className="space-y-4 pt-3">
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold text-muted-foreground">
+                              Character Background Color
+                            </Label>
+                            <div className="flex flex-wrap gap-2">
+                              {[
+                                { val: "transparent", color: "transparent", label: "Transparent" },
+                                { val: "b6e3f4", color: "#b6e3f4", label: "Sky Blue" },
+                                { val: "c0aede", color: "#c0aede", label: "Lavender" },
+                                { val: "d1d4f9", color: "#d1d4f9", label: "Pastel Indigo" },
+                                { val: "ffd5dc", color: "#ffd5dc", label: "Pastel Pink" },
+                                { val: "ffdfb4", color: "#ffdfb4", label: "Peach" },
+                                { val: "c9f2c9", color: "#c9f2c9", label: "Mint Green" },
+                                { val: "f3f4f6", color: "#f3f4f6", label: "Light Gray" },
+                                { val: "ffd000", color: "#ffd000", label: "Yellow" },
+                              ].map((bg) => (
+                                <button
+                                  key={bg.val}
+                                  type="button"
+                                  onClick={() => setAvatarBackgroundColor(bg.val)}
+                                  className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
+                                    avatarBackgroundColor === bg.val
+                                      ? "border-primary scale-110 shadow-sm"
+                                      : "border-border"
+                                  }`}
+                                  style={{
+                                    backgroundColor: bg.color === "transparent" ? undefined : bg.color,
+                                    backgroundImage: bg.color === "transparent" ? "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)" : undefined,
+                                    backgroundSize: bg.color === "transparent" ? "8px 8px" : undefined,
+                                    backgroundPosition: bg.color === "transparent" ? "0 0, 0 4px, 4px -4px, -4px 0" : undefined,
+                                  }}
+                                  title={bg.label}
+                                >
+                                  {avatarBackgroundColor === bg.val && (
+                                    <Check
+                                      className={`h-3 w-3 ${bg.val === "transparent" || bg.val === "b6e3f4" || bg.val === "ffdfb4" || bg.val === "c9f2c9" || bg.val === "f3f4f6" || bg.val === "ffd000" ? "text-slate-800" : "text-white"}`}
+                                    />
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         </TabsContent>
                       </Tabs>
                     </div>

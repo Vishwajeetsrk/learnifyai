@@ -34,10 +34,14 @@ insert into public.badges (name, description, icon_url, category, xp_required, s
   ('Brainiac',       'Passed 50 tests',          'https://img.icons8.com/color/96/brain.png',        'test', null, null, null, 50, null),
   ('Perfect Score',  'Got 100% on any test',     'https://img.icons8.com/color/96/star--v1.png',    'test', null, null, null, null, null),
 
+  -- Course Badges (continued)
+  ('Grand Scholar',  'Completed 50 courses',    'https://img.icons8.com/color/96/globe.png',        'course', null, null, 50, null, null),
+
   -- Challenge Solver
   ('First Hack',     'Solved 1 coding challenge','https://img.icons8.com/color/96/code.png',        'challenge', null, null, null, null, 1),
   ('Code Warrior',   'Solved 10 challenges',    'https://img.icons8.com/color/96/laptop-coding.png','challenge', null, null, null, null, 10),
-  ('Algorithm Ace',  'Solved 50 challenges',    'https://img.icons8.com/color/96/algorithm.png',    'challenge', null, null, null, null, 50);
+  ('Algorithm Ace',  'Solved 50 challenges',    'https://img.icons8.com/color/96/algorithm.png',    'challenge', null, null, null, null, 50),
+  ('Master Architect','Solved 100 challenges',   'https://img.icons8.com/color/96/networking.png',   'challenge', null, null, null, null, 100);
 
 -- Update existing badges to have proper categories
 update public.badges set category = 'xp' where category is null or category = '';

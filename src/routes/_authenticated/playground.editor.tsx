@@ -11,9 +11,10 @@ import {
   deleteProject,
   getProject,
   getProjectFiles,
+  updateProject,
 } from "@/lib/playground/projects";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery as useRQ } from "@tanstack/react-query";
+import { useQuery as useRQ, useQueryClient } from "@tanstack/react-query";
 import {
   Play,
   Save,
@@ -27,6 +28,7 @@ import {
   X,
   Globe,
   Clock,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -73,6 +75,7 @@ const DEFAULTS: Record<string, string> = {
 
 function PlaygroundEditor() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const { project: projectId } = Route.useSearch();
   const [language, setLanguage] = useState("javascript");
   const [code, setCode] = useState(DEFAULTS.javascript);
@@ -90,11 +93,14 @@ function PlaygroundEditor() {
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [projectIsPublic, setProjectIsPublic] = useState(false);
+  const [updatingVisibility, setUpdatingVisibility] = useState(false);
   const execFn = useServerFn(executeCode);
   const saveFn = useServerFn(saveEditorCode);
   const deleteFn = useServerFn(deleteProject);
   const getProjectFn = useServerFn(getProject);
   const getProjectFilesFn = useServerFn(getProjectFiles);
+  const updateProjectFn = useServerFn(updateProject);
   const titleRef = useRef<HTMLInputElement>(null);
 
   const { data: project } = useRQ({
@@ -119,6 +125,7 @@ function PlaygroundEditor() {
     if (project) {
       setProjectTitle(project.title ?? "Untitled");
       setLanguage(project.language ?? "javascript");
+      setProjectIsPublic(project.is_public ?? false);
     }
   }, [project]);
 
@@ -235,6 +242,23 @@ function PlaygroundEditor() {
 
   const clearOutput = () => setOutput(null);
 
+  const togglePublicVisibility = async () => {
+    if (!projectId) return;
+    setUpdatingVisibility(true);
+    try {
+      const nextPublic = !projectIsPublic;
+      await updateProjectFn({ data: { id: projectId, is_public: nextPublic } });
+      setProjectIsPublic(nextPublic);
+      qc.invalidateQueries({ queryKey: ["playground-project", projectId] });
+      qc.invalidateQueries({ queryKey: ["playground-projects"] });
+      toast.success(nextPublic ? "Project is now public! It will appear on your profile." : "Project is now private.");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update project visibility");
+    } finally {
+      setUpdatingVisibility(false);
+    }
+  };
+
   const downloadCode = () => {
     const extMap: Record<string, string> = {
       javascript: "js",
@@ -324,6 +348,27 @@ function PlaygroundEditor() {
           )}
           {isDirty && (
             <span className="text-[10px] text-amber-400 font-medium shrink-0">● Unsaved</span>
+          )}
+          {projectId && (
+            <button
+              onClick={togglePublicVisibility}
+              disabled={updatingVisibility}
+              className={cn(
+                "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all shrink-0 hover:scale-105",
+                projectIsPublic
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20"
+                  : "bg-muted text-muted-foreground border-border hover:bg-accent"
+              )}
+              title="Click to toggle public/private visibility"
+            >
+              {updatingVisibility ? (
+                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+              ) : projectIsPublic ? (
+                <>🌐 Public</>
+              ) : (
+                <>🔒 Private</>
+              )}
+            </button>
           )}
           <LanguageSelector value={language} onChange={changeLanguage} />
           <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground shrink-0">

@@ -316,6 +316,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v1.5.0 (June 2026)
+- ✅ **Customize Character Enhancements**: Fixed the avatar customization preview by aligning style parameters with Dicebear v7.x schemas (mapping invalid `shortHair...` / `longHair...` prefixes to `shortFlat`, `straight01`, etc.). Added an **Avatar Background Color** customizer tab supporting solid and transparent backdrops. Ensured profile border styling is preserved upon custom avatar image uploads.
+- ✅ **Unified Profile Borders**: Implemented global CSS borders for custom profiles using a unified class resolver, rendering borders cleanly across the settings page, public profile page, Kanban board assignees, and course player instructors.
+- ✅ **Gamification Header Integration**: Integrated public profile gamification stats including League level (Bronze→Diamond), Level, XP count, and active Day Streak directly into user profile pages.
+- ✅ **Gamification Sandbox**: Implemented an interactive simulation panel in the achievements page (`/achievements`) that allows testing of XP awards, daily streak progression, and automatic badge award evaluation directly from the UI.
+- ✅ **Playground Project Visibility**: Added interactive public/private visibility toggle badges inside the code editor top bar and the project list dashboard. This enables learners to set saved projects as public so they display under the "Projects" tab of their public user profile page.
+- ✅ **CSP Policy Fix**: Updated Vercel headers (`vercel.json`) to allow script and iframe loading from YouTube (`https://www.youtube.com` and `https://s.ytimg.com`), resolving Content Security Policy blocks on video playback.
+- ✅ **Creator Studio AI Category**: Integrated an AI category suggestion button and standard category suggestions dropdown inside the Course Edit modal. Added a flat shadow illustration style (`retro_flat`) preset for generated course thumbnails.
+
 ### v1.4.0 (June 2026)
 - ✅ **Email Template / Admin Page Fix**: Resolved client-side pre-bundling crash on the `/admin` page by converting literal dynamic imports of `nodemailer` to variable-based imports.
 - ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.

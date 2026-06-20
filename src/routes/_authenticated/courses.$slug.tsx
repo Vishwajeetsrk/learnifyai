@@ -73,6 +73,7 @@ import Editor from "@monaco-editor/react";
 import { useAuth } from "@/hooks/use-auth";
 // isAdmin pulled from useAuth below
 import { cn } from "@/lib/utils";
+import { getProfileBorderClass } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { lessonAiHelper } from "@/lib/lesson-ai.functions";
 import { enrollFree, markCourseStarted, recomputeProgress } from "@/lib/course.functions";
@@ -875,7 +876,10 @@ function CourseDetail() {
                       <img
                         src={instructorProfile.avatar_url}
                         alt={instructorProfile.full_name || course.instructor}
-                        className="h-12 w-12 rounded-full object-cover border-2 border-primary/20"
+                        className={cn(
+                          "h-12 w-12 rounded-full object-cover shrink-0",
+                          getProfileBorderClass(instructorProfile.avatar_url) || "border-2 border-primary/20"
+                        )}
                       />
                     ) : (
                       <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
@@ -889,7 +893,10 @@ function CourseDetail() {
                   <img
                     src={instructorProfile.avatar_url}
                     alt={instructorProfile.full_name || course.instructor}
-                    className="h-12 w-12 rounded-full object-cover border-2 border-primary/20 shrink-0"
+                    className={cn(
+                      "h-12 w-12 rounded-full object-cover shrink-0",
+                      getProfileBorderClass(instructorProfile.avatar_url) || "border-2 border-primary/20"
+                    )}
                   />
                 ) : (
                   <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">

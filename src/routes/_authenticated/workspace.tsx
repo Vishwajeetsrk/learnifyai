@@ -42,6 +42,8 @@ import {
   deleteTask,
 } from "@/lib/workspace.functions";
 import { useAuth } from "@/hooks/use-auth";
+import { cn } from "@/lib/utils";
+import { getProfileBorderClass } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/_authenticated/workspace")({
   component: WorkspacePage,
@@ -294,7 +296,10 @@ function WorkspacePage() {
                                   {task.assignee?.avatar_url ? (
                                     <img
                                       src={task.assignee.avatar_url}
-                                      className="h-6 w-6 rounded-full ring-2 ring-white"
+                                      className={cn(
+                                        "h-6 w-6 rounded-full object-cover",
+                                        getProfileBorderClass(task.assignee.avatar_url) || "ring-2 ring-white"
+                                      )}
                                       alt="Assignee"
                                     />
                                   ) : (
