@@ -1134,7 +1134,7 @@ function LessonAiTabs({
 
       <TabsContent value="notes" className="pt-4 space-y-3">
         {lesson.description && (
-          <Button variant="outline" size="sm" onClick={() => speak(lesson.description)}>
+          <Button variant="outline" size="sm" onClick={() => speak(lesson.description as string)}>
             {speaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
             {speaking ? "Stop" : "Listen"}
           </Button>
@@ -1991,6 +1991,7 @@ function FinalTestSection({
   allComplete: boolean;
 }) {
   const qc = useQueryClient();
+  const recompute = useServerFn(recomputeProgress);
   const [open, setOpen] = useState(false);
   const [celebratePass, setCelebratePass] = useState(false);
 

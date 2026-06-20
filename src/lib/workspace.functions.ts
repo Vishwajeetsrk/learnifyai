@@ -32,7 +32,7 @@ export const getMyWorkspace = createServerFn({ method: "GET" })
 
 export const listProjects = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => z.object({ workspaceId: z.string() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ workspaceId: z.string() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: projects, error } = await supabase
@@ -46,7 +46,7 @@ export const listProjects = createServerFn({ method: "GET" })
 
 export const createProject = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => z.object({ workspaceId: z.string(), name: z.string(), description: z.string().optional() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ workspaceId: z.string(), name: z.string(), description: z.string().optional() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase.from("projects").insert({
@@ -61,7 +61,7 @@ export const createProject = createServerFn({ method: "POST" })
 
 export const getProjectTasks = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => z.object({ projectId: z.string() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ projectId: z.string() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: tasks, error } = await supabase
@@ -76,7 +76,7 @@ export const getProjectTasks = createServerFn({ method: "GET" })
 
 export const createTask = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => z.object({ projectId: z.string(), title: z.string(), status: z.string(), description: z.string().optional() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ projectId: z.string(), title: z.string(), status: z.string(), description: z.string().optional() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase.from("tasks").insert({
@@ -92,7 +92,7 @@ export const createTask = createServerFn({ method: "POST" })
 
 export const updateTaskStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => z.object({ taskId: z.string(), status: z.string() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ taskId: z.string(), status: z.string() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.from("tasks").update({ status: data.status }).eq("id", data.taskId);
@@ -102,7 +102,7 @@ export const updateTaskStatus = createServerFn({ method: "POST" })
 
 export const deleteTask = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => z.object({ taskId: z.string() }).parse(d))
+  .inputValidator((d: unknown) => z.object({ taskId: z.string() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.from("tasks").delete().eq("id", data.taskId);

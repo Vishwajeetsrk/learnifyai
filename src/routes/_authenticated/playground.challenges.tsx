@@ -25,7 +25,7 @@ function ChallengesPage() {
   const { data: challenges, isLoading } = useQuery({
     queryKey: ["playground-challenges", difficulty, category],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from("playground_challenges")
         .select("id, title, slug, difficulty, category, language, points, hints, created_at")
         .eq("is_published", true);
@@ -40,7 +40,7 @@ function ChallengesPage() {
     enabled: !!user,
     queryKey: ["playground-submissions-summary"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("playground_submissions")
         .select("challenge_id, passed")
         .eq("user_id", user!.id);

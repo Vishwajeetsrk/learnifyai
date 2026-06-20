@@ -20,7 +20,8 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Interactive Course Player:** Rich media support, markdown notes, and video playback with custom controls (YouTube IFrame API + unified HTML5 fallback). Features a premium cover overlay using the course thumbnail/cover image with an animated, glowing custom play button, hiding standard YouTube buttons/controls. Automatically selects and suggests the highest available quality resolution (HD/1080p/720p) for YouTube playback. Notes tab includes a **Listen** button that reads instructor notes aloud via Web Speech API (TTS). Auto-plays next unlocked lesson on video end (800ms delay).
 - **Integrated In-Course Playground:** Code, Web, **Database**, **API Tester**, and **Dev Tools** playgrounds embedded directly in lesson tabs — write Python/JS/C++/Java/Rust and more with **multi-executor fallback** (Judge0 → Wandbox → Piston), build HTML/CSS/JS sandboxes with live preview, run in-browser **SQLite** queries with a visual Schema Builder, test REST APIs with custom headers, query body, and request history, or use 18+ client-side utility tools (Image Compressor, Base64, JWT decoder, Diff checker, etc.) offline. Each code playground comes with an **AI Debug Panel** (8 modes: Diagnose, Explain, Fix, Optimize, Convert, Tests, Docs, Generate) powered by OpenRouter. Adaptive default mode (e.g. Web mode for WordPress/Frontend courses, Database mode for SQL courses) and course-aware programming language selection automatically adjust based on the current course title or slug.
 - **AI Tutor (Learnify AI Chat):** Context-aware conversational AI that explains concepts on the fly.
-- **AI Agent:** Intelligent assistant with chat, voice I/O (Web Speech API), and tool execution — code execution (Judge0/Wandbox) and web search. Inline in course player.
+- **Global Support Agent:** Floating AI chat bot (💬 bubble) available across the entire platform for any page — answers questions about courses, payments, features, and account support for learners, creators, and admins alike. Powered by OpenRouter with multi-turn memory.
+- **Learner Avatars on Courses:** Course cards and course detail pages display real learner profile avatars (Dicebear adventurer style) with a "+N learners" count badge.
 - **Playground Hub:** Standalone coding IDE at `/playground` with Monaco editor, AI assistant, web preview, React sandbox, projects management, DSA challenges, interview mode, and leaderboard. See **🎮 Playground** section below.
 - **Smart Quizzes & Assessments:** Automated grading and real-time feedback.
 - **Wallet & Integrated Payments:** Manage credits, top-up via Cashfree (UPI/card/netbanking), withdraw via Cashfree Payouts, purchase courses, and download invoices instantly.
@@ -48,7 +49,7 @@ Learnify AI is built to empower both learners and creators by streamlining the e
 - **Responsive Design:** All playground pages adapt to mobile — editor stacks AI panel vertically, web playground stacks editors, projects show actions without hover on touch devices.
 
 ### 🚀 For Creators & Coaches
-- **Creator Studio:** Upload courses, manage lessons (with video URL validation), add practical assignments/projects, and create final test MCQs that students must pass (≥70%) to claim their certificate.
+- **Creator Studio:** Upload courses, manage lessons (with video URL validation), add practical assignments/projects, and create final test MCQs that students must pass (≥70%) to claim their certificate. **AI Lesson Enrichment** buttons in each lesson form: "AI Find Video" (searches YouTube for relevant videos filtered by Education category) and "AI Write Notes" (auto-generates structured lesson notes using LLM based on the lesson title and course context). Course creation defaults pre-fill from your profile settings.
 - **Course Catalog:** Browse courses with responsive card grid (1-4 columns), category/level badges, price, duration, rating, and contextual CTA (Continue / View cart / Enroll free / Add to cart). Metadata row uses `flex-wrap` for small screens with price right-aligned.
 - **Coaching Hub (5-tab production):** Scheduling (slot creation with Google Meet/Zoom — add/edit/delete, booking with user info collection), Messaging (real-time Supabase subscription, chat bubbles with timestamps, contact list from bookings), Client Roadmaps (milestone-based with progress bar, creator assigns to learner), Outcomes (quiz analytics, enrollment progress, cross-learner stats for creators), Cohorts (CRUD with learner management, WhatsApp share, live/scheduled/draft status).
 - **Live Cohort Manager:** Easily transition async courses into live high-ticket cohorts with cohort member management. Member avatars shown in list view (up to 5 faces with overflow count). Live countdown timer with ping dot when live, pre-meeting toast notification (30 min window). Group chat (WhatsApp) and meeting (Google Meet) link display in detail view restricted to members/hosts. Auto-open WhatsApp/Meet links in new tabs on successful cohort join. Responsive card grid (1-4 columns) with truncation and flex-wrap actions.
@@ -137,7 +138,8 @@ learnifyai/
 │   │   ├── playground-ai-debug-panel.tsx  # AI Debug Panel (8 modes) for in-course playground
 │   │   ├── playground-database.tsx        # In-browser SQLite playground with Schema Builder
 │   │   ├── CertificateDesign.tsx     # Cert renderer with 10 theme presets + drag-and-drop
-│   │   ├── AppShell.tsx              # App shell layout
+│   │   ├── AppShell.tsx              # App shell layout + GlobalSupportAgent floating chat bubble
+│   │   ├── GlobalSupportAgent.tsx    # Full-screen floating AI support chat (OpenRouter, multi-turn)
 │   │   └── ui/                      # Shadcn UI primitives
 │   ├── hooks/              # Custom React hooks (use-auth, etc.)
 │   ├── integrations/       # API clients (Supabase, Cashfree)
@@ -172,7 +174,7 @@ learnifyai/
 │   │   │   ├── cart.tsx        # Cart with coupon support, Cashfree checkout, enrollment
 │   │   │   ├── leaderboard.tsx # XP leaderboard with weekly/all-time tabs, podium, level badges, progress bar
 │   │   │   ├── achievements.tsx # Achievements page with categorized badges, earned/locked state, progress bars
-│   │   │   ├── settings.tsx    # Unified 5-tab settings: Profile, Billing, Notifications, Settings, Branding (org name, logo, brand color, invoice customization — admin/Team only)
+│   │   │   ├── settings.tsx    # Unified 5-tab settings: Profile (with View Public Profile link), Billing, Notifications, Settings, Branding (org name, logo, brand color, invoice customization — admin/Team only)
 │   │   │   ├── pricing.tsx     # Subscription plans page with subscribe/cancel flow
 │   │   │   ├── playlist.tsx    # Course player with inline AI tutor + agent
 │   │   │   ├── studio.tsx      # Creator Studio — AI Auto-Complete + course defaults from profile settings

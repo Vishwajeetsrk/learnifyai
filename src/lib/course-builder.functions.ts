@@ -126,9 +126,9 @@ ${schemaHint(data.modules)}`;
               foundVideoIds.push(vid);
               chMap.set(vid, ch);
               ch.video_url = `https://www.youtube.com/watch?v=${vid}`;
-              ch.video_title = item.snippet?.title ?? null;
-              ch.video_channel = item.snippet?.channelTitle ?? null;
-              ch.video_channel_id = item.snippet?.channelId ?? null;
+              ch.video_title = pick?.snippet?.title ?? null;
+              ch.video_channel = pick?.snippet?.channelTitle ?? null;
+              ch.video_channel_id = pick?.snippet?.channelId ?? null;
             }
           } catch {
             // ignore individual chapter failures
@@ -315,7 +315,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
     // 1. Fetch course
     const { data: course, error: cErr } = await db
       .from("courses")
-      .select("id, title, description, category, level, thumbnail_url")
+      .select("id, title, description, category, level, cover_url")
       .eq("id", data.courseId)
       .single();
     if (cErr || !course) throw new Error("Course not found.");
@@ -357,7 +357,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
             break;
           }
           const hit = await ytSearchTopVideo(
-            `${lesson.title} ${course.title} tutorial`.trim(),
+            `${lesson.title} ${(course as any).title} tutorial`.trim(),
             apiKey,
           );
           if (!hit) {
@@ -424,7 +424,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
             },
             {
               role: "user",
-              content: `Generate 8 multiple-choice quiz questions for a "${course.level}" course on "${course.title}": "${course.description}". Each question must have exactly 4 distinct options, one correct answer (0-indexed), and a short explanation. Respond with ONLY valid minified JSON matching this schema: {"questions":[{"question":string,"options":[string,string,string,string],"answer":0|1|2|3,"explanation":string}]}`,
+              content: `Generate 8 multiple-choice quiz questions for a "${(course as any).level}" course on "${(course as any).title}": "${(course as any).description}". Each question must have exactly 4 distinct options, one correct answer (0-indexed), and a short explanation. Respond with ONLY valid minified JSON matching this schema: {"questions":[{"question":string,"options":[string,string,string,string],"answer":0|1|2|3,"explanation":string}]}`,
             },
           ],
           response_format: { type: "json_object" },
@@ -463,7 +463,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
             },
             {
               role: "user",
-              content: `Create 2 practical assignments and 1 mini-project for a "${course.level}" course on "${course.title}": "${course.description}". Each assignment needs a title and a detailed prompt (3-6 sentences with deliverables). The project should have a title, a detailed prompt, and optional starter code. Respond with ONLY valid minified JSON matching this schema: {"assignments":[{"title":string,"prompt":string}],"project":{"title":string,"prompt":string}}`,
+              content: `Create 2 practical assignments and 1 mini-project for a "${(course as any).level}" course on "${(course as any).title}": "${(course as any).description}". Each assignment needs a title and a detailed prompt (3-6 sentences with deliverables). The project should have a title, a detailed prompt, and optional starter code. Respond with ONLY valid minified JSON matching this schema: {"assignments":[{"title":string,"prompt":string}],"project":{"title":string,"prompt":string}}`,
             },
           ],
           response_format: { type: "json_object" },
@@ -502,20 +502,21 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
     }
 
     // 6. Generate thumbnail if none exists
-    if (!course.thumbnail_url) {
+    if (!(course as any).cover_url) {
       try {
         const { generateCourseThumbnail, buildThumbnailPrompt } = await import("./thumbnail.functions");
+        const c = course as any;
         const prompt = buildThumbnailPrompt({
-          title: course.title,
-          category: course.category,
-          description: course.description,
+          title: c.title,
+          category: c.category,
+          description: c.description,
           style: "modern",
           colors: "deep indigo to blue gradient",
           customNotes: "",
           lessonHint: (lessons ?? []).slice(0, 3).map((l: any) => l.title).join(", "),
         });
         const { dataUrl } = await generateCourseThumbnail({ data: { prompt, size: "1536x1024" } });
-        await supabaseAdmin.from("courses").update({ thumbnail_url: dataUrl }).eq("id", data.courseId);
+        await supabaseAdmin.from("courses").update({ cover_url: dataUrl }).eq("id", data.courseId);
         stats.thumbnailGenerated = true;
       } catch (e: any) {
         stats.warnings.push(`Thumbnail generation: ${e?.message ?? "error"}`);
@@ -524,7 +525,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
 
     return {
       ok: true,
-      courseTitle: course.title,
+      courseTitle: (course as any).title,
       stats,
     };
   });

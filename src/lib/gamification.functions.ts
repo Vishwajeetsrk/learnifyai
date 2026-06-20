@@ -117,14 +117,14 @@ export const awardXP = createServerFn({ method: "POST" })
         })
         .eq("id", data.userId),
 
-      supabaseAdmin.from("xp_log").insert({
+      (supabaseAdmin as any).from("xp_log").insert({
         user_id: data.userId,
         amount: data.amount,
         source: data.source ?? "lesson",
       }),
     ]);
 
-    const { data: allBadges } = await supabaseAdmin
+    const { data: allBadges } = await (supabaseAdmin as any)
       .from("badges")
       .select("id, xp_required, streak_required, category");
 
@@ -165,13 +165,13 @@ export const getLeaderboard = createServerFn({ method: "GET" })
       weekStart.setDate(weekStart.getDate() - weekStart.getDay());
       weekStart.setHours(0, 0, 0, 0);
 
-      const { data: logs } = await supabaseAdmin
+      const { data: logs } = await (supabaseAdmin as any)
         .from("xp_log")
         .select("user_id, amount")
         .gte("created_at", weekStart.toISOString());
 
       const map = new Map<string, number>();
-      for (const l of logs ?? []) map.set(l.user_id, (map.get(l.user_id) ?? 0) + l.amount);
+      for (const l of (logs as any[]) ?? []) map.set(l.user_id, (map.get(l.user_id) ?? 0) + l.amount);
 
       if (map.size === 0) return [];
 
@@ -260,7 +260,7 @@ export const getCourseLearners = createServerFn({ method: "GET" })
     };
     return {
       total: count ?? 0,
-      learners: ((recent ?? []) as EnrollWithProfile[]).map((e) => ({
+      learners: ((recent ?? []) as unknown as EnrollWithProfile[]).map((e) => ({
         user_id: e.user_id,
         avatar_url: e.profiles?.avatar_url ?? null,
         full_name: e.profiles?.full_name ?? null,

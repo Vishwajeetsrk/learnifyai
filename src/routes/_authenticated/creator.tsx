@@ -150,7 +150,7 @@ function CreatorHub() {
               <Link to="/studio">Open Studio</Link>
             </Button>
             <Button asChild size="sm">
-              <Link to="/creator/settings">Creator settings</Link>
+              <Link to="/settings">Creator settings</Link>
             </Button>
           </div>
         </div>

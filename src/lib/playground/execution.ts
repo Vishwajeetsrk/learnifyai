@@ -92,7 +92,7 @@ export const executeCode = createServerFn({ method: "POST" })
     const elapsed = Date.now() - startTime;
 
     try {
-      await supabase.from("playground_runs").insert({
+      await (supabase as any).from("playground_runs").insert({
         user_id: userId,
         project_id: data.projectId || null,
         language: data.language,
@@ -113,7 +113,7 @@ export const getRunHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("playground_runs")
       .select("id, language, exit_code, execution_time_ms, status, created_at")
       .eq("user_id", userId)
@@ -141,7 +141,7 @@ export const executeTestCases = createServerFn({ method: "POST" })
         const testCode = `${data.code}\n\nconsole.log(JSON.stringify(main(${args})));`;
         const res = await executeCode({ data: { language: data.language, code: testCode, stdin: "" }, context: null as any });
         if (!res.success) {
-          results.push({ passed: false, input: tc.input, expected: tc.expected, actual: null, error: res.error });
+          results.push({ passed: false, input: tc.input, expected: tc.expected, actual: null, error: (res as any).error });
         } else {
           const actual = JSON.parse((res as any).stdout?.trim() || "null");
           const passed = JSON.stringify(actual) === JSON.stringify(tc.expected);

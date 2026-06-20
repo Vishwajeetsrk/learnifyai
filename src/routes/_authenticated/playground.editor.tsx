@@ -117,7 +117,7 @@ function PlaygroundEditor() {
         setOutput({ stdout: res.stdout, stderr: res.stderr, code: res.code });
         setTimeMs(res.time_ms);
       } else {
-        setOutput({ stdout: "", stderr: res.error, code: 1 });
+        setOutput({ stdout: "", stderr: (res as any).error ?? "Execution failed", code: 1 });
       }
     } catch (err: any) {
       setOutput({ stdout: "", stderr: err?.message ?? "Execution failed", code: 1 });

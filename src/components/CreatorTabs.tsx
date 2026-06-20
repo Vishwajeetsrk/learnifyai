@@ -7,7 +7,7 @@ const tabs = [
   { to: "/creator/earnings", label: "Earnings", icon: IndianRupee, exact: false },
   { to: "/creator/subscribers", label: "Subscribers", icon: Users, exact: false },
   { to: "/creator/comments", label: "Comments", icon: MessageSquare, exact: false },
-  { to: "/creator/settings", label: "Settings", icon: Settings, exact: false },
+  { to: "/settings", label: "Settings", icon: Settings, exact: false },
 ] as const;
 
 export function CreatorTabs() {

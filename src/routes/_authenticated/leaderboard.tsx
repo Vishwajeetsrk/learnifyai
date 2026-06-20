@@ -36,8 +36,8 @@ function LeaderboardPage() {
   const topUsers = lb.data ?? [];
   const my = myRank.data;
 
-  const initials = (name: string) =>
-    name
+  const initials = (name: string | null) =>
+    (name ?? "?")
       .split(" ")
       .map((s) => s[0])
       .slice(0, 2)
@@ -166,7 +166,7 @@ function LeaderboardPage() {
                     <Avatar className="h-12 w-12 border-2 border-background shadow-md ring-2 ring-primary/20">
                       {u.avatar_url && <AvatarImage src={u.avatar_url} />}
                       <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                        {initials(u.full_name)}
+                        {initials(u.full_name ?? null)}
                       </AvatarFallback>
                     </Avatar>
                     <div
@@ -232,7 +232,7 @@ function LeaderboardPage() {
                       <Avatar className="h-9 w-9 sm:h-10 sm:w-10 border-2 border-background shadow-sm shrink-0">
                         {u.avatar_url && <AvatarImage src={u.avatar_url} />}
                         <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                          {initials(u.full_name)}
+                          {initials(u.full_name ?? null)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">

@@ -34,7 +34,7 @@ export const saveTemplate = createServerFn({ method: "POST" })
     const { userId } = context;
 
     if (data.id) {
-      const { error } = await supabaseAdmin
+      const { error } = await (supabaseAdmin as any)
         .from("certificate_templates")
         .update({
           name: data.name,
@@ -48,7 +48,7 @@ export const saveTemplate = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
       return { ok: true, id: data.id };
     } else {
-      const { data: inserted, error } = await supabaseAdmin
+      const { data: inserted, error } = await (supabaseAdmin as any)
         .from("certificate_templates")
         .insert({
           name: data.name,

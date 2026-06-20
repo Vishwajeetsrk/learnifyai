@@ -12,8 +12,8 @@ const Avatar = React.forwardRef<
   let borderClass = "";
 
   React.Children.forEach(children, (child) => {
-    if (React.isValidElement(child) && child.props && child.props.src) {
-      const src = child.props.src;
+    if (React.isValidElement(child) && (child.props as any)?.src) {
+      const src = (child.props as any).src;
       if (typeof src === "string") {
         const match = src.match(/[?&]profile_border=([^&]+)/);
         if (match) {

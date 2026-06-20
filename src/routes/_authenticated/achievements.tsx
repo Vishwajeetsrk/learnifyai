@@ -86,7 +86,7 @@ function AchievementsPage() {
         ) : (
           <div className="mt-8 space-y-10">
             {CATEGORIES.map((cat) => {
-              const catBadges = badges.filter((b) => b.category === cat.key);
+              const catBadges = badges.filter((b) => (b as any).category === cat.key);
               if (catBadges.length === 0) return null;
               const Icon = cat.icon;
               return (
