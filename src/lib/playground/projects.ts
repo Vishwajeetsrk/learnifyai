@@ -268,15 +268,13 @@ export const saveFile = createServerFn({ method: "POST" })
         .eq("id", data.fileId);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await supabase
-        .from("playground_files")
-        .insert({
-          project_id: data.projectId,
-          name: data.name,
-          path: data.path,
-          content: data.content,
-          language: data.language,
-        });
+      const { error } = await supabase.from("playground_files").insert({
+        project_id: data.projectId,
+        name: data.name,
+        path: data.path,
+        content: data.content,
+        language: data.language,
+      });
       if (error) throw new Error(error.message);
     }
     await supabase

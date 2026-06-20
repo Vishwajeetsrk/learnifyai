@@ -1,8 +1,9 @@
-import { Client } from 'pg';
-import fs from 'fs';
-import path from 'path';
+import { Client } from "pg";
+import fs from "fs";
+import path from "path";
 
-const url = "postgresql://postgres:%23KingKhan15112003@db.gnvsqwyexjuuwkjibxrr.supabase.co:5432/postgres";
+const url =
+  "postgresql://postgres:%23KingKhan15112003@db.gnvsqwyexjuuwkjibxrr.supabase.co:5432/postgres";
 
 async function main() {
   const client = new Client({ connectionString: url });
@@ -12,7 +13,7 @@ async function main() {
   const files = [
     "20260615000000_community_features.sql",
     "20260615000001_coaching_features.sql",
-    "20260616000000_rag_core.sql"
+    "20260616000000_rag_core.sql",
   ];
 
   for (const file of files) {

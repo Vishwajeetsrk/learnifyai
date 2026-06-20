@@ -11,7 +11,8 @@ const courses = [
   {
     slug: "full-stack-nextjs",
     title: "Full-Stack Development with Next.js 14",
-    description: "Build production-ready full-stack applications with Next.js 14, React Server Components, App Router, authentication, database integration, and deployment. Covers everything from project setup to advanced patterns.",
+    description:
+      "Build production-ready full-stack applications with Next.js 14, React Server Components, App Router, authentication, database integration, and deployment. Covers everything from project setup to advanced patterns.",
     category: "Web Development",
     level: "Intermediate",
     price_inr: 499,
@@ -22,7 +23,8 @@ const courses = [
   {
     slug: "modern-ui-ux-design-systems",
     title: "Modern UI/UX Design Systems",
-    description: "Master the art of building scalable design systems with Figma, Tailwind CSS, and React. Learn color theory, typography, component architecture, accessibility, and design tokens.",
+    description:
+      "Master the art of building scalable design systems with Figma, Tailwind CSS, and React. Learn color theory, typography, component architecture, accessibility, and design tokens.",
     category: "Design",
     level: "Intermediate",
     price_inr: 399,
@@ -33,7 +35,8 @@ const courses = [
   {
     slug: "wordpress-development",
     title: "WordPress Development",
-    description: "Learn WordPress from basics to advanced: custom themes, plugin development, REST API, headless WordPress with Next.js, performance optimization, and WooCommerce integration.",
+    description:
+      "Learn WordPress from basics to advanced: custom themes, plugin development, REST API, headless WordPress with Next.js, performance optimization, and WooCommerce integration.",
     category: "Web Development",
     level: "Beginner",
     price_inr: 299,
@@ -44,7 +47,8 @@ const courses = [
   {
     slug: "ai-prompt-engineering",
     title: "AI Prompt Engineering Masterclass",
-    description: "Unlock the full potential of large language models. Learn prompt patterns, chain-of-thought reasoning, RAG architectures, function calling, and production deployment of AI features.",
+    description:
+      "Unlock the full potential of large language models. Learn prompt patterns, chain-of-thought reasoning, RAG architectures, function calling, and production deployment of AI features.",
     category: "AI & Machine Learning",
     level: "Intermediate",
     price_inr: 599,
@@ -55,7 +59,8 @@ const courses = [
   {
     slug: "python-data-science",
     title: "Python for Data Science",
-    description: "A comprehensive introduction to data science with Python. Covers NumPy, Pandas, Matplotlib, Seaborn, data cleaning, exploratory analysis, and building your first ML models.",
+    description:
+      "A comprehensive introduction to data science with Python. Covers NumPy, Pandas, Matplotlib, Seaborn, data cleaning, exploratory analysis, and building your first ML models.",
     category: "Data Science",
     level: "Beginner",
     price_inr: 349,
@@ -66,7 +71,8 @@ const courses = [
   {
     slug: "typescript-mastery",
     title: "TypeScript Mastery: From Zero to Hero",
-    description: "Deep dive into TypeScript: types, generics, utility types, decorators, advanced patterns, and integrating TypeScript with React, Node.js, and real-world projects.",
+    description:
+      "Deep dive into TypeScript: types, generics, utility types, decorators, advanced patterns, and integrating TypeScript with React, Node.js, and real-world projects.",
     category: "Programming",
     level: "Intermediate",
     price_inr: 449,
@@ -91,11 +97,7 @@ async function main() {
       continue;
     }
 
-    const { data: course, error } = await supabase
-      .from("courses")
-      .insert(c)
-      .select("id")
-      .single();
+    const { data: course, error } = await supabase.from("courses").insert(c).select("id").single();
 
     if (error) {
       console.error(`  Failed to create "${c.title}": ${error.message}`);
@@ -105,9 +107,7 @@ async function main() {
     console.log(`  Created "${c.title}" (${course.id})`);
   }
 
-  const { count } = await supabase
-    .from("courses")
-    .select("id", { count: "exact", head: true });
+  const { count } = await supabase.from("courses").select("id", { count: "exact", head: true });
 
   console.log(`\nDone! ${count} courses in the database.`);
 }

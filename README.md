@@ -20,6 +20,7 @@
 Learnify AI is a full-stack, AI-powered learning platform that combines intelligent tutoring, creator tools, gamification, and career growth into one premium experience.
 
 ### For Learners
+
 - **AI Tutor** — Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)
 - **Interactive Course Player** — Video lessons, markdown notes, AI summaries, and practice exercises
 - **Code Playground** — Monaco editor with 15+ languages, AI debug panel, web preview, SQLite, API tester
@@ -28,6 +29,7 @@ Learnify AI is a full-stack, AI-powered learning platform that combines intellig
 - **Wallet** — AI credits, course purchases, and withdrawals via Cashfree
 
 ### For Creators
+
 - **Creator Studio** — Build courses, add lessons, manage quizzes and assignments
 - **AI Course Builder** — Auto-generate course outlines, lessons, and thumbnails
 - **Coaching Hub** — Book 1-on-1 sessions, schedule slots, and chat
@@ -35,6 +37,7 @@ Learnify AI is a full-stack, AI-powered learning platform that combines intellig
 - **Earnings Dashboard** — Revenue tracking, payouts, and invoices
 
 ### Platform
+
 - **Community Feed** — Social learning with posts, comments, and likes
 - **Inbox** — Direct messaging between coaches and students
 - **Admin Panel** — Dashboard, wallet verification, certificates, content management
@@ -44,26 +47,27 @@ Learnify AI is a full-stack, AI-powered learning platform that combines intellig
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | React 19 + TanStack Start (SSR) |
-| Routing | TanStack Router (file-based) |
-| Styling | Tailwind CSS v4 + Shadcn UI |
-| State | TanStack Query + React Context |
-| Database | Supabase (PostgreSQL + Auth + Storage) |
-| AI | OpenRouter, Gemini, Groq (multi-provider fallback) |
-| Payments | Cashfree (Subscriptions + Wallet + Payouts) |
-| Embeddings | Gemini text-embedding-004 + pgvector |
-| Email | Cloudflare Email Service |
-| Code Exec | Judge0 / Wandbox / Piston (multi-executor fallback) |
-| Testing | Playwright (E2E) |
-| Deployment | Vercel |
+| Layer      | Technology                                          |
+| ---------- | --------------------------------------------------- |
+| Framework  | React 19 + TanStack Start (SSR)                     |
+| Routing    | TanStack Router (file-based)                        |
+| Styling    | Tailwind CSS v4 + Shadcn UI                         |
+| State      | TanStack Query + React Context                      |
+| Database   | Supabase (PostgreSQL + Auth + Storage)              |
+| AI         | OpenRouter, Gemini, Groq (multi-provider fallback)  |
+| Payments   | Cashfree (Subscriptions + Wallet + Payouts)         |
+| Embeddings | Gemini text-embedding-004 + pgvector                |
+| Email      | Cloudflare Email Service                            |
+| Code Exec  | Judge0 / Wandbox / Piston (multi-executor fallback) |
+| Testing    | Playwright (E2E)                                    |
+| Deployment | Vercel                                              |
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js v18+
 - Supabase project (free tier works)
 - Cashfree merchant account (for payments)
@@ -95,31 +99,31 @@ npm run dev
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `VITE_SUPABASE_URL` | Yes | Supabase project URL |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Yes | Supabase anon/public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key (server-side) |
-| `OPENROUTER_API_KEY` | No | OpenRouter API key for AI features |
-| `GEMINI_API_KEY` | No | Google Gemini API key |
-| `GROQ_API_KEY` | No | Groq API key |
-| `CASHFREE_APP_ID` | No | Cashfree payment gateway |
-| `CASHFREE_SECRET_KEY` | No | Cashfree secret key |
+| Variable                        | Required | Description                             |
+| ------------------------------- | -------- | --------------------------------------- |
+| `VITE_SUPABASE_URL`             | Yes      | Supabase project URL                    |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Yes      | Supabase anon/public key                |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes      | Supabase service role key (server-side) |
+| `OPENROUTER_API_KEY`            | No       | OpenRouter API key for AI features      |
+| `GEMINI_API_KEY`                | No       | Google Gemini API key                   |
+| `GROQ_API_KEY`                  | No       | Groq API key                            |
+| `CASHFREE_APP_ID`               | No       | Cashfree payment gateway                |
+| `CASHFREE_SECRET_KEY`           | No       | Cashfree secret key                     |
 
 ---
 
 ## Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start Vite dev server |
-| `npm run build` | Production build |
-| `npm run preview` | Preview production build |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Run Prettier |
-| `npx playwright test` | Run E2E tests |
-| `npx supabase db push` | Run database migrations |
-| `npx supabase db seed` | Seed sample data |
+| Command                | Description              |
+| ---------------------- | ------------------------ |
+| `npm run dev`          | Start Vite dev server    |
+| `npm run build`        | Production build         |
+| `npm run preview`      | Preview production build |
+| `npm run lint`         | Run ESLint               |
+| `npm run format`       | Run Prettier             |
+| `npx playwright test`  | Run E2E tests            |
+| `npx supabase db push` | Run database migrations  |
+| `npx supabase db seed` | Seed sample data         |
 
 ---
 

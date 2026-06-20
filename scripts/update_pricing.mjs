@@ -5,8 +5,10 @@ const env = fs.readFileSync(".env", "utf8");
 let supabaseUrl = "";
 let supabaseKey = "";
 for (const line of env.split("\n")) {
-  if (line.startsWith("NEXT_PUBLIC_SUPABASE_URL=") || line.startsWith("SUPABASE_URL=")) supabaseUrl = line.split("=")[1].trim().replace(/^"|"$/g, "");
-  if (line.startsWith("SUPABASE_SERVICE_ROLE_KEY=")) supabaseKey = line.split("=")[1].trim().replace(/^"|"$/g, "");
+  if (line.startsWith("NEXT_PUBLIC_SUPABASE_URL=") || line.startsWith("SUPABASE_URL="))
+    supabaseUrl = line.split("=")[1].trim().replace(/^"|"$/g, "");
+  if (line.startsWith("SUPABASE_SERVICE_ROLE_KEY="))
+    supabaseKey = line.split("=")[1].trim().replace(/^"|"$/g, "");
 }
 
 if (!supabaseUrl || !supabaseKey) {
@@ -28,7 +30,7 @@ async function main() {
         "Basic AI tutor",
         "500 free AI credits",
         "Community access",
-        "Progress tracking"
+        "Progress tracking",
       ];
     } else if (plan.name === "Pro") {
       features = [
@@ -37,7 +39,7 @@ async function main() {
         "10,000 AI credits/mo",
         "Certificates",
         "Priority support",
-        "Creator monetization"
+        "Creator monetization",
       ];
     } else if (plan.name === "Team") {
       features = [
@@ -46,7 +48,7 @@ async function main() {
         "Unlimited AI credits",
         "SSO + RBAC",
         "Custom branding",
-        "Dedicated success"
+        "Dedicated success",
       ];
     }
     await supabaseAdmin.from("pricing_plans").update({ features }).eq("id", plan.id);

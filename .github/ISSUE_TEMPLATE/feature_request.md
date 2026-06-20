@@ -1,10 +1,9 @@
 ---
 name: Feature Request
 about: Suggest an idea or enhancement for Learnify AI
-title: '[FEATURE] '
+title: "[FEATURE] "
 labels: enhancement
-assignees: ''
-
+assignees: ""
 ---
 
 **Is your feature request related to a problem? Please describe.**

@@ -35,10 +35,10 @@ If you discover a security vulnerability in Learnify AI, please report it respon
 
 ## Supported Versions
 
-| Version | Supported |
-|---------|-----------|
-| Latest  | Yes       |
-| Previous| No        |
+| Version  | Supported |
+| -------- | --------- |
+| Latest   | Yes       |
+| Previous | No        |
 
 ## Scope
 

@@ -45,13 +45,13 @@ public/            # Static assets (favicon, robots.txt)
 
 ## Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start Vite dev server |
-| `npm run build` | Production build |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Run Prettier |
-| `npx playwright test` | Run E2E tests |
+| Command               | Description           |
+| --------------------- | --------------------- |
+| `npm run dev`         | Start Vite dev server |
+| `npm run build`       | Production build      |
+| `npm run lint`        | Run ESLint            |
+| `npm run format`      | Run Prettier          |
+| `npx playwright test` | Run E2E tests         |
 
 ## Pull Request Process
 
