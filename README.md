@@ -323,7 +323,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Gamification Sandbox**: Implemented an interactive simulation panel in the achievements page (`/achievements`) that allows testing of XP awards, daily streak progression, and automatic badge award evaluation directly from the UI.
 - ✅ **Playground Project Visibility**: Added interactive public/private visibility toggle badges inside the code editor top bar and the project list dashboard. This enables learners to set saved projects as public so they display under the "Projects" tab of their public user profile page.
 - ✅ **CSP Policy Fix**: Updated Vercel headers (`vercel.json`) to allow script and iframe loading from YouTube (`https://www.youtube.com` and `https://s.ytimg.com`), resolving Content Security Policy blocks on video playback.
-- ✅ **Creator Studio AI Category**: Integrated an AI category suggestion button and standard category suggestions dropdown inside the Course Edit modal. Added a flat shadow illustration style (`retro_flat`) preset for generated course thumbnails.
+- ✅ **Creator Studio AI Generation Tools**: Integrated a suite of AI-powered creation tools directly into the Course Edit modal. Added "AI Thumbnail" generation supporting data URI image uploads with a premium flat shadow illustration style (`retro_flat`). Implemented "AI Lesson Generator" which dynamically creates video lessons, video URLs, and formatted lesson summaries based on the course title. Added an AI category suggestion button and dynamic category mapping dropdown.
 
 ### v1.4.0 (June 2026)
 - ✅ **Email Template / Admin Page Fix**: Resolved client-side pre-bundling crash on the `/admin` page by converting literal dynamic imports of `nodemailer` to variable-based imports.
