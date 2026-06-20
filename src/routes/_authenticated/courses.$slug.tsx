@@ -685,6 +685,7 @@ function CourseDetail() {
                 <CustomVideoPlayer
                   key={`${active?.id}-${playerRetry}`}
                   url={activeVideo.src}
+                  thumbnailUrl={course?.cover_url || undefined}
                   startSeconds={activeProgress?.watched_seconds ?? 0}
                   playbackRate={speed}
                   onError={() => setPlayerLoadFailed(true)}

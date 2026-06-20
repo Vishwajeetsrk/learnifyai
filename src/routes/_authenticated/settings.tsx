@@ -143,20 +143,80 @@ function SettingsPage() {
 
   /* ── Cartoon Character customization ── */
   const [cartoonOpen, setCartoonOpen] = useState(false);
-  const [selectedStyle, setSelectedStyle] = useState("adventurer");
+  const [selectedStyle, setSelectedStyle] = useState("avataaars"); // Default to avataaars since it is highly customizable
   const [seed, setSeed] = useState("Learnify");
   const [savingCartoon, setSavingCartoon] = useState(false);
 
+  // Granular customization states
+  const [skinColor, setSkinColor] = useState("ffdbb4"); // Default skin
+  const [hairGender, setHairGender] = useState<"male" | "female">("male"); // Short vs Long hair filter
+  const [hairStyle, setHairStyle] = useState("shortHairShortFlat"); // Default hair style
+  const [hairColor, setHairColor] = useState("4a3728"); // Default hair color
+  const [mouthStyle, setMouthStyle] = useState("default"); // Default mouth
+  const [eyesStyle, setEyesStyle] = useState("default"); // Default eyes
+  const [clothingStyle, setClothingStyle] = useState("shirtCrewNeck"); // Default clothes
+  const [clothingColor, setClothingColor] = useState("3c4f76"); // Default clothes color
+  const [accessoriesStyle, setAccessoriesStyle] = useState("none"); // Default accessories
+
   const CARTOON_STYLES = [
+    { id: "avataaars", label: "Casual Character" },
     { id: "adventurer", label: "Adventurer" },
     { id: "bottts", label: "Robot" },
     { id: "pixel-art", label: "Pixel Art" },
     { id: "fun-emoji", label: "Fun Emoji" },
     { id: "lorelei", label: "Lorelei" },
-    { id: "avataaars", label: "Casual Character" },
   ];
 
-  const currentCartoonUrl = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${encodeURIComponent(seed)}`;
+  function buildCartoonUrl() {
+    const baseUrl = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${encodeURIComponent(seed)}`;
+    let params = "";
+
+    if (selectedStyle === "avataaars") {
+      params += `&skinColor=${skinColor}`;
+      params += `&top=${hairStyle}`;
+      params += `&hairColor=${hairColor}`;
+      params += `&mouth=${mouthStyle}`;
+      params += `&eyes=${eyesStyle}`;
+      params += `&clothing=${clothingStyle}`;
+      params += `&clothingColor=${clothingColor}`;
+      if (accessoriesStyle && accessoriesStyle !== "none") {
+        params += `&accessories=${accessoriesStyle}`;
+      } else {
+        params += `&accessoriesProbability=0`;
+      }
+    } else if (selectedStyle === "adventurer") {
+      params += `&skinColor=${skinColor}`;
+      // Map hair style
+      let advHair = "short01";
+      if (hairStyle.startsWith("long")) {
+        advHair = hairStyle.includes("Curly") ? "long02" : "long01";
+      } else if (hairStyle.includes("Bob")) {
+        advHair = "bob";
+      } else if (hairStyle.includes("Curly")) {
+        advHair = "curl";
+      } else if (hairStyle.includes("Dreads")) {
+        advHair = "braids";
+      } else if (hairStyle === "noHair") {
+        advHair = "bald";
+      } else {
+        advHair = "short02";
+      }
+      params += `&hair=${advHair}`;
+      params += `&hairColor=${hairColor}`;
+      params += `&mouth=${mouthStyle === "default" ? "smile" : mouthStyle === "sad" ? "sad" : "default"}`;
+      params += `&eyes=${eyesStyle === "default" ? "default" : eyesStyle === "happy" ? "happy" : eyesStyle === "wink" ? "wink" : "default"}`;
+      if (accessoriesStyle && accessoriesStyle !== "none") {
+        params += `&features=${accessoriesStyle === "prescription01" || accessoriesStyle === "prescription02" ? "spectacles" : "sunglasses"}`;
+      }
+    } else if (selectedStyle === "lorelei") {
+      params += `&hairColor=${hairColor}`;
+      params += `&skinColor=${skinColor}`;
+    }
+
+    return baseUrl + params;
+  }
+
+  const currentCartoonUrl = buildCartoonUrl();
 
   async function saveCartoonAvatar() {
     if (!user) return;
@@ -668,65 +728,379 @@ function SettingsPage() {
 
               {/* Cartoon Character Customization Dialog */}
               <Dialog open={cartoonOpen} onOpenChange={setCartoonOpen}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
-                    <DialogTitle>Customize Character</DialogTitle>
+                    <DialogTitle className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-yellow-500 fill-yellow-500" /> Customize Your Character
+                    </DialogTitle>
                     <DialogDescription>
-                      Design your own cartoon avatar. Change styles or seeds to randomize details.
+                      Design your own custom cartoon avatar. Change styles, colors, gender, expressions, and clothing!
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="space-y-4 py-3 flex flex-col items-center">
-                    {/* Live Preview */}
-                    <div className="relative h-28 w-28 rounded-full border-4 border-muted overflow-hidden shadow-inner bg-accent/20 flex items-center justify-center">
-                      <img src={currentCartoonUrl} className="h-full w-full object-cover" alt="Avatar Preview" />
+
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-6 py-4">
+                    {/* Left Column: Live Preview & Style Selector */}
+                    <div className="md:col-span-5 flex flex-col items-center gap-4 bg-muted/30 p-4 rounded-xl border">
+                      {/* Live Preview */}
+                      <div className="relative h-40 w-40 rounded-full border-4 border-background bg-card shadow-lg overflow-hidden flex items-center justify-center">
+                        <img src={currentCartoonUrl} className="h-full w-full object-cover" alt="Avatar Preview" />
+                      </div>
+
+                      <div className="w-full space-y-3">
+                        {/* Character Style Selection */}
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Art Style</Label>
+                          <div className="grid grid-cols-2 gap-1 text-xs">
+                            {CARTOON_STYLES.map((style) => (
+                              <button
+                                key={style.id}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedStyle(style.id);
+                                  // Update defaults based on style to prevent glitchy params
+                                  if (style.id === "avataaars") {
+                                    setHairStyle("shortHairShortFlat");
+                                  } else if (style.id === "adventurer") {
+                                    setHairStyle("short01");
+                                  }
+                                }}
+                                className={`rounded-lg border p-2 text-center text-xs font-medium transition ${
+                                  selectedStyle === style.id
+                                    ? "border-primary bg-primary/10 text-primary shadow-sm"
+                                    : "border-border hover:bg-muted"
+                                }`}
+                              >
+                                {style.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Seed Input */}
+                        <div className="space-y-1">
+                          <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Base Seed</Label>
+                          <div className="flex gap-2">
+                            <Input
+                              value={seed}
+                              onChange={(e) => setSeed(e.target.value)}
+                              placeholder="Type anything to randomize base features..."
+                              className="flex-1 text-xs h-9 bg-card"
+                            />
+                            <Button size="sm" variant="outline" className="h-9 text-xs shrink-0" onClick={randomizeSeed}>
+                              Randomize
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="w-full space-y-3">
-                      {/* Character Style Selection */}
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Style</label>
-                        <div className="grid grid-cols-3 gap-1 text-xs">
-                          {CARTOON_STYLES.map((style) => (
-                            <button
-                              key={style.id}
-                              type="button"
-                              onClick={() => setSelectedStyle(style.id)}
-                              className={`rounded-md border p-1.5 text-center font-medium transition ${
-                                selectedStyle === style.id
-                                  ? "border-primary bg-primary/10 text-primary"
-                                  : "border-border hover:bg-muted"
-                              }`}
-                            >
-                              {style.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
+                    {/* Right Column: Customization Controls */}
+                    <div className="md:col-span-7 flex flex-col">
+                      {selectedStyle === "avataaars" || selectedStyle === "adventurer" || selectedStyle === "lorelei" ? (
+                        <Tabs defaultValue="face" className="w-full">
+                          <TabsList className="w-full grid grid-cols-3">
+                            <TabsTrigger value="face" className="text-xs">Face & Hair</TabsTrigger>
+                            <TabsTrigger value="expressions" className="text-xs" disabled={selectedStyle === "lorelei"}>Expression</TabsTrigger>
+                            <TabsTrigger value="clothing" className="text-xs" disabled={selectedStyle === "lorelei"}>Clothing</TabsTrigger>
+                          </TabsList>
 
-                      {/* Seed Input */}
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Character Seed (Unique Key)</label>
-                        <div className="flex gap-2">
-                          <Input
-                            value={seed}
-                            onChange={(e) => setSeed(e.target.value)}
-                            placeholder="Type anything to change features..."
-                            className="flex-1 text-xs h-8"
-                          />
-                          <Button size="sm" variant="outline" className="h-8 text-xs shrink-0" onClick={randomizeSeed}>
-                            Randomize
-                          </Button>
+                          {/* Face & Hair Tab */}
+                          <TabsContent value="face" className="space-y-4 pt-3">
+                            {/* Skin Color Picker */}
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-muted-foreground">Skin Color</Label>
+                              <div className="flex flex-wrap gap-2">
+                                {[
+                                  { val: "ffdbb4", color: "#ffdbb4", label: "Very Light" },
+                                  { val: "edb98a", color: "#edb98a", label: "Light" },
+                                  { val: "fd9841", color: "#fd9841", label: "Tan" },
+                                  { val: "d08b5b", color: "#d08b5b", label: "Olive" },
+                                  { val: "ae5d29", color: "#ae5d29", label: "Brown" },
+                                  { val: "614335", color: "#614335", label: "Dark" },
+                                ].map((skin) => (
+                                  <button
+                                    key={skin.val}
+                                    type="button"
+                                    onClick={() => setSkinColor(skin.val)}
+                                    className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
+                                      skinColor === skin.val ? "border-primary scale-110 shadow-sm" : "border-border"
+                                    }`}
+                                    style={{ backgroundColor: skin.color }}
+                                    title={skin.label}
+                                  >
+                                    {skinColor === skin.val && (
+                                      <Check className={`h-3 w-3 ${skin.val === "ffdbb4" || skin.val === "f8d25c" ? "text-slate-800" : "text-white"}`} />
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Hair Style selection */}
+                            {selectedStyle !== "lorelei" && (
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <Label className="text-xs font-semibold text-muted-foreground">Hair Style</Label>
+                                  <div className="flex bg-muted rounded-lg p-0.5 text-[10px] font-medium border">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setHairGender("male");
+                                        setHairStyle("shortHairShortFlat");
+                                      }}
+                                      className={`px-2 py-0.5 rounded transition ${
+                                        hairGender === "male" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                                      }`}
+                                    >
+                                      Male / Short
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setHairGender("female");
+                                        setHairStyle("longHairStraight");
+                                      }}
+                                      className={`px-2 py-0.5 rounded transition ${
+                                        hairGender === "female" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"
+                                      }`}
+                                    >
+                                      Female / Long
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-1.5 max-h-32 overflow-y-auto pr-1">
+                                  {(hairGender === "male"
+                                    ? [
+                                        { id: "shortHairTheCaesar", label: "Caesar Cut" },
+                                        { id: "shortHairShortFlat", label: "Short Flat" },
+                                        { id: "shortHairShortRound", label: "Short Round" },
+                                        { id: "shortHairShortWaved", label: "Short Wavy" },
+                                        { id: "shortHairShortCurly", label: "Short Curly" },
+                                        { id: "shortHairShaggyMullet", label: "Mullet" },
+                                        { id: "noHair", label: "Bald" },
+                                      ]
+                                    : [
+                                        { id: "longHairStraight", label: "Long Straight" },
+                                        { id: "longHairStraight2", label: "Straight Parted" },
+                                        { id: "longHairCurly", label: "Long Curly" },
+                                        { id: "longHairCurvy", label: "Long Curvy" },
+                                        { id: "longHairBob", label: "Bob Cut" },
+                                        { id: "longHairMiaWallace", label: "Mia Cut" },
+                                        { id: "longHairBun", label: "Hair Bun" },
+                                        { id: "longHairDreads", label: "Dreads" },
+                                        { id: "longHairBigHair", label: "Big Hair" },
+                                      ]
+                                  ).map((hair) => (
+                                    <button
+                                      key={hair.id}
+                                      type="button"
+                                      onClick={() => setHairStyle(hair.id)}
+                                      className={`rounded-md border p-1 text-center text-[10px] font-medium transition leading-snug truncate ${
+                                        hairStyle === hair.id
+                                          ? "border-primary bg-primary/5 text-primary"
+                                          : "border-border hover:bg-muted"
+                                      }`}
+                                    >
+                                      {hair.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Hair Color Picker */}
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-muted-foreground">Hair Color</Label>
+                              <div className="flex flex-wrap gap-2">
+                                {[
+                                  { val: "2c1b18", color: "#2c1b18", label: "Black" },
+                                  { val: "4a3728", color: "#4a3728", label: "Dark Brown" },
+                                  { val: "724124", color: "#724124", label: "Light Brown" },
+                                  { val: "b58143", color: "#b58143", label: "Blonde" },
+                                  { val: "c93305", color: "#c93305", label: "Auburn" },
+                                  { val: "ecdcbf", color: "#ecdcbf", label: "Platinum" },
+                                  { val: "f59797", color: "#f59797", label: "Pink" },
+                                ].map((hair) => (
+                                  <button
+                                    key={hair.val}
+                                    type="button"
+                                    onClick={() => setHairColor(hair.val)}
+                                    className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
+                                      hairColor === hair.val ? "border-primary scale-110 shadow-sm" : "border-border"
+                                    }`}
+                                    style={{ backgroundColor: hair.color }}
+                                    title={hair.label}
+                                  >
+                                    {hairColor === hair.val && (
+                                      <Check className={`h-3 w-3 ${hair.val === "ecdcbf" || hair.val === "f59797" ? "text-slate-800" : "text-white"}`} />
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </TabsContent>
+
+                          {/* Expressions Tab */}
+                          <TabsContent value="expressions" className="space-y-4 pt-3">
+                            {/* Eyes Selector */}
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-muted-foreground">Eyes Expression</Label>
+                              <Select value={eyesStyle} onValueChange={setEyesStyle}>
+                                <SelectTrigger className="w-full text-xs">
+                                  <SelectValue placeholder="Select eyes style" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[
+                                    { id: "default", label: "Default" },
+                                    { id: "happy", label: "Happy" },
+                                    { id: "wink", label: "Wink / Playful" },
+                                    { id: "surprised", label: "Surprised" },
+                                    { id: "squint", label: "Squint" },
+                                    { id: "side", label: "Side Eye" },
+                                    { id: "hearts", label: "Loving / Hearts" },
+                                    { id: "close", label: "Closed / Sleepy" },
+                                  ].map((eye) => (
+                                    <SelectItem key={eye.id} value={eye.id} className="text-xs">
+                                      {eye.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Mouth Selector */}
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-muted-foreground">Mouth Expression</Label>
+                              <Select value={mouthStyle} onValueChange={setMouthStyle}>
+                                <SelectTrigger className="w-full text-xs">
+                                  <SelectValue placeholder="Select mouth style" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[
+                                    { id: "default", label: "Default" },
+                                    { id: "smile", label: "Smile" },
+                                    { id: "sad", label: "Sad / Frown" },
+                                    { id: "concerned", label: "Concerned" },
+                                    { id: "disbelief", label: "Disbelief" },
+                                    { id: "grimace", label: "Grimace" },
+                                    { id: "scream", label: "Scream" },
+                                    { id: "tongue", label: "Tongue Out" },
+                                  ].map((m) => (
+                                    <SelectItem key={m.id} value={m.id} className="text-xs">
+                                      {m.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Accessories Selector */}
+                            {selectedStyle !== "lorelei" && (
+                              <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-muted-foreground">Accessories</Label>
+                                <Select value={accessoriesStyle} onValueChange={setAccessoriesStyle}>
+                                  <SelectTrigger className="w-full text-xs">
+                                    <SelectValue placeholder="Select accessories" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {[
+                                      { id: "none", label: "None" },
+                                      { id: "prescription01", label: "Regular Glasses" },
+                                      { id: "round", label: "Round Glasses" },
+                                      { id: "sunglasses", label: "Sunglasses" },
+                                      { id: "wayfarer", label: "Wayfarer Shades" },
+                                      { id: "kurt", label: "Round Sunnies" },
+                                    ].map((acc) => (
+                                      <SelectItem key={acc.id} value={acc.id} className="text-xs">
+                                        {acc.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
+                          </TabsContent>
+
+                          {/* Clothing Tab */}
+                          <TabsContent value="clothing" className="space-y-4 pt-3">
+                            {/* Clothing Style */}
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-muted-foreground">Clothing Style</Label>
+                              <Select value={clothingStyle} onValueChange={setClothingStyle}>
+                                <SelectTrigger className="w-full text-xs">
+                                  <SelectValue placeholder="Select clothing style" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {[
+                                    { id: "shirtCrewNeck", label: "Crew Neck T-Shirt" },
+                                    { id: "shirtVNeck", label: "V-Neck T-Shirt" },
+                                    { id: "hoodie", label: "Hoodie" },
+                                    { id: "collarAndSweater", label: "Collar & Sweater" },
+                                    { id: "blazerAndShirt", label: "Blazer & Shirt" },
+                                    { id: "overall", label: "Overalls" },
+                                    { id: "graphicShirt", label: "Graphic Tee" },
+                                  ].map((c) => (
+                                    <SelectItem key={c.id} value={c.id} className="text-xs">
+                                      {c.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            {/* Clothing Color Picker */}
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-muted-foreground">Clothing Color</Label>
+                              <div className="flex flex-wrap gap-2">
+                                {[
+                                  { val: "262e3d", color: "#262e3d", label: "Navy" },
+                                  { val: "3c4f76", color: "#3c4f76", label: "Blue" },
+                                  { val: "a7e0e2", color: "#a7e0e2", label: "Teal" },
+                                  { val: "92b558", color: "#92b558", label: "Green" },
+                                  { val: "e53935", color: "#e53935", label: "Red" },
+                                  { val: "ffb300", color: "#ffb300", label: "Orange" },
+                                  { val: "6f2da8", color: "#6f2da8", label: "Purple" },
+                                  { val: "e2b4bd", color: "#e2b4bd", label: "Pink" },
+                                  { val: "5c6f68", color: "#5c6f68", label: "Gray" },
+                                ].map((c) => (
+                                  <button
+                                    key={c.val}
+                                    type="button"
+                                    onClick={() => setClothingColor(c.val)}
+                                    className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
+                                      clothingColor === c.val ? "border-primary scale-110 shadow-sm" : "border-border"
+                                    }`}
+                                    style={{ backgroundColor: c.color }}
+                                    title={c.label}
+                                  >
+                                    {clothingColor === c.val && (
+                                      <Check className={`h-3 w-3 ${c.val === "a7e0e2" || c.val === "ffb300" || c.val === "e2b4bd" ? "text-slate-800" : "text-white"}`} />
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center flex-1 py-10 text-center text-muted-foreground border border-dashed rounded-xl p-4 bg-muted/15">
+                          <Sparkles className="h-8 w-8 text-yellow-500 mb-2 animate-bounce" />
+                          <p className="text-xs font-semibold">Artistic Preset Style Selected</p>
+                          <p className="text-[11px] max-w-xs mt-1">
+                            This style (like Robot, Pixel Art, or Fun Emoji) is automatically generated. Change the Base Seed or click Randomize to design features!
+                          </p>
                         </div>
-                      </div>
+                      )}
                     </div>
                   </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setCartoonOpen(false)}>
+
+                  <DialogFooter className="border-t pt-4">
+                    <Button variant="outline" onClick={() => setCartoonOpen(false)} className="text-xs h-9">
                       Cancel
                     </Button>
-                    <Button onClick={saveCartoonAvatar} disabled={savingCartoon}>
+                    <Button onClick={saveCartoonAvatar} disabled={savingCartoon} className="text-xs h-9">
                       {savingCartoon ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
-                      Use character
+                      Use Character Avatar
                     </Button>
                   </DialogFooter>
                 </DialogContent>
