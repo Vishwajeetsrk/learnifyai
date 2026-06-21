@@ -25,7 +25,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 ### 🎥 Platform Walkthrough & Features Demo
 
 <div align="center">
-  <img src="src/assets/learnify_demo.webp" alt="Learnify AI Platform Demo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);" />
+  <img src="src/assets/learnify_demo.gif" alt="Learnify AI Platform Demo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);" />
 </div>
 
 ### ✨ For Learners
