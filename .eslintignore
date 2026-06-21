@@ -1,0 +1,4 @@
+dist
+.vercel
+node_modules
+project-audit

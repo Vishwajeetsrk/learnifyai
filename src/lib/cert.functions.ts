@@ -308,15 +308,15 @@ async function sendEmail({
   if (RESEND_API_KEY) {
     hints.push("Resend sender domain not verified — add/verify a domain at resend.com/domains");
   } else {
-    hints.push("Set RESEND_API_KEY (free at resend.com)");
+    hints.push("Missing RESEND_API_KEY");
   }
-  if (!BREVO_API_KEY) hints.push("Set BREVO_API_KEY (v3 API key from Brevo dashboard)");
+  if (!BREVO_API_KEY) hints.push("Missing BREVO_API_KEY");
   if (!GMAIL_EMAIL || !GMAIL_APP_PASSWORD) {
     hints.push(
-      "Set GMAIL_EMAIL + GMAIL_APP_PASSWORD (free Gmail app password) for reliable fallback",
+      "Missing GMAIL_APP_PASSWORD",
     );
   }
-  throw new Error(`Email delivery failed: all providers exhausted. ${hints.join("; ")}.`);
+  throw new Error(`Email delivery failed! Please configure an email provider in your .env file (${hints.join(", ")}).`);
 }
 
 /** Test email sending — reports detailed provider results. */

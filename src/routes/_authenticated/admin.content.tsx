@@ -14,6 +14,7 @@ import {
   Tag,
   Settings,
   X,
+  Eye,
   Award,
   HelpCircle,
   Send,
@@ -73,6 +74,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import FeaturesManager from "@/components/admin/FeaturesManager";
 
 // Heavy admin panels — code-split so initial admin page paints fast.
 const IssueCertificate = lazy(() => import("@/components/admin/IssueCertificate"));
@@ -145,6 +147,7 @@ function AdminContentPage() {
     "roadmap",
     "coupons",
     "community",
+    "features",
   ].includes(tabAlias)
     ? tabAlias
     : "events";
@@ -234,6 +237,10 @@ function AdminContentPage() {
               <Users className="h-4 w-4 mr-2" />
               Community Groups
             </TabsTrigger>
+            <TabsTrigger value="features">
+              <Eye className="h-4 w-4 mr-2" />
+              Visibility
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="events" className="mt-6">
             <EventsManager />
@@ -270,6 +277,9 @@ function AdminContentPage() {
           </TabsContent>
           <TabsContent value="community" className="mt-6">
             <CohortsManager />
+          </TabsContent>
+          <TabsContent value="features" className="mt-6">
+            <FeaturesManager />
           </TabsContent>
         </Tabs>
       </div>

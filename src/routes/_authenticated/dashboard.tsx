@@ -355,79 +355,40 @@ function DashboardPage() {
 }
 
 function UpgradePlans() {
-  const { data: plans, isLoading } = useQuery({
-    queryKey: ["dashboard-pricing-plans"],
+  const { user } = useAuth();
+  const currentSub = useQuery({
+    enabled: !!user,
+    queryKey: ["my-subscription", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pricing_plans")
-        .select("*")
-        .eq("active", true)
-        .order("order_index", { ascending: true });
-      if (error) throw error;
-      return data ?? [];
+      const { data } = await (supabase as any)
+        .from("user_subscriptions")
+        .select("*, plan:pricing_plans(*)")
+        .eq("user_id", user!.id)
+        .eq("status", "active")
+        .maybeSingle();
+      return data || null;
     },
   });
 
-  if (isLoading || !plans || plans.length === 0) return null;
+  const activePlanName = currentSub.data?.plan?.name ?? "Free";
+  if (activePlanName !== "Free") return null;
 
   return (
-    <div className="mt-12">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="font-display text-xl font-semibold flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" /> Upgrade your plan
+    <div className="mt-12 rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/5 to-card p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-lg relative overflow-hidden">
+      <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative z-10 text-center md:text-left">
+        <h2 className="font-display text-2xl sm:text-3xl font-semibold flex items-center justify-center md:justify-start gap-2">
+          <Sparkles className="h-6 w-6 text-primary animate-pulse" /> Upgrade to Pro
         </h2>
-        <Link
-          to="/pricing"
-          search={{ subscribe: undefined }}
-          className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-        >
-          Compare all <ArrowRight className="h-3 w-3" />
+        <p className="text-muted-foreground mt-2 max-w-lg text-sm sm:text-base">
+          Unlock unlimited AI sessions, premium courses, creator tools, and priority support. Elevate your learning journey today.
+        </p>
+      </div>
+      <Button asChild size="lg" className="shrink-0 relative z-10 shadow-glow hover:-translate-y-0.5 transition-all w-full md:w-auto">
+        <Link to="/pricing">
+          View Pricing & Upgrade <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
-      </div>
-      <p className="text-sm text-muted-foreground mb-5">
-        Unlock unlimited AI sessions, premium courses, and creator tools.
-      </p>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {plans.slice(0, 3).map((p: any) => {
-          const features: string[] = Array.isArray(p.features) ? p.features : [];
-          return (
-            <div
-              key={p.id}
-              className={`relative rounded-2xl border p-6 shadow-card hover:shadow-lg hover:-translate-y-1 transition-all flex flex-col ${
-                p.highlighted
-                  ? "border-primary/60 bg-gradient-to-b from-primary/5 to-card"
-                  : "bg-card"
-              }`}
-            >
-              {p.highlighted && (
-                <Badge className="absolute -top-2 right-4 bg-primary text-primary-foreground">
-                  Popular
-                </Badge>
-              )}
-              <h3 className="font-display font-semibold text-lg">{p.name}</h3>
-              {p.description && (
-                <p className="text-xs text-muted-foreground mt-1">{p.description}</p>
-              )}
-              <div className="mt-4 font-display text-3xl font-semibold">{p.price_label}</div>
-              <ul className="mt-4 space-y-2 flex-1">
-                {features.slice(0, 5).map((f, i) => (
-                  <li key={i} className="flex items-start gap-2 text-xs">
-                    <Check className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button
-                asChild
-                className={`mt-6 w-full ${p.highlighted ? "" : "bg-foreground text-background hover:bg-foreground/90"}`}
-                variant={p.highlighted ? "default" : "default"}
-              >
-                <Link to={p.cta_to as any}>{p.cta_label}</Link>
-              </Button>
-            </div>
-          );
-        })}
-      </div>
+      </Button>
     </div>
   );
 }

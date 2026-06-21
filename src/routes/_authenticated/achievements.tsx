@@ -75,12 +75,12 @@ function AchievementsPage() {
       if (updateErr) throw updateErr;
 
       // 3. Check for streak badges
-      const { data: dbBadges } = await supabase
-        .from("badges")
+      const { data: untypedDbBadges } = await supabase
+        .from("badges" as any)
         .select("id, streak_required")
         .eq("category", "streak")
         .not("streak_required", "is", null);
-
+      const dbBadges = untypedDbBadges as any[];
       if (dbBadges && dbBadges.length > 0) {
         const { data: earnedBadges } = await supabase
           .from("user_badges")
@@ -131,7 +131,7 @@ function AchievementsPage() {
       if (badgesErr) throw badgesErr;
 
       const { error: xpErr } = await supabase
-        .from("xp_log")
+        .from("xp_log" as any)
         .delete()
         .eq("user_id", user.id);
       if (xpErr) throw xpErr;

@@ -327,6 +327,14 @@ function PricingPage() {
                         </Button>
                       )}
                     </div>
+                    {/* Explicitly state Cashfree only processing */}
+                    {hasPrice && (
+                      <div className="mt-4 text-center">
+                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider flex items-center justify-center gap-1.5">
+                          <Check className="h-3 w-3 text-emerald-500" /> Securely processed by Cashfree
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               );

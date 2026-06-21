@@ -158,7 +158,7 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="antialiased overflow-x-hidden bg-background text-foreground">
         {children}
         <Scripts />
       </body>
@@ -169,6 +169,7 @@ function RootShell({ children }: { children: ReactNode }) {
 import { AuthProvider } from "../hooks/use-auth";
 import { ThemeProvider } from "../hooks/use-theme";
 import { MotionPrefProvider } from "../hooks/use-motion-pref";
+import { FeatureProvider } from "../hooks/use-features";
 import { ThemeSync } from "../components/ThemeSync";
 import { Toaster } from "../components/ui/sonner";
 import { NavigationProgress } from "../components/NavigationProgress";
@@ -182,13 +183,15 @@ function RootComponent() {
       <ThemeProvider>
         <MotionPrefProvider>
           <AuthProvider>
-            <ThemeSync />
-            <NavigationProgress />
-            <PageTransition>
-              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
-            </PageTransition>
-            <Toaster richColors position="top-right" />
+            <FeatureProvider>
+              <ThemeSync />
+              <NavigationProgress />
+              <PageTransition>
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+              </PageTransition>
+              <Toaster richColors position="top-right" />
+            </FeatureProvider>
           </AuthProvider>
         </MotionPrefProvider>
       </ThemeProvider>

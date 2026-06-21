@@ -28,8 +28,10 @@ import {
   X,
   Globe,
   Clock,
+  History,
   Loader2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { z } from "zod";

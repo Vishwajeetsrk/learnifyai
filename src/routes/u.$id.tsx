@@ -691,7 +691,7 @@ function PublicProfilePage() {
                             className="group relative flex flex-col items-center justify-center p-3 rounded-2xl border bg-card hover:shadow-md hover:-translate-y-0.5 transition-all text-center"
                             title={`${badge.name}: ${badge.description || "Earned badge"}`}
                           >
-                            <BadgeSVG className="w-10 h-10 mb-2" level={Math.floor((badge.xp_required || 0) / 500) + 1} />
+                            <BadgeSVG className="w-10 h-10 mb-2" />
                             <span className="text-[10px] font-bold truncate w-full leading-tight text-foreground">
                               {badge.name}
                             </span>

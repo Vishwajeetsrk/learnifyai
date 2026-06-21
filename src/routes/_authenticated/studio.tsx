@@ -25,7 +25,10 @@ import {
   Upload,
   Image as ImageIcon,
   Code2,
+  Video as VideoIcon,
+  HelpCircle,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { runAiTool } from "@/lib/ai-tools.functions";
 import { suggestCourseCategory } from "@/lib/course.functions";

@@ -317,6 +317,8 @@ MIT License. See [LICENSE](LICENSE) for details.
 ## 📋 Changelog
 
 ### v3.0.0 (June 2026) - Major UI/UX Polish & Gamification Upgrade
+- ✅ **Certificate Designer Pro 4.0**: Completely overhauled the admin certificate editor into a premium drag-and-drop Canva-style workspace using `react-rnd`. Features include real-time layout rendering, contextual properties panels (fonts, colors, borders), layer management, AI optimization stubs, and high-fidelity PDF/PNG export using `html2canvas-pro` and `jspdf`.
+- ✅ **Production Safe Archival Audit**: Conducted a massive 15-step repository static analysis. Moved unused files to a safe `/archive-review/` folder instead of deleting them. Polished UI components and cleaned up duplicate code.
 - ✅ **Gamification Engine**: Added premium SVG badges (Streak, XP, Course, etc.) and an animated Rank System with a dynamic crown. Built a robust Achievement Gallery and overhauled the achievements hub.
 - ✅ **Profile Page Upgrade**: Profiles now showcase animated rank crowns and gamification badges, with premium stats formatting using soft gradients and modern badge outlines.
 - ✅ **Community Feed Polish**: Upgraded feed with micro-animations, backdrop-blur, refined borders, and a beautiful gradient header. Replaced basic loading states with smooth `Skeleton` layouts.
