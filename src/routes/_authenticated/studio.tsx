@@ -1469,7 +1469,7 @@ function LessonForm({
         </div>
         <Textarea
           rows={3}
-          maxLength={500}
+          maxLength={2000}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />

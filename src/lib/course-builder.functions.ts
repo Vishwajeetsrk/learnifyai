@@ -558,7 +558,7 @@ export const generateLessonNotes = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    const prompt = `Write a detailed, structured, educational note/description (max 500 characters) for a lesson titled "${data.title}" inside a course named "${data.courseTitle}". Explain the core concept, key takeaways, and a quick summary. Output clean, concise text (markdown allowed but short).`;
+    const prompt = `Write a detailed, structured, educational note for a lesson titled "${data.title}" inside a course named "${data.courseTitle}". Explain the core concept, key takeaways, and a quick summary. Format the response using clean HTML (e.g., <b> for bold, <mark> for highlights, <ul>/<li> for unordered lists, <ol>/<li> for ordered lists). Do NOT use any Markdown symbols like *, #, or - for formatting. Keep it concise.`;
     const res = await callUserAiChat({
       messages: [
         { role: "system", content: "You are an expert curriculum assistant." },

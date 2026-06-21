@@ -1141,9 +1141,14 @@ function LessonAiTabs({
             {speaking ? "Stop" : "Listen"}
           </Button>
         )}
-        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-          {lesson.description || "No instructor notes for this lesson."}
-        </p>
+        {lesson.description ? (
+          <div 
+            className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:p-0 prose-ul:my-1 prose-li:my-0.5"
+            dangerouslySetInnerHTML={{ __html: lesson.description }}
+          />
+        ) : (
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap">No instructor notes for this lesson.</p>
+        )}
       </TabsContent>
 
       {!hasToolAccess && <LockedCourseTools />}
