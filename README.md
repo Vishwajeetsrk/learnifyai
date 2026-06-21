@@ -34,10 +34,11 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | -------------------------------- | ------------------------------------------------------------------------------------- |
 | 🤖 **AI Tutor**                  | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)      |
 | 🎥 **Interactive Course Player** | Video lessons, markdown notes, AI summaries, and practice exercises                   |
-| 💻 **Code Playground**           | Monaco editor with 25+ languages, AI debug panel, web preview, SQLite, and API tester |
+| 💻 **Code Playground**           | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant |
 | 📝 **Smart Notes**               | Auto-generated flashcards, summaries, and quizzes from any lesson                     |
 | 🏆 **Gamification**              | XP, streaks, badges, leaderboards, and achievements                                   |
 | 💰 **Wallet**                    | AI credits, course purchases, and withdrawals via Cashfree                            |
+| 📋 **Billing Dashboard**         | View current plan, invoices, subscription history, cancel/resume subscription         |
 
 ### 🎓 For Creators
 
@@ -53,12 +54,14 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 
 | Feature               | Description                                                                         |
 | --------------------- | ----------------------------------------------------------------------------------- |
-| 💬 **Community Feed** | Social learning with posts, comments, and likes                                     |
+| 💬 **Community Feed** | Social learning with posts, comments, likes, edit/delete, rich text editor          |
 | 📥 **Inbox**          | Direct messaging between coaches and students                                       |
 | ⚙️ **Admin Panel**    | Dashboard, wallet verification, certificates, email templates, content management   |
+| 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                  |
 | 📧 **Email System**   | Professional branded emails (Welcome, Certificates, Subscriptions) — admin editable |
 | 🪄 **Premium UI/UX**  | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism |
 | 📄 **Legal Pages**    | Privacy Policy, Terms of Service, Refund Policy                                     |
+| 🔗 **Username Profiles** | Public profiles accessible via `/u/@username` URL format                        |
 
 ---
 
@@ -111,7 +114,7 @@ Learnify AI's playground features **multi-language compilation** powered by Wand
 | **State**      | TanStack Query + React Context                                         |
 | **Database**   | Supabase (PostgreSQL + Auth + Storage)                                 |
 | **AI**         | OpenRouter, Gemini, Groq (multi-provider fallback)                     |
-| **Payments**   | Cashfree (Subscriptions + Wallet + Payouts)                            |
+| **Payments**   | Cashfree (Recurring Subscriptions + Wallet + Payouts)                          |
 | **Embeddings** | Gemini text-embedding-004 + pgvector                                   |
 | **Email**      | Gmail SMTP / Brevo / Resend (fallback chain, admin-editable templates) |
 | **Code Exec**  | Wandbox / Piston / Judge0 (multi-executor fallback)                    |
@@ -234,6 +237,8 @@ npx playwright test
 | `GROQ_API_KEY`                  | ⚡       | Groq API key (for fast inference models)                      |
 | `CASHFREE_APP_ID`               | 💰       | Cashfree payment gateway App ID                               |
 | `CASHFREE_SECRET_KEY`           | 💰       | Cashfree payment gateway Secret Key                           |
+| `CASHFREE_WEBHOOK_SECRET`       | 💰       | Cashfree webhook signature verification secret                |
+| `VITE_APP_URL`                  | 🌐       | Base URL for webhook callbacks and email links                |
 | `GMAIL_EMAIL`                   | 📧       | Gmail address for sending automated transactional emails      |
 | `GMAIL_APP_PASSWORD`            | 📧       | Gmail 16-character App Password                               |
 | `RESEND_API_KEY`                | 📧       | Resend API key (email service fallback)                       |
@@ -249,18 +254,33 @@ src/
 │   ├── index.tsx           # Landing page
 │   ├── login.tsx           # Authentication
 │   ├── signup.tsx          # Registration
-│   ├── pricing.tsx         # Pricing plans
+│   ├── pricing.tsx         # Pricing plans with feature comparison
+│   ├── u/
+│   │   ├── $id.tsx         # Public profile (UUID)
+│   │   └── @$username.tsx  # Username redirect → UUID
 │   ├── _authenticated/     # Protected routes
 │   │   ├── dashboard.tsx   # Learner dashboard
 │   │   ├── courses.$slug.tsx  # Course player
 │   │   ├── ai.tsx          # AI tutor chat
 │   │   ├── playground.*.tsx   # Code playground
+│   │   ├── billing.tsx     # Billing & subscription dashboard
 │   │   ├── studio.tsx      # Creator studio
 │   │   ├── wallet.tsx      # Wallet & payments
-│   │   └── admin.tsx       # Admin panel (with email template editor)
+│   │   ├── admin.tsx       # Admin panel
+│   │   └── admin/
+│   │       └── subscriptions.tsx  # Subscription analytics
 │   └── api/                # Server-side API routes
+│       └── webhooks/
+│           ├── cashfree.ts              # One-time payment webhook
+│           └── cashfree-subscription.ts # Subscription webhook
 ├── components/             # Reusable UI components
 │   ├── ui/                 # Shadcn UI primitives
+│   ├── playground/
+│   │   ├── StandardIDE.tsx      # File tabs, context menu, zoom
+│   │   ├── WebIDE.tsx           # Sandpack with device preview
+│   │   ├── AIPanel.tsx          # AI code actions
+│   │   ├── AIAssistantPanel.tsx # AI chat assistant
+│   │   └── APITesterPanel.tsx   # HTTP request tester
 │   ├── SiteHeader.tsx      # Navigation header
 │   ├── SiteFooter.tsx      # Footer
 │   ├── GlobalSupportAgent.tsx  # AI support chat
@@ -269,6 +289,9 @@ src/
 │   ├── use-auth.tsx        # Authentication context
 │   └── use-theme.tsx       # Theme management
 ├── lib/                    # Server functions & utilities
+│   ├── subscription.functions.ts     # Subscription CRUD + Cashfree
+│   ├── subscription-email.functions.ts # Subscription email notifications
+│   ├── payment.functions.ts  # Wallet payments + payouts
 │   ├── welcome-email.functions.ts  # Email system (multi-provider + templates)
 │   ├── agent.functions.ts  # Coding mentor agent
 │   ├── support-agent.functions.ts  # Support agent
@@ -346,6 +369,30 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v3.2.0 (June 2026) - Cashfree Subscriptions + Playground Upgrade
+
+- ✅ **Cashfree Recurring Subscriptions**: Complete subscription billing system with 3 plans:
+  - **Starter** (₹0/month): 500 AI credits, 3 free courses, basic AI tutor
+  - **Pro** (₹499/month): Unlimited courses, 10,000 AI credits, certificates, creator tools
+  - **Team** (₹4,999/month): 50,000 AI credits, team dashboard, SSO, RBAC, custom branding
+- ✅ **Subscription Management**: Resume, upgrade, downgrade subscriptions via Cashfree API
+- ✅ **Coupon Codes**: Discount system with percent/amount off, date ranges, plan restrictions
+- ✅ **Grace Period**: Configurable grace period for failed payments before downgrade
+- ✅ **Invoice System**: Auto-generated invoices on every successful payment
+- ✅ **Email Notifications**: Automated emails for activation, payment success, failure, cancellation
+- ✅ **Webhook Idempotency**: Prevents duplicate processing of Cashfree webhook events
+- ✅ **User Billing Dashboard** (`/billing`): View plan, invoices, subscription history, cancel/resume
+- ✅ **Admin Subscription Analytics** (`/admin/subscriptions`): MRR, ARR, subscriber counts, payment events
+- ✅ **Pricing Page Upgrade**: Feature comparison table (13 features), "Your plan" badge for subscribers
+- ✅ **Playground AI Assistant Panel**: 6 actions — diagnose, explain, fix, optimize, document, convert
+- ✅ **Playground API Tester**: GET/POST/PUT/DELETE with headers, body, response viewer, request history
+- ✅ **StandardIDE Upgrade**: File tabs, context menu (open/duplicate/delete), file type icons, zoom controls
+- ✅ **WebIDE Upgrade**: Tablet/mobile/desktop preview modes, browser chrome mockup, fullscreen toggle
+- ✅ **Username Profiles**: `/u/@username` route that resolves to UUID-based profile
+- ✅ **Database Migration**: `invoices`, `payment_logs`, `coupon_codes` tables, `subscription_analytics` view
+- ✅ **DiceBear Avatar Mappings**: All 6 art styles (avataaars, adventurer, bottts, pixel-art, fun-emoji, lorelei) verified
+- ✅ **Bug Fixes**: Duplicate imports in `courses.$slug.tsx`, duplicate skill handler in `settings.tsx`
 
 ### v3.1.0 (June 2026) - Critical Fixes & Course Enrollment Logic
 
