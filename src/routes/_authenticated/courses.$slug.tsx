@@ -84,7 +84,6 @@ import {
   hasCourseToolAccess,
   choosePlayableResumeLessonId,
   chooseResumeLessonId,
-  hasCourseToolAccess,
 } from "@/lib/course-player";
 
 type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "ai-agent";
@@ -318,9 +317,6 @@ function CourseDetail() {
     qc.invalidateQueries({ queryKey: ["my-sub-to-creator", creatorId, user.id] });
     qc.invalidateQueries({ queryKey: ["creator-subs-count", creatorId] });
   };
-  
-  // Full access if: free course, or enrolled with active/completed status, or admin
-  const hasFullAccess = isFree || isEnrollmentActive || isAdmin;
 
   // Lesson-locking logic: 
   // - If hasFullAccess (free course OR enrolled in paid course): all lessons unlocked

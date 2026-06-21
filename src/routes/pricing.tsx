@@ -11,10 +11,13 @@ import {
   ArrowRight,
   Sparkles,
   Star,
+  X,
+  Crown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { MarketingPage } from "@/components/MarketingPage";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
@@ -59,8 +62,23 @@ type Plan = {
   cashfree_plan_id: string | null;
 };
 
-// Plan icons by order
 const PLAN_ICONS = [Zap, Rocket, Users];
+
+const FEATURE_COMPARISON = [
+  { name: "AI Credits/month", starter: "500", pro: "10,000", team: "50,000" },
+  { name: "Courses", starter: "3 free", pro: "Unlimited", team: "Unlimited" },
+  { name: "AI Tutor", starter: "Basic", pro: "Advanced", team: "Advanced" },
+  { name: "Certificates", starter: false, pro: true, team: true },
+  { name: "Creator Tools", starter: false, pro: true, team: true },
+  { name: "Priority Support", starter: false, pro: true, team: true },
+  { name: "Team Dashboard", starter: false, pro: false, team: true },
+  { name: "Admin Panel", starter: false, pro: false, team: true },
+  { name: "SSO + RBAC", starter: false, pro: false, team: true },
+  { name: "Custom Branding", starter: false, pro: false, team: true },
+  { name: "Dedicated Support", starter: false, pro: false, team: true },
+  { name: "Community Access", starter: true, pro: true, team: true },
+  { name: "Progress Tracking", starter: true, pro: true, team: true },
+];
 
 function PricingPage() {
   const { user } = useAuth();
@@ -126,9 +144,15 @@ function PricingPage() {
     setLoadingPlan(planId);
     try {
       const sub = await doSubscribe({ data: { planId } });
-      if (sub.auth_link) window.location.href = sub.auth_link;
-      else toast.success("Subscription created! Check your dashboard.");
-      qc.invalidateQueries({ queryKey: ["my-subscription"] });
+      if (sub.free) {
+        toast.success("Free plan activated! Welcome to Learnify AI.");
+        qc.invalidateQueries({ queryKey: ["my-subscription"] });
+      } else if (sub.auth_link) {
+        window.location.href = sub.auth_link;
+      } else {
+        toast.success("Subscription created! Check your dashboard.");
+        qc.invalidateQueries({ queryKey: ["my-subscription"] });
+      }
     } catch (e: any) {
       toast.error(e?.message || "Subscription failed");
     } finally {
@@ -285,7 +309,8 @@ function PricingPage() {
                       {isCurrent ? (
                         <div className="flex gap-2">
                           <Button className="flex-1" variant="outline" disabled>
-                            ✓ Active plan
+                            <Crown className="h-4 w-4 mr-2" />
+                            Current plan
                           </Button>
                           <Button
                             variant="ghost"
@@ -357,6 +382,44 @@ function PricingPage() {
             })}
           </div>
 
+          {/* Feature Comparison Table */}
+          <div className="mt-20 rounded-2xl border bg-card overflow-hidden">
+            <div className="p-6 border-b text-center">
+              <h3 className="text-xl font-bold">Compare Plans</h3>
+              <p className="text-sm text-muted-foreground mt-1">See what&apos;s included in each plan</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-4 font-medium text-muted-foreground w-1/4">Feature</th>
+                    {tiers.map((t) => (
+                      <th key={t.id} className="text-center p-4 font-semibold">
+                        {t.name}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {FEATURE_COMPARISON.map((feature, idx) => (
+                    <tr key={idx} className="border-b last:border-0 hover:bg-muted/30">
+                      <td className="p-4 text-foreground/80">{feature.name}</td>
+                      <td className="text-center p-4">
+                        {renderFeatureValue(feature.starter)}
+                      </td>
+                      <td className="text-center p-4">
+                        {renderFeatureValue(feature.pro)}
+                      </td>
+                      <td className="text-center p-4">
+                        {renderFeatureValue(feature.team)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           {/* FAQ / reassurance strip */}
           <div className="mt-16 rounded-2xl border border-border/50 bg-muted/30 px-8 py-7 text-center space-y-2">
             <p className="text-sm font-medium">Have questions about which plan is right for you?</p>
@@ -375,4 +438,15 @@ function PricingPage() {
       )}
     </MarketingPage>
   );
+}
+
+function renderFeatureValue(value: boolean | string) {
+  if (typeof value === "boolean") {
+    return value ? (
+      <Check className="h-5 w-5 text-emerald-500 mx-auto" />
+    ) : (
+      <X className="h-5 w-5 text-zinc-400 mx-auto" />
+    );
+  }
+  return <span className="text-foreground">{value}</span>;
 }

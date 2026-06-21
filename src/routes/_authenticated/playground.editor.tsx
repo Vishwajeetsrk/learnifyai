@@ -2,6 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { AppShell } from "@/components/AppShell";
 import { AIPanel } from "@/components/playground/AIPanel";
+import { AIAssistantPanel } from "@/components/playground/AIAssistantPanel";
+import { APITesterPanel } from "@/components/playground/APITesterPanel";
 import { executeCode } from "@/lib/playground/execution";
 import {
   deleteProject,
@@ -21,6 +23,9 @@ import {
   Check,
   X,
   Loader2,
+  Brain,
+  Globe,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -57,7 +62,7 @@ function PlaygroundEditor() {
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
 
   // UI State
-  const [showAi, setShowAi] = useState(true);
+  const [activePanel, setActivePanel] = useState<"ai" | "assistant" | "api" | null>("ai");
   const [saving, setSaving] = useState(false);
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(
@@ -315,15 +320,40 @@ function PlaygroundEditor() {
 
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setShowAi(!showAi)}
-              className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition"
-              title="Toggle AI Assistant"
-            >
-              {showAi ? (
-                <PanelRightClose className="h-4 w-4" />
-              ) : (
-                <PanelRightOpen className="h-4 w-4" />
+              onClick={() => setActivePanel(activePanel === "ai" ? null : "ai")}
+              className={cn(
+                "p-1.5 rounded-md transition",
+                activePanel === "ai"
+                  ? "bg-accent text-foreground"
+                  : "hover:bg-accent text-muted-foreground hover:text-foreground",
               )}
+              title="AI Code Assistant"
+            >
+              <Sparkles className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setActivePanel(activePanel === "assistant" ? null : "assistant")}
+              className={cn(
+                "p-1.5 rounded-md transition",
+                activePanel === "assistant"
+                  ? "bg-accent text-foreground"
+                  : "hover:bg-accent text-muted-foreground hover:text-foreground",
+              )}
+              title="AI Chat Assistant"
+            >
+              <Brain className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setActivePanel(activePanel === "api" ? null : "api")}
+              className={cn(
+                "p-1.5 rounded-md transition",
+                activePanel === "api"
+                  ? "bg-accent text-foreground"
+                  : "hover:bg-accent text-muted-foreground hover:text-foreground",
+              )}
+              title="API Tester"
+            >
+              <Globe className="h-4 w-4" />
             </button>
             {projectId && (
               <button
@@ -375,23 +405,43 @@ function PlaygroundEditor() {
             )}
           </div>
 
-          {showAi && (
+          {activePanel && (
             <div className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l bg-card shrink-0 flex flex-col z-10">
-              <AIPanel
-                code={
-                  files.find((f) => f.id === activeFileId)?.content ||
-                  Object.values(webFiles)[0]?.code ||
-                  ""
-                }
-                language={language}
-                onApplyCode={(c) => {
-                  if (isWebProject) {
-                    toast.info("AI suggested code. Please copy/paste manually into WebIDE.");
-                  } else if (activeFileId) {
-                    handleUpdateFile(activeFileId, c);
+              {activePanel === "ai" && (
+                <AIPanel
+                  code={
+                    files.find((f) => f.id === activeFileId)?.content ||
+                    Object.values(webFiles)[0]?.code ||
+                    ""
                   }
-                }}
-              />
+                  language={language}
+                  onCodeResult={(c) => {
+                    if (isWebProject) {
+                      toast.info("AI suggested code. Please copy/paste manually into WebIDE.");
+                    } else if (activeFileId) {
+                      handleUpdateFile(activeFileId, c);
+                    }
+                  }}
+                />
+              )}
+              {activePanel === "assistant" && (
+                <AIAssistantPanel
+                  code={
+                    files.find((f) => f.id === activeFileId)?.content ||
+                    Object.values(webFiles)[0]?.code ||
+                    ""
+                  }
+                  language={language}
+                  onApplyFix={(c) => {
+                    if (isWebProject) {
+                      toast.info("AI suggested code. Please copy/paste manually into WebIDE.");
+                    } else if (activeFileId) {
+                      handleUpdateFile(activeFileId, c);
+                    }
+                  }}
+                />
+              )}
+              {activePanel === "api" && <APITesterPanel />}
             </div>
           )}
         </div>

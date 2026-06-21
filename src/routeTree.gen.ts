@@ -31,6 +31,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as VerifyIdRouteImport } from './routes/verify.$id'
+import { Route as UAtusernameRouteImport } from './routes/u/@$username'
 import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as CertificatesCodeRouteImport } from './routes/certificates.$code'
@@ -51,6 +52,7 @@ import { Route as AuthenticatedCohortsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCoachingRouteImport } from './routes/_authenticated/coaching'
 import { Route as AuthenticatedCertificatesRouteImport } from './routes/_authenticated/certificates'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
+import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedApplyCreatorRouteImport } from './routes/_authenticated/apply-creator'
 import { Route as AuthenticatedAiToolsRouteImport } from './routes/_authenticated/ai-tools'
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
@@ -72,6 +74,7 @@ import { Route as AuthenticatedCreatorEarningsRouteImport } from './routes/_auth
 import { Route as AuthenticatedCreatorCommentsRouteImport } from './routes/_authenticated/creator.comments'
 import { Route as AuthenticatedCoursesSlugRouteImport } from './routes/_authenticated/courses.$slug'
 import { Route as AuthenticatedCohortsIdRouteImport } from './routes/_authenticated/cohorts.$id'
+import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin/subscriptions'
 import { Route as AuthenticatedAdminMissingVideosRouteImport } from './routes/_authenticated/admin.missing-videos'
 import { Route as AuthenticatedAdminEnrichmentRunsRouteImport } from './routes/_authenticated/admin.enrichment-runs'
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
@@ -187,6 +190,11 @@ const VerifyIdRoute = VerifyIdRouteImport.update({
   path: '/verify/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UAtusernameRoute = UAtusernameRouteImport.update({
+  id: '/u/@$username',
+  path: '/u/@$username',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UIdRoute = UIdRouteImport.update({
   id: '/u/$id',
   path: '/u/$id',
@@ -289,6 +297,11 @@ const AuthenticatedCertificatesRoute =
 const AuthenticatedCartRoute = AuthenticatedCartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedApplyCreatorRoute =
@@ -411,6 +424,12 @@ const AuthenticatedCohortsIdRoute = AuthenticatedCohortsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedCohortsRoute,
 } as any)
+const AuthenticatedAdminSubscriptionsRoute =
+  AuthenticatedAdminSubscriptionsRouteImport.update({
+    id: '/subscriptions',
+    path: '/subscriptions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminMissingVideosRoute =
   AuthenticatedAdminMissingVideosRouteImport.update({
     id: '/missing-videos',
@@ -468,6 +487,7 @@ export interface FileRoutesByFullPath {
   '/ai': typeof AuthenticatedAiRoute
   '/ai-tools': typeof AuthenticatedAiToolsRoute
   '/apply-creator': typeof AuthenticatedApplyCreatorRoute
+  '/billing': typeof AuthenticatedBillingRoute
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
   '/coaching': typeof AuthenticatedCoachingRoute
@@ -488,11 +508,13 @@ export interface FileRoutesByFullPath {
   '/certificates/$code': typeof CertificatesCodeRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
+  '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
+  '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/creator/comments': typeof AuthenticatedCreatorCommentsRoute
@@ -537,6 +559,7 @@ export interface FileRoutesByTo {
   '/ai': typeof AuthenticatedAiRoute
   '/ai-tools': typeof AuthenticatedAiToolsRoute
   '/apply-creator': typeof AuthenticatedApplyCreatorRoute
+  '/billing': typeof AuthenticatedBillingRoute
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
   '/coaching': typeof AuthenticatedCoachingRoute
@@ -557,11 +580,13 @@ export interface FileRoutesByTo {
   '/certificates/$code': typeof CertificatesCodeRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
+  '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
+  '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/creator/comments': typeof AuthenticatedCreatorCommentsRoute
@@ -608,6 +633,7 @@ export interface FileRoutesById {
   '/_authenticated/ai': typeof AuthenticatedAiRoute
   '/_authenticated/ai-tools': typeof AuthenticatedAiToolsRoute
   '/_authenticated/apply-creator': typeof AuthenticatedApplyCreatorRoute
+  '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/certificates': typeof AuthenticatedCertificatesRoute
   '/_authenticated/coaching': typeof AuthenticatedCoachingRoute
@@ -628,11 +654,13 @@ export interface FileRoutesById {
   '/certificates/$code': typeof CertificatesCodeRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
+  '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/_authenticated/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
+  '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/_authenticated/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/_authenticated/creator/comments': typeof AuthenticatedCreatorCommentsRoute
@@ -679,6 +707,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/ai-tools'
     | '/apply-creator'
+    | '/billing'
     | '/cart'
     | '/certificates'
     | '/coaching'
@@ -699,11 +728,13 @@ export interface FileRouteTypes {
     | '/certificates/$code'
     | '/sitemap/xml'
     | '/u/$id'
+    | '/u/@$username'
     | '/verify/$id'
     | '/admin/certificates'
     | '/admin/content'
     | '/admin/enrichment-runs'
     | '/admin/missing-videos'
+    | '/admin/subscriptions'
     | '/cohorts/$id'
     | '/courses/$slug'
     | '/creator/comments'
@@ -748,6 +779,7 @@ export interface FileRouteTypes {
     | '/ai'
     | '/ai-tools'
     | '/apply-creator'
+    | '/billing'
     | '/cart'
     | '/certificates'
     | '/coaching'
@@ -768,11 +800,13 @@ export interface FileRouteTypes {
     | '/certificates/$code'
     | '/sitemap/xml'
     | '/u/$id'
+    | '/u/@$username'
     | '/verify/$id'
     | '/admin/certificates'
     | '/admin/content'
     | '/admin/enrichment-runs'
     | '/admin/missing-videos'
+    | '/admin/subscriptions'
     | '/cohorts/$id'
     | '/courses/$slug'
     | '/creator/comments'
@@ -818,6 +852,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ai'
     | '/_authenticated/ai-tools'
     | '/_authenticated/apply-creator'
+    | '/_authenticated/billing'
     | '/_authenticated/cart'
     | '/_authenticated/certificates'
     | '/_authenticated/coaching'
@@ -838,11 +873,13 @@ export interface FileRouteTypes {
     | '/certificates/$code'
     | '/sitemap/xml'
     | '/u/$id'
+    | '/u/@$username'
     | '/verify/$id'
     | '/_authenticated/admin/certificates'
     | '/_authenticated/admin/content'
     | '/_authenticated/admin/enrichment-runs'
     | '/_authenticated/admin/missing-videos'
+    | '/_authenticated/admin/subscriptions'
     | '/_authenticated/cohorts/$id'
     | '/_authenticated/courses/$slug'
     | '/_authenticated/creator/comments'
@@ -888,6 +925,7 @@ export interface RootRouteChildren {
   CertificatesCodeRoute: typeof CertificatesCodeRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
   UIdRoute: typeof UIdRoute
+  UAtusernameRoute: typeof UAtusernameRoute
   VerifyIdRoute: typeof VerifyIdRoute
   ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
   ApiWebhooksCashfreeSubscriptionRoute: typeof ApiWebhooksCashfreeSubscriptionRoute
@@ -1050,6 +1088,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/u/@$username': {
+      id: '/u/@$username'
+      path: '/u/@$username'
+      fullPath: '/u/@$username'
+      preLoaderRoute: typeof UAtusernameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/u/$id': {
       id: '/u/$id'
       path: '/u/$id'
@@ -1188,6 +1233,13 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof AuthenticatedCartRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/billing': {
+      id: '/_authenticated/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof AuthenticatedBillingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/apply-creator': {
@@ -1337,6 +1389,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCohortsIdRouteImport
       parentRoute: typeof AuthenticatedCohortsRoute
     }
+    '/_authenticated/admin/subscriptions': {
+      id: '/_authenticated/admin/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/admin/subscriptions'
+      preLoaderRoute: typeof AuthenticatedAdminSubscriptionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/missing-videos': {
       id: '/_authenticated/admin/missing-videos'
       path: '/missing-videos'
@@ -1380,6 +1439,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminEnrichmentRunsRoute: typeof AuthenticatedAdminEnrichmentRunsRoute
   AuthenticatedAdminMissingVideosRoute: typeof AuthenticatedAdminMissingVideosRoute
+  AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -1387,6 +1447,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
   AuthenticatedAdminEnrichmentRunsRoute: AuthenticatedAdminEnrichmentRunsRoute,
   AuthenticatedAdminMissingVideosRoute: AuthenticatedAdminMissingVideosRoute,
+  AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
@@ -1453,6 +1514,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAiRoute: typeof AuthenticatedAiRoute
   AuthenticatedAiToolsRoute: typeof AuthenticatedAiToolsRoute
   AuthenticatedApplyCreatorRoute: typeof AuthenticatedApplyCreatorRoute
+  AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCertificatesRoute: typeof AuthenticatedCertificatesRoute
   AuthenticatedCoachingRoute: typeof AuthenticatedCoachingRoute
@@ -1480,6 +1542,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAiRoute: AuthenticatedAiRoute,
   AuthenticatedAiToolsRoute: AuthenticatedAiToolsRoute,
   AuthenticatedApplyCreatorRoute: AuthenticatedApplyCreatorRoute,
+  AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCertificatesRoute: AuthenticatedCertificatesRoute,
   AuthenticatedCoachingRoute: AuthenticatedCoachingRoute,
@@ -1531,6 +1594,7 @@ const rootRouteChildren: RootRouteChildren = {
   CertificatesCodeRoute: CertificatesCodeRoute,
   SitemapXmlRoute: SitemapXmlRoute,
   UIdRoute: UIdRoute,
+  UAtusernameRoute: UAtusernameRoute,
   VerifyIdRoute: VerifyIdRoute,
   ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,
   ApiWebhooksCashfreeSubscriptionRoute: ApiWebhooksCashfreeSubscriptionRoute,

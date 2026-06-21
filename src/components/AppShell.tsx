@@ -18,6 +18,8 @@ import {
   Trophy,
   Medal,
   Sparkles,
+  CreditCard,
+  PieChart,
 } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -54,11 +56,13 @@ const nav: NavItem[] = [
   { to: "/ai-tools", label: "AI Tools", icon: Wand2 },
   { to: "/inbox", label: "Inbox", icon: Inbox },
   { to: "/wallet", label: "Wallet", icon: WalletIcon },
+  { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 
   { to: "/creator", label: "Creator", icon: BarChart3, creatorOnly: true },
   { to: "/studio", label: "Studio", icon: Clapperboard, creatorOnly: true },
   { to: "/admin", label: "Admin", icon: Shield, adminOnly: true },
+  { to: "/admin/subscriptions", label: "Subscriptions", icon: PieChart, adminOnly: true },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {

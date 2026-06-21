@@ -180,7 +180,9 @@ function SettingsPage() {
   const [education, setEducation] = useState("");
   const [website, setWebsite] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
+  const [customSkillValue, setCustomSkillValue] = useState("");
   const [links, setLinks] = useState<SocialLinks>({});
+  const [nameColor, setNameColor] = useState<string>("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [avatarSignedUrl, setAvatarSignedUrl] = useState<string | null>(null);
@@ -767,6 +769,7 @@ function SettingsPage() {
     setWebsite(p.website ?? "");
     setSkills(p.skills ?? []);
     setLinks((p.social_links ?? {}) as SocialLinks);
+    setNameColor(p.name_color ?? "");
     setPrefs((prev) => ({ ...prev, ...((p.notif_prefs ?? {}) as Partial<NotifPrefs>) }));
     setPayout((p.payout_destination ?? { method: "bank" }) as Payout);
     setDefaults(
@@ -861,6 +864,7 @@ function SettingsPage() {
         website: website.trim() || null,
         skills: skills.length ? skills : [],
         social_links: links,
+        name_color: nameColor || null,
       })
       .eq("id", user.id);
     setSavingProfile(false);
@@ -2121,12 +2125,14 @@ function SettingsPage() {
                     className="h-8 text-xs flex-1"
                     maxLength={30}
                     id="custom-skill-input"
+                    value={customSkillValue}
+                    onChange={(e) => setCustomSkillValue(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
-                        const val = (e.target as HTMLInputElement).value.trim();
+                        const val = e.currentTarget.value.trim();
                         if (val && !skills.includes(val)) {
                           setSkills([...skills, val]);
-                          (e.target as HTMLInputElement).value = "";
+                          setCustomSkillValue("");
                         }
                       }
                     }}
@@ -2137,13 +2143,10 @@ function SettingsPage() {
                     variant="outline"
                     className="h-8 text-xs shrink-0"
                     onClick={() => {
-                      const input = document.getElementById(
-                        "custom-skill-input",
-                      ) as HTMLInputElement;
-                      const val = input?.value?.trim();
+                      const val = customSkillValue.trim();
                       if (val && !skills.includes(val)) {
                         setSkills([...skills, val]);
-                        input.value = "";
+                        setCustomSkillValue("");
                       }
                     }}
                   >

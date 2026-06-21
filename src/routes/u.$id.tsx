@@ -200,7 +200,9 @@ function PublicProfilePage() {
             </Avatar>
 
             <div className="flex-1 min-w-0 mt-4 sm:mt-0 mb-1">
-              <h1 className="font-display text-3xl font-bold tracking-tight">{name}</h1>
+              <h1 className="font-display text-3xl font-bold tracking-tight" style={{ color: profile.name_color || undefined }}>
+                {name}
+              </h1>
 
               {/* Gamification Stats */}
               <div className="flex flex-wrap items-center gap-3 mt-1.5 mb-2">
