@@ -2,8 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const CF_API = "https://api.cashfree.com/pg";
 const CF_API_VERSION = "2025-01-01";
+
+function getCashfreeApi() {
+  const appId = process.env.CASHFREE_APP_ID || "";
+  return appId.startsWith("TEST") || appId.includes("sandbox")
+    ? "https://sandbox.cashfree.com/pg"
+    : "https://api.cashfree.com/pg";
+}
 
 function getCreds() {
   const appId = process.env.CASHFREE_APP_ID;
@@ -36,7 +42,7 @@ async function doSyncPlan(planId: string): Promise<string> {
   const { appId, secretKey } = getCreds();
   const cfPlanId = `plan_${p.id.slice(0, 8)}`;
 
-  const res = await fetch(`${CF_API}/plans`, {
+  const res = await fetch(`${getCashfreeApi()}/plans`, {
     method: "POST",
     headers: cfHeaders(appId, secretKey),
     body: JSON.stringify({
@@ -116,7 +122,7 @@ export const createSubscription = createServerFn({ method: "POST" })
     const returnUrl = `${baseUrl}/pricing?subscribe=ok`;
     const notifyUrl = `${baseUrl}/api/webhooks/cashfree-subscription`;
 
-    const res = await fetch(`${CF_API}/subscriptions`, {
+    const res = await fetch(`${getCashfreeApi()}/subscriptions`, {
       method: "POST",
       headers: cfHeaders(appId, secretKey),
       body: JSON.stringify({
@@ -191,7 +197,7 @@ export const cancelSubscription = createServerFn({ method: "POST" })
 
     if (sub.cashfree_subscription_id) {
       const { appId, secretKey } = getCreds();
-      await fetch(`${CF_API}/subscriptions/${sub.cashfree_subscription_id}/manage`, {
+      await fetch(`${getCashfreeApi()}/subscriptions/${sub.cashfree_subscription_id}/manage`, {
         method: "POST",
         headers: cfHeaders(appId, secretKey),
         body: JSON.stringify({

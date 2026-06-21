@@ -942,24 +942,7 @@ function PricingManager() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 shrink-0 w-full sm:w-auto">
-                  {p.price_inr > 0 && p.interval && !p.cashfree_plan_id && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="col-span-2 sm:col-span-1"
-                      onClick={async () => {
-                        try {
-                          await doSyncPlan({ data: { planId: p.id } });
-                          toast.success("Plan synced to Cashfree");
-                          qc.invalidateQueries({ queryKey: ["admin-plans"] });
-                        } catch (e: any) {
-                          toast.error(e?.message || "Sync failed");
-                        }
-                      }}
-                    >
-                      Sync to Cashfree
-                    </Button>
-                  )}
+
                   <Button
                     size="sm"
                     variant="outline"

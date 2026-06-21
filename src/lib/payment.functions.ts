@@ -2,8 +2,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const CASHFREE_API = "https://api.cashfree.com/pg";
 const CASHFREE_API_VERSION = "2023-08-01";
+function getCashfreeApi() {
+  const appId = process.env.CASHFREE_APP_ID || "";
+  return appId.startsWith("TEST") || appId.includes("sandbox")
+    ? "https://sandbox.cashfree.com/pg"
+    : "https://api.cashfree.com/pg";
+}
 
 export const createCashfreeOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -22,7 +27,7 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
 
     const orderId = `ord_${context.userId}_${Date.now()}`;
 
-    const res = await fetch(`${CASHFREE_API}/orders`, {
+    const res = await fetch(`${getCashfreeApi()}/orders`, {
       method: "POST",
       headers: {
         "x-api-version": CASHFREE_API_VERSION,
@@ -73,7 +78,7 @@ export const verifyCashfreePayment = createServerFn({ method: "POST" })
     const secretKey = process.env.CASHFREE_SECRET_KEY;
     if (!appId || !secretKey) throw new Error("Cashfree credentials missing");
 
-    const res = await fetch(`${CASHFREE_API}/orders/${data.cashfree_order_id}`, {
+    const res = await fetch(`${getCashfreeApi()}/orders/${data.cashfree_order_id}`, {
       method: "GET",
       headers: {
         "x-api-version": CASHFREE_API_VERSION,
