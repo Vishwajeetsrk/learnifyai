@@ -707,6 +707,8 @@ function CourseDetail() {
                   thumbnailUrl={course?.cover_url || undefined}
                   startSeconds={activeProgress?.watched_seconds ?? 0}
                   playbackRate={speed}
+                  restrictDownload={!isAdmin && user?.id !== course?.created_by}
+                  restrictSpeed={!isAdmin && user?.id !== course?.created_by}
                   onError={() => setPlayerLoadFailed(true)}
                   onReady={() => setPlayerLoadFailed(false)}
                   onProgress={handlePlayerProgress}

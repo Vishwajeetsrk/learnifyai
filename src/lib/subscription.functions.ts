@@ -235,12 +235,62 @@ export const createSubscription = createServerFn({ method: "POST" })
       }),
     });
 
+    let sub: any;
+
     if (!res.ok) {
       const err = await res.text();
-      throw new Error(`Cashfree subscription creation failed: ${err}`);
-    }
+      if (err.includes("plan_not_found") || err.toLowerCase().includes("plan does not exist")) {
+        console.log(`Plan ${p.cashfree_plan_id} not found on Cashfree. Re-syncing plan...`);
+        // Reset local cached plan ID
+        await supabaseAdmin
+          .from("pricing_plans")
+          .update({ cashfree_plan_id: null } as any)
+          .eq("id", data.planId);
 
-    const sub = await res.json();
+        // Try to re-sync plan to Cashfree
+        const newCfPlanId = await doSyncPlan(data.planId);
+
+        // Retry subscription creation
+        const retryRes = await fetch(`${getCashfreeApi()}/subscriptions`, {
+          method: "POST",
+          headers: cfHeaders(appId, secretKey, idempotencyKey + "_retry"),
+          body: JSON.stringify({
+            subscription_id: subId,
+            customer_details: {
+              customer_id: uid,
+              customer_name: realName,
+              customer_email: realEmail,
+              customer_phone: "9999999999",
+            },
+            plan_details: {
+              plan_id: newCfPlanId,
+            },
+            authorization_details: {
+              authorization_amount: 1,
+              authorization_amount_refund: true,
+              payment_methods: ["enach", "pnach", "upi", "card"],
+            },
+            subscription_meta: {
+              return_url: returnUrl,
+              notification_channel: ["EMAIL"],
+            },
+            subscription_expiry_time: new Date(Date.now() + 86400000).toISOString(),
+            subscription_first_charge_time: new Date(Date.now() + 86400000).toISOString(),
+            subscription_note: `${p.name} plan - Rs${finalAmount}/${p.interval}`,
+          }),
+        });
+
+        if (!retryRes.ok) {
+          const retryErr = await retryRes.text();
+          throw new Error(`Cashfree subscription creation failed after plan sync: ${retryErr}`);
+        }
+        sub = await retryRes.json();
+      } else {
+        throw new Error(`Cashfree subscription creation failed: ${err}`);
+      }
+    } else {
+      sub = await res.json();
+    }
 
     const periodEnd = new Date();
     if (p.interval === "month") periodEnd.setMonth(periodEnd.getMonth() + 1);
@@ -563,6 +613,61 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
       0,
     );
 
+    // Fetch last 30 days of paid invoices for revenue chart
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: dailyInvoices } = await supabaseAdmin
+      .from("invoices")
+      .select("total_inr, created_at")
+      .eq("status", "paid")
+      .gte("created_at", thirtyDaysAgo);
+
+    // Fetch last 30 days of subscriptions for growth chart
+    const { data: dailySubs } = await supabaseAdmin
+      .from("user_subscriptions")
+      .select("created_at, status")
+      .gte("created_at", thirtyDaysAgo);
+
+    // Group by day
+    const revenueMap: Record<string, number> = {};
+    const subMap: Record<string, number> = {};
+
+    // Initialize map keys for last 30 days
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split("T")[0];
+      revenueMap[dateStr] = 0;
+      subMap[dateStr] = 0;
+    }
+
+    if (dailyInvoices) {
+      for (const inv of dailyInvoices) {
+        const dateStr = new Date(inv.created_at).toISOString().split("T")[0];
+        if (revenueMap[dateStr] !== undefined) {
+          revenueMap[dateStr] += Number(inv.total_inr || 0);
+        }
+      }
+    }
+
+    if (dailySubs) {
+      for (const s of dailySubs) {
+        const dateStr = new Date(s.created_at).toISOString().split("T")[0];
+        if (subMap[dateStr] !== undefined) {
+          subMap[dateStr] += 1;
+        }
+      }
+    }
+
+    const revenueHistory = Object.entries(revenueMap).map(([date, revenue]) => ({
+      date: new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+      revenue,
+    }));
+
+    const subscriberHistory = Object.entries(subMap).map(([date, count]) => ({
+      date: new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+      count,
+    }));
+
     return {
       plans: plans || [],
       recentSubscriptions: recentSubs || [],
@@ -570,5 +675,8 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
       mrr: totalMrr,
       arr: totalArr,
       totalSubscribers,
+      revenueHistory,
+      subscriberHistory,
     };
   });
+

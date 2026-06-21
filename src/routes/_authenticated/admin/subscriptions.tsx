@@ -15,6 +15,17 @@ import {
   CheckCircle2,
   Clock,
 } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
@@ -106,6 +117,87 @@ function AdminSubscriptionsPage() {
                 color="text-orange-500"
                 bgColor="bg-orange-500/10"
               />
+            </div>
+
+            {/* Charts Section */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Revenue History Chart */}
+              <div className="rounded-2xl border bg-card p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold text-lg">30-Day Paid Revenue Trend</h3>
+                    <p className="text-xs text-muted-foreground">Daily transaction revenue</p>
+                  </div>
+                  <IndianRupee className="h-4 w-4 text-emerald-500" />
+                </div>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={data.revenueHistory || []}>
+                      <defs>
+                        <linearGradient id="revSub" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="oklch(0.72 0.18 245)" stopOpacity={0.4} />
+                          <stop offset="95%" stopColor="oklch(0.72 0.18 245)" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0 0 0 / 0.05)" />
+                      <XAxis dataKey="date" stroke="oklch(0.5 0.03 260)" fontSize={11} />
+                      <YAxis
+                        stroke="oklch(0.5 0.03 260)"
+                        fontSize={11}
+                        tickFormatter={(v) => `₹${v}`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: 12,
+                          border: "1px solid var(--border)",
+                          background: "var(--card)",
+                        }}
+                        formatter={(v: number) => [inr(v), "Revenue"]}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="revenue"
+                        stroke="oklch(0.72 0.18 245)"
+                        fill="url(#revSub)"
+                        strokeWidth={2}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Subscriptions Growth Chart */}
+              <div className="rounded-2xl border bg-card p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-semibold text-lg">30-Day Subscriber Growth</h3>
+                    <p className="text-xs text-muted-foreground">Daily new subscriptions</p>
+                  </div>
+                  <Users className="h-4 w-4 text-violet-500" />
+                </div>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data.subscriberHistory || []}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="oklch(0 0 0 / 0.05)" />
+                      <XAxis dataKey="date" stroke="oklch(0.5 0.03 260)" fontSize={11} />
+                      <YAxis
+                        stroke="oklch(0.5 0.03 260)"
+                        fontSize={11}
+                        tickFormatter={(v) => Math.round(v).toString()}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: 12,
+                          border: "1px solid var(--border)",
+                          background: "var(--card)",
+                        }}
+                        formatter={(v: number) => [v, "New Subscribers"]}
+                      />
+                      <Bar dataKey="count" fill="oklch(0.65 0.2 290)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
             </div>
 
             {/* Plan Breakdown */}

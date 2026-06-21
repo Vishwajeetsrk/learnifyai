@@ -505,6 +505,7 @@ export function CustomVideoPlayer({
       onMouseLeave={() => {
         if (playing && !settingsOpen) setShowControls(false);
       }}
+      onContextMenu={restrictDownload ? (e) => e.preventDefault() : undefined}
     >
       {/* Cover Overlay / Custom Play Button */}
       {!hasStarted && (
@@ -546,6 +547,9 @@ export function CustomVideoPlayer({
           src={url}
           className="absolute inset-0 w-full h-full object-contain"
           playsInline
+          controlsList={restrictDownload ? "nodownload" : undefined}
+          disablePictureInPicture={restrictDownload}
+          onContextMenu={restrictDownload ? (e) => e.preventDefault() : undefined}
           onError={() => {
             setError(true);
             if (onError) onError(null);
@@ -694,19 +698,32 @@ export function CustomVideoPlayer({
                       Speed
                     </span>
                     <div className="grid grid-cols-4 gap-1 mt-1.5">
-                      {SPEEDS.map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => handleSpeedChange(s)}
-                          className={`text-xs rounded px-1 py-1 transition ${
-                            playbackRate === s
-                              ? "bg-primary text-white"
-                              : "text-white/70 hover:bg-white/10"
-                          }`}
-                        >
-                          {s}x
-                        </button>
-                      ))}
+                      {SPEEDS.map((s) => {
+                        const isLocked = restrictSpeed && s > 1.25;
+                        return (
+                          <button
+                            key={s}
+                            onClick={() => {
+                              if (isLocked) {
+                                toast.info("Higher speeds are locked on this course. Upgrade or contact the instructor to unlock.");
+                              } else {
+                                handleSpeedChange(s);
+                              }
+                            }}
+                            className={`text-xs rounded px-1 py-1 transition flex items-center justify-center gap-0.5 ${
+                              playbackRate === s
+                                ? "bg-primary text-white"
+                                : isLocked
+                                  ? "text-white/30 cursor-not-allowed bg-white/5"
+                                  : "text-white/70 hover:bg-white/10"
+                            }`}
+                            title={isLocked ? "Speed locked" : undefined}
+                          >
+                            {s}x
+                            {isLocked && <Lock className="h-2.5 w-2.5" />}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                   {youtubeId && (
