@@ -14,27 +14,21 @@ export const Route = createFileRoute("/privacy")({
     <CustomPageContent
       pageKey="privacy"
       title="Your data, your control."
-      subtitle="Last updated: June 2, 2026."
-      defaultContent={`<h2>1. What we collect</h2>
-<p>Account info (name, email, avatar), learning activity (courses, progress, quiz answers), and content you create (notes, submissions). We never sell your data.</p>
+      subtitle="Last updated: June 21, 2026."
+      defaultContent={`<h2>1. Data We Collect</h2>
+<p>We collect account credentials (name, email, avatar seed), transaction histories, subscription statuses, billing info (GSTIN, legal name for team accounts), course progress, playground code snippets, and workspace metadata. We do not store credit card credentials; all payments are processed securely by Cashfree.</p>
 
-<h2>2. How we use it</h2>
-<p>To personalize your learning experience, power AI tutoring, issue certificates, and improve the platform. AI prompts are processed by trusted model providers and are not used to train third-party models.</p>
+<h2>2. How We Use Your Data</h2>
+<p>To personalize learning paths, run automated code playground executions, issue certificates, process Cashfree subscription renewals, verify payment webhooks, and provide fallback AI queries. AI prompts sent to Groq, Gemini, or OpenRouter are not used for third-party training.</p>
 
-<h2>3. Storage & security</h2>
+<h2>3. Sharing with Third Parties</h2>
+<p>We share necessary transactional and subscription tokens with Cashfree to manage mandates and renewals. We do not sell or lease user data to third-party advertisers.</p>
+
+<h2>4. Storage & Security</h2>
 <p>Data is stored in encrypted databases with row-level security. Files live in private buckets accessible only to you and authorized admins.</p>
 
-<h2>4. Your rights</h2>
-<p>You can export, edit, or delete your data at any time from <em>Settings</em>. Email <a href="mailto:privacy@learnify.ai">privacy@learnify.ai</a> for any data request.</p>
-
-<h2>5. Cookies</h2>
-<p>We use essential cookies for authentication and minimal analytics to improve the product. No third-party advertising cookies.</p>
-
-<h2>6. Children</h2>
-<p>Learnify AI is not directed at children under 13. We do not knowingly collect data from minors without parental consent.</p>
-
-<h2>7. Contact</h2>
-<p>Questions? Reach <a href="mailto:privacy@learnify.ai">privacy@learnify.ai</a>.</p>`}
+<h2>5. Your Rights</h2>
+<p>You can export, edit, or delete your data at any time from Settings. Email <a href="mailto:privacy@learnify.ai">privacy@learnify.ai</a> for any data request.</p>`}
     />
   ),
 });
