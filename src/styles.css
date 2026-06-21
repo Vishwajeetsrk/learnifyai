@@ -330,31 +330,29 @@ html.dark[data-theme="noir"] {
 }
 
 /* Interactive Cursor System */
-@media (hover: hover) and (pointer: fine) {
-  body.custom-cursor-active, 
-  body.custom-cursor-active a, 
-  body.custom-cursor-active button,
-  body.custom-cursor-active [role="button"],
-  body.custom-cursor-active [data-magnetic] {
-    cursor: none !important;
-  }
-  
-  /* Opt-out elements explicitly */
-  body.custom-cursor-active .monaco-editor,
-  body.custom-cursor-active .monaco-editor *,
-  body.custom-cursor-active .cm-editor,
-  body.custom-cursor-active .cm-editor *,
-  body.custom-cursor-active [data-editor],
-  body.custom-cursor-active [data-editor] *,
-  body.custom-cursor-active input,
-  body.custom-cursor-active textarea {
-    cursor: auto !important;
-  }
-  
-  body.custom-cursor-active input[type="text"],
-  body.custom-cursor-active input[type="email"],
-  body.custom-cursor-active input[type="password"],
-  body.custom-cursor-active textarea {
-    cursor: text !important;
-  }
+body.custom-cursor-active, 
+body.custom-cursor-active a, 
+body.custom-cursor-active button,
+body.custom-cursor-active [role="button"],
+body.custom-cursor-active [data-magnetic] {
+  cursor: none !important;
+}
+
+/* Opt-out elements explicitly */
+body.custom-cursor-active .monaco-editor,
+body.custom-cursor-active .monaco-editor *,
+body.custom-cursor-active .cm-editor,
+body.custom-cursor-active .cm-editor *,
+body.custom-cursor-active [data-editor],
+body.custom-cursor-active [data-editor] *,
+body.custom-cursor-active input,
+body.custom-cursor-active textarea {
+  cursor: auto !important;
+}
+
+body.custom-cursor-active input[type="text"],
+body.custom-cursor-active input[type="email"],
+body.custom-cursor-active input[type="password"],
+body.custom-cursor-active textarea {
+  cursor: text !important;
 }
