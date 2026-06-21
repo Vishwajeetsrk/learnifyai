@@ -1,19 +1,21 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
-const ROOT = path.resolve('./');
-const AUDIT_DIR = path.join(ROOT, 'project-audit');
+const ROOT = path.resolve("./");
+const AUDIT_DIR = path.join(ROOT, "project-audit");
 
 if (!fs.existsSync(AUDIT_DIR)) {
   fs.mkdirSync(AUDIT_DIR, { recursive: true });
 }
 
 function writeReport(name, content) {
-  fs.writeFileSync(path.join(AUDIT_DIR, name), content, 'utf-8');
+  fs.writeFileSync(path.join(AUDIT_DIR, name), content, "utf-8");
 }
 
 // 1. packages-to-remove.md
-writeReport('packages-to-remove.md', `# Packages to Remove
+writeReport(
+  "packages-to-remove.md",
+  `# Packages to Remove
 
 | Package | Reason | Size | Risk | Alternative | Confidence |
 |---|---|---|---|---|---|
@@ -45,10 +47,13 @@ writeReport('packages-to-remove.md', `# Packages to Remove
 | vaul | Zero references | Medium | Low | - | 95% |
 
 > **Note**: Do not auto-uninstall. Review risk levels. High risk items like \`react-hook-form\` and \`@tanstack/router-plugin\` might be dynamically bound by dependencies.
-`);
+`,
+);
 
 // 2. large-files.md
-writeReport('large-files.md', `# Large Files Report
+writeReport(
+  "large-files.md",
+  `# Large Files Report
 
 Scan completed. 0 files >1MB detected in \`src/\` or \`public/\`.
 Bundle assets are heavily optimized and externalized.
@@ -56,10 +61,13 @@ Bundle assets are heavily optimized and externalized.
 ## Optimization Suggestions
 - Ensure all newly uploaded course videos use external CDNs (Mux/Vimeo).
 - Compress all SVG assets using SVGO prior to commit.
-`);
+`,
+);
 
 // 3. duplicates.md
-writeReport('duplicates.md', `# Duplicates Report
+writeReport(
+  "duplicates.md",
+  `# Duplicates Report
 
 - **Components**: No structural duplicates. UI components strictly adhere to Shadcn Radix primitives.
 - **Hooks**: Isolated hook usage verified.
@@ -67,10 +75,13 @@ writeReport('duplicates.md', `# Duplicates Report
 
 ## Merge Opportunities
 - Consolidate \`react-icons\` / \`lucide-react\` imports.
-`);
+`,
+);
 
 // 4. dead-code-report.md
-writeReport('dead-code-report.md', `# Dead Code Report
+writeReport(
+  "dead-code-report.md",
+  `# Dead Code Report
 
 Detected 69 unused exports via AST parsing.
 
@@ -79,10 +90,13 @@ Detected 69 unused exports via AST parsing.
 - **Unused Types**: \`BadgeProps\`, \`ButtonProps\`, \`FeatureFlag\`
 
 *Recommendation: Prune exported functions that are only used internally by removing the \`export\` keyword.*
-`);
+`,
+);
 
 // 5. build-report.md
-writeReport('build-report.md', `# Build Report
+writeReport(
+  "build-report.md",
+  `# Build Report
 
 - **Install**: PASS (\`npm install\`)
 - **Audit**: PASS (5 vulnerabilities patched or scoped via Vite)
@@ -92,10 +106,13 @@ writeReport('build-report.md', `# Build Report
 - **Test**: Not Executed (No Vitest test suite currently configured)
 
 **Status**: 🟢 Production Ready
-`);
+`,
+);
 
 // 6. feature-test-report.md
-writeReport('feature-test-report.md', `# Feature Test Report
+writeReport(
+  "feature-test-report.md",
+  `# Feature Test Report
 
 | Feature | Status | Notes |
 |---|---|---|
@@ -127,94 +144,145 @@ writeReport('feature-test-report.md', `# Feature Test Report
 | Filters | PASS | Query parameters synced |
 | Responsive | PASS | overflow-x-hidden enforced |
 | Dark Mode | PASS | System pref sync |
-`);
+`,
+);
 
 // 7. performance-report.md
-writeReport('performance-report.md', `# Performance Report
+writeReport(
+  "performance-report.md",
+  `# Performance Report
 
-- **Bundle Size**: Optimal. Vite splits vendor chunks (` + '`' + `lucide` + '`' + `, ` + '`' + `radix` + '`' + `, ` + '`' + `framer-motion` + '`' + `).
+- **Bundle Size**: Optimal. Vite splits vendor chunks (` +
+    "`" +
+    `lucide` +
+    "`" +
+    `, ` +
+    "`" +
+    `radix` +
+    "`" +
+    `, ` +
+    "`" +
+    `framer-motion` +
+    "`" +
+    `).
 - **Largest Components**: \`html2canvas-pro.mjs\` (411kB) and \`xlsx.mjs\` (549kB) lazy-loaded.
 - **Slow Pages**: None detected via bundle mapping.
 - **Memory Usage**: Normal standard.
-`);
+`,
+);
 
 // 8. security-report.md
-writeReport('security-report.md', `# Security Report
+writeReport(
+  "security-report.md",
+  `# Security Report
 
 - **Authentication**: JWT secured via Supabase Auth.
 - **Authorization**: Role checks enforced via middleware and \`useAuth\` hooks.
 - **RBAC**: Protected routes strictly managed by TanStack Router \`beforeLoad\`.
 - **API Security**: Node endpoints check \`process.env\` dynamically.
 - **Secrets**: Checked. No leaked secrets in repository.
-`);
+`,
+);
 
 // 9. seo-report.md
-writeReport('seo-report.md', `# SEO Report
+writeReport(
+  "seo-report.md",
+  `# SEO Report
 
 - **Meta**: Present via \`head()\` in TanStack Router nodes.
 - **Schema**: Standard JSON-LD not natively wired yet.
 - **Robots**: \`public/robots.txt\` generated.
 - **Sitemap**: \`public/sitemap.xml\` generated.
 - **Heading Structure**: H1 > H2 hierarchy validated.
-`);
+`,
+);
 
 // 10. accessibility-report.md
-writeReport('accessibility-report.md', `# Accessibility Report
+writeReport(
+  "accessibility-report.md",
+  `# Accessibility Report
 
 - **Keyboard**: Full support via Radix UI primitives.
 - **ARIA**: Integrated across all Shadcn components.
 - **Contrast**: Tailwind colors meet WCAG AA.
 - **Focus**: Visible focus rings \`focus-visible:ring-ring\`.
-`);
+`,
+);
 
 // 11. repository-report.md
-writeReport('repository-report.md', `# Repository Report
+writeReport(
+  "repository-report.md",
+  `# Repository Report
 Complete code audit generated successfully. Codebase is clean, highly modularized, and cleanly scoped.
-`);
+`,
+);
 
 // 12. unused-files.md
-writeReport('unused-files.md', `# Unused Files Analysis
+writeReport(
+  "unused-files.md",
+  `# Unused Files Analysis
 Scanned \`src/\` and \`public/\`.
 Found 51 potentially orphaned files (mostly Shadcn UI templates like Resizable, Drawer, Context Menu).
 Safely relocated to \`/archive-review/\`.
-`);
+`,
+);
 
 // 13. archive-summary.md
-writeReport('archive-summary.md', `# Archive Summary
+writeReport(
+  "archive-summary.md",
+  `# Archive Summary
 All potentially unused files have been safely moved to \`/archive-review/\` with structural preservation.
 No files were permanently deleted.
-`);
+`,
+);
 
 // 14. bundle-analysis.md
-writeReport('bundle-analysis.md', `# Bundle Analysis
+writeReport(
+  "bundle-analysis.md",
+  `# Bundle Analysis
 Vite has chunked the application into roughly ~90 asynchronous \\\`.mjs\\\` payload blocks ensuring that heavy integrations like \\\`html2canvas\\\` and \\\`xlsx\\\` only load when requested by the browser.
-`);
+`,
+);
 
 // 15. package-analysis.md
-writeReport('package-analysis.md', `# Package Analysis
+writeReport(
+  "package-analysis.md",
+  `# Package Analysis
 26 unused or legacy dependencies detected. Review \`packages-to-remove.md\` before utilizing \`npm uninstall\`.
-`);
+`,
+);
 
 // 16. optimization-roadmap.md
-writeReport('optimization-roadmap.md', `# Optimization Roadmap
+writeReport(
+  "optimization-roadmap.md",
+  `# Optimization Roadmap
 1. Migrate from \`html2canvas\` to native browser print/PDF APIs.
 2. Remove \`xlsx\` entirely as it holds 2 high vulnerabilities (Prototype Pollution).
 3. Tree-shake unused Shadcn UI components.
-`);
+`,
+);
 
 // 17. technical-debt.md
-writeReport('technical-debt.md', `# Technical Debt
+writeReport(
+  "technical-debt.md",
+  `# Technical Debt
 - No automated unit tests (Vitest).
 - High-severity vulnerability in \`xlsx\` and \`nodemailer\` dependencies.
-`);
+`,
+);
 
 // 18. production-readiness.md
-writeReport('production-readiness.md', `# Production Readiness
+writeReport(
+  "production-readiness.md",
+  `# Production Readiness
 System is formally categorized as PRODUCTION READY and ENTERPRISE READY.
-`);
+`,
+);
 
 // 19. Scorecard
-writeReport('Learnify AI Production Report.md', `# Learnify AI Production Report
+writeReport(
+  "Learnify AI Production Report.md",
+  `# Learnify AI Production Report
 
 Overall Health: ⭐⭐⭐⭐⭐
 
@@ -244,6 +312,7 @@ Overall Health: ⭐⭐⭐⭐⭐
 
 **Deployment Ready:** YES
 **Enterprise Ready:** YES
-`);
+`,
+);
 
 console.log("Generated all project audit markdown reports successfully in /project-audit/.");

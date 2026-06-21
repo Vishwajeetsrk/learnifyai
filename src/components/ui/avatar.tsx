@@ -47,7 +47,7 @@ export function getProfileBorderClass(url: string | null | undefined): string {
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root>
->((({ className, children, ...props }, ref) => {
+>(({ className, children, ...props }, ref) => {
   let borderClass = "";
 
   React.Children.forEach(children, (child) => {
@@ -72,7 +72,7 @@ const Avatar = React.forwardRef<
       {children}
     </AvatarPrimitive.Root>
   );
-}));
+});
 Avatar.displayName = AvatarPrimitive.Root.displayName;
 
 const AvatarImage = React.forwardRef<

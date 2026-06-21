@@ -1,8 +1,8 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
-const ROOT = path.resolve('./');
-const ARCHIVE_DIR = path.join(ROOT, 'archive-review');
+const ROOT = path.resolve("./");
+const ARCHIVE_DIR = path.join(ROOT, "archive-review");
 
 // We rely on the knip output explicitly parsed:
 const unusedFiles = [
@@ -18,7 +18,7 @@ const unusedFiles = [
   "src/lib/api/example.functions.ts",
   "src/lib/config.server.ts",
   "src/lib/error-capture.ts",
-  "src/server.ts"
+  "src/server.ts",
 ];
 
 // Add a few more from my naive heuristic earlier that we know are unused:
@@ -34,12 +34,12 @@ const additionalUnused = [
   "src/components/ui/menubar.tsx",
   "src/components/ui/navigation-menu.tsx",
   "src/components/ui/pagination.tsx",
-  "src/components/ui/radio-group.tsx"
+  "src/components/ui/radio-group.tsx",
 ];
 
 const allFilesToArchive = [...new Set([...unusedFiles, ...additionalUnused])];
 
-allFilesToArchive.forEach(relPath => {
+allFilesToArchive.forEach((relPath) => {
   const sourcePath = path.join(ROOT, relPath);
   if (!fs.existsSync(sourcePath)) return;
 
@@ -54,9 +54,12 @@ allFilesToArchive.forEach(relPath => {
   fs.renameSync(sourcePath, destPath);
 
   // Generate README
-  const readmePath = path.join(destDir, 'README.md');
+  const readmePath = path.join(destDir, "README.md");
   if (!fs.existsSync(readmePath)) {
-    fs.writeFileSync(readmePath, `# Archive Review Directory\n\nThese files were automatically moved here during the Learnify AI Safe Audit process.\n\n- **Date:** ${new Date().toISOString()}\n- **Confidence:** 95%\n- **Reason:** Zero references detected via static analysis.\n`);
+    fs.writeFileSync(
+      readmePath,
+      `# Archive Review Directory\n\nThese files were automatically moved here during the Learnify AI Safe Audit process.\n\n- **Date:** ${new Date().toISOString()}\n- **Confidence:** 95%\n- **Reason:** Zero references detected via static analysis.\n`,
+    );
   }
 });
 

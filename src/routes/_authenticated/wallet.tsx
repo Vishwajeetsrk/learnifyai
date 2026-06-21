@@ -205,7 +205,7 @@ function WalletPage() {
         <div className="flex flex-col gap-1">
           <span className="font-semibold text-sm">Payment Failed</span>
           <span className="text-xs opacity-90">{msg}</span>
-        </div>
+        </div>,
       );
     } finally {
       setSubmitting(false);
@@ -686,7 +686,7 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
         <div className="flex flex-col gap-1">
           <span className="font-semibold text-sm">Withdrawal Failed</span>
           <span className="text-xs opacity-90">{msg}</span>
-        </div>
+        </div>,
       );
     } finally {
       setSubmitting(false);

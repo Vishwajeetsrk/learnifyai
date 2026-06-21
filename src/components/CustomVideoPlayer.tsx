@@ -155,7 +155,7 @@ export function CustomVideoPlayer({
     setBuffered(0);
     wantsPlayRef.current = false;
     playerReadyRef.current = false;
-    
+
     // For HTML5 video elements, we must call .load() on the video element when src changes
     if (!youtubeId && videoRef.current) {
       try {

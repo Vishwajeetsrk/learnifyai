@@ -150,7 +150,7 @@ function CommunityPage() {
             .from("post_poll_votes" as any)
             .select("id, post_id, user_id, option_index");
           if (pv) pollVotes = pv;
-        } catch { }
+        } catch {}
 
         // Attach poll_votes to matching posts
         return (data || []).map((post: any) => ({
@@ -934,7 +934,7 @@ function CommunityPage() {
               if (isPoll && post.content) {
                 try {
                   pollData = JSON.parse(post.content);
-                } catch { }
+                } catch {}
               }
 
               return (
@@ -942,14 +942,18 @@ function CommunityPage() {
                   key={post.id}
                   className={cn(
                     "bg-card rounded-3xl border shadow-sm p-6 transition-all hover:shadow-lg hover:-translate-y-0.5",
-                    isAnnouncement ? "border-primary/40 ring-1 ring-primary/20 bg-primary/[0.02]" : "border-border/50",
+                    isAnnouncement
+                      ? "border-primary/40 ring-1 ring-primary/20 bg-primary/[0.02]"
+                      : "border-border/50",
                   )}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex gap-3.5 mb-5">
                       <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
                         <AvatarImage src={post.author?.avatar_url} />
-                        <AvatarFallback className="font-medium">{post.author?.full_name?.charAt(0) || "U"}</AvatarFallback>
+                        <AvatarFallback className="font-medium">
+                          {post.author?.full_name?.charAt(0) || "U"}
+                        </AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-semibold flex items-center gap-2">
@@ -965,7 +969,10 @@ function CommunityPage() {
                         </div>
                       </div>
                     </div>
-                    {(user?.id === post.author_id || isAdmin || user?.email === "vishwajeetsrk@gamil.com" || user?.email === "vishwajeetsrk@gmail.com") && (
+                    {(user?.id === post.author_id ||
+                      isAdmin ||
+                      user?.email === "vishwajeetsrk@gamil.com" ||
+                      user?.email === "vishwajeetsrk@gmail.com") && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -1075,7 +1082,9 @@ function CommunityPage() {
                         onClick={() => toggleLike(post.id, isLiked)}
                         className={`flex items-center gap-1.5 hover:text-rose-500 transition-colors group ${isLiked ? "text-rose-500 font-medium" : ""}`}
                       >
-                        <Heart className={`h-5 w-5 transition-transform group-hover:scale-110 ${isLiked ? "fill-current scale-110" : ""}`} />
+                        <Heart
+                          className={`h-5 w-5 transition-transform group-hover:scale-110 ${isLiked ? "fill-current scale-110" : ""}`}
+                        />
                         <span className="text-sm">{post.likes?.length || 0}</span>
                       </button>
                       <button
@@ -1091,7 +1100,9 @@ function CommunityPage() {
                         onClick={() => toggleSave(post.id, isSaved)}
                         className={`flex items-center gap-1.5 ml-auto hover:text-amber-500 transition-colors group ${isSaved ? "text-amber-500 font-medium" : ""}`}
                       >
-                        <Bookmark className={`h-5 w-5 transition-transform group-hover:scale-110 ${isSaved ? "fill-current" : ""}`} />
+                        <Bookmark
+                          className={`h-5 w-5 transition-transform group-hover:scale-110 ${isSaved ? "fill-current" : ""}`}
+                        />
                       </button>
                     </div>
                   )}
@@ -1118,8 +1129,8 @@ function CommunityPage() {
                                     <span className="text-[10px] text-muted-foreground">
                                       {comment.created_at
                                         ? formatDistanceToNow(new Date(comment.created_at), {
-                                          addSuffix: true,
-                                        })
+                                            addSuffix: true,
+                                          })
                                         : ""}
                                     </span>
                                     {(isCommentAuthor || isAdmin) && (

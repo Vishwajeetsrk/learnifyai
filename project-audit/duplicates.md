@@ -5,4 +5,5 @@
 - **Styles**: Global Tailwind directives enforce DRY styles.
 
 ## Merge Opportunities
+
 - Consolidate `react-icons` / `lucide-react` imports.

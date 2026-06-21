@@ -586,12 +586,21 @@ function PricingPlans() {
                     <Button className="flex-1" variant="outline" disabled>
                       ✓ Active plan
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={handleCancel} className="text-muted-foreground">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleCancel}
+                      className="text-muted-foreground"
+                    >
                       Cancel
                     </Button>
                   </div>
                 ) : !hasPrice ? (
-                  <Button asChild className="w-full h-11 text-sm font-semibold" variant={t.highlighted ? "default" : "outline"}>
+                  <Button
+                    asChild
+                    className="w-full h-11 text-sm font-semibold"
+                    variant={t.highlighted ? "default" : "outline"}
+                  >
                     <Link to="/signup">
                       {t.cta_label || "Get started free"}
                       <ArrowRight className="h-4 w-4 ml-2" />
@@ -619,7 +628,7 @@ function PricingPlans() {
                     ) : null}
                     {loadingPlan === t.id
                       ? "Processing..."
-                      : `Subscribe ₹${t.price_inr}/${t.interval === 'month' ? 'month' : t.interval}`}
+                      : `Subscribe ₹${t.price_inr}/${t.interval === "month" ? "month" : t.interval}`}
                   </Button>
                 )}
               </div>

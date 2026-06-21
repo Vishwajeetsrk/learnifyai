@@ -64,8 +64,22 @@ export function CourseBadge({ className }: { className?: string }) {
           <stop offset="100%" stopColor="#38ef7d" />
         </linearGradient>
       </defs>
-      <rect x="20" y="20" width="60" height="60" rx="12" fill="url(#courseGrad)" stroke="#fff" strokeWidth="4" />
-      <path d="M35 40 L65 40 M35 50 L65 50 M35 60 L55 60" stroke="#fff" strokeWidth="6" strokeLinecap="round" />
+      <rect
+        x="20"
+        y="20"
+        width="60"
+        height="60"
+        rx="12"
+        fill="url(#courseGrad)"
+        stroke="#fff"
+        strokeWidth="4"
+      />
+      <path
+        d="M35 40 L65 40 M35 50 L65 50 M35 60 L55 60"
+        stroke="#fff"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -79,8 +93,19 @@ export function TestBadge({ className }: { className?: string }) {
           <stop offset="100%" stopColor="#FF4B2B" />
         </linearGradient>
       </defs>
-      <polygon points="50,10 90,30 90,70 50,90 10,70 10,30" fill="url(#testGrad)" stroke="#fff" strokeWidth="4" />
-      <path d="M35 50 L45 60 L65 40" stroke="#fff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+      <polygon
+        points="50,10 90,30 90,70 50,90 10,70 10,30"
+        fill="url(#testGrad)"
+        stroke="#fff"
+        strokeWidth="4"
+      />
+      <path
+        d="M35 50 L45 60 L65 40"
+        stroke="#fff"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -94,7 +119,12 @@ export function ChallengeBadge({ className }: { className?: string }) {
           <stop offset="100%" stopColor="#6DD5FA" />
         </linearGradient>
       </defs>
-      <path d="M50 10 L85 30 L85 70 L50 90 L15 70 L15 30 Z" fill="url(#chalGrad)" stroke="#fff" strokeWidth="4" />
+      <path
+        d="M50 10 L85 30 L85 70 L50 90 L15 70 L15 30 Z"
+        fill="url(#chalGrad)"
+        stroke="#fff"
+        strokeWidth="4"
+      />
       <path d="M40 40 L60 60 M60 40 L40 60" stroke="#fff" strokeWidth="6" strokeLinecap="round" />
     </svg>
   );

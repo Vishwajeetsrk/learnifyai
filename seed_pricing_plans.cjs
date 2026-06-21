@@ -1,30 +1,32 @@
-const { Client } = require('pg');
-const fs = require('fs');
+const { Client } = require("pg");
+const fs = require("fs");
 
 // Read from .env
 function readEnv(file) {
   try {
-    const content = fs.readFileSync(file, 'utf8');
+    const content = fs.readFileSync(file, "utf8");
     const env = {};
-    for (const line of content.split('\n')) {
+    for (const line of content.split("\n")) {
       const m = line.match(/^([^#=]+)=(.*)$/);
-      if (m) env[m[1].trim()] = m[2].trim().replace(/^"|"$/g, '');
+      if (m) env[m[1].trim()] = m[2].trim().replace(/^"|"$/g, "");
     }
     return env;
-  } catch { return {}; }
+  } catch {
+    return {};
+  }
 }
 
-const env = { ...readEnv('.env'), ...readEnv('.env.local') };
+const env = { ...readEnv(".env"), ...readEnv(".env.local") };
 const dbUrl = env.DATABASE_URL || env.POSTGRES_URL || env.SUPABASE_DB_URL;
 if (!dbUrl) {
-  console.error('No DATABASE_URL found');
+  console.error("No DATABASE_URL found");
   process.exit(1);
 }
 
 async function main() {
   const client = new Client({ connectionString: dbUrl, ssl: { rejectUnauthorized: false } });
   await client.connect();
-  
+
   // Check if pricing_plans table exists
   const tableCheck = await client.query(`
     SELECT EXISTS (
@@ -32,9 +34,9 @@ async function main() {
       WHERE table_schema = 'public' AND table_name = 'pricing_plans'
     );
   `);
-  
+
   if (!tableCheck.rows[0].exists) {
-    console.log('pricing_plans table does not exist. Creating it...');
+    console.log("pricing_plans table does not exist. Creating it...");
     await client.query(`
       CREATE TABLE IF NOT EXISTS pricing_plans (
         id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -57,15 +59,15 @@ async function main() {
         created_at timestamptz DEFAULT now()
       );
     `);
-    console.log('Table created.');
+    console.log("Table created.");
   }
 
   // Check current count
-  const count = await client.query('SELECT COUNT(*) FROM pricing_plans WHERE active = true;');
-  console.log('Current active pricing plans:', count.rows[0].count);
+  const count = await client.query("SELECT COUNT(*) FROM pricing_plans WHERE active = true;");
+  console.log("Current active pricing plans:", count.rows[0].count);
 
   if (parseInt(count.rows[0].count) === 0) {
-    console.log('Inserting 3 pricing plans...');
+    console.log("Inserting 3 pricing plans...");
     await client.query(`
       INSERT INTO pricing_plans (name, price_label, description, features, cta_label, cta_to, highlighted, price_inr, interval, badge, color, ai_credits_monthly, max_courses, active, order_index)
       VALUES
@@ -85,16 +87,23 @@ async function main() {
           'Start Team', '/signup', false, 1999, 'month', 'Best Value', '#0891b2', 500000, -1, true, 3
         );
     `);
-    console.log('3 pricing plans inserted successfully!');
+    console.log("3 pricing plans inserted successfully!");
   } else {
-    console.log('Pricing plans already exist — skipping insert.');
+    console.log("Pricing plans already exist — skipping insert.");
   }
 
-  const plans = await client.query('SELECT id, name, price_label, highlighted FROM pricing_plans WHERE active = true ORDER BY order_index;');
-  console.log('\nCurrent plans:');
-  plans.rows.forEach(p => console.log(' -', p.name, '|', p.price_label, '| highlighted:', p.highlighted));
+  const plans = await client.query(
+    "SELECT id, name, price_label, highlighted FROM pricing_plans WHERE active = true ORDER BY order_index;",
+  );
+  console.log("\nCurrent plans:");
+  plans.rows.forEach((p) =>
+    console.log(" -", p.name, "|", p.price_label, "| highlighted:", p.highlighted),
+  );
 
   await client.end();
 }
 
-main().catch(err => { console.error('Error:', err.message); process.exit(1); });
+main().catch((err) => {
+  console.error("Error:", err.message);
+  process.exit(1);
+});

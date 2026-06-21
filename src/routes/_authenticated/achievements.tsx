@@ -69,7 +69,7 @@ function AchievementsPage() {
         .update({
           current_streak: newStreak,
           highest_streak: newHighest,
-          last_active_at: new Date().toISOString()
+          last_active_at: new Date().toISOString(),
         })
         .eq("id", user.id);
       if (updateErr) throw updateErr;
@@ -88,7 +88,9 @@ function AchievementsPage() {
           .eq("user_id", user.id);
 
         const earnedIds = new Set((earnedBadges || []).map((b: any) => b.badge_id));
-        const toAward = dbBadges.filter((b) => !earnedIds.has(b.id) && newStreak >= (b.streak_required ?? 0));
+        const toAward = dbBadges.filter(
+          (b) => !earnedIds.has(b.id) && newStreak >= (b.streak_required ?? 0),
+        );
 
         if (toAward.length > 0) {
           const { error: insertErr } = await supabase
@@ -119,7 +121,7 @@ function AchievementsPage() {
           xp: 0,
           current_streak: 0,
           highest_streak: 0,
-          last_active_at: null
+          last_active_at: null,
         })
         .eq("id", user.id);
       if (profileErr) throw profileErr;
@@ -169,18 +171,28 @@ function AchievementsPage() {
             <div className="bg-card rounded-2xl border p-4 shadow-sm flex flex-col justify-center items-center text-center row-span-2 sm:row-span-1">
               <AnimatedRankCrown rankName={rank.rankName} className="mb-2 scale-75 md:scale-100" />
               <span className={cn("text-lg font-bold mt-1", rank.rankColor)}>{rank.rankName}</span>
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-1">Rank League</span>
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-1">
+                Rank League
+              </span>
             </div>
             <div className="bg-card rounded-2xl border p-4 shadow-sm flex flex-col justify-center">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Level</span>
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                Level
+              </span>
               <span className="text-2xl font-bold mt-1 text-indigo-500">Lv. {rank.level}</span>
             </div>
             <div className="bg-card rounded-2xl border p-4 shadow-sm flex flex-col justify-center">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Total XP</span>
-              <span className="text-2xl font-bold mt-1 text-amber-500">{rank.xp.toLocaleString()} XP</span>
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                Total XP
+              </span>
+              <span className="text-2xl font-bold mt-1 text-amber-500">
+                {rank.xp.toLocaleString()} XP
+              </span>
             </div>
             <div className="bg-card rounded-2xl border p-4 shadow-sm flex flex-col justify-center">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Daily Streak</span>
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                Daily Streak
+              </span>
               <span className="text-2xl font-bold mt-1 text-orange-500 flex items-center gap-1">
                 <Flame className="h-5 w-5 fill-current" /> {rank.streak}
               </span>
@@ -195,7 +207,9 @@ function AchievementsPage() {
               <Sparkles className="h-5 w-5 text-indigo-500 animate-pulse" />
               <div>
                 <h3 className="font-semibold text-sm">Gamification Sandbox</h3>
-                <p className="text-xs text-muted-foreground">Simulate XP progression and streaks to test badge awards</p>
+                <p className="text-xs text-muted-foreground">
+                  Simulate XP progression and streaks to test badge awards
+                </p>
               </div>
             </div>
             <button
@@ -269,4 +283,3 @@ function AchievementsPage() {
     </AppShell>
   );
 }
-

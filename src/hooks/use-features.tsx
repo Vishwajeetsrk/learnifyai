@@ -33,7 +33,7 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
         console.error("Failed to load feature flags:", error);
         return [];
       }
-      return (data as any[]) as FeatureFlag[];
+      return data as any[] as FeatureFlag[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });

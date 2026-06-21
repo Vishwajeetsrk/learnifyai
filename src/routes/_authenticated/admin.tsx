@@ -838,11 +838,7 @@ function AdminOverview() {
             >
               <Award className="h-4 w-4" /> Certificates
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowEmailTemplates(true)}
-            >
+            <Button variant="outline" size="sm" onClick={() => setShowEmailTemplates(true)}>
               <Mail className="h-4 w-4" /> Email Templates
             </Button>
             <Button variant="outline" size="sm" onClick={refreshAll}>
@@ -869,11 +865,12 @@ function AdminOverview() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleExport}>Export Excel</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleExportCSV()}>Export CSV</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExportCSV(true)}>Export All</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExportCSV(true)}>
+                    Export All
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-
           </div>
         </div>
 
@@ -1813,7 +1810,9 @@ function AdminOverview() {
                 <Mail className="h-5 w-5 text-primary" />
                 Email Templates
               </DialogTitle>
-              <DialogDescription>Edit platform email templates. Changes apply immediately to all future emails.</DialogDescription>
+              <DialogDescription>
+                Edit platform email templates. Changes apply immediately to all future emails.
+              </DialogDescription>
             </DialogHeader>
             <div className="flex-1 overflow-hidden">
               <EmailTemplatesPanel />
@@ -2277,7 +2276,14 @@ function EmailTemplatesPanel() {
   const saveFn = useServerFn(adminSaveEmailTemplate);
   const testFn = useServerFn(adminSendTestEmail);
 
-  type TemplateRow = { id: string; name: string; subject: string; description: string | null; variables: string[] | null; updated_at: string };
+  type TemplateRow = {
+    id: string;
+    name: string;
+    subject: string;
+    description: string | null;
+    variables: string[] | null;
+    updated_at: string;
+  };
   const [templates, setTemplates] = useState<TemplateRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
@@ -2290,17 +2296,19 @@ function EmailTemplatesPanel() {
   const [preview, setPreview] = useState(false);
 
   useEffect(() => {
-    listFn({}).then((data: any) => {
-      setTemplates((data ?? []) as TemplateRow[]);
-      setLoading(false);
-      if (data?.length) selectTemplate(data[0].id);
-    }).catch(() => setLoading(false));
+    listFn({})
+      .then((data: any) => {
+        setTemplates((data ?? []) as TemplateRow[]);
+        setLoading(false);
+        if (data?.length) selectTemplate(data[0].id);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
   async function selectTemplate(id: string) {
     setSelected(id);
     setPreview(false);
-    const tpl = await getFn({ data: { id } }) as any;
+    const tpl = (await getFn({ data: { id } })) as any;
     if (tpl) {
       setEditName(tpl.name);
       setEditSubject(tpl.subject);
@@ -2312,9 +2320,11 @@ function EmailTemplatesPanel() {
     if (!selected) return;
     setSaving(true);
     try {
-      await saveFn({ data: { id: selected, name: editName, subject: editSubject, html_body: editHtml } });
+      await saveFn({
+        data: { id: selected, name: editName, subject: editSubject, html_body: editHtml },
+      });
       toast.success("Template saved!");
-      const updated = await listFn({}) as any;
+      const updated = (await listFn({})) as any;
       setTemplates((updated ?? []) as TemplateRow[]);
     } catch (e: any) {
       toast.error(e?.message ?? "Save failed");
@@ -2336,11 +2346,12 @@ function EmailTemplatesPanel() {
     }
   }
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-full">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
 
   return (
     <div className="flex h-full">
@@ -2352,7 +2363,8 @@ function EmailTemplatesPanel() {
             onClick={() => selectTemplate(tpl.id)}
             className={cn(
               "w-full text-left px-4 py-3 border-b text-sm transition-colors hover:bg-muted/50",
-              selected === tpl.id && "bg-primary/10 text-primary font-medium border-l-2 border-l-primary"
+              selected === tpl.id &&
+                "bg-primary/10 text-primary font-medium border-l-2 border-l-primary",
             )}
           >
             <div className="font-medium truncate">{tpl.name}</div>
@@ -2373,8 +2385,9 @@ function EmailTemplatesPanel() {
               </div>
               <div className="flex items-center gap-2">
                 <Button
-                  size="sm" variant={preview ? "default" : "outline"}
-                  onClick={() => setPreview(v => !v)}
+                  size="sm"
+                  variant={preview ? "default" : "outline"}
+                  onClick={() => setPreview((v) => !v)}
                 >
                   <Eye className="h-4 w-4" />
                   {preview ? "Edit" : "Preview"}
@@ -2387,13 +2400,26 @@ function EmailTemplatesPanel() {
                     className="h-8 text-xs w-40"
                     type="email"
                   />
-                  <Button size="sm" variant="outline" onClick={handleTest} disabled={testing || !testEmail}>
-                    {testing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleTest}
+                    disabled={testing || !testEmail}
+                  >
+                    {testing ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Send className="h-3.5 w-3.5" />
+                    )}
                     Send Test
                   </Button>
                 </div>
                 <Button size="sm" onClick={handleSave} disabled={saving}>
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
                   Save
                 </Button>
               </div>
@@ -2436,8 +2462,13 @@ function EmailTemplatesPanel() {
               <div className="px-4 py-2 border-t bg-muted/30 shrink-0">
                 <p className="text-xs text-muted-foreground">
                   <span className="font-medium">Variables:</span> Use{" "}
-                  {(templates.find(t => t.id === selected)?.variables ?? []).map(v => (
-                    <code key={v} className="text-xs bg-primary/10 text-primary px-1 py-0.5 rounded mx-0.5">{'{{' + v + '}}'}</code>
+                  {(templates.find((t) => t.id === selected)?.variables ?? []).map((v) => (
+                    <code
+                      key={v}
+                      className="text-xs bg-primary/10 text-primary px-1 py-0.5 rounded mx-0.5"
+                    >
+                      {"{{" + v + "}}"}
+                    </code>
                   ))}
                 </p>
               </div>

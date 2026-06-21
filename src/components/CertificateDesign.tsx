@@ -189,18 +189,22 @@ export const CertificateRender = forwardRef<HTMLDivElement, Props>(({ design, ct
             className="absolute inset-[12px] pointer-events-none"
             style={{ border: `1px solid ${design.accent_color}44` }}
           />
-          {["top-3 left-3", "top-3 right-3", "bottom-3 left-3", "bottom-3 right-3"].map((pos, i) => (
-            <div
-              key={i}
-              className={`absolute ${pos} w-8 h-8 pointer-events-none`}
-              style={{
-                borderTop: pos.includes("top") ? `2px solid ${design.accent_color}` : "none",
-                borderBottom: pos.includes("bottom") ? `2px solid ${design.accent_color}` : "none",
-                borderLeft: pos.includes("left") ? `2px solid ${design.accent_color}` : "none",
-                borderRight: pos.includes("right") ? `2px solid ${design.accent_color}` : "none",
-              }}
-            />
-          ))}
+          {["top-3 left-3", "top-3 right-3", "bottom-3 left-3", "bottom-3 right-3"].map(
+            (pos, i) => (
+              <div
+                key={i}
+                className={`absolute ${pos} w-8 h-8 pointer-events-none`}
+                style={{
+                  borderTop: pos.includes("top") ? `2px solid ${design.accent_color}` : "none",
+                  borderBottom: pos.includes("bottom")
+                    ? `2px solid ${design.accent_color}`
+                    : "none",
+                  borderLeft: pos.includes("left") ? `2px solid ${design.accent_color}` : "none",
+                  borderRight: pos.includes("right") ? `2px solid ${design.accent_color}` : "none",
+                }}
+              />
+            ),
+          )}
         </>
       )}
 
@@ -308,7 +312,7 @@ export const CertificateRender = forwardRef<HTMLDivElement, Props>(({ design, ct
         >
           {design.title_text}
         </h1>
-        
+
         {layout !== "minimal" && (
           <div className="mt-3 flex items-center gap-2 opacity-80">
             <span className="h-[2px] w-12" style={{ background: design.accent_color }} />
@@ -336,7 +340,9 @@ export const CertificateRender = forwardRef<HTMLDivElement, Props>(({ design, ct
           {ctx.name}
         </h2>
         {ctx.role && (
-          <p className="mt-1 text-[10px] uppercase tracking-[0.3em] opacity-70 font-semibold">{ctx.role}</p>
+          <p className="mt-1 text-[10px] uppercase tracking-[0.3em] opacity-70 font-semibold">
+            {ctx.role}
+          </p>
         )}
 
         <p
@@ -346,7 +352,9 @@ export const CertificateRender = forwardRef<HTMLDivElement, Props>(({ design, ct
           {body}
         </p>
         {ctx.instructor && (
-          <p className="mt-2 text-[11px] opacity-70 italic font-medium">Instructor · {ctx.instructor}</p>
+          <p className="mt-2 text-[11px] opacity-70 italic font-medium">
+            Instructor · {ctx.instructor}
+          </p>
         )}
 
         {pct !== null && (
@@ -367,16 +375,22 @@ export const CertificateRender = forwardRef<HTMLDivElement, Props>(({ design, ct
           <div>
             <div className="h-14 flex items-end">
               {design.signature_url ? (
-                <img src={design.signature_url} alt="Signature" className="h-14 object-contain drop-shadow-sm" />
+                <img
+                  src={design.signature_url}
+                  alt="Signature"
+                  className="h-14 object-contain drop-shadow-sm"
+                />
               ) : (
-                <div style={{ 
-                  fontFamily: "'Great Vibes', 'Dancing Script', cursive", 
-                  fontSize: "2rem", 
-                  color: design.text_color, 
-                  opacity: 0.8, 
-                  transform: "rotate(-3deg) translateY(-4px)",
-                  whiteSpace: "nowrap"
-                }}>
+                <div
+                  style={{
+                    fontFamily: "'Great Vibes', 'Dancing Script', cursive",
+                    fontSize: "2rem",
+                    color: design.text_color,
+                    opacity: 0.8,
+                    transform: "rotate(-3deg) translateY(-4px)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {design.signatory_name}
                 </div>
               )}
@@ -391,7 +405,7 @@ export const CertificateRender = forwardRef<HTMLDivElement, Props>(({ design, ct
               {design.signatory_title}
             </div>
           </div>
-          
+
           {/* QR Verification Block */}
           <div className="flex flex-col items-center">
             <div
@@ -413,23 +427,35 @@ export const CertificateRender = forwardRef<HTMLDivElement, Props>(({ design, ct
               {ctx.code}
             </div>
           </div>
-          
+
           {/* Stamp / Date Block */}
           <div className="text-right flex flex-col items-end">
             <div className="h-16 flex justify-end items-end mb-2">
               {design.stamp_url ? (
-                <img src={design.stamp_url} alt="Stamp" className="h-16 object-contain drop-shadow-md" />
+                <img
+                  src={design.stamp_url}
+                  alt="Stamp"
+                  className="h-16 object-contain drop-shadow-md"
+                />
               ) : (
                 <div
                   className="h-16 w-16 rounded-full flex items-center justify-center text-[8px] uppercase tracking-[0.2em] font-extrabold shadow-md relative"
-                  style={{ 
-                     background: `radial-gradient(circle at 30% 30%, ${design.accent_color}, ${design.accent_color}cc)`, 
-                     color: design.bg_color,
-                     boxShadow: `0 0 0 3px ${design.accent_color}33, inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 6px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.15)`,
+                  style={{
+                    background: `radial-gradient(circle at 30% 30%, ${design.accent_color}, ${design.accent_color}cc)`,
+                    color: design.bg_color,
+                    boxShadow: `0 0 0 3px ${design.accent_color}33, inset 0 2px 4px rgba(255,255,255,0.4), inset 0 -2px 6px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.15)`,
                   }}
                 >
-                  <div className="absolute inset-[3px] rounded-full" style={{ border: `1px dashed ${design.bg_color}99` }} />
-                  <span className="opacity-95 transform -rotate-12 z-10" style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.3)" }}>Verified</span>
+                  <div
+                    className="absolute inset-[3px] rounded-full"
+                    style={{ border: `1px dashed ${design.bg_color}99` }}
+                  />
+                  <span
+                    className="opacity-95 transform -rotate-12 z-10"
+                    style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.3)" }}
+                  >
+                    Verified
+                  </span>
                 </div>
               )}
             </div>
@@ -439,7 +465,10 @@ export const CertificateRender = forwardRef<HTMLDivElement, Props>(({ design, ct
             >
               Date of Issue
             </div>
-            <div className="text-[11px] font-semibold tracking-wide" style={{ color: design.accent_color }}>
+            <div
+              className="text-[11px] font-semibold tracking-wide"
+              style={{ color: design.accent_color }}
+            >
               {ctx.date}
             </div>
           </div>

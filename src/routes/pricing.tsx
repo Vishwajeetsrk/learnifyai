@@ -174,7 +174,9 @@ function PricingPage() {
         </div>
       ) : error ? (
         <div className="space-y-3 rounded-3xl border border-destructive/20 bg-destructive/5 p-10 text-center">
-          <p className="text-lg font-semibold text-destructive">Pricing is currently unavailable.</p>
+          <p className="text-lg font-semibold text-destructive">
+            Pricing is currently unavailable.
+          </p>
           <p className="text-sm text-muted-foreground">
             We couldn&apos;t load the pricing details right now. Please refresh or try again later.
           </p>
@@ -210,7 +212,9 @@ function PricingPage() {
                   {/* Gradient top bar */}
                   <div
                     className="h-1.5 w-full"
-                    style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}99)` }}
+                    style={{
+                      background: `linear-gradient(90deg, ${accentColor}, ${accentColor}99)`,
+                    }}
                   />
 
                   {/* Popular badge */}
@@ -241,7 +245,9 @@ function PricingPage() {
 
                     {/* Price */}
                     <div className="mt-6 mb-1">
-                      <span className="text-5xl font-extrabold tracking-tight">{t.price_label}</span>
+                      <span className="text-5xl font-extrabold tracking-tight">
+                        {t.price_label}
+                      </span>
                       {t.interval && (
                         <span className="text-sm text-muted-foreground ml-1">/{t.interval}</span>
                       )}
@@ -281,12 +287,21 @@ function PricingPage() {
                           <Button className="flex-1" variant="outline" disabled>
                             ✓ Active plan
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={handleCancel} className="text-muted-foreground">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCancel}
+                            className="text-muted-foreground"
+                          >
                             Cancel
                           </Button>
                         </div>
                       ) : !hasPrice ? (
-                        <Button asChild className="w-full h-11 text-sm font-semibold" variant={t.highlighted ? "default" : "outline"}>
+                        <Button
+                          asChild
+                          className="w-full h-11 text-sm font-semibold"
+                          variant={t.highlighted ? "default" : "outline"}
+                        >
                           <Link to="/signup">
                             {t.cta_label || "Get started free"}
                             <ArrowRight className="h-4 w-4 ml-2" />
@@ -323,7 +338,7 @@ function PricingPage() {
                           ) : null}
                           {loadingPlan === t.id
                             ? "Processing..."
-                            : `Subscribe ₹${t.price_inr}/${t.interval === 'month' ? 'month' : t.interval}`}
+                            : `Subscribe ₹${t.price_inr}/${t.interval === "month" ? "month" : t.interval}`}
                         </Button>
                       )}
                     </div>
@@ -331,7 +346,8 @@ function PricingPage() {
                     {hasPrice && (
                       <div className="mt-4 text-center">
                         <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider flex items-center justify-center gap-1.5">
-                          <Check className="h-3 w-3 text-emerald-500" /> Securely processed by Cashfree
+                          <Check className="h-3 w-3 text-emerald-500" /> Securely processed by
+                          Cashfree
                         </span>
                       </div>
                     )}

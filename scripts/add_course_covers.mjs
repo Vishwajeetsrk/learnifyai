@@ -21,9 +21,12 @@ const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
 // Curated high-quality Unsplash cover images for different topics
 const COVERS = {
-  react: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200&auto=format&fit=crop&q=80",
-  design: "https://images.unsplash.com/photo-1561070791-26c113006238?w=1200&auto=format&fit=crop&q=80",
-  wordpress: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+  react:
+    "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=1200&auto=format&fit=crop&q=80",
+  design:
+    "https://images.unsplash.com/photo-1561070791-26c113006238?w=1200&auto=format&fit=crop&q=80",
+  wordpress:
+    "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
   ai: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=1200&auto=format&fit=crop&q=80",
   data: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80",
   code: "https://images.unsplash.com/photo-1516116211223-5c359a36298a?w=1200&auto=format&fit=crop&q=80",
@@ -46,7 +49,7 @@ async function main() {
       const titleLower = c.title.toLowerCase();
       const slugLower = c.slug.toLowerCase();
       const catLower = c.category.toLowerCase();
-      
+
       let selectedCover = "";
 
       if (

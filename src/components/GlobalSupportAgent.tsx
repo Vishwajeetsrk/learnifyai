@@ -49,8 +49,12 @@ function BotAvatar({ className }: { className?: string }) {
     >
       <div className="h-full w-full rounded-full bg-slate-950 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(139,92,246,0.4),transparent_70%)]" />
-        
-        <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          className="h-4.5 w-4.5 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.5)]"
+        >
           <rect
             x="4"
             y="7"
@@ -69,17 +73,8 @@ function BotAvatar({ className }: { className?: string }) {
             strokeWidth="1.5"
             strokeLinecap="round"
           />
-          <path
-            d="M12 7V4"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          />
-          <circle
-            cx="12"
-            cy="3"
-            r="1"
-            fill="currentColor"
-          />
+          <path d="M12 7V4" stroke="currentColor" strokeWidth="1.5" />
+          <circle cx="12" cy="3" r="1" fill="currentColor" />
           <rect x="2" y="11" width="2" height="3" rx="0.5" fill="currentColor" />
           <rect x="20" y="11" width="2" height="3" rx="0.5" fill="currentColor" />
         </svg>
@@ -179,13 +174,16 @@ export function GlobalSupportAgent() {
       dragControls={dragControls}
       dragMomentum={false}
       dragElastic={0.1}
-      className={cn("fixed bottom-6 z-[99] flex flex-col pointer-events-auto", isLeft ? "left-6 items-start" : "right-6 items-end")}
+      className={cn(
+        "fixed bottom-6 z-[99] flex flex-col pointer-events-auto",
+        isLeft ? "left-6 items-start" : "right-6 items-end",
+      )}
       style={{ touchAction: "none" }}
     >
       {open ? (
         <div className="w-96 max-w-[calc(100vw-2rem)] h-[550px] max-h-[calc(100vh-8rem)] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
-          <header 
+          <header
             className="bg-gradient-to-r from-violet-600 via-primary to-fuchsia-600 text-primary-foreground px-4 py-3 flex items-center justify-between shrink-0 shadow-sm relative overflow-hidden cursor-grab active:cursor-grabbing"
             onPointerDown={(e) => dragControls.start(e)}
           >
@@ -408,9 +406,14 @@ export function GlobalSupportAgent() {
           </div>
         </div>
       ) : (
-        <div className={cn("flex flex-col gap-2 group/widget", isLeft ? "items-start" : "items-end")}>
+        <div
+          className={cn("flex flex-col gap-2 group/widget", isLeft ? "items-start" : "items-end")}
+        >
           {/* A small premium greeting pill that glows and bounces */}
-          <div className="bg-card/95 border shadow-xl rounded-2xl py-1.5 px-3 flex items-center gap-2 border-primary/30 backdrop-blur-md animate-bounce duration-[3000ms] cursor-pointer hover:border-primary transition" onClick={() => setOpen(true)}>
+          <div
+            className="bg-card/95 border shadow-xl rounded-2xl py-1.5 px-3 flex items-center gap-2 border-primary/30 backdrop-blur-md animate-bounce duration-[3000ms] cursor-pointer hover:border-primary transition"
+            onClick={() => setOpen(true)}
+          >
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
             <div className="text-left leading-tight pr-1">
               <div className="text-[10px] font-bold text-foreground">Learnify Support</div>

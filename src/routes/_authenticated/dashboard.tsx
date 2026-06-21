@@ -381,10 +381,15 @@ function UpgradePlans() {
           <Sparkles className="h-6 w-6 text-primary animate-pulse" /> Upgrade to Pro
         </h2>
         <p className="text-muted-foreground mt-2 max-w-lg text-sm sm:text-base">
-          Unlock unlimited AI sessions, premium courses, creator tools, and priority support. Elevate your learning journey today.
+          Unlock unlimited AI sessions, premium courses, creator tools, and priority support.
+          Elevate your learning journey today.
         </p>
       </div>
-      <Button asChild size="lg" className="shrink-0 relative z-10 shadow-glow hover:-translate-y-0.5 transition-all w-full md:w-auto">
+      <Button
+        asChild
+        size="lg"
+        className="shrink-0 relative z-10 shadow-glow hover:-translate-y-0.5 transition-all w-full md:w-auto"
+      >
         <Link to="/pricing">
           View Pricing & Upgrade <ArrowRight className="ml-2 h-4 w-4" />
         </Link>

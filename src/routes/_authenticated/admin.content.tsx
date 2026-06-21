@@ -969,10 +969,17 @@ function PricingManager() {
                       setOpen(true);
                     }}
                   >
-                    <Pencil className="h-3.5 w-3.5 sm:mr-0 mr-2" /> <span className="sm:hidden">Edit</span>
+                    <Pencil className="h-3.5 w-3.5 sm:mr-0 mr-2" />{" "}
+                    <span className="sm:hidden">Edit</span>
                   </Button>
-                  <Button size="sm" variant="outline" className="w-full" onClick={() => setDeleteId(p.id)}>
-                    <Trash2 className="h-3.5 w-3.5 sm:mr-0 mr-2" /> <span className="sm:hidden">Delete</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => setDeleteId(p.id)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 sm:mr-0 mr-2" />{" "}
+                    <span className="sm:hidden">Delete</span>
                   </Button>
                 </div>
               </div>

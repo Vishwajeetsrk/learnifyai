@@ -428,8 +428,8 @@ export const bulkSyncFiles = createServerFn({ method: "POST" })
       const parts = fullPath.split("/");
       const name = parts.pop() || "untitled";
       const path = parts.join("/") || "/";
-      
-      const ext = name.split('.').pop() || "txt";
+
+      const ext = name.split(".").pop() || "txt";
       let language = "text";
       if (ext === "js" || ext === "jsx") language = "javascript";
       if (ext === "ts" || ext === "tsx") language = "typescript";
@@ -467,13 +467,19 @@ export const bulkSyncFiles = createServerFn({ method: "POST" })
       await supabase.from("playground_files").insert(toInsert);
     }
     for (const row of toUpdate) {
-      await supabase.from("playground_files").update({ content: row.content, updated_at: row.updated_at }).eq("id", row.id);
+      await supabase
+        .from("playground_files")
+        .update({ content: row.content, updated_at: row.updated_at })
+        .eq("id", row.id);
     }
     if (toDelete.length > 0) {
       await supabase.from("playground_files").delete().in("id", toDelete);
     }
 
-    await supabase.from("playground_projects").update({ updated_at: new Date().toISOString() }).eq("id", data.projectId);
+    await supabase
+      .from("playground_projects")
+      .update({ updated_at: new Date().toISOString() })
+      .eq("id", data.projectId);
 
     return { success: true };
   });

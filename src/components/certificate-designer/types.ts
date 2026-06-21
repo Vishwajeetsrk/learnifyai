@@ -8,19 +8,30 @@ export type CertElement = {
   width?: number;
   height?: number;
   rotation?: number;
-  
+
   // Text Styling
   fontSize?: number;
   fontFamily?: string;
   color?: string;
   align?: "left" | "center" | "right" | "justify";
-  fontWeight?: "normal" | "bold" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900";
+  fontWeight?:
+    | "normal"
+    | "bold"
+    | "100"
+    | "200"
+    | "300"
+    | "400"
+    | "500"
+    | "600"
+    | "700"
+    | "800"
+    | "900";
   fontStyle?: "normal" | "italic";
   textDecoration?: "none" | "underline" | "line-through";
   letterSpacing?: number;
   lineHeight?: number;
   textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
-  
+
   // Effects
   opacity?: number;
   shadowColor?: string;
@@ -37,11 +48,11 @@ export type CertDesign = {
   font_family: string;
   title_font?: string | null;
   body_font?: string | null;
-  
+
   border_style: string;
   border_width: number;
   corner_style: string;
-  
+
   background_pattern: string;
   layout: string;
 };

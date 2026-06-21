@@ -878,7 +878,8 @@ function CourseDetail() {
                         alt={instructorProfile.full_name || course.instructor}
                         className={cn(
                           "h-12 w-12 rounded-full object-cover shrink-0",
-                          getProfileBorderClass(instructorProfile.avatar_url) || "border-2 border-primary/20"
+                          getProfileBorderClass(instructorProfile.avatar_url) ||
+                            "border-2 border-primary/20",
                         )}
                       />
                     ) : (
@@ -895,7 +896,8 @@ function CourseDetail() {
                     alt={instructorProfile.full_name || course.instructor}
                     className={cn(
                       "h-12 w-12 rounded-full object-cover shrink-0",
-                      getProfileBorderClass(instructorProfile.avatar_url) || "border-2 border-primary/20"
+                      getProfileBorderClass(instructorProfile.avatar_url) ||
+                        "border-2 border-primary/20",
                     )}
                   />
                 ) : (
@@ -1142,12 +1144,14 @@ function LessonAiTabs({
           </Button>
         )}
         {lesson.description ? (
-          <div 
+          <div
             className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:p-0 prose-ul:my-1 prose-li:my-0.5"
             dangerouslySetInnerHTML={{ __html: lesson.description }}
           />
         ) : (
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">No instructor notes for this lesson.</p>
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+            No instructor notes for this lesson.
+          </p>
         )}
       </TabsContent>
 
@@ -1259,7 +1263,9 @@ function LockedCourseTools() {
 function Markdown({ children }: { children: string }) {
   return (
     <div className="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:text-foreground prose-code:before:hidden prose-code:after:hidden">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{children}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+        {children}
+      </ReactMarkdown>
     </div>
   );
 }
@@ -1685,14 +1691,14 @@ function CodeMode({ course, exerciseText }: { course?: any; exerciseText?: strin
         </Button>
         {/* Only show Check Exercise button when an exercise has been generated */}
         {exerciseText && (
-        <Button size="sm" variant="secondary" onClick={checkExercise} disabled={grading}>
-          {grading ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <GraduationCap className="h-3.5 w-3.5" />
-          )}
-          Check Exercise
-        </Button>
+          <Button size="sm" variant="secondary" onClick={checkExercise} disabled={grading}>
+            {grading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <GraduationCap className="h-3.5 w-3.5" />
+            )}
+            Check Exercise
+          </Button>
         )}
         {!exerciseText && (
           <span className="text-[10px] text-muted-foreground italic">

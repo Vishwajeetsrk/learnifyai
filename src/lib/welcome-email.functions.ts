@@ -39,9 +39,7 @@ export async function sendEmail({
   const GMAIL_EMAIL = process.env.GMAIL_EMAIL;
   const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
   const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
-  const gmailFrom = GMAIL_EMAIL
-    ? `"Learnify AI" <${GMAIL_EMAIL}>`
-    : emailFrom;
+  const gmailFrom = GMAIL_EMAIL ? `"Learnify AI" <${GMAIL_EMAIL}>` : emailFrom;
 
   // 1. Try Resend REST API (most reliable, domain-verified)
   if (RESEND_API_KEY) {
@@ -220,7 +218,14 @@ export const adminGetEmailTemplate = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return tpl as { id: string; name: string; subject: string; html_body: string; description: string; variables: string[] } | null;
+    return tpl as {
+      id: string;
+      name: string;
+      subject: string;
+      html_body: string;
+      description: string;
+      variables: string[];
+    } | null;
   });
 
 // ─── Admin: save (upsert) template ────────────────────────────────

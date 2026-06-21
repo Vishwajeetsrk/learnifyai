@@ -4,7 +4,12 @@ import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { createProject, deleteProject, duplicateProject, updateProject } from "@/lib/playground/projects";
+import {
+  createProject,
+  deleteProject,
+  duplicateProject,
+  updateProject,
+} from "@/lib/playground/projects";
 import { cn } from "@/lib/utils";
 import {
   Plus,
@@ -41,7 +46,11 @@ function ProjectsPage() {
       const nextPublic = !currentPublic;
       await updateFn({ data: { id, is_public: nextPublic } });
       qc.invalidateQueries({ queryKey: ["playground-projects"] });
-      toast.success(nextPublic ? "Project is now public! It will appear on your profile." : "Project is now private.");
+      toast.success(
+        nextPublic
+          ? "Project is now public! It will appear on your profile."
+          : "Project is now private.",
+      );
     } catch (err: any) {
       toast.error(err.message || "Failed to update project visibility");
     }
@@ -176,7 +185,7 @@ function ProjectsPage() {
                       "inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-semibold border transition-all hover:scale-105",
                       p.is_public
                         ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20"
-                        : "bg-muted text-muted-foreground border-border hover:bg-accent"
+                        : "bg-muted text-muted-foreground border-border hover:bg-accent",
                     )}
                     title="Click to toggle public/private visibility"
                   >

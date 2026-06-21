@@ -1289,12 +1289,18 @@ function LessonForm({
 
       // 3. Upload thumbnail if generated (optional feature: update course cover if empty)
       if (thumbDataUrl) {
-        const { data: courseData } = await supabase.from("courses").select("cover_url").eq("id", courseId).single();
+        const { data: courseData } = await supabase
+          .from("courses")
+          .select("cover_url")
+          .eq("id", courseId)
+          .single();
         if (courseData && !courseData.cover_url) {
           // If course has no cover, let's upload the thumbnail and set it as cover!
           const thumbBlob = await (await fetch(thumbDataUrl)).blob();
           const thumbPath = `course_covers/${courseId}/thumb_${Date.now()}.jpg`;
-          await supabase.storage.from("public_assets").upload(thumbPath, thumbBlob, { upsert: true });
+          await supabase.storage
+            .from("public_assets")
+            .upload(thumbPath, thumbBlob, { upsert: true });
           const { data: pData } = supabase.storage.from("public_assets").getPublicUrl(thumbPath);
           await supabase.from("courses").update({ cover_url: pData.publicUrl }).eq("id", courseId);
           toast.success("Generated thumbnail applied as course cover!");
@@ -1384,10 +1390,12 @@ function LessonForm({
             aria-invalid={!!videoError}
             className="flex-1"
           />
-          <label className={cn(
-            "h-10 px-3 text-xs shrink-0 flex items-center gap-1.5 border rounded-md font-medium cursor-pointer transition",
-            uploadingVideo ? "opacity-50 cursor-not-allowed bg-muted" : "hover:bg-secondary"
-          )}>
+          <label
+            className={cn(
+              "h-10 px-3 text-xs shrink-0 flex items-center gap-1.5 border rounded-md font-medium cursor-pointer transition",
+              uploadingVideo ? "opacity-50 cursor-not-allowed bg-muted" : "hover:bg-secondary",
+            )}
+          >
             {uploadingVideo ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (

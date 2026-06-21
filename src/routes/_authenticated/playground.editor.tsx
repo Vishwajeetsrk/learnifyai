@@ -43,7 +43,7 @@ function PlaygroundEditor() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { project: projectId } = Route.useSearch();
-  
+
   // Project State
   const [projectTitle, setProjectTitle] = useState("");
   const [template, setTemplate] = useState("blank");
@@ -51,16 +51,18 @@ function PlaygroundEditor() {
   const [projectIsPublic, setProjectIsPublic] = useState(false);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleInput, setTitleInput] = useState("");
-  
+
   // File State
   const [files, setFiles] = useState<any[]>([]);
   const [activeFileId, setActiveFileId] = useState<string | null>(null);
-  
+
   // UI State
   const [showAi, setShowAi] = useState(true);
   const [saving, setSaving] = useState(false);
   const [running, setRunning] = useState(false);
-  const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(null);
+  const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(
+    null,
+  );
   const [timeMs, setTimeMs] = useState<number | undefined>();
   const [updatingVisibility, setUpdatingVisibility] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
@@ -166,19 +168,25 @@ function PlaygroundEditor() {
   };
 
   const handleUpdateFile = (id: string, content: string) => {
-    setFiles(prev => prev.map(f => f.id === id ? { ...f, content } : f));
+    setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, content } : f)));
   };
 
   const handleAddFile = () => {
     const name = prompt("File name (e.g. script.js):");
     if (!name) return;
-    const newFile = { id: Math.random().toString(), name, path: "/", content: "", language: "javascript" };
-    setFiles(prev => [...prev, newFile]);
+    const newFile = {
+      id: Math.random().toString(),
+      name,
+      path: "/",
+      content: "",
+      language: "javascript",
+    };
+    setFiles((prev) => [...prev, newFile]);
     setActiveFileId(newFile.id);
   };
 
   const handleDeleteFile = (id: string) => {
-    setFiles(prev => prev.filter(f => f.id !== id));
+    setFiles((prev) => prev.filter((f) => f.id !== id));
     if (activeFileId === id) setActiveFileId(files[0]?.id || null);
   };
 
@@ -238,11 +246,15 @@ function PlaygroundEditor() {
       <div className="h-[calc(100vh-3.5rem)] flex flex-col bg-background">
         {/* Universal Header */}
         <div className="flex items-center gap-2 px-4 py-2 border-b bg-card shrink-0 flex-wrap">
-          <Link to="/playground/projects" className="text-muted-foreground hover:text-foreground shrink-0" title="Back to Projects">
+          <Link
+            to="/playground/projects"
+            className="text-muted-foreground hover:text-foreground shrink-0"
+            title="Back to Projects"
+          >
             <Folders className="h-4 w-4" />
           </Link>
           <div className="h-4 w-[1px] bg-border mx-1" />
-          
+
           {editingTitle ? (
             <div className="flex items-center gap-1">
               <input
@@ -255,15 +267,24 @@ function PlaygroundEditor() {
                 }}
                 className="h-7 w-40 sm:w-56 bg-muted border rounded px-2 text-xs font-medium outline-none focus:ring-1 focus:ring-primary"
               />
-              <button onClick={confirmRename} className="p-1 rounded hover:bg-accent text-emerald-500">
+              <button
+                onClick={confirmRename}
+                className="p-1 rounded hover:bg-accent text-emerald-500"
+              >
                 <Check className="h-3.5 w-3.5" />
               </button>
-              <button onClick={() => setEditingTitle(false)} className="p-1 rounded hover:bg-accent text-muted-foreground">
+              <button
+                onClick={() => setEditingTitle(false)}
+                className="p-1 rounded hover:bg-accent text-muted-foreground"
+              >
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
           ) : (
-            <button onClick={startRename} className="flex items-center gap-1.5 text-sm font-medium hover:text-primary transition group">
+            <button
+              onClick={startRename}
+              className="flex items-center gap-1.5 text-sm font-medium hover:text-primary transition group"
+            >
               {projectTitle || "Untitled"}
               <Pencil className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
@@ -277,10 +298,16 @@ function PlaygroundEditor() {
                 "inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-all shrink-0 ml-2",
                 projectIsPublic
                   ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                  : "bg-muted text-muted-foreground border-border"
+                  : "bg-muted text-muted-foreground border-border",
               )}
             >
-              {updatingVisibility ? <Loader2 className="h-3 w-3 animate-spin" /> : projectIsPublic ? "🌐 Public" : "🔒 Private"}
+              {updatingVisibility ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : projectIsPublic ? (
+                "🌐 Public"
+              ) : (
+                "🔒 Private"
+              )}
             </button>
           )}
 
@@ -292,7 +319,11 @@ function PlaygroundEditor() {
               className="p-1.5 rounded-md hover:bg-accent text-muted-foreground hover:text-foreground transition"
               title="Toggle AI Assistant"
             >
-              {showAi ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+              {showAi ? (
+                <PanelRightClose className="h-4 w-4" />
+              ) : (
+                <PanelRightOpen className="h-4 w-4" />
+              )}
             </button>
             {projectId && (
               <button
@@ -310,16 +341,22 @@ function PlaygroundEditor() {
         <div className="flex-1 flex overflow-hidden flex-col lg:flex-row relative">
           <div className="flex-1 overflow-hidden relative">
             {!projectId ? (
-              <div className="h-full flex items-center justify-center text-muted-foreground">Loading project...</div>
+              <div className="h-full flex items-center justify-center text-muted-foreground">
+                Loading project...
+              </div>
             ) : isWebProject ? (
-              <WebIDE 
-                files={webFiles} 
-                template={template === "html-css-js" ? "vanilla" : template as "react" | "node" | "vanilla"} 
-                onSave={handleWebSave} 
-                saving={saving} 
+              <WebIDE
+                files={webFiles}
+                template={
+                  template === "html-css-js"
+                    ? "vanilla"
+                    : (template as "react" | "node" | "vanilla")
+                }
+                onSave={handleWebSave}
+                saving={saving}
               />
             ) : (
-              <StandardIDE 
+              <StandardIDE
                 files={files}
                 activeFileId={activeFileId}
                 setActiveFileId={setActiveFileId}
@@ -341,7 +378,11 @@ function PlaygroundEditor() {
           {showAi && (
             <div className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l bg-card shrink-0 flex flex-col z-10">
               <AIPanel
-                code={files.find(f => f.id === activeFileId)?.content || Object.values(webFiles)[0]?.code || ""}
+                code={
+                  files.find((f) => f.id === activeFileId)?.content ||
+                  Object.values(webFiles)[0]?.code ||
+                  ""
+                }
                 language={language}
                 onApplyCode={(c) => {
                   if (isWebProject) {

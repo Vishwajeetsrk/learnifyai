@@ -23,7 +23,9 @@ import {
   Sparkles,
   Image as ImageIcon,
   ExternalLink,
+  Info,
 } from "lucide-react";
+import { SkillBadge, SKILL_LOGOS } from "@/components/SkillBadge";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
@@ -222,6 +224,8 @@ function SettingsPage() {
   const [clothingStyle, setClothingStyle] = useState("shirtCrewNeck"); // Default clothes
   const [clothingColor, setClothingColor] = useState("3c4f76"); // Default clothes color
   const [accessoriesStyle, setAccessoriesStyle] = useState("none"); // Default accessories
+  const [eyebrowsStyle, setEyebrowsStyle] = useState("default"); // Default eyebrows
+  const [noseStyle, setNoseStyle] = useState("default"); // Default nose
 
   const CARTOON_STYLES = [
     { id: "avataaars", label: "Casual Character" },
@@ -246,6 +250,8 @@ function SettingsPage() {
       params += `&hairColor=${hairColor}`;
       params += `&mouth=${mouthStyle}`;
       params += `&eyes=${eyesStyle}`;
+      params += `&eyebrows=${eyebrowsStyle}`;
+      if (noseStyle !== "default") params += `&nose=${noseStyle}`;
       params += `&clothing=${clothingStyle}`;
       params += `&clothingColor=${clothingColor}`;
       if (accessoriesStyle && accessoriesStyle !== "none") {
@@ -257,7 +263,7 @@ function SettingsPage() {
       params += `&skinColor=${skinColor}`;
       let advHair = "short01";
       if (hairGender === "female") {
-        advHair = (hairStyle === "curly" || hairStyle === "curvy") ? "long02" : "long01";
+        advHair = hairStyle === "curly" || hairStyle === "curvy" ? "long02" : "long01";
         if (hairStyle === "bob" || hairStyle === "miaWallace") {
           advHair = "bob";
         }
@@ -503,7 +509,17 @@ function SettingsPage() {
     ];
     setClothingColor(clothColors[Math.floor(Math.random() * clothColors.length)]);
 
-    const bgColors = ["transparent", "b6e3f4", "c0aede", "d1d4f9", "ffd5dc", "ffdfb4", "c9f2c9", "f3f4f6", "ffd000"];
+    const bgColors = [
+      "transparent",
+      "b6e3f4",
+      "c0aede",
+      "d1d4f9",
+      "ffd5dc",
+      "ffdfb4",
+      "c9f2c9",
+      "f3f4f6",
+      "ffd000",
+    ];
     setAvatarBackgroundColor(bgColors[Math.floor(Math.random() * bgColors.length)]);
 
     const maleHairs = [
@@ -877,7 +893,10 @@ function SettingsPage() {
           await supabase.storage.from("avatars").remove([old]);
         }
       }
-      const finalUrl = profileBorder && profileBorder !== "none" ? `${publicUrl}?profile_border=${profileBorder}` : publicUrl;
+      const finalUrl =
+        profileBorder && profileBorder !== "none"
+          ? `${publicUrl}?profile_border=${profileBorder}`
+          : publicUrl;
       await supabase.from("profiles").update({ avatar_url: finalUrl }).eq("id", user.id);
       toast.success("Photo updated");
       qc.invalidateQueries({ queryKey: ["profile-full"] });
@@ -1442,9 +1461,7 @@ function SettingsPage() {
                                     onClick={() => {
                                       setHairGender("male");
                                       setHairStyle(
-                                        selectedStyle === "adventurer"
-                                          ? "short01"
-                                          : "shortFlat",
+                                        selectedStyle === "adventurer" ? "short01" : "shortFlat",
                                       );
                                     }}
                                     className={`px-2 py-0.5 rounded transition ${
@@ -1460,9 +1477,7 @@ function SettingsPage() {
                                     onClick={() => {
                                       setHairGender("female");
                                       setHairStyle(
-                                        selectedStyle === "adventurer"
-                                          ? "long01"
-                                          : "straight01",
+                                        selectedStyle === "adventurer" ? "long01" : "straight01",
                                       );
                                     }}
                                     className={`px-2 py-0.5 rounded transition ${
@@ -1575,33 +1590,134 @@ function SettingsPage() {
                         </TabsContent>
 
                         {/* Expressions Tab */}
-                        <TabsContent value="expressions" className="space-y-4 pt-3">
+                        <TabsContent
+                          value="expressions"
+                          className="space-y-4 pt-3 max-h-[60vh] overflow-y-auto pr-1 pb-4"
+                        >
+                          {/* Eyebrows Selector */}
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold text-muted-foreground">
+                              Eyebrows
+                            </Label>
+                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                              {[
+                                { id: "default", label: "Default" },
+                                { id: "angry", label: "Angry" },
+                                { id: "flat", label: "Flat" },
+                                { id: "raised", label: "Raised" },
+                                { id: "sad", label: "Sad" },
+                                { id: "unibrow", label: "Unibrow" },
+                                { id: "up", label: "Up" },
+                              ].map((eb) => (
+                                <button
+                                  key={eb.id}
+                                  type="button"
+                                  onClick={() => setEyebrowsStyle(eb.id)}
+                                  className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${eyebrowsStyle === eb.id ? "border-primary shadow-sm" : "border-border"}`}
+                                  title={eb.label}
+                                >
+                                  <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                    <img
+                                      src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&eyebrows=${eb.id}&eyes=default&mouth=default&topProbability=0`}
+                                      className="w-full h-full object-cover scale-[2.5] translate-y-3"
+                                      alt={eb.label}
+                                    />
+                                  </div>
+                                  <span className="text-[9px] font-medium truncate w-full text-center">
+                                    {eb.label}
+                                  </span>
+                                  {eyebrowsStyle === eb.id && (
+                                    <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                      <Check className="h-2 w-2" />
+                                    </div>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
                           {/* Eyes Selector */}
                           <div className="space-y-1.5">
                             <Label className="text-xs font-semibold text-muted-foreground">
                               Eyes Expression
                             </Label>
-                            <Select value={eyesStyle} onValueChange={setEyesStyle}>
-                              <SelectTrigger className="w-full text-xs">
-                                <SelectValue placeholder="Select eyes style" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {[
-                                  { id: "default", label: "Default" },
-                                  { id: "happy", label: "Happy" },
-                                  { id: "wink", label: "Wink / Playful" },
-                                  { id: "surprised", label: "Surprised" },
-                                  { id: "squint", label: "Squint" },
-                                  { id: "side", label: "Side Eye" },
-                                  { id: "hearts", label: "Loving / Hearts" },
-                                  { id: "close", label: "Closed / Sleepy" },
-                                ].map((eye) => (
-                                  <SelectItem key={eye.id} value={eye.id} className="text-xs">
+                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                              {[
+                                { id: "default", label: "Default" },
+                                { id: "happy", label: "Happy" },
+                                { id: "wink", label: "Wink" },
+                                { id: "surprised", label: "Surprised" },
+                                { id: "squint", label: "Squint" },
+                                { id: "side", label: "Side Eye" },
+                                { id: "hearts", label: "Hearts" },
+                                { id: "close", label: "Closed" },
+                              ].map((eye) => (
+                                <button
+                                  key={eye.id}
+                                  type="button"
+                                  onClick={() => setEyesStyle(eye.id)}
+                                  className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${eyesStyle === eye.id ? "border-primary shadow-sm" : "border-border"}`}
+                                  title={eye.label}
+                                >
+                                  <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                    <img
+                                      src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&eyes=${eye.id}&mouth=default&topProbability=0`}
+                                      className="w-full h-full object-cover scale-[2.5] translate-y-2"
+                                      alt={eye.label}
+                                    />
+                                  </div>
+                                  <span className="text-[9px] font-medium truncate w-full text-center">
                                     {eye.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                                  </span>
+                                  {eyesStyle === eye.id && (
+                                    <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                      <Check className="h-2 w-2" />
+                                    </div>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Nose Selector */}
+                          <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold text-muted-foreground">
+                              Nose
+                            </Label>
+                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                              {[
+                                { id: "default", label: "Default" },
+                                { id: "variant02", label: "Variant 2" },
+                                { id: "variant03", label: "Variant 3" },
+                                { id: "variant04", label: "Variant 4" },
+                                { id: "variant05", label: "Variant 5" },
+                                { id: "variant06", label: "Variant 6" },
+                              ].map((n) => (
+                                <button
+                                  key={n.id}
+                                  type="button"
+                                  onClick={() => setNoseStyle(n.id)}
+                                  className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${noseStyle === n.id ? "border-primary shadow-sm" : "border-border"}`}
+                                  title={n.label}
+                                >
+                                  <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                    <img
+                                      src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&nose=${n.id}&eyes=default&mouth=default&topProbability=0`}
+                                      className="w-full h-full object-cover scale-[3] translate-y-1"
+                                      alt={n.label}
+                                    />
+                                  </div>
+                                  <span className="text-[9px] font-medium truncate w-full text-center">
+                                    {n.label}
+                                  </span>
+                                  {noseStyle === n.id && (
+                                    <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                      <Check className="h-2 w-2" />
+                                    </div>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
                           </div>
 
                           {/* Mouth Selector */}
@@ -1609,27 +1725,42 @@ function SettingsPage() {
                             <Label className="text-xs font-semibold text-muted-foreground">
                               Mouth Expression
                             </Label>
-                            <Select value={mouthStyle} onValueChange={setMouthStyle}>
-                              <SelectTrigger className="w-full text-xs">
-                                <SelectValue placeholder="Select mouth style" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {[
-                                  { id: "default", label: "Default" },
-                                  { id: "smile", label: "Smile" },
-                                  { id: "sad", label: "Sad / Frown" },
-                                  { id: "concerned", label: "Concerned" },
-                                  { id: "disbelief", label: "Disbelief" },
-                                  { id: "grimace", label: "Grimace" },
-                                  { id: "scream", label: "Scream" },
-                                  { id: "tongue", label: "Tongue Out" },
-                                ].map((m) => (
-                                  <SelectItem key={m.id} value={m.id} className="text-xs">
+                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                              {[
+                                { id: "default", label: "Default" },
+                                { id: "smile", label: "Smile" },
+                                { id: "sad", label: "Sad" },
+                                { id: "concerned", label: "Concerned" },
+                                { id: "disbelief", label: "Disbelief" },
+                                { id: "grimace", label: "Grimace" },
+                                { id: "scream", label: "Scream" },
+                                { id: "tongue", label: "Tongue" },
+                              ].map((m) => (
+                                <button
+                                  key={m.id}
+                                  type="button"
+                                  onClick={() => setMouthStyle(m.id)}
+                                  className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${mouthStyle === m.id ? "border-primary shadow-sm" : "border-border"}`}
+                                  title={m.label}
+                                >
+                                  <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                    <img
+                                      src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&mouth=${m.id}&eyes=default&topProbability=0`}
+                                      className="w-full h-full object-cover scale-[2.5] -translate-y-2"
+                                      alt={m.label}
+                                    />
+                                  </div>
+                                  <span className="text-[9px] font-medium truncate w-full text-center">
                                     {m.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                                  </span>
+                                  {mouthStyle === m.id && (
+                                    <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                      <Check className="h-2 w-2" />
+                                    </div>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
                           </div>
 
                           {/* Accessories Selector */}
@@ -1642,39 +1773,57 @@ function SettingsPage() {
                                   ? "Robot Side Attachment"
                                   : "Accessories"}
                               </Label>
-                              <Select value={accessoriesStyle} onValueChange={setAccessoriesStyle}>
-                                <SelectTrigger className="w-full text-xs">
-                                  <SelectValue placeholder="Select accessories" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {(selectedStyle === "bottts"
-                                    ? [
-                                        { id: "none", label: "None" },
-                                        { id: "prescription01", label: "Antenna" },
-                                        { id: "round", label: "Earphones" },
-                                        { id: "sunglasses", label: "Cables" },
-                                      ]
-                                    : [
-                                        { id: "none", label: "None" },
-                                        { id: "prescription01", label: "Regular Glasses" },
-                                        { id: "round", label: "Round Glasses" },
-                                        { id: "sunglasses", label: "Sunglasses" },
-                                        { id: "wayfarer", label: "Wayfarer Shades" },
-                                        { id: "kurt", label: "Round Sunnies" },
-                                      ]
-                                  ).map((acc) => (
-                                    <SelectItem key={acc.id} value={acc.id} className="text-xs">
+                              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                {(selectedStyle === "bottts"
+                                  ? [
+                                      { id: "none", label: "None" },
+                                      { id: "prescription01", label: "Antenna" },
+                                      { id: "round", label: "Earphones" },
+                                      { id: "sunglasses", label: "Cables" },
+                                    ]
+                                  : [
+                                      { id: "none", label: "None" },
+                                      { id: "prescription01", label: "Regular" },
+                                      { id: "round", label: "Round" },
+                                      { id: "sunglasses", label: "Sunglasses" },
+                                      { id: "wayfarer", label: "Wayfarer" },
+                                      { id: "kurt", label: "Kurt" },
+                                    ]
+                                ).map((acc) => (
+                                  <button
+                                    key={acc.id}
+                                    type="button"
+                                    onClick={() => setAccessoriesStyle(acc.id)}
+                                    className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${accessoriesStyle === acc.id ? "border-primary shadow-sm" : "border-border"}`}
+                                    title={acc.label}
+                                  >
+                                    <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                      <img
+                                        src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&accessories=${acc.id === "none" ? "none" : acc.id}&accessoriesProbability=${acc.id === "none" ? "0" : "100"}&eyes=default&mouth=default&topProbability=0`}
+                                        className="w-full h-full object-cover scale-[2.5]"
+                                        alt={acc.label}
+                                      />
+                                    </div>
+                                    <span className="text-[9px] font-medium truncate w-full text-center">
                                       {acc.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                    </span>
+                                    {accessoriesStyle === acc.id && (
+                                      <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                        <Check className="h-2 w-2" />
+                                      </div>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
                           )}
                         </TabsContent>
 
                         {/* Clothing Tab */}
-                        <TabsContent value="clothing" className="space-y-4 pt-3">
+                        <TabsContent
+                          value="clothing"
+                          className="space-y-4 pt-3 max-h-[60vh] overflow-y-auto pr-1 pb-4"
+                        >
                           {/* Clothing Style */}
                           {(selectedStyle === "avataaars" ||
                             selectedStyle === "pixel-art" ||
@@ -1683,26 +1832,41 @@ function SettingsPage() {
                               <Label className="text-xs font-semibold text-muted-foreground">
                                 Clothing Style
                               </Label>
-                              <Select value={clothingStyle} onValueChange={setClothingStyle}>
-                                <SelectTrigger className="w-full text-xs">
-                                  <SelectValue placeholder="Select clothing style" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {[
-                                    { id: "shirtCrewNeck", label: "Crew Neck T-Shirt" },
-                                    { id: "shirtVNeck", label: "V-Neck T-Shirt" },
-                                    { id: "hoodie", label: "Hoodie" },
-                                    { id: "collarAndSweater", label: "Collar & Sweater" },
-                                    { id: "blazerAndShirt", label: "Blazer & Shirt" },
-                                    { id: "overall", label: "Overalls" },
-                                    { id: "graphicShirt", label: "Graphic Tee" },
-                                  ].map((c) => (
-                                    <SelectItem key={c.id} value={c.id} className="text-xs">
+                              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                {[
+                                  { id: "shirtCrewNeck", label: "Crew Neck" },
+                                  { id: "shirtVNeck", label: "V-Neck" },
+                                  { id: "hoodie", label: "Hoodie" },
+                                  { id: "collarAndSweater", label: "Sweater" },
+                                  { id: "blazerAndShirt", label: "Blazer" },
+                                  { id: "overall", label: "Overalls" },
+                                  { id: "graphicShirt", label: "Graphic Tee" },
+                                ].map((c) => (
+                                  <button
+                                    key={c.id}
+                                    type="button"
+                                    onClick={() => setClothingStyle(c.id)}
+                                    className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${clothingStyle === c.id ? "border-primary shadow-sm" : "border-border"}`}
+                                    title={c.label}
+                                  >
+                                    <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                      <img
+                                        src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&clothing=${c.id}&clothingColor=${clothingColor}&skinColor=${skinColor}&topProbability=0`}
+                                        className="w-full h-full object-cover scale-[1.5] translate-y-5"
+                                        alt={c.label}
+                                      />
+                                    </div>
+                                    <span className="text-[9px] font-medium truncate w-full text-center">
                                       {c.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                                    </span>
+                                    {clothingStyle === c.id && (
+                                      <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                        <Check className="h-2 w-2" />
+                                      </div>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
                           )}
 
@@ -1780,10 +1944,18 @@ function SettingsPage() {
                                       : "border-border"
                                   }`}
                                   style={{
-                                    backgroundColor: bg.color === "transparent" ? undefined : bg.color,
-                                    backgroundImage: bg.color === "transparent" ? "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)" : undefined,
-                                    backgroundSize: bg.color === "transparent" ? "8px 8px" : undefined,
-                                    backgroundPosition: bg.color === "transparent" ? "0 0, 0 4px, 4px -4px, -4px 0" : undefined,
+                                    backgroundColor:
+                                      bg.color === "transparent" ? undefined : bg.color,
+                                    backgroundImage:
+                                      bg.color === "transparent"
+                                        ? "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)"
+                                        : undefined,
+                                    backgroundSize:
+                                      bg.color === "transparent" ? "8px 8px" : undefined,
+                                    backgroundPosition:
+                                      bg.color === "transparent"
+                                        ? "0 0, 0 4px, 4px -4px, -4px 0"
+                                        : undefined,
                                   }}
                                   title={bg.label}
                                 >
@@ -1917,6 +2089,7 @@ function SettingsPage() {
                 <div className="flex flex-wrap gap-1.5 mb-2">
                   {SKILL_OPTIONS.map((s) => {
                     const active = skills.includes(s);
+                    const iconInfo = SKILL_LOGOS[s];
                     return (
                       <button
                         key={s}
@@ -1924,8 +2097,19 @@ function SettingsPage() {
                         onClick={() =>
                           setSkills(active ? skills.filter((x) => x !== s) : [...skills, s])
                         }
-                        className={`px-2.5 py-1 rounded-full text-xs border transition ${active ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}
+                        className={`px-2.5 py-1 rounded-full text-xs border transition flex items-center gap-1.5 ${active ? "bg-primary text-primary-foreground border-primary" : "hover:bg-accent"}`}
                       >
+                        {iconInfo?.devicon && (
+                          <img
+                            src={`https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${iconInfo.devicon}`}
+                            alt=""
+                            className={`w-3.5 h-3.5 object-contain ${active ? "brightness-0 invert" : ""}`}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        )}
+                        {iconInfo?.lucide && <iconInfo.lucide className="w-3.5 h-3.5" />}
                         {s}
                       </button>
                     );

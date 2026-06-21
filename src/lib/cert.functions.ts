@@ -312,11 +312,11 @@ async function sendEmail({
   }
   if (!BREVO_API_KEY) hints.push("Missing BREVO_API_KEY");
   if (!GMAIL_EMAIL || !GMAIL_APP_PASSWORD) {
-    hints.push(
-      "Missing GMAIL_APP_PASSWORD",
-    );
+    hints.push("Missing GMAIL_APP_PASSWORD");
   }
-  throw new Error(`Email delivery failed! Please configure an email provider in your .env file (${hints.join(", ")}).`);
+  throw new Error(
+    `Email delivery failed! Please configure an email provider in your .env file (${hints.join(", ")}).`,
+  );
 }
 
 /** Test email sending — reports detailed provider results. */

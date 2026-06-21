@@ -101,7 +101,8 @@ export default function FeaturesManager() {
         <div>
           <h2 className="text-xl font-semibold font-display">Feature Visibility Manager</h2>
           <p className="text-sm text-muted-foreground">
-            Instantly toggle platform modules, enable maintenance modes, and manage role-based access.
+            Instantly toggle platform modules, enable maintenance modes, and manage role-based
+            access.
           </p>
         </div>
       </div>
@@ -127,12 +128,11 @@ export default function FeaturesManager() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <Switch
-                        checked={f.enabled}
-                        onCheckedChange={(c) => handleToggle(f.id, c)}
-                      />
+                      <Switch checked={f.enabled} onCheckedChange={(c) => handleToggle(f.id, c)} />
                       {f.enabled ? (
-                        <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">Enabled</Badge>
+                        <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+                          Enabled
+                        </Badge>
                       ) : (
                         <Badge variant="secondary">Disabled</Badge>
                       )}
@@ -208,12 +208,16 @@ export default function FeaturesManager() {
                   onChange={(e) =>
                     setEditing({
                       ...editing,
-                      roles: e.target.value.split(",").map((r) => r.trim()).filter(Boolean),
+                      roles: e.target.value
+                        .split(",")
+                        .map((r) => r.trim())
+                        .filter(Boolean),
                     })
                   }
                 />
                 <p className="text-xs text-muted-foreground">
-                  Valid roles: super_admin, admin, creator, student. Use "public" or "guest" to allow unauthenticated access.
+                  Valid roles: super_admin, admin, creator, student. Use "public" or "guest" to
+                  allow unauthenticated access.
                 </p>
               </div>
               <DialogFooter className="mt-6">

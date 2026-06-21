@@ -84,7 +84,13 @@ export function DesignerCanvas({
         height: 595,
         transform: `scale(${scale})`,
         ...getPatternStyle(design.background_pattern, design.bg_color, design.accent_color),
-        ...(bgImageUrl ? { backgroundImage: `url(${bgImageUrl})`, backgroundSize: "cover", backgroundPosition: "center" } : {}),
+        ...(bgImageUrl
+          ? {
+              backgroundImage: `url(${bgImageUrl})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }
+          : {}),
         border: borderCss,
       }}
       onClick={(e) => {
@@ -128,8 +134,14 @@ export function DesignerCanvas({
       {/* Ornate Border Extras */}
       {design.border_style === "ornate" && (
         <>
-          <div className="absolute inset-2 pointer-events-none" style={{ border: `3px double ${design.accent_color}aa` }} />
-          <div className="absolute inset-[12px] pointer-events-none" style={{ border: `1px solid ${design.accent_color}44` }} />
+          <div
+            className="absolute inset-2 pointer-events-none"
+            style={{ border: `3px double ${design.accent_color}aa` }}
+          />
+          <div
+            className="absolute inset-[12px] pointer-events-none"
+            style={{ border: `1px solid ${design.accent_color}44` }}
+          />
         </>
       )}
 
@@ -155,8 +167,14 @@ export function DesignerCanvas({
             scale={scale}
             bounds="parent"
             enableResizing={{
-              top: isSelected, right: isSelected, bottom: isSelected, left: isSelected,
-              topRight: isSelected, bottomRight: isSelected, bottomLeft: isSelected, topLeft: isSelected
+              top: isSelected,
+              right: isSelected,
+              bottom: isSelected,
+              left: isSelected,
+              topRight: isSelected,
+              bottomRight: isSelected,
+              bottomLeft: isSelected,
+              topLeft: isSelected,
             }}
             disableDragging={!isSelected}
             onClick={(e) => {
@@ -179,26 +197,40 @@ export function DesignerCanvas({
                 fontStyle: el.fontStyle || "normal",
                 textDecoration: el.textDecoration || "none",
                 display: "flex",
-                justifyContent: el.align === "center" ? "center" : el.align === "right" ? "flex-end" : "flex-start",
+                justifyContent:
+                  el.align === "center"
+                    ? "center"
+                    : el.align === "right"
+                      ? "flex-end"
+                      : "flex-start",
                 alignItems: "center",
                 lineHeight: el.lineHeight || 1.2,
                 letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : "normal",
                 textTransform: el.textTransform || "none",
                 opacity: el.opacity ?? 1,
-                textShadow: el.shadowColor ? `${el.shadowOffsetX || 0}px ${el.shadowOffsetY || 0}px ${el.shadowBlur || 4}px ${el.shadowColor}` : "none",
+                textShadow: el.shadowColor
+                  ? `${el.shadowOffsetX || 0}px ${el.shadowOffsetY || 0}px ${el.shadowBlur || 4}px ${el.shadowColor}`
+                  : "none",
               }}
             >
-              {el.type === "text" && <span dangerouslySetInnerHTML={{ __html: (el.content || "").replace(/\n/g, "<br/>") }} />}
-              
-              {el.type === "image" && (
-                el.url ? (
-                  <img src={el.url} alt="" className="w-full h-full object-contain pointer-events-none" />
+              {el.type === "text" && (
+                <span
+                  dangerouslySetInnerHTML={{ __html: (el.content || "").replace(/\n/g, "<br/>") }}
+                />
+              )}
+
+              {el.type === "image" &&
+                (el.url ? (
+                  <img
+                    src={el.url}
+                    alt=""
+                    className="w-full h-full object-contain pointer-events-none"
+                  />
                 ) : (
                   <div className="w-full h-full bg-muted/50 border-2 border-dashed flex flex-col items-center justify-center text-xs text-muted-foreground">
                     <ImageIcon className="h-6 w-6 opacity-50 mb-1" /> Image
                   </div>
-                )
-              )}
+                ))}
 
               {el.type === "org_logo" && (
                 <div className="w-full h-full bg-muted/30 border-2 border-dashed flex flex-col items-center justify-center text-xs text-muted-foreground rounded-lg">
@@ -215,10 +247,21 @@ export function DesignerCanvas({
               {el.type === "signature" && (
                 <div className="w-full h-full border-b border-dashed flex items-end justify-center pb-1">
                   {el.url ? (
-                     <img src={el.url} alt="Signature" className="h-full object-contain pointer-events-none" />
+                    <img
+                      src={el.url}
+                      alt="Signature"
+                      className="h-full object-contain pointer-events-none"
+                    />
                   ) : (
-                    <div style={{ fontFamily: "'Great Vibes', cursive", fontSize: "1.5em", opacity: 0.7, transform: "rotate(-3deg)" }}>
-                       Signature
+                    <div
+                      style={{
+                        fontFamily: "'Great Vibes', cursive",
+                        fontSize: "1.5em",
+                        opacity: 0.7,
+                        transform: "rotate(-3deg)",
+                      }}
+                    >
+                      Signature
                     </div>
                   )}
                 </div>

@@ -703,10 +703,10 @@ function AdminCertificatesPage() {
             )}
           </div>
         ) : (
-          <DesignerWorkspace 
-             initialTemplate={active as any} 
-             onSave={handleSaveTemplate as any} 
-             onClose={() => setActive(null)} 
+          <DesignerWorkspace
+            initialTemplate={active as any}
+            onSave={handleSaveTemplate as any}
+            onClose={() => setActive(null)}
           />
         )}
       </div>

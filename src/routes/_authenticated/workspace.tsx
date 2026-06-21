@@ -298,7 +298,8 @@ function WorkspacePage() {
                                       src={task.assignee.avatar_url}
                                       className={cn(
                                         "h-6 w-6 rounded-full object-cover",
-                                        getProfileBorderClass(task.assignee.avatar_url) || "ring-2 ring-white"
+                                        getProfileBorderClass(task.assignee.avatar_url) ||
+                                          "ring-2 ring-white",
                                       )}
                                       alt="Assignee"
                                     />

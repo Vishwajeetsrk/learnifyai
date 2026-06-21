@@ -1,7 +1,7 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
-const GMAIL_EMAIL = 'vishwajeetsrk@gmail.com';
-const GMAIL_APP_PASSWORD = 'yuydvvbohchnmani';
+const GMAIL_EMAIL = "vishwajeetsrk@gmail.com";
+const GMAIL_APP_PASSWORD = "yuydvvbohchnmani";
 
 // ─── SVG Icons (inline, no emoji) ─────────────────────────────────────
 const SVG = {
@@ -108,9 +108,10 @@ const SVG = {
 };
 
 // ─── Shared Email Parts ────────────────────────────────────────────────────────
-const LOGO_URL = 'https://raw.githubusercontent.com/Vishwajeetsrk/learnifyai/main/src/assets/learnify-logo.png';
+const LOGO_URL =
+  "https://raw.githubusercontent.com/Vishwajeetsrk/learnifyai/main/src/assets/learnify-logo.png";
 
-function emailHeader(accentColor = '#312e81', accentColor2 = '#1e1b4b') {
+function emailHeader(accentColor = "#312e81", accentColor2 = "#1e1b4b") {
   return `<tr><td style="background:linear-gradient(135deg,${accentColor2} 0%,${accentColor} 60%,${accentColor2} 100%);border-radius:20px 20px 0 0;padding:40px 40px 36px;text-align:center;">
     <img src="${LOGO_URL}" alt="Learnify AI" width="110" height="auto" style="display:block;margin:0 auto 20px;max-width:110px;" />
     <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:50px;padding:5px 16px;margin-bottom:20px;">
@@ -167,22 +168,43 @@ function emailWrapper(content) {
 // ─── WELCOME EMAIL ─────────────────────────────────────────────────────────────
 function makeWelcomeEmail(name) {
   const features = [
-    { icon: SVG.ai, title: 'AI Tutor', desc: 'Personalized tutoring with Gemini, GPT & Groq multi-model AI', color: '#6366f1' },
-    { icon: SVG.code, title: 'Code Playground', desc: 'Run 25+ languages with AI debug assist & web preview', color: '#06b6d4' },
-    { icon: SVG.book, title: 'Expert Courses', desc: 'Video lessons, AI summaries, quizzes & certificates', color: '#8b5cf6' },
-    { icon: SVG.trophy, title: 'Achievements', desc: 'XP, streaks, badges & ranked leaderboards', color: '#f59e0b' },
+    {
+      icon: SVG.ai,
+      title: "AI Tutor",
+      desc: "Personalized tutoring with Gemini, GPT & Groq multi-model AI",
+      color: "#6366f1",
+    },
+    {
+      icon: SVG.code,
+      title: "Code Playground",
+      desc: "Run 25+ languages with AI debug assist & web preview",
+      color: "#06b6d4",
+    },
+    {
+      icon: SVG.book,
+      title: "Expert Courses",
+      desc: "Video lessons, AI summaries, quizzes & certificates",
+      color: "#8b5cf6",
+    },
+    {
+      icon: SVG.trophy,
+      title: "Achievements",
+      desc: "XP, streaks, badges & ranked leaderboards",
+      color: "#f59e0b",
+    },
   ];
 
-  const featureRows = features.map(f => `
+  const featureRows = features.map(
+    (f) => `
     <td width="47%" style="background:#0d1424;border:1px solid #1e2d45;border-left:3px solid ${f.color};border-radius:12px;padding:18px;vertical-align:top;">
       <div style="margin-bottom:10px;">${f.icon}</div>
       <div style="color:#e2e8f0;font-size:14px;font-weight:700;margin-bottom:4px;">${f.title}</div>
       <div style="color:#64748b;font-size:12px;line-height:1.6;">${f.desc}</div>
-    </td>`
+    </td>`,
   );
 
   const content = `
-    ${emailHeader('#312e81', '#1e1b4b')}
+    ${emailHeader("#312e81", "#1e1b4b")}
       <h1 style="margin:0 0 8px;color:#fff;font-size:30px;font-weight:800;letter-spacing:-0.5px;">Welcome aboard!</h1>
       <p style="margin:0;color:#a5b4fc;font-size:16px;">Your AI learning journey starts today.</p>
     </td></tr>
@@ -219,11 +241,20 @@ function makeWelcomeEmail(name) {
       <!-- Quick start steps -->
       <div style="background:#0a0f1e;border:1px solid #1e293b;border-radius:14px;padding:24px;">
         <p style="margin:0 0 16px;color:#6366f1;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">QUICK START GUIDE</p>
-        ${['Complete your profile', 'Explore the AI Tutor', 'Pick your first course', 'Run code in the Playground'].map((step, i) => `
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:${i < 3 ? '12px' : '0'};">
-          <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;text-align:center;line-height:26px;">${i+1}</div>
+        ${[
+          "Complete your profile",
+          "Explore the AI Tutor",
+          "Pick your first course",
+          "Run code in the Playground",
+        ]
+          .map(
+            (step, i) => `
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:${i < 3 ? "12px" : "0"};">
+          <div style="flex-shrink:0;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;text-align:center;line-height:26px;">${i + 1}</div>
           <span style="color:#cbd5e1;font-size:14px;">${step}</span>
-        </div>`).join('')}
+        </div>`,
+          )
+          .join("")}
       </div>
     </td></tr>
     ${emailFooter()}`;
@@ -234,7 +265,7 @@ function makeWelcomeEmail(name) {
 // ─── CERTIFICATE EMAIL ────────────────────────────────────────────────────────
 function makeCertificateEmail(name, courseName, certificateUrl) {
   const content = `
-    ${emailHeader('#451a03', '#1c0a00')}
+    ${emailHeader("#451a03", "#1c0a00")}
       <!-- Achievement Badge SVG -->
       <div style="margin-bottom:20px;">
         <svg xmlns="http://www.w3.org/2000/svg" width="90" height="90" viewBox="0 0 100 100">
@@ -293,7 +324,7 @@ function makeCertificateEmail(name, courseName, certificateUrl) {
         <p style="margin:0 0 10px;color:#94a3b8;font-size:13px;">has successfully completed</p>
         <p style="margin:0 0 16px;color:#fbbf24;font-size:16px;font-weight:700;">${courseName}</p>
         <div style="width:50px;height:1px;background:linear-gradient(90deg,transparent,#f59e0b,transparent);margin:0 auto 14px;"></div>
-        <p style="margin:0;color:#78350f;font-size:11px;">Learnify AI · ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+        <p style="margin:0;color:#78350f;font-size:11px;">Learnify AI · ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
       </div>
 
       <!-- Achievement Stats Row -->
@@ -347,39 +378,40 @@ function makeCertificateEmail(name, courseName, certificateUrl) {
 // ─── SEND TEST CERTIFICATE ─────────────────────────────────────────────────────
 async function main() {
   const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: "smtp.gmail.com",
     port: 587,
     secure: false,
-    auth: { user: GMAIL_EMAIL, pass: GMAIL_APP_PASSWORD }
+    auth: { user: GMAIL_EMAIL, pass: GMAIL_APP_PASSWORD },
   });
 
   // Send Certificate Email
-  console.log('Sending certificate email...');
+  console.log("Sending certificate email...");
   const certHtml = makeCertificateEmail(
-    'Vishwajeet',
-    'Introduction to Artificial Intelligence & Machine Learning',
-    'https://learnifyaitool.vercel.app/certificates/demo-vishwajeet'
+    "Vishwajeet",
+    "Introduction to Artificial Intelligence & Machine Learning",
+    "https://learnifyaitool.vercel.app/certificates/demo-vishwajeet",
   );
 
   const certInfo = await transporter.sendMail({
     from: '"Learnify AI" <vishwajeetsrk@gmail.com>',
     to: GMAIL_EMAIL,
-    subject: 'Your Certificate is Ready — Introduction to Artificial Intelligence & Machine Learning',
-    html: certHtml
+    subject:
+      "Your Certificate is Ready — Introduction to Artificial Intelligence & Machine Learning",
+    html: certHtml,
   });
-  console.log('Certificate email sent! ID:', certInfo.messageId);
+  console.log("Certificate email sent! ID:", certInfo.messageId);
 
   // Also send Welcome Email
-  console.log('Sending welcome email...');
-  const welcomeHtml = makeWelcomeEmail('Vishwajeet');
+  console.log("Sending welcome email...");
+  const welcomeHtml = makeWelcomeEmail("Vishwajeet");
   const welcomeInfo = await transporter.sendMail({
     from: '"Learnify AI" <vishwajeetsrk@gmail.com>',
     to: GMAIL_EMAIL,
-    subject: 'Welcome to Learnify AI — Your journey starts now',
-    html: welcomeHtml
+    subject: "Welcome to Learnify AI — Your journey starts now",
+    html: welcomeHtml,
   });
-  console.log('Welcome email sent! ID:', welcomeInfo.messageId);
-  console.log('\nBoth emails delivered to', GMAIL_EMAIL);
+  console.log("Welcome email sent! ID:", welcomeInfo.messageId);
+  console.log("\nBoth emails delivered to", GMAIL_EMAIL);
 }
 
 main().catch(console.error);

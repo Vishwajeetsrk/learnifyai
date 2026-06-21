@@ -31,6 +31,8 @@ import { format } from "date-fns";
 import { AppShell } from "@/components/AppShell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { SkillBadge } from "@/components/SkillBadge";
 import { Button } from "@/components/ui/button";
 import { getPublicProfile } from "@/lib/profile.functions";
 import { getUserAchievements, xpToLevel, levelToRank } from "@/lib/gamification.functions";
@@ -41,7 +43,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { getProfileBorderClass } from "@/components/ui/avatar";
 import { AnimatedRankCrown } from "@/components/RankSystem";
-import { StreakBadge, XpBadge, CourseBadge, TestBadge, ChallengeBadge } from "@/components/GamificationBadges";
+import {
+  StreakBadge,
+  XpBadge,
+  CourseBadge,
+  TestBadge,
+  ChallengeBadge,
+} from "@/components/GamificationBadges";
 
 export const Route = createFileRoute("/u/$id")({
   head: ({ params }) => ({
@@ -132,7 +140,17 @@ function PublicProfilePage() {
       </AppShell>
     );
 
-  const { profile, subscribers, likes, certificates, enrolled, created, projects, posts, roles = [] } = q.data;
+  const {
+    profile,
+    subscribers,
+    likes,
+    certificates,
+    enrolled,
+    created,
+    projects,
+    posts,
+    roles = [],
+  } = q.data;
   const name = profile.full_name ?? "Learner";
   const initials = name
     .split(" ")
@@ -190,13 +208,22 @@ function PublicProfilePage() {
                   <AnimatedRankCrown rankName={rankInfo.name} className="scale-50 -my-4 -mx-2" />
                   <span className={cn("text-xs font-bold", rankInfo.color)}>{rankInfo.name}</span>
                 </div>
-                <Badge variant="outline" className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-indigo-500 border-indigo-200 dark:border-indigo-900/50 shadow-sm">
+                <Badge
+                  variant="outline"
+                  className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-indigo-500 border-indigo-200 dark:border-indigo-900/50 shadow-sm"
+                >
                   ⚡ Lv. {level}
                 </Badge>
-                <Badge variant="outline" className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-amber-500 border-amber-200 dark:border-amber-900/50 shadow-sm">
+                <Badge
+                  variant="outline"
+                  className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-amber-500 border-amber-200 dark:border-amber-900/50 shadow-sm"
+                >
                   ⭐ {xp.toLocaleString()} XP
                 </Badge>
-                <Badge variant="outline" className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-orange-500 border-orange-200 dark:border-orange-900/50 shadow-sm">
+                <Badge
+                  variant="outline"
+                  className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-orange-500 border-orange-200 dark:border-orange-900/50 shadow-sm"
+                >
                   🔥 {streak} {streak === 1 ? "day streak" : "days streak"}
                 </Badge>
               </div>
@@ -413,7 +440,9 @@ function PublicProfilePage() {
                                   )}
                                 </div>
                                 <div className="text-[10px] text-muted-foreground">
-                                  {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                                  {formatDistanceToNow(new Date(post.created_at), {
+                                    addSuffix: true,
+                                  })}
                                 </div>
                               </div>
                               <div className="ml-auto flex items-center gap-2 text-muted-foreground">
@@ -477,13 +506,17 @@ function PublicProfilePage() {
             <div className="lg:col-span-4 space-y-6">
               {/* Profile Details Box */}
               <div className="bg-card rounded-2xl border p-6 shadow-sm space-y-4">
-                <h3 className="font-display font-semibold text-base border-b pb-2">Profile Details</h3>
+                <h3 className="font-display font-semibold text-base border-b pb-2">
+                  Profile Details
+                </h3>
 
                 <div className="space-y-4 text-sm">
                   {/* Name */}
                   <div>
                     <div className="text-xs text-muted-foreground font-medium">Name</div>
-                    <div className="text-foreground mt-0.5 font-semibold">{profile.full_name || "Learner"}</div>
+                    <div className="text-foreground mt-0.5 font-semibold">
+                      {profile.full_name || "Learner"}
+                    </div>
                   </div>
 
                   {/* Roles */}
@@ -506,7 +539,7 @@ function PublicProfilePage() {
                                     ? "bg-gradient-to-r from-violet-500 to-indigo-600 text-white border-0 shadow-sm"
                                     : isCreatorRole
                                       ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white border-0 shadow-sm"
-                                      : "bg-secondary text-secondary-foreground"
+                                      : "bg-secondary text-secondary-foreground",
                               )}
                             >
                               {r === "super_admin"
@@ -544,7 +577,11 @@ function PublicProfilePage() {
                     <div>
                       <div className="text-xs text-muted-foreground font-medium">Website</div>
                       <a
-                        href={profile.website.startsWith("http") ? profile.website : `https://${profile.website}`}
+                        href={
+                          profile.website.startsWith("http")
+                            ? profile.website
+                            : `https://${profile.website}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline flex items-center gap-1 mt-0.5"
@@ -595,9 +632,7 @@ function PublicProfilePage() {
                       <div className="text-xs text-muted-foreground font-medium mb-1.5">Skills</div>
                       <div className="flex flex-wrap gap-1">
                         {profile.skills.map((skill: string) => (
-                          <Badge key={skill} variant="secondary" className="text-[10px] py-0.5">
-                            {skill}
-                          </Badge>
+                          <SkillBadge key={skill} skill={skill} className="text-[10px]" />
                         ))}
                       </div>
                     </div>
@@ -612,9 +647,11 @@ function PublicProfilePage() {
                           if (!url || typeof url !== "string" || url.trim() === "") return null;
                           let displayName = platform.charAt(0).toUpperCase() + platform.slice(1);
                           let icon = <Globe className="h-3.5 w-3.5" />;
-                          
+
                           if (platform === "github") {
-                            icon = <Github className="h-3.5 w-3.5 text-slate-800 dark:text-slate-100" />;
+                            icon = (
+                              <Github className="h-3.5 w-3.5 text-slate-800 dark:text-slate-100" />
+                            );
                             displayName = "GitHub";
                           } else if (platform === "twitter" || platform === "x") {
                             icon = <Twitter className="h-3.5 w-3.5 text-sky-500" />;
@@ -643,7 +680,9 @@ function PublicProfilePage() {
                             >
                               {icon}
                               <div className="truncate leading-tight">
-                                <div className="font-semibold text-foreground text-[11px]">{displayName}</div>
+                                <div className="font-semibold text-foreground text-[11px]">
+                                  {displayName}
+                                </div>
                                 <div className="text-[9px] text-muted-foreground truncate">
                                   {url.replace(/^https?:\/\/(www\.)?/, "")}
                                 </div>
@@ -670,7 +709,8 @@ function PublicProfilePage() {
                   <div className="py-6 flex justify-center">
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                   </div>
-                ) : !achievementsQ.data || achievementsQ.data.filter((b: any) => b.earned).length === 0 ? (
+                ) : !achievementsQ.data ||
+                  achievementsQ.data.filter((b: any) => b.earned).length === 0 ? (
                   <div className="text-center py-6 text-xs text-muted-foreground">
                     No badges earned yet.
                   </div>
