@@ -57,6 +57,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 📥 **Inbox**          | Direct messaging between coaches and students                                       |
 | ⚙️ **Admin Panel**    | Dashboard, wallet verification, certificates, email templates, content management   |
 | 📧 **Email System**   | Professional branded emails (Welcome, Certificates, Subscriptions) — admin editable |
+| 🪄 **Premium UI/UX**  | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism |
 | 📄 **Legal Pages**    | Privacy Policy, Terms of Service, Refund Policy                                     |
 
 ---
