@@ -372,6 +372,9 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ### v1.4.0 (June 2026)
 
+- 🪄 **Premium 3D Cursor**: Global custom glassmorphism cursor with particle trails and magnetic 3D hover effects.
+- 🎨 **Avatar Customizer Upgraded**: Migrated to DiceBear 9.x API for flawless high-res SVG character customization.
+- 🛡️ **Cashfree SDK CSP Fix**: Configured Content Security Policy in `vercel.json` to safely allow Cashfree checkout scripts.
 - ✅ **Email Template / Admin Page Fix**: Resolved client-side pre-bundling crash on the `/admin` page by converting literal dynamic imports of `nodemailer` to variable-based imports.
 - ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.
 - ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Configured the Team plan with an online checkout option at ₹4,999/month.
