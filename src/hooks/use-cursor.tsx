@@ -27,9 +27,10 @@ export function CursorProvider({ children }: { children: ReactNode }) {
   const [activeElement, setActiveElement] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
-    // Detect touch device
+    // Disable on small screens (mobile/tablet) instead of purely touch
+    // This allows touch-enabled laptops to still see the cursor
     const checkTouch = () => {
-      setIsTouchDevice(window.matchMedia("(pointer: coarse)").matches || "ontouchstart" in window);
+      setIsTouchDevice(window.innerWidth <= 768);
     };
     checkTouch();
     window.addEventListener("resize", checkTouch);

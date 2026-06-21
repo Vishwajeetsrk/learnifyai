@@ -56,7 +56,7 @@ function CourseCardLearners({ courseId }: { courseId: string }) {
             className="inline-block h-5 w-5 rounded-full ring-2 ring-card bg-muted object-cover"
             src={
               l.avatar_url ||
-              `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`
+              `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`
             }
             alt=""
           />

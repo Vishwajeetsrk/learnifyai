@@ -237,7 +237,7 @@ function SettingsPage() {
   ];
 
   function buildCartoonUrl() {
-    const baseUrl = `https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${encodeURIComponent(seed)}`;
+    const baseUrl = `https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${encodeURIComponent(seed)}`;
     let params = "";
 
     if (selectedStyle === "avataaars") {
@@ -1618,7 +1618,7 @@ function SettingsPage() {
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                     <img
-                                      src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&eyebrows=${eb.id}&eyes=default&mouth=default&topProbability=0`}
+                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&eyebrows=${eb.id}&eyes=default&mouth=default&topProbability=0`}
                                       className="w-full h-full object-cover scale-[2.5] translate-y-3"
                                       alt={eb.label}
                                     />
@@ -1661,7 +1661,7 @@ function SettingsPage() {
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                     <img
-                                      src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&eyes=${eye.id}&mouth=default&topProbability=0`}
+                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&eyes=${eye.id}&mouth=default&topProbability=0`}
                                       className="w-full h-full object-cover scale-[2.5] translate-y-2"
                                       alt={eye.label}
                                     />
@@ -1702,7 +1702,7 @@ function SettingsPage() {
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                     <img
-                                      src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&nose=${n.id}&eyes=default&mouth=default&topProbability=0`}
+                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&nose=${n.id}&eyes=default&mouth=default&topProbability=0`}
                                       className="w-full h-full object-cover scale-[3] translate-y-1"
                                       alt={n.label}
                                     />
@@ -1745,7 +1745,7 @@ function SettingsPage() {
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                     <img
-                                      src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&mouth=${m.id}&eyes=default&topProbability=0`}
+                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&mouth=${m.id}&eyes=default&topProbability=0`}
                                       className="w-full h-full object-cover scale-[2.5] -translate-y-2"
                                       alt={m.label}
                                     />
@@ -1799,7 +1799,7 @@ function SettingsPage() {
                                   >
                                     <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                       <img
-                                        src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&accessories=${acc.id === "none" ? "none" : acc.id}&accessoriesProbability=${acc.id === "none" ? "0" : "100"}&eyes=default&mouth=default&topProbability=0`}
+                                        src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&accessories=${acc.id === "none" ? "none" : acc.id}&accessoriesProbability=${acc.id === "none" ? "0" : "100"}&eyes=default&mouth=default&topProbability=0`}
                                         className="w-full h-full object-cover scale-[2.5]"
                                         alt={acc.label}
                                       />
@@ -1851,7 +1851,7 @@ function SettingsPage() {
                                   >
                                     <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                       <img
-                                        src={`https://api.dicebear.com/7.x/${selectedStyle}/svg?seed=${seed}&clothing=${c.id}&clothingColor=${clothingColor}&skinColor=${skinColor}&topProbability=0`}
+                                        src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&clothing=${c.id}&clothingColor=${clothingColor}&skinColor=${skinColor}&topProbability=0`}
                                         className="w-full h-full object-cover scale-[1.5] translate-y-5"
                                         alt={c.label}
                                       />

@@ -99,15 +99,31 @@ export function InteractiveCursor() {
     document.addEventListener("mouseleave", onMouseLeave);
     document.addEventListener("mouseenter", onMouseEnter);
 
+    // Apply custom cursor class
+    document.body.classList.add("custom-cursor-active");
+
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseleave", onMouseLeave);
       document.removeEventListener("mouseenter", onMouseEnter);
+      document.body.classList.remove("custom-cursor-active");
     };
   }, [isTouchDevice, prefersReducedMotion, mouseX, mouseY, velocityX, velocityY, setVariant, setActiveElement]);
 
-  if (isTouchDevice || prefersReducedMotion) return null;
-  if (!isVisible || variant === "none") return null;
+  if (isTouchDevice || prefersReducedMotion) {
+    document.body.classList.remove("custom-cursor-active");
+    return null;
+  }
+  
+  if (!isVisible || variant === "none") {
+    // Only hide the custom cursor, but let CSS know it's still running, 
+    // Wait, if variant is "none", we want native cursor back!
+    // So remove the class temporarily
+    document.body.classList.remove("custom-cursor-active");
+    return null;
+  } else {
+    document.body.classList.add("custom-cursor-active");
+  }
 
   // Variants design
   const variants = {
@@ -116,36 +132,33 @@ export function InteractiveCursor() {
       height: 24,
       x: "-50%",
       y: "-50%",
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
+      backgroundColor: "rgba(100, 100, 255, 0.2)",
       backdropFilter: "blur(2px)",
-      border: "1px solid rgba(255, 255, 255, 0.2)",
+      border: "1px solid rgba(100, 150, 255, 0.4)",
       borderRadius: "50%",
       scale: 1,
-      mixBlendMode: "difference" as any,
     },
     button: {
       width: 48,
       height: 48,
       x: "-50%",
       y: "-50%",
-      backgroundColor: "rgba(255, 255, 255, 0.15)",
+      backgroundColor: "rgba(100, 150, 255, 0.15)",
       backdropFilter: "blur(4px)",
-      border: "1px solid rgba(255, 255, 255, 0.4)",
+      border: "1px solid rgba(100, 150, 255, 0.5)",
       borderRadius: "50%",
       scale: 1.2,
-      mixBlendMode: "difference" as any,
     },
     text: {
       width: 4,
       height: 24,
       x: "-50%",
       y: "-50%",
-      backgroundColor: "rgba(255, 255, 255, 0.8)",
+      backgroundColor: "rgba(100, 150, 255, 0.8)",
       borderRadius: "2px",
       scale: 1,
       border: "none",
       backdropFilter: "none",
-      mixBlendMode: "difference" as any,
     },
     magnetic: {
       width: 64,
@@ -153,10 +166,9 @@ export function InteractiveCursor() {
       x: "-50%",
       y: "-50%",
       backgroundColor: "transparent",
-      border: "2px solid rgba(255, 255, 255, 0.5)",
+      border: "2px solid rgba(100, 150, 255, 0.5)",
       borderRadius: "50%",
       scale: 1.5,
-      mixBlendMode: "difference" as any,
     }
   };
 
