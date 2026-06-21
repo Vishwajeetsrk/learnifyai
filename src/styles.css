@@ -328,3 +328,33 @@ html.dark[data-theme="noir"] {
     box-shadow: var(--shadow-card);
   }
 }
+
+/* Interactive Cursor System */
+@media (hover: hover) and (pointer: fine) {
+  body, 
+  a, 
+  button,
+  [role="button"],
+  [data-magnetic] {
+    cursor: none !important;
+  }
+  
+  /* Opt-out elements explicitly */
+  .monaco-editor,
+  .monaco-editor *,
+  .cm-editor,
+  .cm-editor *,
+  [data-editor],
+  [data-editor] *,
+  input,
+  textarea {
+    cursor: auto !important;
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    cursor: text !important;
+  }
+}

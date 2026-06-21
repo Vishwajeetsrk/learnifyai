@@ -170,10 +170,12 @@ import { AuthProvider } from "../hooks/use-auth";
 import { ThemeProvider } from "../hooks/use-theme";
 import { MotionPrefProvider } from "../hooks/use-motion-pref";
 import { FeatureProvider } from "../hooks/use-features";
+import { CursorProvider } from "../hooks/use-cursor";
 import { ThemeSync } from "../components/ThemeSync";
 import { Toaster } from "../components/ui/sonner";
 import { NavigationProgress } from "../components/NavigationProgress";
 import { PageTransition } from "../components/PageTransition";
+import { InteractiveCursor } from "../components/ui/InteractiveCursor";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -182,17 +184,20 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <MotionPrefProvider>
-          <AuthProvider>
-            <FeatureProvider>
-              <ThemeSync />
-              <NavigationProgress />
-              <PageTransition>
-                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-                <Outlet />
-              </PageTransition>
-              <Toaster richColors position="top-right" />
-            </FeatureProvider>
-          </AuthProvider>
+          <CursorProvider>
+            <AuthProvider>
+              <FeatureProvider>
+                <ThemeSync />
+                <NavigationProgress />
+                <InteractiveCursor />
+                <PageTransition>
+                  {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                  <Outlet />
+                </PageTransition>
+                <Toaster richColors position="top-right" />
+              </FeatureProvider>
+            </AuthProvider>
+          </CursorProvider>
         </MotionPrefProvider>
       </ThemeProvider>
     </QueryClientProvider>
