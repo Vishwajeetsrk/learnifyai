@@ -99,31 +99,28 @@ export function InteractiveCursor() {
     document.addEventListener("mouseleave", onMouseLeave);
     document.addEventListener("mouseenter", onMouseEnter);
 
-    // Apply custom cursor class
-    document.body.classList.add("custom-cursor-active");
-
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseleave", onMouseLeave);
       document.removeEventListener("mouseenter", onMouseEnter);
-      document.body.classList.remove("custom-cursor-active");
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove("custom-cursor-active");
+      }
     };
   }, [isTouchDevice, prefersReducedMotion, mouseX, mouseY, velocityX, velocityY, setVariant, setActiveElement]);
 
-  if (isTouchDevice || prefersReducedMotion) {
-    document.body.classList.remove("custom-cursor-active");
-    return null;
-  }
-  
-  if (!isVisible || variant === "none") {
-    // Only hide the custom cursor, but let CSS know it's still running, 
-    // Wait, if variant is "none", we want native cursor back!
-    // So remove the class temporarily
-    document.body.classList.remove("custom-cursor-active");
-    return null;
-  } else {
-    document.body.classList.add("custom-cursor-active");
-  }
+  // Handle global class for native cursor hiding safely (SSR friendly)
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (isTouchDevice || prefersReducedMotion || !isVisible || variant === "none") {
+      document.body.classList.remove("custom-cursor-active");
+    } else {
+      document.body.classList.add("custom-cursor-active");
+    }
+  }, [isTouchDevice, prefersReducedMotion, isVisible, variant]);
+
+  if (isTouchDevice || prefersReducedMotion) return null;
+  if (!isVisible || variant === "none") return null;
 
   // Variants design
   const variants = {
