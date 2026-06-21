@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Brain, Sparkles, FileText, Check, Send } from "lucide-react";
+import { Brain, Sparkles, FileText, Check, Send, CreditCard, Download } from "lucide-react";
+import { toast } from "sonner";
 
 const tabs = [
   {
@@ -20,6 +21,12 @@ const tabs = [
     label: "Smart Notes",
     icon: FileText,
     desc: "Auto-generate flashcards, summaries, and slide decks from any lesson.",
+  },
+  {
+    id: "billing",
+    label: "Pricing & Billing",
+    icon: CreditCard,
+    desc: "Select subscription plans, manage credits, and download PDF invoices instantly.",
   },
 ] as const;
 
@@ -186,6 +193,60 @@ function NotesDemo() {
   );
 }
 
+function BillingDemo() {
+  const [downloaded, setDownloaded] = useState(false);
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-xl border border-border/50 bg-card/50 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/15">
+            Active Plan
+          </span>
+          <h4 className="font-semibold text-lg mt-1.5">Learnify Pro Plan</h4>
+          <p className="text-xs text-muted-foreground">₹499 billed monthly · Next renewal July 15, 2026</p>
+        </div>
+        <div className="flex flex-col items-start sm:items-end gap-1">
+          <span className="text-sm font-semibold text-primary">10,000 / 10,000</span>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">AI Credits</span>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border/50 bg-card/30 overflow-hidden">
+        <div className="px-4 py-2.5 border-b border-border/40 bg-muted/20 text-[10px] font-bold tracking-wider text-muted-foreground uppercase flex justify-between">
+          <span>Recent Invoices</span>
+          <span>Status</span>
+        </div>
+        <div className="divide-y divide-border/30">
+          <div className="p-4 flex items-center justify-between text-xs">
+            <div>
+              <p className="font-mono font-medium text-foreground">INV-202606-0082</p>
+              <p className="text-[10px] text-muted-foreground">June 21, 2026</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="font-semibold">₹499.00</span>
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/15">
+                Paid
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setDownloaded(true);
+                  toast.success("Demo Mode: Simulated Pro Invoice downloaded successfully!");
+                }}
+                className="p-1.5 rounded-lg text-primary hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                title="Download Invoice"
+              >
+                {downloaded ? <Check className="h-4 w-4 text-emerald-500 animate-bounce" /> : <Download className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function InteractiveDemo() {
   const [active, setActive] = useState<TabId>("tutor");
   const current = tabs.find((t) => t.id === active)!;
@@ -261,6 +322,7 @@ export function InteractiveDemo() {
             {active === "tutor" && <TutorDemo />}
             {active === "quiz" && <QuizDemo />}
             {active === "notes" && <NotesDemo />}
+            {active === "billing" && <BillingDemo />}
           </motion.div>
         </AnimatePresence>
       </div>
