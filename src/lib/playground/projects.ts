@@ -385,3 +385,95 @@ export const saveEditorCode = createServerFn({ method: "POST" })
 
     return { projectId: project.id, created: true };
   });
+
+export const bulkSyncFiles = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) =>
+    z
+      .object({
+        projectId: z.string().uuid(),
+        files: z.record(z.string(), z.string()), // fullPath -> content
+      })
+      .parse(data),
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const supabase = context.supabase as any;
+    const { userId } = context;
+    const { data: project } = await supabase
+      .from("playground_projects")
+      .select("user_id")
+      .eq("id", data.projectId)
+      .single();
+    if (!project || project.user_id !== userId) throw new Error("Not authorized");
+
+    // 1. Fetch existing files
+    const { data: existingFiles } = await supabase
+      .from("playground_files")
+      .select("id, name, path")
+      .eq("project_id", data.projectId);
+
+    const existingMap = new Map();
+    for (const f of existingFiles || []) {
+      const fullPath = (f.path === "/" ? "" : f.path) + "/" + f.name;
+      existingMap.set(fullPath, f.id);
+    }
+
+    // 2. Process incoming files
+    const toInsert = [];
+    const toUpdate = [];
+    const incomingPaths = new Set();
+
+    for (const [fullPath, content] of Object.entries(data.files)) {
+      incomingPaths.add(fullPath);
+      const parts = fullPath.split("/");
+      const name = parts.pop() || "untitled";
+      const path = parts.join("/") || "/";
+      
+      const ext = name.split('.').pop() || "txt";
+      let language = "text";
+      if (ext === "js" || ext === "jsx") language = "javascript";
+      if (ext === "ts" || ext === "tsx") language = "typescript";
+      if (ext === "css") language = "css";
+      if (ext === "html") language = "html";
+      if (ext === "json") language = "json";
+
+      if (existingMap.has(fullPath)) {
+        toUpdate.push({
+          id: existingMap.get(fullPath),
+          content,
+          updated_at: new Date().toISOString(),
+        });
+      } else {
+        toInsert.push({
+          project_id: data.projectId,
+          name,
+          path,
+          content,
+          language,
+        });
+      }
+    }
+
+    // 3. Find files to delete
+    const toDelete = [];
+    for (const [fullPath, id] of existingMap.entries()) {
+      if (!incomingPaths.has(fullPath)) {
+        toDelete.push(id);
+      }
+    }
+
+    // 4. Execute DB operations
+    if (toInsert.length > 0) {
+      await supabase.from("playground_files").insert(toInsert);
+    }
+    for (const row of toUpdate) {
+      await supabase.from("playground_files").update({ content: row.content, updated_at: row.updated_at }).eq("id", row.id);
+    }
+    if (toDelete.length > 0) {
+      await supabase.from("playground_files").delete().in("id", toDelete);
+    }
+
+    await supabase.from("playground_projects").update({ updated_at: new Date().toISOString() }).eq("id", data.projectId);
+
+    return { success: true };
+  });
