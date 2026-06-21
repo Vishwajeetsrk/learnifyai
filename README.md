@@ -347,7 +347,20 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
-### v3.0.0 (June 2026) - Major UI/UX Polish & Gamification Upgrade
+### v3.1.0 (June 2026) - Critical Fixes & Course Enrollment Logic
+
+- ✅ **Payment Auth Fixed**: Resolved "Unauthorized: Invalid token" error by improving auth middleware to handle multiple Supabase cookie names (`sb-access-token`, `sb-refresh-token`, `supabase-auth-token`, `sb-auth-token`, and any `sb-*` prefixed cookies) with robust fallback parsing.
+- ✅ **Course Enrollment Logic**: 
+  - Free courses: Fully accessible immediately upon starting
+  - Paid courses: Locked until enrollment with active/completed payment status
+  - Preview lessons: Always free (first lesson + any `is_preview` lessons)
+  - Clear enrollment messaging for free vs paid courses
+  - Progress display shows "Enrollment pending" for unverified payments
+- ✅ **Cursor System**: Fixed touch detection - now only disables custom cursor on actual touch-only mobile devices (not touch-enabled laptops), using `'ontouchstart' in window || navigator.maxTouchPoints > 0` combined with screen size check.
+- ✅ **AI Tools Markdown**: Enhanced `MarkdownBlock` with proper heading styles, code blocks, lists, blockquotes, and horizontal rules using `rehypeRaw`.
+- ✅ **Video Player**: Owner playback controls working, PDF/Word preview support added.
+- ✅ **Profile Page**: Edit/Delete post functionality added, projects now display correctly.
+- ✅ **Mobile Responsiveness**: Ongoing fixes for all pages to prevent horizontal overflow.
 
 - ✅ **Certificate Designer Pro 4.0**: Completely overhauled the admin certificate editor into a premium drag-and-drop Canva-style workspace using `react-rnd`. Features include real-time layout rendering, contextual properties panels (fonts, colors, borders), layer management, AI optimization stubs, and high-fidelity PDF/PNG export using `html2canvas-pro` and `jspdf`.
 - ✅ **Production Safe Archival Audit**: Conducted a massive 15-step repository static analysis. Moved unused files to a safe `/archive-review/` folder instead of deleting them. Polished UI components and cleaned up duplicate code.
