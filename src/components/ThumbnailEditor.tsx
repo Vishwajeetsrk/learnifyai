@@ -31,6 +31,7 @@ import {
   Download,
   Wand2,
   ZoomIn,
+  ZoomOut,
   Type,
   Image as ImageIcon,
   Square,
@@ -339,12 +340,13 @@ export function ThumbnailEditor({
         <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/40 shrink-0">
           <div className="flex items-center gap-2">
             <Scissors className="h-4 w-4 text-primary" />
-            <span className="font-semibold text-sm">Thumbnail Editor 2.0</span>
+            <span className="font-semibold text-sm">Thumbnail Editor</span>
             <div className="h-4 w-[1px] bg-border mx-2" />
-            <Button variant="ghost" size="icon" className="h-8 w-8"><Undo className="h-4 w-4" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8"><Redo className="h-4 w-4" /></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWorkspaceZoom(1)}><ZoomIn className="h-4 w-4" /></Button>
-            <div className="text-xs text-muted-foreground w-12 text-center">{Math.round(workspaceZoom * 100)}%</div>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWorkspaceZoom(z => Math.max(0.1, z - 0.1))}><ZoomOut className="h-4 w-4" /></Button>
+            <div className="text-xs text-muted-foreground w-12 text-center select-none cursor-pointer hover:text-primary" onClick={() => setWorkspaceZoom(0.45)} title="Reset to Fit">
+              {Math.round(workspaceZoom * 100)}%
+            </div>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setWorkspaceZoom(z => Math.min(3, z + 0.1))}><ZoomIn className="h-4 w-4" /></Button>
           </div>
           
           <div className="flex items-center gap-2">
@@ -384,7 +386,19 @@ export function ThumbnailEditor({
             <Button variant="ghost" size="icon" className="h-10 w-10 flex-col gap-1" onClick={addShapeLayer}>
               <Square className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-10 w-10 flex-col gap-1">
+            <Button variant="ghost" size="icon" className="h-10 w-10 flex-col gap-1" title="Add Image URL" onClick={() => {
+              const url = window.prompt("Enter image URL:");
+              if (url) {
+                const l: ImageLayer = {
+                  id: generateId(), type: "image", src: url, x: targetWidth / 2 - 200, y: targetHeight / 2 - 200,
+                  width: 400, height: 400, rotation: 0, locked: false, hidden: false, zIndex: layers.length + 1,
+                  flipH: false, flipV: false, fit: "cover",
+                  filters: { brightness: 100, contrast: 100, saturation: 100, blur: 0, sepia: 0, grayscale: 0, invert: 0 }
+                };
+                setLayers([...layers, l]);
+                setSelectedId(l.id);
+              }
+            }}>
               <ImageIcon className="h-4 w-4" />
             </Button>
           </div>
@@ -655,9 +669,13 @@ export function ThumbnailEditor({
                         <Label className="text-[10px] text-muted-foreground">Rotation</Label>
                         <Input type="number" value={selectedLayer.rotation} onChange={(e) => updateLayer(selectedLayer.id, { rotation: Number(e.target.value) })} className="h-8 text-xs" />
                       </div>
-                      <div className="space-y-1">
-                        <Label className="text-[10px] text-muted-foreground">Z-Index</Label>
-                        <Input type="number" value={selectedLayer.zIndex} onChange={(e) => updateLayer(selectedLayer.id, { zIndex: Number(e.target.value) })} className="h-8 text-xs" />
+                      <div className="space-y-1 col-span-2">
+                        <Label className="text-[10px] text-muted-foreground">Layer Order (Z-Index)</Label>
+                        <div className="flex items-center gap-2">
+                           <Button variant="outline" size="sm" className="h-8 px-2 flex-1 text-xs" onClick={() => updateLayer(selectedLayer.id, { zIndex: Math.max(0, selectedLayer.zIndex - 1) })}>Move Back</Button>
+                           <span className="text-xs font-mono w-6 text-center">{selectedLayer.zIndex}</span>
+                           <Button variant="outline" size="sm" className="h-8 px-2 flex-1 text-xs" onClick={() => updateLayer(selectedLayer.id, { zIndex: selectedLayer.zIndex + 1 })}>Move Forward</Button>
+                        </div>
                       </div>
                     </div>
 
