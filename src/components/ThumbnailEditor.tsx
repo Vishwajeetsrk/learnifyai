@@ -43,6 +43,11 @@ import {
   EyeOff,
   Copy,
   Trash2,
+  Bold,
+  Italic,
+  Underline,
+  Strikethrough,
+  Smile,
 } from "lucide-react";
 import html2canvas from "html2canvas-pro";
 import { Rnd } from "react-rnd";
@@ -108,6 +113,8 @@ interface TextLayer extends BaseLayer {
   text: string;
   fontFamily: string;
   fontWeight: string;
+  fontStyle?: "normal" | "italic";
+  textDecoration?: "none" | "underline" | "line-through";
   fontSize: number;
   letterSpacing: number;
   lineHeight: number;
@@ -225,6 +232,8 @@ export function ThumbnailEditor({
       text: "COURSE TITLE",
       fontFamily: "Inter",
       fontWeight: "900",
+      fontStyle: "normal",
+      textDecoration: "none",
       fontSize: 140,
       letterSpacing: -2,
       lineHeight: 1.1,
@@ -498,6 +507,8 @@ export function ThumbnailEditor({
                         width: "100%", height: "100%",
                         fontFamily: `"${l.fontFamily}", sans-serif`,
                         fontWeight: l.fontWeight,
+                        fontStyle: l.fontStyle || "normal",
+                        textDecoration: l.textDecoration || "none",
                         fontSize: `${l.fontSize}px`,
                         letterSpacing: `${l.letterSpacing}px`,
                         lineHeight: l.lineHeight,
@@ -710,6 +721,23 @@ export function ThumbnailEditor({
                                   {["300","400","500","600","700","800","900"].map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}
                                 </SelectContent>
                               </Select>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Formatting</Label>
+                            <div className="flex gap-1">
+                              <Button variant={Number(l.fontWeight) >= 700 ? "default" : "outline"} size="icon" className="h-8 w-8" onClick={() => updateLayer(l.id, { fontWeight: Number(l.fontWeight) >= 700 ? "400" : "900" })}><Bold className="h-4 w-4" /></Button>
+                              <Button variant={l.fontStyle === "italic" ? "default" : "outline"} size="icon" className="h-8 w-8" onClick={() => updateLayer(l.id, { fontStyle: l.fontStyle === "italic" ? "normal" : "italic" })}><Italic className="h-4 w-4" /></Button>
+                              <Button variant={l.textDecoration === "underline" ? "default" : "outline"} size="icon" className="h-8 w-8" onClick={() => updateLayer(l.id, { textDecoration: l.textDecoration === "underline" ? "none" : "underline" })}><Underline className="h-4 w-4" /></Button>
+                              <Button variant={l.textDecoration === "line-through" ? "default" : "outline"} size="icon" className="h-8 w-8" onClick={() => updateLayer(l.id, { textDecoration: l.textDecoration === "line-through" ? "none" : "line-through" })}><Strikethrough className="h-4 w-4" /></Button>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs">Quick Insert (Emojis)</Label>
+                            <div className="flex flex-wrap gap-1">
+                              {["🔥", "🚀", "💡", "⭐", "✅", "⚠️", "⚡", "✨", "❤️", "🎯"].map(e => (
+                                <Button key={e} variant="outline" size="sm" className="h-8 px-2" onClick={() => updateLayer(l.id, { text: l.text + e })}>{e}</Button>
+                              ))}
                             </div>
                           </div>
                           <div className="space-y-2">
