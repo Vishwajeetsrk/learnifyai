@@ -58,6 +58,7 @@ import { History, AlertTriangle, Scissors, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { AppShell } from "@/components/AppShell";
+import { FilePreview } from "@/components/FilePreview";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { buildCourseVideoEmbedUrl } from "@/lib/course-player";
@@ -2059,6 +2060,7 @@ function SubmissionsReviewDialog({
 }) {
   const qc = useQueryClient();
   const [feedbackMap, setFeedbackMap] = useState<Record<string, string>>({});
+  const [previewSubId, setPreviewSubId] = useState<string | null>(null);
   const courseId = course?.id;
 
   const q = useQuery({
@@ -2140,14 +2142,24 @@ function SubmissionsReviewDialog({
                     </a>
                   )}
                   {s.attachment_url && (
-                    <a
-                      className="text-primary underline inline-flex items-center gap-1"
-                      href={s.attachment_url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Paperclip className="h-3 w-3" /> File
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <a
+                        className="text-primary underline inline-flex items-center gap-1"
+                        href={s.attachment_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Paperclip className="h-3 w-3" /> File
+                      </a>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 text-[10px]"
+                        onClick={() => setPreviewSubId(previewSubId === s.id ? null : s.id)}
+                      >
+                        {previewSubId === s.id ? "Hide" : "Preview"}
+                      </Button>
+                    </div>
                   )}
                 </div>
                 <Textarea
@@ -2156,6 +2168,11 @@ function SubmissionsReviewDialog({
                   defaultValue={s.feedback ?? ""}
                   onChange={(e) => setFeedbackMap((m) => ({ ...m, [s.id]: e.target.value }))}
                 />
+                {previewSubId === s.id && s.attachment_url && (
+                  <div style={{ height: "350px" }}>
+                    <FilePreview url={s.attachment_url} />
+                  </div>
+                )}
                 <div className="flex flex-wrap gap-2">
                   <Button
                     size="sm"

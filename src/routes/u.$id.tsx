@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
 import {
   Award,
   BookOpen,
@@ -25,7 +26,16 @@ import {
   Code2,
   Sparkles,
   Brain,
+  MoreHorizontal,
+  Trash2,
+  FileText,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
 import { format } from "date-fns";
 import { AppShell } from "@/components/AppShell";
@@ -42,6 +52,7 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { getProfileBorderClass } from "@/components/ui/avatar";
+import { ProfileSkeleton } from "@/components/Skeletons";
 import { AnimatedRankCrown } from "@/components/RankSystem";
 import {
   StreakBadge,
@@ -74,6 +85,22 @@ function PublicProfilePage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+
+  const deletePost = async (postId: string) => {
+    if (!window.confirm("Delete this post?")) return;
+    const { error } = await supabase
+      .from("posts")
+      .delete()
+      .eq("id", postId);
+    if (error) {
+      toast.error("Failed to delete post");
+    } else {
+      toast.success("Post deleted");
+      qc.invalidateQueries({ queryKey: ["public-profile", id] });
+    }
+  };
   const fetchProfile = useServerFn(getPublicProfile);
   const q = useQuery({
     queryKey: ["public-profile", id],
@@ -128,8 +155,8 @@ function PublicProfilePage() {
   if (q.isLoading)
     return (
       <AppShell>
-        <div className="py-20 grid place-items-center">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        <div className="px-4 md:px-10 py-8">
+          <ProfileSkeleton />
         </div>
       </AppShell>
     );
@@ -447,13 +474,47 @@ function PublicProfilePage() {
                                   })}
                                 </div>
                               </div>
-                              <div className="ml-auto flex items-center gap-2 text-muted-foreground">
+                              <div className="ml-auto flex items-center gap-3 text-muted-foreground">
                                 <span className="flex items-center gap-1 text-[10px]">
                                   <Heart className="h-3 w-3" /> {post.likes?.length ?? 0}
                                 </span>
                                 <span className="flex items-center gap-1 text-[10px]">
                                   <MessageSquare className="h-3 w-3" /> {post.comments?.length ?? 0}
                                 </span>
+                                {(user?.id === post.author_id ||
+                                  roles.includes("admin") ||
+                                  roles.includes("super_admin") ||
+                                  user?.email === "vishwajeetsrk@gmail.com") && (
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6 text-muted-foreground hover:text-foreground rounded-full"
+                                      >
+                                        <MoreHorizontal className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      {user?.id === post.author_id && post.post_type !== "poll" && (
+                                        <DropdownMenuItem
+                                          onClick={() => {
+                                            setEditingPostId(post.id);
+                                            setEditContent(post.content);
+                                          }}
+                                        >
+                                          <FileText className="h-3.5 w-3.5 mr-2" /> Edit Post
+                                        </DropdownMenuItem>
+                                      )}
+                                      <DropdownMenuItem
+                                        className="text-destructive focus:bg-destructive/10"
+                                        onClick={() => deletePost(post.id)}
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete Post
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                )}
                               </div>
                             </div>
                             {isPoll && pollData ? (
@@ -469,6 +530,42 @@ function PublicProfilePage() {
                                       {option}
                                     </div>
                                   ))}
+                                </div>
+                              </div>
+                            ) : editingPostId === post.id ? (
+                              <div className="mb-3 space-y-2">
+                                <textarea
+                                  value={editContent}
+                                  onChange={(e) => setEditContent(e.target.value)}
+                                  rows={4}
+                                  className="w-full text-xs p-2.5 rounded-xl border bg-background resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    className="h-7 text-[10px]"
+                                    onClick={async () => {
+                                      if (!editContent.trim()) return toast.error("Content cannot be empty");
+                                      const { error } = await supabase
+                                        .from("posts")
+                                        .update({ content: editContent.trim() })
+                                        .eq("id", post.id);
+                                      if (error) return toast.error(error.message);
+                                      toast.success("Post updated");
+                                      setEditingPostId(null);
+                                      qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                                    }}
+                                  >
+                                    Save
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-7 text-[10px]"
+                                    onClick={() => setEditingPostId(null)}
+                                  >
+                                    Cancel
+                                  </Button>
                                 </div>
                               </div>
                             ) : (

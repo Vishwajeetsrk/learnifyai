@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import jsPDF from "jspdf";
+import { autoTable } from "jspdf-autotable";
 import {
   CreditCard,
   Receipt,
@@ -40,6 +42,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { BillingSkeleton } from "@/components/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   head: () => ({ meta: [{ title: "Billing — Learnify AI" }] }),
@@ -77,6 +80,155 @@ function BillingPage() {
   const [resumeDialogOpen, setResumeDialogOpen] = useState(false);
   const doCancel = useServerFn(cancelSubscription);
   const doResume = useServerFn(resumeSubscription);
+
+  async function downloadInvoice(inv: any) {
+    if (!user) return;
+    try {
+      const doc = new jsPDF();
+
+      // Check user's own branding settings (Team plan admins can customize)
+      const { data: profileBrand } = await supabase
+        .from("profiles")
+        .select(
+          "invoice_company_name, invoice_legal_name, invoice_gstin, invoice_prefix, invoice_footer, invoice_logo_url, invoice_contact, org_name, org_logo_url",
+        )
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const siteSettingsQuery = await supabase
+        .from("site_settings")
+        .select("key,value")
+        .in("key", [
+          "invoice_company_name",
+          "invoice_legal_name",
+          "invoice_gstin",
+          "invoice_prefix",
+          "invoice_footer",
+          "invoice_logo_url",
+          "invoice_contact",
+        ]);
+        
+      const siteSettings: Record<string, string> = {};
+      for (const r of siteSettingsQuery.data ?? []) siteSettings[r.key] = r.value || "";
+
+      const companyName =
+        profileBrand?.invoice_company_name || siteSettings.invoice_company_name || "Learnify AI";
+      const legalName =
+        profileBrand?.invoice_legal_name || siteSettings.invoice_legal_name || "Learnify EdTech Pvt. Ltd.";
+      const gstin = profileBrand?.invoice_gstin || siteSettings.invoice_gstin || "29XXXXX1234X1Z5";
+      const footerText =
+        profileBrand?.invoice_footer ||
+        siteSettings.invoice_footer ||
+        "This is a computer generated invoice and does not require a signature.";
+      const logoUrl =
+        profileBrand?.invoice_logo_url || profileBrand?.org_logo_url || siteSettings.invoice_logo_url;
+      const contact = profileBrand?.invoice_contact || siteSettings.invoice_contact;
+
+      // Logo (if configured) — fetch and convert to base64
+      let logoHeight = 0;
+      if (logoUrl) {
+        try {
+          const resp = await fetch(logoUrl);
+          const blob = await resp.blob();
+          const base64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          doc.addImage(base64, "PNG", 14, 10, 36, 36);
+          logoHeight = 36;
+        } catch (e) {
+          console.warn("Invoice logo load failed:", e);
+        }
+      }
+
+      // Header
+      const headerY = logoHeight > 0 ? 16 : 22;
+      doc.setFontSize(22);
+      doc.setTextColor(79, 70, 229);
+      doc.text(companyName, logoHeight > 0 ? 56 : 14, headerY);
+
+      let infoY = headerY + 8;
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(legalName, logoHeight > 0 ? 56 : 14, infoY);
+
+      infoY += 5;
+      doc.text(`GSTIN: ${gstin}`, logoHeight > 0 ? 56 : 14, infoY);
+
+      let rightY = headerY;
+      doc.setFontSize(20);
+      doc.setTextColor(0);
+      doc.text("INVOICE", 150, rightY);
+
+      rightY += 8;
+      doc.setFontSize(10);
+      doc.setTextColor(50);
+      doc.text(
+        `Invoice Number: ${inv.invoice_number}`,
+        150,
+        rightY,
+      );
+
+      rightY += 5;
+      doc.text(
+        `Date: ${inv.created_at ? format(new Date(inv.created_at), "dd MMM yyyy") : "N/A"}`,
+        150,
+        rightY,
+      );
+
+      // Contact (if configured)
+      let separatorY = Math.max(infoY, rightY) + 6;
+      if (contact) {
+        separatorY += 5;
+        doc.setFontSize(9);
+        doc.setTextColor(100);
+        doc.text(contact, logoHeight > 0 ? 56 : 14, separatorY - 3);
+      }
+
+      doc.setDrawColor(200);
+      doc.line(14, separatorY, 196, separatorY);
+
+      const billToY = separatorY + 10;
+      doc.setFontSize(12);
+      doc.setTextColor(0);
+      doc.text("Bill To:", 14, billToY);
+      doc.setFontSize(10);
+      doc.setTextColor(80);
+      doc.text(user.email ?? "Customer", 14, billToY + 7);
+
+      // Table
+      let tableBody = [];
+      if (inv.line_items && Array.isArray(inv.line_items) && inv.line_items.length > 0) {
+        tableBody = inv.line_items.map((item: any) => [
+          item.description || "Subscription Charge",
+          `INR ${Number(item.amount || inv.amount_inr).toFixed(2)}`
+        ]);
+      } else {
+        tableBody = [["Subscription Plan Purchase / Renewal", `INR ${Number(inv.amount_inr).toFixed(2)}`]];
+      }
+
+      autoTable(doc, {
+        startY: billToY + 16,
+        headStyles: { fillColor: [79, 70, 229] },
+        head: [["Description", "Amount"]],
+        body: tableBody,
+        foot: [["Total Paid", `INR ${Number(inv.total_inr).toFixed(2)}`]],
+        footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: "bold" },
+      });
+
+      // Footer
+      doc.setFontSize(9);
+      doc.setTextColor(150);
+      const lastTable = (doc as any).lastAutoTable;
+      doc.text(footerText, 14, (lastTable?.finalY ?? 200) + 30);
+
+      doc.save(`${companyName.replace(/\s+/g, "_")}_Invoice_${inv.invoice_number}.pdf`);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to generate invoice");
+    }
+  }
 
   const currentSub = useQuery({
     enabled: !!user,
@@ -309,8 +461,18 @@ function BillingPage() {
                 <h3 className="font-semibold">Invoices</h3>
               </div>
               {invoices.isLoading ? (
-                <div className="p-8 flex justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <div className="divide-y">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center justify-between px-4 py-3">
+                      <div className="flex items-center gap-4">
+                        <div className="space-y-1">
+                          <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+                          <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+                        </div>
+                      </div>
+                      <div className="h-4 w-16 rounded bg-muted animate-pulse" />
+                    </div>
+                  ))}
                 </div>
               ) : !invoices.data?.length ? (
                 <div className="p-8 text-center text-muted-foreground">
@@ -344,6 +506,17 @@ function BillingPage() {
                           {inv.status}
                         </Badge>
                         <span className="font-semibold text-sm">{inr(inv.total_inr)}</span>
+                        {inv.status === "paid" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-primary hover:text-primary/80 transition-colors"
+                            onClick={() => downloadInvoice(inv)}
+                            title="Download Invoice"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -359,8 +532,16 @@ function BillingPage() {
                 <h3 className="font-semibold">Subscription History</h3>
               </div>
               {history.isLoading ? (
-                <div className="p-8 flex justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                <div className="divide-y">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center justify-between px-4 py-3">
+                      <div className="space-y-1">
+                        <div className="h-4 w-28 rounded bg-muted animate-pulse" />
+                        <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+                      </div>
+                      <div className="h-5 w-16 rounded-full bg-muted animate-pulse" />
+                    </div>
+                  ))}
                 </div>
               ) : !history.data?.length ? (
                 <div className="p-8 text-center text-muted-foreground">

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { Loader2, FileCheck2, ExternalLink, Paperclip, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -8,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { FilePreview } from "@/components/FilePreview";
 
 export const Route = createFileRoute("/_authenticated/submissions")({
   head: () => ({ meta: [{ title: "My Submissions — Learnify AI" }] }),
@@ -24,6 +26,8 @@ const STATUS_STYLE: Record<string, string> = {
 function SubmissionsPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewName, setPreviewName] = useState<string>("");
 
   const q = useQuery({
     enabled: !!user,
@@ -110,14 +114,31 @@ function SubmissionsPage() {
                     </a>
                   )}
                   {s.attachment_url && (
-                    <a
-                      href={s.attachment_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-primary hover:underline"
-                    >
-                      <Paperclip className="h-3 w-3" /> Attachment
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={s.attachment_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-primary hover:underline"
+                      >
+                        <Paperclip className="h-3 w-3" /> Attachment
+                      </a>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 px-2 text-[10px]"
+                        onClick={() => {
+                          if (previewUrl === s.attachment_url) {
+                            setPreviewUrl(null);
+                          } else {
+                            setPreviewUrl(s.attachment_url);
+                            setPreviewName("Submission attachment");
+                          }
+                        }}
+                      >
+                        {previewUrl === s.attachment_url ? "Hide" : "Preview"}
+                      </Button>
+                    </div>
                   )}
                   <span className="text-muted-foreground ml-auto">
                     {format(new Date(s.submitted_at), "dd MMM yyyy · HH:mm")}
@@ -129,6 +150,11 @@ function SubmissionsPage() {
                       Instructor feedback
                     </p>
                     {s.feedback}
+                  </div>
+                )}
+                {previewUrl && previewUrl === s.attachment_url && (
+                  <div className="mt-3" style={{ height: "400px" }}>
+                    <FilePreview url={previewUrl} fileName={previewName} />
                   </div>
                 )}
               </div>

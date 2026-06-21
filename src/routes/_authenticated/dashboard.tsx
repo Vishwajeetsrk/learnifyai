@@ -28,6 +28,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { getCourseActionLabel } from "@/lib/course-player";
 import { RecommendedCourses } from "@/components/RecommendedCourses";
 import { DashboardEventsJobs } from "@/components/DashboardEventsJobs";
+import { DashboardSkeleton, StatCardSkeleton } from "@/components/Skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Learnify AI" }] }),
@@ -104,14 +106,20 @@ function DashboardPage() {
         </p>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
-          <StatCard label="Enrolled" value={String(enrolled.length)} icon={BookOpen} />
-          <StatCard label="Completed" value={String(totalCompleted)} icon={GraduationCap} />
-          <StatCard label="Certificates" value={String(totalCerts)} icon={Award} />
-          <StatCard
-            label="Test attempts"
-            value={String((attemptsQ.data ?? []).length)}
-            icon={Trophy}
-          />
+          {enrollQ.isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+          ) : (
+            <>
+              <StatCard label="Enrolled" value={String(enrolled.length)} icon={BookOpen} />
+              <StatCard label="Completed" value={String(totalCompleted)} icon={GraduationCap} />
+              <StatCard label="Certificates" value={String(totalCerts)} icon={Award} />
+              <StatCard
+                label="Test attempts"
+                value={String((attemptsQ.data ?? []).length)}
+                icon={Trophy}
+              />
+            </>
+          )}
         </div>
 
         {isAdmin && (
@@ -162,8 +170,20 @@ function DashboardPage() {
           </div>
 
           {enrollQ.isLoading ? (
-            <div className="py-16 grid place-items-center">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="rounded-2xl border bg-card overflow-hidden shadow-card">
+                  <div className="aspect-video bg-muted animate-pulse" />
+                  <div className="p-4 space-y-2">
+                    <div className="flex gap-2">
+                      <div className="h-4 w-16 rounded-full bg-muted animate-pulse" />
+                    </div>
+                    <div className="h-5 w-3/4 rounded bg-muted animate-pulse" />
+                    <div className="h-3 w-1/2 rounded bg-muted animate-pulse" />
+                    <div className="h-2 w-full rounded-full bg-muted animate-pulse" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : enrolled.length === 0 ? (
             <div className="rounded-2xl border bg-card p-12 text-center shadow-card">
@@ -426,7 +446,23 @@ function DashboardCommunity() {
     },
   });
 
-  if (isLoading) return null;
+  if (isLoading)
+    return (
+      <div className="mt-10 space-y-3">
+        <Skeleton className="h-6 w-36 rounded" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="rounded-xl border bg-card p-4 shadow-card space-y-2">
+              <div className="flex justify-between">
+                <Skeleton className="h-4 w-32 rounded" />
+                <Skeleton className="h-5 w-14 rounded-full" />
+              </div>
+              <Skeleton className="h-3 w-24 rounded" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   if (cohorts.length === 0) return null;
 
   return (

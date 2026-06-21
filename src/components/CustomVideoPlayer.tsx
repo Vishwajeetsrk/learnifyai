@@ -8,7 +8,9 @@ import {
   Loader2,
   Settings,
   Subtitles,
+  Lock,
 } from "lucide-react";
+import { toast } from "sonner";
 
 interface CustomVideoPlayerProps {
   url: string;
@@ -19,6 +21,8 @@ interface CustomVideoPlayerProps {
   playbackRate?: number;
   onEnded?: () => void;
   thumbnailUrl?: string;
+  restrictDownload?: boolean;
+  restrictSpeed?: boolean;
 }
 
 function formatTime(seconds: number) {
@@ -67,6 +71,8 @@ export function CustomVideoPlayer({
   playbackRate: initialRate,
   onEnded,
   thumbnailUrl,
+  restrictDownload = false,
+  restrictSpeed = false,
 }: CustomVideoPlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerApiRef = useRef<any>(null);

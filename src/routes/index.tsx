@@ -117,7 +117,7 @@ function Index() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display text-5xl md:text-7xl font-semibold tracking-tighter leading-[1.05]"
+              className="font-display text-4xl sm:text-5xl md:text-7xl font-semibold tracking-tighter leading-[1.05]"
             >
               Learn <span className="text-gradient">smarter</span>.<br />
               Grow faster.
@@ -296,7 +296,7 @@ function Index() {
           <Reveal variant="right" delay={0.1}>
             <div className="relative">
               <StaggerGroup
-                className="aspect-square rounded-3xl border border-border bg-card shadow-card p-8 grid grid-cols-2 gap-4"
+                className="aspect-square rounded-3xl border border-border bg-card shadow-card p-6 sm:p-8 grid grid-cols-2 gap-3 sm:gap-4"
                 stagger={0.1}
               >
                 {[Trophy, Wallet, Users, BarChart3].map((Icon, i) => (

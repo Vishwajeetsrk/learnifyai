@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import ReactPlayer from "react-player";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -42,6 +43,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FilePreview } from "@/components/FilePreview";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -298,7 +300,9 @@ function CommunityPage() {
             <MessageSquare className="h-6 w-6 text-white drop-shadow-md" />
           </div>
           <div>
-            <h1 className="text-3xl font-display font-bold tracking-tight">Community Hub</h1>
+            <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight">
+              Community Hub
+            </h1>
             <p className="text-muted-foreground text-sm mt-0.5">
               Connect, share, and learn with other builders
             </p>
@@ -434,25 +438,25 @@ function CommunityPage() {
 
               {postType !== "poll" && (
                 <div className="flex flex-col gap-3 border-t pt-3">
-                  <div className="flex flex-wrap items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-0.5 sm:gap-1">
                     <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
                       <button
                         onClick={() => editor?.chain().focus().toggleBold().run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor?.isActive("bold") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                        className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("bold") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                         title="Bold"
                       >
                         <Bold className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => editor?.chain().focus().toggleItalic().run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor?.isActive("italic") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                        className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("italic") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                         title="Italic"
                       >
                         <Italic className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => editor?.chain().focus().toggleUnderline().run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor?.isActive("underline") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                        className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("underline") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
                         title="Underline"
                       >
                         <Underline className="h-4 w-4" />
@@ -603,7 +607,7 @@ function CommunityPage() {
                                   editor?.chain().focus().setColor(c).run();
                                   setColorOpen(false);
                                 }}
-                                className="h-5 w-5 rounded-full border"
+                                className="h-8 w-8 rounded-full border shrink-0"
                                 style={{ backgroundColor: c }}
                                 title={c}
                               />
@@ -1058,19 +1062,25 @@ function CommunityPage() {
                         />
                       )}
                       {post.media_type === "video" && (
-                        <video src={post.media_url} controls className="max-h-[500px] w-full" />
+                        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
+                          <ReactPlayer
+                            url={post.media_url}
+                            controls
+                            width="100%"
+                            height="100%"
+                            config={{
+                              file: {
+                                attributes: {
+                                  controlsList: "nodownload",
+                                },
+                              },
+                            }}
+                          />
+                        </div>
                       )}
                       {post.media_type === "pdf" && (
-                        <div className="p-4 flex items-center gap-3">
-                          <FileText className="h-8 w-8 text-rose-500" />
-                          <a
-                            href={post.media_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="font-medium hover:underline flex-1 truncate"
-                          >
-                            Attached Document (PDF)
-                          </a>
+                        <div className="max-h-[500px]">
+                          <FilePreview url={post.media_url} />
                         </div>
                       )}
                     </div>

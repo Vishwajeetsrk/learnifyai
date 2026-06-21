@@ -208,6 +208,8 @@ function CourseDetail() {
     },
   });
 
+  const progressRows = progressQuery.data ?? [];
+
   const enrollmentQuery = useQuery({
     enabled: !!user && !!courseQuery.data?.course.id,
     queryKey: ["enrollment", courseQuery.data?.course.id, user?.id],
@@ -247,7 +249,7 @@ function CourseDetail() {
   const isEnrollmentActive = enrollmentStatus === "active" || enrollmentStatus === "completed";
   const inCart = !!cartQuery.data;
   const isFree = courseQuery.data ? Number(courseQuery.data.course.price_inr) === 0 : false;
-  
+
   // Full access if: free course, or enrolled with active/completed status, or admin
   const hasFullAccess = isFree || isEnrollmentActive || isAdmin;
   const completed = useMemo(
@@ -318,13 +320,13 @@ function CourseDetail() {
     qc.invalidateQueries({ queryKey: ["creator-subs-count", creatorId] });
   };
 
-  // Lesson-locking logic: 
+  // Lesson-locking logic:
   // - If hasFullAccess (free course OR enrolled in paid course): all lessons unlocked
   // - If paid course and NOT enrolled: only first lesson + preview lessons unlocked
   const unlocked = useMemo(() => {
     const set = new Set<string>();
     if (hasFullAccess) {
-      lessons.forEach(l => set.add(l.id));
+      lessons.forEach((l) => set.add(l.id));
     } else {
       for (let i = 0; i < lessons.length; i++) {
         const l = lessons[i];
@@ -644,15 +646,21 @@ function CourseDetail() {
           )}
           {!hasFullAccess && !isFree && (
             <p className="text-xs text-muted-foreground">
-              Preview lessons are free. Enroll to unlock all lessons, tests, certificate, and AI tools.
+              Preview lessons are free. Enroll to unlock all lessons, tests, certificate, and AI
+              tools.
               {creatorId && user && creatorId === user.id && (
-                <> As a creator, you can choose an existing certificate template or create your own custom certificate for this course.</>
+                <>
+                  {" "}
+                  As a creator, you can choose an existing certificate template or create your own
+                  custom certificate for this course.
+                </>
               )}
             </p>
           )}
           {isFree && !isEnrolled && (
             <p className="text-xs text-muted-foreground">
-              This course is completely free. Start learning to unlock tests, certificate, and AI tools.
+              This course is completely free. Start learning to unlock tests, certificate, and AI
+              tools.
             </p>
           )}
         </div>

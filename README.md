@@ -270,6 +270,8 @@ src/
 │   │   └── admin/
 │   │       └── subscriptions.tsx  # Subscription analytics
 │   └── api/                # Server-side API routes
+│       ├── cron/
+│       │   └── check-subscriptions.ts  # Cron: expire overdue subscriptions
 │       └── webhooks/
 │           ├── cashfree.ts              # One-time payment webhook
 │           └── cashfree-subscription.ts # Subscription webhook
@@ -279,8 +281,10 @@ src/
 │   │   ├── StandardIDE.tsx      # File tabs, context menu, zoom
 │   │   ├── WebIDE.tsx           # Sandpack with device preview
 │   │   ├── AIPanel.tsx          # AI code actions
-│   │   ├── AIAssistantPanel.tsx # AI chat assistant
+│   │   ├── AIAssistantPanel.tsx # AI chat assistant (6 actions)
 │   │   └── APITesterPanel.tsx   # HTTP request tester
+│   ├── FilePreview.tsx     # PDF/DOCX/image/text preview
+│   ├── Skeletons.tsx       # Reusable skeleton loaders
 │   ├── SiteHeader.tsx      # Navigation header
 │   ├── SiteFooter.tsx      # Footer
 │   ├── GlobalSupportAgent.tsx  # AI support chat
@@ -370,6 +374,23 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v3.3.0 (June 2026) - Skeleton Loaders, File Previews, Mobile Fixes & Cron Jobs
+
+- ✅ **Skeleton Loaders**: Created reusable skeleton components (StatCard, CourseCard, Dashboard, CourseDetail, Profile, Achievements, Billing) replacing spinners across all core pages for premium perceived performance.
+- ✅ **Interactive File Preview Component**: Full PDF viewer with zoom/rotate/fullscreen, DOCX via Microsoft Office Online, image preview with zoom, text file viewer, and fallback download UI. Integrated into community feed, submissions, and studio review.
+- ✅ **AI Provider Retry & Failover Logic**: Exponential backoff retry chain in `user-ai.ts` — Groq (2 retries), Gemini (1 retry), OpenRouter (1 retry) with 429/5xx detection before falling to next provider.
+- ✅ **Grace Period Cron Job**: Vercel cron at `/api/cron/check-subscriptions` runs every 6 hours, calling `check_expired_subscriptions()` to downgrade expired subscriptions after grace period.
+- ✅ **Mobile Responsiveness Fixes**: Community feed heading responsive, editor buttons enlarged (36px touch targets), color swatches 32px, course duration truncation, settings heading responsive, avatar color pickers enlarged, landing hero text responsive, pricing text responsive.
+- ✅ **Gamification Sandbox Removed**: Cleaned up achievements page — removed all simulation functions, unused imports, and the sandbox UI panel. Page reduced from 285 to 124 lines.
+- ✅ **Coupon Management Admin UI**: Verified existing coupon manager in admin content page with full CRUD functionality.
+- ✅ **WebIDE Device Preview**: Tablet/mobile/desktop preview modes with browser chrome mockup and fullscreen toggle.
+- ✅ **AI Assistant Panel**: 6 AI actions (diagnose, explain, fix, optimize, document, convert) in playground.
+- ✅ **API Tester Panel**: GET/POST/PUT/DELETE with headers, body, response viewer, request history.
+- ✅ **StandardIDE Upgrade**: File tabs, context menu (open/duplicate/delete), file type icons, zoom controls.
+- ✅ **Username Profiles**: `/u/@username` route resolves to UUID-based profile.
+- ✅ **DiceBear Avatar Mappings**: All 6 art styles verified.
+- ✅ **Bug Fixes**: TextPreview `useState` → `useEffect`, duplicate imports, duplicate declarations.
+
 ### v3.2.0 (June 2026) - Cashfree Subscriptions + Playground Upgrade
 
 - ✅ **Cashfree Recurring Subscriptions**: Complete subscription billing system with 3 plans:
@@ -425,7 +446,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Customize Character Enhancements**: Fixed the avatar customization preview by aligning style parameters with Dicebear v7.x schemas (mapping invalid `shortHair...` / `longHair...` prefixes to `shortFlat`, `straight01`, etc.). Added an **Avatar Background Color** customizer tab supporting solid and transparent backdrops. Ensured profile border styling is preserved upon custom avatar image uploads.
 - ✅ **Unified Profile Borders**: Implemented global CSS borders for custom profiles using a unified class resolver, rendering borders cleanly across the settings page, public profile page, Kanban board assignees, and course player instructors.
 - ✅ **Gamification Header Integration**: Integrated public profile gamification stats including League level (Bronze→Diamond), Level, XP count, and active Day Streak directly into user profile pages.
-- ✅ **Gamification Sandbox**: Implemented an interactive simulation panel in the achievements page (`/achievements`) that allows testing of XP awards, daily streak progression, and automatic badge award evaluation directly from the UI.
 - ✅ **Playground Project Visibility**: Added interactive public/private visibility toggle badges inside the code editor top bar and the project list dashboard. This enables learners to set saved projects as public so they display under the "Projects" tab of their public user profile page.
 - ✅ **CSP Policy Fix**: Updated Vercel headers (`vercel.json`) to allow script and iframe loading from YouTube (`https://www.youtube.com` and `https://s.ytimg.com`), resolving Content Security Policy blocks on video playback.
 - ✅ **Creator Studio AI Generation Tools**: Integrated a suite of AI-powered creation tools directly into the Course Edit modal. Added "AI Thumbnail" generation supporting data URI image uploads with a premium flat shadow illustration style (`retro_flat`). Implemented "AI Lesson Generator" which dynamically creates video lessons, video URLs, and formatted lesson summaries based on the course title. Added an AI category suggestion button and dynamic category mapping dropdown.

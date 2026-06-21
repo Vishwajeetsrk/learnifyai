@@ -40,33 +40,41 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     if (authHeader && authHeader.startsWith("Bearer ")) {
       token = authHeader.replace("Bearer ", "");
     } else {
-      // Try multiple possible cookie names that Supabase uses
-      const cookieNames = [
-        "sb-access-token",
-        "sb-refresh-token",
-        "supabase-auth-token",
-        "sb-auth-token",
-      ];
-      
-      // Also check for any cookie starting with "sb-"
+      // Parse all cookies safely without truncating value at '=' characters
       const cookieHeader = request.headers.get("cookie") || "";
-      const cookies = cookieHeader.split(";").map(c => c.trim());
+      const cookiesMap: Record<string, string> = {};
       
-      for (const cookie of cookies) {
-        const [name, value] = cookie.split("=");
-        if (name.startsWith("sb-") && value) {
-          token = value;
-          break;
+      cookieHeader.split(";").forEach(c => {
+        const eqIndex = c.indexOf("=");
+        if (eqIndex > -1) {
+          cookiesMap[c.substring(0, eqIndex).trim()] = c.substring(eqIndex + 1).trim();
         }
-        // Also check our predefined names
-        if (cookieNames.includes(name) && value) {
-          token = value;
-          break;
+      });
+
+      // Prioritize access token specifically
+      if (cookiesMap["sb-access-token"]) {
+        token = cookiesMap["sb-access-token"];
+      } else if (cookiesMap["supabase-auth-token"]) {
+        token = cookiesMap["supabase-auth-token"];
+      } else if (cookiesMap["sb-auth-token"]) {
+        token = cookiesMap["sb-auth-token"];
+      } else {
+        // Find any sb- cookie that is NOT a refresh or provider token
+        const sbKey = Object.keys(cookiesMap).find(
+          k => k.startsWith("sb-") && !k.endsWith("-refresh-token") && !k.endsWith("-provider-token")
+        );
+        if (sbKey) {
+          token = cookiesMap[sbKey];
         }
       }
-      
+
       // Fallback to specific cookie getter
       if (!token) {
+        const cookieNames = [
+          "sb-access-token",
+          "sb-auth-token",
+          "supabase-auth-token",
+        ];
         for (const name of cookieNames) {
           const val = getCookie(name);
           if (val) {

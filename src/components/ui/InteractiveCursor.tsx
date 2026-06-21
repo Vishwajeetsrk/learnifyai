@@ -29,7 +29,7 @@ export function InteractiveCursor() {
 
   // Handle global mouse tracking and hover states
   useEffect(() => {
-    if (isTouchDevice || prefersReducedMotion) return;
+    if (isTouchDevice || prefersReducedMotion.reduced) return;
 
     let lastTime = performance.now();
     let lastX = 0;
@@ -112,14 +112,14 @@ export function InteractiveCursor() {
   // Handle global class for native cursor hiding safely (SSR friendly)
   useEffect(() => {
     if (typeof document === 'undefined') return;
-    if (isTouchDevice || prefersReducedMotion || !isVisible || variant === "none") {
+    if (isTouchDevice || prefersReducedMotion.reduced || !isVisible || variant === "none") {
       document.body.classList.remove("custom-cursor-active");
     } else {
       document.body.classList.add("custom-cursor-active");
     }
-  }, [isTouchDevice, prefersReducedMotion, isVisible, variant]);
+  }, [isTouchDevice, prefersReducedMotion.reduced, isVisible, variant]);
 
-  if (isTouchDevice || prefersReducedMotion) return null;
+  if (isTouchDevice || prefersReducedMotion.reduced) return null;
   if (!isVisible || variant === "none") return null;
 
   // Variants design

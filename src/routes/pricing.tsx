@@ -269,7 +269,7 @@ function PricingPage() {
 
                     {/* Price */}
                     <div className="mt-6 mb-1">
-                      <span className="text-5xl font-extrabold tracking-tight">
+                      <span className="text-4xl sm:text-5xl font-extrabold tracking-tight">
                         {t.price_label}
                       </span>
                       {t.interval && (
@@ -386,13 +386,17 @@ function PricingPage() {
           <div className="mt-20 rounded-2xl border bg-card overflow-hidden">
             <div className="p-6 border-b text-center">
               <h3 className="text-xl font-bold">Compare Plans</h3>
-              <p className="text-sm text-muted-foreground mt-1">See what&apos;s included in each plan</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                See what&apos;s included in each plan
+              </p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left p-4 font-medium text-muted-foreground w-1/4">Feature</th>
+                    <th className="text-left p-4 font-medium text-muted-foreground w-1/4">
+                      Feature
+                    </th>
                     {tiers.map((t) => (
                       <th key={t.id} className="text-center p-4 font-semibold">
                         {t.name}
@@ -404,15 +408,9 @@ function PricingPage() {
                   {FEATURE_COMPARISON.map((feature, idx) => (
                     <tr key={idx} className="border-b last:border-0 hover:bg-muted/30">
                       <td className="p-4 text-foreground/80">{feature.name}</td>
-                      <td className="text-center p-4">
-                        {renderFeatureValue(feature.starter)}
-                      </td>
-                      <td className="text-center p-4">
-                        {renderFeatureValue(feature.pro)}
-                      </td>
-                      <td className="text-center p-4">
-                        {renderFeatureValue(feature.team)}
-                      </td>
+                      <td className="text-center p-4">{renderFeatureValue(feature.starter)}</td>
+                      <td className="text-center p-4">{renderFeatureValue(feature.pro)}</td>
+                      <td className="text-center p-4">{renderFeatureValue(feature.team)}</td>
                     </tr>
                   ))}
                 </tbody>

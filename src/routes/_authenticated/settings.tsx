@@ -250,14 +250,52 @@ function SettingsPage() {
         params += `&top=${hairStyle}`;
       }
       params += `&hairColor=${hairColor}`;
-      params += `&mouth=${mouthStyle}`;
-      params += `&eyes=${eyesStyle}`;
-      params += `&eyebrows=${eyebrowsStyle}`;
+
+      const mappedMouth =
+        {
+          default: "default",
+          smile: "smile",
+          sad: "sad",
+          concerned: "concerned",
+          disbelief: "disbelief",
+          grimace: "grimace",
+          scream: "screamOpen",
+          tongue: "tongue",
+        }[mouthStyle] || mouthStyle;
+
+      const mappedEyes =
+        {
+          default: "default",
+          happy: "happy",
+          wink: "wink",
+          surprised: "surprised",
+          squint: "squint",
+          side: "side",
+          hearts: "hearts",
+          close: "closed",
+        }[eyesStyle] || eyesStyle;
+
+      const mappedEyebrows =
+        {
+          default: "defaultNatural",
+          angry: "angryNatural",
+          flat: "flatNatural",
+          raised: "raisedExcitedNatural",
+          sad: "sadConcernedNatural",
+          unibrow: "unibrowNatural",
+          up: "upDownNatural",
+        }[eyebrowsStyle] || eyebrowsStyle;
+
+      const mappedAcc = accessoriesStyle === "wayfarer" ? "wayfarers" : accessoriesStyle;
+
+      params += `&mouth=${mappedMouth}`;
+      params += `&eyes=${mappedEyes}`;
+      params += `&eyebrows=${mappedEyebrows}`;
       if (noseStyle !== "default") params += `&nose=${noseStyle}`;
       params += `&clothing=${clothingStyle}`;
-      params += `&clothingColor=${clothingColor}`;
-      if (accessoriesStyle && accessoriesStyle !== "none") {
-        params += `&accessories=${accessoriesStyle}`;
+      params += `&clothesColor=${clothingColor}`;
+      if (mappedAcc && mappedAcc !== "none") {
+        params += `&accessories=${mappedAcc}`;
       } else {
         params += `&accessoriesProbability=0`;
       }
@@ -1067,7 +1105,9 @@ function SettingsPage() {
       <div className="px-4 md:px-10 py-8 max-w-4xl">
         <div className="mb-6">
           <div className="text-xs uppercase tracking-widest text-primary font-medium">Settings</div>
-          <h1 className="mt-1 text-3xl font-display font-semibold tracking-tight">Your account</h1>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-display font-semibold tracking-tight">
+            Your account
+          </h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Profile, billing, notifications, and security.
           </p>
@@ -1433,7 +1473,7 @@ function SettingsPage() {
                                     key={skin.val}
                                     type="button"
                                     onClick={() => setSkinColor(skin.val)}
-                                    className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
+                                    className={`w-9 h-9 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
                                       skinColor === skin.val
                                         ? "border-primary scale-110 shadow-sm"
                                         : "border-border"
@@ -1573,7 +1613,7 @@ function SettingsPage() {
                                     key={hair.val}
                                     type="button"
                                     onClick={() => setHairColor(hair.val)}
-                                    className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
+                                    className={`w-9 h-9 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
                                       hairColor === hair.val
                                         ? "border-primary scale-110 shadow-sm"
                                         : "border-border"
@@ -1622,7 +1662,7 @@ function SettingsPage() {
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                     <img
-                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&eyebrows=${eb.id}&eyes=default&mouth=default&topProbability=0`}
+                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&eyebrows=${eb.id === "default" ? "defaultNatural" : eb.id === "angry" ? "angryNatural" : eb.id === "flat" ? "flatNatural" : eb.id === "raised" ? "raisedExcitedNatural" : eb.id === "sad" ? "sadConcernedNatural" : eb.id === "unibrow" ? "unibrowNatural" : eb.id === "up" ? "upDownNatural" : eb.id}&eyes=default&mouth=default&topProbability=0`}
                                       className="w-full h-full object-cover scale-[2.5] translate-y-3"
                                       alt={eb.label}
                                     />
@@ -1665,7 +1705,7 @@ function SettingsPage() {
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                     <img
-                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&eyes=${eye.id}&mouth=default&topProbability=0`}
+                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&eyes=${eye.id === "close" ? "closed" : eye.id}&mouth=default&topProbability=0`}
                                       className="w-full h-full object-cover scale-[2.5] translate-y-2"
                                       alt={eye.label}
                                     />
@@ -1749,7 +1789,7 @@ function SettingsPage() {
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                     <img
-                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&mouth=${m.id}&eyes=default&topProbability=0`}
+                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&mouth=${m.id === "scream" ? "screamOpen" : m.id}&eyes=default&topProbability=0`}
                                       className="w-full h-full object-cover scale-[2.5] -translate-y-2"
                                       alt={m.label}
                                     />
@@ -1803,7 +1843,7 @@ function SettingsPage() {
                                   >
                                     <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                       <img
-                                        src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&accessories=${acc.id === "none" ? "none" : acc.id}&accessoriesProbability=${acc.id === "none" ? "0" : "100"}&eyes=default&mouth=default&topProbability=0`}
+                                        src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&accessories=${acc.id === "wayfarer" ? "wayfarers" : acc.id === "none" ? "none" : acc.id}&accessoriesProbability=${acc.id === "none" ? "0" : "100"}&eyes=default&mouth=default&topProbability=0`}
                                         className="w-full h-full object-cover scale-[2.5]"
                                         alt={acc.label}
                                       />
@@ -1855,7 +1895,7 @@ function SettingsPage() {
                                   >
                                     <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                       <img
-                                        src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&clothing=${c.id}&clothingColor=${clothingColor}&skinColor=${skinColor}&topProbability=0`}
+                                        src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&clothing=${c.id}&clothesColor=${clothingColor}&skinColor=${skinColor}&topProbability=0`}
                                         className="w-full h-full object-cover scale-[1.5] translate-y-5"
                                         alt={c.label}
                                       />
@@ -1900,7 +1940,7 @@ function SettingsPage() {
                                     key={c.val}
                                     type="button"
                                     onClick={() => setClothingColor(c.val)}
-                                    className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
+                                    className={`w-9 h-9 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
                                       clothingColor === c.val
                                         ? "border-primary scale-110 shadow-sm"
                                         : "border-border"
@@ -1942,7 +1982,7 @@ function SettingsPage() {
                                   key={bg.val}
                                   type="button"
                                   onClick={() => setAvatarBackgroundColor(bg.val)}
-                                  className={`w-7 h-7 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
+                                  className={`w-9 h-9 rounded-full border-2 transition relative flex items-center justify-center hover:scale-110 ${
                                     avatarBackgroundColor === bg.val
                                       ? "border-primary scale-110 shadow-sm"
                                       : "border-border"

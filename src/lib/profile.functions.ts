@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 export const getPublicProfile = createServerFn({ method: "GET" })
@@ -6,6 +7,33 @@ export const getPublicProfile = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const id = data.id;
+
+    const request = getRequest();
+    let currentUserId: string | null = null;
+    if (request?.headers) {
+      const cookieHeader = request.headers.get("cookie") || "";
+      const cookiesMap: Record<string, string> = {};
+      cookieHeader.split(";").forEach((c) => {
+        const eqIndex = c.indexOf("=");
+        if (eqIndex > -1) {
+          cookiesMap[c.substring(0, eqIndex).trim()] = c.substring(eqIndex + 1).trim();
+        }
+      });
+      const token =
+        cookiesMap["sb-access-token"] ||
+        cookiesMap["supabase-auth-token"] ||
+        cookiesMap["sb-auth-token"];
+      if (token) {
+        try {
+          const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+          if (user) {
+            currentUserId = user.id;
+          }
+        } catch (err) {
+          console.error("Error parsing user token in getPublicProfile:", err);
+        }
+      }
+    }
 
     const [
       profileRes,
@@ -50,15 +78,16 @@ export const getPublicProfile = createServerFn({ method: "GET" })
         .from("certificates")
         .select("*", { count: "exact", head: true })
         .eq("user_id", id),
-      (supabaseAdmin as any)
-        .from("playground_projects")
-        .select(
-          "id, title, description, language, template, is_public, tags, created_at, updated_at",
-        )
-        .eq("user_id", id)
-        .eq("is_public", true)
-        .order("updated_at", { ascending: false })
-        .limit(24),
+      (() => {
+        let query = supabaseAdmin
+          .from("playground_projects")
+          .select("id, title, description, language, template, is_public, tags, created_at, updated_at")
+          .eq("user_id", id);
+        if (currentUserId !== id) {
+          query = query.eq("is_public", true);
+        }
+        return query.order("updated_at", { ascending: false }).limit(24);
+      })(),
       supabaseAdmin
         .from("posts" as any)
         .select(

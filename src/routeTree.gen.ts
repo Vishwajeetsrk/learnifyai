@@ -61,6 +61,7 @@ import { Route as AuthenticatedAchievementsRouteImport } from './routes/_authent
 import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
 import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/api/webhooks/cashfree-subscription'
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
+import { Route as ApiCronCheckSubscriptionsRouteImport } from './routes/api/cron/check-subscriptions'
 import { Route as AuthenticatedPlaygroundWebRouteImport } from './routes/_authenticated/playground.web'
 import { Route as AuthenticatedPlaygroundReactRouteImport } from './routes/_authenticated/playground.react'
 import { Route as AuthenticatedPlaygroundProjectsRouteImport } from './routes/_authenticated/playground.projects'
@@ -348,6 +349,12 @@ const ApiWebhooksCashfreeRoute = ApiWebhooksCashfreeRouteImport.update({
   path: '/api/webhooks/cashfree',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronCheckSubscriptionsRoute =
+  ApiCronCheckSubscriptionsRouteImport.update({
+    id: '/api/cron/check-subscriptions',
+    path: '/api/cron/check-subscriptions',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedPlaygroundWebRoute =
   AuthenticatedPlaygroundWebRouteImport.update({
     id: '/web',
@@ -528,6 +535,7 @@ export interface FileRoutesByFullPath {
   '/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
   '/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/playground/web': typeof AuthenticatedPlaygroundWebRoute
+  '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/courses/': typeof AuthenticatedCoursesIndexRoute
@@ -600,6 +608,7 @@ export interface FileRoutesByTo {
   '/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
   '/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/playground/web': typeof AuthenticatedPlaygroundWebRoute
+  '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/courses': typeof AuthenticatedCoursesIndexRoute
@@ -674,6 +683,7 @@ export interface FileRoutesById {
   '/_authenticated/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
   '/_authenticated/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/_authenticated/playground/web': typeof AuthenticatedPlaygroundWebRoute
+  '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
@@ -748,6 +758,7 @@ export interface FileRouteTypes {
     | '/playground/projects'
     | '/playground/react'
     | '/playground/web'
+    | '/api/cron/check-subscriptions'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/courses/'
@@ -820,6 +831,7 @@ export interface FileRouteTypes {
     | '/playground/projects'
     | '/playground/react'
     | '/playground/web'
+    | '/api/cron/check-subscriptions'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/courses'
@@ -893,6 +905,7 @@ export interface FileRouteTypes {
     | '/_authenticated/playground/projects'
     | '/_authenticated/playground/react'
     | '/_authenticated/playground/web'
+    | '/api/cron/check-subscriptions'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/_authenticated/courses/'
@@ -927,6 +940,7 @@ export interface RootRouteChildren {
   UIdRoute: typeof UIdRoute
   UAtusernameRoute: typeof UAtusernameRoute
   VerifyIdRoute: typeof VerifyIdRoute
+  ApiCronCheckSubscriptionsRoute: typeof ApiCronCheckSubscriptionsRoute
   ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
   ApiWebhooksCashfreeSubscriptionRoute: typeof ApiWebhooksCashfreeSubscriptionRoute
   ApiPublicHooksRunRemindersRoute: typeof ApiPublicHooksRunRemindersRoute
@@ -1298,6 +1312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhooksCashfreeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/check-subscriptions': {
+      id: '/api/cron/check-subscriptions'
+      path: '/api/cron/check-subscriptions'
+      fullPath: '/api/cron/check-subscriptions'
+      preLoaderRoute: typeof ApiCronCheckSubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/playground/web': {
       id: '/_authenticated/playground/web'
       path: '/web'
@@ -1596,6 +1617,7 @@ const rootRouteChildren: RootRouteChildren = {
   UIdRoute: UIdRoute,
   UAtusernameRoute: UAtusernameRoute,
   VerifyIdRoute: VerifyIdRoute,
+  ApiCronCheckSubscriptionsRoute: ApiCronCheckSubscriptionsRoute,
   ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,
   ApiWebhooksCashfreeSubscriptionRoute: ApiWebhooksCashfreeSubscriptionRoute,
   ApiPublicHooksRunRemindersRoute: ApiPublicHooksRunRemindersRoute,
