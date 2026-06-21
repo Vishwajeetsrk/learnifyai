@@ -409,7 +409,7 @@ export function ThumbnailEditor({
                   width: targetWidth,
                   height: targetHeight,
                   backgroundColor: bgState.color,
-                  transform: \`scale(\${workspaceZoom})\`,
+                  transform: `scale(${workspaceZoom})`,
                   transformOrigin: "top left",
                   position: "absolute",
                   top: 0,
@@ -437,7 +437,7 @@ export function ThumbnailEditor({
                     style={{
                       position: "absolute",
                       inset: 0,
-                      background: \`radial-gradient(circle, transparent 40%, rgba(0,0,0,\${bgState.vignette / 100}) 120%)\`,
+                      background: `radial-gradient(circle, transparent 40%, rgba(0,0,0,${bgState.vignette / 100}) 120%)`,
                       zIndex: 9999, // below safe guides
                       pointerEvents: "none"
                     }}
@@ -454,7 +454,7 @@ export function ThumbnailEditor({
                   let content = null;
                   if (layer.type === "image") {
                     const l = layer as ImageLayer;
-                    const filterStr = \`brightness(\${l.filters.brightness}%) contrast(\${l.filters.contrast}%) saturate(\${l.filters.saturation}%) blur(\${l.filters.blur}px) sepia(\${l.filters.sepia}%) grayscale(\${l.filters.grayscale}%) invert(\${l.filters.invert}%)\`;
+                    const filterStr = `brightness(${l.filters.brightness}%) contrast(${l.filters.contrast}%) saturate(${l.filters.saturation}%) blur(${l.filters.blur}px) sepia(${l.filters.sepia}%) grayscale(${l.filters.grayscale}%) invert(${l.filters.invert}%)`;
                     content = (
                       <img 
                         src={l.src} 
@@ -464,7 +464,7 @@ export function ThumbnailEditor({
                           width: "100%", height: "100%", 
                           objectFit: l.fit,
                           filter: filterStr,
-                          transform: \`scaleX(\${l.flipH ? -1 : 1}) scaleY(\${l.flipV ? -1 : 1})\`,
+                          transform: `scaleX(${l.flipH ? -1 : 1}) scaleY(${l.flipV ? -1 : 1})`,
                           pointerEvents: "none"
                         }}
                       />
@@ -474,18 +474,18 @@ export function ThumbnailEditor({
                     // Compute text effect css
                     let textShadow = "none";
                     if (l.effect === "shadow") textShadow = "4px 8px 24px rgba(0,0,0,0.7)";
-                    if (l.effect === "glow") textShadow = \`0 0 20px \${l.color}\`;
-                    if (l.effect === "outline") textShadow = \`-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000\`;
-                    if (l.effect === "neon") textShadow = \`0 0 5px #fff, 0 0 10px #fff, 0 0 20px \${l.color}, 0 0 40px \${l.color}, 0 0 80px \${l.color}\`;
-                    if (l.effect === "3d") textShadow = \`1px 1px 0 #ccc, 2px 2px 0 #bbb, 3px 3px 0 #aaa, 4px 4px 0 #999, 5px 5px 0 #888, 6px 6px 20px rgba(0,0,0,0.5)\`;
+                    if (l.effect === "glow") textShadow = `0 0 20px ${l.color}`;
+                    if (l.effect === "outline") textShadow = `-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000`;
+                    if (l.effect === "neon") textShadow = `0 0 5px #fff, 0 0 10px #fff, 0 0 20px ${l.color}, 0 0 40px ${l.color}, 0 0 80px ${l.color}`;
+                    if (l.effect === "3d") textShadow = `1px 1px 0 #ccc, 2px 2px 0 #bbb, 3px 3px 0 #aaa, 4px 4px 0 #999, 5px 5px 0 #888, 6px 6px 20px rgba(0,0,0,0.5)`;
                     
                     content = (
                       <div style={{
                         width: "100%", height: "100%",
-                        fontFamily: \`"\${l.fontFamily}", sans-serif\`,
+                        fontFamily: `"${l.fontFamily}", sans-serif`,
                         fontWeight: l.fontWeight,
-                        fontSize: \`\${l.fontSize}px\`,
-                        letterSpacing: \`\${l.letterSpacing}px\`,
+                        fontSize: `${l.fontSize}px`,
+                        letterSpacing: `${l.letterSpacing}px`,
                         lineHeight: l.lineHeight,
                         color: l.color,
                         textAlign: l.textAlign,
@@ -504,7 +504,7 @@ export function ThumbnailEditor({
                       <div style={{
                         width: "100%", height: "100%",
                         backgroundColor: l.fill,
-                        borderRadius: l.shapeType === "circle" ? "50%" : l.shapeType === "blob" ? "30% 70% 70% 30% / 30% 30% 70% 70%" : \`\${l.radius}px\`,
+                        borderRadius: l.shapeType === "circle" ? "50%" : l.shapeType === "blob" ? "30% 70% 70% 30% / 30% 30% 70% 70%" : `${l.radius}px`,
                       }} />
                     );
                   }
@@ -529,7 +529,7 @@ export function ThumbnailEditor({
                       onClick={() => setSelectedId(layer.id)}
                       style={{
                         zIndex: layer.zIndex,
-                        transform: \`rotate(\${layer.rotation}deg)\`,
+                        transform: `rotate(${layer.rotation}deg)`,
                       }}
                       className={isSelected ? "outline-dashed outline-2 outline-primary outline-offset-4 ring-4 ring-primary/20" : ""}
                       // Ensure text isn't selectable so Rnd drag works easily unless double clicked
@@ -612,7 +612,7 @@ export function ThumbnailEditor({
                     <h3 className="font-semibold text-sm mb-3">Layer Stack</h3>
                     <div className="space-y-1">
                       {[...layers].sort((a, b) => b.zIndex - a.zIndex).map(l => (
-                        <div key={l.id} className={\`flex items-center justify-between p-2 rounded border text-xs cursor-pointer \${selectedId === l.id ? 'bg-primary/10 border-primary' : 'bg-muted/30 hover:bg-muted'}\`} onClick={() => setSelectedId(l.id)}>
+                        <div key={l.id} className={`flex items-center justify-between p-2 rounded border text-xs cursor-pointer ${selectedId === l.id ? 'bg-primary/10 border-primary' : 'bg-muted/30 hover:bg-muted'}`} onClick={() => setSelectedId(l.id)}>
                           <span className="capitalize font-medium truncate max-w-[120px]">
                             {l.type === 'text' ? (l as TextLayer).text : l.type}
                           </span>

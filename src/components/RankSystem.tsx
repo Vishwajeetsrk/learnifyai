@@ -76,7 +76,6 @@ export function AnimatedRankCrown({
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
             {stops}
           </linearGradient>
-        </filter>
         </defs>
         <path
           d="M10 40 L30 80 L70 80 L90 40 L65 55 L50 20 L35 55 Z"
