@@ -23,6 +23,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { motion, useDragControls } from "framer-motion";
 
 type Step = {
   type: string;
@@ -113,6 +114,7 @@ export function GlobalSupportAgent() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const chatFn = useServerFn(supportChat);
   const [showIntro, setShowIntro] = useState(true);
+  const dragControls = useDragControls();
 
   const userContext = useMemo(() => {
     if (!user) return "Anonymous Visitor";
@@ -172,12 +174,22 @@ export function GlobalSupportAgent() {
   if (!user) return null;
 
   return (
-    <div className={cn("fixed bottom-6 z-50 flex flex-col", isLeft ? "left-6 items-start" : "right-6 items-end")}>
+    <motion.div
+      drag
+      dragControls={dragControls}
+      dragMomentum={false}
+      dragElastic={0.1}
+      className={cn("fixed bottom-6 z-[99] flex flex-col pointer-events-auto", isLeft ? "left-6 items-start" : "right-6 items-end")}
+      style={{ touchAction: "none" }}
+    >
       {open ? (
         <div className="w-96 max-w-[calc(100vw-2rem)] h-[550px] max-h-[calc(100vh-8rem)] bg-card border rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-3 animate-in fade-in slide-in-from-bottom-5 duration-200">
           {/* Header */}
-          <header className="bg-gradient-to-r from-violet-600 via-primary to-fuchsia-600 text-primary-foreground px-4 py-3 flex items-center justify-between shrink-0 shadow-sm relative overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1),transparent_60%)]" />
+          <header 
+            className="bg-gradient-to-r from-violet-600 via-primary to-fuchsia-600 text-primary-foreground px-4 py-3 flex items-center justify-between shrink-0 shadow-sm relative overflow-hidden cursor-grab active:cursor-grabbing"
+            onPointerDown={(e) => dragControls.start(e)}
+          >
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.1),transparent_60%)] pointer-events-none" />
             <div className="flex items-center gap-2.5 relative">
               <div className="relative">
                 <BotAvatar />
@@ -415,6 +427,6 @@ export function GlobalSupportAgent() {
           </button>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

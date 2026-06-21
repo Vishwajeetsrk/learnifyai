@@ -1,31 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Award, Lock, Loader2, Medal, Sparkles, BookOpen, Flame, Brain, Code2, RefreshCw, Plus } from "lucide-react";
+import { Award, Lock, Loader2, Medal, Sparkles, RefreshCw, Plus, Flame } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { getUserAchievements, getUserRank, awardXP } from "@/lib/gamification.functions";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AchievementGallery } from "@/components/AchievementGallery";
+import { AnimatedRankCrown } from "@/components/RankSystem";
 
 export const Route = createFileRoute("/_authenticated/achievements")({
   head: () => ({ meta: [{ title: "Achievements — Learnify AI" }] }),
   component: AchievementsPage,
 });
-
-const CATEGORIES = [
-  { key: "xp", label: "XP Milestones", icon: Sparkles, color: "from-yellow-400 to-orange-500" },
-  { key: "course", label: "Course Badges", icon: BookOpen, color: "from-blue-500 to-cyan-500" },
-  { key: "streak", label: "Streak Mastery", icon: Flame, color: "from-red-500 to-rose-500" },
-  { key: "test", label: "Test Champion", icon: Brain, color: "from-purple-500 to-violet-500" },
-  {
-    key: "challenge",
-    label: "Challenge Solver",
-    icon: Code2,
-    color: "from-emerald-500 to-teal-500",
-  },
-];
 
 function AchievementsPage() {
   const { user } = useAuth();
@@ -177,22 +166,23 @@ function AchievementsPage() {
         {/* Gamification Stats */}
         {rank && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-            <div className="bg-card rounded-2xl border p-4 shadow-sm flex flex-col justify-center">
-              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Rank League</span>
+            <div className="bg-card rounded-2xl border p-4 shadow-sm flex flex-col justify-center items-center text-center row-span-2 sm:row-span-1">
+              <AnimatedRankCrown rankName={rank.rankName} className="mb-2 scale-75 md:scale-100" />
               <span className={cn("text-lg font-bold mt-1", rank.rankColor)}>{rank.rankName}</span>
+              <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-1">Rank League</span>
             </div>
             <div className="bg-card rounded-2xl border p-4 shadow-sm flex flex-col justify-center">
               <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Level</span>
-              <span className="text-lg font-bold mt-1 text-indigo-500">Lv. {rank.level}</span>
+              <span className="text-2xl font-bold mt-1 text-indigo-500">Lv. {rank.level}</span>
             </div>
             <div className="bg-card rounded-2xl border p-4 shadow-sm flex flex-col justify-center">
               <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Total XP</span>
-              <span className="text-lg font-bold mt-1 text-amber-500">{rank.xp.toLocaleString()} XP</span>
+              <span className="text-2xl font-bold mt-1 text-amber-500">{rank.xp.toLocaleString()} XP</span>
             </div>
             <div className="bg-card rounded-2xl border p-4 shadow-sm flex flex-col justify-center">
               <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Daily Streak</span>
-              <span className="text-lg font-bold mt-1 text-orange-500">
-                🔥 {rank.streak} {rank.streak === 1 ? "day streak" : "days streak"}
+              <span className="text-2xl font-bold mt-1 text-orange-500 flex items-center gap-1">
+                <Flame className="h-5 w-5 fill-current" /> {rank.streak}
               </span>
             </div>
           </div>
@@ -252,7 +242,7 @@ function AchievementsPage() {
             <div className="flex-1 max-w-40">
               <div className="h-2 rounded-full bg-muted overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-primary transition-all"
+                  className="h-full rounded-full bg-gradient-to-r from-yellow-400 to-primary transition-all duration-1000"
                   style={{ width: `${Math.round((earnedCount / totalCount) * 100)}%` }}
                 />
               </div>
@@ -262,76 +252,21 @@ function AchievementsPage() {
 
         {isLoading ? (
           <div className="mt-12 text-center">
-            <Loader2 className="h-5 w-5 animate-spin text-primary mx-auto" />
+            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
           </div>
         ) : !badges || badges.length === 0 ? (
           <div className="mt-12 rounded-2xl border bg-card p-12 text-center">
-            <Award className="h-12 w-12 mx-auto text-muted-foreground/30 mb-3" />
-            <p className="font-medium">No badges yet</p>
+            <Award className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" />
+            <p className="font-medium text-lg">No badges yet</p>
             <p className="text-sm text-muted-foreground mt-1">
               Complete courses, lessons, and challenges to earn badges.
             </p>
           </div>
         ) : (
-          <div className="mt-8 space-y-10">
-            {CATEGORIES.map((cat) => {
-              const catBadges = badges.filter((b) => (b as any).category === cat.key);
-              if (catBadges.length === 0) return null;
-              const Icon = cat.icon;
-              return (
-                <section key={cat.key}>
-                  <div className="flex items-center gap-2.5 mb-4">
-                    <div
-                      className={`h-8 w-8 rounded-lg bg-gradient-to-br ${cat.color} grid place-items-center shadow-sm`}
-                    >
-                      <Icon className="h-4 w-4 text-white" />
-                    </div>
-                    <h2 className="font-display font-semibold text-lg">{cat.label}</h2>
-                    <span className="text-xs text-muted-foreground">
-                      {catBadges.filter((b) => b.earned).length}/{catBadges.length}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                    {catBadges.map((badge) => (
-                      <div
-                        key={badge.id}
-                        className={`rounded-xl border p-4 text-center transition-all ${
-                          badge.earned
-                            ? "bg-card shadow-sm hover:shadow-md hover:-translate-y-0.5"
-                            : "bg-muted/30 opacity-50"
-                        }`}
-                      >
-                        <div
-                          className={`h-12 w-12 rounded-full mx-auto grid place-items-center ${
-                            badge.earned ? `bg-gradient-to-br ${cat.color} shadow-sm` : "bg-muted"
-                          }`}
-                        >
-                          {badge.earned ? (
-                            <Icon className="h-5 w-5 text-white" />
-                          ) : (
-                            <Lock className="h-4 w-4 text-muted-foreground" />
-                          )}
-                        </div>
-                        <p className="mt-2 text-xs font-semibold leading-tight">{badge.name}</p>
-                        {badge.earned && badge.earned_at && (
-                          <p className="text-[9px] text-muted-foreground mt-1">
-                            {new Date(badge.earned_at).toLocaleDateString()}
-                          </p>
-                        )}
-                        {!badge.earned && badge.xp_required > 0 && (
-                          <p className="text-[9px] text-muted-foreground mt-1">
-                            {badge.xp_required} XP
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              );
-            })}
-          </div>
+          <AchievementGallery badges={badges} />
         )}
       </div>
     </AppShell>
   );
 }
+

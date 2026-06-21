@@ -903,7 +903,7 @@ function PricingManager() {
         <div className="space-y-2">
           {plans.map((p) => (
             <div key={p.id} className="rounded-xl border border-border/60 bg-card p-4">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="font-semibold truncate flex items-center gap-2">
                     {p.name}{" "}
@@ -919,7 +919,7 @@ function PricingManager() {
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
+                  <div className="text-xs text-muted-foreground mt-0.5 break-words">
                     {p.interval ? `${p.interval}ly` : "One-time"} ·{" "}
                     {p.ai_credits_monthly > 0
                       ? `${p.ai_credits_monthly.toLocaleString("en-IN")} AI credits/mo`
@@ -931,11 +931,12 @@ function PricingManager() {
                         : ` · No recurring billing`}
                   </div>
                 </div>
-                <div className="flex gap-2 shrink-0">
+                <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 shrink-0 w-full sm:w-auto">
                   {p.price_inr > 0 && p.interval && !p.cashfree_plan_id && (
                     <Button
                       size="sm"
                       variant="outline"
+                      className="col-span-2 sm:col-span-1"
                       onClick={async () => {
                         try {
                           await doSyncPlan({ data: { planId: p.id } });
@@ -952,15 +953,16 @@ function PricingManager() {
                   <Button
                     size="sm"
                     variant="outline"
+                    className="w-full"
                     onClick={() => {
                       setEditing(p);
                       setOpen(true);
                     }}
                   >
-                    <Pencil className="h-3.5 w-3.5" />
+                    <Pencil className="h-3.5 w-3.5 sm:mr-0 mr-2" /> <span className="sm:hidden">Edit</span>
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => setDeleteId(p.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
+                  <Button size="sm" variant="outline" className="w-full" onClick={() => setDeleteId(p.id)}>
+                    <Trash2 className="h-3.5 w-3.5 sm:mr-0 mr-2" /> <span className="sm:hidden">Delete</span>
                   </Button>
                 </div>
               </div>
@@ -1722,8 +1724,8 @@ function TemplateDialog({
           </DialogHeader>
           <div className="grid lg:grid-cols-5 gap-4">
             {/* Preview — full width on mobile, 3 cols on lg, sticky so it stays in view */}
-            <div className="lg:col-span-3 lg:order-2">
-              <div className="rounded-md border border-border/60 overflow-hidden lg:sticky lg:top-2">
+            <div className="lg:col-span-3 lg:order-2 sticky top-0 lg:top-2 z-30 bg-background/95 backdrop-blur pb-2 lg:pb-0 mb-4 lg:mb-0">
+              <div className="rounded-md border border-border/60 overflow-hidden shadow-sm">
                 <div className="bg-muted/40 px-3 py-2 text-xs text-muted-foreground flex items-center justify-between">
                   <span>Live preview · A4 landscape</span>
                   <Button
@@ -1733,10 +1735,10 @@ function TemplateDialog({
                     className="h-7 text-[11px]"
                     onClick={() => setFullPreviewOpen(true)}
                   >
-                    <Maximize2 className="h-3.5 w-3.5" /> View full certificate
+                    <Maximize2 className="h-3.5 w-3.5 mr-1" /> Full
                   </Button>
                 </div>
-                <div className="p-3 bg-muted/20 flex justify-center">
+                <div className="p-2 sm:p-3 bg-muted/20 flex justify-center">
                   <div
                     className="w-full"
                     style={{ maxWidth: "min(100%, calc((78vh - 120px) * 1.414))" }}
@@ -1834,6 +1836,7 @@ function TemplateDialog({
                       type="color"
                       value={form.accent_color}
                       onChange={(e) => set({ accent_color: e.target.value })}
+                      className="h-8 p-1"
                     />
                   </div>
                   <div>
@@ -1842,6 +1845,7 @@ function TemplateDialog({
                       type="color"
                       value={form.accent_color_2 ?? form.accent_color}
                       onChange={(e) => set({ accent_color_2: e.target.value })}
+                      className="h-8 p-1"
                     />
                   </div>
                   <div>
@@ -1850,6 +1854,7 @@ function TemplateDialog({
                       type="color"
                       value={form.bg_color}
                       onChange={(e) => set({ bg_color: e.target.value })}
+                      className="h-8 p-1"
                     />
                   </div>
                   <div>
@@ -1858,6 +1863,7 @@ function TemplateDialog({
                       type="color"
                       value={form.text_color}
                       onChange={(e) => set({ text_color: e.target.value })}
+                      className="h-8 p-1"
                     />
                   </div>
                 </div>
@@ -2074,12 +2080,12 @@ function TemplateDialog({
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 -mx-6 -mb-6 px-6 py-4 bg-background/95 backdrop-blur border-t z-40 mt-6 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button onClick={save} disabled={saving}>
-              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Save
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Save Template
             </Button>
           </DialogFooter>
         </DialogContent>

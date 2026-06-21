@@ -316,6 +316,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v3.0.0 (June 2026) - Major UI/UX Polish & Gamification Upgrade
+- ✅ **Gamification Engine**: Added premium SVG badges (Streak, XP, Course, etc.) and an animated Rank System with a dynamic crown. Built a robust Achievement Gallery and overhauled the achievements hub.
+- ✅ **Profile Page Upgrade**: Profiles now showcase animated rank crowns and gamification badges, with premium stats formatting using soft gradients and modern badge outlines.
+- ✅ **Community Feed Polish**: Upgraded feed with micro-animations, backdrop-blur, refined borders, and a beautiful gradient header. Replaced basic loading states with smooth `Skeleton` layouts.
+- ✅ **Global Support Agent**: Made the floating AI Support Agent fully draggable and mobile-safe, featuring a premium trigger pill with a subtle bounce animation.
+- ✅ **System-Wide Enhancements**: Fixed Certificate Designer zoom mechanics, resolved Admin Dashboard mobile overflow, enabled client-side thumbnail generation for custom video uploads, and parsed raw JSON payment errors into human-readable toast notifications.
+
 ### v1.5.0 (June 2026)
 - ✅ **Customize Character Enhancements**: Fixed the avatar customization preview by aligning style parameters with Dicebear v7.x schemas (mapping invalid `shortHair...` / `longHair...` prefixes to `shortFlat`, `straight01`, etc.). Added an **Avatar Background Color** customizer tab supporting solid and transparent backdrops. Ensured profile border styling is preserved upon custom avatar image uploads.
 - ✅ **Unified Profile Borders**: Implemented global CSS borders for custom profiles using a unified class resolver, rendering borders cleanly across the settings page, public profile page, Kanban board assignees, and course player instructors.

@@ -848,59 +848,82 @@ function AdminOverview() {
             <Button variant="outline" size="sm" onClick={refreshAll}>
               <RefreshCw className="h-4 w-4" /> Refresh
             </Button>
-            <Button size="sm" onClick={handleExport}>
-              <Download className="h-4 w-4" /> Export Excel
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => handleExportCSV()}>
-              <Download className="h-4 w-4" /> CSV
-            </Button>
-            <Button size="sm" variant="ghost" onClick={() => handleExportCSV(true)}>
-              <Download className="h-4 w-4" /> All CSV
-            </Button>
+            <div className="hidden md:flex items-center gap-2">
+              <Button size="sm" onClick={handleExport}>
+                <Download className="h-4 w-4 mr-2" /> Export Excel
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => handleExportCSV()}>
+                <Download className="h-4 w-4 mr-2" /> Export CSV
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => handleExportCSV(true)}>
+                <Download className="h-4 w-4 mr-2" /> Export All
+              </Button>
+            </div>
+            <div className="md:hidden">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    Export <Download className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleExport}>Export Excel</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExportCSV()}>Export CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleExportCSV(true)}>Export All</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
 
           </div>
         </div>
 
         {/* Report filter */}
         <div className="mt-6 rounded-2xl border bg-card p-4 shadow-card">
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="text-sm font-medium mr-2 flex items-center gap-2">
-              <CalendarIcon className="h-4 w-4 text-primary" /> Report range
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="text-sm font-medium mr-2 flex items-center gap-2 w-full sm:w-auto">
+                <CalendarIcon className="h-4 w-4 text-primary" /> Report range
+              </div>
+              {(["7d", "30d", "month", "90d"] as const).map((p) => (
+                <Button
+                  key={p}
+                  size="sm"
+                  variant={preset === p ? "default" : "outline"}
+                  onClick={() => applyPreset(p)}
+                  className="flex-1 sm:flex-none"
+                >
+                  {p === "7d"
+                    ? "Last 7 days"
+                    : p === "30d"
+                      ? "Last 30 days"
+                      : p === "month"
+                        ? "This month"
+                        : "Last 90 days"}
+                </Button>
+              ))}
             </div>
-            {(["7d", "30d", "month", "90d"] as const).map((p) => (
-              <Button
-                key={p}
-                size="sm"
-                variant={preset === p ? "default" : "outline"}
-                onClick={() => applyPreset(p)}
-              >
-                {p === "7d"
-                  ? "Last 7 days"
-                  : p === "30d"
-                    ? "Last 30 days"
-                    : p === "month"
-                      ? "This month"
-                      : "Last 90 days"}
-              </Button>
-            ))}
-            <div className="flex items-center gap-2 ml-auto">
-              <DateField
-                label="From"
-                value={from}
-                onChange={(d) => {
-                  setFrom(d);
-                  setPreset("custom");
-                }}
-              />
-              <span className="text-muted-foreground">→</span>
-              <DateField
-                label="To"
-                value={to}
-                onChange={(d) => {
-                  setTo(d);
-                  setPreset("custom");
-                }}
-              />
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 lg:ml-auto w-full lg:w-auto">
+              <div className="w-full sm:w-auto">
+                <DateField
+                  label="Start Date"
+                  value={from}
+                  onChange={(d) => {
+                    setFrom(d);
+                    setPreset("custom");
+                  }}
+                />
+              </div>
+              <span className="text-muted-foreground hidden sm:inline-block">→</span>
+              <div className="w-full sm:w-auto mt-2 sm:mt-0">
+                <DateField
+                  label="End Date"
+                  value={to}
+                  onChange={(d) => {
+                    setTo(d);
+                    setPreset("custom");
+                  }}
+                />
+              </div>
             </div>
           </div>
           <div className="mt-2 text-xs text-muted-foreground flex items-center justify-between">

@@ -98,16 +98,25 @@ export function CertificateFullPreviewDialog({ open, onOpenChange, design, ctx, 
           ref={wrapRef}
           className="flex-1 overflow-auto bg-[radial-gradient(circle_at_1px_1px,_hsl(var(--muted))_1px,_transparent_0)] [background-size:18px_18px]"
         >
-          <div className="min-w-max min-h-max p-6 flex items-start justify-center">
+          <div className="min-w-max min-h-max p-6 sm:p-12 flex items-center justify-center">
             <div
-              ref={innerRef}
-              style={{
-                transform: `scale(${zoom})`,
-                transformOrigin: "top left",
-                width: "1123px", // A4 landscape @ ~96dpi
-              }}
+              className="relative transition-transform duration-100 ease-out"
+              style={{ width: 1123 * zoom, height: 794 * zoom }}
             >
-              <CertificateRender design={design} ctx={ctx} />
+              <div
+                ref={innerRef}
+                style={{
+                  transform: `scale(${zoom})`,
+                  transformOrigin: "top left",
+                  width: "1123px", // A4 landscape @ ~96dpi
+                  height: "794px",
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                }}
+              >
+                <CertificateRender design={design} ctx={ctx} />
+              </div>
             </div>
           </div>
         </div>

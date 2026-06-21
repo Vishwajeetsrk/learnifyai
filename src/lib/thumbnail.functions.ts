@@ -354,21 +354,131 @@ export function buildThumbnailPrompt(opts: {
   customNotes?: string;
   lessonHint?: string;
 }) {
-  const style = THUMBNAIL_STYLES.find((s) => s.id === opts.style) ?? THUMBNAIL_STYLES[0];
+  const styleObj = THUMBNAIL_STYLES.find((s) => s.id === opts.style) ?? THUMBNAIL_STYLES[0];
   const titleText = opts.title.length > 120 ? opts.title.slice(0, 117) + "..." : opts.title;
-  const parts = [
-    `Professional course thumbnail for an online course titled "${titleText}".`,
-    opts.category ? `Category: ${opts.category}.` : "",
-    opts.description ? `About: ${opts.description.slice(0, 300)}.` : "",
-    opts.lessonHint ? `First lesson theme: ${opts.lessonHint.slice(0, 240)}.` : "",
-    `Style: ${style.label} — ${style.hint}.`,
-    opts.colors ? `Color palette: ${opts.colors}.` : "",
-    `CRITICAL: Render the title text "${titleText}" in CRYSTAL CLEAR, perfectly readable high-resolution text. Text must be sharp, centered, and large enough to be clearly legible on mobile. Use bold sans-serif or serif font with high contrast against the background. NO blurry, smudged, distorted, warped, or unreadable text.`,
-    `Quality: ultra-realistic, 8K quality, sharp details, professional design, vibrant colors, clean composition.`,
-    `DO NOT: include watermarks, logos, copyrighted IP, real faces (use abstract icons instead), text beyond the title, or low-resolution artifacts.`,
-    opts.customNotes ? `Extra direction: ${opts.customNotes}` : "",
-  ];
-  return parts.filter(Boolean).join(" ");
+
+  return `
+You are an award-winning Creative Director, Senior Brand Designer, YouTube Thumbnail Expert, Udemy/Coursera Course Designer, UI Designer, Marketing Designer, and AI Image Prompt Engineer.
+
+Your task is to generate ONE premium educational course thumbnail that looks professionally designed by an experienced graphic designer.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INPUTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Course Title: ${titleText}
+Category: ${opts.category ?? "General Education"}
+Course Description: ${opts.description?.slice(0, 300) ?? "None"}
+First Lesson (Optional): ${opts.lessonHint?.slice(0, 240) ?? "None"}
+Selected Style: ${styleObj.label} — ${styleObj.hint}
+Selected Color Palette: ${opts.colors || "Automatically create a premium color palette based on the course category."}
+Additional User Instructions: ${opts.customNotes || "None"}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generate ONE professional thumbnail.
+Preferred Resolution: 1792×1024 or 1536x1024.
+Never generate square images unless explicitly requested.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DESIGN GOAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The thumbnail should immediately communicate:
+• Premium quality
+• Professional education
+• Modern technology
+• High trust
+• High click-through rate
+• Clean composition
+• Mobile readability
+• Visual hierarchy
+
+The result should look comparable to Udemy Premium, Coursera, Vercel Academy, Fireship, or YouTube Tech Channels.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TEXT RULES (VERY IMPORTANT)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Display ONLY ONE text element exactly as follows:
+${titleText}
+
+Never display:
+❌ Course description
+❌ Lesson title
+❌ Summary
+❌ Paragraphs
+❌ Bullet lists
+❌ Feature list
+❌ Fake UI text
+❌ Lorem Ipsum
+❌ Random numbers
+❌ Code snippets
+❌ Interface labels
+❌ Buttons with text
+❌ Copyright text
+❌ Watermarks
+
+The title should occupy approximately 35–45% of the canvas.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TYPOGRAPHY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The title MUST be:
+• Crystal clear
+• Perfect spelling
+• Large, bold, high contrast
+• Clean kerning
+• Professional and mobile readable
+• Sharp vector typography
+
+Never generate blurry, melted, warped, stretched, duplicated, cut-off, or unreadable letters.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LAYOUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Default Layout:
+LEFT SIDE: Large title, small accent element, whitespace
+RIGHT SIDE: Large premium illustration, balanced composition
+Alternative layouts (choose automatically if better): Center Hero, Split Layout, Diagonal Layout, Floating Card Layout.
+Never overlap important artwork with title. Keep safe margins around all edges.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ILLUSTRATION STYLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Create a premium hero illustration related to the course (Programming, Design, Marketing, Data Science, CMS, Next.js, etc.).
+Never use real humans unless explicitly requested.
+Prefer premium 3D objects, abstract illustrations, modern UI mockups and technology visuals.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VISUAL STYLE ENGINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Use the Selected Style rules:
+If Bold & Modern: vibrant gradients, abstract shapes, glowing accents.
+If Retro Flat: pastel colors, mint background, comic outlines, offset shadows, flat vectors.
+If Minimal: white background, subtle geometry, soft shadows.
+If Tech: dark navy/black, blue/purple glow, futuristic lighting, grid.
+If Education: warm pastel, friendly illustration.
+If Playful: colorful, rounded shapes.
+If Premium: black, charcoal, gold accents, elegant lighting.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COLOR SYSTEM & BACKGROUND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Use Selected Color Palette.
+Create a modern premium background (e.g. gradient mesh, glassmorphism, abstract waves, dark technology, particles, grid). Do NOT leave empty backgrounds.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LIGHTING & QUALITY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Professional studio lighting, soft glow, premium reflections, ambient lighting, depth, realistic shadows.
+Ultra detailed, 8K quality, professional composition, perfect alignment, premium branding, modern design, pixel perfect, cinematic lighting.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NEGATIVE PROMPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Avoid: blurry, low resolution, pixelated, jpeg artifacts, noise, watermark, logo, copyright text, extra text, paragraphs, real people, faces, hands, flat lighting, poor typography, distorted text, misspelled words, cut off title, warped letters, messy layout, empty space, cheap stock design, clipart.
+
+Produce a thumbnail that looks professionally designed for a premium online course.
+  `.trim();
 }
 
 // Client-side helper to validate a thumbnail's dimensions and aspect ratio.

@@ -41,6 +41,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -291,11 +292,22 @@ function CommunityPage() {
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-display font-semibold mb-6">Community Hub</h1>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 grid place-items-center shadow-lg relative overflow-hidden">
+            <div className="absolute inset-0 bg-white/20 hover:bg-transparent transition-colors" />
+            <MessageSquare className="h-6 w-6 text-white drop-shadow-md" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-display font-bold tracking-tight">Community Hub</h1>
+            <p className="text-muted-foreground text-sm mt-0.5">
+              Connect, share, and learn with other builders
+            </p>
+          </div>
+        </div>
 
         {/* Create Post Box */}
-        <div className="bg-card rounded-2xl border p-5 mb-8 shadow-sm focus-within:ring-1 focus-within:ring-primary/50 transition-shadow">
-          <div className="flex gap-3 mb-4">
+        <div className="bg-card/80 backdrop-blur-md rounded-3xl border border-primary/10 p-6 mb-10 shadow-sm focus-within:shadow-md focus-within:ring-1 focus-within:ring-primary/30 transition-all">
+          <div className="flex gap-3 mb-5">
             <button
               onClick={() => setPostType("post")}
               className={cn(
@@ -331,15 +343,15 @@ function CommunityPage() {
             </button>
           </div>
           <div className="flex gap-4">
-            <Avatar className="h-11 w-11 mt-1 border">
+            <Avatar className="h-12 w-12 mt-1 border-2 border-background shadow-sm ring-2 ring-primary/10">
               <AvatarImage src={profile?.avatar_url || ""} />
-              <AvatarFallback>
+              <AvatarFallback className="bg-primary/5 text-primary font-semibold">
                 {profile?.full_name?.charAt(0) || user?.email?.charAt(0)}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               {postType === "poll" ? (
-                <div className="space-y-3 mb-3">
+                <div className="space-y-4 mb-3">
                   <Input
                     value={pollQuestion}
                     onChange={(e) => setPollQuestion(e.target.value)}
@@ -884,9 +896,27 @@ function CommunityPage() {
         {/* Feed */}
         <div className="space-y-6">
           {isLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-card h-48 rounded-2xl border animate-pulse" />
+                <div key={i} className="bg-card rounded-3xl border shadow-sm p-6 space-y-4">
+                  <div className="flex gap-4">
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                    <div className="space-y-2 flex-1 pt-1">
+                      <Skeleton className="h-4 w-[150px]" />
+                      <Skeleton className="h-3 w-[100px]" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-[90%]" />
+                    <Skeleton className="h-4 w-[80%]" />
+                  </div>
+                  <div className="flex gap-4 pt-4 border-t border-border/50">
+                    <Skeleton className="h-5 w-5" />
+                    <Skeleton className="h-5 w-5" />
+                    <Skeleton className="h-5 w-5 ml-auto" />
+                  </div>
+                </div>
               ))}
             </div>
           ) : posts.length === 0 ? (
@@ -911,15 +941,15 @@ function CommunityPage() {
                 <article
                   key={post.id}
                   className={cn(
-                    "bg-card rounded-2xl border shadow-sm p-5 transition-shadow",
-                    isAnnouncement ? "border-primary/30 ring-1 ring-primary/10" : "hover:shadow-md",
+                    "bg-card rounded-3xl border shadow-sm p-6 transition-all hover:shadow-lg hover:-translate-y-0.5",
+                    isAnnouncement ? "border-primary/40 ring-1 ring-primary/20 bg-primary/[0.02]" : "border-border/50",
                   )}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex gap-3 mb-4">
-                      <Avatar>
+                    <div className="flex gap-3.5 mb-5">
+                      <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
                         <AvatarImage src={post.author?.avatar_url} />
-                        <AvatarFallback>{post.author?.full_name?.charAt(0) || "U"}</AvatarFallback>
+                        <AvatarFallback className="font-medium">{post.author?.full_name?.charAt(0) || "U"}</AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-semibold flex items-center gap-2">
@@ -1040,28 +1070,28 @@ function CommunityPage() {
                   )}
 
                   {!isPoll && (
-                    <div className="flex items-center gap-6 pt-4 border-t text-muted-foreground">
+                    <div className="flex items-center gap-6 pt-4 border-t border-border/50 text-muted-foreground mt-2">
                       <button
                         onClick={() => toggleLike(post.id, isLiked)}
-                        className={`flex items-center gap-1.5 hover:text-rose-500 transition-colors ${isLiked ? "text-rose-500 font-medium" : ""}`}
+                        className={`flex items-center gap-1.5 hover:text-rose-500 transition-colors group ${isLiked ? "text-rose-500 font-medium" : ""}`}
                       >
-                        <Heart className={`h-5 w-5 ${isLiked ? "fill-current" : ""}`} />
+                        <Heart className={`h-5 w-5 transition-transform group-hover:scale-110 ${isLiked ? "fill-current scale-110" : ""}`} />
                         <span className="text-sm">{post.likes?.length || 0}</span>
                       </button>
                       <button
                         onClick={() =>
                           setExpandedPostId(expandedPostId === post.id ? null : post.id)
                         }
-                        className="flex items-center gap-1.5 hover:text-indigo-500 transition-colors"
+                        className="flex items-center gap-1.5 hover:text-indigo-500 transition-colors group"
                       >
-                        <MessageSquare className="h-5 w-5" />
+                        <MessageSquare className="h-5 w-5 transition-transform group-hover:scale-110" />
                         <span className="text-sm">{post.comments?.length || 0}</span>
                       </button>
                       <button
                         onClick={() => toggleSave(post.id, isSaved)}
-                        className={`flex items-center gap-1.5 ml-auto hover:text-amber-500 transition-colors ${isSaved ? "text-amber-500 font-medium" : ""}`}
+                        className={`flex items-center gap-1.5 ml-auto hover:text-amber-500 transition-colors group ${isSaved ? "text-amber-500 font-medium" : ""}`}
                       >
-                        <Bookmark className={`h-5 w-5 ${isSaved ? "fill-current" : ""}`} />
+                        <Bookmark className={`h-5 w-5 transition-transform group-hover:scale-110 ${isSaved ? "fill-current" : ""}`} />
                       </button>
                     </div>
                   )}

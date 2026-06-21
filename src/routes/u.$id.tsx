@@ -40,6 +40,8 @@ import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { getProfileBorderClass } from "@/components/ui/avatar";
+import { AnimatedRankCrown } from "@/components/RankSystem";
+import { StreakBadge, XpBadge, CourseBadge, TestBadge, ChallengeBadge } from "@/components/GamificationBadges";
 
 export const Route = createFileRoute("/u/$id")({
   head: ({ params }) => ({
@@ -183,17 +185,18 @@ function PublicProfilePage() {
               <h1 className="font-display text-3xl font-bold tracking-tight">{name}</h1>
 
               {/* Gamification Stats */}
-              <div className="flex flex-wrap items-center gap-2 mt-1.5 mb-2">
-                <Badge className={cn("text-xs font-semibold px-2 py-0.5 rounded-lg border shadow-sm", rankInfo.bg, rankInfo.color)}>
-                  🏆 {rankInfo.name}
-                </Badge>
-                <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 rounded-lg border bg-background/50 text-indigo-500 border-indigo-200 dark:border-indigo-900/50">
+              <div className="flex flex-wrap items-center gap-3 mt-1.5 mb-2">
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border bg-card shadow-sm">
+                  <AnimatedRankCrown rankName={rankInfo.name} className="scale-50 -my-4 -mx-2" />
+                  <span className={cn("text-xs font-bold", rankInfo.color)}>{rankInfo.name}</span>
+                </div>
+                <Badge variant="outline" className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-indigo-500 border-indigo-200 dark:border-indigo-900/50 shadow-sm">
                   ⚡ Lv. {level}
                 </Badge>
-                <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 rounded-lg border bg-background/50 text-amber-500 border-amber-200 dark:border-amber-900/50">
+                <Badge variant="outline" className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-amber-500 border-amber-200 dark:border-amber-900/50 shadow-sm">
                   ⭐ {xp.toLocaleString()} XP
                 </Badge>
-                <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 rounded-lg border bg-background/50 text-orange-500 border-orange-200 dark:border-orange-900/50">
+                <Badge variant="outline" className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-orange-500 border-orange-200 dark:border-orange-900/50 shadow-sm">
                   🔥 {streak} {streak === 1 ? "day streak" : "days streak"}
                 </Badge>
               </div>
@@ -676,40 +679,20 @@ function PublicProfilePage() {
                     {achievementsQ.data
                       .filter((b: any) => b.earned)
                       .map((badge: any) => {
-                        let CatIcon = Award;
-                        let catColor = "from-yellow-400 to-orange-500";
-                        if (badge.category === "xp") {
-                          CatIcon = Sparkles;
-                          catColor = "from-yellow-400 to-orange-500";
-                        } else if (badge.category === "course") {
-                          CatIcon = BookOpen;
-                          catColor = "from-blue-500 to-cyan-500";
-                        } else if (badge.category === "streak") {
-                          CatIcon = Flame;
-                          catColor = "from-red-500 to-rose-500";
-                        } else if (badge.category === "test") {
-                          CatIcon = Brain;
-                          catColor = "from-purple-500 to-violet-500";
-                        } else if (badge.category === "challenge") {
-                          CatIcon = Code2;
-                          catColor = "from-emerald-500 to-teal-500";
-                        }
+                        let BadgeSVG = CourseBadge;
+                        if (badge.category === "xp") BadgeSVG = XpBadge;
+                        else if (badge.category === "streak") BadgeSVG = StreakBadge;
+                        else if (badge.category === "test") BadgeSVG = TestBadge;
+                        else if (badge.category === "challenge") BadgeSVG = ChallengeBadge;
 
                         return (
                           <div
                             key={badge.id}
-                            className="group relative flex flex-col items-center justify-center p-2 rounded-xl border bg-muted/20 hover:bg-muted/40 transition-all text-center cursor-default"
+                            className="group relative flex flex-col items-center justify-center p-3 rounded-2xl border bg-card hover:shadow-md hover:-translate-y-0.5 transition-all text-center"
                             title={`${badge.name}: ${badge.description || "Earned badge"}`}
                           >
-                            <div
-                              className={cn(
-                                "h-9 w-9 rounded-full bg-gradient-to-br flex items-center justify-center shadow-sm text-white",
-                                catColor,
-                              )}
-                            >
-                              <CatIcon className="h-4.5 w-4.5" />
-                            </div>
-                            <span className="text-[9px] font-medium truncate w-full mt-1.5 block">
+                            <BadgeSVG className="w-10 h-10 mb-2" level={Math.floor((badge.xp_required || 0) / 500) + 1} />
+                            <span className="text-[10px] font-bold truncate w-full leading-tight text-foreground">
                               {badge.name}
                             </span>
                           </div>

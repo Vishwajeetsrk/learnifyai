@@ -194,7 +194,19 @@ function WalletPage() {
       qc.invalidateQueries({ queryKey: ["wallet-balance"] });
       setOpen(false);
     } catch (err: any) {
-      toast.error(err.message || "Failed to initiate top-up");
+      let msg = err.message || "Failed to initiate top-up";
+      try {
+        const parsed = JSON.parse(msg);
+        msg = parsed.message || parsed.error?.message || "An unexpected payment error occurred.";
+      } catch (e) {
+        // Not JSON
+      }
+      toast.error(
+        <div className="flex flex-col gap-1">
+          <span className="font-semibold text-sm">Payment Failed</span>
+          <span className="text-xs opacity-90">{msg}</span>
+        </div>
+      );
     } finally {
       setSubmitting(false);
     }
@@ -663,7 +675,19 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
       qc.invalidateQueries({ queryKey: ["my-withdrawals"] });
       qc.invalidateQueries({ queryKey: ["wallet-tx"] });
     } catch (err: any) {
-      toast.error(err.message || "Withdrawal failed");
+      let msg = err.message || "Withdrawal failed";
+      try {
+        const parsed = JSON.parse(msg);
+        msg = parsed.message || parsed.error?.message || "An unexpected withdrawal error occurred.";
+      } catch (e) {
+        // Not JSON
+      }
+      toast.error(
+        <div className="flex flex-col gap-1">
+          <span className="font-semibold text-sm">Withdrawal Failed</span>
+          <span className="text-xs opacity-90">{msg}</span>
+        </div>
+      );
     } finally {
       setSubmitting(false);
     }

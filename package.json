@@ -94,6 +94,7 @@
     "react-markdown": "^10.1.0",
     "react-player": "^3.4.0",
     "react-resizable-panels": "^4.6.5",
+    "react-rnd": "^10.5.3",
     "recharts": "^2.15.4",
     "rehype-highlight": "^7.0.2",
     "rehype-raw": "^7.0.0",

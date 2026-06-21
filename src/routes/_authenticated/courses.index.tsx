@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { enrollFree } from "@/lib/course.functions";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import { getCourseLearners } from "@/lib/gamification.functions";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authenticated/courses/")({
   head: () => ({ meta: [{ title: "Courses — Learnify AI" }] }),
@@ -291,8 +292,22 @@ function CoursesPage() {
         </div>
 
         {coursesQuery.isLoading ? (
-          <div className="py-20 grid place-items-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <div key={i} className="rounded-2xl border bg-card overflow-hidden shadow-card p-4 space-y-4">
+                <Skeleton className="aspect-video w-full rounded-xl" />
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Skeleton className="h-4 w-16 rounded-full" />
+                    <Skeleton className="h-4 w-12 rounded-full" />
+                  </div>
+                  <Skeleton className="h-5 w-[90%]" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-[80%]" />
+                </div>
+                <Skeleton className="h-9 w-full rounded-lg mt-4" />
+              </div>
+            ))}
           </div>
         ) : filtered.length === 0 ? (
           <div className="mt-10 rounded-2xl border bg-card p-12 grid place-items-center text-center shadow-card">

@@ -1197,6 +1197,39 @@ function LessonsDialog({ course, onClose }: { course: Course | null; onClose: ()
   );
 }
 
+function generateVideoThumbnail(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.playsInline = true;
+    video.muted = true;
+    const url = URL.createObjectURL(file);
+    video.src = url;
+
+    video.onloadedmetadata = () => {
+      video.currentTime = Math.min(2, video.duration / 3);
+    };
+
+    video.onseeked = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
+      } else {
+        reject(new Error("Canvas context null"));
+      }
+      URL.revokeObjectURL(url);
+    };
+    video.onerror = () => {
+      reject(new Error("Failed to load video for thumbnail"));
+      URL.revokeObjectURL(url);
+    };
+  });
+}
+
 function LessonForm({
   lesson,
   courseId,
@@ -1225,6 +1258,51 @@ function LessonForm({
   const generateNotesFn = useServerFn(generateLessonNotes);
   const [searchingVideo, setSearchingVideo] = useState(false);
   const [generatingNotes, setGeneratingNotes] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+
+  async function handleVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (e.target) e.target.value = "";
+    if (!f) return;
+    if (f.size > 200 * 1024 * 1024) return toast.error("Video too large (max 200MB)");
+    setUploadingVideo(true);
+    try {
+      // 1. Generate thumbnail
+      let thumbDataUrl: string | null = null;
+      try {
+        thumbDataUrl = await generateVideoThumbnail(f);
+      } catch (err) {
+        console.warn("Could not generate thumbnail", err);
+      }
+
+      // 2. Upload video
+      const ext = f.name.split(".").pop();
+      const path = `lesson_videos/${courseId}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("community-uploads").upload(path, f);
+      if (error) throw error;
+      const { data } = supabase.storage.from("community-uploads").getPublicUrl(path);
+      setVideoUrl(data.publicUrl);
+      toast.success("Video uploaded successfully");
+
+      // 3. Upload thumbnail if generated (optional feature: update course cover if empty)
+      if (thumbDataUrl) {
+        const { data: courseData } = await supabase.from("courses").select("cover_url").eq("id", courseId).single();
+        if (courseData && !courseData.cover_url) {
+          // If course has no cover, let's upload the thumbnail and set it as cover!
+          const thumbBlob = await (await fetch(thumbDataUrl)).blob();
+          const thumbPath = `course_covers/${courseId}/thumb_${Date.now()}.jpg`;
+          await supabase.storage.from("public_assets").upload(thumbPath, thumbBlob, { upsert: true });
+          const { data: pData } = supabase.storage.from("public_assets").getPublicUrl(thumbPath);
+          await supabase.from("courses").update({ cover_url: pData.publicUrl }).eq("id", courseId);
+          toast.success("Generated thumbnail applied as course cover!");
+        }
+      }
+    } catch (err: any) {
+      toast.error(err?.message ?? "Error uploading video");
+    } finally {
+      setUploadingVideo(false);
+    }
+  }
 
   async function handleAiFindVideo() {
     if (!title.trim()) return toast.error("Please enter a lesson title first.");
@@ -1303,6 +1381,24 @@ function LessonForm({
             aria-invalid={!!videoError}
             className="flex-1"
           />
+          <label className={cn(
+            "h-10 px-3 text-xs shrink-0 flex items-center gap-1.5 border rounded-md font-medium cursor-pointer transition",
+            uploadingVideo ? "opacity-50 cursor-not-allowed bg-muted" : "hover:bg-secondary"
+          )}>
+            {uploadingVideo ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Upload className="h-3.5 w-3.5" />
+            )}
+            Upload MP4
+            <input
+              type="file"
+              accept="video/mp4,video/webm"
+              className="hidden"
+              onChange={handleVideoUpload}
+              disabled={uploadingVideo}
+            />
+          </label>
           <Button
             type="button"
             variant="outline"
@@ -1316,16 +1412,20 @@ function LessonForm({
             ) : (
               <Youtube className="h-3.5 w-3.5 text-red-500 fill-red-500" />
             )}
-            AI Find Video
+            AI Find
           </Button>
         </div>
-        {videoError ? (
+        {videoError && !uploadingVideo ? (
           <p className="text-[11px] text-destructive">{videoError}</p>
-        ) : (
+        ) : videoUrl && !videoError ? (
           <p className="text-[11px] text-emerald-600 flex items-center gap-1">
             <CheckCircle2 className="h-3 w-3" /> Playable video URL
           </p>
-        )}
+        ) : uploadingVideo ? (
+          <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+            <Loader2 className="h-3 w-3 animate-spin" /> Uploading and generating thumbnail...
+          </p>
+        ) : null}
       </div>
       <div className="space-y-1.5">
         <Label>Duration (mins)</Label>
