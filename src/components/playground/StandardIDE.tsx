@@ -15,7 +15,7 @@ import {
   SaveAll,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import * as ResizablePrimitive from "react-resizable-panels";
 
 export function StandardIDE({
   files,
@@ -105,9 +105,9 @@ export function StandardIDE({
       </div>
 
       <div className="flex-1 overflow-hidden">
-        <PanelGroup direction="horizontal">
+        <ResizablePrimitive.Group direction="horizontal">
           {/* File Explorer */}
-          <Panel defaultSize={15} minSize={10} maxSize={30}>
+          <ResizablePrimitive.Panel defaultSize={15} minSize={10} maxSize={30}>
             <div className="h-full border-r bg-card flex flex-col">
               <div className="flex items-center justify-between p-2 border-b">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -150,11 +150,11 @@ export function StandardIDE({
                 ))}
               </div>
             </div>
-          </Panel>
-          <PanelResizeHandle className="w-1 bg-border hover:bg-primary transition-colors cursor-col-resize" />
+          </ResizablePrimitive.Panel>
+          <ResizablePrimitive.Separator className="w-1 bg-border hover:bg-primary transition-colors cursor-col-resize" />
 
           {/* Editor */}
-          <Panel defaultSize={55} minSize={30}>
+          <ResizablePrimitive.Panel defaultSize={55} minSize={30}>
             <div className="h-full relative">
               {activeFile ? (
                 <CodeEditor
@@ -169,11 +169,11 @@ export function StandardIDE({
                 </div>
               )}
             </div>
-          </Panel>
-          <PanelResizeHandle className="w-1 bg-border hover:bg-primary transition-colors cursor-col-resize" />
+          </ResizablePrimitive.Panel>
+          <ResizablePrimitive.Separator className="w-1 bg-border hover:bg-primary transition-colors cursor-col-resize" />
 
           {/* Output / Terminal */}
-          <Panel defaultSize={30} minSize={20}>
+          <ResizablePrimitive.Panel defaultSize={30} minSize={20}>
             <div className="h-full flex flex-col bg-[#1e1e1e]">
               <div className="flex items-center px-4 py-2 bg-[#2d2d2d] text-xs font-semibold text-zinc-300 uppercase tracking-wider shrink-0 border-b border-zinc-700/50">
                 Terminal Output
@@ -182,8 +182,8 @@ export function StandardIDE({
                 {output ? <OutputConsole output={output} timeMs={timeMs} /> : <EmptyOutput />}
               </div>
             </div>
-          </Panel>
-        </PanelGroup>
+          </ResizablePrimitive.Panel>
+        </ResizablePrimitive.Group>
       </div>
     </div>
   );
