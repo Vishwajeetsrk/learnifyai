@@ -25,7 +25,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 ### 🎥 Platform Walkthrough & Features Demo
 
 <div align="center">
-  <img src="src/assets/learnify_demo.gif" alt="Learnify AI Platform Demo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);" />
+  <img src="src/assets/learnify_demo_full.webp" alt="Learnify AI Platform Demo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);" />
 </div>
 
 ### ✨ For Learners
@@ -373,6 +373,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v3.3.1 (June 2026) - Subscription Self-Healing, Video Restrictions, Policy Updates & Revenue Charts
+
+- ✅ **Self-Healing Subscription Creation**: Intercepts `plan_not_found` responses from Cashfree, resets db identifiers, creates the plan programmatically on Cashfree, and retries subscription checkout automatically without interrupting client mandate redirection.
+- ✅ **Pricing Plan DB Clean-up**: Pruned duplicate/obsolete database pricing configurations and correctly seeded Starter (Free), Pro (₹499/mo), and Team (₹4,999/mo) active configurations with their respective Cashfree API IDs.
+- ✅ **New Subscription Analytics Graphs**: Integrated Area and Bar charts into the Admin Subscription Analytics dashboard (`/admin/subscriptions`) showing 30-day paid revenue curves and daily subscriber growth.
+- ✅ **Interactive Subscription Live Demo**: Embedded a mock billing panel into the homepage's Interactive Sandbox Demo, enabling learners to try credit quota systems and sample invoice downloads.
+- ✅ **Copy Protection & Playback restrictions**: Passed `restrictDownload` and `restrictSpeed` properties to `CustomVideoPlayer`, disabling right-clicks, picture-in-picture mode, downloading options, and locking speeds above 1.25x.
+- ✅ **GST & Subscription Policy Mappings**: Synchronized Privacy Policy, Terms of Service, and Refund policies on both local fallback files and live Supabase PostgreSQL database tables to reflect Cashfree's monthly billing conditions and grace period terms.
 
 ### v3.3.0 (June 2026) - Skeleton Loaders, File Previews, Mobile Fixes & Cron Jobs
 
