@@ -81,7 +81,7 @@ import { awardXP, getCourseLearners } from "@/lib/gamification.functions";
 
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import {
-  buildCourseVideoEmbedUrl,
+  hasCourseToolAccess,
   choosePlayableResumeLessonId,
   chooseResumeLessonId,
   hasCourseToolAccess,
@@ -244,10 +244,13 @@ function CourseDetail() {
   const navigate = useNavigate();
 
   const isEnrolled = !!enrollmentQuery.data;
+  const enrollmentStatus = enrollmentQuery.data?.status ?? null;
+  const isEnrollmentActive = enrollmentStatus === "active" || enrollmentStatus === "completed";
   const inCart = !!cartQuery.data;
   const isFree = courseQuery.data ? Number(courseQuery.data.course.price_inr) === 0 : false;
-
-  const progressRows = progressQuery.data ?? [];
+  
+  // Full access if: free course, or enrolled with active/completed status, or admin
+  const hasFullAccess = isFree || isEnrollmentActive || isAdmin;
   const completed = useMemo(
     () => new Set(progressRows.filter((d) => d.completed).map((d) => d.lesson_id)),
     [progressRows],
@@ -315,26 +318,26 @@ function CourseDetail() {
     qc.invalidateQueries({ queryKey: ["my-sub-to-creator", creatorId, user.id] });
     qc.invalidateQueries({ queryKey: ["creator-subs-count", creatorId] });
   };
-  const hasFullToolAccess = hasCourseToolAccess({
-    isAdmin,
-    isEnrolled,
-    enrollmentStatus: enrollmentQuery.data?.status,
-    progressPct: enrollmentQuery.data?.progress_pct,
-    hasSavedProgress: progressRows.length > 0,
-  });
+  
+  // Full access if: free course, or enrolled with active/completed status, or admin
+  const hasFullAccess = isFree || isEnrollmentActive || isAdmin;
 
-  // Lesson-locking logic: first unlocked + free-preview always unlocked +
-  // a lesson is unlocked if the previous one is completed.
+  // Lesson-locking logic: 
+  // - If hasFullAccess (free course OR enrolled in paid course): all lessons unlocked
+  // - If paid course and NOT enrolled: only first lesson + preview lessons unlocked
   const unlocked = useMemo(() => {
     const set = new Set<string>();
-    for (let i = 0; i < lessons.length; i++) {
-      const l = lessons[i];
-      if (hasFullToolAccess) set.add(l.id);
-      else if (i === 0 || l.is_preview) set.add(l.id);
-      else if (completed.has(lessons[i - 1].id)) set.add(l.id);
+    if (hasFullAccess) {
+      lessons.forEach(l => set.add(l.id));
+    } else {
+      for (let i = 0; i < lessons.length; i++) {
+        const l = lessons[i];
+        if (i === 0 || l.is_preview) set.add(l.id);
+        else if (completed.has(lessons[i - 1].id)) set.add(l.id);
+      }
     }
     return set;
-  }, [lessons, completed, hasFullToolAccess]);
+  }, [lessons, completed, hasFullAccess]);
 
   // Default active lesson = first unlocked lesson with a playable video, otherwise normal resume fallback
   useEffect(() => {
@@ -643,14 +646,22 @@ function CourseDetail() {
               <ShoppingCart className="h-4 w-4" /> Add to cart · {inr(Number(course.price_inr))}
             </Button>
           )}
-          {!isEnrolled && (
+          {!hasFullAccess && !isFree && (
             <p className="text-xs text-muted-foreground">
-              Preview lessons are free. Enroll to unlock the full course, tests, and certificate.
+              Preview lessons are free. Enroll to unlock all lessons, tests, certificate, and AI tools.
+              {creatorId && user && creatorId === user.id && (
+                <> As a creator, you can choose an existing certificate template or create your own custom certificate for this course.</>
+              )}
+            </p>
+          )}
+          {isFree && !isEnrolled && (
+            <p className="text-xs text-muted-foreground">
+              This course is completely free. Start learning to unlock tests, certificate, and AI tools.
             </p>
           )}
         </div>
 
-        {isEnrolled && (
+        {isEnrollmentActive && (
           <div className="mt-4">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
               <span>Your progress</span>
@@ -659,6 +670,15 @@ function CourseDetail() {
               </span>
             </div>
             <Progress value={pct} className="h-2" />
+          </div>
+        )}
+        {isEnrolled && !isEnrollmentActive && (
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+              <span>Enrollment pending</span>
+              <span className="text-amber-500">Payment verification in progress</span>
+            </div>
+            <Progress value={0} className="h-2" />
           </div>
         )}
 

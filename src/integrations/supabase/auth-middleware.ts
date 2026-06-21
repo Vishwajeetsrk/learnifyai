@@ -40,8 +40,41 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
     if (authHeader && authHeader.startsWith("Bearer ")) {
       token = authHeader.replace("Bearer ", "");
     } else {
-      const sbCookie = getCookie("sb-access-token");
-      if (sbCookie) token = sbCookie;
+      // Try multiple possible cookie names that Supabase uses
+      const cookieNames = [
+        "sb-access-token",
+        "sb-refresh-token",
+        "supabase-auth-token",
+        "sb-auth-token",
+      ];
+      
+      // Also check for any cookie starting with "sb-"
+      const cookieHeader = request.headers.get("cookie") || "";
+      const cookies = cookieHeader.split(";").map(c => c.trim());
+      
+      for (const cookie of cookies) {
+        const [name, value] = cookie.split("=");
+        if (name.startsWith("sb-") && value) {
+          token = value;
+          break;
+        }
+        // Also check our predefined names
+        if (cookieNames.includes(name) && value) {
+          token = value;
+          break;
+        }
+      }
+      
+      // Fallback to specific cookie getter
+      if (!token) {
+        for (const name of cookieNames) {
+          const val = getCookie(name);
+          if (val) {
+            token = val;
+            break;
+          }
+        }
+      }
     }
 
     if (!token) {
@@ -67,6 +100,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
 
     const { data, error } = await supabase.auth.getUser(token);
     if (error || !data?.user) {
+      console.error("[auth-middleware] Token validation failed:", error?.message);
       throw new Error("Unauthorized: Invalid token");
     }
 

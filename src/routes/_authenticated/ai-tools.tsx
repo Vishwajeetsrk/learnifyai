@@ -574,8 +574,8 @@ function useTool() {
 
 function MarkdownBlock({ children }: { children: string }) {
   return (
-    <div className="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:text-foreground prose-code:before:hidden prose-code:after:hidden">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
+    <div className="prose prose-sm dark:prose-invert max-w-none prose-pre:bg-muted prose-pre:text-foreground prose-code:before:hidden prose-code:after:hidden prose-h2:text-lg prose-h3:text-base prose-h4:text-sm prose-h2:mt-4 prose-h3:mt-3 prose-h4:mt-2 prose-h2:mb-2 prose-h3:mb-1.5 prose-h4:mb-1 prose-ul:marker:text-primary/60 prose-ol:marker:text-primary/60 prose-li:leading-relaxed prose-p:leading-relaxed prose-strong:text-foreground prose-a:text-primary prose-a:hover:underline prose-img:rounded-lg prose-img:shadow-md prose-blockquote:border-primary/40 prose-blockquote:bg-primary/5 prose-hr:border-muted/40">
+      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{children}</ReactMarkdown>
     </div>
   );
 }
