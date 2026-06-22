@@ -243,6 +243,9 @@ async function sendEmail({
         port: 465,
         secure: true,
         auth: { user: "resend", pass: RESEND_API_KEY },
+        connectionTimeout: 8000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
       });
       const info = await transporter.sendMail({
         from: emailFrom,
@@ -267,6 +270,9 @@ async function sendEmail({
         port: Number(BREVO_SMTP_PORT) || 587,
         secure: false,
         auth: { user: BREVO_SMTP_LOGIN, pass: BREVO_SMTP_KEY },
+        connectionTimeout: 8000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
       });
       const info = await transporter.sendMail({
         from: emailFrom,
@@ -290,6 +296,9 @@ async function sendEmail({
         port: 587,
         secure: false,
         auth: { user: GMAIL_EMAIL, pass: GMAIL_APP_PASSWORD },
+        connectionTimeout: 8000,
+        greetingTimeout: 5000,
+        socketTimeout: 10000,
       });
       const info = await transporter.sendMail({
         from: `"Learnify AI" <${GMAIL_EMAIL}>`,
@@ -527,20 +536,25 @@ export const adminEmailCertificate = createServerFn({ method: "POST" })
     if (!recipient) throw new Error("No recipient email on file");
 
     // Idempotency: if a row with this key already exists, short-circuit.
+    // BUT allow retries if the previous attempt failed (not sent).
     if (data.idempotencyKey) {
       const { data: existing } = await supabase
         .from("certificate_email_log")
         .select("id, status, provider_message_id, recipient_email")
         .eq("idempotency_key", data.idempotencyKey)
         .maybeSingle();
-      if (existing && (existing.status === "sent" || existing.status === "pending")) {
+      if (existing && existing.status === "sent") {
         return {
           ok: true,
-          status: existing.status as "sent" | "pending",
+          status: existing.status as "sent",
           recipient: existing.recipient_email,
           messageId: existing.provider_message_id,
           deduped: true,
         };
+      }
+      // If previous attempt was "pending" or "failed", delete it and re-send
+      if (existing && (existing.status === "pending" || existing.status === "failed")) {
+        await supabase.from("certificate_email_log").delete().eq("id", existing.id);
       }
     }
 
@@ -599,12 +613,16 @@ export const adminEmailCertificate = createServerFn({ method: "POST" })
     }
 
     try {
-      const { messageId } = await sendEmail({
+      const emailPromise = sendEmail({
         to: recipient,
         subject: `Your certificate — ${course?.title ?? "Learnify AI"}`,
         html,
         idempotencyKey: data.idempotencyKey,
       });
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Email send timed out (20s limit)")), 20_000),
+      );
+      const { messageId } = await Promise.race([emailPromise, timeoutPromise]);
       if (logId) {
         await supabase
           .from("certificate_email_log")
@@ -709,12 +727,16 @@ export const retryPendingCertificateEmails = createServerFn({ method: "POST" })
       });
 
       try {
-        const { messageId } = await sendEmail({
+        const emailPromise = sendEmail({
           to: row.recipient_email,
           subject: `Your certificate — ${course?.title ?? "Learnify AI"}`,
           html,
           idempotencyKey: row.idempotency_key ?? undefined,
         });
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Email send timed out")), 20_000),
+        );
+        const { messageId } = await Promise.race([emailPromise, timeoutPromise]);
         await supabase
           .from("certificate_email_log")
           .update({
