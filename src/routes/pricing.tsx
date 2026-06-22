@@ -75,16 +75,19 @@ const FEATURE_COMPARISON = [
   { name: "AI Credits/month", starter: "500", pro: "10,000", team: "50,000", icon: Cpu },
   { name: "Courses", starter: "3 free", pro: "Unlimited", team: "Unlimited", icon: Globe },
   { name: "AI Tutor", starter: "Basic", pro: "Advanced", team: "Advanced", icon: Sparkles },
-  { name: "Certificates", starter: false, pro: true, team: true, icon: Shield },
+  { name: "Certificates", starter: "Basic", pro: "All", team: "All", icon: Shield },
   { name: "Creator Tools", starter: false, pro: true, team: true, icon: TrendingUp },
   { name: "Priority Support", starter: false, pro: true, team: true, icon: Star },
-  { name: "Team Dashboard", starter: false, pro: false, team: true, icon: Users },
-  { name: "Admin Panel", starter: false, pro: false, team: true, icon: Crown },
+  { name: "Admin Dashboard", starter: false, pro: false, team: true, icon: Crown },
+  { name: "Team Management", starter: false, pro: false, team: true, icon: Users },
   { name: "SSO + RBAC", starter: false, pro: false, team: true, icon: Shield },
   { name: "Custom Branding", starter: false, pro: false, team: true, icon: Sparkles },
   { name: "Dedicated Support", starter: false, pro: false, team: true, icon: Star },
   { name: "Community Access", starter: true, pro: true, team: true, icon: Users },
   { name: "Progress Tracking", starter: true, pro: true, team: true, icon: TrendingUp },
+  { name: "Download Resources", starter: false, pro: true, team: true, icon: TrendingUp },
+  { name: "Advanced Analytics", starter: false, pro: true, team: true, icon: TrendingUp },
+  { name: "API Access", starter: false, pro: false, team: true, icon: Cpu },
 ];
 
 const FAQ_ITEMS = [

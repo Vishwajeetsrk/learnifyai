@@ -154,7 +154,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "twitter:image",
         content: "https://learnifyaitool.vercel.app/assets/learnify-logo-DVspKPzy.png",
       },
-      { name: "theme-color", content: "#6366f1" },
     ],
     links: [
       {
@@ -186,6 +185,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         children: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})});}`,
+      },
+      {
+        children: `(function(){var m=document.createElement('meta');m.name='theme-color';m.content='#6366f1';document.head.appendChild(m);})();`,
       },
       {
         type: "application/ld+json",

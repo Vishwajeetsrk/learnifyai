@@ -202,31 +202,37 @@ function PublicProfilePage() {
     <AppShell>
       <div className="max-w-6xl mx-auto pb-10">
         {/* Banner */}
-        <div className="h-48 md:h-64 w-full bg-muted relative overflow-hidden">
+        <div className="h-48 md:h-56 lg:h-64 w-full bg-muted relative overflow-hidden">
           {profile.banner_url ? (
             <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full bg-gradient-to-r from-primary/20 to-primary/5" />
           )}
+          {/* Gradient overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
         </div>
 
         {/* Profile Info */}
-        <div className="px-4 sm:px-6 lg:px-10 -mt-12 relative z-10">
+        <div className="px-4 sm:px-6 lg:px-10 -mt-16 relative z-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5">
-            <Avatar
-              className={cn(
-                "h-28 w-28 border-4 border-background shadow-lg",
-                getProfileBorderClass(profile.avatar_url),
-              )}
-            >
-              {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt="" />}
-              <AvatarFallback className="text-3xl bg-primary/10 text-primary border-2 border-primary/20">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+            {/* Avatar with background shield */}
+            <div className="relative">
+              <div className="absolute -inset-1 rounded-full bg-background shadow-lg" />
+              <Avatar
+                className={cn(
+                  "relative h-28 w-28 border-4 border-background shadow-lg",
+                  getProfileBorderClass(profile.avatar_url),
+                )}
+              >
+                {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt="" />}
+                <AvatarFallback className="text-3xl bg-primary/10 text-primary border-2 border-primary/20">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+            </div>
 
-            <div className="flex-1 min-w-0 mt-4 sm:mt-0 mb-1">
-              <h1 className="font-display text-3xl font-bold tracking-tight" style={{ color: (profile as any).name_color || undefined }}>
+            <div className="flex-1 min-w-0 mt-4 sm:mt-0 mb-1 bg-background/80 backdrop-blur-sm rounded-2xl p-3 sm:p-0 sm:bg-transparent sm:backdrop-blur-none">
+              <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: (profile as any).name_color || undefined }}>
                 {name}
               </h1>
 
