@@ -193,7 +193,8 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
       }
     }
 
-    // 5. Pollinations AI (free, no key needed — last resort)
+    // 5. Pollinations AI (with API key — last resort)
+    const pollinationsApiKey = process.env.POLLINATIONS_API_KEY || "";
     const pollinationsUrls = [
       (p: string) => `https://image.pollinations.ai/prompt/${p}?model=flux&nofeed=true`,
       (p: string) => `https://gen.pollinations.ai/image/${p}?model=flux&nofeed=true`,
@@ -203,9 +204,11 @@ export const generateCourseThumbnail = createServerFn({ method: "POST" })
         const pw = encodeURIComponent(data.prompt.slice(0, 400));
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 20000);
+        const headers: Record<string, string> = { Accept: "image/*, */*" };
+        if (pollinationsApiKey) headers["Authorization"] = `Bearer ${pollinationsApiKey}`;
         const res = await fetch(buildUrl(pw), {
           signal: controller.signal,
-          headers: { Accept: "image/*, */*" },
+          headers,
         });
         clearTimeout(timer);
         const ct = res.headers.get("content-type") || "";
