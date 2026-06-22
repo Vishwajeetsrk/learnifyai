@@ -36,6 +36,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { CommunityChat } from "@/components/CommunityChat";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -1253,6 +1254,11 @@ function CommunityPage() {
               );
             })
           )}
+        </div>
+
+        {/* Community Real-Time Chat */}
+        <div className="mt-10">
+          <CommunityChat />
         </div>
       </div>
     </AppShell>
