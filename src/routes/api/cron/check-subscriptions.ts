@@ -5,12 +5,10 @@ export const Route = createFileRoute("/api/cron/check-subscriptions")({
   server: {
     handlers: {
       GET: async () => {
-        const authHeader = Bun.env.CRON_SECRET
-          ? undefined
-          : undefined;
+        const authHeader = process.env.CRON_SECRET
 
         try {
-          const { data, error } = await supabaseAdmin.rpc("check_expired_subscriptions");
+          const { data, error } = await (supabaseAdmin as any).rpc("check_expired_subscriptions");
 
           if (error) {
             console.error("Cron check-subscriptions error:", error);

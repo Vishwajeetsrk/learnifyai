@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect, useCallback, useMemo } from "react";
+import { useRef, useState, useEffect, useCallback, useMemo, useId } from "react";
 import {
   Play,
   Pause,
@@ -82,6 +82,9 @@ export function CustomVideoPlayer({
   const progressRef = useRef(0);
   const durationRef = useRef(0);
   const volumeRef = useRef(1);
+  const mountedRef = useRef(true);
+  const playerId = useId();
+  const safeId = useMemo(() => `youtube-player-${playerId.replace(/:/g, "")}`, [playerId]);
 
   const [hasStarted, setHasStarted] = useState(false);
   const [ready, setReady] = useState(false);
@@ -173,8 +176,8 @@ export function CustomVideoPlayer({
   }, [url, youtubeId]);
 
   useEffect(() => {
+    mountedRef.current = true;
     if (!youtubeId) {
-      // For HTML5 video, we don't have to wait for YT API
       setReady(false);
       setLoading(false);
       return;
@@ -182,11 +185,12 @@ export function CustomVideoPlayer({
     playerReadyRef.current = false;
 
     const createPlayer = () => {
+      if (!mountedRef.current) return;
       if (!(window as any).YT?.Player) return;
-      const playerDiv = document.getElementById("youtube-player");
+      const playerDiv = document.getElementById(safeId);
       if (!playerDiv) return;
       playerDiv.innerHTML = "";
-      const yt = new (window as any).YT.Player("youtube-player", {
+      const yt = new (window as any).YT.Player(safeId, {
         height: "100%",
         width: "100%",
         videoId: youtubeId,
@@ -195,7 +199,7 @@ export function CustomVideoPlayer({
           rel: 0,
           modestbranding: 1,
           enablejsapi: 1,
-          autoplay: 0, // start cued, do not autoplay automatically under our custom overlay
+          autoplay: 0,
           iv_load_policy: 3,
           cc_load_policy: 1,
           fs: 0,
@@ -203,6 +207,7 @@ export function CustomVideoPlayer({
         },
         events: {
           onReady: (e: any) => {
+            if (!mountedRef.current) return;
             playerApiRef.current = e.target;
             playerReadyRef.current = true;
             e.target.setVolume(volumeRef.current * 100);
@@ -216,7 +221,6 @@ export function CustomVideoPlayer({
               setPlaybackRate(initialRate);
             }
             if (onReady) onReady();
-
             if (wantsPlayRef.current) {
               e.target.playVideo();
             }
@@ -249,6 +253,7 @@ export function CustomVideoPlayer({
             } catch {}
           },
           onError: () => {
+            if (!mountedRef.current) return;
             setError(true);
             setLoading(false);
             if (onError) onError(null);
@@ -257,23 +262,28 @@ export function CustomVideoPlayer({
       });
     };
 
+    let apiTimeout: ReturnType<typeof setTimeout> | null = null;
+
     if (!youtubeApiLoaded) {
       youtubeApiLoaded = true;
       (window as any)._ytReadyCallbacks = [createPlayer];
       (window as any).onYouTubeIframeAPIReady = () => {
         const callbacks = (window as any)._ytReadyCallbacks || [];
         for (const cb of callbacks) {
-          try {
-            cb();
-          } catch (err) {
-            console.error("Error in YT API callback:", err);
-          }
+          try { cb(); } catch (err) { console.error("YT API callback error:", err); }
         }
         (window as any)._ytReadyCallbacks = [];
       };
       const tag = document.createElement("script");
       tag.src = "https://www.youtube.com/iframe_api";
       document.head.appendChild(tag);
+      apiTimeout = setTimeout(() => {
+        if (mountedRef.current && !(window as any).YT?.Player) {
+          setError(true);
+          setLoading(false);
+          if (onError) onError(new Error("YouTube API failed to load"));
+        }
+      }, 10000);
     } else if ((window as any).YT?.Player) {
       createPlayer();
     } else {
@@ -281,9 +291,23 @@ export function CustomVideoPlayer({
         (window as any)._ytReadyCallbacks = [];
       }
       (window as any)._ytReadyCallbacks.push(createPlayer);
+      apiTimeout = setTimeout(() => {
+        if (mountedRef.current && !(window as any).YT?.Player) {
+          setError(true);
+          setLoading(false);
+          if (onError) onError(new Error("YouTube API failed to load"));
+        }
+      }, 10000);
     }
 
     return () => {
+      mountedRef.current = false;
+      if (apiTimeout) clearTimeout(apiTimeout);
+      if ((window as any)._ytReadyCallbacks) {
+        (window as any)._ytReadyCallbacks = (window as any)._ytReadyCallbacks.filter(
+          (cb: Function) => cb !== createPlayer,
+        );
+      }
       if (playerApiRef.current) {
         try {
           playerApiRef.current.destroy();
@@ -293,7 +317,7 @@ export function CustomVideoPlayer({
         playerApiRef.current = null;
       }
     };
-  }, [youtubeId]);
+  }, [youtubeId, safeId]);
 
   useEffect(() => {
     if (!youtubeId) return;
@@ -540,7 +564,7 @@ export function CustomVideoPlayer({
 
       {/* Video Content */}
       {youtubeId ? (
-        <div className="absolute inset-0 w-full h-full" id="youtube-player" />
+        <div className="absolute inset-0 w-full h-full" id={safeId} />
       ) : (
         <video
           ref={videoRef}

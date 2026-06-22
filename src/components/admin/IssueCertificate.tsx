@@ -300,54 +300,91 @@ export default function IssueCertificate() {
     };
     const resolvedCourseId = courseId || courses[0]?.id;
     const resolvedCourse = courses.find((c: any) => c.id === resolvedCourseId);
-    const payload: any = {
-      code,
-      user_id: userQuery.data.id,
-      course_id: resolvedCourseId,
-      template_id: template.id,
-      design_snapshot: snapshot,
-      recipient_name: recipientName || userQuery.data.full_name || userQuery.data.email,
-      role_title: roleTitle || null,
-      date_from: dateFrom || null,
-      date_to: dateTo || null,
-      notes: notes || null,
-      score: score ? Number(score) : 0,
-      total: total ? Number(total) : 0,
-    };
-    const { data: inserted, error } = await supabase
+
+    const { data: existing } = await supabase
       .from("certificates")
-      .insert(payload)
       .select("id")
-      .single();
-    if (error) {
-      setIssuing(false);
-      return toast.error(error.message);
+      .eq("user_id", userQuery.data.id)
+      .eq("course_id", resolvedCourseId)
+      .maybeSingle();
+
+    let certId: string;
+
+    if (existing) {
+      const { error: updErr } = await supabase
+        .from("certificates")
+        .update({
+          code,
+          template_id: template.id,
+          design_snapshot: snapshot,
+          recipient_name: recipientName || userQuery.data.full_name || userQuery.data.email,
+          role_title: roleTitle || null,
+          date_from: dateFrom || null,
+          date_to: dateTo || null,
+          notes: notes || null,
+          score: score ? Number(score) : 0,
+          total: total ? Number(total) : 0,
+          issued_by: user?.id ?? null,
+          issued_at: new Date().toISOString(),
+        })
+        .eq("id", existing.id);
+      if (updErr) {
+        setIssuing(false);
+        return toast.error(updErr.message);
+      }
+      certId = existing.id;
+      toast.success(`Certificate re-issued · ${code}`);
+    } else {
+      const payload: any = {
+        code,
+        user_id: userQuery.data.id,
+        course_id: resolvedCourseId,
+        template_id: template.id,
+        design_snapshot: snapshot,
+        recipient_name: recipientName || userQuery.data.full_name || userQuery.data.email,
+        role_title: roleTitle || null,
+        date_from: dateFrom || null,
+        date_to: dateTo || null,
+        notes: notes || null,
+        score: score ? Number(score) : 0,
+        total: total ? Number(total) : 0,
+        issued_by: user?.id ?? null,
+      };
+      const { data: inserted, error } = await supabase
+        .from("certificates")
+        .insert(payload)
+        .select("id")
+        .single();
+      if (error) {
+        setIssuing(false);
+        return toast.error(error.message);
+      }
+      certId = inserted.id;
+      toast.success(`Certificate issued · ${code}`);
     }
 
     await supabase.from("certificate_audit_log").insert({
-      certificate_id: inserted.id,
-      action: "issued",
+      certificate_id: certId,
+      action: existing ? "re-issued" : "issued",
       issued_by: user?.id ?? null,
       recipient_user_id: userQuery.data.id,
       recipient_email: userQuery.data.email,
-      recipient_name: payload.recipient_name,
+      recipient_name: recipientName || userQuery.data.full_name || userQuery.data.email,
       template_id: template.id,
       template_name: template.name,
       course_id: resolvedCourseId ?? null,
       course_title: resolvedCourse?.title ?? null,
-      score: payload.score,
-      total: payload.total,
+      score: score ? Number(score) : 0,
+      total: total ? Number(total) : 0,
       code,
       metadata: { role_title: roleTitle || null, notes: notes || null },
     });
 
-    toast.success(`Certificate issued · ${code}`);
-
     if (autoEmail && userQuery.data.email) {
-      const idem = `cert:${inserted.id}:auto`;
+      const idem = `cert:${certId}:auto`;
       try {
         await sendEmail({
-          data: { certificateId: inserted.id, to: userQuery.data.email, idempotencyKey: idem },
+          data: { certificateId: certId, to: userQuery.data.email, idempotencyKey: idem },
         });
         toast.success("Email sent to learner");
       } catch (e: any) {

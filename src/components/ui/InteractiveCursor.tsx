@@ -213,17 +213,17 @@ function ParticleTrail({ mouseX, mouseY, isVisible }: { mouseX: any, mouseY: any
   useEffect(() => {
     if (!isVisible) return;
     
-    const unsubscribe = mouseX.onChange((x: number) => {
+    const unsubscribeX = mouseX.on("change", (x: number) => {
       const y = mouseY.get();
       const now = performance.now();
-      if (now - lastEmitTime.current > 40) { // Emit every 40ms
+      if (now - lastEmitTime.current > 40) {
         const newParticle = { id: idRef.current++, x, y };
-        setParticles(p => [...p.slice(-15), newParticle]); // keep last 15
+        setParticles(p => [...p.slice(-15), newParticle]);
         lastEmitTime.current = now;
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribeX();
   }, [mouseX, mouseY, isVisible]);
 
   return (

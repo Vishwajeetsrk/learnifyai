@@ -84,6 +84,7 @@ import {
   hasCourseToolAccess,
   choosePlayableResumeLessonId,
   chooseResumeLessonId,
+  buildCourseVideoEmbedUrl,
 } from "@/lib/course-player";
 
 type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "ai-agent";
@@ -261,6 +262,34 @@ function CourseDetail() {
   const instructorProfile = courseQuery.data?.instructorProfile;
 
   const creatorId = course?.created_by;
+  const isCreator = !!user && creatorId === user.id;
+
+  const certTemplatesQuery = useQuery({
+    enabled: isCreator,
+    queryKey: ["cert-templates-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("certificate_templates")
+        .select("id, name, is_default")
+        .order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const updateCourseTemplate = async (templateId: string | null) => {
+    if (!course?.id) return;
+    const { error } = await supabase
+      .from("courses")
+      .update({ certificate_template_id: templateId } as any)
+      .eq("id", course.id);
+    if (error) {
+      toast.error("Failed to update certificate template");
+    } else {
+      toast.success("Certificate template updated");
+      qc.invalidateQueries({ queryKey: ["course", slug] });
+    }
+  };
 
   const creatorSubsQuery = useQuery({
     enabled: !!creatorId,
@@ -648,14 +677,24 @@ function CourseDetail() {
             <p className="text-xs text-muted-foreground">
               Preview lessons are free. Enroll to unlock all lessons, tests, certificate, and AI
               tools.
-              {creatorId && user && creatorId === user.id && (
-                <>
-                  {" "}
-                  As a creator, you can choose an existing certificate template or create your own
-                  custom certificate for this course.
-                </>
-              )}
             </p>
+          )}
+          {isCreator && certTemplatesQuery.data && certTemplatesQuery.data.length > 0 && (
+            <div className="mt-2 flex items-center gap-2">
+              <Award className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <select
+                className="h-8 rounded-md border border-input bg-background px-2 text-xs flex-1 min-w-0"
+                value={(course as any)?.certificate_template_id ?? ""}
+                onChange={(e) => updateCourseTemplate(e.target.value || null)}
+              >
+                <option value="">No certificate template</option>
+                {certTemplatesQuery.data.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name} {t.is_default ? "(default)" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
           {isFree && !isEnrolled && (
             <p className="text-xs text-muted-foreground">
@@ -794,7 +833,7 @@ function CourseDetail() {
                   courseSlug={course.slug}
                   lesson={active}
                   initialTab={initialTab}
-                  hasToolAccess={hasFullToolAccess}
+                  hasToolAccess={hasFullAccess}
                 />
 
                 <LessonSocial lessonId={active.id} />

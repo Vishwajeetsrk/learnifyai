@@ -41,7 +41,6 @@ import { format } from "date-fns";
 import { AppShell } from "@/components/AppShell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { SkillBadge } from "@/components/SkillBadge";
 import { Button } from "@/components/ui/button";
 import { getPublicProfile } from "@/lib/profile.functions";
@@ -227,7 +226,7 @@ function PublicProfilePage() {
             </Avatar>
 
             <div className="flex-1 min-w-0 mt-4 sm:mt-0 mb-1">
-              <h1 className="font-display text-3xl font-bold tracking-tight" style={{ color: profile.name_color || undefined }}>
+              <h1 className="font-display text-3xl font-bold tracking-tight" style={{ color: (profile as any).name_color || undefined }}>
                 {name}
               </h1>
 

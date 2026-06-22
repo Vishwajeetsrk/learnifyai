@@ -177,7 +177,7 @@ export function DesignerCanvas({
               topLeft: isSelected,
             }}
             disableDragging={!isSelected}
-            onClick={(e) => {
+            onClick={(e: any) => {
               e.stopPropagation();
               onSelect(el.id);
             }}

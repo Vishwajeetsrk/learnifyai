@@ -184,7 +184,7 @@ export function StandardIDE({
 
         <div className="h-6 w-px bg-border mx-1" />
 
-        <LanguageSelector language={language} setLanguage={setLanguage} />
+        <LanguageSelector value={language} onChange={setLanguage} />
 
         <div className="flex items-center border rounded-md mx-2 bg-muted/30">
           <Button
@@ -229,7 +229,7 @@ export function StandardIDE({
       </div>
 
       <div className="flex-1 overflow-hidden">
-        <ResizablePrimitive.Group direction="horizontal">
+        <ResizablePrimitive.Group orientation="horizontal">
           {/* File Explorer */}
           <ResizablePrimitive.Panel defaultSize={15} minSize={10} maxSize={30}>
             <div className="h-full border-r bg-card flex flex-col">
@@ -388,9 +388,16 @@ export function StandardIDE({
               </div>
               <div className="flex-1 overflow-hidden">
                 {output ? (
-                  <OutputConsole output={output} timeMs={timeMs} />
+                  <OutputConsole
+                    stdout={output.stdout}
+                    stderr={output.stderr}
+                    exitCode={output.code}
+                    executionTimeMs={timeMs}
+                    isRunning={running}
+                    onClear={() => {}}
+                  />
                 ) : (
-                  <EmptyOutput />
+                  <EmptyOutput isRunning={running} onRun={() => activeFile ? run(activeFile.content || "") : runAll()} />
                 )}
               </div>
             </div>

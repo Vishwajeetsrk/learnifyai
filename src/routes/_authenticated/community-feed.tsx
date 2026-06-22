@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ReactPlayer from "react-player";
+const ReactPlayerAny = ReactPlayer as any;
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -70,6 +71,8 @@ type PollData = { question: string; options: string[] };
 function CommunityPage() {
   const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
   const [content, setContent] = useState("");
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -1061,9 +1064,9 @@ function CommunityPage() {
                           className="max-h-[500px] w-full object-contain"
                         />
                       )}
-                      {post.media_type === "video" && (
+                      {post.media_type === "video" && isMounted && (
                         <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
-                          <ReactPlayer
+                          <ReactPlayerAny
                             url={post.media_url}
                             controls
                             width="100%"
@@ -1074,7 +1077,7 @@ function CommunityPage() {
                                   controlsList: "nodownload",
                                 },
                               },
-                            }}
+                            } as any}
                           />
                         </div>
                       )}

@@ -26,6 +26,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+const SandpackCodeEditorAny = SandpackCodeEditor as any;
+
 function WebIDEToolbar({
   onSave,
   saving,
@@ -294,7 +296,7 @@ export function WebIDE({
           <SandpackFileExplorer
             style={{ height: "100%", minWidth: "220px", borderRight: "1px solid var(--border)" }}
           />
-          <SandpackCodeEditor
+          <SandpackCodeEditorAny
             style={{ height: "100%", flex: 1 }}
             showLineNumbers
             showInlineErrors

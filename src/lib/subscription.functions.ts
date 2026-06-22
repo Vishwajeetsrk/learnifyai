@@ -162,7 +162,7 @@ export const createSubscription = createServerFn({ method: "POST" })
     // Apply coupon discount if provided
     let finalAmount = p.price_inr;
     if (data.couponCode) {
-      const { data: coupon } = await supabaseAdmin
+      const { data: coupon } = await (supabaseAdmin as any)
         .from("coupon_codes")
         .select("*")
         .eq("code", data.couponCode.toUpperCase())
@@ -183,9 +183,9 @@ export const createSubscription = createServerFn({ method: "POST" })
             finalAmount = Math.max(1, p.price_inr - coupon.discount_amount_inr);
           }
           // Increment usage
-          await supabaseAdmin
+          await (supabaseAdmin as any)
             .from("coupon_codes")
-            .update({ used_count: coupon.used_count + 1 } as any)
+            .update({ used_count: coupon.used_count + 1 })
             .eq("id", coupon.id);
         }
       }
@@ -440,7 +440,7 @@ export const upgradeDowngrade = createServerFn({ method: "POST" })
     if (!newPlan) throw new Error("Target plan not found");
 
     const oldPlan = currentSub.plan as any;
-    const isNewPaid = newPlan.interval && newPlan.price_inr > 0;
+    const isNewPaid = newPlan.interval && (newPlan.price_inr || 0) > 0;
     const isDowngrade = (newPlan.price_inr || 0) < (oldPlan.price_inr || 0);
 
     // If upgrading to paid plan, create new Cashfree subscription
@@ -590,7 +590,7 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: plans } = await supabaseAdmin
+    const { data: plans } = await (supabaseAdmin as any)
       .from("subscription_analytics")
       .select("*");
 
@@ -615,7 +615,7 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
 
     // Fetch last 30 days of paid invoices for revenue chart
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const { data: dailyInvoices } = await supabaseAdmin
+    const { data: dailyInvoices } = await (supabaseAdmin as any)
       .from("invoices")
       .select("total_inr, created_at")
       .eq("status", "paid")

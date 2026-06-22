@@ -404,7 +404,7 @@ function BillingPage() {
             {isActive && plan?.price_inr > 0 && (
               <>
                 <Button asChild variant="outline" size="sm">
-                  <Link to="/pricing">
+                  <Link to="/pricing" search={{ subscribe: undefined }}>
                     <ArrowUpRight className="h-4 w-4 mr-1" />
                     Upgrade Plan
                   </Link>
@@ -432,7 +432,7 @@ function BillingPage() {
             )}
             {!isActive && !canResume && (
               <Button asChild variant="outline" size="sm">
-                <Link to="/pricing">
+                <Link to="/pricing" search={{ subscribe: undefined }}>
                   <Sparkles className="h-4 w-4 mr-1" />
                   Choose a Plan
                 </Link>

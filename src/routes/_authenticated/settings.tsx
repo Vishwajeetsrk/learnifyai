@@ -180,7 +180,6 @@ function SettingsPage() {
   const [education, setEducation] = useState("");
   const [website, setWebsite] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
-  const [customSkillValue, setCustomSkillValue] = useState("");
   const [links, setLinks] = useState<SocialLinks>({});
   const [nameColor, setNameColor] = useState<string>("");
   const [savingProfile, setSavingProfile] = useState(false);
@@ -193,7 +192,7 @@ function SettingsPage() {
 
   /* ── Cartoon Character customization ── */
   const [cartoonOpen, setCartoonOpen] = useState(false);
-  const [selectedStyle, setSelectedStyle] = useState("avataaars"); // Default to avataaars since it is highly customizable
+  const [selectedStyle, setSelectedStyle] = useState<string>("avataaars");
   const [seed, setSeed] = useState("Learnify");
   const [savingCartoon, setSavingCartoon] = useState(false);
   const [avatarBackgroundColor, setAvatarBackgroundColor] = useState("transparent");
@@ -238,18 +237,25 @@ function SettingsPage() {
     { id: "lorelei", label: "Lorelei" },
   ];
 
-  function buildCartoonUrl() {
-    const baseUrl = `https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${encodeURIComponent(seed)}`;
+  function buildCartoonUrl(overrides: any = {}) {
+    const s = {
+      selectedStyle, seed, skinColor, hairGender, hairStyle, hairColor,
+      mouthStyle, eyesStyle, clothingStyle, clothingColor, accessoriesStyle,
+      eyebrowsStyle, noseStyle, profileBorder, avatarBackgroundColor,
+      ...overrides
+    };
+
+    const baseUrl = `https://api.dicebear.com/9.x/${s.selectedStyle}/svg?seed=${encodeURIComponent(s.seed)}`;
     let params = "";
 
-    if (selectedStyle === "avataaars") {
-      params += `&skinColor=${skinColor}`;
-      if (hairStyle === "noHair") {
+    if (s.selectedStyle === "avataaars") {
+      params += `&skinColor=${s.skinColor}`;
+      if (s.hairStyle === "noHair") {
         params += `&topProbability=0`;
       } else {
-        params += `&top=${hairStyle}`;
+        params += `&top=${s.hairStyle}`;
       }
-      params += `&hairColor=${hairColor}`;
+      params += `&hairColor=${s.hairColor}`;
 
       const mappedMouth =
         {
@@ -261,7 +267,7 @@ function SettingsPage() {
           grimace: "grimace",
           scream: "screamOpen",
           tongue: "tongue",
-        }[mouthStyle] || mouthStyle;
+        }[s.mouthStyle as string] || s.mouthStyle;
 
       const mappedEyes =
         {
@@ -273,7 +279,7 @@ function SettingsPage() {
           side: "side",
           hearts: "hearts",
           close: "closed",
-        }[eyesStyle] || eyesStyle;
+        }[s.eyesStyle as string] || s.eyesStyle;
 
       const mappedEyebrows =
         {
@@ -284,173 +290,334 @@ function SettingsPage() {
           sad: "sadConcernedNatural",
           unibrow: "unibrowNatural",
           up: "upDownNatural",
-        }[eyebrowsStyle] || eyebrowsStyle;
+        }[s.eyebrowsStyle as string] || s.eyebrowsStyle;
 
-      const mappedAcc = accessoriesStyle === "wayfarer" ? "wayfarers" : accessoriesStyle;
+      const mappedAcc = s.accessoriesStyle === "wayfarer" ? "wayfarers" : s.accessoriesStyle;
 
       params += `&mouth=${mappedMouth}`;
       params += `&eyes=${mappedEyes}`;
       params += `&eyebrows=${mappedEyebrows}`;
-      if (noseStyle !== "default") params += `&nose=${noseStyle}`;
-      params += `&clothing=${clothingStyle}`;
-      params += `&clothesColor=${clothingColor}`;
+      params += `&clothing=${s.clothingStyle}`;
+      params += `&clothesColor=${s.clothingColor}`;
       if (mappedAcc && mappedAcc !== "none") {
         params += `&accessories=${mappedAcc}`;
       } else {
         params += `&accessoriesProbability=0`;
       }
-    } else if (selectedStyle === "adventurer") {
-      params += `&skinColor=${skinColor}`;
-      let advHair = "short01";
-      if (hairGender === "female") {
-        advHair = hairStyle === "curly" || hairStyle === "curvy" ? "long02" : "long01";
-        if (hairStyle === "bob" || hairStyle === "miaWallace") {
-          advHair = "bob";
-        }
+    } else if (s.selectedStyle === "adventurer") {
+      params += `&skinColor=${s.skinColor}`;
+      params += `&hairColor=${s.hairColor}`;
+      if (s.hairStyle === "noHair") {
+        params += `&hairProbability=0`;
       } else {
-        if (hairStyle === "noHair") {
-          advHair = "bald";
-        } else if (hairStyle === "shortCurly" || hairStyle === "curly") {
-          advHair = "curl";
-        } else if (hairStyle === "dreads") {
-          advHair = "braids";
-        } else {
-          advHair = "short02";
-        }
+        const hairMap: Record<string, string> = {
+          theCaesar: "short01",
+          shortFlat: "short02",
+          shortRound: "short03",
+          shortWaved: "short04",
+          shortCurly: "short05",
+          shaggyMullet: "short06",
+          straight01: "long01",
+          straight02: "long02",
+          curly: "long03",
+          curvy: "long04",
+          bob: "long05",
+          miaWallace: "long06",
+          bun: "long07",
+          dreads: "long08",
+          bigHair: "long09"
+        };
+        const mappedHair = hairMap[s.hairStyle as string] || (s.hairGender === "male" ? "short01" : "long01");
+        params += `&hair=${mappedHair}`;
+        params += `&hairProbability=100`;
       }
-      params += `&hair=${advHair}`;
-      params += `&hairColor=${hairColor}`;
-      params += `&mouth=${mouthStyle === "default" ? "smile" : mouthStyle === "sad" ? "sad" : "default"}`;
-      params += `&eyes=${eyesStyle === "default" ? "default" : eyesStyle === "happy" ? "happy" : eyesStyle === "wink" ? "wink" : "default"}`;
-      if (accessoriesStyle && accessoriesStyle !== "none") {
-        params += `&features=${accessoriesStyle === "prescription01" || accessoriesStyle === "prescription02" ? "spectacles" : "sunglasses"}`;
-      }
-    } else if (selectedStyle === "bottts") {
-      params += `&baseColor=${clothingColor}`;
-      let botEyes = "happy";
-      if (eyesStyle === "happy") botEyes = "happy";
-      else if (eyesStyle === "wink") botEyes = "round";
-      else if (eyesStyle === "surprised") botEyes = "sensor";
-      else if (eyesStyle === "squint") botEyes = "squint";
-      else if (eyesStyle === "close") botEyes = "frame2";
-      else botEyes = "frame1";
-      params += `&eyes=${botEyes}`;
-
-      let botMouth = "smile";
-      if (mouthStyle === "smile") botMouth = "smile";
-      else if (mouthStyle === "sad") botMouth = "bite";
-      else if (mouthStyle === "concerned") botMouth = "closed";
-      else if (mouthStyle === "disbelief") botMouth = "grill01";
-      else if (mouthStyle === "grimace") botMouth = "grill02";
-      else botMouth = "smile";
-      params += `&mouth=${botMouth}`;
-
-      let botTop = "antenna";
-      const h = hairStyle.toLowerCase();
-      if (h.includes("flat")) botTop = "antenna";
-      else if (h.includes("round")) botTop = "bulb";
-      else if (h.includes("curly")) botTop = "horn";
-      else if (h.includes("waved") || h.includes("wavy")) botTop = "radar";
-      else if (h.includes("caesar")) botTop = "pyramid";
-      else botTop = "antenna";
-      params += `&top=${botTop}`;
-
-      if (accessoriesStyle && accessoriesStyle !== "none") {
-        params += `&sides=${accessoriesStyle === "prescription01" ? "antenna" : accessoriesStyle === "round" ? "earphones" : "cable"}`;
-      }
-    } else if (selectedStyle === "pixel-art") {
-      params += `&skinColor=${skinColor}`;
-      params += `&clothingColor=${clothingColor}`;
-      params += `&hairColor=${hairColor}`;
-
-      let pixHair = "short01";
-      if (hairGender === "female") {
-        pixHair = "long01";
+      const mouthMap: Record<string, string> = {
+        default: "variant01",
+        smile: "variant02",
+        sad: "variant03",
+        concerned: "variant04",
+        disbelief: "variant05",
+        grimace: "variant06",
+        scream: "variant07",
+        tongue: "variant08"
+      };
+      params += `&mouth=${mouthMap[s.mouthStyle as string] || "variant01"}`;
+      const eyesMap: Record<string, string> = {
+        default: "variant01",
+        happy: "variant02",
+        wink: "variant03",
+        surprised: "variant04",
+        squint: "variant05",
+        side: "variant06",
+        hearts: "variant07",
+        close: "variant08"
+      };
+      params += `&eyes=${eyesMap[s.eyesStyle as string] || "variant01"}`;
+      const eyebrowsMap: Record<string, string> = {
+        default: "variant01",
+        angry: "variant02",
+        flat: "variant03",
+        raised: "variant04",
+        sad: "variant05",
+        unibrow: "variant06",
+        up: "variant07"
+      };
+      params += `&eyebrows=${eyebrowsMap[s.eyebrowsStyle as string] || "variant01"}`;
+      if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
+        const accMap: Record<string, string> = {
+          prescription01: "variant01",
+          round: "variant02",
+          sunglasses: "variant03",
+          wayfarer: "variant04",
+          kurt: "variant05"
+        };
+        params += `&glasses=${accMap[s.accessoriesStyle as string] || "variant01"}`;
+        params += `&glassesProbability=100`;
       } else {
-        if (hairStyle === "noHair") pixHair = "bald";
-        else if (hairStyle.toLowerCase().includes("round")) pixHair = "short02";
-        else if (hairStyle.toLowerCase().includes("curly")) pixHair = "short03";
+        params += `&glassesProbability=0`;
       }
-      params += `&hair=${pixHair}`;
-
-      let pixEyes = "normal";
-      if (eyesStyle === "happy") pixEyes = "happy";
-      else if (eyesStyle === "squint") pixEyes = "squint";
-      else if (eyesStyle === "close") pixEyes = "closed";
-      else if (eyesStyle === "wink") pixEyes = "angry";
-      params += `&eyes=${pixEyes}`;
-
-      let pixMouth = "normal";
-      if (mouthStyle === "smile") pixMouth = "smile";
-      else if (mouthStyle === "sad") pixMouth = "sad";
-      else if (mouthStyle === "scream") pixMouth = "open";
-      params += `&mouth=${pixMouth}`;
-
-      let pixCloth = "tshirt";
-      if (clothingStyle.includes("hoodie")) pixCloth = "hoodie";
-      else if (clothingStyle.includes("collar")) pixCloth = "shirt";
-      else if (clothingStyle.includes("overall")) pixCloth = "overall";
-      params += `&clothing=${pixCloth}`;
-    } else if (selectedStyle === "fun-emoji") {
-      let emEyes = "normal";
-      if (eyesStyle === "happy") emEyes = "cute";
-      else if (eyesStyle === "wink") emEyes = "wink";
-      else if (eyesStyle === "surprised") emEyes = "stars";
-      else if (eyesStyle === "hearts") emEyes = "love";
-      else if (eyesStyle === "close") emEyes = "dizzy";
-      params += `&eyes=${emEyes}`;
-
-      let emMouth = "smile";
-      if (mouthStyle === "smile") emMouth = "smile";
-      else if (mouthStyle === "sad") emMouth = "sad";
-      else if (mouthStyle === "scream") emMouth = "shouting";
-      else if (mouthStyle === "tongue") emMouth = "tongue";
-      else if (mouthStyle === "concerned") emMouth = "kiss";
-      else if (mouthStyle === "disbelief") emMouth = "neutral";
-      params += `&mouth=${emMouth}`;
-
-      params += `&backgroundColor=${clothingColor}`;
-    } else if (selectedStyle === "lorelei") {
-      params += `&skinColor=${skinColor}`;
-      params += `&hairColor=${hairColor}`;
-      params += `&clothingColor=${clothingColor}`;
-
-      let lorHair = "hair01";
-      const h = hairStyle.toLowerCase();
-      if (h.includes("mia")) lorHair = "hair02";
-      else if (h.includes("bob")) lorHair = "hair03";
-      else if (h.includes("bun")) lorHair = "hair04";
-      else if (h.includes("flat")) lorHair = "hair05";
-      else if (h.includes("round")) lorHair = "hair06";
-      else if (h.includes("curl") || h.includes("curv")) lorHair = "hair07";
-      else if (h.includes("mullet")) lorHair = "hair08";
-      params += `&hair=${lorHair}`;
-
-      let lorEyes = "default";
-      if (eyesStyle === "happy") lorEyes = "happy";
-      else if (eyesStyle === "wink") lorEyes = "wink";
-      else if (eyesStyle === "close") lorEyes = "content";
-      params += `&eyes=${lorEyes}`;
-
-      let lorMouth = "default";
-      if (mouthStyle === "smile") lorMouth = "smile";
-      else if (mouthStyle === "sad") lorMouth = "serious";
-      else if (mouthStyle === "tongue") lorMouth = "open";
-      params += `&mouth=${lorMouth}`;
-
-      let lorCloth = "shirt";
-      if (clothingStyle.includes("hoodie") || clothingStyle.includes("sweater"))
-        lorCloth = "sweater";
-      else if (clothingStyle.includes("blazer")) lorCloth = "dress";
-      params += `&clothing=${lorCloth}`;
+    } else if (s.selectedStyle === "bottts") {
+      params += `&baseColor=${s.clothingColor}`;
+      if (s.hairStyle === "noHair") {
+        params += `&topProbability=0`;
+      } else {
+        const topMap: Record<string, string> = {
+          shortFlat: "antenna",
+          shortRound: "bulb01",
+          shortCurly: "horns",
+          shortWaved: "radar",
+          theCaesar: "pyramid",
+          shaggyMullet: "lights",
+          straight01: "pyramid",
+          straight02: "antenna",
+          curly: "bulb01",
+          curvy: "radar",
+          bob: "horns",
+          miaWallace: "lights",
+          bun: "glowingBulb01",
+          dreads: "glowingBulb02",
+          bigHair: "antennaCrooked"
+        };
+        params += `&top=${topMap[s.hairStyle as string] || "antenna"}`;
+        params += `&topProbability=100`;
+      }
+      const eyesMap: Record<string, string> = {
+        default: "round",
+        happy: "happy",
+        wink: "bulging",
+        surprised: "glow",
+        squint: "sensor",
+        side: "robocop",
+        hearts: "hearts",
+        close: "dizzy"
+      };
+      params += `&eyes=${eyesMap[s.eyesStyle as string] || "round"}`;
+      const mouthMap: Record<string, string> = {
+        default: "smile01",
+        smile: "smile02",
+        sad: "grill01",
+        concerned: "grill02",
+        disbelief: "diagram",
+        grimace: "grill03",
+        scream: "square01",
+        tongue: "bite"
+      };
+      params += `&mouth=${mouthMap[s.mouthStyle as string] || "smile01"}`;
+      params += `&mouthProbability=100`;
+      if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
+        const sidesMap: Record<string, string> = {
+          prescription01: "antenna01",
+          round: "round",
+          sunglasses: "cables01",
+          wayfarer: "cables02",
+          kurt: "square"
+        };
+        params += `&sides=${sidesMap[s.accessoriesStyle as string] || "antenna01"}`;
+        params += `&sidesProbability=100`;
+      } else {
+        params += `&sidesProbability=0`;
+      }
+    } else if (s.selectedStyle === "pixel-art") {
+      params += `&skinColor=${s.skinColor}`;
+      params += `&clothingColor=${s.clothingColor}`;
+      params += `&hairColor=${s.hairColor}`;
+      if (s.hairStyle === "noHair") {
+        params += `&hairProbability=0`;
+      } else {
+        const hairMap: Record<string, string> = {
+          theCaesar: "short01",
+          shortFlat: "short02",
+          shortRound: "short03",
+          shortWaved: "short04",
+          shortCurly: "short05",
+          shaggyMullet: "short06",
+          straight01: "long01",
+          straight02: "long02",
+          curly: "long03",
+          curvy: "long04",
+          bob: "long05",
+          miaWallace: "long06",
+          bun: "long07",
+          dreads: "long08",
+          bigHair: "long09"
+        };
+        params += `&hair=${hairMap[s.hairStyle as string] || (s.hairGender === "male" ? "short01" : "long01")}`;
+        params += `&hairProbability=100`;
+      }
+      const eyesMap: Record<string, string> = {
+        default: "variant01",
+        happy: "variant02",
+        wink: "variant03",
+        surprised: "variant04",
+        squint: "variant05",
+        side: "variant06",
+        hearts: "variant07",
+        close: "variant08"
+      };
+      params += `&eyes=${eyesMap[s.eyesStyle as string] || "variant01"}`;
+      const mouthMap: Record<string, string> = {
+        default: "happy01",
+        smile: "happy02",
+        sad: "sad01",
+        concerned: "sad02",
+        disbelief: "sad03",
+        grimace: "sad04",
+        scream: "happy05",
+        tongue: "happy06"
+      };
+      params += `&mouth=${mouthMap[s.mouthStyle as string] || "happy01"}`;
+      const clothingMap: Record<string, string> = {
+        shirtCrewNeck: "variant01",
+        shirtVNeck: "variant02",
+        hoodie: "variant03",
+        collarAndSweater: "variant04",
+        blazerAndShirt: "variant05",
+        overall: "variant06",
+        graphicShirt: "variant07"
+      };
+      params += `&clothing=${clothingMap[s.clothingStyle as string] || "variant01"}`;
+      if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
+        const accMap: Record<string, string> = {
+          prescription01: "light01",
+          round: "light02",
+          sunglasses: "dark01",
+          wayfarer: "dark02",
+          kurt: "dark03"
+        };
+        params += `&glasses=${accMap[s.accessoriesStyle as string] || "light01"}`;
+        params += `&glassesProbability=100`;
+      } else {
+        params += `&glassesProbability=0`;
+      }
+    } else if (s.selectedStyle === "fun-emoji") {
+      params += `&backgroundColor=${s.clothingColor}`;
+      const eyesMap: Record<string, string> = {
+        default: "plain",
+        happy: "cute",
+        wink: "wink",
+        surprised: "stars",
+        squint: "pissed",
+        side: "shades",
+        hearts: "love",
+        close: "closed"
+      };
+      params += `&eyes=${eyesMap[s.eyesStyle as string] || "plain"}`;
+      const mouthMap: Record<string, string> = {
+        default: "plain",
+        smile: "wideSmile",
+        sad: "sad",
+        concerned: "shy",
+        disbelief: "pissed",
+        grimace: "sick",
+        scream: "shout",
+        tongue: "tongueOut"
+      };
+      params += `&mouth=${mouthMap[s.mouthStyle as string] || "plain"}`;
+    } else if (s.selectedStyle === "lorelei") {
+      params += `&skinColor=${s.skinColor}`;
+      params += `&hairColor=${s.hairColor}`;
+      params += `&clothingColor=${s.clothingColor}`;
+      const hairMap: Record<string, string> = {
+        theCaesar: "variant01",
+        shortFlat: "variant02",
+        shortRound: "variant03",
+        shortWaved: "variant04",
+        shortCurly: "variant05",
+        shaggyMullet: "variant06",
+        noHair: "variant48",
+        straight01: "variant10",
+        straight02: "variant11",
+        curly: "variant12",
+        curvy: "variant13",
+        bob: "variant14",
+        miaWallace: "variant15",
+        bun: "variant16",
+        dreads: "variant17",
+        bigHair: "variant18"
+      };
+      params += `&hair=${hairMap[s.hairStyle as string] || "variant01"}`;
+      const eyesMap: Record<string, string> = {
+        default: "variant01",
+        happy: "variant02",
+        wink: "variant03",
+        surprised: "variant04",
+        squint: "variant05",
+        side: "variant06",
+        hearts: "variant07",
+        close: "variant08"
+      };
+      params += `&eyes=${eyesMap[s.eyesStyle as string] || "variant01"}`;
+      const mouthMap: Record<string, string> = {
+        default: "happy01",
+        smile: "happy02",
+        sad: "sad01",
+        concerned: "sad02",
+        disbelief: "sad03",
+        grimace: "sad04",
+        scream: "happy05",
+        tongue: "happy06"
+      };
+      params += `&mouth=${mouthMap[s.mouthStyle as string] || "happy01"}`;
+      const eyebrowsMap: Record<string, string> = {
+        default: "variant01",
+        angry: "variant02",
+        flat: "variant03",
+        raised: "variant04",
+        sad: "variant05",
+        unibrow: "variant06",
+        up: "variant07"
+      };
+      params += `&eyebrows=${eyebrowsMap[s.eyebrowsStyle as string] || "variant01"}`;
+      if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
+        const accMap: Record<string, string> = {
+          prescription01: "variant01",
+          round: "variant02",
+          sunglasses: "variant03",
+          wayfarer: "variant04",
+          kurt: "variant05"
+        };
+        params += `&glasses=${accMap[s.accessoriesStyle as string] || "variant01"}`;
+        params += `&glassesProbability=100`;
+      } else {
+        params += `&glassesProbability=0`;
+      }
+      const noseMap: Record<string, string> = {
+        default: "variant01",
+        variant02: "variant02",
+        variant03: "variant03",
+        variant04: "variant04",
+        variant05: "variant05",
+        variant06: "variant06"
+      };
+      params += `&nose=${noseMap[s.noseStyle as string] || "variant01"}`;
     }
 
-    if (profileBorder && profileBorder !== "none") {
-      params += `&profile_border=${profileBorder}`;
+    if (s.profileBorder && s.profileBorder !== "none") {
+      params += `&profile_border=${s.profileBorder}`;
     }
 
-    if (avatarBackgroundColor) {
-      params += `&backgroundColor=${avatarBackgroundColor}`;
+    if (s.avatarBackgroundColor) {
+      params += `&backgroundColor=${s.avatarBackgroundColor}`;
     }
 
     return baseUrl + params;
@@ -807,7 +974,7 @@ function SettingsPage() {
     setWebsite(p.website ?? "");
     setSkills(p.skills ?? []);
     setLinks((p.social_links ?? {}) as SocialLinks);
-    setNameColor(p.name_color ?? "");
+    setNameColor((p as any).name_color ?? "");
     setPrefs((prev) => ({ ...prev, ...((p.notif_prefs ?? {}) as Partial<NotifPrefs>) }));
     setPayout((p.payout_destination ?? { method: "bank" }) as Payout);
     setDefaults(
@@ -903,7 +1070,7 @@ function SettingsPage() {
         skills: skills.length ? skills : [],
         social_links: links,
         name_color: nameColor || null,
-      })
+      } as any)
       .eq("id", user.id);
     setSavingProfile(false);
     if (error) return toast.error(error.message);
@@ -1639,46 +1806,50 @@ function SettingsPage() {
                           className="space-y-4 pt-3 max-h-[60vh] overflow-y-auto pr-1 pb-4"
                         >
                           {/* Eyebrows Selector */}
-                          <div className="space-y-1.5">
-                            <Label className="text-xs font-semibold text-muted-foreground">
-                              Eyebrows
-                            </Label>
-                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
-                              {[
-                                { id: "default", label: "Default" },
-                                { id: "angry", label: "Angry" },
-                                { id: "flat", label: "Flat" },
-                                { id: "raised", label: "Raised" },
-                                { id: "sad", label: "Sad" },
-                                { id: "unibrow", label: "Unibrow" },
-                                { id: "up", label: "Up" },
-                              ].map((eb) => (
-                                <button
-                                  key={eb.id}
-                                  type="button"
-                                  onClick={() => setEyebrowsStyle(eb.id)}
-                                  className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${eyebrowsStyle === eb.id ? "border-primary shadow-sm" : "border-border"}`}
-                                  title={eb.label}
-                                >
-                                  <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
-                                    <img
-                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&eyebrows=${eb.id === "default" ? "defaultNatural" : eb.id === "angry" ? "angryNatural" : eb.id === "flat" ? "flatNatural" : eb.id === "raised" ? "raisedExcitedNatural" : eb.id === "sad" ? "sadConcernedNatural" : eb.id === "unibrow" ? "unibrowNatural" : eb.id === "up" ? "upDownNatural" : eb.id}&eyes=default&mouth=default&topProbability=0`}
-                                      className="w-full h-full object-cover scale-[2.5] translate-y-3"
-                                      alt={eb.label}
-                                    />
-                                  </div>
-                                  <span className="text-[9px] font-medium truncate w-full text-center">
-                                    {eb.label}
-                                  </span>
-                                  {eyebrowsStyle === eb.id && (
-                                    <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                                      <Check className="h-2 w-2" />
+                          {(selectedStyle === "avataaars" ||
+                            selectedStyle === "adventurer" ||
+                            selectedStyle === "lorelei") && (
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-muted-foreground">
+                                Eyebrows
+                              </Label>
+                              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                {[
+                                  { id: "default", label: "Default" },
+                                  { id: "angry", label: "Angry" },
+                                  { id: "flat", label: "Flat" },
+                                  { id: "raised", label: "Raised" },
+                                  { id: "sad", label: "Sad" },
+                                  { id: "unibrow", label: "Unibrow" },
+                                  { id: "up", label: "Up" },
+                                ].map((eb) => (
+                                  <button
+                                    key={eb.id}
+                                    type="button"
+                                    onClick={() => setEyebrowsStyle(eb.id)}
+                                    className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${eyebrowsStyle === eb.id ? "border-primary shadow-sm" : "border-border"}`}
+                                    title={eb.label}
+                                  >
+                                    <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                      <img
+                                        src={buildCartoonUrl({ eyebrowsStyle: eb.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
+                                        className="w-full h-full object-cover scale-[2.5] translate-y-3"
+                                        alt={eb.label}
+                                      />
                                     </div>
-                                  )}
-                                </button>
-                              ))}
+                                    <span className="text-[9px] font-medium truncate w-full text-center">
+                                      {eb.label}
+                                    </span>
+                                    {eyebrowsStyle === eb.id && (
+                                      <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                        <Check className="h-2 w-2" />
+                                      </div>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Eyes Selector */}
                           <div className="space-y-1.5">
@@ -1705,7 +1876,7 @@ function SettingsPage() {
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                     <img
-                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&eyes=${eye.id === "close" ? "closed" : eye.id}&mouth=default&topProbability=0`}
+                                      src={buildCartoonUrl({ eyesStyle: eye.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
                                       className="w-full h-full object-cover scale-[2.5] translate-y-2"
                                       alt={eye.label}
                                     />
@@ -1724,45 +1895,47 @@ function SettingsPage() {
                           </div>
 
                           {/* Nose Selector */}
-                          <div className="space-y-1.5">
-                            <Label className="text-xs font-semibold text-muted-foreground">
-                              Nose
-                            </Label>
-                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
-                              {[
-                                { id: "default", label: "Default" },
-                                { id: "variant02", label: "Variant 2" },
-                                { id: "variant03", label: "Variant 3" },
-                                { id: "variant04", label: "Variant 4" },
-                                { id: "variant05", label: "Variant 5" },
-                                { id: "variant06", label: "Variant 6" },
-                              ].map((n) => (
-                                <button
-                                  key={n.id}
-                                  type="button"
-                                  onClick={() => setNoseStyle(n.id)}
-                                  className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${noseStyle === n.id ? "border-primary shadow-sm" : "border-border"}`}
-                                  title={n.label}
-                                >
-                                  <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
-                                    <img
-                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&nose=${n.id}&eyes=default&mouth=default&topProbability=0`}
-                                      className="w-full h-full object-cover scale-[3] translate-y-1"
-                                      alt={n.label}
-                                    />
-                                  </div>
-                                  <span className="text-[9px] font-medium truncate w-full text-center">
-                                    {n.label}
-                                  </span>
-                                  {noseStyle === n.id && (
-                                    <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                                      <Check className="h-2 w-2" />
+                          {selectedStyle === "lorelei" && (
+                            <div className="space-y-1.5">
+                              <Label className="text-xs font-semibold text-muted-foreground">
+                                Nose
+                              </Label>
+                              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                                {[
+                                  { id: "default", label: "Default" },
+                                  { id: "variant02", label: "Variant 2" },
+                                  { id: "variant03", label: "Variant 3" },
+                                  { id: "variant04", label: "Variant 4" },
+                                  { id: "variant05", label: "Variant 5" },
+                                  { id: "variant06", label: "Variant 6" },
+                                ].map((n) => (
+                                  <button
+                                    key={n.id}
+                                    type="button"
+                                    onClick={() => setNoseStyle(n.id)}
+                                    className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${noseStyle === n.id ? "border-primary shadow-sm" : "border-border"}`}
+                                    title={n.label}
+                                  >
+                                    <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                      <img
+                                        src={buildCartoonUrl({ noseStyle: n.id })}
+                                        className="w-full h-full object-cover scale-[3] translate-y-1"
+                                        alt={n.label}
+                                      />
                                     </div>
-                                  )}
-                                </button>
-                              ))}
+                                    <span className="text-[9px] font-medium truncate w-full text-center">
+                                      {n.label}
+                                    </span>
+                                    {noseStyle === n.id && (
+                                      <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                        <Check className="h-2 w-2" />
+                                      </div>
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Mouth Selector */}
                           <div className="space-y-1.5">
@@ -1789,7 +1962,7 @@ function SettingsPage() {
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                     <img
-                                      src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&mouth=${m.id === "scream" ? "screamOpen" : m.id}&eyes=default&topProbability=0`}
+                                      src={buildCartoonUrl({ mouthStyle: m.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
                                       className="w-full h-full object-cover scale-[2.5] -translate-y-2"
                                       alt={m.label}
                                     />
@@ -1810,7 +1983,9 @@ function SettingsPage() {
                           {/* Accessories Selector */}
                           {(selectedStyle === "avataaars" ||
                             selectedStyle === "adventurer" ||
-                            selectedStyle === "bottts") && (
+                            selectedStyle === "bottts" ||
+                            selectedStyle === "pixel-art" ||
+                            selectedStyle === "lorelei") && (
                             <div className="space-y-1.5">
                               <Label className="text-xs font-semibold text-muted-foreground">
                                 {selectedStyle === "bottts"
@@ -1843,8 +2018,8 @@ function SettingsPage() {
                                   >
                                     <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                       <img
-                                        src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&accessories=${acc.id === "wayfarer" ? "wayfarers" : acc.id === "none" ? "none" : acc.id}&accessoriesProbability=${acc.id === "none" ? "0" : "100"}&eyes=default&mouth=default&topProbability=0`}
-                                        className="w-full h-full object-cover scale-[2.5]"
+                                        src={buildCartoonUrl({ accessoriesStyle: acc.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
+                                        className="w-full h-full object-cover scale-[2.8] translate-y-1.5"
                                         alt={acc.label}
                                       />
                                     </div>
@@ -1870,8 +2045,7 @@ function SettingsPage() {
                         >
                           {/* Clothing Style */}
                           {(selectedStyle === "avataaars" ||
-                            selectedStyle === "pixel-art" ||
-                            selectedStyle === "lorelei") && (
+                            selectedStyle === "pixel-art") && (
                             <div className="space-y-1.5">
                               <Label className="text-xs font-semibold text-muted-foreground">
                                 Clothing Style
@@ -1893,13 +2067,13 @@ function SettingsPage() {
                                     className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${clothingStyle === c.id ? "border-primary shadow-sm" : "border-border"}`}
                                     title={c.label}
                                   >
-                                    <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
-                                      <img
-                                        src={`https://api.dicebear.com/9.x/${selectedStyle}/svg?seed=${seed}&clothing=${c.id}&clothesColor=${clothingColor}&skinColor=${skinColor}&topProbability=0`}
-                                        className="w-full h-full object-cover scale-[1.5] translate-y-5"
-                                        alt={c.label}
-                                      />
-                                    </div>
+                                      <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                        <img
+                                          src={buildCartoonUrl({ clothingStyle: c.id })}
+                                          className="w-full h-full object-cover scale-[2.2] -translate-y-[28%]"
+                                          alt={c.label}
+                                        />
+                                      </div>
                                     <span className="text-[9px] font-medium truncate w-full text-center">
                                       {c.label}
                                     </span>
@@ -2158,40 +2332,6 @@ function SettingsPage() {
                       </button>
                     );
                   })}
-                </div>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add custom skill..."
-                    className="h-8 text-xs flex-1"
-                    maxLength={30}
-                    id="custom-skill-input"
-                    value={customSkillValue}
-                    onChange={(e) => setCustomSkillValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        const val = e.currentTarget.value.trim();
-                        if (val && !skills.includes(val)) {
-                          setSkills([...skills, val]);
-                          setCustomSkillValue("");
-                        }
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="h-8 text-xs shrink-0"
-                    onClick={() => {
-                      const val = customSkillValue.trim();
-                      if (val && !skills.includes(val)) {
-                        setSkills([...skills, val]);
-                        setCustomSkillValue("");
-                      }
-                    }}
-                  >
-                    Add
-                  </Button>
                 </div>
               </Field>
 

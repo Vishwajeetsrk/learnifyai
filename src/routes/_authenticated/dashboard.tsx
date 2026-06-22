@@ -410,7 +410,7 @@ function UpgradePlans() {
         size="lg"
         className="shrink-0 relative z-10 shadow-glow hover:-translate-y-0.5 transition-all w-full md:w-auto"
       >
-        <Link to="/pricing">
+        <Link to="/pricing" search={{ subscribe: undefined }}>
           View Pricing & Upgrade <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </Button>

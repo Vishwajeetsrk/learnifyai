@@ -60,7 +60,7 @@ function AdminSubscriptionsPage() {
     queryKey: ["admin-subscription-analytics"],
     queryFn: async () => {
       const fn = getAdminSubscriptionAnalytics;
-      return await fn({ data: {} });
+      return await fn();
     },
   });
 
