@@ -19,14 +19,15 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const { request } = event;
-  // Only cache GET requests; skip API calls and non-GET
   if (request.method !== "GET") return;
+  // Skip in dev mode (localhost, 127.0.0.1)
+  const url = new URL(request.url);
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") return;
   // Skip API, auth, and webhook routes
-  if (request.url.includes("/api/")) return;
+  if (url.pathname.startsWith("/api/")) return;
 
   event.respondWith(
     caches.match(request).then((cached) => {
-      // Network-first for HTML pages, cache-first for static assets
       if (request.headers.get("accept")?.includes("text/html")) {
         return fetch(request)
           .then((response) => {

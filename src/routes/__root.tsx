@@ -154,6 +154,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "twitter:image",
         content: "https://learnifyaitool.vercel.app/assets/learnify-logo-DVspKPzy.png",
       },
+      { name: "theme-color", content: "#6366f1" },
     ],
     links: [
       {
@@ -177,10 +178,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "manifest",
         href: "/manifest.json",
-      },
-      {
-        name: "theme-color",
-        content: "#6366f1",
       },
     ],
     scripts: [
