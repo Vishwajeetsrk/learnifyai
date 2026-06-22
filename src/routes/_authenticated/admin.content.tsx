@@ -3273,6 +3273,7 @@ function CohortDialog({
   cohort: CohortRow | null;
   onSaved: () => void;
 }) {
+  const { user } = useAuth();
   const [form, setForm] = useState<CohortRow | null>(cohort);
   const [saving, setSaving] = useState(false);
 
@@ -3292,7 +3293,7 @@ function CohortDialog({
       title: form.title.trim(),
       description: form.description?.trim() || null,
       kind: form.kind,
-      starts_at: form.starts_at ? new Date(form.starts_at).toISOString() : null,
+      starts_at: form.starts_at ? new Date(form.starts_at).toISOString() : new Date().toISOString(),
       capacity: form.capacity || null,
       status: form.status,
       group_link: form.group_link?.trim() || null,
@@ -3301,7 +3302,7 @@ function CohortDialog({
       ? await (supabase as any).from("cohorts").update(payload).eq("id", form.id)
       : await (supabase as any)
           .from("cohorts")
-          .insert({ ...payload, creator_id: form.creator_id || undefined });
+          .insert({ ...payload, creator_id: form.creator_id || user?.id || "" });
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success(form.id ? "Group updated" : "Group created");

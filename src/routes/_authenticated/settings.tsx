@@ -43,6 +43,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getProfileBorderClass, PROFILE_BORDERS } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -72,45 +73,6 @@ const inr = (n: number) =>
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(n);
-
-function getProfileBorderClass(url: string | null | undefined): string {
-  if (!url) return "";
-  const match = url.match(/[?&]profile_border=([^&]+)/);
-  if (!match) return "";
-  const border = decodeURIComponent(match[1]);
-  switch (border) {
-    case "neon-blue":
-      return "ring-2 ring-blue-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(96,165,250,0.5)]";
-    case "neon-pink":
-      return "ring-2 ring-pink-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,114,182,0.5)]";
-    case "neon-green":
-      return "ring-2 ring-green-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(74,222,128,0.5)]";
-    case "gold-gradient":
-      return "ring-2 ring-amber-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,191,36,0.5)]";
-    case "rainbow-glow":
-      return "ring-2 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)] animate-pulse";
-    case "dashed-red":
-      return "border-2 border-dashed border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]";
-    case "royal-purple":
-      return "ring-2 ring-purple-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(168,85,247,0.5)]";
-    case "retro-orange":
-      return "ring-2 ring-orange-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(251,146,60,0.5)]";
-    case "ocean-teal":
-      return "ring-2 ring-teal-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(45,212,191,0.5)]";
-    case "sunset-amber":
-      return "ring-2 ring-amber-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(245,158,11,0.5)]";
-    case "cyber-cyan":
-      return "ring-2 ring-cyan-400 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(34,211,238,0.5)]";
-    case "fire-ruby":
-      return "ring-2 ring-rose-500 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(244,63,94,0.5)]";
-    case "ice-crystal":
-      return "ring-2 ring-sky-200 ring-offset-2 ring-offset-background shadow-[0_0_15px_rgba(186,230,253,0.5)]";
-    case "midnight-glow":
-      return "ring-2 ring-indigo-600 ring-offset-2 ring-offset-background shadow-[0_0_20px_rgba(79,70,229,0.6)]";
-    default:
-      return "";
-  }
-}
 
 const SKILL_OPTIONS = [
   "HTML",
@@ -199,20 +161,7 @@ function SettingsPage() {
 
   const BORDER_OPTIONS = [
     { id: "none", label: "None" },
-    { id: "neon-blue", label: "Neon Blue" },
-    { id: "neon-pink", label: "Neon Pink" },
-    { id: "neon-green", label: "Neon Green" },
-    { id: "gold-gradient", label: "Gold Gradient" },
-    { id: "rainbow-glow", label: "Rainbow Glow" },
-    { id: "dashed-red", label: "Dashed Red" },
-    { id: "royal-purple", label: "Royal Purple" },
-    { id: "retro-orange", label: "Retro Orange" },
-    { id: "ocean-teal", label: "Ocean Teal" },
-    { id: "sunset-amber", label: "Sunset Amber" },
-    { id: "cyber-cyan", label: "Cyber Cyan" },
-    { id: "fire-ruby", label: "Fire Ruby" },
-    { id: "ice-crystal", label: "Ice Crystal" },
-    { id: "midnight-glow", label: "Midnight Glow" },
+    ...PROFILE_BORDERS.map((b) => ({ id: b.id, label: b.label })),
   ];
 
   // Granular customization states
@@ -636,6 +585,9 @@ function SettingsPage() {
       if (error) throw error;
       toast.success("Character avatar updated!");
       qc.invalidateQueries({ queryKey: ["profile-full"] });
+      qc.invalidateQueries({ queryKey: ["profile-mini"] });
+      qc.invalidateQueries({ queryKey: ["public-profile"] });
+      qc.invalidateQueries({ queryKey: ["profile"] });
       setCartoonOpen(false);
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to save avatar");
@@ -657,7 +609,9 @@ function SettingsPage() {
       const seedVal = u.searchParams.get("seed") || "Learnify";
       setSeed(seedVal);
       if (u.searchParams.has("skinColor")) setSkinColor(u.searchParams.get("skinColor")!);
+      // Hair: avataaars uses "top", adventurer/pixel-art/lorelei use "hair"
       if (u.searchParams.has("top")) setHairStyle(u.searchParams.get("top")!);
+      else if (u.searchParams.has("hair")) setHairStyle(u.searchParams.get("hair")!);
       if (u.searchParams.has("hairColor")) setHairColor(u.searchParams.get("hairColor")!);
       if (u.searchParams.has("mouth")) setMouthStyle(u.searchParams.get("mouth")!);
       if (u.searchParams.has("eyes")) setEyesStyle(u.searchParams.get("eyes")!);
@@ -669,6 +623,14 @@ function SettingsPage() {
         u.searchParams.get("accessoriesProbability") === "0"
       ) {
         setAccessoriesStyle(u.searchParams.get("accessories") || "none");
+      }
+      if (u.searchParams.has("eyebrows")) setEyebrowsStyle(u.searchParams.get("eyebrows")!);
+      if (u.searchParams.has("nose")) setNoseStyle(u.searchParams.get("nose")!);
+      // Hair gender: detect from available hair options
+      const hairVal = u.searchParams.get("top") || u.searchParams.get("hair") || "";
+      const femaleHair = ["long", "longBob", "bun", "pigtails", "ponytail", "braids"];
+      if (femaleHair.some((h) => hairVal.toLowerCase().includes(h.toLowerCase()))) {
+        setHairGender("female");
       }
       if (u.searchParams.has("profile_border"))
         setProfileBorder(u.searchParams.get("profile_border")!);
@@ -691,7 +653,8 @@ function SettingsPage() {
     const style = CARTOON_STYLES[Math.floor(Math.random() * CARTOON_STYLES.length)].id;
     setSelectedStyle(style);
 
-    const border = BORDER_OPTIONS[Math.floor(Math.random() * BORDER_OPTIONS.length)].id;
+    const borderPool = BORDER_OPTIONS.filter((b) => b.id !== "none");
+    const border = borderPool[Math.floor(Math.random() * borderPool.length)].id;
     setProfileBorder(border);
 
     const newSeed = Math.random().toString(36).substring(2, 10);
@@ -1395,24 +1358,33 @@ function SettingsPage() {
                     onValueChange={async (val) => {
                       setProfileBorder(val);
                       const currentUrl = profileQ.data?.avatar_url;
+                      // Build the new URL with border
+                      let nextUrl = "";
                       if (currentUrl) {
-                        let baseUrl = currentUrl.split(/[?#]/)[0];
-                        let nextUrl = "";
                         if (currentUrl.includes("api.dicebear.com")) {
                           const urlObj = new URL(currentUrl);
-                          urlObj.searchParams.set("profile_border", val);
                           if (val === "none") urlObj.searchParams.delete("profile_border");
+                          else urlObj.searchParams.set("profile_border", val);
                           nextUrl = urlObj.toString();
                         } else {
+                          const baseUrl = currentUrl.split(/[?#]/)[0];
                           nextUrl = val === "none" ? baseUrl : `${baseUrl}?profile_border=${val}`;
                         }
-                        await supabase
-                          .from("profiles")
-                          .update({ avatar_url: nextUrl })
-                          .eq("id", user!.id);
-                        qc.invalidateQueries({ queryKey: ["profile-full"] });
-                        toast.success("Profile border updated!");
+                      } else {
+                        // No avatar yet — create a default DiceBear avatar with border
+                        const defaultUrl = new URL("https://api.dicebear.com/9.x/avataaars/svg");
+                        defaultUrl.searchParams.set("seed", seed || "Learnify");
+                        defaultUrl.searchParams.set("backgroundColor", "transparent");
+                        if (val !== "none") defaultUrl.searchParams.set("profile_border", val);
+                        nextUrl = defaultUrl.toString();
                       }
+                      await supabase
+                        .from("profiles")
+                        .update({ avatar_url: nextUrl })
+                        .eq("id", user!.id);
+                      qc.invalidateQueries({ queryKey: ["profile-full"] });
+                      qc.invalidateQueries({ queryKey: ["profile-mini"] });
+                      toast.success("Profile border updated!");
                     }}
                   >
                     <SelectTrigger className="w-48 text-xs">
@@ -1436,23 +1408,30 @@ function SettingsPage() {
                       const rand = avail[Math.floor(Math.random() * avail.length)].id;
                       setProfileBorder(rand);
                       const currentUrl = profileQ.data?.avatar_url;
+                      let nextUrl = "";
                       if (currentUrl) {
-                        let baseUrl = currentUrl.split(/[?#]/)[0];
-                        let nextUrl = "";
                         if (currentUrl.includes("api.dicebear.com")) {
                           const urlObj = new URL(currentUrl);
                           urlObj.searchParams.set("profile_border", rand);
                           nextUrl = urlObj.toString();
                         } else {
+                          const baseUrl = currentUrl.split(/[?#]/)[0];
                           nextUrl = `${baseUrl}?profile_border=${rand}`;
                         }
-                        await supabase
-                          .from("profiles")
-                          .update({ avatar_url: nextUrl })
-                          .eq("id", user!.id);
-                        qc.invalidateQueries({ queryKey: ["profile-full"] });
-                        toast.success("Randomized profile border!");
+                      } else {
+                        const defaultUrl = new URL("https://api.dicebear.com/9.x/avataaars/svg");
+                        defaultUrl.searchParams.set("seed", seed || "Learnify");
+                        defaultUrl.searchParams.set("backgroundColor", "transparent");
+                        defaultUrl.searchParams.set("profile_border", rand);
+                        nextUrl = defaultUrl.toString();
                       }
+                      await supabase
+                        .from("profiles")
+                        .update({ avatar_url: nextUrl })
+                        .eq("id", user!.id);
+                      qc.invalidateQueries({ queryKey: ["profile-full"] });
+                      qc.invalidateQueries({ queryKey: ["profile-mini"] });
+                      toast.success("Randomized profile border!");
                     }}
                   >
                     <Sparkles className="h-3.5 w-3.5 mr-1" /> Randomize Border

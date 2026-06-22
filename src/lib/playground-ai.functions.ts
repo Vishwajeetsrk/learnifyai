@@ -12,14 +12,16 @@ const Input = z.object({
   question: z.string().max(2000).optional().default(""),
 });
 
-const FALLBACK_MODELS = [
+const GROQ_MODELS = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"];
+const GEMINI_MODELS = ["gemini-2.5-flash"];
+const OPENROUTER_MODELS = [
   "meta-llama/llama-3.3-70b-instruct:free",
   "deepseek/deepseek-chat-v3.1:free",
   "mistralai/mistral-small-3.2-24b-instruct:free",
   "qwen/qwen-2.5-72b-instruct:free",
 ];
 
-function buildProvider(key: string) {
+function buildOpenRouterProvider(key: string) {
   return createOpenAICompatible({
     name: "openrouter",
     baseURL: "https://openrouter.ai/api/v1",
@@ -31,27 +33,28 @@ function buildProvider(key: string) {
   });
 }
 
-async function hasEndpoints(model: string, key: string): Promise<boolean> {
-  try {
-    const res = await fetch(
-      `https://openrouter.ai/api/v1/models/${encodeURIComponent(model)}/endpoints`,
-      { headers: { Authorization: `Bearer ${key}` } },
-    );
-    if (!res.ok) return false;
-    const body = (await res.json()) as { data?: { endpoints?: unknown[] } };
-    return Array.isArray(body?.data?.endpoints) && body.data!.endpoints!.length > 0;
-  } catch {
-    return true;
-  }
+function buildGroqProvider(key: string) {
+  return createOpenAICompatible({
+    name: "groq",
+    baseURL: "https://api.groq.com/openai/v1",
+    headers: { Authorization: `Bearer ${key}` },
+  });
+}
+
+function buildGeminiProvider(key: string) {
+  return createOpenAICompatible({
+    name: "gemini",
+    baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+    headers: { Authorization: `Bearer ${key}` },
+  });
 }
 
 export const playgroundAiDebug = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => Input.parse(input))
   .handler(async ({ data }) => {
-    const key = process.env.OPENROUTER_API_KEY?.trim();
-    if (!key) {
-      throw new Error("AI is not configured. Add OPENROUTER_API_KEY to the server .env.");
-    }
+    const groqKey = process.env.GROQ_API_KEY?.trim();
+    const geminiKey = process.env.GEMINI_API_KEY?.trim();
+    const openrouterKey = process.env.OPENROUTER_API_KEY?.trim();
 
     const system = `You are a concise senior engineer helping a developer debug code in Learnify's Playground.
 - Identify the root cause from the code, stderr, and exit code.
@@ -86,18 +89,48 @@ ${data.question || "Diagnose any issue and return the full fixed program."}`;
       { role: "user" as const, content: user },
     ];
 
-    const provider = buildProvider(key);
+    const errors: string[] = [];
 
-    for (const model of FALLBACK_MODELS) {
-      const available = await hasEndpoints(model, key);
-      if (!available) continue;
-      try {
-        const { text } = await generateText({ model: provider(model), messages });
-        return { reply: text, model };
-      } catch {
-        continue;
+    // 1. Try Groq (fastest)
+    if (groqKey) {
+      const provider = buildGroqProvider(groqKey);
+      for (const model of GROQ_MODELS) {
+        try {
+          const { text } = await generateText({ model: provider(model), messages });
+          return { reply: text, model: `groq/${model}` };
+        } catch (e: any) {
+          errors.push(`groq/${model}: ${e?.message || "failed"}`);
+          if (e?.statusCode === 401 || e?.statusCode === 403) break;
+        }
       }
     }
 
-    throw new Error("OpenRouter has no working free model right now. Try again in a moment.");
+    // 2. Try Gemini
+    if (geminiKey) {
+      const provider = buildGeminiProvider(geminiKey);
+      for (const model of GEMINI_MODELS) {
+        try {
+          const { text } = await generateText({ model: provider(model), messages });
+          return { reply: text, model: `gemini/${model}` };
+        } catch (e: any) {
+          errors.push(`gemini/${model}: ${e?.message || "failed"}`);
+          if (e?.statusCode === 401 || e?.statusCode === 403) break;
+        }
+      }
+    }
+
+    // 3. Try OpenRouter (last resort)
+    if (openrouterKey) {
+      const provider = buildOpenRouterProvider(openrouterKey);
+      for (const model of OPENROUTER_MODELS) {
+        try {
+          const { text } = await generateText({ model: provider(model), messages });
+          return { reply: text, model: `openrouter/${model}` };
+        } catch (e: any) {
+          errors.push(`openrouter/${model}: ${e?.message || "failed"}`);
+        }
+      }
+    }
+
+    throw new Error(`All AI providers failed. ${errors.length > 0 ? errors.slice(0, 3).join("; ") : "No API keys configured."}`);
   });
