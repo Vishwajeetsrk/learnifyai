@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import {
   Loader2,
   Plus,
@@ -27,6 +28,7 @@ import {
   Code2,
   Video as VideoIcon,
   HelpCircle,
+  GripVertical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
@@ -1100,6 +1102,35 @@ function LessonsDialog({ course, onClose }: { course: Course | null; onClose: ()
     qc.invalidateQueries({ queryKey: ["studio-lessons"] });
   }
 
+  const handleLessonReorder = useCallback(
+    async (result: DropResult) => {
+      const lessons = lessonsQuery.data ?? [];
+      if (!result.destination) return;
+      const fromIdx = result.source.index;
+      const toIdx = result.destination.index;
+      if (fromIdx === toIdx) return;
+
+      const reordered = [...lessons];
+      const [moved] = reordered.splice(fromIdx, 1);
+      reordered.splice(toIdx, 0, moved);
+
+      // Optimistic update
+      qc.setQueryData(["studio-lessons", courseId], reordered);
+
+      // Persist new order_index for every affected lesson
+      const updates = reordered.map((l, i) =>
+        supabase.from("lessons").update({ order_index: i }).eq("id", l.id),
+      );
+      const results = await Promise.all(updates);
+      const err = results.find((r) => r.error);
+      if (err) {
+        toast.error("Failed to reorder lessons");
+        qc.invalidateQueries({ queryKey: ["studio-lessons"] });
+      }
+    },
+    [lessonsQuery.data, courseId, qc],
+  );
+
   return (
     <Dialog open={!!course} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -1145,36 +1176,56 @@ function LessonsDialog({ course, onClose }: { course: Course | null; onClose: ()
               ) : (lessonsQuery.data ?? []).length === 0 ? (
                 <div className="p-6 text-center text-sm text-muted-foreground">No lessons yet.</div>
               ) : (
-                <ul className="space-y-2 mt-2">
-                  {(lessonsQuery.data ?? []).map((l) => (
-                    <li
-                      key={l.id}
-                      className="flex items-center justify-between gap-3 border rounded-lg px-3 py-2"
-                    >
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">
-                          {l.order_index + 1}. {l.title}
-                        </div>
-                        <div className="text-xs text-muted-foreground truncate">
-                          {l.duration_minutes} min{l.is_preview ? " · Preview" : ""}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Button size="icon" variant="ghost" onClick={() => setEditing(l)}>
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="text-destructive"
-                          onClick={() => removeLesson(l)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <DragDropContext onDragEnd={handleLessonReorder}>
+                  <Droppable droppableId="lessons">
+                    {(provided) => (
+                      <ul className="space-y-2 mt-2" ref={provided.innerRef} {...provided.droppableProps}>
+                        {(lessonsQuery.data ?? []).map((l, idx) => (
+                          <Draggable key={l.id} draggableId={l.id} index={idx}>
+                            {(dragProvided) => (
+                              <li
+                                ref={dragProvided.innerRef}
+                                {...dragProvided.draggableProps}
+                                className="flex items-center justify-between gap-3 border rounded-lg px-3 py-2"
+                              >
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <button
+                                    {...dragProvided.dragHandleProps}
+                                    className="shrink-0 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing"
+                                  >
+                                    <GripVertical className="h-4 w-4" />
+                                  </button>
+                                  <div className="min-w-0">
+                                    <div className="text-sm font-medium truncate">
+                                      {idx + 1}. {l.title}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground truncate">
+                                      {l.duration_minutes} min{l.is_preview ? " · Preview" : ""}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <Button size="icon" variant="ghost" onClick={() => setEditing(l)}>
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="text-destructive"
+                                    onClick={() => removeLesson(l)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </li>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </ul>
+                    )}
+                  </Droppable>
+                </DragDropContext>
               )}
             </>
           ))}
