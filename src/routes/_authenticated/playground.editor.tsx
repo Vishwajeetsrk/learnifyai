@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import { AppShell } from "@/components/AppShell";
 import { AIPanel } from "@/components/playground/AIPanel";
 import { AIAssistantPanel } from "@/components/playground/AIAssistantPanel";
@@ -31,8 +31,10 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { z } from "zod";
-import { WebIDE } from "@/components/playground/WebIDE";
-import { StandardIDE } from "@/components/playground/StandardIDE";
+
+// Lazy load heavy IDE components (Sandpack ~2MB + Monaco ~10MB)
+const WebIDE = lazy(() => import("@/components/playground/WebIDE").then((m) => ({ default: m.WebIDE })));
+const StandardIDE = lazy(() => import("@/components/playground/StandardIDE").then((m) => ({ default: m.StandardIDE })));
 
 const searchSchema = z.object({ project: z.string().optional() });
 
@@ -374,34 +376,44 @@ function PlaygroundEditor() {
               <div className="h-full flex items-center justify-center text-muted-foreground">
                 Loading project...
               </div>
-            ) : isWebProject ? (
-              <WebIDE
-                files={webFiles}
-                template={
-                  template === "html-css-js"
-                    ? "vanilla"
-                    : (template as "react" | "node" | "vanilla")
-                }
-                onSave={handleWebSave}
-                saving={saving}
-              />
             ) : (
-              <StandardIDE
-                files={files}
-                activeFileId={activeFileId}
-                setActiveFileId={setActiveFileId}
-                onAddFile={handleAddFile}
-                onDeleteFile={handleDeleteFile}
-                onUpdateFile={handleUpdateFile}
-                language={language}
-                setLanguage={setLanguage}
-                run={runStandard}
-                running={running}
-                output={output}
-                timeMs={timeMs}
-                saving={saving}
-                onSaveProject={handleStandardSave}
-              />
+              <Suspense
+                fallback={
+                  <div className="h-full flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                }
+              >
+                {isWebProject ? (
+                  <WebIDE
+                    files={webFiles}
+                    template={
+                      template === "html-css-js"
+                        ? "vanilla"
+                        : (template as "react" | "node" | "vanilla")
+                    }
+                    onSave={handleWebSave}
+                    saving={saving}
+                  />
+                ) : (
+                  <StandardIDE
+                    files={files}
+                    activeFileId={activeFileId}
+                    setActiveFileId={setActiveFileId}
+                    onAddFile={handleAddFile}
+                    onDeleteFile={handleDeleteFile}
+                    onUpdateFile={handleUpdateFile}
+                    language={language}
+                    setLanguage={setLanguage}
+                    run={runStandard}
+                    running={running}
+                    output={output}
+                    timeMs={timeMs}
+                    saving={saving}
+                    onSaveProject={handleStandardSave}
+                  />
+                )}
+              </Suspense>
             )}
           </div>
 
