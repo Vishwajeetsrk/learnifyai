@@ -22,7 +22,7 @@ function resolveOrigin(): string {
 
 const LOGO_URL = "https://learnifyaitool.vercel.app/favicon.ico";
 
-function buildHtml({
+export function buildHtml({
   courseTitle,
   score,
   total,
@@ -163,7 +163,7 @@ async function sendViaBrevoApi({
   return { messageId: json.messageId, provider: "brevo-api" };
 }
 
-async function sendEmail({
+export async function sendEmail({
   to,
   subject,
   html,

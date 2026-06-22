@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/check-subscriptions",
       "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/retry-cert-emails",
+      "schedule": "*/10 * * * *"
     }
   ],
   "headers": [

@@ -61,6 +61,7 @@ import { Route as AuthenticatedAchievementsRouteImport } from './routes/_authent
 import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
 import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/api/webhooks/cashfree-subscription'
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
+import { Route as ApiCronRetryCertEmailsRouteImport } from './routes/api/cron/retry-cert-emails'
 import { Route as ApiCronCheckSubscriptionsRouteImport } from './routes/api/cron/check-subscriptions'
 import { Route as AuthenticatedPlaygroundWebRouteImport } from './routes/_authenticated/playground.web'
 import { Route as AuthenticatedPlaygroundReactRouteImport } from './routes/_authenticated/playground.react'
@@ -349,6 +350,11 @@ const ApiWebhooksCashfreeRoute = ApiWebhooksCashfreeRouteImport.update({
   path: '/api/webhooks/cashfree',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronRetryCertEmailsRoute = ApiCronRetryCertEmailsRouteImport.update({
+  id: '/api/cron/retry-cert-emails',
+  path: '/api/cron/retry-cert-emails',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCronCheckSubscriptionsRoute =
   ApiCronCheckSubscriptionsRouteImport.update({
     id: '/api/cron/check-subscriptions',
@@ -536,6 +542,7 @@ export interface FileRoutesByFullPath {
   '/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/playground/web': typeof AuthenticatedPlaygroundWebRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
+  '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/courses/': typeof AuthenticatedCoursesIndexRoute
@@ -609,6 +616,7 @@ export interface FileRoutesByTo {
   '/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/playground/web': typeof AuthenticatedPlaygroundWebRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
+  '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/courses': typeof AuthenticatedCoursesIndexRoute
@@ -684,6 +692,7 @@ export interface FileRoutesById {
   '/_authenticated/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/_authenticated/playground/web': typeof AuthenticatedPlaygroundWebRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
+  '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
@@ -759,6 +768,7 @@ export interface FileRouteTypes {
     | '/playground/react'
     | '/playground/web'
     | '/api/cron/check-subscriptions'
+    | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/courses/'
@@ -832,6 +842,7 @@ export interface FileRouteTypes {
     | '/playground/react'
     | '/playground/web'
     | '/api/cron/check-subscriptions'
+    | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/courses'
@@ -906,6 +917,7 @@ export interface FileRouteTypes {
     | '/_authenticated/playground/react'
     | '/_authenticated/playground/web'
     | '/api/cron/check-subscriptions'
+    | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/_authenticated/courses/'
@@ -941,6 +953,7 @@ export interface RootRouteChildren {
   UAtusernameRoute: typeof UAtusernameRoute
   VerifyIdRoute: typeof VerifyIdRoute
   ApiCronCheckSubscriptionsRoute: typeof ApiCronCheckSubscriptionsRoute
+  ApiCronRetryCertEmailsRoute: typeof ApiCronRetryCertEmailsRoute
   ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
   ApiWebhooksCashfreeSubscriptionRoute: typeof ApiWebhooksCashfreeSubscriptionRoute
   ApiPublicHooksRunRemindersRoute: typeof ApiPublicHooksRunRemindersRoute
@@ -1312,6 +1325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhooksCashfreeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/retry-cert-emails': {
+      id: '/api/cron/retry-cert-emails'
+      path: '/api/cron/retry-cert-emails'
+      fullPath: '/api/cron/retry-cert-emails'
+      preLoaderRoute: typeof ApiCronRetryCertEmailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/cron/check-subscriptions': {
       id: '/api/cron/check-subscriptions'
       path: '/api/cron/check-subscriptions'
@@ -1618,6 +1638,7 @@ const rootRouteChildren: RootRouteChildren = {
   UAtusernameRoute: UAtusernameRoute,
   VerifyIdRoute: VerifyIdRoute,
   ApiCronCheckSubscriptionsRoute: ApiCronCheckSubscriptionsRoute,
+  ApiCronRetryCertEmailsRoute: ApiCronRetryCertEmailsRoute,
   ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,
   ApiWebhooksCashfreeSubscriptionRoute: ApiWebhooksCashfreeSubscriptionRoute,
   ApiPublicHooksRunRemindersRoute: ApiPublicHooksRunRemindersRoute,
