@@ -209,7 +209,7 @@ function CourseDetail() {
     },
   });
 
-  const progressRows = progressQuery.data ?? [];
+  const progressRows = useMemo(() => progressQuery.data ?? [], [progressQuery.data]);
 
   const enrollmentQuery = useQuery({
     enabled: !!user && !!courseQuery.data?.course.id,
@@ -1209,10 +1209,11 @@ function LessonAiTabs({
           </Button>
         )}
         {lesson.description ? (
-          <div
-            className="text-sm text-muted-foreground prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-pre:p-0 prose-ul:my-1 prose-li:my-0.5"
-            dangerouslySetInnerHTML={{ __html: lesson.description }}
-          />
+          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-headings:font-semibold prose-pre:p-0 prose-ul:my-1 prose-li:my-0.5">
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+              {lesson.description}
+            </ReactMarkdown>
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground whitespace-pre-wrap">
             No instructor notes for this lesson.
