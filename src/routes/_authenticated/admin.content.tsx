@@ -184,9 +184,8 @@ function AdminContentPage() {
             </Link>
             <h1 className="font-display text-3xl font-bold">Content Manager</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Manage events, jobs, pricing, FAQs, site settings and certificate templates from one
-              place. Past events auto-delete 24h after they end. Jobs auto-close when their close
-              date passes.
+              Manage events, jobs, pricing, FAQs, pages, roadmaps, coupons, community groups,
+              certificate templates, and feature visibility — all in one place.
             </p>
           </div>
         </div>

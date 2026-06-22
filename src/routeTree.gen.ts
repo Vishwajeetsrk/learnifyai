@@ -63,6 +63,7 @@ import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/ap
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
 import { Route as ApiCronRetryCertEmailsRouteImport } from './routes/api/cron/retry-cert-emails'
 import { Route as ApiCronCheckSubscriptionsRouteImport } from './routes/api/cron/check-subscriptions'
+import { Route as ApiCronAutoMaintenanceRouteImport } from './routes/api/cron/auto-maintenance'
 import { Route as AuthenticatedPlaygroundWebRouteImport } from './routes/_authenticated/playground.web'
 import { Route as AuthenticatedPlaygroundReactRouteImport } from './routes/_authenticated/playground.react'
 import { Route as AuthenticatedPlaygroundProjectsRouteImport } from './routes/_authenticated/playground.projects'
@@ -361,6 +362,11 @@ const ApiCronCheckSubscriptionsRoute =
     path: '/api/cron/check-subscriptions',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiCronAutoMaintenanceRoute = ApiCronAutoMaintenanceRouteImport.update({
+  id: '/api/cron/auto-maintenance',
+  path: '/api/cron/auto-maintenance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedPlaygroundWebRoute =
   AuthenticatedPlaygroundWebRouteImport.update({
     id: '/web',
@@ -541,6 +547,7 @@ export interface FileRoutesByFullPath {
   '/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
   '/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/playground/web': typeof AuthenticatedPlaygroundWebRoute
+  '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
@@ -615,6 +622,7 @@ export interface FileRoutesByTo {
   '/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
   '/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/playground/web': typeof AuthenticatedPlaygroundWebRoute
+  '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
@@ -691,6 +699,7 @@ export interface FileRoutesById {
   '/_authenticated/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
   '/_authenticated/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/_authenticated/playground/web': typeof AuthenticatedPlaygroundWebRoute
+  '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
@@ -767,6 +776,7 @@ export interface FileRouteTypes {
     | '/playground/projects'
     | '/playground/react'
     | '/playground/web'
+    | '/api/cron/auto-maintenance'
     | '/api/cron/check-subscriptions'
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
@@ -841,6 +851,7 @@ export interface FileRouteTypes {
     | '/playground/projects'
     | '/playground/react'
     | '/playground/web'
+    | '/api/cron/auto-maintenance'
     | '/api/cron/check-subscriptions'
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
@@ -916,6 +927,7 @@ export interface FileRouteTypes {
     | '/_authenticated/playground/projects'
     | '/_authenticated/playground/react'
     | '/_authenticated/playground/web'
+    | '/api/cron/auto-maintenance'
     | '/api/cron/check-subscriptions'
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
@@ -952,6 +964,7 @@ export interface RootRouteChildren {
   UIdRoute: typeof UIdRoute
   UAtusernameRoute: typeof UAtusernameRoute
   VerifyIdRoute: typeof VerifyIdRoute
+  ApiCronAutoMaintenanceRoute: typeof ApiCronAutoMaintenanceRoute
   ApiCronCheckSubscriptionsRoute: typeof ApiCronCheckSubscriptionsRoute
   ApiCronRetryCertEmailsRoute: typeof ApiCronRetryCertEmailsRoute
   ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
@@ -1339,6 +1352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCronCheckSubscriptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/auto-maintenance': {
+      id: '/api/cron/auto-maintenance'
+      path: '/api/cron/auto-maintenance'
+      fullPath: '/api/cron/auto-maintenance'
+      preLoaderRoute: typeof ApiCronAutoMaintenanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/playground/web': {
       id: '/_authenticated/playground/web'
       path: '/web'
@@ -1637,6 +1657,7 @@ const rootRouteChildren: RootRouteChildren = {
   UIdRoute: UIdRoute,
   UAtusernameRoute: UAtusernameRoute,
   VerifyIdRoute: VerifyIdRoute,
+  ApiCronAutoMaintenanceRoute: ApiCronAutoMaintenanceRoute,
   ApiCronCheckSubscriptionsRoute: ApiCronCheckSubscriptionsRoute,
   ApiCronRetryCertEmailsRoute: ApiCronRetryCertEmailsRoute,
   ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,
