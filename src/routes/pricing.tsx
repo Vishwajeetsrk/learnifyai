@@ -514,10 +514,11 @@ function PricingCard({
   };
 
   const yearlyPrice = Math.round(plan.price_inr * 12 * 0.8);
+  const basePrice = plan.price_label.replace(/\/mo(nth)?$/i, "").trim();
   const displayPrice =
     billingCycle === "yearly" && hasPrice
       ? `₹${yearlyPrice.toLocaleString("en-IN")}`
-      : plan.price_label;
+      : basePrice;
 
   return (
     <motion.div
@@ -620,7 +621,7 @@ function PricingCard({
             >
               {displayPrice}
             </motion.span>
-            {plan.interval && (
+            {hasPrice && plan.interval && (
               <span className="text-sm text-muted-foreground">
                 /{billingCycle === "yearly" ? "year" : plan.interval}
               </span>
@@ -645,7 +646,7 @@ function PricingCard({
               whileHover={{ scale: 1.02 }}
             >
               <span className="text-sm font-semibold" style={{ color: accentColor }}>
-                {plan.ai_credits_monthly.toLocaleString("en-IN")} AI credits / mo
+                {plan.ai_credits_monthly.toLocaleString("en-IN")} AI credits / month
               </span>
             </motion.div>
           )}
@@ -731,7 +732,7 @@ function PricingCard({
                   )}
                   {loadingPlan === plan.id
                     ? "Processing..."
-                    : `Subscribe ${displayPrice}/${billingCycle === "yearly" ? "year" : "month"}`}
+                    : plan.cta_label || `Subscribe ${displayPrice}`}
                 </Button>
               </motion.div>
             )}
