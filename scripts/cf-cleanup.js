@@ -21,3 +21,17 @@ writeFileSync(
   })
 );
 console.log("✓ Wrote SPA _routes.json");
+
+// Remove .wrangler deploy config that references the deleted _worker.js/wrangler.json.
+const wranglerDir = join(process.cwd(), ".wrangler");
+if (existsSync(wranglerDir)) {
+  rmSync(wranglerDir, { recursive: true, force: true });
+  console.log("✓ Removed .wrangler/ (stale deploy config)");
+}
+
+// Remove nitro.json — not needed for static-only deploy.
+const nitroJson = join(dist, "nitro.json");
+if (existsSync(nitroJson)) {
+  rmSync(nitroJson, { force: true });
+  console.log("✓ Removed dist/nitro.json");
+}

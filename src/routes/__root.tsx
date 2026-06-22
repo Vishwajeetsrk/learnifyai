@@ -15,20 +15,47 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
-        <div className="mt-6">
+      <div className="max-w-lg text-center space-y-6">
+        <div className="relative mx-auto w-32 h-32">
+          <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse" />
+          <div className="absolute inset-2 rounded-full bg-primary/5 flex items-center justify-center">
+            <span className="text-6xl font-black text-primary/30 select-none">?</span>
+          </div>
+        </div>
+        <div>
+          <h1 className="text-8xl font-black tracking-tighter text-foreground">404</h1>
+          <h2 className="mt-3 text-2xl font-bold text-foreground">Page not found</h2>
+          <p className="mt-2 text-muted-foreground max-w-sm mx-auto">
+            The page you're looking for doesn't exist, was moved, or is temporarily unavailable.
+          </p>
+        </div>
+        <div className="flex flex-wrap justify-center gap-3">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
           >
             Go home
           </Link>
+          <Link
+            to="/courses"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:bg-accent hover:shadow-lg"
+          >
+            Browse courses
+          </Link>
+          <Link
+            to="/pricing"
+            search={{ subscribe: undefined }}
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:bg-accent hover:shadow-lg"
+          >
+            View plans
+          </Link>
         </div>
+        <p className="text-xs text-muted-foreground">
+          If you think this is a mistake, contact{" "}
+          <a href="mailto:support@learnify.ai" className="text-primary underline underline-offset-2">
+            support@learnify.ai
+          </a>
+        </p>
       </div>
     </div>
   );
@@ -43,30 +70,56 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+      <div className="max-w-lg text-center space-y-6">
+        <div className="relative mx-auto w-32 h-32">
+          <div className="absolute inset-0 rounded-full bg-destructive/10 animate-pulse" />
+          <div className="absolute inset-2 rounded-full bg-destructive/5 flex items-center justify-center">
+            <span className="text-5xl select-none">&#9888;</span>
+          </div>
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Something went wrong
+          </h1>
+          <p className="mt-2 text-muted-foreground max-w-sm mx-auto">
+            An unexpected error occurred. You can try refreshing the page or head back home.
+          </p>
+          {import.meta.env.DEV && (
+            <details className="mt-4 mx-auto max-w-md text-left">
+              <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground transition-colors">
+                Error details (dev only)
+              </summary>
+              <pre className="mt-2 rounded-lg bg-muted p-3 text-xs overflow-x-auto text-foreground/80">
+                {error.message}
+                {"\n"}
+                {error.stack}
+              </pre>
+            </details>
+          )}
+        </div>
+        <div className="flex flex-wrap justify-center gap-3">
           <button
             onClick={() => {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
           >
             Try again
           </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center rounded-lg border border-border bg-background px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:bg-accent hover:shadow-lg"
           >
             Go home
-          </a>
+          </Link>
         </div>
+        <p className="text-xs text-muted-foreground">
+          If this keeps happening, contact{" "}
+          <a href="mailto:support@learnify.ai" className="text-primary underline underline-offset-2">
+            support@learnify.ai
+          </a>
+        </p>
       </div>
     </div>
   );
