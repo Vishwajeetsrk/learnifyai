@@ -500,6 +500,8 @@ function AIPage() {
                     src={attachedImage}
                     alt="attached"
                     className="h-12 w-12 rounded object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <span className="text-xs text-muted-foreground">Photo attached</span>
                   <button

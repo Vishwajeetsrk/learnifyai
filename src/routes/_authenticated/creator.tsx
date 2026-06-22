@@ -189,6 +189,8 @@ function CreatorHub() {
                           src={c.cover_url}
                           alt={c.title}
                           className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
                         />
                       ) : null}
                     </div>

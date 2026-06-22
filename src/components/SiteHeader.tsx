@@ -14,21 +14,22 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          <Link to="/features" className="hover:text-foreground transition">
+          <Link to="/features" preload="intent" className="hover:text-foreground transition">
             Features
           </Link>
-          <Link to="/features" hash="ai-tools" className="hover:text-foreground transition">
+          <Link to="/features" hash="ai-tools" preload="intent" className="hover:text-foreground transition">
             AI Tools
           </Link>
-          <Link to="/creators" className="hover:text-foreground transition">
+          <Link to="/creators" preload="intent" className="hover:text-foreground transition">
             Creators
           </Link>
-          <Link to="/coaches" className="hover:text-foreground transition">
+          <Link to="/coaches" preload="intent" className="hover:text-foreground transition">
             Coaches
           </Link>
           <Link
             to="/pricing"
             search={{ subscribe: undefined }}
+            preload="intent"
             className="hover:text-foreground transition"
           >
             Pricing
@@ -43,19 +44,19 @@ export function SiteHeader() {
               size="sm"
               className="bg-foreground text-background hover:bg-foreground/90"
             >
-              <Link to="/dashboard">Open app</Link>
+              <Link to="/dashboard" preload="intent">Open app</Link>
             </Button>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm">
-                <Link to="/login">Sign in</Link>
+                <Link to="/login" preload="intent">Sign in</Link>
               </Button>
               <Button
                 asChild
                 size="sm"
                 className="bg-foreground text-background hover:bg-foreground/90"
               >
-                <Link to="/signup">Get started</Link>
+                <Link to="/signup" preload="intent">Get started</Link>
               </Button>
             </>
           )}

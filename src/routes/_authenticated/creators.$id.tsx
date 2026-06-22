@@ -159,7 +159,7 @@ function CreatorProfile() {
           <div className="h-48 md:h-64 w-full relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-cyan-500">
             {p?.profile?.banner_url ? (
               <>
-                <img src={p.profile.banner_url} alt="" className="w-full h-full object-cover" />
+                <img src={p.profile.banner_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
               </>
             ) : (

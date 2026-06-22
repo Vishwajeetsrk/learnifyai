@@ -937,6 +937,8 @@ function CourseFormDialog({
                   src={coverUrl}
                   alt="Cover preview"
                   className="w-full max-h-48 object-cover"
+                  loading="lazy"
+                  decoding="async"
                   onLoad={() => setCoverFailed(false)}
                   onError={() => setCoverFailed(true)}
                 />
@@ -991,6 +993,8 @@ function CourseFormDialog({
                         src={u}
                         alt={`v${i + 1}`}
                         className="h-14 w-24 object-cover rounded-md border"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <button
                         type="button"
@@ -2647,6 +2651,8 @@ function AiThumbnailDialog({
                 src={preview}
                 alt="AI thumbnail"
                 className="w-full max-h-72 object-contain bg-black/5"
+                loading="lazy"
+                decoding="async"
               />
             </div>
           )}

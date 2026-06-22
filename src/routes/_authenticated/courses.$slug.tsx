@@ -948,6 +948,8 @@ function CourseDetail() {
                           getProfileBorderClass(instructorProfile.avatar_url) ||
                             "border-2 border-primary/20",
                         )}
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
@@ -966,6 +968,8 @@ function CourseDetail() {
                       getProfileBorderClass(instructorProfile.avatar_url) ||
                         "border-2 border-primary/20",
                     )}
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">

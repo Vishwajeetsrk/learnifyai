@@ -1471,6 +1471,8 @@ function SettingsPage() {
                       src={bannerSignedUrl}
                       alt="Cover Preview"
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <div className="text-xs text-muted-foreground flex flex-col items-center gap-1.5">
@@ -1538,6 +1540,8 @@ function SettingsPage() {
                           src={currentCartoonUrl}
                           className="h-full w-full object-cover"
                           alt="Avatar Preview"
+                          loading="lazy"
+                          decoding="async"
                         />
                       </div>
 
@@ -1835,6 +1839,8 @@ function SettingsPage() {
                                         src={buildCartoonUrl({ eyebrowsStyle: eb.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
                                         className="w-full h-full object-cover scale-[2.5] translate-y-3"
                                         alt={eb.label}
+                                        loading="lazy"
+                                        decoding="async"
                                       />
                                     </div>
                                     <span className="text-[9px] font-medium truncate w-full text-center">
@@ -1875,11 +1881,13 @@ function SettingsPage() {
                                   title={eye.label}
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
-                                    <img
-                                      src={buildCartoonUrl({ eyesStyle: eye.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
-                                      className="w-full h-full object-cover scale-[2.5] translate-y-2"
-                                      alt={eye.label}
-                                    />
+                                      <img
+                                        src={buildCartoonUrl({ eyesStyle: eye.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
+                                        className="w-full h-full object-cover scale-[2.5] translate-y-2"
+                                        alt={eye.label}
+                                        loading="lazy"
+                                        decoding="async"
+                                      />
                                   </div>
                                   <span className="text-[9px] font-medium truncate w-full text-center">
                                     {eye.label}
@@ -1921,6 +1929,8 @@ function SettingsPage() {
                                         src={buildCartoonUrl({ noseStyle: n.id })}
                                         className="w-full h-full object-cover scale-[3] translate-y-1"
                                         alt={n.label}
+                                        loading="lazy"
+                                        decoding="async"
                                       />
                                     </div>
                                     <span className="text-[9px] font-medium truncate w-full text-center">
@@ -1961,11 +1971,13 @@ function SettingsPage() {
                                   title={m.label}
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
-                                    <img
-                                      src={buildCartoonUrl({ mouthStyle: m.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
-                                      className="w-full h-full object-cover scale-[2.5] -translate-y-2"
-                                      alt={m.label}
-                                    />
+                                      <img
+                                        src={buildCartoonUrl({ mouthStyle: m.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
+                                        className="w-full h-full object-cover scale-[2.5] -translate-y-2"
+                                        alt={m.label}
+                                        loading="lazy"
+                                        decoding="async"
+                                      />
                                   </div>
                                   <span className="text-[9px] font-medium truncate w-full text-center">
                                     {m.label}
@@ -2021,6 +2033,8 @@ function SettingsPage() {
                                         src={buildCartoonUrl({ accessoriesStyle: acc.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
                                         className="w-full h-full object-cover scale-[2.8] translate-y-1.5"
                                         alt={acc.label}
+                                        loading="lazy"
+                                        decoding="async"
                                       />
                                     </div>
                                     <span className="text-[9px] font-medium truncate w-full text-center">
@@ -2072,6 +2086,8 @@ function SettingsPage() {
                                           src={buildCartoonUrl({ clothingStyle: c.id })}
                                           className="w-full h-full object-cover scale-[2.2] -translate-y-[28%]"
                                           alt={c.label}
+                                          loading="lazy"
+                                          decoding="async"
                                         />
                                       </div>
                                     <span className="text-[9px] font-medium truncate w-full text-center">
@@ -2322,6 +2338,8 @@ function SettingsPage() {
                             src={`https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${iconInfo.devicon}`}
                             alt=""
                             className={`w-3.5 h-3.5 object-contain ${active ? "brightness-0 invert" : ""}`}
+                            loading="lazy"
+                            decoding="async"
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.display = "none";
                             }}

@@ -197,7 +197,7 @@ function VerifyPage() {
                         className="absolute"
                         style={{ left: el.x, top: el.y, width: el.width, height: el.height }}
                       >
-                        {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" />}
+                        {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" loading="lazy" decoding="async" />}
                       </div>
                     );
                   }
@@ -219,6 +219,8 @@ function VerifyPage() {
                           src={logoUrl}
                           alt="Org Logo"
                           className="w-full h-full object-contain"
+                          loading="lazy"
+                          decoding="async"
                         />
                       </div>
                     ) : null;

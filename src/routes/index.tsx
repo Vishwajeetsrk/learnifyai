@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 
 import {
@@ -18,15 +19,24 @@ import {
   PlayCircle,
   Rocket,
   Star,
+  Loader2,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
-import { AiToolsShowcase } from "@/components/AiToolsShowcase";
-import { InteractiveDemo } from "@/components/InteractiveDemo";
-import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { getPlatformStats } from "@/lib/stats.functions";
+
+// Lazy load below-fold heavy components
+const AiToolsShowcase = lazy(() =>
+  import("@/components/AiToolsShowcase").then((m) => ({ default: m.AiToolsShowcase }))
+);
+const InteractiveDemo = lazy(() =>
+  import("@/components/InteractiveDemo").then((m) => ({ default: m.InteractiveDemo }))
+);
+const AnimatedCounter = lazy(() =>
+  import("@/components/AnimatedCounter").then((m) => ({ default: m.AnimatedCounter }))
+);
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -167,7 +177,15 @@ function Index() {
           </p>
         </Reveal>
         <Reveal variant="scale" delay={0.1}>
-          <InteractiveDemo />
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            }
+          >
+            <InteractiveDemo />
+          </Suspense>
         </Reveal>
       </section>
 
@@ -245,7 +263,15 @@ function Index() {
       <section id="ai" className="relative">
         <div className="container mx-auto px-6 py-28">
           <Reveal variant="scale">
-            <AiToolsShowcase />
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              }
+            >
+              <AiToolsShowcase />
+            </Suspense>
           </Reveal>
         </div>
       </section>
@@ -353,12 +379,20 @@ function LiveStats() {
       <div className="container mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
         {items.map((s) => (
           <div key={s.label} className="group">
-            <AnimatedCounter
-              value={s.value}
-              suffix={s.suffix ?? "+"}
-              compact={s.compact ?? true}
-              className="font-display text-3xl md:text-4xl font-semibold text-gradient inline-block transition-transform group-hover:scale-110"
-            />
+            <Suspense
+              fallback={
+                <span className="font-display text-3xl md:text-4xl font-semibold text-gradient inline-block">
+                  0
+                </span>
+              }
+            >
+              <AnimatedCounter
+                value={s.value}
+                suffix={s.suffix ?? "+"}
+                compact={s.compact ?? true}
+                className="font-display text-3xl md:text-4xl font-semibold text-gradient inline-block transition-transform group-hover:scale-110"
+              />
+            </Suspense>
             <div className="text-sm text-muted-foreground mt-1">{s.label}</div>
           </div>
         ))}

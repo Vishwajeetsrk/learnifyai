@@ -1063,6 +1063,8 @@ function CommunityPage() {
                           src={post.media_url}
                           alt="Post media"
                           className="max-h-[500px] w-full object-contain"
+                          loading="lazy"
+                          decoding="async"
                         />
                       )}
                       {post.media_type === "video" && isMounted && (

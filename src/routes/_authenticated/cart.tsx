@@ -238,6 +238,8 @@ function CartPage() {
                         src={it.courses.cover_url}
                         alt={it.courses.title}
                         className="w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
                       />
                     )}
                   </div>

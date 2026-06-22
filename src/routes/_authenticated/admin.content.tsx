@@ -357,6 +357,8 @@ function EventsManager() {
                   src={e.image_url}
                   alt=""
                   className="h-14 w-20 rounded-md object-cover shrink-0"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <div className="h-14 w-20 rounded-md bg-muted grid place-items-center shrink-0">
@@ -532,6 +534,8 @@ function EventDialog({
                 src={form.image_url}
                 alt=""
                 className="mt-2 h-24 w-full rounded-md object-cover border"
+                loading="lazy"
+                decoding="async"
               />
             ) : null}
           </div>
@@ -2053,6 +2057,8 @@ function TemplateDialog({
                       src={form.logo_url}
                       alt="Logo preview"
                       className="h-10 object-contain bg-white rounded border p-1"
+                      loading="lazy"
+                      decoding="async"
                     />
                   )}
                 </div>

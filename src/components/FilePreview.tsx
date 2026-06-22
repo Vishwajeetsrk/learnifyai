@@ -324,6 +324,8 @@ function ImagePreview({ url, fileName }: { url: string; fileName: string }) {
           src={url}
           alt={fileName}
           className="max-w-full max-h-full object-contain rounded-lg shadow-lg transition-transform"
+          loading="lazy"
+          decoding="async"
           style={{
             transform: `scale(${zoom / 100}) rotate(${rotation}deg)`,
             transformOrigin: "center center",

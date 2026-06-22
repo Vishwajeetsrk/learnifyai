@@ -393,7 +393,7 @@ function PublicProfilePage() {
         {/* Banner */}
         <div className="h-48 md:h-56 lg:h-64 w-full bg-muted relative overflow-hidden">
           {profile.banner_url ? (
-            <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
+            <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" loading="lazy" decoding="async" />
           ) : (
             <div className="w-full h-full bg-gradient-to-r from-primary/20 to-primary/5" />
           )}
@@ -778,6 +778,8 @@ function PublicProfilePage() {
                                     src={post.media_url}
                                     alt=""
                                     className="max-h-[300px] w-full object-contain"
+                                    loading="lazy"
+                                    decoding="async"
                                   />
                                 )}
                                 {post.media_type === "video" && (

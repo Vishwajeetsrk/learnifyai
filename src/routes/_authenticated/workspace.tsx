@@ -321,6 +321,8 @@ function WorkspacePage() {
                                           "ring-2 ring-white",
                                       )}
                                       alt="Assignee"
+                                      loading="lazy"
+                                      decoding="async"
                                     />
                                   ) : (
                                     <div className="h-6 w-6 rounded-full bg-slate-200 ring-2 ring-white" />
