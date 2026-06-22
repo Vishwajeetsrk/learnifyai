@@ -1,11 +1,6 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import { toast } from "sonner";
-import { useAuth } from "@/hooks/use-auth";
-import { useServerFn } from "@tanstack/react-start";
-import { createSubscription, cancelSubscription } from "@/lib/subscription.functions";
 
 import {
   ArrowRight,
@@ -21,9 +16,6 @@ import {
   MessageSquare,
   BarChart3,
   PlayCircle,
-  Check,
-  Loader2,
-  LogIn,
   Rocket,
   Star,
 } from "lucide-react";
@@ -35,7 +27,6 @@ import { InteractiveDemo } from "@/components/InteractiveDemo";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { getPlatformStats } from "@/lib/stats.functions";
-import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -330,22 +321,6 @@ function Index() {
         </div>
       </section>
 
-      {/* PRICING PLANS FROM DB */}
-      <section id="pricing" className="container mx-auto px-6 pb-10">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 backdrop-blur px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-4">
-            Pricing
-          </div>
-          <h2 className="font-display text-3xl md:text-4xl font-semibold tracking-tight">
-            Simple, transparent <span className="text-gradient">pricing</span>
-          </h2>
-          <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-            Start free. Upgrade when you're ready for unlimited AI sessions and creator tools.
-          </p>
-        </div>
-        <PricingPlans />
-      </section>
-
       {/* FINAL CTA */}
 
       <SiteFooter />
@@ -389,253 +364,5 @@ function LiveStats() {
         ))}
       </div>
     </section>
-  );
-}
-
-type Plan = {
-  id: string;
-  name: string;
-  price_label: string;
-  description: string | null;
-  features: string[];
-  cta_label: string;
-  cta_to: string;
-  highlighted: boolean;
-  price_inr: number;
-  interval: string | null;
-  badge: string | null;
-  color: string | null;
-  ai_credits_monthly: number;
-  max_courses: number;
-};
-
-function PricingPlans() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const qc = useQueryClient();
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const doSubscribe = useServerFn(createSubscription);
-  const doCancel = useServerFn(cancelSubscription);
-
-  const { data: tiers, isLoading } = useQuery<Plan[]>({
-    queryKey: ["pricing-plans-home"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pricing_plans")
-        .select("*")
-        .eq("active", true)
-        .order("order_index", { ascending: true });
-      if (error) throw error;
-      return ((data ?? []) as any[]).map((p) => ({
-        ...p,
-        features: Array.isArray(p.features) ? p.features : [],
-        price_inr: Number(p.price_inr || 0),
-      })) as Plan[];
-    },
-    staleTime: 60_000,
-  });
-
-  const currentSub = useQuery({
-    enabled: !!user,
-    queryKey: ["my-subscription", user?.id],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("user_subscriptions")
-        .select("*, plan:pricing_plans(*)")
-        .eq("user_id", user!.id)
-        .eq("status", "active")
-        .maybeSingle();
-      return data || null;
-    },
-  });
-
-  const handleSubscribe = async (planId: string) => {
-    if (!user) {
-      navigate({ to: "/login" });
-      return;
-    }
-    setLoadingPlan(planId);
-    try {
-      const sub = await doSubscribe({ data: { planId } });
-      if (sub.auth_link) window.location.href = sub.auth_link;
-      else toast.success("Subscription created! Check your dashboard.");
-      qc.invalidateQueries({ queryKey: ["my-subscription"] });
-    } catch (e: any) {
-      toast.error(e?.message || "Subscription failed");
-    } finally {
-      setLoadingPlan(null);
-    }
-  };
-
-  const handleCancel = async () => {
-    try {
-      await doCancel({ data: {} });
-      toast.success("Subscription cancelled");
-      qc.invalidateQueries({ queryKey: ["my-subscription"] });
-    } catch (e: any) {
-      toast.error(e?.message || "Cancel failed");
-    }
-  };
-
-  const activePlanId = currentSub.data?.plan_id;
-
-  const PLAN_ICONS = [Zap, Rocket, Users];
-
-  if (isLoading)
-    return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    );
-  if (!tiers?.length) return null;
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
-      {tiers.map((t, idx) => {
-        const isCurrent = activePlanId === t.id;
-        const isFree = t.price_inr <= 0 && !t.interval;
-        const hasPrice = t.price_inr > 0;
-        const PlanIcon = PLAN_ICONS[idx] ?? Zap;
-        const accentColor = t.color || "#7c3aed";
-
-        return (
-          <div
-            key={t.id}
-            className={`relative rounded-3xl flex flex-col overflow-hidden transition-all duration-300 ${
-              t.highlighted
-                ? "shadow-xl shadow-primary/10 scale-[1.01] border-2"
-                : "border border-border/60 hover:shadow-lg hover:-translate-y-0.5"
-            }`}
-            style={{
-              borderColor: t.highlighted ? accentColor : undefined,
-              background: t.highlighted
-                ? `linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--card)) 100%)`
-                : undefined,
-            }}
-          >
-            {/* Gradient top bar */}
-            <div
-              className="h-1.5 w-full"
-              style={{ background: `linear-gradient(90deg, ${accentColor}, ${accentColor}99)` }}
-            />
-
-            {(t.badge || isCurrent) && (
-              <div
-                className="absolute top-5 right-5 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full text-white shadow-lg"
-                style={{ background: accentColor }}
-              >
-                {isCurrent ? "Your plan" : t.badge}
-              </div>
-            )}
-
-            <div className="flex flex-col flex-1 p-8">
-              {/* Icon + Name */}
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 shadow-md"
-                style={{ background: `${accentColor}20` }}
-              >
-                <PlanIcon className="h-6 w-6" style={{ color: accentColor }} />
-              </div>
-
-              <h3 className="text-xl font-bold">{t.name}</h3>
-              {t.description && (
-                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                  {t.description}
-                </p>
-              )}
-
-              {/* Price */}
-              <div className="mt-6 mb-1">
-                <span className="text-5xl font-extrabold tracking-tight">{t.price_label}</span>
-                {t.interval && (
-                  <span className="text-sm text-muted-foreground ml-1">/{t.interval}</span>
-                )}
-              </div>
-
-              {/* AI Credits Prominent Label */}
-              {t.ai_credits_monthly > 0 && (
-                <div className="my-4 px-4 py-2 rounded-xl bg-primary/5 border border-primary/10 text-center">
-                  <span className="text-sm font-semibold text-primary">
-                    {t.ai_credits_monthly.toLocaleString("en-IN")} AI credits / mo
-                  </span>
-                </div>
-              )}
-
-              {/* Divider */}
-              <div className="border-t border-border/40 my-5" />
-
-              {/* Features */}
-              <ul className="space-y-3 text-sm flex-1 mb-6">
-                {t.features.map((f, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <div
-                      className="mt-0.5 h-5 w-5 rounded-full flex items-center justify-center shrink-0"
-                      style={{ background: `${accentColor}18` }}
-                    >
-                      <Check className="h-3 w-3" style={{ color: accentColor }} />
-                    </div>
-                    <span className="text-foreground/80">{f}</span>
-                  </li>
-                ))}
-              </ul>
-
-              {/* CTA */}
-              <div className="mt-8 w-full space-y-2">
-                {isCurrent ? (
-                  <div className="flex gap-2">
-                    <Button className="flex-1" variant="outline" disabled>
-                      ✓ Active plan
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCancel}
-                      className="text-muted-foreground"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                ) : !hasPrice ? (
-                  <Button
-                    asChild
-                    className="w-full h-11 text-sm font-semibold"
-                    variant={t.highlighted ? "default" : "outline"}
-                  >
-                    <Link to="/signup">
-                      {t.cta_label || "Get started free"}
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Link>
-                  </Button>
-                ) : !user ? (
-                  <Button asChild className="w-full h-11 text-sm font-semibold">
-                    <Link to="/login">
-                      <LogIn className="h-4 w-4 mr-2" /> Sign in to subscribe
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button
-                    className="w-full h-11 text-sm font-semibold"
-                    onClick={() => handleSubscribe(t.id)}
-                    disabled={loadingPlan !== null}
-                    style={
-                      t.highlighted
-                        ? { background: accentColor, color: "#fff", border: "none" }
-                        : undefined
-                    }
-                  >
-                    {loadingPlan === t.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : null}
-                    {loadingPlan === t.id
-                      ? "Processing..."
-                      : `Subscribe ₹${t.price_inr}/${t.interval === "month" ? "month" : t.interval}`}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
   );
 }

@@ -187,9 +187,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})});}`,
       },
       {
-        children: `(function(){var m=document.createElement('meta');m.name='theme-color';m.content='#6366f1';document.head.appendChild(m);})();`,
-      },
-      {
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
