@@ -46,6 +46,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | ------------------------- | ---------------------------------------------------------- |
 | 🏗️ **Creator Studio**     | Build courses, add lessons, manage quizzes and assignments |
 | 🪄 **AI Course Builder**  | Auto-generate course outlines, lessons, and thumbnails     |
+| 🎓 **Certificate Templates** | Assign certificate templates to courses from course detail page |
 | 🧑‍💼 **Coaching Hub**       | Book 1-on-1 sessions, schedule slots, and chat             |
 | 👥 **Cohorts**            | Live group learning with community spaces                  |
 | 📊 **Earnings Dashboard** | Revenue tracking, payouts, and invoices                    |
@@ -58,7 +59,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 📥 **Inbox**          | Direct messaging between coaches and students                                       |
 | ⚙️ **Admin Panel**    | Dashboard, wallet verification, certificates, email templates, content management   |
 | 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                  |
-| 📧 **Email System**   | Professional branded emails (Welcome, Certificates, Subscriptions) — admin editable |
+| 📧 **Email System**   | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback |
 | 🪄 **Premium UI/UX**  | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism |
 | 📄 **Legal Pages**    | Privacy Policy, Terms of Service, Refund Policy                                     |
 | 🔗 **Username Profiles** | Public profiles accessible via `/u/@username` URL format                        |
@@ -116,7 +117,7 @@ Learnify AI's playground features **multi-language compilation** powered by Wand
 | **AI**         | OpenRouter, Gemini, Groq (multi-provider fallback)                     |
 | **Payments**   | Cashfree (Recurring Subscriptions + Wallet + Payouts)                          |
 | **Embeddings** | Gemini text-embedding-004 + pgvector                                   |
-| **Email**      | Gmail SMTP / Brevo / Resend (fallback chain, admin-editable templates) |
+| **Email**      | Resend (primary) ←→ Gmail SMTP ←→ Brevo (fallback chain, per-provider timeouts) |
 | **Code Exec**  | Wandbox / Piston / Judge0 (multi-executor fallback)                    |
 | **Testing**    | Playwright (E2E)                                                       |
 | **Deployment** | Vercel (Edge Network + Serverless Functions)                           |
@@ -241,7 +242,8 @@ npx playwright test
 | `VITE_APP_URL`                  | 🌐       | Base URL for webhook callbacks and email links                |
 | `GMAIL_EMAIL`                   | 📧       | Gmail address for sending automated transactional emails      |
 | `GMAIL_APP_PASSWORD`            | 📧       | Gmail 16-character App Password                               |
-| `RESEND_API_KEY`                | 📧       | Resend API key (email service fallback)                       |
+| `RESEND_API_KEY`                | 📧       | Resend API key (primary email provider — recommended)         |
+| `EMAIL_FROM`                    | 📧       | Sender email address (e.g. `noreply@learnify.ai` or `onboarding@resend.dev`) |
 
 ---
 
@@ -328,7 +330,8 @@ src/
 │  Cashfree (Subscriptions + Wallet + Payouts)    │
 ├─────────────────────────────────────────────────┤
 │                 Email System                     │
-│  Gmail SMTP ←→ Brevo ←→ Resend (fallback chain) │
+│  Resend (primary) ←→ Gmail SMTP ←→ Brevo        │
+│  20s total timeout + per-provider 8s timeouts   │
 │  Admin-editable templates stored in PostgreSQL  │
 ├─────────────────────────────────────────────────┤
 │                  Deployment                      │
@@ -373,6 +376,17 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v3.4.0 (June 2026) - Video Playback, Certificate Fixes, Email Delivery & UI Cleanup
+
+- ✅ **Video Player Race Condition Fix**: Replaced hardcoded `id="youtube-player"` with unique per-instance IDs via `useId()`. Added stale callback cleanup on unmount to prevent wrong videos playing when switching lessons. Added 10-second YouTube API loading timeout with error fallback. Added `mountedRef` guard to prevent state updates after unmount.
+- ✅ **Certificate Issuance 409 Fix**: Admin certificate issuance now checks for existing `UNIQUE(user_id, course_id)` constraint before insert. If a certificate already exists for that user+course, it updates the existing record (new code, template, design snapshot) instead of failing with a 409 conflict. Audit log marks as "re-issued" for updates.
+- ✅ **Creator Certificate Template Selection**: Course creators can now assign a certificate template to their courses via a dropdown on the course detail page. New `certificate_template_id` column on `courses` table with corresponding Supabase migration. Only visible to the course creator.
+- ✅ **Certificate Email Delivery Fixes**: Added per-provider connection timeouts (8s connect, 5s greeting, 10s socket) to all SMTP transports. Added 20-second total timeout via `Promise.race` so Vercel serverless functions don't kill email send attempts. Fixed idempotency deduplication — pending/failed rows are now deleted and re-sent on retry instead of being short-circuited.
+- ✅ **Custom Skills Removed**: Removed the free-text "Add custom skill..." input and "Add" button from the Settings page. Preset skill pills (HTML, CSS, JavaScript, Python, React, etc.) remain fully functional.
+- ✅ **InteractiveCursor Deprecation Fix**: Replaced deprecated `mouseX.onChange(callback)` with `mouseX.on("change", callback)` to fix framer-motion v12 deprecation warning in console.
+- ✅ **Profile Session Token**: Broadened cookie search in `getPublicProfile` to match any `sb-*` prefix cookie (not just 3 hardcoded names), fixing playground project visibility for owners viewing their own profiles.
+- ✅ **DiceBear Type Fix**: Fixed TypeScript narrowing error in avatar customizer where `selectedStyle === "avataaars"` comparison was always false inside a `selectedStyle === "lorelei"` conditional block.
 
 ### v3.3.1 (June 2026) - Subscription Self-Healing, Video Restrictions, Policy Updates & Revenue Charts
 
