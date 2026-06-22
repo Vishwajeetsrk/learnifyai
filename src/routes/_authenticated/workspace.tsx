@@ -14,6 +14,7 @@ import {
   Circle,
   Clock,
   Trash2,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,9 @@ function WorkspacePage() {
   const [projName, setProjName] = useState("");
   const [taskTitle, setTaskTitle] = useState("");
   const [taskStatus, setTaskStatus] = useState("todo");
+  const [creatingProj, setCreatingProj] = useState(false);
+  const [creatingTask, setCreatingTask] = useState(false);
+  const [deletingTaskId, setDeletingTaskId] = useState<string | null>(null);
 
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
 
@@ -92,6 +96,7 @@ function WorkspacePage() {
 
   const handleCreateProject = async () => {
     if (!projName.trim() || !workspaceId) return;
+    setCreatingProj(true);
     try {
       await mkProj({ data: { workspaceId, name: projName } });
       setProjName("");
@@ -100,11 +105,14 @@ function WorkspacePage() {
       toast.success("Project created");
     } catch (e: any) {
       toast.error(e.message);
+    } finally {
+      setCreatingProj(false);
     }
   };
 
   const handleCreateTask = async () => {
     if (!taskTitle.trim() || !activeProjectId) return;
+    setCreatingTask(true);
     try {
       await mkTask({ data: { projectId: activeProjectId, title: taskTitle, status: taskStatus } });
       setTaskTitle("");
@@ -112,6 +120,8 @@ function WorkspacePage() {
       qc.invalidateQueries({ queryKey: ["tasks", activeProjectId] });
     } catch (e: any) {
       toast.error(e.message);
+    } finally {
+      setCreatingTask(false);
     }
   };
 
@@ -136,11 +146,14 @@ function WorkspacePage() {
 
   const handleDeleteTask = async (taskId: string) => {
     if (!activeProjectId) return;
+    setDeletingTaskId(taskId);
     try {
       await delTask({ data: { taskId } });
       qc.invalidateQueries({ queryKey: ["tasks", activeProjectId] });
     } catch (e: any) {
       toast.error(e.message);
+    } finally {
+      setDeletingTaskId(null);
     }
   };
 
@@ -279,9 +292,15 @@ function WorkspacePage() {
                                   <DropdownMenuContent align="end">
                                     <DropdownMenuItem
                                       onClick={() => handleDeleteTask(task.id)}
+                                      disabled={deletingTaskId === task.id}
                                       className="text-destructive"
                                     >
-                                      <Trash2 className="h-4 w-4 mr-2" /> Delete Task
+                                      {deletingTaskId === task.id ? (
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                      ) : (
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                      )}{" "}
+                                      Delete Task
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
@@ -358,7 +377,10 @@ function WorkspacePage() {
             <Button variant="outline" onClick={() => setNewProjOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreateProject}>Create Project</Button>
+            <Button onClick={handleCreateProject} disabled={creatingProj}>
+              {creatingProj ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              Create Project
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -380,7 +402,10 @@ function WorkspacePage() {
             <Button variant="outline" onClick={() => setNewTaskOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleCreateTask}>Add Task</Button>
+            <Button onClick={handleCreateTask} disabled={creatingTask}>
+              {creatingTask ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+              Add Task
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

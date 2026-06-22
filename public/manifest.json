@@ -1,0 +1,25 @@
+{
+  "name": "Learnify AI",
+  "short_name": "Learnify",
+  "description": "The AI-native learning OS: intelligent tutoring, creator tools, gamification, and career growth.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f23",
+  "theme_color": "#6366f1",
+  "orientation": "any",
+  "categories": ["education", "productivity", "technology"],
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

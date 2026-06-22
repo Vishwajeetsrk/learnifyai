@@ -2,6 +2,37 @@ import { createFileRoute } from "@tanstack/react-router";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
 
+// ── In-memory rate limiter (per-user, sliding window) ──
+// Resembles a token-bucket: MAX_REQUESTS per WINDOW_MS.
+// Sufficient for single-instance Vercel; use Redis/KV for multi-instance.
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX = 15; // max requests per window
+const rateLimitBuckets = new Map<string, number[]>();
+
+function isRateLimited(userId: string): boolean {
+  const now = Date.now();
+  const timestamps = rateLimitBuckets.get(userId) ?? [];
+  // Prune expired entries
+  const valid = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+  if (valid.length >= RATE_LIMIT_MAX) {
+    rateLimitBuckets.set(userId, valid);
+    return true;
+  }
+  valid.push(now);
+  rateLimitBuckets.set(userId, valid);
+  return false;
+}
+
+// Periodic cleanup to prevent unbounded memory growth (every 5 min)
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, timestamps] of rateLimitBuckets) {
+    const valid = timestamps.filter((t) => now - t < RATE_LIMIT_WINDOW_MS);
+    if (valid.length === 0) rateLimitBuckets.delete(key);
+    else rateLimitBuckets.set(key, valid);
+  }
+}, 5 * 60_000).unref();
+
 // Provider routing — use the owner's configured AI APIs only.
 const PROVIDERS = {
   groq: {
@@ -83,6 +114,16 @@ export const Route = createFileRoute("/api/chat")({
         const { data: userData, error: userErr } = await supabaseAdmin.auth.getUser(token);
         if (userErr || !userData.user) return new Response("Unauthorized", { status: 401 });
         const userId = userData.user.id;
+
+        // ── Rate limit check ──
+        if (isRateLimited(userId)) {
+          return new Response(
+            JSON.stringify({
+              error: "Rate limit exceeded. Please wait a moment before sending another message.",
+            }),
+            { status: 429, headers: { "Content-Type": "application/json", "Retry-After": "60" } },
+          );
+        }
 
         // ── Credit check ──
         const { data: creditRow } = await supabaseAdmin

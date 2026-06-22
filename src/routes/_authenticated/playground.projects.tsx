@@ -36,12 +36,16 @@ function ProjectsPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [duplicating, setDuplicating] = useState<string | null>(null);
+  const [togglingVisibility, setTogglingVisibility] = useState<string | null>(null);
   const createFn = useServerFn(createProject);
   const deleteFn = useServerFn(deleteProject);
   const duplicateFn = useServerFn(duplicateProject);
   const updateFn = useServerFn(updateProject);
 
   const handleTogglePublic = async (id: string, currentPublic: boolean) => {
+    setTogglingVisibility(id);
     try {
       const nextPublic = !currentPublic;
       await updateFn({ data: { id, is_public: nextPublic } });
@@ -53,6 +57,8 @@ function ProjectsPage() {
       );
     } catch (err: any) {
       toast.error(err.message || "Failed to update project visibility");
+    } finally {
+      setTogglingVisibility(null);
     }
   };
 
@@ -73,6 +79,7 @@ function ProjectsPage() {
   });
 
   const handleCreate = async () => {
+    setCreating(true);
     try {
       const project = await createFn({
         data: { title: "Untitled Project", language: "javascript", template: "blank" },
@@ -80,6 +87,8 @@ function ProjectsPage() {
       navigate({ to: "/playground/editor", search: { project: project.id } as any });
     } catch (err: any) {
       toast.error(err.message);
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -97,12 +106,15 @@ function ProjectsPage() {
   };
 
   const handleDuplicate = async (id: string) => {
+    setDuplicating(id);
     try {
       await duplicateFn({ data: { id } });
       qc.invalidateQueries({ queryKey: ["playground-projects"] });
       toast.success("Project duplicated");
     } catch (err: any) {
       toast.error(err.message);
+    } finally {
+      setDuplicating(null);
     }
   };
 
@@ -125,8 +137,13 @@ function ProjectsPage() {
               Manage your saved playground projects.
             </p>
           </div>
-          <Button onClick={handleCreate}>
-            <Plus className="h-4 w-4 mr-1" /> New Project
+          <Button onClick={handleCreate} disabled={creating}>
+            {creating ? (
+              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+            ) : (
+              <Plus className="h-4 w-4 mr-1" />
+            )}{" "}
+            New Project
           </Button>
         </div>
 
@@ -141,8 +158,13 @@ function ProjectsPage() {
             <p className="text-sm text-muted-foreground mt-1">
               Create your first project to get started.
             </p>
-            <Button onClick={handleCreate} className="mt-4">
-              <Plus className="h-4 w-4 mr-1" /> Create Project
+            <Button onClick={handleCreate} disabled={creating} className="mt-4">
+              {creating ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4 mr-1" />
+              )}{" "}
+              Create Project
             </Button>
           </div>
         ) : (
@@ -181,6 +203,7 @@ function ProjectsPage() {
                   <span className="capitalize">{p.template?.replace("-", " ")}</span>
                   <button
                     onClick={() => handleTogglePublic(p.id, p.is_public)}
+                    disabled={togglingVisibility === p.id}
                     className={cn(
                       "inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[9px] font-semibold border transition-all hover:scale-105",
                       p.is_public
@@ -189,7 +212,13 @@ function ProjectsPage() {
                     )}
                     title="Click to toggle public/private visibility"
                   >
-                    {p.is_public ? "🌐 Public" : "🔒 Private"}
+                    {togglingVisibility === p.id ? (
+                      <Loader2 className="h-2.5 w-2.5 animate-spin" />
+                    ) : p.is_public ? (
+                      "🌐 Public"
+                    ) : (
+                      "🔒 Private"
+                    )}
                   </button>
                 </div>
                 <div className="flex gap-1.5 mt-3 sm:opacity-0 sm:group-hover:opacity-100 transition">
@@ -203,8 +232,13 @@ function ProjectsPage() {
                     variant="outline"
                     className="h-7 text-xs"
                     onClick={() => handleDuplicate(p.id)}
+                    disabled={duplicating === p.id}
                   >
-                    <Copy className="h-3 w-3" />
+                    {duplicating === p.id ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Copy className="h-3 w-3" />
+                    )}
                   </Button>
                   <Button
                     size="sm"

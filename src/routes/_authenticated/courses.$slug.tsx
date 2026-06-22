@@ -209,7 +209,9 @@ function CourseDetail() {
     },
   });
 
-  const progressRows = useMemo(() => progressQuery.data ?? [], [progressQuery.data]);
+  // Direct reference — React Query already memoizes data, no need for useMemo wrapper.
+  // Previous useMemo caused ReferenceError in minified bundles due to tree-shaking.
+  const progressRows = progressQuery.data ?? [];
 
   const enrollmentQuery = useQuery({
     enabled: !!user && !!courseQuery.data?.course.id,

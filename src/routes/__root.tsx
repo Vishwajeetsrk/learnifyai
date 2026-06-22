@@ -143,13 +143,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "AI-native tutoring, creator tools, gamification, and career growth in one platform.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      {
+        property: "og:image",
+        content: "https://learnifyaitool.vercel.app/assets/learnify-logo-DVspKPzy.png",
+      },
+      { property: "og:url", content: "https://learnifyaitool.vercel.app" },
+      { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@LearnifyAI" },
+      {
+        name: "twitter:image",
+        content: "https://learnifyaitool.vercel.app/assets/learnify-logo-DVspKPzy.png",
+      },
     ],
     links: [
       {
         rel: "icon",
         href: "/favicon.ico",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "/logo.png",
+        sizes: "192x192",
       },
       {
         rel: "stylesheet",
@@ -160,10 +174,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         type: "application/xml",
         href: "/sitemap.xml",
       },
+      {
+        rel: "manifest",
+        href: "/manifest.json",
+      },
+      {
+        name: "theme-color",
+        content: "#6366f1",
+      },
     ],
     scripts: [
       {
         children: `(function(){try{var m=localStorage.getItem('ui.mode')||'system';var c=localStorage.getItem('ui.color')||'indigo';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;if(d)r.classList.add('dark');if(c&&c!=='indigo')r.setAttribute('data-theme',c);r.classList.add('no-theme-transition');setTimeout(function(){r.classList.remove('no-theme-transition')},0);}catch(e){}})();`,
+      },
+      {
+        children: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})});}`,
       },
       {
         type: "application/ld+json",
@@ -229,6 +254,7 @@ import { Toaster } from "../components/ui/sonner";
 import { NavigationProgress } from "../components/NavigationProgress";
 import { PageTransition } from "../components/PageTransition";
 import { InteractiveCursor } from "../components/ui/InteractiveCursor";
+import { CookieConsent } from "../components/CookieConsent";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -248,6 +274,7 @@ function RootComponent() {
                   <Outlet />
                 </PageTransition>
                 <Toaster richColors position="top-right" />
+                <CookieConsent />
               </FeatureProvider>
             </AuthProvider>
           </CursorProvider>
