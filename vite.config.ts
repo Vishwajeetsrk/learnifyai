@@ -12,7 +12,7 @@ if (process.env.VERCEL) {
 }
 
 export default defineConfig({
-  nitro: process.env.VERCEL ? { preset: "vercel" } : { preset: "vercel" },
+  nitro: process.env.CF_PAGES ? { preset: "cloudflare-module" } : { preset: "vercel" },
   vite: {
     envPrefix: ["VITE_", "NEXT_PUBLIC_"],
     // Exclude nodemailer from client-side pre-bundling (dev server)
