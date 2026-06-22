@@ -29,6 +29,7 @@ import {
   MoreHorizontal,
   Trash2,
   FileText,
+  X,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -36,6 +37,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Textarea } from "@/components/ui/textarea";
 import { formatDistanceToNow } from "date-fns";
 import { format } from "date-fns";
 import { AppShell } from "@/components/AppShell";
@@ -79,6 +87,176 @@ function getSocialIcon(url: string) {
   return <Globe className="h-4 w-4" />;
 }
 
+function ProjectCard({
+  project,
+  isOwner,
+  editingProjectId,
+  setEditingProjectId,
+  editProjectTitle,
+  setEditProjectTitle,
+  editProjectDescription,
+  setEditProjectDescription,
+  qc,
+  id,
+}: {
+  project: any;
+  isOwner: boolean;
+  editingProjectId: string | null;
+  setEditingProjectId: (id: string | null) => void;
+  editProjectTitle: string;
+  setEditProjectTitle: (v: string) => void;
+  editProjectDescription: string;
+  setEditProjectDescription: (v: string) => void;
+  qc: any;
+  id: string;
+}) {
+  const isEditing = editingProjectId === project.id;
+  return (
+    <div className="rounded-xl border bg-card p-4 hover:shadow-lg hover:border-primary/20 transition-all group flex flex-col justify-between">
+      <div>
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+            <FileCode className="h-4 w-4 text-primary" />
+          </div>
+          <Link
+            to="/playground/editor"
+            search={{ project: project.id } as any}
+            className="font-semibold text-sm truncate hover:text-primary transition"
+          >
+            {project.title}
+          </Link>
+          {isOwner && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                  <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-36">
+                <DropdownMenuItem
+                  onClick={() => {
+                    setEditingProjectId(project.id);
+                    setEditProjectTitle(project.title);
+                    setEditProjectDescription(project.description || "");
+                  }}
+                >
+                  <FileText className="h-3.5 w-3.5 mr-2" /> Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-destructive focus:bg-destructive/10"
+                  onClick={async () => {
+                    if (!window.confirm("Delete this project?")) return;
+                    const { error } = await supabase
+                      .from("playground_projects" as any)
+                      .delete()
+                      .eq("id", project.id);
+                    if (error) return toast.error(error.message);
+                    toast.success("Project deleted");
+                    qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+        {isEditing ? (
+          <div className="mt-2 space-y-2">
+            <input
+              value={editProjectTitle}
+              onChange={(e) => setEditProjectTitle(e.target.value)}
+              className="w-full text-xs p-2 rounded-lg border bg-background"
+              placeholder="Project title"
+            />
+            <Textarea
+              value={editProjectDescription}
+              onChange={(e) => setEditProjectDescription(e.target.value)}
+              rows={2}
+              className="text-xs resize-none"
+              placeholder="Description (optional)"
+            />
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                className="h-6 text-[9px] px-2"
+                onClick={async () => {
+                  if (!editProjectTitle.trim()) return toast.error("Title required");
+                  const { error } = await supabase
+                    .from("playground_projects" as any)
+                    .update({ title: editProjectTitle.trim(), description: editProjectDescription.trim() })
+                    .eq("id", project.id);
+                  if (error) return toast.error(error.message);
+                  toast.success("Project updated");
+                  setEditingProjectId(null);
+                  qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                }}
+              >
+                Save
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-6 text-[9px] px-2"
+                onClick={() => setEditingProjectId(null)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {project.description && (
+              <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
+                {project.description}
+              </p>
+            )}
+          </>
+        )}
+      </div>
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
+        <span className="text-[10px] text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded-full font-mono font-medium">
+          {project.language || "code"}
+        </span>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="flex items-center gap-1 text-[10px] cursor-pointer hover:text-pink-500 transition-colors">
+                  <Heart className="h-3 w-3" /> {project.project_likes?.length ?? 0}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[200px]">
+                {project.project_likes?.length > 0 ? (
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-semibold mb-1">Liked by:</p>
+                    {project.project_likes.slice(0, 5).map((l: any) => (
+                      <p key={l.id} className="text-[10px]">{l.user?.full_name || "User"}</p>
+                    ))}
+                    {project.project_likes.length > 5 && (
+                      <p className="text-[10px] text-muted-foreground">+{project.project_likes.length - 5} more</p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-[10px]">No likes yet</p>
+                )}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <span className="flex items-center gap-1 text-[10px]">
+            <MessageSquare className="h-3 w-3" /> {project.project_comments?.length ?? 0}
+          </span>
+          <span className="text-[10px] text-muted-foreground/60">
+            {project.updated_at
+              ? formatDistanceToNow(new Date(project.updated_at), { addSuffix: true })
+              : ""}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PublicProfilePage() {
   const { id } = Route.useParams();
   const { user } = useAuth();
@@ -86,6 +264,17 @@ function PublicProfilePage() {
   const navigate = useNavigate();
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState("");
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editCommentText, setEditCommentText] = useState("");
+  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
+  const [editProjectTitle, setEditProjectTitle] = useState("");
+  const [editProjectDescription, setEditProjectDescription] = useState("");
+  const [isEditingSkills, setIsEditingSkills] = useState(false);
+  const [editingSkillIdx, setEditingSkillIdx] = useState<number | null>(null);
+  const [editSkillValue, setEditSkillValue] = useState("");
+  const [newSkill, setNewSkill] = useState("");
 
   const deletePost = async (postId: string) => {
     if (!window.confirm("Delete this post?")) return;
@@ -385,40 +574,19 @@ function PublicProfilePage() {
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {projects.map((p: any) => (
-                        <div
+                        <ProjectCard
                           key={p.id}
-                          className="rounded-xl border bg-card p-4 hover:shadow-lg hover:border-primary/20 transition-all group flex flex-col justify-between"
-                        >
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                <FileCode className="h-4 w-4 text-primary" />
-                              </div>
-                              <Link
-                                to="/playground/editor"
-                                search={{ project: p.id } as any}
-                                className="font-semibold text-sm truncate hover:text-primary transition"
-                              >
-                                {p.title}
-                              </Link>
-                            </div>
-                            {p.description && (
-                              <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
-                                {p.description}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
-                            <span className="text-[10px] text-muted-foreground uppercase bg-muted px-2 py-0.5 rounded-full font-mono font-medium">
-                              {p.language || "code"}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground/60">
-                              {p.updated_at
-                                ? formatDistanceToNow(new Date(p.updated_at), { addSuffix: true })
-                                : ""}
-                            </span>
-                          </div>
-                        </div>
+                          project={p}
+                          isOwner={user?.id === p.user_id}
+                          editingProjectId={editingProjectId}
+                          setEditingProjectId={setEditingProjectId}
+                          editProjectTitle={editProjectTitle}
+                          setEditProjectTitle={setEditProjectTitle}
+                          editProjectDescription={editProjectDescription}
+                          setEditProjectDescription={setEditProjectDescription}
+                          qc={qc}
+                          id={id}
+                        />
                       ))}
                     </div>
                   )}
@@ -479,13 +647,37 @@ function PublicProfilePage() {
                                   })}
                                 </div>
                               </div>
-                              <div className="ml-auto flex items-center gap-3 text-muted-foreground">
-                                <span className="flex items-center gap-1 text-[10px]">
-                                  <Heart className="h-3 w-3" /> {post.likes?.length ?? 0}
-                                </span>
-                                <span className="flex items-center gap-1 text-[10px]">
+                               <div className="ml-auto flex items-center gap-3 text-muted-foreground">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <span className="flex items-center gap-1 text-[10px] cursor-pointer hover:text-pink-500 transition-colors">
+                                        <Heart className="h-3 w-3" /> {post.likes?.length ?? 0}
+                                      </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom" className="max-w-[200px]">
+                                      {post.likes?.length > 0 ? (
+                                        <div className="space-y-1">
+                                          <p className="text-[10px] font-semibold mb-1">Liked by:</p>
+                                          {post.likes.slice(0, 5).map((l: any) => (
+                                            <p key={l.id} className="text-[10px]">{l.user?.full_name || "User"}</p>
+                                          ))}
+                                          {post.likes.length > 5 && (
+                                            <p className="text-[10px] text-muted-foreground">+{post.likes.length - 5} more</p>
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <p className="text-[10px]">No likes yet</p>
+                                      )}
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                <button
+                                  onClick={() => setExpandedPostId(expandedPostId === post.id ? null : post.id)}
+                                  className="flex items-center gap-1 text-[10px] hover:text-primary transition-colors"
+                                >
                                   <MessageSquare className="h-3 w-3" /> {post.comments?.length ?? 0}
-                                </span>
+                                </button>
                                 {(user?.id === post.author_id ||
                                   roles.includes("admin") ||
                                   roles.includes("super_admin") ||
@@ -595,6 +787,114 @@ function PublicProfilePage() {
                                     className="max-h-[300px] w-full"
                                   />
                                 )}
+                              </div>
+                            )}
+                            {/* Comments section - expandable */}
+                            {expandedPostId === post.id && (
+                              <div className="mt-3 pt-3 border-t space-y-3">
+                                {post.comments?.length > 0 ? (
+                                  post.comments.map((comment: any) => {
+                                    const isCommentAuthor = user?.id === comment.author_id;
+                                    return (
+                                      <div key={comment.id} className="flex gap-2 text-[11px] group">
+                                        <Avatar className="h-5 w-5 mt-0.5 shrink-0">
+                                          <AvatarImage src={comment.author?.avatar_url} />
+                                          <AvatarFallback className="text-[8px]">
+                                            {comment.author?.full_name?.charAt(0) || "U"}
+                                          </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center gap-1.5 mb-0.5">
+                                            <span className="font-semibold">{comment.author?.full_name || "User"}</span>
+                                            <span className="text-muted-foreground">
+                                              {comment.created_at ? formatDistanceToNow(new Date(comment.created_at), { addSuffix: true }) : ""}
+                                            </span>
+                                            {isCommentAuthor && (
+                                              <button
+                                                onClick={() => {
+                                                  setEditingCommentId(comment.id);
+                                                  setEditCommentText(comment.content);
+                                                }}
+                                                className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-foreground transition-opacity"
+                                              >
+                                                <FileText className="h-2.5 w-2.5" />
+                                              </button>
+                                            )}
+                                          </div>
+                                          {editingCommentId === comment.id ? (
+                                            <div className="space-y-1.5">
+                                              <Textarea
+                                                value={editCommentText}
+                                                onChange={(e) => setEditCommentText(e.target.value)}
+                                                rows={2}
+                                                className="min-h-[50px] text-[11px] resize-none"
+                                              />
+                                              <div className="flex gap-1.5">
+                                                <Button
+                                                  size="sm"
+                                                  className="h-6 text-[9px] px-2"
+                                                  onClick={async () => {
+                                                    if (!editCommentText.trim()) return toast.error("Comment cannot be empty");
+                                                    const { error } = await supabase
+                                                      .from("post_comments" as any)
+                                                      .update({ content: editCommentText.trim() })
+                                                      .eq("id", comment.id);
+                                                    if (error) return toast.error(error.message);
+                                                    toast.success("Comment updated");
+                                                    setEditingCommentId(null);
+                                                    qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                                                  }}
+                                                >
+                                                  Save
+                                                </Button>
+                                                <Button
+                                                  size="sm"
+                                                  variant="outline"
+                                                  className="h-6 text-[9px] px-2"
+                                                  onClick={() => setEditingCommentId(null)}
+                                                >
+                                                  Cancel
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          ) : (
+                                            <p className="text-foreground/80">{comment.content}</p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })
+                                ) : (
+                                  <p className="text-[10px] text-muted-foreground text-center py-2">No comments yet</p>
+                                )}
+                                {/* Add comment input */}
+                                <div className="flex gap-2 items-end">
+                                  <Textarea
+                                    value={commentText}
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                    placeholder="Write a comment..."
+                                    className="min-h-[32px] h-[32px] text-[11px] resize-none"
+                                    rows={1}
+                                  />
+                                  <Button
+                                    size="sm"
+                                    className="h-8 text-[10px] px-3"
+                                    onClick={async () => {
+                                      if (!user || !commentText.trim()) return;
+                                      const { error } = await supabase.from("post_comments" as any).insert({
+                                        post_id: post.id,
+                                        author_id: user.id,
+                                        content: commentText.trim(),
+                                      });
+                                      if (error) return toast.error("Failed to add comment");
+                                      setCommentText("");
+                                      qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                                    }}
+                                    disabled={!commentText.trim()}
+                                  >
+                                    Post
+                                  </Button>
+                                </div>
                               </div>
                             )}
                           </article>
@@ -733,11 +1033,112 @@ function PublicProfilePage() {
                   {/* Skills */}
                   {profile.skills && profile.skills.length > 0 && (
                     <div className="pt-3 border-t">
-                      <div className="text-xs text-muted-foreground font-medium mb-1.5">Skills</div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="text-xs text-muted-foreground font-medium">Skills</div>
+                        {user?.id === profile.id && (
+                          <button
+                            onClick={() => setIsEditingSkills(!isEditingSkills)}
+                            className="text-[10px] text-primary hover:underline"
+                          >
+                            {isEditingSkills ? "Done" : "Edit"}
+                          </button>
+                        )}
+                      </div>
                       <div className="flex flex-wrap gap-1">
-                        {profile.skills.map((skill: string) => (
-                          <SkillBadge key={skill} skill={skill} className="text-[10px]" />
+                        {profile.skills.map((skill: string, idx: number) => (
+                          <div key={skill} className="relative group/skill">
+                            {editingSkillIdx === idx ? (
+                              <div className="flex items-center gap-1">
+                                <input
+                                  value={editSkillValue}
+                                  onChange={(e) => setEditSkillValue(e.target.value)}
+                                  className="w-20 text-[10px] p-1 rounded border bg-background"
+                                  autoFocus
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" && editSkillValue.trim()) {
+                                      const updated = [...(profile.skills || [])];
+                                      updated[idx] = editSkillValue.trim();
+                                      supabase.from("profiles").update({ skills: updated }).eq("id", user!.id);
+                                      setEditingSkillIdx(null);
+                                      qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                                    }
+                                    if (e.key === "Escape") setEditingSkillIdx(null);
+                                  }}
+                                />
+                                <button
+                                  onClick={async () => {
+                                    if (!editSkillValue.trim()) return;
+                                    const updated = [...(profile.skills || [])];
+                                    updated[idx] = editSkillValue.trim();
+                                    await supabase.from("profiles").update({ skills: updated }).eq("id", user!.id);
+                                    setEditingSkillIdx(null);
+                                    qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                                  }}
+                                  className="text-[10px] text-green-500 hover:underline"
+                                >
+                                  Save
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-0.5">
+                                <SkillBadge skill={skill} className="text-[10px]" />
+                                {isEditingSkills && (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        setEditingSkillIdx(idx);
+                                        setEditSkillValue(skill);
+                                      }}
+                                      className="opacity-0 group-hover/skill:opacity-100 text-muted-foreground hover:text-foreground transition-opacity"
+                                    >
+                                      <FileText className="h-2.5 w-2.5" />
+                                    </button>
+                                    <button
+                                      onClick={async () => {
+                                        const updated = (profile.skills || []).filter((_: string, i: number) => i !== idx);
+                                        await supabase.from("profiles").update({ skills: updated }).eq("id", user!.id);
+                                        qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                                      }}
+                                      className="opacity-0 group-hover/skill:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+                                    >
+                                      <X className="h-2.5 w-2.5" />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         ))}
+                        {isEditingSkills && (
+                          <div className="flex items-center gap-1">
+                            <input
+                              value={newSkill}
+                              onChange={(e) => setNewSkill(e.target.value)}
+                              placeholder="Add skill..."
+                              className="w-24 text-[10px] p-1 rounded border bg-background"
+                              onKeyDown={async (e) => {
+                                if (e.key === "Enter" && newSkill.trim()) {
+                                  const updated = [...(profile.skills || []), newSkill.trim()];
+                                  await supabase.from("profiles").update({ skills: updated }).eq("id", user!.id);
+                                  setNewSkill("");
+                                  qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                                }
+                              }}
+                            />
+                            <button
+                              onClick={async () => {
+                                if (!newSkill.trim()) return;
+                                const updated = [...(profile.skills || []), newSkill.trim()];
+                                await supabase.from("profiles").update({ skills: updated }).eq("id", user!.id);
+                                setNewSkill("");
+                                qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                              }}
+                              className="text-[10px] text-primary hover:underline"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
