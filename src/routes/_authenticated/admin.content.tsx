@@ -23,6 +23,7 @@ import {
   Percent,
   ShieldCheck,
   Users,
+  RefreshCw,
 } from "lucide-react";
 import {
   CertificateRender,
@@ -862,6 +863,7 @@ function PricingManager() {
   const [editing, setEditing] = useState<PlanRow | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
   const doSavePlan = useServerFn(savePlan);
   const doDeletePlan = useServerFn(deletePlan);
   const doSyncPlan = useServerFn(syncPlanToCashfree);
@@ -961,6 +963,33 @@ function PricingManager() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 shrink-0 w-full sm:w-auto">
+                  {!p.cashfree_plan_id && p.price_inr > 0 && p.interval && (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="w-full"
+                      disabled={syncingId === p.id}
+                      onClick={async () => {
+                        setSyncingId(p.id);
+                        try {
+                          await doSyncPlan({ data: { planId: p.id } });
+                          toast.success(`${p.name} synced to Cashfree`);
+                          qc.invalidateQueries({ queryKey: ["admin-plans"] });
+                        } catch (e: any) {
+                          toast.error(e?.message || "Sync failed");
+                        } finally {
+                          setSyncingId(null);
+                        }
+                      }}
+                    >
+                      {syncingId === p.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <RefreshCw className="h-3.5 w-3.5" />
+                      )}
+                      <span className="sm:hidden ml-2">Sync</span>
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     variant="outline"
