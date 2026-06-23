@@ -1569,6 +1569,25 @@ function SettingsPage() {
                 </div>
               </div>
 
+              {/* Mouse Cursor Toggle */}
+              <div className="flex items-center gap-2 mt-3">
+                <Switch
+                  checked={profileQ.data?.mouse_cursor ?? true}
+                  onCheckedChange={async (checked) => {
+                    await supabase
+                      .from("profiles")
+                      .update({ mouse_cursor: checked })
+                      .eq("id", user!.id);
+                    localStorage.setItem("mouse_cursor", String(checked));
+                    document.body.dataset.mouseCursor = String(checked);
+                    window.dispatchEvent(new CustomEvent("mousecursorchange", { detail: checked }));
+                    qc.invalidateQueries({ queryKey: ["profile-full"] });
+                    toast.success(`Mouse cursor: ${checked ? "Animation" : "Normal"}`);
+                  }}
+                />
+                <Label className="text-xs cursor-pointer">Mouse Cursor (Animation)</Label>
+              </div>
+
               {/* Cartoon Character Customization Dialog */}
               <Dialog open={cartoonOpen} onOpenChange={setCartoonOpen}>
                 <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">

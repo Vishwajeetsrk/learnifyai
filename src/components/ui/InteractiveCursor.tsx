@@ -6,6 +6,26 @@ import { useMotionPref } from "../../hooks/use-motion-pref";
 export function InteractiveCursor() {
   const { variant, isTouchDevice, activeElement, setVariant, setActiveElement } = useCursor();
   const prefersReducedMotion = useMotionPref();
+  const [cursorEnabled, setCursorEnabled] = useState(true);
+
+  // Load cursor preference from localStorage and listen for changes
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const stored = localStorage.getItem("mouse_cursor");
+    if (stored !== null) {
+      const enabled = stored !== "false";
+      setCursorEnabled(enabled);
+      document.body.dataset.mouseCursor = String(enabled);
+    } else {
+      document.body.dataset.mouseCursor = "true";
+    }
+    const handler = (e: Event) => {
+      const v = (e as CustomEvent).detail;
+      setCursorEnabled(v);
+    };
+    window.addEventListener("mousecursorchange", handler);
+    return () => window.removeEventListener("mousecursorchange", handler);
+  }, []);
 
   // High-performance motion values
   const mouseX = useMotionValue(-100);
@@ -121,14 +141,15 @@ export function InteractiveCursor() {
   // Handle global class for native cursor hiding safely (SSR friendly)
   useEffect(() => {
     if (typeof document === "undefined") return;
-    if (isTouchDevice || prefersReducedMotion.reduced || !isVisible || variant === "none") {
+    if (isTouchDevice || prefersReducedMotion.reduced || !isVisible || variant === "none" || !cursorEnabled) {
       document.body.classList.remove("custom-cursor-active");
     } else {
       document.body.classList.add("custom-cursor-active");
     }
-  }, [isTouchDevice, prefersReducedMotion.reduced, isVisible, variant]);
+  }, [isTouchDevice, prefersReducedMotion.reduced, isVisible, variant, cursorEnabled]);
 
   if (isTouchDevice || prefersReducedMotion.reduced) return null;
+  if (!cursorEnabled) return null;
   if (!isVisible || variant === "none") return null;
 
   // Variants design
