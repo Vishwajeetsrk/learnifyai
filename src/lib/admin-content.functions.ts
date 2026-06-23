@@ -71,6 +71,63 @@ export const adminContentAction = createServerFn({ method: "POST" })
     throw new Error("Invalid action");
   });
 
+export const adminContentQuery = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z.object({
+      table: z.enum(ALLOWED_TABLES),
+      columns: z.string().optional(),
+      orderBy: z.string().optional(),
+      ascending: z.boolean().optional(),
+      orderBy2: z.string().optional(),
+      ascending2: z.boolean().optional(),
+      limit: z.number().optional(),
+      eqFilter: z.object({ column: z.string(), value: z.string() }).optional(),
+      eqFilter2: z.object({ column: z.string(), value: z.string() }).optional(),
+      inFilter: z.object({ column: z.string(), values: z.array(z.string()) }).optional(),
+      single: z.boolean().optional(),
+      maybeSingle: z.boolean().optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const userId = context.userId!;
+    await checkAdminRole(userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let query = (supabaseAdmin as any).from(data.table).select(data.columns || "*");
+    if (data.eqFilter) {
+      query = query.eq(data.eqFilter.column, data.eqFilter.value);
+    }
+    if (data.eqFilter2) {
+      query = query.eq(data.eqFilter2.column, data.eqFilter2.value);
+    }
+    if (data.inFilter) {
+      query = query.in(data.inFilter.column, data.inFilter.values);
+    }
+    if (data.orderBy) {
+      query = query.order(data.orderBy, { ascending: data.ascending ?? true });
+    }
+    if (data.orderBy2) {
+      query = query.order(data.orderBy2, { ascending: data.ascending2 ?? true });
+    }
+    if (data.limit) {
+      query = query.limit(data.limit);
+    }
+    if (data.single) {
+      const { data: result, error } = await query.single();
+      if (error) throw error;
+      return result ?? null;
+    }
+    if (data.maybeSingle) {
+      const { data: result, error } = await query.maybeSingle();
+      if (error) throw error;
+      return result ?? null;
+    }
+    const { data: result, error } = await query;
+    if (error) throw error;
+    return result ?? [];
+  });
+
 export const adminContentUpsert = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>

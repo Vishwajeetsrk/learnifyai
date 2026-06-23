@@ -42,7 +42,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { savePlan, deletePlan, syncPlanToCashfree } from "@/lib/subscription.functions";
-import { adminContentAction, adminContentUpsert } from "@/lib/admin-content.functions";
+import { adminContentAction, adminContentUpsert, adminContentQuery } from "@/lib/admin-content.functions";
 import {
   Select,
   SelectContent,
@@ -295,16 +295,13 @@ function EventsManager() {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const doAdminAction = useServerFn(adminContentAction);
+  const doQuery = useServerFn(adminContentQuery);
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["admin-events"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .order("starts_at", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as EventRow[];
+      const result = await doQuery({ data: { table: "events", orderBy: "starts_at", ascending: true } });
+      return (result ?? []) as EventRow[];
     },
   });
 
@@ -574,16 +571,13 @@ function JobsManager() {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const doAdminAction = useServerFn(adminContentAction);
+  const doQuery = useServerFn(adminContentQuery);
 
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ["admin-jobs"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("job_postings")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as JobRow[];
+      const result = await doQuery({ data: { table: "job_postings", orderBy: "created_at", ascending: false } });
+      return (result ?? []) as JobRow[];
     },
   });
 
@@ -871,19 +865,16 @@ function PricingManager() {
   const doSavePlan = useServerFn(savePlan);
   const doDeletePlan = useServerFn(deletePlan);
   const doSyncPlan = useServerFn(syncPlanToCashfree);
+  const doQuery = useServerFn(adminContentQuery);
 
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ["admin-plans"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pricing_plans")
-        .select("*")
-        .order("order_index", { ascending: true });
-      if (error) throw error;
-      return (data ?? []).map((p: any) => ({
+      const result = await doQuery({ data: { table: "pricing_plans", orderBy: "order_index", ascending: true } });
+      return ((result ?? []).map((p: any) => ({
         ...p,
         features: Array.isArray(p.features) ? p.features : [],
-      })) as PlanRow[];
+      })) as PlanRow[]);
     },
   });
 
@@ -1284,14 +1275,14 @@ function SiteSettingsManager() {
   const [saving, setSaving] = useState(false);
   const doAdminAction = useServerFn(adminContentAction);
   const doUpsert = useServerFn(adminContentUpsert);
+  const doQuery = useServerFn(adminContentQuery);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-site-settings"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("site_settings").select("key,value");
-      if (error) throw error;
+      const result = await doQuery({ data: { table: "site_settings", columns: "key,value" } });
       const m: Record<string, string> = {};
-      (data ?? []).forEach((r: any) => {
+      (result ?? []).forEach((r: any) => {
         m[r.key] = r.value ?? "";
       });
       return m;
@@ -1456,16 +1447,13 @@ function CertTemplatesManager() {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const doAdminAction = useServerFn(adminContentAction);
+  const doQuery = useServerFn(adminContentQuery);
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ["admin-cert-templates"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("certificate_templates")
-        .select("*")
-        .order("created_at", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as TemplateRow[];
+      const result = await doQuery({ data: { table: "certificate_templates", orderBy: "created_at", ascending: true } });
+      return (result ?? []) as TemplateRow[];
     },
   });
 
@@ -2475,17 +2463,13 @@ function FaqsManager() {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const doAdminAction = useServerFn(adminContentAction);
+  const doQuery = useServerFn(adminContentQuery);
 
   const { data: faqs = [], isLoading } = useQuery({
     queryKey: ["admin-faqs"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("faqs")
-        .select("*")
-        .order("category")
-        .order("order_index");
-      if (error) throw error;
-      return (data ?? []) as FaqRow[];
+      const result = await doQuery({ data: { table: "faqs", orderBy: "category", ascending: true, orderBy2: "order_index", ascending2: true } });
+      return (result ?? []) as FaqRow[];
     },
   });
 
@@ -2718,18 +2702,16 @@ function PagesManager() {
   const qc = useQueryClient();
   const [values, setValues] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const doQuery = useServerFn(adminContentQuery);
+  const doUpsert = useServerFn(adminContentUpsert);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-page-content"],
     queryFn: async () => {
       const keys = PAGE_KEYS.map((p) => p.key);
-      const { data, error } = await supabase
-        .from("site_settings")
-        .select("key,value")
-        .in("key", keys);
-      if (error) throw error;
+      const result = await doQuery({ data: { table: "site_settings", columns: "key,value", inFilter: { column: "key", values: keys } } });
       const m: Record<string, string> = {};
-      (data ?? []).forEach((r: any) => {
+      (result ?? []).forEach((r: any) => {
         m[r.key] = r.value ?? "";
       });
       keys.forEach((k) => {
@@ -2746,9 +2728,13 @@ function PagesManager() {
   const save = async () => {
     setSaving(true);
     const rows = PAGE_KEYS.map((p) => ({ key: p.key, value: values[p.key] ?? "" }));
-    const { error } = await supabase.from("site_settings").upsert(rows, { onConflict: "key" });
+    try {
+      await doUpsert({ data: { table: "site_settings", data: rows, onConflict: "key" } });
+    } catch (e: any) {
+      setSaving(false);
+      return toast.error(e?.message || "Save failed");
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success("Page content saved");
     qc.invalidateQueries({ queryKey: ["admin-page-content"] });
   };
@@ -2851,18 +2837,16 @@ function RoadmapManager() {
   const [items, setItems] = useState<RoadmapItem[]>([]);
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState<RoadmapItem | null>(null);
+  const doQuery = useServerFn(adminContentQuery);
+  const doUpsert = useServerFn(adminContentUpsert);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-roadmap"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", ROADMAP_KEY)
-        .single();
-      if (data?.value) {
+      const result: any = await doQuery({ data: { table: "site_settings", columns: "value", eqFilter: { column: "key", value: ROADMAP_KEY }, single: true } });
+      if (result?.value) {
         try {
-          return JSON.parse(data.value as string) as RoadmapItem[];
+          return JSON.parse(result.value as string) as RoadmapItem[];
         } catch {
           return DEFAULT_ROADMAP;
         }
@@ -2877,11 +2861,13 @@ function RoadmapManager() {
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase
-      .from("site_settings")
-      .upsert({ key: ROADMAP_KEY, value: JSON.stringify(items) }, { onConflict: "key" });
+    try {
+      await doUpsert({ data: { table: "site_settings", data: { key: ROADMAP_KEY, value: JSON.stringify(items) }, onConflict: "key" } });
+    } catch (e: any) {
+      setSaving(false);
+      return toast.error(e?.message || "Save failed");
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success("Roadmap saved");
     qc.invalidateQueries({ queryKey: ["admin-roadmap"] });
   };
@@ -3041,18 +3027,16 @@ function CouponManager() {
   const qc = useQueryClient();
   const [items, setItems] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
+  const doQuery = useServerFn(adminContentQuery);
+  const doUpsert = useServerFn(adminContentUpsert);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-coupons"],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", COUPON_KEY)
-        .maybeSingle();
-      if (data?.value) {
+      const result: any = await doQuery({ data: { table: "site_settings", columns: "value", eqFilter: { column: "key", value: COUPON_KEY }, maybeSingle: true } });
+      if (result?.value) {
         try {
-          return JSON.parse(data.value as string);
+          return JSON.parse(result.value as string);
         } catch {
           return DEFAULT_COUPONS;
         }
@@ -3067,11 +3051,13 @@ function CouponManager() {
 
   const save = async () => {
     setSaving(true);
-    const { error } = await supabase
-      .from("site_settings")
-      .upsert({ key: COUPON_KEY, value: JSON.stringify(items) }, { onConflict: "key" });
+    try {
+      await doUpsert({ data: { table: "site_settings", data: { key: COUPON_KEY, value: JSON.stringify(items) }, onConflict: "key" } });
+    } catch (e: any) {
+      setSaving(false);
+      return toast.error(e?.message || "Save failed");
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success("Coupons saved");
     qc.invalidateQueries({ queryKey: ["admin-coupons"] });
   };
@@ -3195,17 +3181,13 @@ function CohortsManager() {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const doAdminAction = useServerFn(adminContentAction);
+  const doQuery = useServerFn(adminContentQuery);
 
   const { data: cohorts = [], isLoading } = useQuery({
     queryKey: ["admin-cohorts"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("cohorts")
-        .select("id, title, description, kind, starts_at, capacity, status, group_link, creator_id")
-        .order("starts_at", { ascending: false })
-        .limit(100);
-      if (error) throw error;
-      return (data ?? []) as unknown as CohortRow[];
+      const result = await doQuery({ data: { table: "cohorts", columns: "id, title, description, kind, starts_at, capacity, status, group_link, creator_id", orderBy: "starts_at", ascending: false, limit: 100 } });
+      return (result ?? []) as unknown as CohortRow[];
     },
   });
 
