@@ -597,10 +597,14 @@ function SettingsPage() {
     try {
       await doSaveField({ data: { field: "avatar_url", value: currentCartoonUrl } });
       toast.success("Character avatar updated!");
-      qc.invalidateQueries({ queryKey: ["profile-full"] });
-      qc.invalidateQueries({ queryKey: ["profile-mini"] });
-      qc.invalidateQueries({ queryKey: ["public-profile"] });
-      qc.invalidateQueries({ queryKey: ["profile"] });
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["profile-full"] }),
+        qc.invalidateQueries({ queryKey: ["profile-mini"] }),
+        qc.invalidateQueries({ queryKey: ["public-profile"] }),
+        qc.invalidateQueries({ queryKey: ["profile"] }),
+        qc.refetchQueries({ queryKey: ["profile-full"] }),
+        qc.refetchQueries({ queryKey: ["profile-mini"] }),
+      ]);
       setCartoonOpen(false);
     } catch (e: any) {
       console.error("[Settings] Save error:", e);
@@ -887,6 +891,7 @@ function SettingsPage() {
       if (error) throw error;
       return data;
     },
+    staleTime: 0,
   });
 
   const walletQ = useQuery({
@@ -1067,7 +1072,10 @@ function SettingsPage() {
     setSavingProfile(false);
     if (error) return toast.error(error.message);
     toast.success("Profile saved");
-    qc.invalidateQueries({ queryKey: ["profile-full"] });
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["profile-full"] }),
+      qc.refetchQueries({ queryKey: ["profile-full"] }),
+    ]);
   }
 
   /* ── Avatar ── */
@@ -1424,8 +1432,12 @@ function SettingsPage() {
                       } catch (e: any) {
                         return toast.error(e?.message || "Failed to update border");
                       }
-                      qc.invalidateQueries({ queryKey: ["profile-full"] });
-                      qc.invalidateQueries({ queryKey: ["profile-mini"] });
+                      await Promise.all([
+                        qc.invalidateQueries({ queryKey: ["profile-full"] }),
+                        qc.invalidateQueries({ queryKey: ["profile-mini"] }),
+                        qc.refetchQueries({ queryKey: ["profile-full"] }),
+                        qc.refetchQueries({ queryKey: ["profile-mini"] }),
+                      ]);
                       toast.success("Profile border updated!");
                     }}
                   >
@@ -1472,8 +1484,12 @@ function SettingsPage() {
                       } catch (e: any) {
                         return toast.error(e?.message || "Failed to randomize border");
                       }
-                      qc.invalidateQueries({ queryKey: ["profile-full"] });
-                      qc.invalidateQueries({ queryKey: ["profile-mini"] });
+                      await Promise.all([
+                        qc.invalidateQueries({ queryKey: ["profile-full"] }),
+                        qc.invalidateQueries({ queryKey: ["profile-mini"] }),
+                        qc.refetchQueries({ queryKey: ["profile-full"] }),
+                        qc.refetchQueries({ queryKey: ["profile-mini"] }),
+                      ]);
                       toast.success("Randomized profile border!");
                     }}
                   >

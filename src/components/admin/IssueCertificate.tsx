@@ -396,6 +396,11 @@ export default function IssueCertificate() {
     qc.invalidateQueries({ queryKey: ["certificates-list"] });
     qc.invalidateQueries({ queryKey: ["admin-cert-audit"] });
     qc.invalidateQueries({ queryKey: ["admin-cert-email-log"] });
+    // Force refetch audit and email logs after a brief delay so new cert entries appear
+    setTimeout(() => {
+      qc.refetchQueries({ queryKey: ["admin-cert-audit"] });
+      qc.refetchQueries({ queryKey: ["admin-cert-email-log"] });
+    }, 1500);
     setEmail("");
     setSearchedEmail("");
     setRecipientName("");

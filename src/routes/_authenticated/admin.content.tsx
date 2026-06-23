@@ -2756,7 +2756,8 @@ function PagesManager() {
 
   const save = async () => {
     setSaving(true);
-    const rows = PAGE_KEYS.map((p) => ({ key: p.key, value: values[p.key] ?? "" }));
+    const now = new Date().toISOString();
+    const rows = PAGE_KEYS.map((p) => ({ key: p.key, value: values[p.key] ?? "", updated_at: now }));
     try {
       await doUpsert({ data: { table: "site_settings", data: rows, onConflict: "key" } });
     } catch (e: any) {
@@ -2866,6 +2867,7 @@ function RoadmapManager() {
   const [items, setItems] = useState<RoadmapItem[]>([]);
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState<RoadmapItem | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const doQuery = useServerFn(adminContentQuery);
   const doUpsert = useServerFn(adminContentUpsert);
 
@@ -2891,7 +2893,7 @@ function RoadmapManager() {
   const save = async () => {
     setSaving(true);
     try {
-      await doUpsert({ data: { table: "site_settings", data: { key: ROADMAP_KEY, value: JSON.stringify(items) }, onConflict: "key" } });
+      await doUpsert({ data: { table: "site_settings", data: { key: ROADMAP_KEY, value: JSON.stringify(items), updated_at: new Date().toISOString() }, onConflict: "key" } });
     } catch (e: any) {
       setSaving(false);
       return toast.error(e?.message || "Save failed");
@@ -2913,8 +2915,13 @@ function RoadmapManager() {
   };
 
   const deleteItem = (id: string) => {
-    if (!window.confirm("Delete this roadmap item?")) return;
-    setItems(items.filter((i) => i.id !== id));
+    setDeleteTargetId(id);
+  };
+
+  const confirmDeleteItem = () => {
+    if (!deleteTargetId) return;
+    setItems(items.filter((i) => i.id !== deleteTargetId));
+    setDeleteTargetId(null);
   };
 
   const updateItem = (id: string, updates: Partial<RoadmapItem>) => {
@@ -3041,6 +3048,23 @@ function RoadmapManager() {
           Save roadmap
         </Button>
       </div>
+
+      <AlertDialog open={!!deleteTargetId} onOpenChange={(v) => !v && setDeleteTargetId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this roadmap item?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove "{items.find((i) => i.id === deleteTargetId)?.title || "Untitled"}" from the public roadmap.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteItem} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -3056,6 +3080,7 @@ function CouponManager() {
   const qc = useQueryClient();
   const [items, setItems] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
+  const [deleteTargetIdx, setDeleteTargetIdx] = useState<number | null>(null);
   const doQuery = useServerFn(adminContentQuery);
   const doUpsert = useServerFn(adminContentUpsert);
 
@@ -3081,7 +3106,7 @@ function CouponManager() {
   const save = async () => {
     setSaving(true);
     try {
-      await doUpsert({ data: { table: "site_settings", data: { key: COUPON_KEY, value: JSON.stringify(items) }, onConflict: "key" } });
+      await doUpsert({ data: { table: "site_settings", data: { key: COUPON_KEY, value: JSON.stringify(items), updated_at: new Date().toISOString() }, onConflict: "key" } });
     } catch (e: any) {
       setSaving(false);
       return toast.error(e?.message || "Save failed");
@@ -3096,8 +3121,13 @@ function CouponManager() {
   };
 
   const deleteItem = (i: number) => {
-    if (!window.confirm("Delete this coupon?")) return;
-    setItems(items.filter((_, idx) => idx !== i));
+    setDeleteTargetIdx(i);
+  };
+
+  const confirmDeleteCoupon = () => {
+    if (deleteTargetIdx == null) return;
+    setItems(items.filter((_, idx) => idx !== deleteTargetIdx));
+    setDeleteTargetIdx(null);
   };
 
   const updateItem = (i: number, updates: any) => {
@@ -3186,6 +3216,23 @@ function CouponManager() {
           Save coupons
         </Button>
       </div>
+
+      <AlertDialog open={deleteTargetIdx != null} onOpenChange={(v) => !v && setDeleteTargetIdx(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this coupon?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove "{deleteTargetIdx != null ? items[deleteTargetIdx]?.code || "Untitled" : ""}" permanently.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteCoupon} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

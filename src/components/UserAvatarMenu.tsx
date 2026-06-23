@@ -37,6 +37,7 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
         .maybeSingle();
       return data;
     },
+    staleTime: 0,
   });
 
   useEffect(() => {
