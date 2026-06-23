@@ -2,15 +2,15 @@
   "crons": [
     {
       "path": "/api/cron/check-subscriptions",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 6 * * *"
     },
     {
       "path": "/api/cron/retry-cert-emails",
-      "schedule": "*/10 * * * *"
+      "schedule": "0 12 * * *"
     },
     {
       "path": "/api/cron/auto-maintenance",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *"
     }
   ],
   "headers": [
