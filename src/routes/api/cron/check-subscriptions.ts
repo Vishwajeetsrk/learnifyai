@@ -5,17 +5,17 @@ export const Route = createFileRoute("/api/cron/check-subscriptions")({
   server: {
     handlers: {
       GET: async () => {
-        const authHeader = process.env.CRON_SECRET
+        const authHeader = process.env.CRON_SECRET;
 
         try {
           const { data, error } = await (supabaseAdmin as any).rpc("check_expired_subscriptions");
 
           if (error) {
             console.error("Cron check-subscriptions error:", error);
-            return new Response(
-              JSON.stringify({ success: false, error: error.message }),
-              { status: 500, headers: { "Content-Type": "application/json" } },
-            );
+            return new Response(JSON.stringify({ success: false, error: error.message }), {
+              status: 500,
+              headers: { "Content-Type": "application/json" },
+            });
           }
 
           return new Response(

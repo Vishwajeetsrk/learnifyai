@@ -169,12 +169,7 @@ function PreviewPanel({
   };
 
   return (
-    <div
-      className={cn(
-        "h-full flex flex-col bg-[#121212]",
-        isFullscreen && "fixed inset-0 z-50",
-      )}
-    >
+    <div className={cn("h-full flex flex-col bg-[#121212]", isFullscreen && "fixed inset-0 z-50")}>
       {/* Preview Header */}
       <div className="flex items-center justify-between px-4 py-2 bg-[#1a1a1a] border-b border-zinc-800">
         <div className="flex items-center gap-4">
@@ -183,9 +178,7 @@ function PreviewPanel({
             <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
             <div className="w-3 h-3 rounded-full bg-green-500/80" />
           </div>
-          <span className="text-xs text-zinc-400 font-mono">
-            localhost:3000
-          </span>
+          <span className="text-xs text-zinc-400 font-mono">localhost:3000</span>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -213,11 +206,7 @@ function PreviewPanel({
             onClick={() => setIsFullscreen(!isFullscreen)}
             title="Toggle Fullscreen"
           >
-            {isFullscreen ? (
-              <Minimize2 className="h-3 w-3" />
-            ) : (
-              <Maximize2 className="h-3 w-3" />
-            )}
+            {isFullscreen ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
           </Button>
         </div>
       </div>
@@ -229,11 +218,9 @@ function PreviewPanel({
             width: getDeviceWidth(),
             height: getDeviceHeight(),
             background: "white",
-            boxShadow:
-              previewDevice !== "desktop" ? "0 10px 40px rgba(0,0,0,0.5)" : "none",
+            boxShadow: previewDevice !== "desktop" ? "0 10px 40px rgba(0,0,0,0.5)" : "none",
             borderRadius: previewDevice !== "desktop" ? "12px" : "0",
-            border:
-              previewDevice !== "desktop" ? "4px solid #333" : "none",
+            border: previewDevice !== "desktop" ? "4px solid #333" : "none",
             overflow: "hidden",
             transition: "all 0.3s ease",
           }}

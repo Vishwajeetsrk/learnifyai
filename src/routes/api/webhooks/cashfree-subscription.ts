@@ -83,10 +83,7 @@ export const Route = createFileRoute("/api/webhooks/cashfree-subscription")({
                 .maybeSingle();
 
               if (sub) {
-                await sb
-                  .from("user_subscriptions")
-                  .update({ status: "pending" })
-                  .eq("id", sub.id);
+                await sb.from("user_subscriptions").update({ status: "pending" }).eq("id", sub.id);
 
                 await sb.from("subscription_events").insert({
                   subscription_id: sub.id,
@@ -250,7 +247,10 @@ export const Route = createFileRoute("/api/webhooks/cashfree-subscription")({
           }
 
           // ── PAYMENT FAILED ──
-          if (eventType === "SUBSCRIPTION_PAYMENT_FAILED" || eventType === "SUBSCRIPTION_CHARGE_FAILED") {
+          if (
+            eventType === "SUBSCRIPTION_PAYMENT_FAILED" ||
+            eventType === "SUBSCRIPTION_CHARGE_FAILED"
+          ) {
             if (subscriptionId) {
               const { data: sub } = await sb
                 .from("user_subscriptions")
@@ -301,10 +301,9 @@ export const Route = createFileRoute("/api/webhooks/cashfree-subscription")({
                   .select("name")
                   .eq("id", sub.plan_id)
                   .single();
-                sendPaymentFailedEmail(
-                  sub.user_id,
-                  (planInfo as any)?.name || "Pro",
-                ).catch((e) => console.error("Failed to send payment failed email:", e));
+                sendPaymentFailedEmail(sub.user_id, (planInfo as any)?.name || "Pro").catch((e) =>
+                  console.error("Failed to send payment failed email:", e),
+                );
               }
             }
           }

@@ -27,12 +27,16 @@ if (!dbUrl) {
 }
 
 if (!appId || !secretKey) {
-  console.error("Cashfree credentials (CASHFREE_APP_ID, CASHFREE_SECRET_KEY) not found in .env or .env.local");
+  console.error(
+    "Cashfree credentials (CASHFREE_APP_ID, CASHFREE_SECRET_KEY) not found in .env or .env.local",
+  );
   process.exit(1);
 }
 
 const isSandbox = appId.startsWith("TEST") || appId.includes("sandbox");
-const cashfreeApiUrl = isSandbox ? "https://sandbox.cashfree.com/pg" : "https://api.cashfree.com/pg";
+const cashfreeApiUrl = isSandbox
+  ? "https://sandbox.cashfree.com/pg"
+  : "https://api.cashfree.com/pg";
 
 console.log(`Using Cashfree environment: ${isSandbox ? "Sandbox" : "Production"}`);
 console.log(`API URL: ${cashfreeApiUrl}`);
@@ -43,7 +47,7 @@ async function main() {
 
   // Find all active paid plans that don't have a Cashfree plan ID
   const { rows: plans } = await client.query(
-    "SELECT id, name, price_inr, interval, description FROM pricing_plans WHERE active = true AND price_inr > 0 AND cashfree_plan_id IS NULL;"
+    "SELECT id, name, price_inr, interval, description FROM pricing_plans WHERE active = true AND price_inr > 0 AND cashfree_plan_id IS NULL;",
   );
 
   console.log(`Found ${plans.length} plans to sync with Cashfree.`);
@@ -78,21 +82,23 @@ async function main() {
       if (!res.ok) {
         const errText = await res.text();
         console.error(`  Cashfree API returned error: ${errText}`);
-        
+
         console.log(`  Updating database with expected plan ID: ${cfPlanId}`);
-        await client.query(
-          "UPDATE pricing_plans SET cashfree_plan_id = $1 WHERE id = $2;",
-          [cfPlanId, plan.id]
-        );
+        await client.query("UPDATE pricing_plans SET cashfree_plan_id = $1 WHERE id = $2;", [
+          cfPlanId,
+          plan.id,
+        ]);
         console.log(`  Updated ${plan.name} in DB.`);
       } else {
         const cf = await res.json();
         const cashfreePlanId = cf.plan_id || cfPlanId;
-        await client.query(
-          "UPDATE pricing_plans SET cashfree_plan_id = $1 WHERE id = $2;",
-          [cashfreePlanId, plan.id]
+        await client.query("UPDATE pricing_plans SET cashfree_plan_id = $1 WHERE id = $2;", [
+          cashfreePlanId,
+          plan.id,
+        ]);
+        console.log(
+          `  Successfully synced and updated ${plan.name} with cashfree_plan_id: ${cashfreePlanId}`,
         );
-        console.log(`  Successfully synced and updated ${plan.name} with cashfree_plan_id: ${cashfreePlanId}`);
       }
     } catch (err) {
       console.error(`  Failed to sync ${plan.name}:`, err.message);

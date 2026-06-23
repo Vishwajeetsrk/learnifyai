@@ -111,7 +111,10 @@ function AchievementsPage() {
         {isLoading ? (
           <div className="mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-2xl border bg-card p-4 shadow-sm flex flex-col items-center gap-2">
+              <div
+                key={i}
+                className="rounded-2xl border bg-card p-4 shadow-sm flex flex-col items-center gap-2"
+              >
                 <div className="h-14 w-14 rounded-full bg-muted animate-pulse" />
                 <div className="h-4 w-16 rounded bg-muted animate-pulse" />
                 <div className="h-3 w-12 rounded bg-muted animate-pulse" />

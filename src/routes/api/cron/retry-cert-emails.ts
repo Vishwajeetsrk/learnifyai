@@ -33,10 +33,10 @@ export const Route = createFileRoute("/api/cron/retry-cert-emails")({
 
           if (queryErr) {
             console.error("retry-cert-emails query error:", queryErr);
-            return new Response(
-              JSON.stringify({ success: false, error: queryErr.message }),
-              { status: 500, headers: { "Content-Type": "application/json" } },
-            );
+            return new Response(JSON.stringify({ success: false, error: queryErr.message }), {
+              status: 500,
+              headers: { "Content-Type": "application/json" },
+            });
           }
 
           let retried = 0,
@@ -57,7 +57,11 @@ export const Route = createFileRoute("/api/cron/retry-cert-emails")({
             if (!cert) {
               await (supabaseAdmin as any)
                 .from("certificate_email_log")
-                .update({ status: "failed", error: "Certificate not found", attempt: row.attempt + 1 })
+                .update({
+                  status: "failed",
+                  error: "Certificate not found",
+                  attempt: row.attempt + 1,
+                })
                 .eq("id", row.id);
               failed++;
               continue;

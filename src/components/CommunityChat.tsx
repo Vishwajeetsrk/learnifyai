@@ -165,7 +165,7 @@ export function CommunityChat() {
                 <div className={`flex flex-col ${isMe ? "items-end" : ""} max-w-[75%]`}>
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-xs font-medium">
-                      {isMe ? "You" : msg.profile?.full_name ?? "Unknown"}
+                      {isMe ? "You" : (msg.profile?.full_name ?? "Unknown")}
                     </span>
                     <span className="text-[10px] text-muted-foreground">
                       {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}

@@ -209,10 +209,7 @@ export function APITesterPanel() {
             </Button>
             {showMethodDropdown && (
               <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setShowMethodDropdown(false)}
-                />
+                <div className="fixed inset-0 z-40" onClick={() => setShowMethodDropdown(false)} />
                 <div className="absolute top-full left-0 mt-1 w-24 bg-popover border rounded-md shadow-lg z-50 py-1">
                   {HTTP_METHODS.map((m) => (
                     <button
@@ -357,17 +354,8 @@ export function APITesterPanel() {
               </span>
               <span className="text-xs text-muted-foreground">{response.size}</span>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={copyResponse}
-              className="h-7 px-2"
-            >
-              {copiedResponse ? (
-                <Check className="h-3 w-3" />
-              ) : (
-                <Copy className="h-3 w-3" />
-              )}
+            <Button variant="ghost" size="sm" onClick={copyResponse} className="h-7 px-2">
+              {copiedResponse ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
             </Button>
           </div>
           <div className="max-h-[300px] overflow-auto">
@@ -394,7 +382,9 @@ export function APITesterPanel() {
                   setUrl(item.url);
                 }}
               >
-                <span className={cn("font-mono font-bold", getMethodColor(item.method).split(" ")[1])}>
+                <span
+                  className={cn("font-mono font-bold", getMethodColor(item.method).split(" ")[1])}
+                >
                   {item.method}
                 </span>
                 <span className="flex-1 truncate font-mono text-muted-foreground">{item.url}</span>

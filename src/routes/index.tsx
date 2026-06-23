@@ -29,13 +29,13 @@ import { getPlatformStats } from "@/lib/stats.functions";
 
 // Lazy load below-fold heavy components
 const AiToolsShowcase = lazy(() =>
-  import("@/components/AiToolsShowcase").then((m) => ({ default: m.AiToolsShowcase }))
+  import("@/components/AiToolsShowcase").then((m) => ({ default: m.AiToolsShowcase })),
 );
 const InteractiveDemo = lazy(() =>
-  import("@/components/InteractiveDemo").then((m) => ({ default: m.InteractiveDemo }))
+  import("@/components/InteractiveDemo").then((m) => ({ default: m.InteractiveDemo })),
 );
 const AnimatedCounter = lazy(() =>
-  import("@/components/AnimatedCounter").then((m) => ({ default: m.AnimatedCounter }))
+  import("@/components/AnimatedCounter").then((m) => ({ default: m.AnimatedCounter })),
 );
 
 export const Route = createFileRoute("/")({

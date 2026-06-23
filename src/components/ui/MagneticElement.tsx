@@ -10,7 +10,12 @@ interface MagneticElementProps {
   lift3D?: boolean; // Enable 3D tilt effect
 }
 
-export function MagneticElement({ children, className = "", magneticPull = 15, lift3D = false }: MagneticElementProps) {
+export function MagneticElement({
+  children,
+  className = "",
+  magneticPull = 15,
+  lift3D = false,
+}: MagneticElementProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const { isTouchDevice } = useCursor();
@@ -29,7 +34,7 @@ export function MagneticElement({ children, className = "", magneticPull = 15, l
     const { height, width, left, top } = ref.current.getBoundingClientRect();
     const centerX = left + width / 2;
     const centerY = top + height / 2;
-    
+
     const distanceX = clientX - centerX;
     const distanceY = clientY - centerY;
 
@@ -73,13 +78,14 @@ export function MagneticElement({ children, className = "", magneticPull = 15, l
       transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
     >
       {children}
-      
+
       {/* Soft spotlight overlay when hovered (if lift3D is enabled) */}
       {lift3D && isHovered && (
         <motion.div
           className="pointer-events-none absolute inset-0 rounded-[inherit] mix-blend-overlay opacity-30"
           style={{
-            background: "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 80%)",
+            background:
+              "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 80%)",
             x: useTransform(x, (val) => val * -0.5),
             y: useTransform(y, (val) => val * -0.5),
           }}

@@ -52,7 +52,10 @@ function NotFoundComponent() {
         </div>
         <p className="text-xs text-muted-foreground">
           If you think this is a mistake, contact{" "}
-          <a href="mailto:support@learnify.ai" className="text-primary underline underline-offset-2">
+          <a
+            href="mailto:support@learnify.ai"
+            className="text-primary underline underline-offset-2"
+          >
             support@learnify.ai
           </a>
         </p>
@@ -116,7 +119,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         </div>
         <p className="text-xs text-muted-foreground">
           If this keeps happening, contact{" "}
-          <a href="mailto:support@learnify.ai" className="text-primary underline underline-offset-2">
+          <a
+            href="mailto:support@learnify.ai"
+            className="text-primary underline underline-offset-2"
+          >
             support@learnify.ai
           </a>
         </p>

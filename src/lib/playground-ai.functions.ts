@@ -132,5 +132,7 @@ ${data.question || "Diagnose any issue and return the full fixed program."}`;
       }
     }
 
-    throw new Error(`All AI providers failed. ${errors.length > 0 ? errors.slice(0, 3).join("; ") : "No API keys configured."}`);
+    throw new Error(
+      `All AI providers failed. ${errors.length > 0 ? errors.slice(0, 3).join("; ") : "No API keys configured."}`,
+    );
   });

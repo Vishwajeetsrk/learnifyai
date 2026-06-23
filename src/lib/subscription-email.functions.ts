@@ -231,7 +231,11 @@ export async function sendSubscriptionCancelledEmail(userId: string, planName: s
   });
 }
 
-export async function sendSubscriptionExpiringEmail(userId: string, planName: string, daysLeft: number) {
+export async function sendSubscriptionExpiringEmail(
+  userId: string,
+  planName: string,
+  daysLeft: number,
+) {
   const { data: profile } = await supabaseAdmin
     .from("profiles")
     .select("email, full_name")

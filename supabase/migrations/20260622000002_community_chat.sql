@@ -15,13 +15,23 @@ GRANT ALL ON public.community_messages TO service_role;
 
 ALTER TABLE public.community_messages ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Authenticated users can view community messages" ON public.community_messages;
 CREATE POLICY "Authenticated users can view community messages"
   ON public.community_messages FOR SELECT TO authenticated
   USING (true);
 
+DROP POLICY IF EXISTS "Authenticated users can send community messages" ON public.community_messages;
 CREATE POLICY "Authenticated users can send community messages"
   ON public.community_messages FOR INSERT TO authenticated
   WITH CHECK (auth.uid() = user_id);
 
 -- Enable Realtime
-ALTER PUBLICATION supabase_realtime ADD TABLE public.community_messages;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND schemaname = 'public' AND tablename = 'community_messages'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.community_messages;
+  END IF;
+END $$;

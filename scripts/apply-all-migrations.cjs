@@ -47,10 +47,10 @@ function splitSql(sql) {
   let current = [];
   let inSingleQuote = false;
   let inDollarQuote = false;
-  
+
   for (let i = 0; i < sql.length; i++) {
     const char = sql[i];
-    
+
     // Handle escape quotes if any
     if (char === "'" && !inDollarQuote) {
       if (sql[i + 1] === "'") {
@@ -60,7 +60,7 @@ function splitSql(sql) {
       }
       inSingleQuote = !inSingleQuote;
     }
-    
+
     // Check for dollar quote ($$)
     if (char === "$" && sql[i + 1] === "$" && !inSingleQuote) {
       inDollarQuote = !inDollarQuote;
@@ -68,22 +68,22 @@ function splitSql(sql) {
       i++; // skip next char
       continue;
     }
-    
+
     // Check for statement separator
     if (char === ";" && !inSingleQuote && !inDollarQuote) {
       statements.push(current.join(""));
       current = [];
       continue;
     }
-    
+
     current.push(char);
   }
-  
+
   if (current.join("").trim()) {
     statements.push(current.join(""));
   }
-  
-  return statements.map(s => s.trim()).filter(Boolean);
+
+  return statements.map((s) => s.trim()).filter(Boolean);
 }
 
 async function main() {
@@ -103,13 +103,14 @@ async function main() {
 
   // Query existing versions
   const { rows } = await client.query("SELECT version FROM supabase_migrations.schema_migrations");
-  const applied = new Set(rows.map(r => r.version));
+  const applied = new Set(rows.map((r) => r.version));
   console.log(`Found ${applied.size} already applied migrations.`);
 
   // Read migrations directory
   const migrationsDir = path.join(__dirname, "..", "supabase", "migrations");
-  const files = fs.readdirSync(migrationsDir)
-    .filter(f => f.endsWith(".sql"))
+  const files = fs
+    .readdirSync(migrationsDir)
+    .filter((f) => f.endsWith(".sql"))
     .sort();
 
   console.log(`Found ${files.length} migration files in directory.`);
@@ -160,7 +161,7 @@ async function main() {
       try {
         await client.query(
           "INSERT INTO supabase_migrations.schema_migrations (version, statements, name) VALUES ($1, $2, $3) ON CONFLICT (version) DO NOTHING;",
-          [version, [], name]
+          [version, [], name],
         );
         console.log(`Successfully completed migration ${file}`);
       } catch (err) {
@@ -174,7 +175,7 @@ async function main() {
   await client.end();
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error("Migration runner failed:", err);
   process.exit(1);
 });

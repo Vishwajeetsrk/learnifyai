@@ -157,9 +157,15 @@ function CreatorProfile() {
         {/* Enhanced Channel Header */}
         <div className="rounded-3xl border bg-card overflow-hidden shadow-lg relative">
           <div className="h-48 md:h-64 w-full relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-cyan-500">
-            {p?.profile?.banner_url ? (
+            {p?.profile?.banner_url && p?.profile?.show_banner !== false ? (
               <>
-                <img src={p.profile.banner_url} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                <img
+                  src={p.profile.banner_url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
               </>
             ) : (

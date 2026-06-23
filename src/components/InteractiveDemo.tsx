@@ -204,11 +204,15 @@ function BillingDemo() {
             Active Plan
           </span>
           <h4 className="font-semibold text-lg mt-1.5">Learnify Pro Plan</h4>
-          <p className="text-xs text-muted-foreground">₹499 billed monthly · Next renewal July 15, 2026</p>
+          <p className="text-xs text-muted-foreground">
+            ₹499 billed monthly · Next renewal July 15, 2026
+          </p>
         </div>
         <div className="flex flex-col items-start sm:items-end gap-1">
           <span className="text-sm font-semibold text-primary">10,000 / 10,000</span>
-          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">AI Credits</span>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+            AI Credits
+          </span>
         </div>
       </div>
 
@@ -237,7 +241,11 @@ function BillingDemo() {
                 className="p-1.5 rounded-lg text-primary hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                 title="Download Invoice"
               >
-                {downloaded ? <Check className="h-4 w-4 text-emerald-500 animate-bounce" /> : <Download className="h-4 w-4" />}
+                {downloaded ? (
+                  <Check className="h-4 w-4 text-emerald-500 animate-bounce" />
+                ) : (
+                  <Download className="h-4 w-4" />
+                )}
               </button>
             </div>
           </div>

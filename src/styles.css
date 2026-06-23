@@ -330,8 +330,8 @@ html.dark[data-theme="noir"] {
 }
 
 /* Interactive Cursor System */
-body.custom-cursor-active, 
-body.custom-cursor-active a, 
+body.custom-cursor-active,
+body.custom-cursor-active a,
 body.custom-cursor-active button,
 body.custom-cursor-active [role="button"],
 body.custom-cursor-active [data-magnetic] {

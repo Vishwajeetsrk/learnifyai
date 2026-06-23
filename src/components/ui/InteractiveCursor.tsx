@@ -6,24 +6,24 @@ import { useMotionPref } from "../../hooks/use-motion-pref";
 export function InteractiveCursor() {
   const { variant, isTouchDevice, activeElement, setVariant, setActiveElement } = useCursor();
   const prefersReducedMotion = useMotionPref();
-  
+
   // High-performance motion values
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
-  
+
   // Spring config for smooth interpolation
   const springConfig = { damping: 25, stiffness: 300, mass: 0.5 };
   const smoothX = useSpring(mouseX, springConfig);
   const smoothY = useSpring(mouseY, springConfig);
-  
+
   const [isVisible, setIsVisible] = useState(false);
-  
+
   // 3D Tilt calculation
   const velocityX = useMotionValue(0);
   const velocityY = useMotionValue(0);
   const smoothVelocityX = useSpring(velocityX, { damping: 50, stiffness: 400 });
   const smoothVelocityY = useSpring(velocityY, { damping: 50, stiffness: 400 });
-  
+
   const rotateY = useTransform(smoothVelocityX, [-1000, 1000], [-30, 30]);
   const rotateX = useTransform(smoothVelocityY, [-1000, 1000], [30, -30]);
 
@@ -39,22 +39,22 @@ export function InteractiveCursor() {
       setIsVisible(true);
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
-      
+
       const now = performance.now();
       const dt = Math.max(1, now - lastTime);
       const vx = ((e.clientX - lastX) / dt) * 1000;
       const vy = ((e.clientY - lastY) / dt) * 1000;
-      
+
       velocityX.set(vx);
       velocityY.set(vy);
-      
+
       lastX = e.clientX;
       lastY = e.clientY;
       lastTime = now;
 
       // Global detection for hover states (buttons, links, text, monaco)
       const target = e.target as HTMLElement;
-      
+
       // If hovering Monaco, sandpack or generic inputs, hide custom cursor
       if (
         target.closest(".monaco-editor") ||
@@ -103,15 +103,24 @@ export function InteractiveCursor() {
       window.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseleave", onMouseLeave);
       document.removeEventListener("mouseenter", onMouseEnter);
-      if (typeof document !== 'undefined') {
+      if (typeof document !== "undefined") {
         document.body.classList.remove("custom-cursor-active");
       }
     };
-  }, [isTouchDevice, prefersReducedMotion, mouseX, mouseY, velocityX, velocityY, setVariant, setActiveElement]);
+  }, [
+    isTouchDevice,
+    prefersReducedMotion,
+    mouseX,
+    mouseY,
+    velocityX,
+    velocityY,
+    setVariant,
+    setActiveElement,
+  ]);
 
   // Handle global class for native cursor hiding safely (SSR friendly)
   useEffect(() => {
-    if (typeof document === 'undefined') return;
+    if (typeof document === "undefined") return;
     if (isTouchDevice || prefersReducedMotion.reduced || !isVisible || variant === "none") {
       document.body.classList.remove("custom-cursor-active");
     } else {
@@ -129,9 +138,11 @@ export function InteractiveCursor() {
       height: 32,
       x: "-50%",
       y: "-50%",
-      background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8) 0%, rgba(100, 150, 255, 0.4) 40%, rgba(0, 0, 0, 0) 80%)",
+      background:
+        "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8) 0%, rgba(100, 150, 255, 0.4) 40%, rgba(0, 0, 0, 0) 80%)",
       backdropFilter: "blur(4px)",
-      boxShadow: "inset 0 0 10px rgba(255, 255, 255, 0.5), 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 20px rgba(100, 150, 255, 0.4)",
+      boxShadow:
+        "inset 0 0 10px rgba(255, 255, 255, 0.5), 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 20px rgba(100, 150, 255, 0.4)",
       border: "1px solid rgba(255, 255, 255, 0.4)",
       borderRadius: "50%",
       scale: 1,
@@ -141,9 +152,11 @@ export function InteractiveCursor() {
       height: 56,
       x: "-50%",
       y: "-50%",
-      background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(150, 200, 255, 0.5) 40%, rgba(0, 0, 0, 0) 80%)",
+      background:
+        "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9) 0%, rgba(150, 200, 255, 0.5) 40%, rgba(0, 0, 0, 0) 80%)",
       backdropFilter: "blur(8px)",
-      boxShadow: "inset 0 0 15px rgba(255, 255, 255, 0.6), 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 30px rgba(100, 150, 255, 0.6)",
+      boxShadow:
+        "inset 0 0 15px rgba(255, 255, 255, 0.6), 0 15px 30px rgba(0, 0, 0, 0.3), 0 0 30px rgba(100, 150, 255, 0.6)",
       border: "1px solid rgba(255, 255, 255, 0.6)",
       borderRadius: "50%",
       scale: 1.2,
@@ -170,7 +183,7 @@ export function InteractiveCursor() {
       boxShadow: "0 0 20px rgba(100, 150, 255, 0.4), inset 0 0 20px rgba(100, 150, 255, 0.4)",
       borderRadius: "50%",
       scale: 1.5,
-    }
+    },
   };
 
   return (
@@ -200,25 +213,37 @@ export function InteractiveCursor() {
       </motion.div>
 
       {/* Particle Trail */}
-      <ParticleTrail mouseX={smoothX} mouseY={smoothY} isVisible={isVisible && variant === "default"} />
+      <ParticleTrail
+        mouseX={smoothX}
+        mouseY={smoothY}
+        isVisible={isVisible && variant === "default"}
+      />
     </div>
   );
 }
 
-function ParticleTrail({ mouseX, mouseY, isVisible }: { mouseX: any, mouseY: any, isVisible: boolean }) {
+function ParticleTrail({
+  mouseX,
+  mouseY,
+  isVisible,
+}: {
+  mouseX: any;
+  mouseY: any;
+  isVisible: boolean;
+}) {
   const [particles, setParticles] = useState<{ id: number; x: number; y: number }[]>([]);
   const idRef = useRef(0);
   const lastEmitTime = useRef(0);
 
   useEffect(() => {
     if (!isVisible) return;
-    
+
     const unsubscribeX = mouseX.on("change", (x: number) => {
       const y = mouseY.get();
       const now = performance.now();
       if (now - lastEmitTime.current > 40) {
         const newParticle = { id: idRef.current++, x, y };
-        setParticles(p => [...p.slice(-15), newParticle]);
+        setParticles((p) => [...p.slice(-15), newParticle]);
         lastEmitTime.current = now;
       }
     });
@@ -229,7 +254,7 @@ function ParticleTrail({ mouseX, mouseY, isVisible }: { mouseX: any, mouseY: any
   return (
     <>
       <AnimatePresence>
-        {particles.map(p => (
+        {particles.map((p) => (
           <motion.div
             key={p.id}
             initial={{ opacity: 0.6, scale: 0.8, x: p.x - 4, y: p.y - 4 }}

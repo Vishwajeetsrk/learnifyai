@@ -291,7 +291,9 @@ function PricingPage() {
         </div>
       ) : error ? (
         <div className="space-y-3 rounded-3xl border border-destructive/20 bg-destructive/5 p-10 text-center">
-          <p className="text-lg font-semibold text-destructive">Pricing is currently unavailable.</p>
+          <p className="text-lg font-semibold text-destructive">
+            Pricing is currently unavailable.
+          </p>
           <p className="text-sm text-muted-foreground">
             We couldn&apos;t load the pricing details right now. Please refresh or try again later.
           </p>
@@ -390,9 +392,7 @@ function PricingPage() {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.6 }}
           >
-            <h3 className="text-xl font-bold text-center mb-8">
-              Frequently Asked Questions
-            </h3>
+            <h3 className="text-xl font-bold text-center mb-8">Frequently Asked Questions</h3>
             <div className="space-y-3">
               {FAQ_ITEMS.map((item, i) => (
                 <motion.div
@@ -516,9 +516,7 @@ function PricingCard({
   const yearlyPrice = Math.round(plan.price_inr * 12 * 0.8);
   const basePrice = plan.price_label.replace(/\/mo(nth)?$/i, "").trim();
   const displayPrice =
-    billingCycle === "yearly" && hasPrice
-      ? `₹${yearlyPrice.toLocaleString("en-IN")}`
-      : basePrice;
+    billingCycle === "yearly" && hasPrice ? `₹${yearlyPrice.toLocaleString("en-IN")}` : basePrice;
 
   return (
     <motion.div
@@ -605,9 +603,7 @@ function PricingCard({
 
           <h3 className="text-xl font-bold">{plan.name}</h3>
           {plan.description && (
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-              {plan.description}
-            </p>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{plan.description}</p>
           )}
 
           {/* Price */}
@@ -634,7 +630,7 @@ function PricingCard({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              Save ₹{((plan.price_inr * 12) - yearlyPrice).toLocaleString("en-IN")}/year
+              Save ₹{(plan.price_inr * 12 - yearlyPrice).toLocaleString("en-IN")}/year
             </motion.p>
           )}
 

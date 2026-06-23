@@ -43,8 +43,8 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       // Parse all cookies safely without truncating value at '=' characters
       const cookieHeader = request.headers.get("cookie") || "";
       const cookiesMap: Record<string, string> = {};
-      
-      cookieHeader.split(";").forEach(c => {
+
+      cookieHeader.split(";").forEach((c) => {
         const eqIndex = c.indexOf("=");
         if (eqIndex > -1) {
           cookiesMap[c.substring(0, eqIndex).trim()] = c.substring(eqIndex + 1).trim();
@@ -61,7 +61,8 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
       } else {
         // Find any sb- cookie that is NOT a refresh or provider token
         const sbKey = Object.keys(cookiesMap).find(
-          k => k.startsWith("sb-") && !k.endsWith("-refresh-token") && !k.endsWith("-provider-token")
+          (k) =>
+            k.startsWith("sb-") && !k.endsWith("-refresh-token") && !k.endsWith("-provider-token"),
         );
         if (sbKey) {
           token = cookiesMap[sbKey];
@@ -70,11 +71,7 @@ export const requireSupabaseAuth = createMiddleware({ type: "function" }).server
 
       // Fallback to specific cookie getter
       if (!token) {
-        const cookieNames = [
-          "sb-access-token",
-          "sb-auth-token",
-          "supabase-auth-token",
-        ];
+        const cookieNames = ["sb-access-token", "sb-auth-token", "supabase-auth-token"];
         for (const name of cookieNames) {
           const val = getCookie(name);
           if (val) {

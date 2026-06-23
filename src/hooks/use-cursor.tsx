@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
-export type CursorVariant = 
-  | "default" 
-  | "text" 
-  | "button" 
-  | "hidden" 
-  | "magnetic" 
-  | "grab" 
-  | "grabbing" 
+export type CursorVariant =
+  | "default"
+  | "text"
+  | "button"
+  | "hidden"
+  | "magnetic"
+  | "grab"
+  | "grabbing"
   | "loading"
   | "none"; // none means completely disabled (e.g. over monaco editor)
 
@@ -29,7 +29,7 @@ export function CursorProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // More reliable touch detection - check for touch support AND small screen
     const checkTouch = () => {
-      const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
       const isSmallScreen = window.innerWidth <= 768;
       // Only disable on actual touch-only devices (mobile/tablet), not touch-enabled laptops
       setIsTouchDevice(hasTouch && isSmallScreen);
@@ -40,7 +40,9 @@ export function CursorProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <CursorContext.Provider value={{ variant, setVariant, isTouchDevice, activeElement, setActiveElement }}>
+    <CursorContext.Provider
+      value={{ variant, setVariant, isTouchDevice, activeElement, setActiveElement }}
+    >
       {children}
     </CursorContext.Provider>
   );

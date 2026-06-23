@@ -6,7 +6,13 @@ import { validateFiles } from "@/lib/upload-validation";
 
 export { formatFileSize, formatSpeed, formatETA } from "@/lib/upload-validation";
 
-export type UploadStatus = "pending" | "uploading" | "processing" | "completed" | "failed" | "cancelled";
+export type UploadStatus =
+  | "pending"
+  | "uploading"
+  | "processing"
+  | "completed"
+  | "failed"
+  | "cancelled";
 
 export interface UploadItem {
   id: string;
@@ -127,25 +133,31 @@ export function useUpload(options: UseUploadOptions): UseUploadReturn {
 
       try {
         // Get current user
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) throw new Error("Not authenticated");
 
         // Build storage path
         const ext = item.file.name.split(".").pop() || "bin";
         const timestamp = Date.now();
         const fileName = `${timestamp}.${ext}`;
-        const filePath = pathPrefix ? `${pathPrefix}/${user.id}/${fileName}` : `${user.id}/${fileName}`;
+        const filePath = pathPrefix
+          ? `${pathPrefix}/${user.id}/${fileName}`
+          : `${user.id}/${fileName}`;
 
         // Get Supabase config for raw XHR upload (needed for progress events)
-        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-          ?? import.meta.env.NEXT_PUBLIC_SUPABASE_URL
-          ?? process.env.SUPABASE_URL
-          ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
-          ?? import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-          ?? process.env.SUPABASE_PUBLISHABLE_KEY
-          ?? process.env.SUPABASE_ANON_KEY
-          ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        const supabaseUrl =
+          import.meta.env.VITE_SUPABASE_URL ??
+          import.meta.env.NEXT_PUBLIC_SUPABASE_URL ??
+          process.env.SUPABASE_URL ??
+          process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey =
+          import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
+          import.meta.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+          process.env.SUPABASE_PUBLISHABLE_KEY ??
+          process.env.SUPABASE_ANON_KEY ??
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
         // Upload with progress tracking via XMLHttpRequest for progress events
         const url = await new Promise<string>((resolve, reject) => {
@@ -260,7 +272,11 @@ export function useUpload(options: UseUploadOptions): UseUploadReturn {
 
   const addFiles = useCallback(
     async (files: File[]) => {
-      const { valid, errors: validationErrors } = await validateFiles(files, config, itemsRef.current.size);
+      const { valid, errors: validationErrors } = await validateFiles(
+        files,
+        config,
+        itemsRef.current.size,
+      );
 
       if (validationErrors.length > 0) {
         setErrors((prev) => [...prev, ...validationErrors]);
@@ -337,13 +353,16 @@ export function useUpload(options: UseUploadOptions): UseUploadReturn {
     [updateItem, processQueue],
   );
 
-  const cancelItem = useCallback((id: string) => {
-    const item = itemsRef.current.get(id);
-    if (item) {
-      item.controller.abort();
-      updateItem(id, { status: "cancelled", speed: 0, eta: 0 });
-    }
-  }, [updateItem]);
+  const cancelItem = useCallback(
+    (id: string) => {
+      const item = itemsRef.current.get(id);
+      if (item) {
+        item.controller.abort();
+        updateItem(id, { status: "cancelled", speed: 0, eta: 0 });
+      }
+    },
+    [updateItem],
+  );
 
   const cancelAll = useCallback(() => {
     itemsRef.current.forEach((item) => {
@@ -371,9 +390,8 @@ export function useUpload(options: UseUploadOptions): UseUploadReturn {
 
   const isUploading = items.some((i) => i.status === "uploading" || i.status === "pending");
 
-  const totalProgress = items.length > 0
-    ? Math.round(items.reduce((sum, i) => sum + i.progress, 0) / items.length)
-    : 0;
+  const totalProgress =
+    items.length > 0 ? Math.round(items.reduce((sum, i) => sum + i.progress, 0) / items.length) : 0;
 
   return {
     items,

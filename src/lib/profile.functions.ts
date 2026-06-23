@@ -28,7 +28,9 @@ export const getPublicProfile = createServerFn({ method: "GET" })
         Object.keys(cookiesMap).find((k) => k.startsWith("sb-") && !k.endsWith("-refresh-token"));
       if (token) {
         try {
-          const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+          const {
+            data: { user },
+          } = await supabaseAdmin.auth.getUser(token);
           if (user) {
             currentUserId = user.id;
           }
@@ -84,7 +86,9 @@ export const getPublicProfile = createServerFn({ method: "GET" })
       (() => {
         let query = (supabaseAdmin as any)
           .from("playground_projects")
-          .select("id, title, description, language, template, is_public, tags, created_at, updated_at")
+          .select(
+            "id, title, description, language, template, is_public, tags, created_at, updated_at",
+          )
           .eq("user_id", id);
         if (currentUserId !== id) {
           query = query.eq("is_public", true);

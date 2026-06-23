@@ -107,21 +107,25 @@ function BillingPage() {
           "invoice_logo_url",
           "invoice_contact",
         ]);
-        
+
       const siteSettings: Record<string, string> = {};
       for (const r of siteSettingsQuery.data ?? []) siteSettings[r.key] = r.value || "";
 
       const companyName =
         profileBrand?.invoice_company_name || siteSettings.invoice_company_name || "Learnify AI";
       const legalName =
-        profileBrand?.invoice_legal_name || siteSettings.invoice_legal_name || "Learnify EdTech Pvt. Ltd.";
+        profileBrand?.invoice_legal_name ||
+        siteSettings.invoice_legal_name ||
+        "Learnify EdTech Pvt. Ltd.";
       const gstin = profileBrand?.invoice_gstin || siteSettings.invoice_gstin || "29XXXXX1234X1Z5";
       const footerText =
         profileBrand?.invoice_footer ||
         siteSettings.invoice_footer ||
         "This is a computer generated invoice and does not require a signature.";
       const logoUrl =
-        profileBrand?.invoice_logo_url || profileBrand?.org_logo_url || siteSettings.invoice_logo_url;
+        profileBrand?.invoice_logo_url ||
+        profileBrand?.org_logo_url ||
+        siteSettings.invoice_logo_url;
       const contact = profileBrand?.invoice_contact || siteSettings.invoice_contact;
 
       // Logo (if configured) — fetch and convert to base64
@@ -165,11 +169,7 @@ function BillingPage() {
       rightY += 8;
       doc.setFontSize(10);
       doc.setTextColor(50);
-      doc.text(
-        `Invoice Number: ${inv.invoice_number}`,
-        150,
-        rightY,
-      );
+      doc.text(`Invoice Number: ${inv.invoice_number}`, 150, rightY);
 
       rightY += 5;
       doc.text(
@@ -203,10 +203,12 @@ function BillingPage() {
       if (inv.line_items && Array.isArray(inv.line_items) && inv.line_items.length > 0) {
         tableBody = inv.line_items.map((item: any) => [
           item.description || "Subscription Charge",
-          `INR ${Number(item.amount || inv.amount_inr).toFixed(2)}`
+          `INR ${Number(item.amount || inv.amount_inr).toFixed(2)}`,
         ]);
       } else {
-        tableBody = [["Subscription Plan Purchase / Renewal", `INR ${Number(inv.amount_inr).toFixed(2)}`]];
+        tableBody = [
+          ["Subscription Plan Purchase / Renewal", `INR ${Number(inv.amount_inr).toFixed(2)}`],
+        ];
       }
 
       autoTable(doc, {
@@ -321,7 +323,9 @@ function BillingPage() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold">Billing & Subscription</h1>
-          <p className="text-muted-foreground mt-1">Manage your plan, invoices, and payment history.</p>
+          <p className="text-muted-foreground mt-1">
+            Manage your plan, invoices, and payment history.
+          </p>
         </div>
 
         {/* Current Plan Card */}
@@ -332,13 +336,9 @@ function BillingPage() {
                 <CreditCard className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold">
-                  {plan?.name || "Starter"} Plan
-                </h2>
+                <h2 className="text-lg font-semibold">{plan?.name || "Starter"} Plan</h2>
                 <p className="text-sm text-muted-foreground">
-                  {plan?.price_inr > 0
-                    ? `${inr(plan.price_inr)}/${plan.interval}`
-                    : "Free forever"}
+                  {plan?.price_inr > 0 ? `${inr(plan.price_inr)}/${plan.interval}` : "Free forever"}
                 </p>
               </div>
             </div>
@@ -392,9 +392,7 @@ function BillingPage() {
             <div>
               <p className="text-xs text-muted-foreground">Member Since</p>
               <p className="text-lg font-bold">
-                {sub?.created_at
-                  ? format(new Date(sub.created_at), "MMM d, yyyy")
-                  : "—"}
+                {sub?.created_at ? format(new Date(sub.created_at), "MMM d, yyyy") : "—"}
               </p>
             </div>
           </div>
@@ -421,11 +419,7 @@ function BillingPage() {
               </>
             )}
             {canResume && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setResumeDialogOpen(true)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setResumeDialogOpen(true)}>
                 <ArrowUpRight className="h-4 w-4 mr-1" />
                 Resume Subscription
               </Button>
@@ -490,9 +484,7 @@ function BillingPage() {
                         <div>
                           <p className="font-mono text-sm font-medium">{inv.invoice_number}</p>
                           <p className="text-xs text-muted-foreground">
-                            {inv.created_at
-                              ? format(new Date(inv.created_at), "MMM d, yyyy")
-                              : "—"}
+                            {inv.created_at ? format(new Date(inv.created_at), "MMM d, yyyy") : "—"}
                           </p>
                         </div>
                       </div>
@@ -561,9 +553,7 @@ function BillingPage() {
                             {(sub.plan as any)?.name || "Unknown Plan"}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {sub.created_at
-                              ? format(new Date(sub.created_at), "MMM d, yyyy")
-                              : "—"}
+                            {sub.created_at ? format(new Date(sub.created_at), "MMM d, yyyy") : "—"}
                           </p>
                         </div>
                       </div>
@@ -604,7 +594,10 @@ function BillingPage() {
           <div className="space-y-3 text-sm">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Check className="h-4 w-4 text-emerald-500" />
-              Access continues until {sub?.current_period_end ? format(new Date(sub.current_period_end), "MMM d, yyyy") : "period end"}
+              Access continues until{" "}
+              {sub?.current_period_end
+                ? format(new Date(sub.current_period_end), "MMM d, yyyy")
+                : "period end"}
             </div>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Check className="h-4 w-4 text-emerald-500" />

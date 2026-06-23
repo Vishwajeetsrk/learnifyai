@@ -270,7 +270,11 @@ export function CustomVideoPlayer({
       (window as any).onYouTubeIframeAPIReady = () => {
         const callbacks = (window as any)._ytReadyCallbacks || [];
         for (const cb of callbacks) {
-          try { cb(); } catch (err) { console.error("YT API callback error:", err); }
+          try {
+            cb();
+          } catch (err) {
+            console.error("YT API callback error:", err);
+          }
         }
         (window as any)._ytReadyCallbacks = [];
       };
@@ -729,7 +733,9 @@ export function CustomVideoPlayer({
                             key={s}
                             onClick={() => {
                               if (isLocked) {
-                                toast.info("Higher speeds are locked on this course. Upgrade or contact the instructor to unlock.");
+                                toast.info(
+                                  "Higher speeds are locked on this course. Upgrade or contact the instructor to unlock.",
+                                );
                               } else {
                                 handleSpeedChange(s);
                               }
@@ -743,8 +749,7 @@ export function CustomVideoPlayer({
                             }`}
                             title={isLocked ? "Speed locked" : undefined}
                           >
-                            {s}x
-                            {isLocked && <Lock className="h-2.5 w-2.5" />}
+                            {s}x{isLocked && <Lock className="h-2.5 w-2.5" />}
                           </button>
                         );
                       })}

@@ -61,33 +61,52 @@ interface PremiumDropzoneProps {
 
 function getFileIcon(category: string) {
   switch (category) {
-    case "image": return <FileImage className="h-5 w-5" />;
-    case "video": return <FileVideo className="h-5 w-5" />;
-    case "audio": return <FileAudio className="h-5 w-5" />;
-    case "document": return <FileText className="h-5 w-5" />;
-    case "archive": return <FileArchive className="h-5 w-5" />;
-    case "code": return <FileCode className="h-5 w-5" />;
-    default: return <File className="h-5 w-5" />;
+    case "image":
+      return <FileImage className="h-5 w-5" />;
+    case "video":
+      return <FileVideo className="h-5 w-5" />;
+    case "audio":
+      return <FileAudio className="h-5 w-5" />;
+    case "document":
+      return <FileText className="h-5 w-5" />;
+    case "archive":
+      return <FileArchive className="h-5 w-5" />;
+    case "code":
+      return <FileCode className="h-5 w-5" />;
+    default:
+      return <File className="h-5 w-5" />;
   }
 }
 
 function getStatusIcon(status: string) {
   switch (status) {
-    case "completed": return <Check className="h-4 w-4 text-emerald-500" />;
-    case "failed": return <AlertCircle className="h-4 w-4 text-red-500" />;
-    case "cancelled": return <X className="h-4 w-4 text-muted-foreground" />;
-    case "uploading": return <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />;
-    default: return <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30" />;
+    case "completed":
+      return <Check className="h-4 w-4 text-emerald-500" />;
+    case "failed":
+      return <AlertCircle className="h-4 w-4 text-red-500" />;
+    case "cancelled":
+      return <X className="h-4 w-4 text-muted-foreground" />;
+    case "uploading":
+      return (
+        <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+      );
+    default:
+      return <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30" />;
   }
 }
 
 function getStatusColor(status: string) {
   switch (status) {
-    case "completed": return "text-emerald-500";
-    case "failed": return "text-red-500";
-    case "cancelled": return "text-muted-foreground";
-    case "uploading": return "text-primary";
-    default: return "text-muted-foreground";
+    case "completed":
+      return "text-emerald-500";
+    case "failed":
+      return "text-red-500";
+    case "cancelled":
+      return "text-muted-foreground";
+    case "uploading":
+      return "text-primary";
+    default:
+      return "text-muted-foreground";
   }
 }
 
@@ -134,9 +153,7 @@ function FileCard({
             </div>
           </div>
         ) : (
-          <div className="text-muted-foreground">
-            {getFileIcon(item.category)}
-          </div>
+          <div className="text-muted-foreground">{getFileIcon(item.category)}</div>
         )}
         {/* Extension badge */}
         <span className="absolute bottom-0.5 right-0.5 text-[8px] font-bold bg-background/90 backdrop-blur-sm px-1 rounded">
@@ -148,7 +165,9 @@ function FileCard({
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium truncate">{item.sanitized_name}</p>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[11px] text-muted-foreground">{formatFileSize(item.total_bytes)}</span>
+          <span className="text-[11px] text-muted-foreground">
+            {formatFileSize(item.total_bytes)}
+          </span>
           {item.dimensions && (
             <span className="text-[11px] text-muted-foreground">
               {item.dimensions.width}x{item.dimensions.height}
@@ -156,7 +175,8 @@ function FileCard({
           )}
           {item.duration && item.duration > 0 && (
             <span className="text-[11px] text-muted-foreground">
-              {Math.floor(item.duration / 60)}:{String(Math.floor(item.duration % 60)).padStart(2, "0")}
+              {Math.floor(item.duration / 60)}:
+              {String(Math.floor(item.duration % 60)).padStart(2, "0")}
             </span>
           )}
         </div>
@@ -211,7 +231,9 @@ function FileCard({
           </Button>
         )}
 
-        {(item.status === "completed" || item.status === "failed" || item.status === "cancelled") && (
+        {(item.status === "completed" ||
+          item.status === "failed" ||
+          item.status === "cancelled") && (
           <Button
             variant="ghost"
             size="icon"
@@ -377,7 +399,10 @@ export function PremiumDropzone({
       {isUploading && items.length > 1 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Uploading {items.filter((i) => i.status === "uploading").length} of {items.length} files</span>
+            <span className="text-muted-foreground">
+              Uploading {items.filter((i) => i.status === "uploading").length} of {items.length}{" "}
+              files
+            </span>
             <span className="font-medium">{totalProgress}%</span>
           </div>
           <Progress value={totalProgress} className="h-2" />

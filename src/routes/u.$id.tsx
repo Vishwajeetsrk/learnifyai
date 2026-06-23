@@ -37,12 +37,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDistanceToNow } from "date-fns";
 import { format } from "date-fns";
@@ -184,7 +179,10 @@ function ProjectCard({
                   if (!editProjectTitle.trim()) return toast.error("Title required");
                   const { error } = await supabase
                     .from("playground_projects" as any)
-                    .update({ title: editProjectTitle.trim(), description: editProjectDescription.trim() })
+                    .update({
+                      title: editProjectTitle.trim(),
+                      description: editProjectDescription.trim(),
+                    })
                     .eq("id", project.id);
                   if (error) return toast.error(error.message);
                   toast.success("Project updated");
@@ -231,10 +229,14 @@ function ProjectCard({
                   <div className="space-y-1">
                     <p className="text-[10px] font-semibold mb-1">Liked by:</p>
                     {project.project_likes.slice(0, 5).map((l: any) => (
-                      <p key={l.id} className="text-[10px]">{l.user?.full_name || "User"}</p>
+                      <p key={l.id} className="text-[10px]">
+                        {l.user?.full_name || "User"}
+                      </p>
                     ))}
                     {project.project_likes.length > 5 && (
-                      <p className="text-[10px] text-muted-foreground">+{project.project_likes.length - 5} more</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        +{project.project_likes.length - 5} more
+                      </p>
                     )}
                   </div>
                 ) : (
@@ -278,10 +280,7 @@ function PublicProfilePage() {
 
   const deletePost = async (postId: string) => {
     if (!window.confirm("Delete this post?")) return;
-    const { error } = await supabase
-      .from("posts")
-      .delete()
-      .eq("id", postId);
+    const { error } = await supabase.from("posts").delete().eq("id", postId);
     if (error) {
       toast.error("Failed to delete post");
     } else {
@@ -391,15 +390,19 @@ function PublicProfilePage() {
     <AppShell>
       <div className="max-w-6xl mx-auto pb-10">
         {/* Banner */}
-        <div className="h-48 md:h-56 lg:h-64 w-full bg-muted relative overflow-hidden">
-          {profile.banner_url ? (
-            <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" loading="lazy" decoding="async" />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-r from-primary/20 to-primary/5" />
-          )}
-          {/* Gradient overlay for readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-        </div>
+        {profile.banner_url && profile.show_banner !== false ? (
+          <div className="h-48 md:h-56 lg:h-64 w-full bg-muted relative overflow-hidden">
+            <img
+              src={profile.banner_url}
+              alt="Banner"
+              className="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+            {/* Gradient overlay for readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+          </div>
+        ) : null}
 
         {/* Profile Info */}
         <div className="px-4 sm:px-6 lg:px-10 -mt-16 relative z-10">
@@ -421,7 +424,10 @@ function PublicProfilePage() {
             </div>
 
             <div className="flex-1 min-w-0 mt-4 sm:mt-0 mb-1 bg-background/80 backdrop-blur-sm rounded-2xl p-3 sm:p-0 sm:bg-transparent sm:backdrop-blur-none">
-              <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight" style={{ color: (profile as any).name_color || undefined }}>
+              <h1
+                className="font-display text-2xl sm:text-3xl font-bold tracking-tight"
+                style={{ color: (profile as any).name_color || undefined }}
+              >
                 {name}
               </h1>
 
@@ -647,7 +653,7 @@ function PublicProfilePage() {
                                   })}
                                 </div>
                               </div>
-                               <div className="ml-auto flex items-center gap-3 text-muted-foreground">
+                              <div className="ml-auto flex items-center gap-3 text-muted-foreground">
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -658,12 +664,18 @@ function PublicProfilePage() {
                                     <TooltipContent side="bottom" className="max-w-[200px]">
                                       {post.likes?.length > 0 ? (
                                         <div className="space-y-1">
-                                          <p className="text-[10px] font-semibold mb-1">Liked by:</p>
+                                          <p className="text-[10px] font-semibold mb-1">
+                                            Liked by:
+                                          </p>
                                           {post.likes.slice(0, 5).map((l: any) => (
-                                            <p key={l.id} className="text-[10px]">{l.user?.full_name || "User"}</p>
+                                            <p key={l.id} className="text-[10px]">
+                                              {l.user?.full_name || "User"}
+                                            </p>
                                           ))}
                                           {post.likes.length > 5 && (
-                                            <p className="text-[10px] text-muted-foreground">+{post.likes.length - 5} more</p>
+                                            <p className="text-[10px] text-muted-foreground">
+                                              +{post.likes.length - 5} more
+                                            </p>
                                           )}
                                         </div>
                                       ) : (
@@ -673,7 +685,9 @@ function PublicProfilePage() {
                                   </Tooltip>
                                 </TooltipProvider>
                                 <button
-                                  onClick={() => setExpandedPostId(expandedPostId === post.id ? null : post.id)}
+                                  onClick={() =>
+                                    setExpandedPostId(expandedPostId === post.id ? null : post.id)
+                                  }
                                   className="flex items-center gap-1 text-[10px] hover:text-primary transition-colors"
                                 >
                                   <MessageSquare className="h-3 w-3" /> {post.comments?.length ?? 0}
@@ -742,7 +756,8 @@ function PublicProfilePage() {
                                     size="sm"
                                     className="h-7 text-[10px]"
                                     onClick={async () => {
-                                      if (!editContent.trim()) return toast.error("Content cannot be empty");
+                                      if (!editContent.trim())
+                                        return toast.error("Content cannot be empty");
                                       const { error } = await supabase
                                         .from("posts")
                                         .update({ content: editContent.trim() })
@@ -798,7 +813,10 @@ function PublicProfilePage() {
                                   post.comments.map((comment: any) => {
                                     const isCommentAuthor = user?.id === comment.author_id;
                                     return (
-                                      <div key={comment.id} className="flex gap-2 text-[11px] group">
+                                      <div
+                                        key={comment.id}
+                                        className="flex gap-2 text-[11px] group"
+                                      >
                                         <Avatar className="h-5 w-5 mt-0.5 shrink-0">
                                           <AvatarImage src={comment.author?.avatar_url} />
                                           <AvatarFallback className="text-[8px]">
@@ -807,9 +825,16 @@ function PublicProfilePage() {
                                         </Avatar>
                                         <div className="flex-1 min-w-0">
                                           <div className="flex items-center gap-1.5 mb-0.5">
-                                            <span className="font-semibold">{comment.author?.full_name || "User"}</span>
+                                            <span className="font-semibold">
+                                              {comment.author?.full_name || "User"}
+                                            </span>
                                             <span className="text-muted-foreground">
-                                              {comment.created_at ? formatDistanceToNow(new Date(comment.created_at), { addSuffix: true }) : ""}
+                                              {comment.created_at
+                                                ? formatDistanceToNow(
+                                                    new Date(comment.created_at),
+                                                    { addSuffix: true },
+                                                  )
+                                                : ""}
                                             </span>
                                             {isCommentAuthor && (
                                               <button
@@ -836,7 +861,8 @@ function PublicProfilePage() {
                                                   size="sm"
                                                   className="h-6 text-[9px] px-2"
                                                   onClick={async () => {
-                                                    if (!editCommentText.trim()) return toast.error("Comment cannot be empty");
+                                                    if (!editCommentText.trim())
+                                                      return toast.error("Comment cannot be empty");
                                                     const { error } = await supabase
                                                       .from("post_comments" as any)
                                                       .update({ content: editCommentText.trim() })
@@ -844,7 +870,9 @@ function PublicProfilePage() {
                                                     if (error) return toast.error(error.message);
                                                     toast.success("Comment updated");
                                                     setEditingCommentId(null);
-                                                    qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                                                    qc.invalidateQueries({
+                                                      queryKey: ["public-profile", id],
+                                                    });
                                                   }}
                                                 >
                                                   Save
@@ -867,7 +895,9 @@ function PublicProfilePage() {
                                     );
                                   })
                                 ) : (
-                                  <p className="text-[10px] text-muted-foreground text-center py-2">No comments yet</p>
+                                  <p className="text-[10px] text-muted-foreground text-center py-2">
+                                    No comments yet
+                                  </p>
                                 )}
                                 {/* Add comment input */}
                                 <div className="flex gap-2 items-end">
@@ -883,11 +913,13 @@ function PublicProfilePage() {
                                     className="h-8 text-[10px] px-3"
                                     onClick={async () => {
                                       if (!user || !commentText.trim()) return;
-                                      const { error } = await supabase.from("post_comments" as any).insert({
-                                        post_id: post.id,
-                                        author_id: user.id,
-                                        content: commentText.trim(),
-                                      });
+                                      const { error } = await supabase
+                                        .from("post_comments" as any)
+                                        .insert({
+                                          post_id: post.id,
+                                          author_id: user.id,
+                                          content: commentText.trim(),
+                                        });
                                       if (error) return toast.error("Failed to add comment");
                                       setCommentText("");
                                       qc.invalidateQueries({ queryKey: ["public-profile", id] });
@@ -1060,7 +1092,10 @@ function PublicProfilePage() {
                                     if (e.key === "Enter" && editSkillValue.trim()) {
                                       const updated = [...(profile.skills || [])];
                                       updated[idx] = editSkillValue.trim();
-                                      supabase.from("profiles").update({ skills: updated }).eq("id", user!.id);
+                                      supabase
+                                        .from("profiles")
+                                        .update({ skills: updated })
+                                        .eq("id", user!.id);
                                       setEditingSkillIdx(null);
                                       qc.invalidateQueries({ queryKey: ["public-profile", id] });
                                     }
@@ -1072,7 +1107,10 @@ function PublicProfilePage() {
                                     if (!editSkillValue.trim()) return;
                                     const updated = [...(profile.skills || [])];
                                     updated[idx] = editSkillValue.trim();
-                                    await supabase.from("profiles").update({ skills: updated }).eq("id", user!.id);
+                                    await supabase
+                                      .from("profiles")
+                                      .update({ skills: updated })
+                                      .eq("id", user!.id);
                                     setEditingSkillIdx(null);
                                     qc.invalidateQueries({ queryKey: ["public-profile", id] });
                                   }}
@@ -1097,8 +1135,13 @@ function PublicProfilePage() {
                                     </button>
                                     <button
                                       onClick={async () => {
-                                        const updated = (profile.skills || []).filter((_: string, i: number) => i !== idx);
-                                        await supabase.from("profiles").update({ skills: updated }).eq("id", user!.id);
+                                        const updated = (profile.skills || []).filter(
+                                          (_: string, i: number) => i !== idx,
+                                        );
+                                        await supabase
+                                          .from("profiles")
+                                          .update({ skills: updated })
+                                          .eq("id", user!.id);
                                         qc.invalidateQueries({ queryKey: ["public-profile", id] });
                                       }}
                                       className="opacity-0 group-hover/skill:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
@@ -1121,7 +1164,10 @@ function PublicProfilePage() {
                               onKeyDown={async (e) => {
                                 if (e.key === "Enter" && newSkill.trim()) {
                                   const updated = [...(profile.skills || []), newSkill.trim()];
-                                  await supabase.from("profiles").update({ skills: updated }).eq("id", user!.id);
+                                  await supabase
+                                    .from("profiles")
+                                    .update({ skills: updated })
+                                    .eq("id", user!.id);
                                   setNewSkill("");
                                   qc.invalidateQueries({ queryKey: ["public-profile", id] });
                                 }
@@ -1131,7 +1177,10 @@ function PublicProfilePage() {
                               onClick={async () => {
                                 if (!newSkill.trim()) return;
                                 const updated = [...(profile.skills || []), newSkill.trim()];
-                                await supabase.from("profiles").update({ skills: updated }).eq("id", user!.id);
+                                await supabase
+                                  .from("profiles")
+                                  .update({ skills: updated })
+                                  .eq("id", user!.id);
                                 setNewSkill("");
                                 qc.invalidateQueries({ queryKey: ["public-profile", id] });
                               }}

@@ -29,15 +29,43 @@ export interface ValidationError {
 }
 
 const DANGEROUS_EXTENSIONS = new Set([
-  "exe", "bat", "cmd", "com", "msi", "scr", "pif", "vbs", "js", "jse",
-  "wsf", "wsh", "ps1", "reg", "inf", "lnk", "hta", "cpl", "msp",
-  "mst", "gadget", "application",
+  "exe",
+  "bat",
+  "cmd",
+  "com",
+  "msi",
+  "scr",
+  "pif",
+  "vbs",
+  "js",
+  "jse",
+  "wsf",
+  "wsh",
+  "ps1",
+  "reg",
+  "inf",
+  "lnk",
+  "hta",
+  "cpl",
+  "msp",
+  "mst",
+  "gadget",
+  "application",
 ]);
 
-const DOUBLE_EXTENSION_PATTERN = /\.(jpg|jpeg|png|gif|bmp|tiff|svg|webp|pdf|doc|docx|xls|xlsx|ppt|pptx)\.(exe|bat|cmd|com|scr|pif|vbs|js|wsf|wsh|ps1|hta|gadget)$/i;
+const DOUBLE_EXTENSION_PATTERN =
+  /\.(jpg|jpeg|png|gif|bmp|tiff|svg|webp|pdf|doc|docx|xls|xlsx|ppt|pptx)\.(exe|bat|cmd|com|scr|pif|vbs|js|wsf|wsh|ps1|hta|gadget)$/i;
 
 const MIME_MAP: Record<string, string[]> = {
-  "image/*": ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml", "image/bmp", "image/tiff"],
+  "image/*": [
+    "image/png",
+    "image/jpeg",
+    "image/gif",
+    "image/webp",
+    "image/svg+xml",
+    "image/bmp",
+    "image/tiff",
+  ],
   "video/*": ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo", "video/x-matroska"],
   "audio/*": ["audio/mpeg", "audio/wav", "audio/ogg", "audio/webm", "audio/aac", "audio/flac"],
   ".pdf": ["application/pdf"],
@@ -91,10 +119,25 @@ function getCategoryFromMime(mime: string): FileCategory {
   if (mime.startsWith("image/")) return "image";
   if (mime.startsWith("video/")) return "video";
   if (mime.startsWith("audio/")) return "audio";
-  if (mime.includes("pdf") || mime.includes("word") || mime.includes("document") ||
-      mime.includes("sheet") || mime.includes("presentation") || mime.includes("text/")) return "document";
-  if (mime.includes("zip") || mime.includes("rar") || mime.includes("tar") || mime.includes("gz")) return "archive";
-  if (mime.includes("javascript") || mime.includes("json") || mime.includes("xml") || mime.includes("html") || mime.includes("css")) return "code";
+  if (
+    mime.includes("pdf") ||
+    mime.includes("word") ||
+    mime.includes("document") ||
+    mime.includes("sheet") ||
+    mime.includes("presentation") ||
+    mime.includes("text/")
+  )
+    return "document";
+  if (mime.includes("zip") || mime.includes("rar") || mime.includes("tar") || mime.includes("gz"))
+    return "archive";
+  if (
+    mime.includes("javascript") ||
+    mime.includes("json") ||
+    mime.includes("xml") ||
+    mime.includes("html") ||
+    mime.includes("css")
+  )
+    return "code";
   return "other";
 }
 
@@ -220,13 +263,21 @@ export async function validateFiles(
     // Check extension for dangerous types
     const ext = getFileExtension(file.name);
     if (DANGEROUS_EXTENSIONS.has(ext)) {
-      errors.push({ file, code: "DANGEROUS_FILE", message: `.${ext} files are not allowed for security reasons` });
+      errors.push({
+        file,
+        code: "DANGEROUS_FILE",
+        message: `.${ext} files are not allowed for security reasons`,
+      });
       continue;
     }
 
     // Check double extension
     if (DOUBLE_EXTENSION_PATTERN.test(file.name)) {
-      errors.push({ file, code: "DOUBLE_EXTENSION", message: "Suspicious double extension detected" });
+      errors.push({
+        file,
+        code: "DOUBLE_EXTENSION",
+        message: "Suspicious double extension detected",
+      });
       continue;
     }
 
@@ -274,7 +325,10 @@ export async function validateFiles(
         validated.dimensions = dims;
 
         if (config.minDimensions) {
-          if (dims.width < config.minDimensions.width || dims.height < config.minDimensions.height) {
+          if (
+            dims.width < config.minDimensions.width ||
+            dims.height < config.minDimensions.height
+          ) {
             errors.push({
               file,
               code: "IMAGE_TOO_SMALL",
@@ -285,7 +339,10 @@ export async function validateFiles(
         }
 
         if (config.maxDimensions) {
-          if (dims.width > config.maxDimensions.width || dims.height > config.maxDimensions.height) {
+          if (
+            dims.width > config.maxDimensions.width ||
+            dims.height > config.maxDimensions.height
+          ) {
             errors.push({
               file,
               code: "IMAGE_TOO_LARGE",
@@ -361,7 +418,24 @@ export const STORAGE_CONFIGS: Record<string, FileValidationConfig> = {
   },
   playground: {
     maxSize: 10 * 1024 * 1024, // 10MB
-    accept: [".js", ".ts", ".tsx", ".jsx", ".json", ".html", ".css", ".py", ".java", ".c", ".cpp", ".go", ".rs", ".md", ".txt", ".zip"],
+    accept: [
+      ".js",
+      ".ts",
+      ".tsx",
+      ".jsx",
+      ".json",
+      ".html",
+      ".css",
+      ".py",
+      ".java",
+      ".c",
+      ".cpp",
+      ".go",
+      ".rs",
+      ".md",
+      ".txt",
+      ".zip",
+    ],
     maxFiles: 50,
   },
   cert_template: {

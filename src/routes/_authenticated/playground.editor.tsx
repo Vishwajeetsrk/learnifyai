@@ -33,8 +33,12 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 // Lazy load heavy IDE components (Sandpack ~2MB + Monaco ~10MB)
-const WebIDE = lazy(() => import("@/components/playground/WebIDE").then((m) => ({ default: m.WebIDE })));
-const StandardIDE = lazy(() => import("@/components/playground/StandardIDE").then((m) => ({ default: m.StandardIDE })));
+const WebIDE = lazy(() =>
+  import("@/components/playground/WebIDE").then((m) => ({ default: m.WebIDE })),
+);
+const StandardIDE = lazy(() =>
+  import("@/components/playground/StandardIDE").then((m) => ({ default: m.StandardIDE })),
+);
 
 const searchSchema = z.object({ project: z.string().optional() });
 

@@ -42,6 +42,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { savePlan, deletePlan, syncPlanToCashfree } from "@/lib/subscription.functions";
+import { adminContentAction, adminContentUpsert } from "@/lib/admin-content.functions";
 import {
   Select,
   SelectContent,
@@ -293,6 +294,7 @@ function EventsManager() {
   const [editing, setEditing] = useState<EventRow | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const doAdminAction = useServerFn(adminContentAction);
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["admin-events"],
@@ -321,8 +323,11 @@ function EventsManager() {
 
   const removeEvent = async () => {
     if (!deleteId) return;
-    const { error } = await supabase.from("events").delete().eq("id", deleteId);
-    if (error) return toast.error(error.message);
+    try {
+      await doAdminAction({ data: { table: "events", action: "delete", id: deleteId } });
+    } catch (e: any) {
+      return toast.error(e?.message || "Delete failed");
+    }
     toast.success("Event deleted");
     setDeleteId(null);
     qc.invalidateQueries({ queryKey: ["admin-events"] });
@@ -433,6 +438,7 @@ function EventDialog({
 }) {
   const [form, setForm] = useState<EventRow | null>(event);
   const [saving, setSaving] = useState(false);
+  const doAdminAction = useServerFn(adminContentAction);
 
   useEffect(() => {
     setForm(event);
@@ -454,11 +460,18 @@ function EventDialog({
       rsvp_url: form.rsvp_url?.trim() || null,
       image_url: form.image_url?.trim() || null,
     };
-    const { error } = form.id
-      ? await supabase.from("events").update(payload).eq("id", form.id)
-      : await supabase.from("events").insert(payload);
+    try {
+      if (form.id) {
+        await doAdminAction({ data: { table: "events", action: "update", id: form.id, data: payload } });
+      } else {
+        await doAdminAction({ data: { table: "events", action: "insert", data: payload } });
+      }
+    } catch (e: any) {
+      setSaving(false);
+      console.error("[EventsManager] Save error:", e);
+      return toast.error(e?.message || "Save failed");
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success(form.id ? "Event updated" : "Event created");
     onSaved();
     onOpenChange(false);
@@ -560,6 +573,7 @@ function JobsManager() {
   const [editing, setEditing] = useState<JobRow | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const doAdminAction = useServerFn(adminContentAction);
 
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ["admin-jobs"],
@@ -589,8 +603,11 @@ function JobsManager() {
 
   const removeJob = async () => {
     if (!deleteId) return;
-    const { error } = await supabase.from("job_postings").delete().eq("id", deleteId);
-    if (error) return toast.error(error.message);
+    try {
+      await doAdminAction({ data: { table: "job_postings", action: "delete", id: deleteId } });
+    } catch (e: any) {
+      return toast.error(e?.message || "Delete failed");
+    }
     toast.success("Job deleted");
     setDeleteId(null);
     qc.invalidateQueries({ queryKey: ["admin-jobs"] });
@@ -695,6 +712,7 @@ function JobDialog({
 }) {
   const [form, setForm] = useState<JobRow | null>(job);
   const [saving, setSaving] = useState(false);
+  const doAdminAction = useServerFn(adminContentAction);
 
   useEffect(() => {
     setForm(job);
@@ -717,11 +735,18 @@ function JobDialog({
       active: form.active,
       closes_at: form.closes_at ? new Date(form.closes_at).toISOString() : null,
     };
-    const { error } = form.id
-      ? await supabase.from("job_postings").update(payload).eq("id", form.id)
-      : await supabase.from("job_postings").insert(payload);
+    try {
+      if (form.id) {
+        await doAdminAction({ data: { table: "job_postings", action: "update", id: form.id, data: payload } });
+      } else {
+        await doAdminAction({ data: { table: "job_postings", action: "insert", data: payload } });
+      }
+    } catch (e: any) {
+      setSaving(false);
+      console.error("[JobsManager] Save error:", e);
+      return toast.error(e?.message || "Save failed");
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success(form.id ? "Job updated" : "Job created");
     onSaved();
     onOpenChange(false);
@@ -945,7 +970,6 @@ function PricingManager() {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 shrink-0 w-full sm:w-auto">
-
                   <Button
                     size="sm"
                     variant="outline"
@@ -1258,6 +1282,8 @@ function SiteSettingsManager() {
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
   const [saving, setSaving] = useState(false);
+  const doAdminAction = useServerFn(adminContentAction);
+  const doUpsert = useServerFn(adminContentUpsert);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-site-settings"],
@@ -1289,9 +1315,13 @@ function SiteSettingsManager() {
     const rows = settingKeys
       .filter((key) => key.trim())
       .map((key) => ({ key: key.trim(), value: values[key] ?? "" }));
-    const { error } = await supabase.from("site_settings").upsert(rows, { onConflict: "key" });
+    try {
+      await doUpsert({ data: { table: "site_settings", data: rows, onConflict: "key" } });
+    } catch (e: any) {
+      setSaving(false);
+      return toast.error(e?.message || "Save failed");
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success("Site settings saved");
     qc.invalidateQueries({ queryKey: ["admin-site-settings"] });
     qc.invalidateQueries({ queryKey: ["site-settings"] });
@@ -1305,11 +1335,13 @@ function SiteSettingsManager() {
     if (!key) return toast.error("Setting key is required");
     if (values[key] !== undefined) return toast.error("That setting already exists");
     setSaving(true);
-    const { error } = await supabase
-      .from("site_settings")
-      .upsert({ key, value: newValue }, { onConflict: "key" });
+    try {
+      await doUpsert({ data: { table: "site_settings", data: { key, value: newValue }, onConflict: "key" } });
+    } catch (e: any) {
+      setSaving(false);
+      return toast.error(e?.message || "Add failed");
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
     setValues({ ...values, [key]: newValue });
     setNewKey("");
     setNewValue("");
@@ -1320,8 +1352,11 @@ function SiteSettingsManager() {
 
   const deleteSetting = async (key: string) => {
     if (!window.confirm(`Delete ${key}?`)) return;
-    const { error } = await supabase.from("site_settings").delete().eq("key", key);
-    if (error) return toast.error(error.message);
+    try {
+      await doAdminAction({ data: { table: "site_settings", action: "delete", id: key, matchKey: "key" } });
+    } catch (e: any) {
+      return toast.error(e?.message || "Delete failed");
+    }
     const next = { ...values };
     delete next[key];
     setValues(next);
@@ -1420,6 +1455,7 @@ function CertTemplatesManager() {
   const [editing, setEditing] = useState<TemplateRow | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const doAdminAction = useServerFn(adminContentAction);
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ["admin-cert-templates"],
@@ -1440,16 +1476,22 @@ function CertTemplatesManager() {
 
   const loadPresets = async () => {
     const presets = buildPresetTemplates();
-    const { error } = await supabase.from("certificate_templates").insert(presets as any);
-    if (error) return toast.error(error.message);
+    try {
+      await doAdminAction({ data: { table: "certificate_templates", action: "insert", data: presets } });
+    } catch (e: any) {
+      return toast.error(e?.message || "Failed to load presets");
+    }
     toast.success(`${presets.length} preset templates added`);
     qc.invalidateQueries({ queryKey: ["admin-cert-templates"] });
   };
 
   const removeTemplate = async () => {
     if (!deleteId) return;
-    const { error } = await supabase.from("certificate_templates").delete().eq("id", deleteId);
-    if (error) return toast.error(error.message);
+    try {
+      await doAdminAction({ data: { table: "certificate_templates", action: "delete", id: deleteId } });
+    } catch (e: any) {
+      return toast.error(e?.message || "Delete failed");
+    }
     toast.success("Template deleted");
     setDeleteId(null);
     qc.invalidateQueries({ queryKey: ["admin-cert-templates"] });
@@ -1493,8 +1535,11 @@ function CertTemplatesManager() {
         const { id, created_by, created_at, updated_at, is_default, ...rest } = r ?? {};
         return { ...rest, name: String(rest.name ?? "Imported template"), is_default: false };
       });
-      const { error } = await supabase.from("certificate_templates").insert(clean as any);
-      if (error) return toast.error(error.message);
+      try {
+        await doAdminAction({ data: { table: "certificate_templates", action: "insert", data: clean } });
+      } catch (e: any) {
+        return toast.error(e?.message || "Import failed");
+      }
       toast.success(`Imported ${clean.length} template(s)`);
       qc.invalidateQueries({ queryKey: ["admin-cert-templates"] });
     } catch (e: any) {
@@ -1642,6 +1687,7 @@ function TemplateDialog({
   const [form, setForm] = useState<TemplateRow | null>(template);
   const [saving, setSaving] = useState(false);
   const [fullPreviewOpen, setFullPreviewOpen] = useState(false);
+  const doAdminAction = useServerFn(adminContentAction);
 
   useEffect(() => {
     setForm(template);
@@ -1680,11 +1726,17 @@ function TemplateDialog({
       accent_color_2: form.accent_color_2 || null,
       layout: form.layout ?? "classic",
     };
-    const { error } = form.id
-      ? await supabase.from("certificate_templates").update(payload).eq("id", form.id)
-      : await supabase.from("certificate_templates").insert(payload);
+    try {
+      if (form.id) {
+        await doAdminAction({ data: { table: "certificate_templates", action: "update", id: form.id, data: payload } });
+      } else {
+        await doAdminAction({ data: { table: "certificate_templates", action: "insert", data: payload } });
+      }
+    } catch (e: any) {
+      setSaving(false);
+      return toast.error(e?.message || "Save failed");
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success(form.id ? "Template updated" : "Template created");
     onSaved();
     onOpenChange(false);
@@ -2422,6 +2474,7 @@ function FaqsManager() {
   const [editing, setEditing] = useState<FaqRow | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const doAdminAction = useServerFn(adminContentAction);
 
   const { data: faqs = [], isLoading } = useQuery({
     queryKey: ["admin-faqs"],
@@ -2450,8 +2503,11 @@ function FaqsManager() {
 
   const remove = async () => {
     if (!deleteId) return;
-    const { error } = await supabase.from("faqs").delete().eq("id", deleteId);
-    if (error) return toast.error(error.message);
+    try {
+      await doAdminAction({ data: { table: "faqs", action: "delete", id: deleteId } });
+    } catch (e: any) {
+      return toast.error(e?.message || "Delete failed");
+    }
     toast.success("FAQ deleted");
     setDeleteId(null);
     qc.invalidateQueries({ queryKey: ["admin-faqs"] });
@@ -2555,6 +2611,7 @@ function FaqDialog({
 }) {
   const [form, setForm] = useState<FaqRow | null>(faq);
   const [saving, setSaving] = useState(false);
+  const doAdminAction = useServerFn(adminContentAction);
   useEffect(() => {
     setForm(faq);
   }, [faq]);
@@ -2571,11 +2628,18 @@ function FaqDialog({
       order_index: form.order_index,
       published: form.published,
     };
-    const { error } = form.id
-      ? await supabase.from("faqs").update(payload).eq("id", form.id)
-      : await supabase.from("faqs").insert(payload);
+    try {
+      if (form.id) {
+        await doAdminAction({ data: { table: "faqs", action: "update", id: form.id, data: payload } });
+      } else {
+        await doAdminAction({ data: { table: "faqs", action: "insert", data: payload } });
+      }
+    } catch (e: any) {
+      setSaving(false);
+      console.error("[FAQsManager] Save error:", e);
+      return toast.error(e?.message || "Save failed");
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success(form.id ? "FAQ updated" : "FAQ created");
     onSaved();
     onOpenChange(false);
@@ -3130,6 +3194,7 @@ function CohortsManager() {
   const [editing, setEditing] = useState<CohortRow | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const doAdminAction = useServerFn(adminContentAction);
 
   const { data: cohorts = [], isLoading } = useQuery({
     queryKey: ["admin-cohorts"],
@@ -3150,6 +3215,8 @@ function CohortsManager() {
       title: "",
       description: "",
       kind: "study_group",
+
+
       starts_at: new Date().toISOString().slice(0, 16),
       capacity: 50,
       status: "draft",
@@ -3161,8 +3228,11 @@ function CohortsManager() {
 
   const removeCohort = async () => {
     if (!deleteId) return;
-    const { error } = await supabase.from("cohorts").delete().eq("id", deleteId);
-    if (error) return toast.error(error.message);
+    try {
+      await doAdminAction({ data: { table: "cohorts", action: "delete", id: deleteId } });
+    } catch (e: any) {
+      return toast.error(e?.message || "Delete failed");
+    }
     toast.success("Cohort deleted");
     setDeleteId(null);
     qc.invalidateQueries({ queryKey: ["admin-cohorts"] });
@@ -3272,9 +3342,9 @@ function CohortDialog({
   cohort: CohortRow | null;
   onSaved: () => void;
 }) {
-  const { user } = useAuth();
   const [form, setForm] = useState<CohortRow | null>(cohort);
   const [saving, setSaving] = useState(false);
+  const doAdminAction = useServerFn(adminContentAction);
 
   useEffect(() => {
     setForm(cohort);
@@ -3297,13 +3367,17 @@ function CohortDialog({
       status: form.status,
       group_link: form.group_link?.trim() || null,
     };
-    const { error } = form.id
-      ? await (supabase as any).from("cohorts").update(payload).eq("id", form.id)
-      : await (supabase as any)
-          .from("cohorts")
-          .insert({ ...payload, creator_id: form.creator_id || user?.id || "" });
+    try {
+      if (form.id) {
+        await doAdminAction({ data: { table: "cohorts", action: "update", id: form.id, data: payload } });
+      } else {
+        await doAdminAction({ data: { table: "cohorts", action: "insert", data: { ...payload, creator_id: "" } } });
+      }
+    } catch (e: any) {
+      setSaving(false);
+      return toast.error(e?.message || "Save failed");
+    }
     setSaving(false);
-    if (error) return toast.error(error.message);
     toast.success(form.id ? "Group updated" : "Group created");
     onSaved();
     onOpenChange(false);

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { saveProfileField } from "@/lib/profile-save.functions";
 import {
   Loader2,
   Upload,
@@ -142,7 +143,9 @@ function SettingsPage() {
   const [education, setEducation] = useState("");
   const [website, setWebsite] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
+  const [customSkill, setCustomSkill] = useState<string>("");
   const [links, setLinks] = useState<SocialLinks>({});
+  const [showBanner, setShowBanner] = useState<boolean>(true);
   const [nameColor, setNameColor] = useState<string>("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -188,10 +191,22 @@ function SettingsPage() {
 
   function buildCartoonUrl(overrides: any = {}) {
     const s = {
-      selectedStyle, seed, skinColor, hairGender, hairStyle, hairColor,
-      mouthStyle, eyesStyle, clothingStyle, clothingColor, accessoriesStyle,
-      eyebrowsStyle, noseStyle, profileBorder, avatarBackgroundColor,
-      ...overrides
+      selectedStyle,
+      seed,
+      skinColor,
+      hairGender,
+      hairStyle,
+      hairColor,
+      mouthStyle,
+      eyesStyle,
+      clothingStyle,
+      clothingColor,
+      accessoriesStyle,
+      eyebrowsStyle,
+      noseStyle,
+      profileBorder,
+      avatarBackgroundColor,
+      ...overrides,
     };
 
     const baseUrl = `https://api.dicebear.com/9.x/${s.selectedStyle}/svg?seed=${encodeURIComponent(s.seed)}`;
@@ -274,9 +289,10 @@ function SettingsPage() {
           miaWallace: "long06",
           bun: "long07",
           dreads: "long08",
-          bigHair: "long09"
+          bigHair: "long09",
         };
-        const mappedHair = hairMap[s.hairStyle as string] || (s.hairGender === "male" ? "short01" : "long01");
+        const mappedHair =
+          hairMap[s.hairStyle as string] || (s.hairGender === "male" ? "short01" : "long01");
         params += `&hair=${mappedHair}`;
         params += `&hairProbability=100`;
       }
@@ -288,7 +304,7 @@ function SettingsPage() {
         disbelief: "variant05",
         grimace: "variant06",
         scream: "variant07",
-        tongue: "variant08"
+        tongue: "variant08",
       };
       params += `&mouth=${mouthMap[s.mouthStyle as string] || "variant01"}`;
       const eyesMap: Record<string, string> = {
@@ -299,7 +315,7 @@ function SettingsPage() {
         squint: "variant05",
         side: "variant06",
         hearts: "variant07",
-        close: "variant08"
+        close: "variant08",
       };
       params += `&eyes=${eyesMap[s.eyesStyle as string] || "variant01"}`;
       const eyebrowsMap: Record<string, string> = {
@@ -309,7 +325,7 @@ function SettingsPage() {
         raised: "variant04",
         sad: "variant05",
         unibrow: "variant06",
-        up: "variant07"
+        up: "variant07",
       };
       params += `&eyebrows=${eyebrowsMap[s.eyebrowsStyle as string] || "variant01"}`;
       if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
@@ -318,7 +334,7 @@ function SettingsPage() {
           round: "variant02",
           sunglasses: "variant03",
           wayfarer: "variant04",
-          kurt: "variant05"
+          kurt: "variant05",
         };
         params += `&glasses=${accMap[s.accessoriesStyle as string] || "variant01"}`;
         params += `&glassesProbability=100`;
@@ -345,7 +361,7 @@ function SettingsPage() {
           miaWallace: "lights",
           bun: "glowingBulb01",
           dreads: "glowingBulb02",
-          bigHair: "antennaCrooked"
+          bigHair: "antennaCrooked",
         };
         params += `&top=${topMap[s.hairStyle as string] || "antenna"}`;
         params += `&topProbability=100`;
@@ -358,7 +374,7 @@ function SettingsPage() {
         squint: "sensor",
         side: "robocop",
         hearts: "hearts",
-        close: "dizzy"
+        close: "dizzy",
       };
       params += `&eyes=${eyesMap[s.eyesStyle as string] || "round"}`;
       const mouthMap: Record<string, string> = {
@@ -369,7 +385,7 @@ function SettingsPage() {
         disbelief: "diagram",
         grimace: "grill03",
         scream: "square01",
-        tongue: "bite"
+        tongue: "bite",
       };
       params += `&mouth=${mouthMap[s.mouthStyle as string] || "smile01"}`;
       params += `&mouthProbability=100`;
@@ -379,7 +395,7 @@ function SettingsPage() {
           round: "round",
           sunglasses: "cables01",
           wayfarer: "cables02",
-          kurt: "square"
+          kurt: "square",
         };
         params += `&sides=${sidesMap[s.accessoriesStyle as string] || "antenna01"}`;
         params += `&sidesProbability=100`;
@@ -408,7 +424,7 @@ function SettingsPage() {
           miaWallace: "long06",
           bun: "long07",
           dreads: "long08",
-          bigHair: "long09"
+          bigHair: "long09",
         };
         params += `&hair=${hairMap[s.hairStyle as string] || (s.hairGender === "male" ? "short01" : "long01")}`;
         params += `&hairProbability=100`;
@@ -421,7 +437,7 @@ function SettingsPage() {
         squint: "variant05",
         side: "variant06",
         hearts: "variant07",
-        close: "variant08"
+        close: "variant08",
       };
       params += `&eyes=${eyesMap[s.eyesStyle as string] || "variant01"}`;
       const mouthMap: Record<string, string> = {
@@ -432,7 +448,7 @@ function SettingsPage() {
         disbelief: "sad03",
         grimace: "sad04",
         scream: "happy05",
-        tongue: "happy06"
+        tongue: "happy06",
       };
       params += `&mouth=${mouthMap[s.mouthStyle as string] || "happy01"}`;
       const clothingMap: Record<string, string> = {
@@ -442,7 +458,7 @@ function SettingsPage() {
         collarAndSweater: "variant04",
         blazerAndShirt: "variant05",
         overall: "variant06",
-        graphicShirt: "variant07"
+        graphicShirt: "variant07",
       };
       params += `&clothing=${clothingMap[s.clothingStyle as string] || "variant01"}`;
       if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
@@ -451,7 +467,7 @@ function SettingsPage() {
           round: "light02",
           sunglasses: "dark01",
           wayfarer: "dark02",
-          kurt: "dark03"
+          kurt: "dark03",
         };
         params += `&glasses=${accMap[s.accessoriesStyle as string] || "light01"}`;
         params += `&glassesProbability=100`;
@@ -468,7 +484,7 @@ function SettingsPage() {
         squint: "pissed",
         side: "shades",
         hearts: "love",
-        close: "closed"
+        close: "closed",
       };
       params += `&eyes=${eyesMap[s.eyesStyle as string] || "plain"}`;
       const mouthMap: Record<string, string> = {
@@ -479,7 +495,7 @@ function SettingsPage() {
         disbelief: "pissed",
         grimace: "sick",
         scream: "shout",
-        tongue: "tongueOut"
+        tongue: "tongueOut",
       };
       params += `&mouth=${mouthMap[s.mouthStyle as string] || "plain"}`;
     } else if (s.selectedStyle === "lorelei") {
@@ -502,7 +518,7 @@ function SettingsPage() {
         miaWallace: "variant15",
         bun: "variant16",
         dreads: "variant17",
-        bigHair: "variant18"
+        bigHair: "variant18",
       };
       params += `&hair=${hairMap[s.hairStyle as string] || "variant01"}`;
       const eyesMap: Record<string, string> = {
@@ -513,7 +529,7 @@ function SettingsPage() {
         squint: "variant05",
         side: "variant06",
         hearts: "variant07",
-        close: "variant08"
+        close: "variant08",
       };
       params += `&eyes=${eyesMap[s.eyesStyle as string] || "variant01"}`;
       const mouthMap: Record<string, string> = {
@@ -524,7 +540,7 @@ function SettingsPage() {
         disbelief: "sad03",
         grimace: "sad04",
         scream: "happy05",
-        tongue: "happy06"
+        tongue: "happy06",
       };
       params += `&mouth=${mouthMap[s.mouthStyle as string] || "happy01"}`;
       const eyebrowsMap: Record<string, string> = {
@@ -534,7 +550,7 @@ function SettingsPage() {
         raised: "variant04",
         sad: "variant05",
         unibrow: "variant06",
-        up: "variant07"
+        up: "variant07",
       };
       params += `&eyebrows=${eyebrowsMap[s.eyebrowsStyle as string] || "variant01"}`;
       if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
@@ -543,7 +559,7 @@ function SettingsPage() {
           round: "variant02",
           sunglasses: "variant03",
           wayfarer: "variant04",
-          kurt: "variant05"
+          kurt: "variant05",
         };
         params += `&glasses=${accMap[s.accessoriesStyle as string] || "variant01"}`;
         params += `&glassesProbability=100`;
@@ -556,7 +572,7 @@ function SettingsPage() {
         variant03: "variant03",
         variant04: "variant04",
         variant05: "variant05",
-        variant06: "variant06"
+        variant06: "variant06",
       };
       params += `&nose=${noseMap[s.noseStyle as string] || "variant01"}`;
     }
@@ -573,16 +589,13 @@ function SettingsPage() {
   }
 
   const currentCartoonUrl = buildCartoonUrl();
+  const doSaveField = useServerFn(saveProfileField);
 
   async function saveCartoonAvatar() {
     if (!user) return;
     setSavingCartoon(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ avatar_url: currentCartoonUrl })
-        .eq("id", user.id);
-      if (error) throw error;
+      await doSaveField({ data: { field: "avatar_url", value: currentCartoonUrl } });
       toast.success("Character avatar updated!");
       qc.invalidateQueries({ queryKey: ["profile-full"] });
       qc.invalidateQueries({ queryKey: ["profile-mini"] });
@@ -590,6 +603,7 @@ function SettingsPage() {
       qc.invalidateQueries({ queryKey: ["profile"] });
       setCartoonOpen(false);
     } catch (e: any) {
+      console.error("[Settings] Save error:", e);
       toast.error(e?.message ?? "Failed to save avatar");
     } finally {
       setSavingCartoon(false);
@@ -775,7 +789,11 @@ function SettingsPage() {
           await supabase.storage.from("avatars").remove([old]);
         }
       }
-      await supabase.from("profiles").update({ banner_url: publicUrl }).eq("id", user.id);
+      try {
+        await doSaveField({ data: { field: "banner_url", value: publicUrl } });
+      } catch (e: any) {
+        return toast.error(e?.message || "Failed to save cover image");
+      }
       toast.success("Cover image updated");
       qc.invalidateQueries({ queryKey: ["profile-full"] });
     } catch (e) {
@@ -797,7 +815,11 @@ function SettingsPage() {
         await supabase.storage.from("avatars").remove([old]);
       }
     }
-    await supabase.from("profiles").update({ banner_url: null }).eq("id", user.id);
+    try {
+      await doSaveField({ data: { field: "banner_url", value: null } });
+    } catch (e: any) {
+      return toast.error(e?.message || "Failed to remove cover image");
+    }
     toast.success("Cover image removed");
     qc.invalidateQueries({ queryKey: ["profile-full"] });
   }
@@ -995,6 +1017,12 @@ function SettingsPage() {
     setBannerSignedUrl(data.publicUrl);
   }, [profileQ.data?.banner_url]);
 
+  useEffect(() => {
+    if (profileQ.data) {
+      setShowBanner(profileQ.data.show_banner ?? true);
+    }
+  }, [profileQ.data]);
+
   /* ── Username availability ── */
   useEffect(() => {
     if (!username || username.length < 3) {
@@ -1033,6 +1061,7 @@ function SettingsPage() {
         skills: skills.length ? skills : [],
         social_links: links,
         name_color: nameColor || null,
+        show_banner: profileQ.data?.show_banner ?? true,
       } as any)
       .eq("id", user.id);
     setSavingProfile(false);
@@ -1069,7 +1098,11 @@ function SettingsPage() {
         profileBorder && profileBorder !== "none"
           ? `${publicUrl}?profile_border=${profileBorder}`
           : publicUrl;
-      await supabase.from("profiles").update({ avatar_url: finalUrl }).eq("id", user.id);
+      try {
+        await doSaveField({ data: { field: "avatar_url", value: finalUrl } });
+      } catch (e: any) {
+        return toast.error(e?.message || "Failed to save photo");
+      }
       toast.success("Photo updated");
       qc.invalidateQueries({ queryKey: ["profile-full"] });
     } catch (e) {
@@ -1091,7 +1124,11 @@ function SettingsPage() {
         await supabase.storage.from("avatars").remove([old]);
       }
     }
-    await supabase.from("profiles").update({ avatar_url: null }).eq("id", user.id);
+    try {
+      await doSaveField({ data: { field: "avatar_url", value: null } });
+    } catch (e: any) {
+      return toast.error(e?.message || "Failed to remove photo");
+    }
     toast.success("Photo removed");
     qc.invalidateQueries({ queryKey: ["profile-full"] });
   }
@@ -1123,9 +1160,13 @@ function SettingsPage() {
   async function saveNotifs() {
     if (!user) return;
     setSavingNotifs(true);
-    await supabase.from("profiles").update({ notif_prefs: prefs }).eq("id", user.id);
+    try {
+      await doSaveField({ data: { field: "notif_prefs", value: prefs } });
+      toast.success("Notification preferences saved");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to save notification preferences");
+    }
     setSavingNotifs(false);
-    toast.success("Notification preferences saved");
   }
 
   /* ── Extra settings save (payout + defaults) ── */
@@ -1378,10 +1419,11 @@ function SettingsPage() {
                         if (val !== "none") defaultUrl.searchParams.set("profile_border", val);
                         nextUrl = defaultUrl.toString();
                       }
-                      await supabase
-                        .from("profiles")
-                        .update({ avatar_url: nextUrl })
-                        .eq("id", user!.id);
+                      try {
+                        await doSaveField({ data: { field: "avatar_url", value: nextUrl } });
+                      } catch (e: any) {
+                        return toast.error(e?.message || "Failed to update border");
+                      }
                       qc.invalidateQueries({ queryKey: ["profile-full"] });
                       qc.invalidateQueries({ queryKey: ["profile-mini"] });
                       toast.success("Profile border updated!");
@@ -1425,10 +1467,11 @@ function SettingsPage() {
                         defaultUrl.searchParams.set("profile_border", rand);
                         nextUrl = defaultUrl.toString();
                       }
-                      await supabase
-                        .from("profiles")
-                        .update({ avatar_url: nextUrl })
-                        .eq("id", user!.id);
+                      try {
+                        await doSaveField({ data: { field: "avatar_url", value: nextUrl } });
+                      } catch (e: any) {
+                        return toast.error(e?.message || "Failed to randomize border");
+                      }
                       qc.invalidateQueries({ queryKey: ["profile-full"] });
                       qc.invalidateQueries({ queryKey: ["profile-mini"] });
                       toast.success("Randomized profile border!");
@@ -1490,6 +1533,20 @@ function SettingsPage() {
                       <Trash2 className="h-4 w-4" /> Remove
                     </Button>
                   ) : null}
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={profileQ.data?.show_banner ?? true}
+                      onCheckedChange={async (checked) => {
+                        await supabase
+                          .from("profiles")
+                          .update({ show_banner: checked })
+                          .eq("id", user!.id);
+                        qc.invalidateQueries({ queryKey: ["profile-full"] });
+                        toast.success(`Cover image ${checked ? "shown" : "hidden"}`);
+                      }}
+                    />
+                    <Label className="text-xs cursor-pointer">Show on profile</Label>
+                  </div>
                   <span className="text-[10px] text-muted-foreground">
                     Recommended 3:1 ratio &lt; 5 MB
                   </span>
@@ -1815,7 +1872,12 @@ function SettingsPage() {
                                   >
                                     <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                       <img
-                                        src={buildCartoonUrl({ eyebrowsStyle: eb.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
+                                        src={buildCartoonUrl({
+                                          eyebrowsStyle: eb.id,
+                                          ...(selectedStyle === "avataaars"
+                                            ? { hairStyle: "noHair" }
+                                            : {}),
+                                        })}
                                         className="w-full h-full object-cover scale-[2.5] translate-y-3"
                                         alt={eb.label}
                                         loading="lazy"
@@ -1860,13 +1922,18 @@ function SettingsPage() {
                                   title={eye.label}
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
-                                      <img
-                                        src={buildCartoonUrl({ eyesStyle: eye.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
-                                        className="w-full h-full object-cover scale-[2.5] translate-y-2"
-                                        alt={eye.label}
-                                        loading="lazy"
-                                        decoding="async"
-                                      />
+                                    <img
+                                      src={buildCartoonUrl({
+                                        eyesStyle: eye.id,
+                                        ...(selectedStyle === "avataaars"
+                                          ? { hairStyle: "noHair" }
+                                          : {}),
+                                      })}
+                                      className="w-full h-full object-cover scale-[2.5] translate-y-2"
+                                      alt={eye.label}
+                                      loading="lazy"
+                                      decoding="async"
+                                    />
                                   </div>
                                   <span className="text-[9px] font-medium truncate w-full text-center">
                                     {eye.label}
@@ -1950,13 +2017,18 @@ function SettingsPage() {
                                   title={m.label}
                                 >
                                   <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
-                                      <img
-                                        src={buildCartoonUrl({ mouthStyle: m.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
-                                        className="w-full h-full object-cover scale-[2.5] -translate-y-2"
-                                        alt={m.label}
-                                        loading="lazy"
-                                        decoding="async"
-                                      />
+                                    <img
+                                      src={buildCartoonUrl({
+                                        mouthStyle: m.id,
+                                        ...(selectedStyle === "avataaars"
+                                          ? { hairStyle: "noHair" }
+                                          : {}),
+                                      })}
+                                      className="w-full h-full object-cover scale-[2.5] -translate-y-2"
+                                      alt={m.label}
+                                      loading="lazy"
+                                      decoding="async"
+                                    />
                                   </div>
                                   <span className="text-[9px] font-medium truncate w-full text-center">
                                     {m.label}
@@ -2009,7 +2081,12 @@ function SettingsPage() {
                                   >
                                     <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
                                       <img
-                                        src={buildCartoonUrl({ accessoriesStyle: acc.id, ...(selectedStyle === "avataaars" ? { hairStyle: "noHair" } : {}) })}
+                                        src={buildCartoonUrl({
+                                          accessoriesStyle: acc.id,
+                                          ...(selectedStyle === "avataaars"
+                                            ? { hairStyle: "noHair" }
+                                            : {}),
+                                        })}
                                         className="w-full h-full object-cover scale-[2.8] translate-y-1.5"
                                         alt={acc.label}
                                         loading="lazy"
@@ -2037,8 +2114,7 @@ function SettingsPage() {
                           className="space-y-4 pt-3 max-h-[60vh] overflow-y-auto pr-1 pb-4"
                         >
                           {/* Clothing Style */}
-                          {(selectedStyle === "avataaars" ||
-                            selectedStyle === "pixel-art") && (
+                          {(selectedStyle === "avataaars" || selectedStyle === "pixel-art") && (
                             <div className="space-y-1.5">
                               <Label className="text-xs font-semibold text-muted-foreground">
                                 Clothing Style
@@ -2060,15 +2136,15 @@ function SettingsPage() {
                                     className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${clothingStyle === c.id ? "border-primary shadow-sm" : "border-border"}`}
                                     title={c.label}
                                   >
-                                      <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
-                                        <img
-                                          src={buildCartoonUrl({ clothingStyle: c.id })}
-                                          className="w-full h-full object-cover scale-[2.2] -translate-y-[28%]"
-                                          alt={c.label}
-                                          loading="lazy"
-                                          decoding="async"
-                                        />
-                                      </div>
+                                    <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                      <img
+                                        src={buildCartoonUrl({ clothingStyle: c.id })}
+                                        className="w-full h-full object-cover scale-[2.2] -translate-y-[28%]"
+                                        alt={c.label}
+                                        loading="lazy"
+                                        decoding="async"
+                                      />
+                                    </div>
                                     <span className="text-[9px] font-medium truncate w-full text-center">
                                       {c.label}
                                     </span>
@@ -2329,6 +2405,41 @@ function SettingsPage() {
                       </button>
                     );
                   })}
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <Input
+                    placeholder="Add custom skill..."
+                    value={customSkill}
+                    onChange={(e) => setCustomSkill(e.target.value)}
+                    className="h-8 text-xs"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && customSkill.trim()) {
+                        e.preventDefault();
+                        const trimmed = customSkill.trim();
+                        if (!skills.includes(trimmed)) {
+                          setSkills([...skills, trimmed]);
+                        }
+                        setCustomSkill("");
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs"
+                    onClick={() => {
+                      if (customSkill.trim()) {
+                        const trimmed = customSkill.trim();
+                        if (!skills.includes(trimmed)) {
+                          setSkills([...skills, trimmed]);
+                        }
+                        setCustomSkill("");
+                      }
+                    }}
+                  >
+                    Add
+                  </Button>
                 </div>
               </Field>
 

@@ -1,7 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import ReactPlayer from "react-player";
-const ReactPlayerAny = ReactPlayer as any;
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import {
@@ -1069,18 +1067,11 @@ function CommunityPage() {
                       )}
                       {post.media_type === "video" && isMounted && (
                         <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
-                          <ReactPlayerAny
-                            url={post.media_url}
+                          <video
+                            src={post.media_url}
                             controls
-                            width="100%"
-                            height="100%"
-                            config={{
-                              file: {
-                                attributes: {
-                                  controlsList: "nodownload",
-                                },
-                              },
-                            } as any}
+                            className="w-full h-full object-cover"
+                            controlsList="nodownload"
                           />
                         </div>
                       )}

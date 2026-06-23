@@ -506,7 +506,11 @@ export const upgradeDowngrade = createServerFn({ method: "POST" })
         subscription_id: null,
         user_id: uid,
         event_type: "PLAN_CHANGED",
-        payload: { old_plan_id: currentSub.plan_id, new_plan_id: data.newPlanId, type: "downgrade_to_free" },
+        payload: {
+          old_plan_id: currentSub.plan_id,
+          new_plan_id: data.newPlanId,
+          type: "downgrade_to_free",
+        },
       });
 
       return { auth_link: null, free: true };
@@ -590,9 +594,7 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: plans } = await (supabaseAdmin as any)
-      .from("subscription_analytics")
-      .select("*");
+    const { data: plans } = await (supabaseAdmin as any).from("subscription_analytics").select("*");
 
     const { data: recentSubs } = await (supabaseAdmin as any)
       .from("user_subscriptions")
@@ -679,4 +681,3 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
       subscriberHistory,
     };
   });
-

@@ -207,10 +207,7 @@ export function AIAssistantPanel({ code, language, onApplyFix }: AIAssistantPane
                 key={action.id}
                 variant="ghost"
                 size="sm"
-                className={cn(
-                  "h-auto py-2 px-3 justify-start text-left",
-                  action.bgColor,
-                )}
+                className={cn("h-auto py-2 px-3 justify-start text-left", action.bgColor)}
                 onClick={() => handleAction(action.id)}
                 disabled={isLoading}
               >
@@ -244,9 +241,7 @@ export function AIAssistantPanel({ code, language, onApplyFix }: AIAssistantPane
               <div
                 className={cn(
                   "rounded-lg p-3 text-sm max-w-full",
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted",
+                  message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted",
                 )}
               >
                 <div className="whitespace-pre-wrap break-words">{message.content}</div>
@@ -297,11 +292,7 @@ export function AIAssistantPanel({ code, language, onApplyFix }: AIAssistantPane
             className="flex-1 bg-background border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             disabled={isLoading}
           />
-          <Button
-            size="sm"
-            onClick={handleSend}
-            disabled={!input.trim() || isLoading}
-          >
+          <Button size="sm" onClick={handleSend} disabled={!input.trim() || isLoading}>
             <Send className="h-4 w-4" />
           </Button>
         </div>

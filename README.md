@@ -30,44 +30,46 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 
 ### ✨ For Learners
 
-| Feature                          | Description                                                                           |
-| -------------------------------- | ------------------------------------------------------------------------------------- |
-| 🤖 **AI Tutor**                  | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)      |
-| 🎥 **Interactive Course Player** | Video lessons, markdown notes, AI summaries, and practice exercises                   |
+| Feature                          | Description                                                                             |
+| -------------------------------- | --------------------------------------------------------------------------------------- |
+| 🤖 **AI Tutor**                  | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)        |
+| 🎥 **Interactive Course Player** | Video lessons, markdown notes, AI summaries, and practice exercises                     |
 | 💻 **Code Playground**           | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant |
-| 📝 **Smart Notes**               | Auto-generated flashcards, summaries, and quizzes from any lesson                     |
-| 🏆 **Gamification**              | XP, streaks, badges, leaderboards, and achievements                                   |
-| 💰 **Wallet**                    | AI credits, course purchases, and withdrawals via Cashfree                            |
-| 📋 **Billing Dashboard**         | View current plan, invoices, subscription history, cancel/resume subscription         |
+| 📝 **Smart Notes**               | Auto-generated flashcards, summaries, and quizzes from any lesson                       |
+| 🏆 **Gamification**              | XP, streaks, badges, leaderboards, and achievements                                     |
+| 💰 **Wallet**                    | AI credits, course purchases, and withdrawals via Cashfree                              |
+| 📋 **Billing Dashboard**         | View current plan, invoices, subscription history, cancel/resume subscription           |
 
 ### 🎓 For Creators
 
-| Feature                   | Description                                                |
-| ------------------------- | ---------------------------------------------------------- |
-| 🏗️ **Creator Studio**     | Build courses, add lessons, manage quizzes and assignments |
-| 🪄 **AI Course Builder**  | Auto-generate course outlines, lessons, and thumbnails     |
+| Feature                      | Description                                                     |
+| ---------------------------- | --------------------------------------------------------------- |
+| 🏗️ **Creator Studio**        | Build courses, add lessons, manage quizzes and assignments      |
+| 🪄 **AI Course Builder**     | Auto-generate course outlines, lessons, and thumbnails          |
 | 🎓 **Certificate Templates** | Assign certificate templates to courses from course detail page |
-| 🧑‍💼 **Coaching Hub**       | Book 1-on-1 sessions, schedule slots, and chat             |
-| 👥 **Cohorts**            | Live group learning with community spaces                  |
-| 📊 **Earnings Dashboard** | Revenue tracking, payouts, and invoices                    |
+| 🧑‍💼 **Coaching Hub**          | Book 1-on-1 sessions, schedule slots, and chat                  |
+| 👥 **Cohorts**               | Live group learning with community spaces                       |
+| 📊 **Earnings Dashboard**    | Revenue tracking, payouts, and invoices                         |
 
 ### 🌐 Platform-Wide
 
-| Feature               | Description                                                                         |
-| --------------------- | ----------------------------------------------------------------------------------- |
-| 💬 **Community Feed** | Social learning with posts, comments, likes, edit/delete, rich text editor          |
-| 📥 **Inbox**          | Direct messaging between coaches and students                                       |
-| ⚙️ **Admin Panel**    | Dashboard, wallet verification, certificates, email templates, content management   |
-| 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                  |
-| 📧 **Email System**   | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback |
-| 🪄 **Premium UI/UX**  | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism |
-| 📄 **Legal Pages**    | Privacy Policy, Terms of Service, Refund Policy                                     |
-| 🔗 **Username Profiles** | Public profiles accessible via `/u/@username` URL format                        |
+| Feature                       | Description                                                                                               |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 💬 **Community Feed**         | Social learning with posts, comments, likes, edit/delete, rich text editor                                |
+| 📥 **Inbox**                  | Direct messaging between coaches and students                                                             |
+| ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates, email templates, content management                         |
+| 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                                               |
+| 📧 **Email System**           | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback |
+| 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                         |
+| 📄 **Legal Pages**            | Privacy Policy, Terms of Service, Refund Policy                                                           |
+| 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                  |
 
 ---
 
 ## 🚀 Upcoming Master Sprints
+
 For developers and AI agents (Lovable, Cursor, Claude Code) looking to implement massive feature overhauls, please refer to the following sprint specifications:
+
 - [Gamification 4.0 Master Prompt](./GAMIFICATION_MASTER_PROMPT.md)
 - [Mobile UI/UX & Functional Fix Sprint](./MOBILE_UX_SPRINT.md)
 
@@ -107,20 +109,20 @@ Learnify AI's playground features **multi-language compilation** powered by Wand
 
 ## 🛠️ Tech Stack
 
-| Layer          | Technology                                                             |
-| -------------- | ---------------------------------------------------------------------- |
-| **Framework**  | React 19 + TanStack Start (SSR)                                        |
-| **Routing**    | TanStack Router (file-based)                                           |
-| **Styling**    | Tailwind CSS v4 + Shadcn UI                                            |
-| **State**      | TanStack Query + React Context                                         |
-| **Database**   | Supabase (PostgreSQL + Auth + Storage)                                 |
-| **AI**         | OpenRouter, Gemini, Groq (multi-provider fallback)                     |
-| **Payments**   | Cashfree (Recurring Subscriptions + Wallet + Payouts)                          |
-| **Embeddings** | Gemini text-embedding-004 + pgvector                                   |
+| Layer          | Technology                                                                      |
+| -------------- | ------------------------------------------------------------------------------- |
+| **Framework**  | React 19 + TanStack Start (SSR)                                                 |
+| **Routing**    | TanStack Router (file-based)                                                    |
+| **Styling**    | Tailwind CSS v4 + Shadcn UI                                                     |
+| **State**      | TanStack Query + React Context                                                  |
+| **Database**   | Supabase (PostgreSQL + Auth + Storage)                                          |
+| **AI**         | OpenRouter, Gemini, Groq (multi-provider fallback)                              |
+| **Payments**   | Cashfree (Recurring Subscriptions + Wallet + Payouts)                           |
+| **Embeddings** | Gemini text-embedding-004 + pgvector                                            |
 | **Email**      | Resend (primary) ←→ Gmail SMTP ←→ Brevo (fallback chain, per-provider timeouts) |
-| **Code Exec**  | Wandbox / Piston / Judge0 (multi-executor fallback)                    |
-| **Testing**    | Playwright (E2E)                                                       |
-| **Deployment** | Vercel (Edge Network + Serverless Functions)                           |
+| **Code Exec**  | Wandbox / Piston / Judge0 (multi-executor fallback)                             |
+| **Testing**    | Playwright (E2E)                                                                |
+| **Deployment** | Vercel (Edge Network + Serverless Functions)                                    |
 
 ---
 
@@ -227,22 +229,22 @@ npx playwright test
 
 ### Environment Variables
 
-| Variable                        | Required | Description                                                   |
-| ------------------------------- | -------- | ------------------------------------------------------------- |
-| `DATABASE_URL`                  | ✅       | PostgreSQL connection string (for running migrations & seeds) |
-| `VITE_SUPABASE_URL`             | ✅       | Supabase project URL                                          |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅       | Supabase anon/public key                                      |
-| `SUPABASE_SERVICE_ROLE_KEY`     | ✅       | Supabase service role key (secure server-side access)         |
-| `OPENROUTER_API_KEY`            | ⚡       | OpenRouter API key for AI tutoring and features               |
-| `GEMINI_API_KEY`                | ⚡       | Google Gemini API key (fallback or primary AI model)          |
-| `GROQ_API_KEY`                  | ⚡       | Groq API key (for fast inference models)                      |
-| `CASHFREE_APP_ID`               | 💰       | Cashfree payment gateway App ID                               |
-| `CASHFREE_SECRET_KEY`           | 💰       | Cashfree payment gateway Secret Key                           |
-| `CASHFREE_WEBHOOK_SECRET`       | 💰       | Cashfree webhook signature verification secret                |
-| `VITE_APP_URL`                  | 🌐       | Base URL for webhook callbacks and email links                |
-| `GMAIL_EMAIL`                   | 📧       | Gmail address for sending automated transactional emails      |
-| `GMAIL_APP_PASSWORD`            | 📧       | Gmail 16-character App Password                               |
-| `RESEND_API_KEY`                | 📧       | Resend API key (primary email provider — recommended)         |
+| Variable                        | Required | Description                                                                  |
+| ------------------------------- | -------- | ---------------------------------------------------------------------------- |
+| `DATABASE_URL`                  | ✅       | PostgreSQL connection string (for running migrations & seeds)                |
+| `VITE_SUPABASE_URL`             | ✅       | Supabase project URL                                                         |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | ✅       | Supabase anon/public key                                                     |
+| `SUPABASE_SERVICE_ROLE_KEY`     | ✅       | Supabase service role key (secure server-side access)                        |
+| `OPENROUTER_API_KEY`            | ⚡       | OpenRouter API key for AI tutoring and features                              |
+| `GEMINI_API_KEY`                | ⚡       | Google Gemini API key (fallback or primary AI model)                         |
+| `GROQ_API_KEY`                  | ⚡       | Groq API key (for fast inference models)                                     |
+| `CASHFREE_APP_ID`               | 💰       | Cashfree payment gateway App ID                                              |
+| `CASHFREE_SECRET_KEY`           | 💰       | Cashfree payment gateway Secret Key                                          |
+| `CASHFREE_WEBHOOK_SECRET`       | 💰       | Cashfree webhook signature verification secret                               |
+| `VITE_APP_URL`                  | 🌐       | Base URL for webhook callbacks and email links                               |
+| `GMAIL_EMAIL`                   | 📧       | Gmail address for sending automated transactional emails                     |
+| `GMAIL_APP_PASSWORD`            | 📧       | Gmail 16-character App Password                                              |
+| `RESEND_API_KEY`                | 📧       | Resend API key (primary email provider — recommended)                        |
 | `EMAIL_FROM`                    | 📧       | Sender email address (e.g. `noreply@learnify.ai` or `onboarding@resend.dev`) |
 
 ---
@@ -441,7 +443,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 ### v3.1.0 (June 2026) - Critical Fixes & Course Enrollment Logic
 
 - ✅ **Payment Auth Fixed**: Resolved "Unauthorized: Invalid token" error by improving auth middleware to handle multiple Supabase cookie names (`sb-access-token`, `sb-refresh-token`, `supabase-auth-token`, `sb-auth-token`, and any `sb-*` prefixed cookies) with robust fallback parsing.
-- ✅ **Course Enrollment Logic**: 
+- ✅ **Course Enrollment Logic**:
   - Free courses: Fully accessible immediately upon starting
   - Paid courses: Locked until enrollment with active/completed payment status
   - Preview lessons: Always free (first lesson + any `is_preview` lessons)
@@ -517,5 +519,3 @@ MIT License. See [LICENSE](LICENSE) for details.
 [![Star on GitHub](https://img.shields.io/github/stars/Vishwajeetsrk/learnifyai?style=social)](https://github.com/Vishwajeetsrk/learnifyai)
 
 </div>
-
-

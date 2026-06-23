@@ -72,7 +72,9 @@ function AdminSubscriptionsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Subscription Analytics</h1>
-            <p className="text-muted-foreground mt-1">Revenue, subscribers, and billing insights.</p>
+            <p className="text-muted-foreground mt-1">
+              Revenue, subscribers, and billing insights.
+            </p>
           </div>
           <Badge variant="outline" className="text-xs">
             Admin Only
@@ -265,7 +267,10 @@ function AdminSubscriptionsPage() {
                               {profile?.full_name || profile?.email || sub.user_id?.slice(0, 8)}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {plan?.name || "Unknown"} • {sub.created_at ? format(new Date(sub.created_at), "MMM d, yyyy") : "—"}
+                              {plan?.name || "Unknown"} •{" "}
+                              {sub.created_at
+                                ? format(new Date(sub.created_at), "MMM d, yyyy")
+                                : "—"}
                             </p>
                           </div>
                         </div>
@@ -314,7 +319,9 @@ function AdminSubscriptionsPage() {
                         <div>
                           <p className="font-medium text-sm">{payment.event_type}</p>
                           <p className="text-xs text-muted-foreground">
-                            {payment.created_at ? format(new Date(payment.created_at), "MMM d, HH:mm") : "—"}
+                            {payment.created_at
+                              ? format(new Date(payment.created_at), "MMM d, HH:mm")
+                              : "—"}
                           </p>
                         </div>
                       </div>

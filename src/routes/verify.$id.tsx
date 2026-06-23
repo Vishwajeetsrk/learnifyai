@@ -197,7 +197,15 @@ function VerifyPage() {
                         className="absolute"
                         style={{ left: el.x, top: el.y, width: el.width, height: el.height }}
                       >
-                        {qrDataUrl && <img src={qrDataUrl} alt="QR" className="w-full h-full" loading="lazy" decoding="async" />}
+                        {qrDataUrl && (
+                          <img
+                            src={qrDataUrl}
+                            alt="QR"
+                            className="w-full h-full"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        )}
                       </div>
                     );
                   }

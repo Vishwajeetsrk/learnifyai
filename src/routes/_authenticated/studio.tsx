@@ -1183,7 +1183,11 @@ function LessonsDialog({ course, onClose }: { course: Course | null; onClose: ()
                 <DragDropContext onDragEnd={handleLessonReorder}>
                   <Droppable droppableId="lessons">
                     {(provided) => (
-                      <ul className="space-y-2 mt-2" ref={provided.innerRef} {...provided.droppableProps}>
+                      <ul
+                        className="space-y-2 mt-2"
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                      >
                         {(lessonsQuery.data ?? []).map((l, idx) => (
                           <Draggable key={l.id} draggableId={l.id} index={idx}>
                             {(dragProvided) => (

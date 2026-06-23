@@ -333,7 +333,9 @@ export function StandardIDE({
                     <div className="text-center">
                       <Code2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p>No file selected</p>
-                      <p className="text-xs mt-2">Create a new file or select one from the explorer</p>
+                      <p className="text-xs mt-2">
+                        Create a new file or select one from the explorer
+                      </p>
                     </div>
                   </div>
                 )}
@@ -397,7 +399,10 @@ export function StandardIDE({
                     onClear={() => {}}
                   />
                 ) : (
-                  <EmptyOutput isRunning={running} onRun={() => activeFile ? run(activeFile.content || "") : runAll()} />
+                  <EmptyOutput
+                    isRunning={running}
+                    onRun={() => (activeFile ? run(activeFile.content || "") : runAll())}
+                  />
                 )}
               </div>
             </div>
