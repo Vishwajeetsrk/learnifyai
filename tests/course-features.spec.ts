@@ -5,10 +5,16 @@ const ADMIN_PASSWORD = "AdminPass123!";
 
 test.describe("Course Features & AI Tools (Requires Authentication)", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/login", { timeout: 15000, waitUntil: "domcontentloaded" });
+    await page.goto("/login", { timeout: 15000, waitUntil: "load" });
     await page.waitForTimeout(3000);
 
     if (page.url().includes("/login")) {
+      const cookieBtn = page.getByRole("button", { name: /accept all/i });
+      try {
+        await cookieBtn.waitFor({ state: "visible", timeout: 3000 });
+        await cookieBtn.click();
+      } catch { /* no cookie banner */ }
+
       const emailInput = page.getByPlaceholder(/you@example\.com/i);
       if (await emailInput.isVisible({ timeout: 5000 }).catch(() => false)) {
         await emailInput.fill(ADMIN_EMAIL);
