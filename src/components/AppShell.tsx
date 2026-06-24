@@ -94,11 +94,39 @@ export function AppShell({ children }: { children: ReactNode }) {
         const active = path === item.to || path.startsWith(item.to + "/");
         const Icon = item.icon;
         const showBadge = item.to === "/cart" && (cartCount.data ?? 0) > 0;
+        // Map nav items to data-tour attributes
+        const tourKey =
+          item.to === "/dashboard"
+            ? "nav-dashboard"
+            : item.to === "/courses"
+              ? "nav-courses"
+              : item.to === "/ai"
+                ? "nav-ai"
+                : item.to === "/ai-tools"
+                  ? "nav-ai-tools"
+                  : item.to === "/leaderboard"
+                    ? "nav-leaderboard"
+                    : item.to === "/community-feed"
+                      ? "nav-community"
+                      : item.to === "/coaching"
+                        ? "nav-coaching"
+                        : item.to === "/certificates"
+                          ? "nav-certificates"
+                          : item.to === "/achievements"
+                            ? "nav-achievements"
+                            : item.to === "/admin"
+                              ? "nav-admin"
+                              : item.to === "/wallet"
+                                ? "nav-wallet"
+                                : item.to === "/inbox"
+                                  ? "nav-inbox"
+                                  : undefined;
         return (
           <Link
             key={item.to}
             to={item.to}
             onClick={onClick}
+            data-tour={tourKey}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
               active

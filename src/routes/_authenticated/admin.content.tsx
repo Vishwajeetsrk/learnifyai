@@ -24,6 +24,11 @@ import {
   ShieldCheck,
   Users,
   RefreshCw,
+  Globe,
+  ImageIcon,
+  Sparkles,
+  Menu,
+  Layout,
 } from "lucide-react";
 import {
   CertificateRender,
@@ -43,7 +48,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { savePlan, deletePlan, syncPlanToCashfree } from "@/lib/subscription.functions";
-import { adminContentAction, adminContentUpsert, adminContentQuery } from "@/lib/admin-content.functions";
+import {
+  adminContentAction,
+  adminContentUpsert,
+  adminContentQuery,
+} from "@/lib/admin-content.functions";
 import {
   Select,
   SelectContent,
@@ -77,6 +86,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import FeaturesManager from "@/components/admin/FeaturesManager";
+import PageManager from "@/components/admin/PageManager";
+import MediaLibrary from "@/components/admin/MediaLibrary";
+import FeaturesCatalog from "@/components/admin/FeaturesCatalog";
+import MenuManager from "@/components/admin/MenuManager";
 
 // Heavy admin panels — code-split so initial admin page paints fast.
 const IssueCertificate = lazy(() => import("@/components/admin/IssueCertificate"));
@@ -150,6 +163,11 @@ function AdminContentPage() {
     "coupons",
     "community",
     "features",
+    "wcms-pages",
+    "wcms-media",
+    "wcms-features",
+    "wcms-menus",
+    "wcms-blocks",
   ].includes(tabAlias)
     ? tabAlias
     : "events";
@@ -187,7 +205,8 @@ function AdminContentPage() {
             <h1 className="font-display text-3xl font-bold">Content Manager</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Manage events, jobs, pricing, FAQs, pages, roadmaps, coupons, community groups,
-              certificate templates, and feature visibility — all in one place.
+              certificate templates, feature visibility, page builder, media library, features
+              catalog, and navigation menus — all in one place.
             </p>
           </div>
         </div>
@@ -242,6 +261,22 @@ function AdminContentPage() {
               <Eye className="h-4 w-4 mr-2" />
               Visibility
             </TabsTrigger>
+            <TabsTrigger value="wcms-pages">
+              <Globe className="h-4 w-4 mr-2" />
+              WCMS Pages
+            </TabsTrigger>
+            <TabsTrigger value="wcms-media">
+              <ImageIcon className="h-4 w-4 mr-2" />
+              Media Library
+            </TabsTrigger>
+            <TabsTrigger value="wcms-features">
+              <Sparkles className="h-4 w-4 mr-2" />
+              Features Catalog
+            </TabsTrigger>
+            <TabsTrigger value="wcms-menus">
+              <Menu className="h-4 w-4 mr-2" />
+              Menus
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="events" className="mt-6">
             <EventsManager />
@@ -282,6 +317,18 @@ function AdminContentPage() {
           <TabsContent value="features" className="mt-6">
             <FeaturesManager />
           </TabsContent>
+          <TabsContent value="wcms-pages" className="mt-6">
+            <PageManager />
+          </TabsContent>
+          <TabsContent value="wcms-media" className="mt-6">
+            <MediaLibrary />
+          </TabsContent>
+          <TabsContent value="wcms-features" className="mt-6">
+            <FeaturesCatalog />
+          </TabsContent>
+          <TabsContent value="wcms-menus" className="mt-6">
+            <MenuManager />
+          </TabsContent>
         </Tabs>
       </div>
     </AppShell>
@@ -301,7 +348,9 @@ function EventsManager() {
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["admin-events"],
     queryFn: async () => {
-      const result = await doQuery({ data: { table: "events", orderBy: "starts_at", ascending: true } });
+      const result = await doQuery({
+        data: { table: "events", orderBy: "starts_at", ascending: true },
+      });
       return (result ?? []) as EventRow[];
     },
   });
@@ -460,7 +509,9 @@ function EventDialog({
     };
     try {
       if (form.id) {
-        await doAdminAction({ data: { table: "events", action: "update", id: form.id, data: payload } });
+        await doAdminAction({
+          data: { table: "events", action: "update", id: form.id, data: payload },
+        });
       } else {
         await doAdminAction({ data: { table: "events", action: "insert", data: payload } });
       }
@@ -577,7 +628,9 @@ function JobsManager() {
   const { data: jobs = [], isLoading } = useQuery({
     queryKey: ["admin-jobs"],
     queryFn: async () => {
-      const result = await doQuery({ data: { table: "job_postings", orderBy: "created_at", ascending: false } });
+      const result = await doQuery({
+        data: { table: "job_postings", orderBy: "created_at", ascending: false },
+      });
       return (result ?? []) as JobRow[];
     },
   });
@@ -732,7 +785,9 @@ function JobDialog({
     };
     try {
       if (form.id) {
-        await doAdminAction({ data: { table: "job_postings", action: "update", id: form.id, data: payload } });
+        await doAdminAction({
+          data: { table: "job_postings", action: "update", id: form.id, data: payload },
+        });
       } else {
         await doAdminAction({ data: { table: "job_postings", action: "insert", data: payload } });
       }
@@ -872,11 +927,13 @@ function PricingManager() {
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ["admin-plans"],
     queryFn: async () => {
-      const result = await doQuery({ data: { table: "pricing_plans", orderBy: "order_index", ascending: true } });
-      return ((result ?? []).map((p: any) => ({
+      const result = await doQuery({
+        data: { table: "pricing_plans", orderBy: "order_index", ascending: true },
+      });
+      return (result ?? []).map((p: any) => ({
         ...p,
         features: Array.isArray(p.features) ? p.features : [],
-      })) as PlanRow[]);
+      })) as PlanRow[];
     },
   });
 
@@ -1356,7 +1413,9 @@ function SiteSettingsManager() {
     if (values[key] !== undefined) return toast.error("That setting already exists");
     setSaving(true);
     try {
-      await doUpsert({ data: { table: "site_settings", data: { key, value: newValue }, onConflict: "key" } });
+      await doUpsert({
+        data: { table: "site_settings", data: { key, value: newValue }, onConflict: "key" },
+      });
     } catch (e: any) {
       setSaving(false);
       return toast.error(e?.message || "Add failed");
@@ -1373,7 +1432,9 @@ function SiteSettingsManager() {
   const deleteSetting = async (key: string) => {
     if (!window.confirm(`Delete ${key}?`)) return;
     try {
-      await doAdminAction({ data: { table: "site_settings", action: "delete", id: key, matchKey: "key" } });
+      await doAdminAction({
+        data: { table: "site_settings", action: "delete", id: key, matchKey: "key" },
+      });
     } catch (e: any) {
       return toast.error(e?.message || "Delete failed");
     }
@@ -1481,7 +1542,9 @@ function CertTemplatesManager() {
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ["admin-cert-templates"],
     queryFn: async () => {
-      const result = await doQuery({ data: { table: "certificate_templates", orderBy: "created_at", ascending: true } });
+      const result = await doQuery({
+        data: { table: "certificate_templates", orderBy: "created_at", ascending: true },
+      });
       return (result ?? []) as TemplateRow[];
     },
   });
@@ -1494,7 +1557,9 @@ function CertTemplatesManager() {
   const loadPresets = async () => {
     const presets = buildPresetTemplates();
     try {
-      await doAdminAction({ data: { table: "certificate_templates", action: "insert", data: presets } });
+      await doAdminAction({
+        data: { table: "certificate_templates", action: "insert", data: presets },
+      });
     } catch (e: any) {
       return toast.error(e?.message || "Failed to load presets");
     }
@@ -1505,7 +1570,9 @@ function CertTemplatesManager() {
   const removeTemplate = async () => {
     if (!deleteId) return;
     try {
-      await doAdminAction({ data: { table: "certificate_templates", action: "delete", id: deleteId } });
+      await doAdminAction({
+        data: { table: "certificate_templates", action: "delete", id: deleteId },
+      });
     } catch (e: any) {
       return toast.error(e?.message || "Delete failed");
     }
@@ -1553,7 +1620,9 @@ function CertTemplatesManager() {
         return { ...rest, name: String(rest.name ?? "Imported template"), is_default: false };
       });
       try {
-        await doAdminAction({ data: { table: "certificate_templates", action: "insert", data: clean } });
+        await doAdminAction({
+          data: { table: "certificate_templates", action: "insert", data: clean },
+        });
       } catch (e: any) {
         return toast.error(e?.message || "Import failed");
       }
@@ -1745,9 +1814,13 @@ function TemplateDialog({
     };
     try {
       if (form.id) {
-        await doAdminAction({ data: { table: "certificate_templates", action: "update", id: form.id, data: payload } });
+        await doAdminAction({
+          data: { table: "certificate_templates", action: "update", id: form.id, data: payload },
+        });
       } else {
-        await doAdminAction({ data: { table: "certificate_templates", action: "insert", data: payload } });
+        await doAdminAction({
+          data: { table: "certificate_templates", action: "insert", data: payload },
+        });
       }
     } catch (e: any) {
       setSaving(false);
@@ -2497,7 +2570,15 @@ function FaqsManager() {
   const { data: faqs = [], isLoading } = useQuery({
     queryKey: ["admin-faqs"],
     queryFn: async () => {
-      const result = await doQuery({ data: { table: "faqs", orderBy: "category", ascending: true, orderBy2: "order_index", ascending2: true } });
+      const result = await doQuery({
+        data: {
+          table: "faqs",
+          orderBy: "category",
+          ascending: true,
+          orderBy2: "order_index",
+          ascending2: true,
+        },
+      });
       return (result ?? []) as FaqRow[];
     },
   });
@@ -2643,7 +2724,9 @@ function FaqDialog({
     };
     try {
       if (form.id) {
-        await doAdminAction({ data: { table: "faqs", action: "update", id: form.id, data: payload } });
+        await doAdminAction({
+          data: { table: "faqs", action: "update", id: form.id, data: payload },
+        });
       } else {
         await doAdminAction({ data: { table: "faqs", action: "insert", data: payload } });
       }
@@ -2738,7 +2821,13 @@ function PagesManager() {
     queryKey: ["admin-page-content"],
     queryFn: async () => {
       const keys = PAGE_KEYS.map((p) => p.key);
-      const result = await doQuery({ data: { table: "site_settings", columns: "key,value", inFilter: { column: "key", values: keys } } });
+      const result = await doQuery({
+        data: {
+          table: "site_settings",
+          columns: "key,value",
+          inFilter: { column: "key", values: keys },
+        },
+      });
       const m: Record<string, string> = {};
       (result ?? []).forEach((r: any) => {
         m[r.key] = r.value ?? "";
@@ -2757,7 +2846,11 @@ function PagesManager() {
   const save = async () => {
     setSaving(true);
     const now = new Date().toISOString();
-    const rows = PAGE_KEYS.map((p) => ({ key: p.key, value: values[p.key] ?? "", updated_at: now }));
+    const rows = PAGE_KEYS.map((p) => ({
+      key: p.key,
+      value: values[p.key] ?? "",
+      updated_at: now,
+    }));
     try {
       await doUpsert({ data: { table: "site_settings", data: rows, onConflict: "key" } });
     } catch (e: any) {
@@ -2874,7 +2967,14 @@ function RoadmapManager() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-roadmap"],
     queryFn: async () => {
-      const result: any = await doQuery({ data: { table: "site_settings", columns: "value", eqFilter: { column: "key", value: ROADMAP_KEY }, single: true } });
+      const result: any = await doQuery({
+        data: {
+          table: "site_settings",
+          columns: "value",
+          eqFilter: { column: "key", value: ROADMAP_KEY },
+          single: true,
+        },
+      });
       if (result?.value) {
         try {
           return JSON.parse(result.value as string) as RoadmapItem[];
@@ -2893,7 +2993,17 @@ function RoadmapManager() {
   const save = async () => {
     setSaving(true);
     try {
-      await doUpsert({ data: { table: "site_settings", data: { key: ROADMAP_KEY, value: JSON.stringify(items), updated_at: new Date().toISOString() }, onConflict: "key" } });
+      await doUpsert({
+        data: {
+          table: "site_settings",
+          data: {
+            key: ROADMAP_KEY,
+            value: JSON.stringify(items),
+            updated_at: new Date().toISOString(),
+          },
+          onConflict: "key",
+        },
+      });
     } catch (e: any) {
       setSaving(false);
       return toast.error(e?.message || "Save failed");
@@ -3054,12 +3164,17 @@ function RoadmapManager() {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this roadmap item?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently remove "{items.find((i) => i.id === deleteTargetId)?.title || "Untitled"}" from the public roadmap.
+              This will permanently remove "
+              {items.find((i) => i.id === deleteTargetId)?.title || "Untitled"}" from the public
+              roadmap.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteItem} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={confirmDeleteItem}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -3087,7 +3202,14 @@ function CouponManager() {
   const { data, isLoading } = useQuery({
     queryKey: ["admin-coupons"],
     queryFn: async () => {
-      const result: any = await doQuery({ data: { table: "site_settings", columns: "value", eqFilter: { column: "key", value: COUPON_KEY }, maybeSingle: true } });
+      const result: any = await doQuery({
+        data: {
+          table: "site_settings",
+          columns: "value",
+          eqFilter: { column: "key", value: COUPON_KEY },
+          maybeSingle: true,
+        },
+      });
       if (result?.value) {
         try {
           return JSON.parse(result.value as string);
@@ -3106,7 +3228,17 @@ function CouponManager() {
   const save = async () => {
     setSaving(true);
     try {
-      await doUpsert({ data: { table: "site_settings", data: { key: COUPON_KEY, value: JSON.stringify(items), updated_at: new Date().toISOString() }, onConflict: "key" } });
+      await doUpsert({
+        data: {
+          table: "site_settings",
+          data: {
+            key: COUPON_KEY,
+            value: JSON.stringify(items),
+            updated_at: new Date().toISOString(),
+          },
+          onConflict: "key",
+        },
+      });
     } catch (e: any) {
       setSaving(false);
       return toast.error(e?.message || "Save failed");
@@ -3217,17 +3349,25 @@ function CouponManager() {
         </Button>
       </div>
 
-      <AlertDialog open={deleteTargetIdx != null} onOpenChange={(v) => !v && setDeleteTargetIdx(null)}>
+      <AlertDialog
+        open={deleteTargetIdx != null}
+        onOpenChange={(v) => !v && setDeleteTargetIdx(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this coupon?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove "{deleteTargetIdx != null ? items[deleteTargetIdx]?.code || "Untitled" : ""}" permanently.
+              This will remove "
+              {deleteTargetIdx != null ? items[deleteTargetIdx]?.code || "Untitled" : ""}"
+              permanently.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDeleteCoupon} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={confirmDeleteCoupon}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -3262,7 +3402,16 @@ function CohortsManager() {
   const { data: cohorts = [], isLoading } = useQuery({
     queryKey: ["admin-cohorts"],
     queryFn: async () => {
-      const result = await doQuery({ data: { table: "cohorts", columns: "id, title, description, kind, starts_at, capacity, status, group_link, creator_id", orderBy: "starts_at", ascending: false, limit: 100 } });
+      const result = await doQuery({
+        data: {
+          table: "cohorts",
+          columns:
+            "id, title, description, kind, starts_at, capacity, status, group_link, creator_id",
+          orderBy: "starts_at",
+          ascending: false,
+          limit: 100,
+        },
+      });
       return (result ?? []) as unknown as CohortRow[];
     },
   });
@@ -3273,7 +3422,6 @@ function CohortsManager() {
       title: "",
       description: "",
       kind: "study_group",
-
 
       starts_at: new Date().toISOString().slice(0, 16),
       capacity: 50,
@@ -3427,9 +3575,13 @@ function CohortDialog({
     };
     try {
       if (form.id) {
-        await doAdminAction({ data: { table: "cohorts", action: "update", id: form.id, data: payload } });
+        await doAdminAction({
+          data: { table: "cohorts", action: "update", id: form.id, data: payload },
+        });
       } else {
-        await doAdminAction({ data: { table: "cohorts", action: "insert", data: { ...payload, creator_id: "" } } });
+        await doAdminAction({
+          data: { table: "cohorts", action: "insert", data: { ...payload, creator_id: "" } },
+        });
       }
     } catch (e: any) {
       setSaving(false);

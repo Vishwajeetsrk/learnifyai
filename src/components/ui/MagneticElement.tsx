@@ -26,6 +26,8 @@ export function MagneticElement({
 
   const rotateX = useTransform(y, [-100, 100], [10, -10]);
   const rotateY = useTransform(x, [-100, 100], [-10, 10]);
+  const spotlightX = useTransform(x, (val) => val * -0.5);
+  const spotlightY = useTransform(y, (val) => val * -0.5);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (isTouchDevice || prefersReducedMotion || !ref.current) return;
@@ -86,8 +88,8 @@ export function MagneticElement({
           style={{
             background:
               "radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 80%)",
-            x: useTransform(x, (val) => val * -0.5),
-            y: useTransform(y, (val) => val * -0.5),
+            x: spotlightX,
+            y: spotlightY,
           }}
         />
       )}

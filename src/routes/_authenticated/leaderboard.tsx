@@ -2,7 +2,19 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Trophy, Flame, Star, Medal, Crown, TrendingUp, Loader2, Users } from "lucide-react";
+import {
+  Trophy,
+  Flame,
+  Star,
+  Medal,
+  Crown,
+  TrendingUp,
+  Loader2,
+  Users,
+  GraduationCap,
+  Shield,
+  Sparkles,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -16,15 +28,17 @@ export const Route = createFileRoute("/_authenticated/leaderboard")({
 });
 
 function LeaderboardPage() {
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const [period, setPeriod] = useState<"weekly" | "all">("weekly");
+  const [roleFilter, setRoleFilter] = useState<"all" | "student" | "creator" | "admin">("all");
 
   const fetchLb = useServerFn(getLeaderboard);
   const fetchRank = useServerFn(getUserRank);
 
   const lb = useQuery({
-    queryKey: ["leaderboard", period],
-    queryFn: () => fetchLb({ data: { period } }),
+    queryKey: ["leaderboard", period, roleFilter],
+    queryFn: () =>
+      fetchLb({ data: { period, role: roleFilter === "all" ? undefined : roleFilter } }),
   });
 
   const myRank = useQuery({
@@ -144,7 +158,7 @@ function LeaderboardPage() {
         )}
 
         {/* Period tabs */}
-        <div className="flex gap-1 mb-5 bg-muted/50 rounded-xl p-1 w-fit border">
+        <div className="flex gap-1 mb-3 bg-muted/50 rounded-xl p-1 w-fit border">
           <Button
             variant={period === "weekly" ? "default" : "ghost"}
             size="sm"
@@ -160,6 +174,42 @@ function LeaderboardPage() {
             className="rounded-lg text-xs gap-1.5"
           >
             <Trophy className="h-3.5 w-3.5" /> All Time
+          </Button>
+        </div>
+
+        {/* Role filter tabs */}
+        <div className="flex gap-1 mb-5 bg-muted/50 rounded-xl p-1 w-fit border">
+          <Button
+            variant={roleFilter === "all" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setRoleFilter("all")}
+            className="rounded-lg text-xs gap-1.5"
+          >
+            <Users className="h-3.5 w-3.5" /> All
+          </Button>
+          <Button
+            variant={roleFilter === "student" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setRoleFilter("student")}
+            className="rounded-lg text-xs gap-1.5"
+          >
+            <GraduationCap className="h-3.5 w-3.5" /> Students
+          </Button>
+          <Button
+            variant={roleFilter === "creator" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setRoleFilter("creator")}
+            className="rounded-lg text-xs gap-1.5"
+          >
+            <Sparkles className="h-3.5 w-3.5" /> Creators
+          </Button>
+          <Button
+            variant={roleFilter === "admin" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => setRoleFilter("admin")}
+            className="rounded-lg text-xs gap-1.5"
+          >
+            <Shield className="h-3.5 w-3.5" /> Admins
           </Button>
         </div>
 

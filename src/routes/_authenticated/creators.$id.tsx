@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
 import {
   Bell,
   BellOff,
@@ -49,6 +50,24 @@ const inr = (n: number) =>
         currency: "INR",
         maximumFractionDigits: 0,
       }).format(n);
+
+function CreatorBannerImage({ src }: { src: string }) {
+  const [error, setError] = useState(false);
+  if (error) return null;
+  return (
+    <>
+      <img
+        src={src}
+        alt=""
+        className="w-full h-full object-cover"
+        loading="lazy"
+        decoding="async"
+        onError={() => setError(true)}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+    </>
+  );
+}
 
 function CreatorProfile() {
   const { id } = Route.useParams();
@@ -157,17 +176,8 @@ function CreatorProfile() {
         {/* Enhanced Channel Header */}
         <div className="rounded-3xl border bg-card overflow-hidden shadow-lg relative">
           <div className="h-48 md:h-64 w-full relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-cyan-500">
-            {p?.profile?.banner_url && p?.profile?.show_banner !== false ? (
-              <>
-                <img
-                  src={p.profile.banner_url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-              </>
+            {p?.profile?.banner_url && (p?.profile as any)?.show_banner !== false ? (
+              <CreatorBannerImage src={p.profile.banner_url} />
             ) : (
               <div className="absolute inset-0">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_50%)]" />

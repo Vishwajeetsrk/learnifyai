@@ -2,7 +2,17 @@ const CACHE_NAME = "learnify-v1";
 const STATIC_ASSETS = ["/", "/favicon.ico", "/logo.png", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)));
+  event.waitUntil(
+    caches
+      .open(CACHE_NAME)
+      .then((cache) =>
+        Promise.all(
+          STATIC_ASSETS.filter((url) => url.startsWith("http")).map((url) =>
+            cache.add(url).catch(() => {}),
+          ),
+        ),
+      ),
+  );
   self.skipWaiting();
 });
 
@@ -20,28 +30,35 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
-  const url = new URL(request.url);
-  // Skip non-http(s) requests (chrome-extension, blob, data, etc.)
-  if (url.protocol !== "http:" && url.protocol !== "https:") return;
-  // Skip in dev mode (localhost, 127.0.0.1)
-  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") return;
-  // Skip API, auth, and webhook routes
-  if (url.pathname.startsWith("/api/")) return;
 
-  const cacheResponse = (response: Response) => {
-    if (response.ok && url.protocol === "https:") {
-      const clone = response.clone();
-      caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-    }
-    return response;
-  };
+  let url;
+  try {
+    url = new URL(request.url);
+  } catch {
+    return;
+  }
+
+  if (url.protocol !== "http:" && url.protocol !== "https:") return;
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") return;
+  if (url.pathname.startsWith("/api/")) return;
 
   event.respondWith(
     caches.match(request).then((cached) => {
+      const fetchAndCache = () =>
+        fetch(request)
+          .then((response) => {
+            if (response.ok && url.protocol === "https:") {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            }
+            return response;
+          })
+          .catch(() => cached || new Response("Offline", { status: 503 }));
+
       if (request.headers.get("accept")?.includes("text/html")) {
-        return fetch(request).then(cacheResponse).catch(() => cached || new Response("Offline", { status: 503 }));
+        return fetchAndCache();
       }
-      return cached || fetch(request).then(cacheResponse);
+      return cached || fetchAndCache();
     }),
   );
 });

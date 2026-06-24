@@ -1,0 +1,82 @@
+-- Fix pricing_plans data: replace any dummy/corrupt records with correct values
+DELETE FROM pricing_plans WHERE name IN ('Vishajeet', 'Vishwajeet') OR price_label IN ('Unfortunately', 'Planned');
+
+INSERT INTO pricing_plans (
+  id, name, price_label, description, features,
+  cta_label, cta_to, highlighted, order_index, active,
+  price_inr, interval, ai_credits_monthly, max_courses,
+  badge, color, cashfree_plan_id
+) VALUES
+(
+  '4bed4e36-c085-4223-a654-58c9f042fbcc',
+  'Starter',
+  'Free',
+  'Everything you need to start your learning journey.',
+  '["500 AI credits/mo", "3 free courses", "Basic AI tutor", "Community access", "Progress tracking"]'::jsonb,
+  'Get started free',
+  '/signup',
+  false,
+  10,
+  true,
+  0,
+  null,
+  500,
+  3,
+  null,
+  '#64748b',
+  null
+),
+(
+  'a31a32f2-4d6d-41d4-9a8c-a06d1041a47a',
+  'Pro',
+  '₹499/mo',
+  'For serious learners and creators who want unlimited access.',
+  '["Unlimited courses", "Advanced AI tools", "10,000 AI credits/month", "Certificates", "Priority support", "Creator tools"]'::jsonb,
+  'Start Pro',
+  '/signup',
+  true,
+  20,
+  true,
+  499,
+  'month',
+  10000,
+  -1,
+  'Popular',
+  '#7c3aed',
+  null
+),
+(
+  'a2f8a0cf-f819-4414-a085-1195d13755ca',
+  'Team',
+  '₹4,999/mo',
+  'For cohorts, schools, and companies scaling learning.',
+  '["Seat-based billing", "Admin dashboard", "50,000 AI credits/month", "SSO + RBAC", "Custom branding", "Dedicated support"]'::jsonb,
+  'Contact sales',
+  'mailto:hello@learnify.ai',
+  false,
+  30,
+  true,
+  4999,
+  'month',
+  50000,
+  -1,
+  null,
+  '#0ea5e9',
+  null
+)
+ON CONFLICT (id) DO UPDATE SET
+  name = EXCLUDED.name,
+  price_label = EXCLUDED.price_label,
+  description = EXCLUDED.description,
+  features = EXCLUDED.features,
+  cta_label = EXCLUDED.cta_label,
+  cta_to = EXCLUDED.cta_to,
+  highlighted = EXCLUDED.highlighted,
+  order_index = EXCLUDED.order_index,
+  active = EXCLUDED.active,
+  price_inr = EXCLUDED.price_inr,
+  interval = EXCLUDED.interval,
+  ai_credits_monthly = EXCLUDED.ai_credits_monthly,
+  max_courses = EXCLUDED.max_courses,
+  badge = EXCLUDED.badge,
+  color = EXCLUDED.color;

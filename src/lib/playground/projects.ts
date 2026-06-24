@@ -4,8 +4,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const CreateProjectSchema = z.object({
   title: z.string().min(1).max(200).default("Untitled Project"),
+  description: z.string().max(2000).optional(),
   language: z.string().default("javascript"),
   template: z.enum(["blank", "html-css-js", "react", "node"]).default("blank"),
+  github: z.string().url().optional(),
+  image_url: z.string().url().optional(),
 });
 
 const UpdateProjectSchema = z.object({
@@ -15,6 +18,9 @@ const UpdateProjectSchema = z.object({
   language: z.string().optional(),
   is_public: z.boolean().optional(),
   tags: z.array(z.string()).optional(),
+  screenshot_url: z.string().nullable().optional(),
+  github: z.string().url().optional(),
+  image_url: z.string().url().optional(),
 });
 
 const TEMPLATE_FILES: Record<
@@ -76,11 +82,11 @@ export const createProject = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const supabase = context.supabase as any;
     const { userId } = context;
-    const { title, language, template } = data;
+    const { title, description, language, template, github, image_url } = data;
 
     const { data: project, error } = await supabase
       .from("playground_projects")
-      .insert({ user_id: userId, title, language, template })
+      .insert({ user_id: userId, title, description, language, template, github, image_url })
       .select()
       .single();
     if (error) throw new Error(error.message);

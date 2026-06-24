@@ -10,6 +10,13 @@ const ALLOWED_TABLES = [
   "certificate_templates",
   "cohorts",
   "pricing_plans",
+  "wcms_pages",
+  "wcms_blocks",
+  "wcms_features",
+  "wcms_menus",
+  "wcms_sections",
+  "media_library",
+  "coaching_roadmaps",
 ] as const;
 
 const actionSchema = z.object({
@@ -74,20 +81,22 @@ export const adminContentAction = createServerFn({ method: "POST" })
 export const adminContentQuery = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
-    z.object({
-      table: z.enum(ALLOWED_TABLES),
-      columns: z.string().optional(),
-      orderBy: z.string().optional(),
-      ascending: z.boolean().optional(),
-      orderBy2: z.string().optional(),
-      ascending2: z.boolean().optional(),
-      limit: z.number().optional(),
-      eqFilter: z.object({ column: z.string(), value: z.string() }).optional(),
-      eqFilter2: z.object({ column: z.string(), value: z.string() }).optional(),
-      inFilter: z.object({ column: z.string(), values: z.array(z.string()) }).optional(),
-      single: z.boolean().optional(),
-      maybeSingle: z.boolean().optional(),
-    }).parse(d),
+    z
+      .object({
+        table: z.enum(ALLOWED_TABLES),
+        columns: z.string().optional(),
+        orderBy: z.string().optional(),
+        ascending: z.boolean().optional(),
+        orderBy2: z.string().optional(),
+        ascending2: z.boolean().optional(),
+        limit: z.number().optional(),
+        eqFilter: z.object({ column: z.string(), value: z.string() }).optional(),
+        eqFilter2: z.object({ column: z.string(), value: z.string() }).optional(),
+        inFilter: z.object({ column: z.string(), values: z.array(z.string()) }).optional(),
+        single: z.boolean().optional(),
+        maybeSingle: z.boolean().optional(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const userId = context.userId!;
@@ -148,9 +157,7 @@ export const adminContentUpsert = createServerFn({ method: "POST" })
     const opts: any = {};
     if (data.onConflict) opts.onConflict = data.onConflict;
 
-    const { error } = await (supabaseAdmin as any)
-      .from(data.table)
-      .upsert(data.data, opts);
+    const { error } = await (supabaseAdmin as any).from(data.table).upsert(data.data, opts);
     if (error) throw error;
     return { success: true };
   });

@@ -62,6 +62,7 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
+        data-tour="user-menu"
         className={cn(
           "flex items-center gap-2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-primary",
           className,

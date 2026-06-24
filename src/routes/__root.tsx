@@ -257,6 +257,7 @@ import { NavigationProgress } from "../components/NavigationProgress";
 import { PageTransition } from "../components/PageTransition";
 import { InteractiveCursor } from "../components/ui/InteractiveCursor";
 import { CookieConsent } from "../components/CookieConsent";
+import { TourProvider, TourTrigger } from "../components/ProductTour";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -268,15 +269,18 @@ function RootComponent() {
           <CursorProvider>
             <AuthProvider>
               <FeatureProvider>
-                <ThemeSync />
-                <NavigationProgress />
-                <InteractiveCursor />
-                <PageTransition>
-                  {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-                  <Outlet />
-                </PageTransition>
-                <Toaster richColors position="top-right" />
-                <CookieConsent />
+                <TourProvider>
+                  <ThemeSync />
+                  <NavigationProgress />
+                  <InteractiveCursor />
+                  <PageTransition>
+                    {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                    <Outlet />
+                  </PageTransition>
+                  <TourTrigger />
+                  <Toaster richColors position="top-right" />
+                  <CookieConsent />
+                </TourProvider>
               </FeatureProvider>
             </AuthProvider>
           </CursorProvider>

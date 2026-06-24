@@ -87,7 +87,7 @@ export const getPublicProfile = createServerFn({ method: "GET" })
         let query = (supabaseAdmin as any)
           .from("playground_projects")
           .select(
-            "id, title, description, language, template, is_public, tags, created_at, updated_at",
+            "id, title, description, language, template, is_public, tags, screenshot_url, created_at, updated_at, project_likes(id, user_id, user:user_id(id, full_name)), project_comments(id, user_id, content, created_at), github, image_url",
           )
           .eq("user_id", id);
         if (currentUserId !== id) {
@@ -101,7 +101,7 @@ export const getPublicProfile = createServerFn({ method: "GET" })
           `
           *,
           author:profiles!posts_author_id_fkey (id, full_name, avatar_url),
-          likes:post_likes(id, user_id),
+          likes:post_likes(id, user_id, user:user_id(id, full_name, avatar_url)),
           comments:post_comments(id, content, author_id, created_at, author:author_id(id, full_name, avatar_url)),
           saves:post_saves(id, user_id)
         `,

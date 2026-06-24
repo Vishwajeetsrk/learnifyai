@@ -39,6 +39,8 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🏆 **Gamification**              | XP, streaks, badges, leaderboards, and achievements                                     |
 | 💰 **Wallet**                    | AI credits, course purchases, and withdrawals via Cashfree                              |
 | 📋 **Billing Dashboard**         | View current plan, invoices, subscription history, cancel/resume subscription           |
+| 🎯 **Onboarding Wizard**         | 8-step guided setup with AI coach, daily habits tracking, and project creation          |
+| 🗺️ **Interactive Product Tours** | Role-specific guided tours (Student, Creator, Admin) with spotlight tooltips             |
 
 ### 🎓 For Creators
 
@@ -47,7 +49,8 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🏗️ **Creator Studio**        | Build courses, add lessons, manage quizzes and assignments      |
 | 🪄 **AI Course Builder**     | Auto-generate course outlines, lessons, and thumbnails          |
 | 🎓 **Certificate Templates** | Assign certificate templates to courses from course detail page |
-| 🧑‍💼 **Coaching Hub**          | Book 1-on-1 sessions, schedule slots, and chat                  |
+| 🧑‍💼 **Coaching Hub**          | Book 1-on-1 sessions, schedule slots, chat, AI roadmap generator |
+| 🗺️ **Manual Roadmap Builder** | Create custom learning roadmaps with phases, skills, milestones |
 | 👥 **Cohorts**               | Live group learning with community spaces                       |
 | 📊 **Earnings Dashboard**    | Revenue tracking, payouts, and invoices                         |
 
@@ -63,6 +66,8 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                         |
 | 📄 **Legal Pages**            | Privacy Policy, Terms of Service, Refund Policy                                                           |
 | 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                  |
+| 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager                                     |
+| 🎯 **Interactive Tours**      | Role-specific product tours with spotlight cutout and auto-skip for missing targets                       |
 
 ---
 
@@ -246,6 +251,10 @@ npx playwright test
 | `GMAIL_APP_PASSWORD`            | 📧       | Gmail 16-character App Password                                              |
 | `RESEND_API_KEY`                | 📧       | Resend API key (primary email provider — recommended)                        |
 | `EMAIL_FROM`                    | 📧       | Sender email address (e.g. `noreply@learnify.ai` or `onboarding@resend.dev`) |
+| `BREVO_SMTP_KEY`                | 📧       | Brevo SMTP key (fallback email provider)                                     |
+| `BREVO_SMTP_SERVER`             | 📧       | Brevo SMTP server (e.g. `smtp-relay.brevo.com`)                             |
+| `BREVO_SMTP_PORT`               | 📧       | Brevo SMTP port (e.g. `587`)                                                |
+| `BREVO_SMTP_LOGIN`              | 📧       | Brevo SMTP login                                                             |
 
 ---
 
@@ -254,28 +263,33 @@ npx playwright test
 ```
 src/
 ├── routes/                  # File-based routing (TanStack Router)
-│   ├── __root.tsx          # Root layout with providers
+│   ├── __root.tsx          # Root layout with providers + ProductTour
 │   ├── index.tsx           # Landing page
 │   ├── login.tsx           # Authentication
 │   ├── signup.tsx          # Registration
-│   ├── pricing.tsx         # Pricing plans with feature comparison
+│   ├── pricing.tsx         # 3D pricing plans with feature comparison
+│   ├── p.$slug.tsx         # Dynamic WCMS public pages
 │   ├── u/
-│   │   ├── $id.tsx         # Public profile (UUID)
+│   │   ├── $id.tsx         # Public profile (UUID) with banner error handling
 │   │   └── @$username.tsx  # Username redirect → UUID
 │   ├── _authenticated/     # Protected routes
 │   │   ├── dashboard.tsx   # Learner dashboard
+│   │   ├── onboarding.tsx  # 8-step guided setup wizard
 │   │   ├── courses.$slug.tsx  # Course player
 │   │   ├── ai.tsx          # AI tutor chat
 │   │   ├── playground.*.tsx   # Code playground
 │   │   ├── billing.tsx     # Billing & subscription dashboard
+│   │   ├── coaching.tsx    # Coaching hub (5 tabs)
 │   │   ├── studio.tsx      # Creator studio
 │   │   ├── wallet.tsx      # Wallet & payments
 │   │   ├── admin.tsx       # Admin panel
+│   │   ├── admin.content.tsx  # Content manager (16 tabs + WCMS)
 │   │   └── admin/
 │   │       └── subscriptions.tsx  # Subscription analytics
 │   └── api/                # Server-side API routes
 │       ├── cron/
-│       │   └── check-subscriptions.ts  # Cron: expire overdue subscriptions
+│       │   ├── check-subscriptions.ts  # Cron: expire overdue subscriptions
+│       │   └── retry-cert-emails.ts  # Cron: retry failed certificate emails
 │       └── webhooks/
 │           ├── cashfree.ts              # One-time payment webhook
 │           └── cashfree-subscription.ts # Subscription webhook
@@ -287,6 +301,14 @@ src/
 │   │   ├── AIPanel.tsx          # AI code actions
 │   │   ├── AIAssistantPanel.tsx # AI chat assistant (6 actions)
 │   │   └── APITesterPanel.tsx   # HTTP request tester
+│   ├── admin/
+│   │   ├── PageManager.tsx      # WCMS page editor (14 block types)
+│   │   ├── MediaLibrary.tsx     # Media upload/management
+│   │   ├── FeaturesCatalog.tsx  # Feature catalog with icons/colors
+│   │   ├── MenuManager.tsx      # Navigation menu editor
+│   │   └── RoadmapBuilder.tsx   # Manual roadmap builder
+│   ├── ProductTour.tsx     # Interactive guided tours
+│   ├── wcms/BlockRenderer.tsx  # WCMS block renderer (14 types)
 │   ├── FilePreview.tsx     # PDF/DOCX/image/text preview
 │   ├── Skeletons.tsx       # Reusable skeleton loaders
 │   ├── SiteHeader.tsx      # Navigation header
@@ -294,13 +316,23 @@ src/
 │   ├── GlobalSupportAgent.tsx  # AI support chat
 │   └── CustomVideoPlayer.tsx   # YouTube/HTML5 player
 ├── hooks/                  # Custom React hooks
-│   ├── use-auth.tsx        # Authentication context
-│   └── use-theme.tsx       # Theme management
+│   ├── use-auth.tsx        # Authentication context (with role fetching)
+│   ├── use-theme.tsx       # Theme management
+│   ├── use-cursor.tsx      # Cursor state context
+│   ├── use-motion-pref.tsx # Reduced motion preference
+│   └── use-wcms-public.tsx # WCMS public data hooks
 ├── lib/                    # Server functions & utilities
+│   ├── cert.functions.ts   # Certificate CRUD + email sending
 │   ├── subscription.functions.ts     # Subscription CRUD + Cashfree
 │   ├── subscription-email.functions.ts # Subscription email notifications
 │   ├── payment.functions.ts  # Wallet payments + payouts
 │   ├── welcome-email.functions.ts  # Email system (multi-provider + templates)
+│   ├── onboarding.functions.ts  # Onboarding progress + AI coaching
+│   ├── profile-save.functions.ts  # Profile field updates
+│   ├── wcms.functions.ts  # WCMS server functions (17 functions)
+│   ├── wcms-public.functions.ts  # WCMS public API (4 endpoints)
+│   ├── admin-content.functions.ts  # Admin CRUD (bypasses RLS)
+│   ├── gamification.functions.ts  # XP, streaks, achievements
 │   ├── agent.functions.ts  # Coding mentor agent
 │   ├── support-agent.functions.ts  # Support agent
 │   ├── user-ai.ts          # Multi-provider AI fallback
@@ -378,6 +410,25 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v3.5.0 (June 2026) - WCMS, Onboarding, Product Tours, Code Quality & Bug Fixes
+
+- ✅ **WCMS Content Management System**: Full content management with 6 DB tables, 17 server functions, 4 public API endpoints. Page Manager with 14 block types (hero, features, testimonials, pricing, FAQ, etc.), Media Library with upload/preview/delete, Features Catalog (19 icons/17 colors), Menu Manager for navigation editing. Dynamic route `/p/$slug` renders WCMS pages publicly.
+- ✅ **8-Step Onboarding Wizard**: Guided setup flow with welcome, AI profile (goals/experience/interests), interactive product tour, first project creation, AI coaching chat, daily habits tracking, advanced settings, and completion summary. Server-side progress tracking with multi-provider AI coaching (Groq → Gemini → OpenRouter).
+- ✅ **Interactive Product Tours**: Role-specific guided tours (Student, Creator, Admin, Features) with spotlight cutout overlay, tooltip navigation, and auto-skip for missing DOM targets. TourProvider wraps entire app, TourTrigger hidden on onboarding page.
+- ✅ **Manual Roadmap Builder**: Full CRUD for learning roadmaps with phases, skills, milestones, tags, templates, and duplicate functionality. AI roadmap generator via server-side OpenRouter call.
+- ✅ **Code Quality**: Fixed all TypeScript compilation errors (0 errors), ESLint `no-explicit-any` reduced to warnings only, Prettier formatting applied across entire codebase.
+- ✅ **Banner Image Error Handling**: Added `onError` handlers to banner images on profile and creator pages. Graceful fallback when Supabase signed URLs expire (400 errors).
+- ✅ **Auth Race Condition Fixed**: `use-auth.tsx` now `await`s `fetchRoles()` before setting `loading = false`, preventing admin pages from redirecting away before roles load.
+- ✅ **Onboarding Redirect Graceful Handling**: `_authenticated.tsx` caches `_onboardingTableMissing` flag; skips redirect to `/onboarding` for admin routes. All onboarding server functions use `isTableMissing()` helper for graceful degradation on 404/42P01 errors.
+- ✅ **Mouse Cursor z-index Fix**: InteractiveCursor z-index bumped to `z-[10001]` to render above ProductTour backdrop (`z-[9999]`).
+- ✅ **Avatar DiceBear Fix**: `AvatarImage` strips `profile_border` query param before fetching to prevent DiceBear 9.x 400 errors. Border CSS applied separately via `getProfileBorderClass()` with 19 border styles.
+- ✅ **Service Worker Fix**: `public/sw.js` filters out `chrome-extension:` protocol and wraps `cache.add` in try-catch to prevent extension-related crashes.
+- ✅ **Playground Tables Created**: `playground_projects`, `playground_files`, `playground_runs` tables created via resilient migration with RLS policies and indexes.
+- ✅ **Pricing Data Fixed**: Deleted corrupt pricing data (Vishajeet/Vishwajeet), upserted correct Starter/Pro/Team plans via SQL migration.
+- ✅ **Email Delivery Improvements**: Added `console.log`/`console.warn`/`console.error` logging to all email providers (Resend API, Resend SMTP, Brevo API, Brevo SMTP, Gmail SMTP). Removed `domainUnverified` block on Resend SMTP to always try it. Gmail SMTP throws on failure instead of silent return.
+- ✅ **npm Audit Fix**: Resolved 4 of 5 vulnerabilities (nodemailer, dompurify, esbuild). xlsx has no fix available (upstream dependency).
+- ✅ **Supabase Types Regenerated**: All new tables (onboarding, WCMS, playground, project_likes, project_comments) now included in generated TypeScript types.
 
 ### v3.4.0 (June 2026) - Video Playback, Certificate Fixes, Email Delivery & UI Cleanup
 

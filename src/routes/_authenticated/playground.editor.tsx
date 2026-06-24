@@ -26,11 +26,14 @@ import {
   Brain,
   Globe,
   Sparkles,
+  Camera,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 
 // Lazy load heavy IDE components (Sandpack ~2MB + Monaco ~10MB)
 const WebIDE = lazy(() =>
@@ -53,6 +56,7 @@ const WEB_TEMPLATES = ["html-css-js", "react", "node"];
 function PlaygroundEditor() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { user } = useAuth();
   const { project: projectId } = Route.useSearch();
 
   // Project State
@@ -76,7 +80,35 @@ function PlaygroundEditor() {
   );
   const [timeMs, setTimeMs] = useState<number | undefined>();
   const [updatingVisibility, setUpdatingVisibility] = useState(false);
+  const [capturing, setCapturing] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
+
+  const handleCaptureScreenshot = async () => {
+    if (!projectId) return toast.error("Save the project first");
+    setCapturing(true);
+    try {
+      const html2canvas = (await import("html2canvas-pro")).default;
+      const previewEl = document.querySelector(".sp-preview") as HTMLElement;
+      if (!previewEl) return toast.error("Preview not available");
+      const canvas = await html2canvas(previewEl, { useCORS: true, scale: 0.5 });
+      const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/webp", 0.8));
+      if (!blob) return toast.error("Failed to create screenshot");
+      const file = new File([blob], `screenshot-${Date.now()}.webp`, { type: "image/webp" });
+      const path = `${user!.id}/screenshots/${projectId}-${Date.now()}.webp`;
+      const { error: upErr } = await supabase.storage
+        .from("avatars")
+        .upload(path, file, { upsert: true });
+      if (upErr) throw upErr;
+      const publicUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+      await updateProjectFn({ data: { id: projectId!, screenshot_url: publicUrl } });
+      qc.invalidateQueries({ queryKey: ["playground-project", projectId] });
+      toast.success("Screenshot captured!");
+    } catch (e: any) {
+      toast.error(e?.message || "Screenshot failed");
+    } finally {
+      setCapturing(false);
+    }
+  };
 
   const execFn = useServerFn(executeCode);
   const deleteFn = useServerFn(deleteProject);
@@ -398,6 +430,8 @@ function PlaygroundEditor() {
                     }
                     onSave={handleWebSave}
                     saving={saving}
+                    onScreenshot={handleCaptureScreenshot}
+                    capturing={capturing}
                   />
                 ) : (
                   <StandardIDE

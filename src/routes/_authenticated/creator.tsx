@@ -8,6 +8,7 @@ import {
   BookOpen,
   MessageSquare,
   ExternalLink,
+  RefreshCw,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CreatorGate } from "@/components/CreatorGate";
@@ -16,6 +17,7 @@ import { CreatorTabs } from "@/components/CreatorTabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DashboardSkeleton } from "@/components/Skeletons";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -129,6 +131,42 @@ function CreatorHub() {
 
   const data = overview.data;
 
+  if (overview.isLoading) {
+    return (
+      <AppShell>
+        <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-7xl">
+          <CreatorTabs />
+          <div className="mt-6">
+            <DashboardSkeleton />
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (overview.isError) {
+    return (
+      <AppShell>
+        <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-7xl">
+          <CreatorTabs />
+          <div className="mt-6">
+            <Card className="p-8 text-center">
+              <p className="text-destructive font-medium">Failed to load dashboard</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {overview.error instanceof Error
+                  ? overview.error.message
+                  : "An unexpected error occurred"}
+              </p>
+              <Button className="mt-4" size="sm" onClick={() => overview.refetch()}>
+                <RefreshCw className="h-4 w-4 mr-2" /> Retry
+              </Button>
+            </Card>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-7xl">
@@ -146,6 +184,15 @@ function CreatorHub() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => overview.refetch()}
+              disabled={overview.isFetching}
+              title="Refresh dashboard"
+            >
+              <RefreshCw className={`h-4 w-4 ${overview.isFetching ? "animate-spin" : ""}`} />
+            </Button>
             <Button asChild variant="outline" size="sm">
               <Link to="/studio">Open Studio</Link>
             </Button>
@@ -171,7 +218,7 @@ function CreatorHub() {
                 <Link to="/studio">Manage in Studio</Link>
               </Button>
             </div>
-            {!data?.courses.length ? (
+            {!overview.isLoading && !data?.courses.length ? (
               <div className="py-12 text-center text-sm text-muted-foreground">
                 No courses yet.{" "}
                 <Link to="/studio" className="text-primary underline">
@@ -181,7 +228,7 @@ function CreatorHub() {
               </div>
             ) : (
               <div className="divide-y">
-                {data.courses.map((c) => (
+                {data?.courses.map((c) => (
                   <div key={c.id} className="py-3 flex items-center gap-3">
                     <div className="h-12 w-20 rounded-md bg-muted overflow-hidden shrink-0">
                       {c.cover_url ? (
@@ -197,8 +244,8 @@ function CreatorHub() {
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-medium truncate">{c.title}</div>
                       <div className="text-[11px] text-muted-foreground mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
-                        <span>{data.lessonsByCourse[c.id] ?? 0} lessons</span>
-                        <span>{data.enrollByCourse.get(c.id) ?? 0} enrolled</span>
+                        <span>{data?.lessonsByCourse[c.id] ?? 0} lessons</span>
+                        <span>{data?.enrollByCourse.get(c.id) ?? 0} enrolled</span>
                         <span>{inr(Number(c.price_inr ?? 0))}</span>
                         {!c.published && (
                           <Badge variant="secondary" className="text-[10px]">
@@ -227,11 +274,11 @@ function CreatorHub() {
                 <Link to="/creator/comments">View all</Link>
               </Button>
             </div>
-            {!data?.recentComments.length ? (
+            {!overview.isLoading && !data?.recentComments.length ? (
               <p className="text-sm text-muted-foreground py-6 text-center">No comments yet.</p>
             ) : (
               <ul className="space-y-3">
-                {data.recentComments.map((c) => (
+                {data?.recentComments.map((c) => (
                   <li key={c.id} className="text-sm">
                     <p className="line-clamp-2">{c.body}</p>
                     <p className="text-[11px] text-muted-foreground mt-1">

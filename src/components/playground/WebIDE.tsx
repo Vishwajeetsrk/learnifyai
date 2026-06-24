@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   SandpackProvider,
   SandpackLayout,
@@ -22,6 +22,7 @@ import {
   Maximize2,
   Minimize2,
   Copy,
+  Camera,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -139,12 +140,17 @@ function WebIDEToolbar({
 function PreviewPanel({
   previewDevice,
   fontSize,
+  onScreenshot,
+  capturing,
 }: {
   previewDevice: "desktop" | "mobile" | "tablet";
   fontSize: number;
+  onScreenshot?: () => void;
+  capturing?: boolean;
 }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const { sandpack } = useSandpack();
+  const previewRef = useRef<HTMLDivElement>(null);
 
   const getDeviceWidth = () => {
     switch (previewDevice) {
@@ -181,6 +187,22 @@ function PreviewPanel({
           <span className="text-xs text-zinc-400 font-mono">localhost:3000</span>
         </div>
         <div className="flex items-center gap-2">
+          {onScreenshot && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-2 text-xs text-zinc-400 hover:text-zinc-200"
+              onClick={onScreenshot}
+              disabled={capturing}
+              title="Capture Screenshot"
+            >
+              {capturing ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <Camera className="h-3 w-3" />
+              )}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
@@ -214,6 +236,7 @@ function PreviewPanel({
       {/* Preview Content */}
       <div className="flex-1 overflow-hidden flex items-center justify-center p-4">
         <div
+          ref={previewRef}
           style={{
             width: getDeviceWidth(),
             height: getDeviceHeight(),
@@ -241,11 +264,15 @@ export function WebIDE({
   template,
   onSave,
   saving,
+  onScreenshot,
+  capturing,
 }: {
   files: Record<string, { code: string }>;
   template: "react" | "vanilla" | "node";
   onSave: (files: Record<string, string>) => void;
   saving: boolean;
+  onScreenshot?: () => void;
+  capturing?: boolean;
 }) {
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile" | "tablet">("desktop");
   const [fontSize, setFontSize] = useState(14);
@@ -301,7 +328,12 @@ export function WebIDE({
             />
           ) : (
             <div style={{ height: "100%", flex: 1, display: "flex" }}>
-              <PreviewPanel previewDevice={previewDevice} fontSize={fontSize} />
+              <PreviewPanel
+                previewDevice={previewDevice}
+                fontSize={fontSize}
+                onScreenshot={onScreenshot}
+                capturing={capturing}
+              />
             </div>
           )}
         </SandpackLayout>

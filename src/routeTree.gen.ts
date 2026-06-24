@@ -34,6 +34,7 @@ import { Route as VerifyIdRouteImport } from './routes/verify.$id'
 import { Route as UAtusernameRouteImport } from './routes/u/@$username'
 import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as CertificatesCodeRouteImport } from './routes/certificates.$code'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedWorkspaceRouteImport } from './routes/_authenticated/workspace'
@@ -43,6 +44,7 @@ import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedPlaygroundRouteImport } from './routes/_authenticated/playground'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -208,6 +210,11 @@ const SitemapXmlRoute = SitemapXmlRouteImport.update({
   path: '/sitemap/xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CertificatesCodeRoute = CertificatesCodeRouteImport.update({
   id: '/certificates/$code',
   path: '/certificates/$code',
@@ -252,6 +259,11 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
 const AuthenticatedPlaygroundRoute = AuthenticatedPlaygroundRouteImport.update({
   id: '/playground',
   path: '/playground',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedLeaderboardRoute =
@@ -516,6 +528,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/playground': typeof AuthenticatedPlaygroundRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
@@ -525,6 +538,7 @@ export interface FileRoutesByFullPath {
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
   '/certificates/$code': typeof CertificatesCodeRoute
+  '/p/$slug': typeof PSlugRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
   '/u/@$username': typeof UAtusernameRoute
@@ -591,6 +605,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/playground': typeof AuthenticatedPlaygroundRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
@@ -600,6 +615,7 @@ export interface FileRoutesByTo {
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
   '/certificates/$code': typeof CertificatesCodeRoute
+  '/p/$slug': typeof PSlugRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
   '/u/@$username': typeof UAtusernameRoute
@@ -668,6 +684,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRoute
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/playground': typeof AuthenticatedPlaygroundRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
@@ -677,6 +694,7 @@ export interface FileRoutesById {
   '/_authenticated/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
   '/certificates/$code': typeof CertificatesCodeRoute
+  '/p/$slug': typeof PSlugRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
   '/u/@$username': typeof UAtusernameRoute
@@ -745,6 +763,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inbox'
     | '/leaderboard'
+    | '/onboarding'
     | '/playground'
     | '/settings'
     | '/studio'
@@ -754,6 +773,7 @@ export interface FileRouteTypes {
     | '/workspace'
     | '/api/chat'
     | '/certificates/$code'
+    | '/p/$slug'
     | '/sitemap/xml'
     | '/u/$id'
     | '/u/@$username'
@@ -820,6 +840,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/inbox'
     | '/leaderboard'
+    | '/onboarding'
     | '/playground'
     | '/settings'
     | '/studio'
@@ -829,6 +850,7 @@ export interface FileRouteTypes {
     | '/workspace'
     | '/api/chat'
     | '/certificates/$code'
+    | '/p/$slug'
     | '/sitemap/xml'
     | '/u/$id'
     | '/u/@$username'
@@ -896,6 +918,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/inbox'
     | '/_authenticated/leaderboard'
+    | '/_authenticated/onboarding'
     | '/_authenticated/playground'
     | '/_authenticated/settings'
     | '/_authenticated/studio'
@@ -905,6 +928,7 @@ export interface FileRouteTypes {
     | '/_authenticated/workspace'
     | '/api/chat'
     | '/certificates/$code'
+    | '/p/$slug'
     | '/sitemap/xml'
     | '/u/$id'
     | '/u/@$username'
@@ -960,6 +984,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
   CertificatesCodeRoute: typeof CertificatesCodeRoute
+  PSlugRoute: typeof PSlugRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
   UIdRoute: typeof UIdRoute
   UAtusernameRoute: typeof UAtusernameRoute
@@ -1149,6 +1174,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapXmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/certificates/$code': {
       id: '/certificates/$code'
       path: '/certificates/$code'
@@ -1210,6 +1242,13 @@ declare module '@tanstack/react-router' {
       path: '/playground'
       fullPath: '/playground'
       preLoaderRoute: typeof AuthenticatedPlaygroundRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/leaderboard': {
@@ -1585,6 +1624,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
   AuthenticatedLeaderboardRoute: typeof AuthenticatedLeaderboardRoute
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPlaygroundRoute: typeof AuthenticatedPlaygroundRouteWithChildren
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
@@ -1613,6 +1653,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRoute,
   AuthenticatedLeaderboardRoute: AuthenticatedLeaderboardRoute,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPlaygroundRoute: AuthenticatedPlaygroundRouteWithChildren,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
@@ -1653,6 +1694,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
   CertificatesCodeRoute: CertificatesCodeRoute,
+  PSlugRoute: PSlugRoute,
   SitemapXmlRoute: SitemapXmlRoute,
   UIdRoute: UIdRoute,
   UAtusernameRoute: UAtusernameRoute,

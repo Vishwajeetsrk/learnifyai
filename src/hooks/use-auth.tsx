@@ -60,14 +60,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Hydrate any existing session
     supabase.auth
       .getSession()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         clearTimeout(safetyTimer);
         setSession(data.session);
         if (data.session?.access_token) {
           document.cookie = `sb-access-token=${data.session.access_token}; path=/; max-age=31536000; SameSite=Lax`;
         }
         if (data.session?.user) {
-          return fetchRoles(data.session.user.id);
+          await fetchRoles(data.session.user.id);
         }
       })
       .catch((error) => {

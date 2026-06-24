@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useIsFetching } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Users,
@@ -583,6 +583,7 @@ function AdminOverview() {
   };
 
   const refreshAll = () => qc.invalidateQueries({ queryKey: ["admin"] });
+  const adminFetching = useIsFetching({ queryKey: ["admin"] });
 
   // ───────── User actions modals ─────────
   type AdminUser = NonNullable<typeof usersQuery.data>["rows"][number];
@@ -842,7 +843,7 @@ function AdminOverview() {
               <Mail className="h-4 w-4" /> Email Templates
             </Button>
             <Button variant="outline" size="sm" onClick={refreshAll}>
-              <RefreshCw className="h-4 w-4" /> Refresh
+              <RefreshCw className={`h-4 w-4 ${adminFetching > 0 ? "animate-spin" : ""}`} /> Refresh
             </Button>
             <div className="hidden md:flex items-center gap-2">
               <Button size="sm" onClick={handleExport}>

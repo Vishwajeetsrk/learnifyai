@@ -138,7 +138,7 @@ function CommunityPage() {
             `
             *,
             author:profiles!posts_author_id_fkey (id, full_name, avatar_url),
-            likes:post_likes(id, user_id),
+            likes:post_likes(id, user_id, user:user_id(id, full_name, avatar_url)),
             comments:post_comments(id, content, author_id, created_at, author:author_id(id, full_name, avatar_url)),
             saves:post_saves(id, user_id)
           `,

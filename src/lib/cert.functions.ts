@@ -209,6 +209,7 @@ export async function sendEmail({
       clearTimeout(timeout);
       if (!resp.ok) {
         const body = await resp.text().catch(() => "");
+        console.warn(`Resend REST API error ${resp.status}:`, body.slice(0, 200));
         if (resp.status === 422 && body.includes("verified")) {
           domainUnverified = true;
           console.warn("Resend REST: sender domain not verified, trying alternatives...");
@@ -217,6 +218,7 @@ export async function sendEmail({
         }
       } else {
         const json = await resp.json();
+        console.log("Email sent via Resend API:", json.id);
         return { messageId: json.id, provider: "resend-api" };
       }
     } catch (err: any) {
@@ -227,14 +229,16 @@ export async function sendEmail({
   // 2. Try Brevo API
   if (BREVO_API_KEY) {
     try {
-      return await sendViaBrevoApi({ to, subject, html });
+      const result = await sendViaBrevoApi({ to, subject, html });
+      console.log("Email sent via Brevo API:", result.messageId);
+      return result;
     } catch (err: any) {
       console.warn("Brevo API failed, trying alternatives...", err?.message?.slice(0, 120));
     }
   }
 
-  // 3. Try Resend SMTP (skip if REST already failed with domain verification)
-  if (RESEND_API_KEY && !domainUnverified) {
+  // 3. Try Resend SMTP (always try, even if REST failed with domain verification)
+  if (RESEND_API_KEY) {
     try {
       const moduleName = "nodemailer";
       const { default: nodemailer } = await import(moduleName);
@@ -254,6 +258,7 @@ export async function sendEmail({
         html,
         headers: idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
       });
+      console.log("Email sent via Resend SMTP:", info.messageId);
       return { messageId: info.messageId, provider: "resend-smtp" };
     } catch (err: any) {
       console.warn("Resend SMTP failed, trying alternatives...", err?.message?.slice(0, 120));
@@ -280,6 +285,7 @@ export async function sendEmail({
         subject,
         html,
       });
+      console.log("Email sent via Brevo SMTP:", info.messageId);
       return { messageId: info.messageId, provider: "brevo-smtp" };
     } catch (err: any) {
       console.warn("Brevo SMTP failed, trying Gmail...", err?.message?.slice(0, 120));
@@ -306,9 +312,10 @@ export async function sendEmail({
         subject,
         html,
       });
+      console.log("Email sent via Gmail SMTP:", info.messageId);
       return { messageId: info.messageId, provider: "gmail" };
     } catch (err: any) {
-      console.warn("Gmail SMTP failed:", err?.message?.slice(0, 120));
+      console.error("Gmail SMTP failed:", err?.message);
       throw err;
     }
   }

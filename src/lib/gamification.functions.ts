@@ -159,11 +159,26 @@ export const awardXP = createServerFn({ method: "POST" })
 /* ── Leaderboard (weekly or all-time) ──────────────────────────── */
 
 export const getLeaderboard = createServerFn({ method: "GET" })
-  .inputValidator((input: { period?: "weekly" | "all" }) =>
-    z.object({ period: z.enum(["weekly", "all"]).optional() }).parse(input),
+  .inputValidator((input: { period?: "weekly" | "all"; role?: "student" | "creator" | "admin" }) =>
+    z
+      .object({
+        period: z.enum(["weekly", "all"]).optional(),
+        role: z.enum(["student", "creator", "admin"]).optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let filteredUserIds: string[] | null = null;
+    if (data.role) {
+      const { data: roles } = await (supabaseAdmin as any)
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", data.role);
+      filteredUserIds = (roles ?? []).map((r: any) => r.user_id);
+      if (filteredUserIds && filteredUserIds.length === 0) return [];
+    }
 
     if (data.period === "weekly") {
       const weekStart = new Date();
@@ -181,7 +196,10 @@ export const getLeaderboard = createServerFn({ method: "GET" })
 
       if (map.size === 0) return [];
 
-      const userIds = [...map.keys()];
+      let userIds = [...map.keys()];
+      if (filteredUserIds) userIds = userIds.filter((id) => filteredUserIds!.includes(id));
+      if (userIds.length === 0) return [];
+
       const { data: profiles } = await supabaseAdmin
         .from("profiles")
         .select("id, full_name, avatar_url, xp, current_streak")
@@ -190,6 +208,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
       const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
 
       return [...map.entries()]
+        .filter(([id]) => !filteredUserIds || filteredUserIds.includes(id))
         .map(([id, weekly]) => {
           const p = profileMap.get(id);
           return {
@@ -205,13 +224,17 @@ export const getLeaderboard = createServerFn({ method: "GET" })
         .slice(0, 50);
     }
 
-    const { data: allTime } = await supabaseAdmin
+    let query = supabaseAdmin
       .from("profiles")
       .select("id, full_name, avatar_url, xp, current_streak")
       .not("xp", "is", null)
       .order("xp", { ascending: false })
       .order("id", { ascending: true })
       .limit(50);
+
+    if (filteredUserIds) query = query.in("id", filteredUserIds);
+
+    const { data: allTime } = await query;
 
     return (allTime ?? []).map((p) => ({ ...p, weekly_xp: 0 }));
   });

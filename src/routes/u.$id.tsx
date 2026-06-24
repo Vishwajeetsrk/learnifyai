@@ -18,6 +18,7 @@ import {
   Linkedin,
   Youtube,
   Globe,
+  Instagram,
   FileCode,
   ExternalLink,
   Megaphone,
@@ -30,6 +31,10 @@ import {
   Trash2,
   FileText,
   X,
+  Plus,
+  Gamepad2,
+  Music2,
+  Shield,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -37,6 +42,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDistanceToNow } from "date-fns";
@@ -48,6 +71,7 @@ import { SkillBadge } from "@/components/SkillBadge";
 import { Button } from "@/components/ui/button";
 import { getPublicProfile } from "@/lib/profile.functions";
 import { getUserAchievements, xpToLevel, levelToRank } from "@/lib/gamification.functions";
+import { createProject } from "@/lib/playground/projects";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -63,6 +87,7 @@ import {
   TestBadge,
   ChallengeBadge,
 } from "@/components/GamificationBadges";
+import { FilePreview } from "@/components/FilePreview";
 
 export const Route = createFileRoute("/u/$id")({
   head: ({ params }) => ({
@@ -74,11 +99,33 @@ export const Route = createFileRoute("/u/$id")({
   component: PublicProfilePage,
 });
 
+function BannerImage({ src }: { src: string }) {
+  const [error, setError] = useState(false);
+  if (error) return null;
+  return (
+    <div className="h-48 md:h-56 lg:h-64 w-full bg-muted relative overflow-hidden">
+      <img
+        src={src}
+        alt="Banner"
+        className="w-full h-full object-cover"
+        loading="lazy"
+        decoding="async"
+        onError={() => setError(true)}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+    </div>
+  );
+}
+
 function getSocialIcon(url: string) {
-  if (url.includes("twitter.com") || url.includes("x.com")) return <Twitter className="h-4 w-4" />;
+  if (url.includes("twitter.com") || url.includes("x.com"))
+    return <Twitter className="h-4 w-4 text-sky-500" />;
   if (url.includes("github.com")) return <Github className="h-4 w-4" />;
-  if (url.includes("linkedin.com")) return <Linkedin className="h-4 w-4" />;
-  if (url.includes("youtube.com")) return <Youtube className="h-4 w-4" />;
+  if (url.includes("linkedin.com")) return <Linkedin className="h-4 w-4 text-blue-600" />;
+  if (url.includes("youtube.com")) return <Youtube className="h-4 w-4 text-red-500" />;
+  if (url.includes("instagram.com")) return <Instagram className="h-4 w-4 text-pink-500" />;
+  if (url.includes("twitch.tv")) return <Gamepad2 className="h-4 w-4 text-purple-500" />;
+  if (url.includes("tiktok.com")) return <Music2 className="h-4 w-4" />;
   return <Globe className="h-4 w-4" />;
 }
 
@@ -107,8 +154,18 @@ function ProjectCard({
 }) {
   const isEditing = editingProjectId === project.id;
   return (
-    <div className="rounded-xl border bg-card p-4 hover:shadow-lg hover:border-primary/20 transition-all group flex flex-col justify-between">
-      <div>
+    <div className="rounded-xl border bg-card hover:shadow-lg hover:border-primary/20 transition-all group flex flex-col justify-between overflow-hidden">
+      {project.screenshot_url ? (
+        <div className="relative h-40 bg-muted overflow-hidden">
+          <img
+            src={project.screenshot_url}
+            alt={project.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+          />
+        </div>
+      ) : null}
+      <div className="p-4">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
             <FileCode className="h-4 w-4 text-primary" />
@@ -137,21 +194,40 @@ function ProjectCard({
                 >
                   <FileText className="h-3.5 w-3.5 mr-2" /> Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-destructive focus:bg-destructive/10"
-                  onClick={async () => {
-                    if (!window.confirm("Delete this project?")) return;
-                    const { error } = await supabase
-                      .from("playground_projects" as any)
-                      .delete()
-                      .eq("id", project.id);
-                    if (error) return toast.error(error.message);
-                    toast.success("Project deleted");
-                    qc.invalidateQueries({ queryKey: ["public-profile", id] });
-                  }}
-                >
-                  <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
-                </DropdownMenuItem>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem
+                      className="text-destructive focus:bg-destructive/10"
+                      onSelect={(e) => e.preventDefault()}
+                    >
+                      <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete project?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete "{project.title}". This cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={async () => {
+                          const { error } = await supabase
+                            .from("playground_projects" as any)
+                            .delete()
+                            .eq("id", project.id);
+                          if (error) return toast.error(error.message);
+                          toast.success("Project deleted");
+                          qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                        }}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
@@ -208,6 +284,28 @@ function ProjectCard({
               <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
                 {project.description}
               </p>
+            )}
+            {project.github && (
+              <div className="mt-2 flex items-center gap-2">
+                <Github className="h-3.5 w-3.5 text-muted-foreground" />
+                <a
+                  href={project.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-primary hover:underline truncate"
+                >
+                  {project.github}
+                </a>
+              </div>
+            )}
+            {project.image_url && (
+              <div className="mt-2">
+                <img
+                  src={project.image_url}
+                  alt="Project image"
+                  className="h-16 w-full rounded-lg object-cover"
+                />
+              </div>
             )}
           </>
         )}
@@ -273,6 +371,12 @@ function PublicProfilePage() {
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editProjectTitle, setEditProjectTitle] = useState("");
   const [editProjectDescription, setEditProjectDescription] = useState("");
+  const [showNewProject, setShowNewProject] = useState(false);
+  const [newProjectTitle, setNewProjectTitle] = useState("");
+  const [newProjectDescription, setNewProjectDescription] = useState("");
+  const [newProjectGithub, setNewProjectGithub] = useState("");
+  const [newProjectImageUrl, setNewProjectImageUrl] = useState<string | null>(null);
+  const [projectImageUploading, setProjectImageUploading] = useState(false);
   const [isEditingSkills, setIsEditingSkills] = useState(false);
   const [editingSkillIdx, setEditingSkillIdx] = useState<number | null>(null);
   const [editSkillValue, setEditSkillValue] = useState("");
@@ -289,6 +393,7 @@ function PublicProfilePage() {
     }
   };
   const fetchProfile = useServerFn(getPublicProfile);
+  const createProjectFn = useServerFn(createProject);
   const q = useQuery({
     queryKey: ["public-profile", id],
     queryFn: () => fetchProfile({ data: { id } }),
@@ -390,18 +495,8 @@ function PublicProfilePage() {
     <AppShell>
       <div className="max-w-6xl mx-auto pb-10">
         {/* Banner */}
-        {profile.banner_url && profile.show_banner !== false ? (
-          <div className="h-48 md:h-56 lg:h-64 w-full bg-muted relative overflow-hidden">
-            <img
-              src={profile.banner_url}
-              alt="Banner"
-              className="w-full h-full object-cover"
-              loading="lazy"
-              decoding="async"
-            />
-            {/* Gradient overlay for readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-          </div>
+        {profile.banner_url && (profile as any).show_banner !== false ? (
+          <BannerImage src={profile.banner_url} />
         ) : null}
 
         {/* Profile Info */}
@@ -423,65 +518,85 @@ function PublicProfilePage() {
               </Avatar>
             </div>
 
-            <div className="flex-1 min-w-0 mt-4 sm:mt-0 mb-1 bg-background/80 backdrop-blur-sm rounded-2xl p-3 sm:p-0 sm:bg-transparent sm:backdrop-blur-none">
-              <h1
-                className="font-display text-2xl sm:text-3xl font-bold tracking-tight"
-                style={{ color: (profile as any).name_color || undefined }}
-              >
-                {name}
-              </h1>
+            <div className="flex-1 min-w-0 mt-4 sm:mt-0">
+              <div className="bg-background/80 backdrop-blur-xl rounded-2xl border border-border/40 p-4 sm:bg-transparent sm:backdrop-blur-none sm:border-0 sm:p-0 shadow-sm sm:shadow-none">
+                <h1
+                  className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground"
+                  style={
+                    (profile as any).name_color ? { color: (profile as any).name_color } : undefined
+                  }
+                >
+                  {name}
+                </h1>
 
-              {/* Gamification Stats */}
-              <div className="flex flex-wrap items-center gap-3 mt-1.5 mb-2">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border bg-card shadow-sm">
-                  <AnimatedRankCrown rankName={rankInfo.name} className="scale-50 -my-4 -mx-2" />
-                  <span className={cn("text-xs font-bold", rankInfo.color)}>{rankInfo.name}</span>
-                </div>
-                <Badge
-                  variant="outline"
-                  className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-indigo-500 border-indigo-200 dark:border-indigo-900/50 shadow-sm"
-                >
-                  ⚡ Lv. {level}
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-amber-500 border-amber-200 dark:border-amber-900/50 shadow-sm"
-                >
-                  ⭐ {xp.toLocaleString()} XP
-                </Badge>
-                <Badge
-                  variant="outline"
-                  className="text-xs font-bold px-2.5 py-1 rounded-xl border bg-background/50 text-orange-500 border-orange-200 dark:border-orange-900/50 shadow-sm"
-                >
-                  🔥 {streak} {streak === 1 ? "day streak" : "days streak"}
-                </Badge>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1 text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{subscribers} subscribers</span>
-                <span>·</span>
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" /> Joined{" "}
-                  {format(new Date(profile.created_at), "MMM yyyy")}
-                </span>
-                {socialLinks.length > 0 && (
-                  <>
-                    <span>·</span>
-                    <div className="flex items-center gap-2">
-                      {socialLinks.map((url: string, i) => (
-                        <a
-                          key={i}
-                          href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                        >
-                          {getSocialIcon(url)}
-                        </a>
-                      ))}
+                {/* Gamification Stats — compact card */}
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-card shadow-sm hover:shadow-md transition-shadow">
+                    <AnimatedRankCrown rankName={rankInfo.name} className="scale-50 -my-4 -mx-2" />
+                    <span className={cn("text-xs font-bold", rankInfo.color)}>{rankInfo.name}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-indigo-50 dark:bg-indigo-950/30 shadow-sm">
+                    <span className="text-xs">⚡</span>
+                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                      Lv. {level}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-amber-50 dark:bg-amber-950/30 shadow-sm">
+                    <span className="text-xs">⭐</span>
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                      {xp.toLocaleString()} XP
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-orange-50 dark:bg-orange-950/30 shadow-sm">
+                    <span className="text-xs">🔥</span>
+                    <span className="text-xs font-bold text-orange-600 dark:text-orange-400">
+                      {streak} {streak === 1 ? "day" : "days"}
+                    </span>
+                  </div>
+                  {roles.includes("creator") && (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-purple-50 dark:bg-purple-950/30 shadow-sm">
+                      <Sparkles className="h-3 w-3 text-purple-500" />
+                      <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
+                        Creator
+                      </span>
                     </div>
-                  </>
-                )}
+                  )}
+                  {roles.includes("admin") && (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-red-50 dark:bg-red-950/30 shadow-sm">
+                      <Shield className="h-3 w-3 text-red-500" />
+                      <span className="text-xs font-bold text-red-600 dark:text-red-400">
+                        Admin
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">{subscribers} subscribers</span>
+                  <span className="text-muted-foreground/30">·</span>
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-muted-foreground/60" /> Joined{" "}
+                    {format(new Date(profile.created_at), "MMM yyyy")}
+                  </span>
+                  {socialLinks.length > 0 && (
+                    <>
+                      <span className="text-muted-foreground/30">·</span>
+                      <div className="flex items-center gap-2">
+                        {socialLinks.map((url: string, i) => (
+                          <a
+                            key={i}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground/60 hover:text-primary transition-colors"
+                          >
+                            {getSocialIcon(url)}
+                          </a>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -510,8 +625,11 @@ function PublicProfilePage() {
             {/* Left Column: Bio, Tabs */}
             <div className="lg:col-span-8 space-y-6">
               {profile.bio && (
-                <div className="bg-card rounded-2xl border p-6 shadow-sm">
-                  <h3 className="font-display font-semibold text-base mb-3">About</h3>
+                <div className="bg-card rounded-2xl border p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <h3 className="font-display font-semibold text-base mb-3 flex items-center gap-2">
+                    <span className="h-1 w-1 rounded-full bg-primary" />
+                    About
+                  </h3>
                   <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
                     {profile.bio}
                   </p>
@@ -522,19 +640,19 @@ function PublicProfilePage() {
                 <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent gap-6">
                   <TabsTrigger
                     value="courses"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground transition-all"
                   >
                     <GraduationCap className="h-4 w-4 mr-1.5" /> Courses
                   </TabsTrigger>
                   <TabsTrigger
                     value="projects"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground transition-all"
                   >
                     <FileCode className="h-4 w-4 mr-1.5" /> Projects
                   </TabsTrigger>
                   <TabsTrigger
                     value="posts"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-1 pb-3 text-sm font-semibold text-muted-foreground data-[state=active]:text-foreground transition-all"
                   >
                     <MessageSquare className="h-4 w-4 mr-1.5" /> Posts
                   </TabsTrigger>
@@ -565,6 +683,149 @@ function PublicProfilePage() {
                 </TabsContent>
 
                 <TabsContent value="projects" className="space-y-6 pt-6">
+                  {user?.id === id && (
+                    <div className="flex justify-end">
+                      <Dialog open={showNewProject} onOpenChange={setShowNewProject}>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="gap-1.5">
+                            <Plus className="h-4 w-4" /> New Project
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Create Project</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4 pt-2">
+                            <input
+                              value={newProjectTitle}
+                              onChange={(e) => setNewProjectTitle(e.target.value)}
+                              className="w-full text-sm p-2 rounded-lg border bg-background"
+                              placeholder="Project title"
+                            />
+                            <Textarea
+                              value={newProjectDescription}
+                              onChange={(e) => setNewProjectDescription(e.target.value)}
+                              rows={3}
+                              className="text-sm resize-none"
+                              placeholder="Description (optional)"
+                            />
+                            <input
+                              type="text"
+                              value={newProjectGithub}
+                              onChange={(e) => setNewProjectGithub(e.target.value)}
+                              className="w-full text-sm p-2 rounded-lg border bg-background"
+                              placeholder="GitHub repository URL (optional)"
+                            />
+                            <div className="space-y-2">
+                              <label className="text-xs text-muted-foreground">
+                                Project image (optional)
+                              </label>
+                              <div className="flex items-center gap-3">
+                                <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                                  <FileCode className="h-6 w-6 text-muted-foreground" />
+                                </div>
+                                <div className="flex-1">
+                                  <input
+                                    type="file"
+                                    id="project-image-upload"
+                                    className="hidden"
+                                    accept="image/*,.gif"
+                                    onChange={async (e) => {
+                                      const file = e.target.files?.[0];
+                                      if (!file) return;
+                                      if (file.size > 5 * 1024 * 1024) {
+                                        return toast.error("Image must be < 5MB");
+                                      }
+                                      if (!file.type.startsWith("image/")) {
+                                        return toast.error("Pick an image file");
+                                      }
+                                      setProjectImageUploading(true);
+                                      try {
+                                        const formData = new FormData();
+                                        formData.append("file", file);
+                                        const response = await fetch("/api/upload", {
+                                          method: "POST",
+                                          body: formData,
+                                        });
+                                        if (!response.ok) throw new Error("Upload failed");
+                                        const { url } = await response.json();
+                                        setNewProjectImageUrl(url);
+                                        toast.success("Image uploaded");
+                                      } catch (e: any) {
+                                        return toast.error(e?.message || "Failed to upload image");
+                                      } finally {
+                                        setProjectImageUploading(false);
+                                      }
+                                    }}
+                                  />
+                                  <label
+                                    htmlFor="project-image-upload"
+                                    className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-background hover:bg-muted transition-colors text-sm font-medium"
+                                  >
+                                    <Plus className="h-4 w-4" /> Upload Image
+                                  </label>
+                                  {newProjectImageUrl && (
+                                    <div className="mt-2">
+                                      <img
+                                        src={newProjectImageUrl}
+                                        alt="Project preview"
+                                        className="h-16 rounded-lg object-cover"
+                                      />
+                                    </div>
+                                  )}
+                                  {projectImageUploading && (
+                                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setShowNewProject(false);
+                                  setNewProjectTitle("");
+                                  setNewProjectDescription("");
+                                  setNewProjectGithub("");
+                                  setNewProjectImageUrl(null);
+                                }}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                size="sm"
+                                onClick={async () => {
+                                  if (!newProjectTitle.trim()) return toast.error("Title required");
+                                  try {
+                                    await createProjectFn({
+                                      data: {
+                                        title: newProjectTitle.trim(),
+                                        description: newProjectDescription.trim(),
+                                        github: newProjectGithub.trim() || null,
+                                        image_url: newProjectImageUrl || null,
+                                      },
+                                    });
+                                  } catch (e: any) {
+                                    return toast.error(e?.message || "Failed to create project");
+                                  }
+                                  toast.success("Project created");
+                                  setShowNewProject(false);
+                                  setNewProjectTitle("");
+                                  setNewProjectDescription("");
+                                  setNewProjectGithub("");
+                                  setNewProjectImageUrl(null);
+                                  qc.invalidateQueries({ queryKey: ["public-profile", id] });
+                                }}
+                              >
+                                Create
+                              </Button>
+                            </div>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  )}
                   {projects.length === 0 ? (
                     <div className="rounded-2xl border bg-card p-12 text-center flex flex-col items-center gap-3">
                       <FileCode className="h-10 w-10 text-muted-foreground/40" />
@@ -804,6 +1065,7 @@ function PublicProfilePage() {
                                     className="max-h-[300px] w-full"
                                   />
                                 )}
+                                {post.media_type === "pdf" && <FilePreview url={post.media_url} />}
                               </div>
                             )}
                             {/* Comments section - expandable */}
@@ -943,8 +1205,9 @@ function PublicProfilePage() {
             {/* Right Column: Profile Details & Achievements Box */}
             <div className="lg:col-span-4 space-y-6">
               {/* Profile Details Box */}
-              <div className="bg-card rounded-2xl border p-6 shadow-sm space-y-4">
-                <h3 className="font-display font-semibold text-base border-b pb-2">
+              <div className="bg-card rounded-2xl border p-6 shadow-sm hover:shadow-md transition-shadow space-y-4">
+                <h3 className="font-display font-semibold text-base border-b pb-2 flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-primary" />
                   Profile Details
                 </h3>
 
@@ -1219,6 +1482,7 @@ function PublicProfilePage() {
                             icon = <Youtube className="h-3.5 w-3.5 text-red-600" />;
                             displayName = "YouTube";
                           } else if (platform === "instagram") {
+                            icon = <Instagram className="h-3.5 w-3.5 text-pink-500" />;
                             displayName = "Instagram";
                           } else if (platform === "twitch") {
                             displayName = "Twitch";
@@ -1253,10 +1517,13 @@ function PublicProfilePage() {
               </div>
 
               {/* Achievements Box */}
-              <div className="bg-card rounded-2xl border p-6 shadow-sm space-y-4">
+              <div className="bg-card rounded-2xl border p-6 shadow-sm hover:shadow-md transition-shadow space-y-4">
                 <div className="flex items-center justify-between border-b pb-2">
-                  <h3 className="font-display font-semibold text-base">Achievements</h3>
-                  <Badge variant="outline" className="text-[10px]">
+                  <h3 className="font-display font-semibold text-base flex items-center gap-2">
+                    <span className="h-1 w-1 rounded-full bg-primary" />
+                    Achievements
+                  </h3>
+                  <Badge variant="outline" className="text-[10px] font-semibold">
                     {achievementsQ.data?.filter((b: any) => b.earned).length ?? 0} Earned
                   </Badge>
                 </div>

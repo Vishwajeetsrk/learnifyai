@@ -24,7 +24,21 @@ export function InteractiveCursor() {
       setCursorEnabled(v);
     };
     window.addEventListener("mousecursorchange", handler);
-    return () => window.removeEventListener("mousecursorchange", handler);
+    const storageHandler = (e: StorageEvent) => {
+      if (e.key === "mouse_cursor") {
+        const stored = localStorage.getItem("mouse_cursor");
+        if (stored !== null) {
+          const enabled = stored !== "false";
+          setCursorEnabled(enabled);
+          document.body.dataset.mouseCursor = String(enabled);
+        }
+      }
+    };
+    window.addEventListener("storage", storageHandler);
+    return () => {
+      window.removeEventListener("mousecursorchange", handler);
+      window.removeEventListener("storage", storageHandler);
+    };
   }, []);
 
   // High-performance motion values
@@ -141,7 +155,13 @@ export function InteractiveCursor() {
   // Handle global class for native cursor hiding safely (SSR friendly)
   useEffect(() => {
     if (typeof document === "undefined") return;
-    if (isTouchDevice || prefersReducedMotion.reduced || !isVisible || variant === "none" || !cursorEnabled) {
+    if (
+      isTouchDevice ||
+      prefersReducedMotion.reduced ||
+      !isVisible ||
+      variant === "none" ||
+      !cursorEnabled
+    ) {
       document.body.classList.remove("custom-cursor-active");
     } else {
       document.body.classList.add("custom-cursor-active");
@@ -208,7 +228,7 @@ export function InteractiveCursor() {
   };
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9999]">
+    <div className="pointer-events-none fixed inset-0 z-[10001]">
       <motion.div
         className="fixed top-0 left-0 flex items-center justify-center pointer-events-none shadow-[0_0_20px_rgba(255,255,255,0.2)]"
         style={{

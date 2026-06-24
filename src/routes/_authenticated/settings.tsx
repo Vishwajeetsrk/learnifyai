@@ -25,6 +25,13 @@ import {
   Image as ImageIcon,
   ExternalLink,
   Info,
+  Github,
+  Twitter,
+  Linkedin,
+  Instagram,
+  Youtube,
+  Gamepad2,
+  Music2,
 } from "lucide-react";
 import { SkillBadge, SKILL_LOGOS } from "@/components/SkillBadge";
 import { format } from "date-fns";
@@ -596,6 +603,9 @@ function SettingsPage() {
     setSavingCartoon(true);
     try {
       await doSaveField({ data: { field: "avatar_url", value: currentCartoonUrl } });
+      setAvatarSignedUrl(currentCartoonUrl);
+      const borderMatch = currentCartoonUrl.match(/[?&]profile_border=([^&]+)/);
+      if (borderMatch) setProfileBorder(decodeURIComponent(borderMatch[1]));
       toast.success("Character avatar updated!");
       await Promise.all([
         qc.invalidateQueries({ queryKey: ["profile-full"] }),
@@ -770,6 +780,22 @@ function SettingsPage() {
     toast.success("Randomized all features!");
   }
 
+  async function removeOldBanner(old: string | null, newPath?: string) {
+    if (!old) return;
+    try {
+      const bucketBase = supabase.storage.from("avatars").getPublicUrl("").data.publicUrl;
+      if (old.startsWith(bucketBase)) {
+        const oldPath = old.replace(bucketBase + (bucketBase.endsWith("/") ? "" : "/"), "");
+        if (oldPath && oldPath !== newPath)
+          await supabase.storage.from("avatars").remove([oldPath]);
+      } else if (!old.startsWith("http") && old !== newPath) {
+        await supabase.storage.from("avatars").remove([old]);
+      }
+    } catch {
+      /* non-blocking — old file removal should never break upload */
+    }
+  }
+
   async function handleBannerUpload(file: File) {
     if (!user) return;
     if (file.size > 5 * 1024 * 1024) return toast.error("Image must be < 5MB");
@@ -783,23 +809,14 @@ function SettingsPage() {
         .upload(path, file, { upsert: true });
       if (upErr) throw upErr;
       const publicUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
-      const old = profileQ.data?.banner_url;
-      if (old) {
-        const bucketBase = supabase.storage.from("avatars").getPublicUrl("").data.publicUrl;
-        if (old.startsWith(bucketBase)) {
-          const oldPath = old.replace(bucketBase + (bucketBase.endsWith("/") ? "" : "/"), "");
-          if (oldPath && oldPath !== path) await supabase.storage.from("avatars").remove([oldPath]);
-        } else if (!old.startsWith("http") && old !== path) {
-          await supabase.storage.from("avatars").remove([old]);
-        }
-      }
-      try {
-        await doSaveField({ data: { field: "banner_url", value: publicUrl } });
-      } catch (e: any) {
-        return toast.error(e?.message || "Failed to save cover image");
-      }
+      setBannerSignedUrl(publicUrl);
+      await removeOldBanner(profileQ.data?.banner_url ?? null, path);
+      await doSaveField({ data: { field: "banner_url", value: publicUrl } });
       toast.success("Cover image updated");
       qc.invalidateQueries({ queryKey: ["profile-full"] });
+      qc.invalidateQueries({ queryKey: ["public-profile"] });
+      qc.invalidateQueries({ queryKey: ["profile"] });
+      qc.refetchQueries({ queryKey: ["profile-full"] });
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -809,23 +826,18 @@ function SettingsPage() {
 
   async function removeBanner() {
     if (!user) return;
-    const old = profileQ.data?.banner_url;
-    if (old) {
-      const bucketBase = supabase.storage.from("avatars").getPublicUrl("").data.publicUrl;
-      if (old.startsWith(bucketBase)) {
-        const oldPath = old.replace(bucketBase + (bucketBase.endsWith("/") ? "" : "/"), "");
-        if (oldPath) await supabase.storage.from("avatars").remove([oldPath]);
-      } else if (!old.startsWith("http")) {
-        await supabase.storage.from("avatars").remove([old]);
-      }
-    }
+    await removeOldBanner(profileQ.data?.banner_url ?? null);
     try {
       await doSaveField({ data: { field: "banner_url", value: null } });
     } catch (e: any) {
       return toast.error(e?.message || "Failed to remove cover image");
     }
+    setBannerSignedUrl(null);
     toast.success("Cover image removed");
     qc.invalidateQueries({ queryKey: ["profile-full"] });
+    qc.invalidateQueries({ queryKey: ["public-profile"] });
+    qc.invalidateQueries({ queryKey: ["profile"] });
+    qc.refetchQueries({ queryKey: ["profile-full"] });
   }
 
   const [prefs, setPrefs] = useState<NotifPrefs>({
@@ -1014,12 +1026,22 @@ function SettingsPage() {
       setBannerSignedUrl(null);
       return;
     }
-    if (path.startsWith("http")) {
+    if (path.startsWith("http") && !path.includes("supabase.co")) {
       setBannerSignedUrl(path);
       return;
     }
-    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
-    setBannerSignedUrl(data.publicUrl);
+    if (path.includes("supabase.co")) {
+      supabase.storage
+        .from("avatars")
+        .createSignedUrl(path.split("/").pop()!, 60 * 60 * 24 * 365)
+        .then(({ data }) => {
+          if (data) setBannerSignedUrl(data.signedUrl);
+        })
+        .catch(() => setBannerSignedUrl(path));
+    } else {
+      const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+      setBannerSignedUrl(data.publicUrl);
+    }
   }, [profileQ.data?.banner_url]);
 
   useEffect(() => {
@@ -1113,6 +1135,7 @@ function SettingsPage() {
       }
       toast.success("Photo updated");
       qc.invalidateQueries({ queryKey: ["profile-full"] });
+      qc.invalidateQueries({ queryKey: ["profile"] });
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -1139,6 +1162,7 @@ function SettingsPage() {
     }
     toast.success("Photo removed");
     qc.invalidateQueries({ queryKey: ["profile-full"] });
+    qc.invalidateQueries({ queryKey: ["profile"] });
   }
 
   /* ── Password ── */
@@ -1435,6 +1459,7 @@ function SettingsPage() {
                       await Promise.all([
                         qc.invalidateQueries({ queryKey: ["profile-full"] }),
                         qc.invalidateQueries({ queryKey: ["profile-mini"] }),
+                        qc.invalidateQueries({ queryKey: ["profile"] }),
                         qc.refetchQueries({ queryKey: ["profile-full"] }),
                         qc.refetchQueries({ queryKey: ["profile-mini"] }),
                       ]);
@@ -1487,6 +1512,7 @@ function SettingsPage() {
                       await Promise.all([
                         qc.invalidateQueries({ queryKey: ["profile-full"] }),
                         qc.invalidateQueries({ queryKey: ["profile-mini"] }),
+                        qc.invalidateQueries({ queryKey: ["profile"] }),
                         qc.refetchQueries({ queryKey: ["profile-full"] }),
                         qc.refetchQueries({ queryKey: ["profile-mini"] }),
                       ]);
@@ -1551,13 +1577,11 @@ function SettingsPage() {
                   ) : null}
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={profileQ.data?.show_banner ?? true}
+                      checked={(profileQ.data as any)?.show_banner ?? true}
                       onCheckedChange={async (checked) => {
-                        await supabase
-                          .from("profiles")
-                          .update({ show_banner: checked })
-                          .eq("id", user!.id);
+                        await doSaveField({ data: { field: "show_banner", value: checked } });
                         qc.invalidateQueries({ queryKey: ["profile-full"] });
+                        qc.invalidateQueries({ queryKey: ["public-profile"] });
                         toast.success(`Cover image ${checked ? "shown" : "hidden"}`);
                       }}
                     />
@@ -1572,16 +1596,14 @@ function SettingsPage() {
               {/* Mouse Cursor Toggle */}
               <div className="flex items-center gap-2 mt-3">
                 <Switch
-                  checked={profileQ.data?.mouse_cursor ?? true}
+                  checked={(profileQ.data as any)?.mouse_cursor ?? true}
                   onCheckedChange={async (checked) => {
-                    await supabase
-                      .from("profiles")
-                      .update({ mouse_cursor: checked })
-                      .eq("id", user!.id);
+                    await doSaveField({ data: { field: "mouse_cursor", value: checked } });
                     localStorage.setItem("mouse_cursor", String(checked));
                     document.body.dataset.mouseCursor = String(checked);
                     window.dispatchEvent(new CustomEvent("mousecursorchange", { detail: checked }));
                     qc.invalidateQueries({ queryKey: ["profile-full"] });
+                    qc.refetchQueries({ queryKey: ["profile-full"] });
                     toast.success(`Mouse cursor: ${checked ? "Animation" : "Normal"}`);
                   }}
                 />
@@ -2481,24 +2503,68 @@ function SettingsPage() {
               <div className="border-t pt-4">
                 <h3 className="text-sm font-semibold mb-3">Social media</h3>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  {[
-                    ["github", "GitHub", "github.com/"],
-                    ["twitter", "X (Twitter)", "x.com/"],
-                    ["linkedin", "LinkedIn", "linkedin.com/u/"],
-                    ["instagram", "Instagram", "instagram.com/"],
-                    ["youtube", "YouTube", "youtube.com/@"],
-                    ["twitch", "Twitch", "twitch.tv/"],
-                    ["tiktok", "TikTok", "tiktok.com/@"],
-                  ].map(([key, label, prefix]) => (
+                  {(
+                    [
+                      ["github", "GitHub", "github.com/", <Github key="g" className="h-4 w-4" />],
+                      [
+                        "twitter",
+                        "X (Twitter)",
+                        "x.com/",
+                        <Twitter key="t" className="h-4 w-4 text-sky-500" />,
+                      ],
+                      [
+                        "linkedin",
+                        "LinkedIn",
+                        "linkedin.com/in/",
+                        <Linkedin key="l" className="h-4 w-4 text-blue-600" />,
+                      ],
+                      [
+                        "instagram",
+                        "Instagram",
+                        "instagram.com/",
+                        <Instagram key="i" className="h-4 w-4 text-pink-500" />,
+                      ],
+                      [
+                        "youtube",
+                        "YouTube",
+                        "youtube.com/@",
+                        <Youtube key="y" className="h-4 w-4 text-red-500" />,
+                      ],
+                      [
+                        "twitch",
+                        "Twitch",
+                        "twitch.tv/",
+                        <Gamepad2 key="tw" className="h-4 w-4 text-purple-500" />,
+                      ],
+                      ["tiktok", "TikTok", "tiktok.com/@", <Music2 key="tk" className="h-4 w-4" />],
+                    ] as const
+                  ).map(([key, label, prefix, icon]) => (
                     <Field key={key} label={label}>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">
+                      <div className="relative flex items-center gap-2">
+                        <span className="shrink-0">{icon}</span>
+                        <span className="absolute left-8 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">
                           {prefix}
                         </span>
                         <Input
-                          className="pl-[calc(10ch+0.75rem)]"
+                          className="pl-[calc(10ch+1.5rem)]"
                           value={(links as any)[key] ?? ""}
-                          onChange={(e) => setLinks({ ...links, [key]: e.target.value })}
+                          onChange={(e) => {
+                            let value = e.target.value;
+                            if (!value) {
+                              setLinks({ ...links, [key]: "" });
+                              return;
+                            }
+                            if (!value.startsWith("https://")) {
+                              value = "https://" + value;
+                            }
+                            const url = new URL(value);
+                            if (!url.hostname.startsWith(prefix.replace("https://", ""))) {
+                              url.hostname = prefix.replace("https://", "");
+                              value = url.toString();
+                            }
+                            setLinks({ ...links, [key]: value });
+                          }}
+                          placeholder="https://example.com"
                         />
                       </div>
                     </Field>
