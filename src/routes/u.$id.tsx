@@ -88,6 +88,7 @@ import {
   ChallengeBadge,
 } from "@/components/GamificationBadges";
 import { FilePreview } from "@/components/FilePreview";
+import { getCleanBannerUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/u/$id")({
   head: ({ params }) => ({
@@ -101,11 +102,12 @@ export const Route = createFileRoute("/u/$id")({
 
 function BannerImage({ src }: { src: string }) {
   const [error, setError] = useState(false);
+  const cleanSrc = getCleanBannerUrl(src) ?? src;
   if (error) return null;
   return (
     <div className="h-48 md:h-56 lg:h-64 w-full bg-muted relative overflow-hidden">
       <img
-        src={src}
+        src={cleanSrc}
         alt="Banner"
         className="w-full h-full object-cover"
         loading="lazy"

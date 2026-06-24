@@ -67,7 +67,7 @@ export function WebPlayground() {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            <img src={t.icon} alt="" className="w-3.5 h-3.5" />
+            <img src={t.icon} alt="" className="w-3.5 h-3.5" loading="lazy" decoding="async" />
             {t.label}
           </button>
         ))}

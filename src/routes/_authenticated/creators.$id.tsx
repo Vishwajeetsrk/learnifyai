@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { getCleanBannerUrl } from "@/lib/utils";
 import {
   Bell,
   BellOff,
@@ -53,11 +54,12 @@ const inr = (n: number) =>
 
 function CreatorBannerImage({ src }: { src: string }) {
   const [error, setError] = useState(false);
+  const cleanSrc = getCleanBannerUrl(src) ?? src;
   if (error) return null;
   return (
     <>
       <img
-        src={src}
+        src={cleanSrc}
         alt=""
         className="w-full h-full object-cover"
         loading="lazy"

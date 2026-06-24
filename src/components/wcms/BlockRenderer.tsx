@@ -417,7 +417,7 @@ function TestimonialBlock({ content }: { content: BlockContent }) {
           </p>
           <div className="flex items-center justify-center gap-3 pt-2">
             {(content.avatar_url as string) && (
-              <img src={content.avatar_url as string} alt="" className="h-10 w-10 rounded-full" />
+              <img src={content.avatar_url as string} alt="" className="h-10 w-10 rounded-full" loading="lazy" decoding="async" />
             )}
             <div className="text-left">
               <div className="font-semibold text-sm">
