@@ -174,24 +174,29 @@ function CourseDetail() {
         .eq("slug", slug)
         .single();
       if (error) throw error;
-      const { data: lessons, error: lErr } = await supabase
-        .from("lessons")
-        .select("*")
-        .eq("course_id", course.id)
-        .order("order_index", { ascending: true });
-      if (lErr) throw lErr;
 
-      let instructorProfile = null;
-      if (course.created_by) {
-        const { data: profile } = await supabase
-          .from("profiles")
+      const [lessonsResult, profileResult] = await Promise.all([
+        supabase
+          .from("lessons")
           .select("*")
-          .eq("id", course.created_by)
-          .maybeSingle();
-        instructorProfile = profile;
-      }
+          .eq("course_id", course.id)
+          .order("order_index", { ascending: true }),
+        course.created_by
+          ? supabase
+              .from("profiles")
+              .select("*")
+              .eq("id", course.created_by)
+              .maybeSingle()
+          : Promise.resolve({ data: null }),
+      ]);
 
-      return { course, lessons: lessons ?? [], instructorProfile };
+      if (lessonsResult.error) throw lessonsResult.error;
+
+      return {
+        course,
+        lessons: lessonsResult.data ?? [],
+        instructorProfile: profileResult.data,
+      };
     },
   });
 

@@ -87,26 +87,30 @@ function BillingPage() {
       const doc = new jsPDF();
 
       // Check user's own branding settings (Team plan admins can customize)
-      const { data: profileBrand } = await supabase
-        .from("profiles")
-        .select(
-          "invoice_company_name, invoice_legal_name, invoice_gstin, invoice_prefix, invoice_footer, invoice_logo_url, invoice_contact, org_name, org_logo_url",
-        )
-        .eq("id", user.id)
-        .maybeSingle();
+      const [profileBrandResult, siteSettingsResult] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select(
+            "invoice_company_name, invoice_legal_name, invoice_gstin, invoice_prefix, invoice_footer, invoice_logo_url, invoice_contact, org_name, org_logo_url",
+          )
+          .eq("id", user.id)
+          .maybeSingle(),
+        supabase
+          .from("site_settings")
+          .select("key,value")
+          .in("key", [
+            "invoice_company_name",
+            "invoice_legal_name",
+            "invoice_gstin",
+            "invoice_prefix",
+            "invoice_footer",
+            "invoice_logo_url",
+            "invoice_contact",
+          ]),
+      ]);
 
-      const siteSettingsQuery = await supabase
-        .from("site_settings")
-        .select("key,value")
-        .in("key", [
-          "invoice_company_name",
-          "invoice_legal_name",
-          "invoice_gstin",
-          "invoice_prefix",
-          "invoice_footer",
-          "invoice_logo_url",
-          "invoice_contact",
-        ]);
+      const profileBrand = profileBrandResult.data;
+      const siteSettingsQuery = siteSettingsResult;
 
       const siteSettings: Record<string, string> = {};
       for (const r of siteSettingsQuery.data ?? []) siteSettings[r.key] = r.value || "";

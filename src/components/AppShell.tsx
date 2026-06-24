@@ -21,7 +21,7 @@ import {
   CreditCard,
   PieChart,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -32,7 +32,9 @@ import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
-import { GlobalSupportAgent } from "@/components/GlobalSupportAgent";
+const GlobalSupportAgent = lazy(() =>
+  import("@/components/GlobalSupportAgent").then((m) => ({ default: m.GlobalSupportAgent })),
+);
 
 interface NavItem {
   to: string;
@@ -204,7 +206,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <main className="flex-1 min-w-0">{children}</main>
       </div>
-      <GlobalSupportAgent />
+      <Suspense fallback={null}>
+        <GlobalSupportAgent />
+      </Suspense>
     </div>
   );
 }
