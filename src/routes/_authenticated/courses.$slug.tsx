@@ -78,6 +78,7 @@ import { toast } from "sonner";
 import { lessonAiHelper } from "@/lib/lesson-ai.functions";
 import { enrollFree, markCourseStarted, recomputeProgress } from "@/lib/course.functions";
 import { awardXP, getCourseLearners } from "@/lib/gamification.functions";
+import { logDailyUsage } from "@/lib/onboarding.functions";
 
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import {
@@ -250,6 +251,7 @@ function CourseDetail() {
   const markStarted = useServerFn(markCourseStarted);
   const recompute = useServerFn(recomputeProgress);
   const awardXPFn = useServerFn(awardXP);
+  const logDailyFn = useServerFn(logDailyUsage);
   const navigate = useNavigate();
 
   const isEnrolled = !!enrollmentQuery.data;
@@ -514,6 +516,7 @@ function CourseDetail() {
       setEnrollCelebration(true);
       qc.invalidateQueries({ queryKey: ["enrollment", course.id, user?.id] });
       qc.invalidateQueries({ queryKey: ["enrollments"] });
+      logDailyFn({ data: { actions_count: 1, features_used: ["course-enrollment"], xp_earned: 20, notes: `Enrolled in course: ${course.title}` } }).catch(() => {});
       if (firstPlayable)
         markStarted({ data: { courseId: course.id, lessonId: firstPlayable } }).catch(() => {});
     } catch (e: any) {
@@ -543,6 +546,7 @@ function CourseDetail() {
           }
         })
         .catch(() => {});
+      logDailyFn({ data: { actions_count: 1, features_used: ["lesson-completion"], xp_earned: 10 } }).catch(() => {});
     }
 
     qc.invalidateQueries({ queryKey: ["progress", course.id, user.id] });

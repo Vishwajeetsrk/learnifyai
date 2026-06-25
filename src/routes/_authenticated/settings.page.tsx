@@ -163,6 +163,7 @@ export default function SettingsPage() {
   const [seed, setSeed] = useState("Learnify");
   const [savingCartoon, setSavingCartoon] = useState(false);
   const [avatarBackgroundColor, setAvatarBackgroundColor] = useState("transparent");
+  const [avatarPreviewError, setAvatarPreviewError] = useState(false);
 
   const BORDER_OPTIONS = [
     { id: "none", label: "None" },
@@ -591,6 +592,7 @@ export default function SettingsPage() {
   }
 
   const currentCartoonUrl = buildCartoonUrl();
+  useEffect(() => { setAvatarPreviewError(false); }, [currentCartoonUrl]);
   const doSaveField = useServerFn(saveProfileField);
 
   async function saveCartoonAvatar() {
@@ -1624,13 +1626,21 @@ export default function SettingsPage() {
                     <div className="md:col-span-5 flex flex-col items-center gap-4 bg-muted/30 p-4 rounded-xl border">
                       {/* Live Preview */}
                       <div className="relative h-40 w-40 rounded-full border-4 border-background bg-card shadow-lg overflow-hidden flex items-center justify-center">
-                        <img
-                          src={currentCartoonUrl}
-                          className="h-full w-full object-cover"
-                          alt="Avatar Preview"
-                          loading="lazy"
-                          decoding="async"
-                        />
+                        {avatarPreviewError ? (
+                          <div className="h-full w-full grid place-items-center text-muted-foreground">
+                            <Sparkles className="h-10 w-10" />
+                            <span className="text-[10px] mt-1">Preview unavailable</span>
+                          </div>
+                        ) : (
+                          <img
+                            src={currentCartoonUrl}
+                            className="h-full w-full object-cover"
+                            alt="Avatar Preview"
+                            loading="lazy"
+                            decoding="async"
+                            onError={() => setAvatarPreviewError(true)}
+                          />
+                        )}
                       </div>
 
                       <div className="w-full space-y-3">

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
 import {
   BookOpen,
   Trophy,
@@ -19,13 +20,16 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { getCleanBannerUrl } from "@/lib/utils";
 import { getCourseActionLabel } from "@/lib/course-player";
+import { logDailyUsage } from "@/lib/onboarding.functions";
 import { RecommendedCourses } from "@/components/RecommendedCourses";
 import { DashboardEventsJobs } from "@/components/DashboardEventsJobs";
 import { DashboardSkeleton, StatCardSkeleton } from "@/components/Skeletons";
@@ -39,6 +43,16 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function DashboardPage() {
   const { user, isAdmin } = useAuth();
   const name = (user?.user_metadata?.full_name as string) ?? user?.email?.split("@")[0] ?? "there";
+
+  const logDailyFn = useServerFn(logDailyUsage);
+  useEffect(() => {
+    if (!user) return;
+    const today = new Date().toDateString();
+    const lastLog = localStorage.getItem("last_daily_log");
+    if (lastLog === today) return;
+    localStorage.setItem("last_daily_log", today);
+    logDailyFn({ data: { actions_count: 1, xp_earned: 10, notes: "Dashboard visit" } }).catch(() => {});
+  }, [user, logDailyFn]);
 
   const enrollQ = useQuery({
     enabled: !!user,
@@ -218,7 +232,7 @@ function DashboardPage() {
                       <div className="aspect-video bg-muted overflow-hidden">
                         {e.courses?.cover_url ? (
                           <img
-                            src={e.courses.cover_url}
+                            src={getCleanBannerUrl(e.courses.cover_url) ?? e.courses.cover_url}
                             alt={e.courses.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition"
                             loading="lazy"

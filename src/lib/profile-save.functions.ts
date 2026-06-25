@@ -24,3 +24,16 @@ export const saveProfileField = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { success: true };
   });
+
+export const assignDefaultRole = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z.object({ userId: z.string(), role: z.enum(["student", "creator", "admin"]) }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await (supabaseAdmin as any)
+      .from("user_roles")
+      .insert({ user_id: data.userId, role: data.role });
+    if (error && !error.message?.includes("duplicate")) throw new Error(error.message);
+    return { success: true };
+  });

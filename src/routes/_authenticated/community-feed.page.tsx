@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
+import { useServerFn } from "@tanstack/react-start";
 import {
   MessageSquare,
   Heart,
@@ -51,6 +52,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { logDailyUsage } from "@/lib/onboarding.functions";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -64,6 +66,7 @@ type PollData = { question: string; options: string[] };
 export default function CommunityPage() {
   const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
+  const logDailyFn = useServerFn(logDailyUsage);
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => setIsMounted(true), []);
   const [content, setContent] = useState("");
@@ -225,6 +228,7 @@ export default function CommunityPage() {
       setPollOptions(["", ""]);
       toast.success(postType === "announcement" ? "Announcement posted" : "Post created");
       qc.invalidateQueries({ queryKey: ["community-posts"] });
+      logDailyFn({ data: { actions_count: 1, features_used: ["community-post"], xp_earned: 5, notes: "Created a community post" } }).catch(() => {});
     } catch (error: any) {
       toast.error(error.message || "Failed to create post");
     } finally {

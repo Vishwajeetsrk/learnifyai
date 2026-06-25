@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
+import { assignDefaultRole } from "@/lib/profile-save.functions";
 import logoUrl from "@/assets/learnify-logo.png?url";
 
 export const Route = createFileRoute("/signup")({
@@ -20,6 +21,7 @@ function SignupPage() {
   const navigate = useNavigate();
   const { isAuthenticated, loading } = useAuth();
   const welcomeEmailFn = useServerFn(sendWelcomeEmail);
+  const assignRoleFn = useServerFn(assignDefaultRole);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,6 +52,11 @@ function SignupPage() {
       await welcomeEmailFn({ data: { email, fullName } });
     } catch {
       // Ignore welcome email failures; account creation still succeeds.
+    }
+
+    // Assign default "student" role
+    if (data?.user?.id) {
+      assignRoleFn({ data: { userId: data.user.id, role: "student" } }).catch(() => {});
     }
 
     toast.success("Account created — welcome to Learnify AI!");
