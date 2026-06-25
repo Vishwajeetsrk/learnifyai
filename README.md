@@ -411,6 +411,32 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v3.5.2 (June 2026) - Streak, Avatar, CSP, Export & Bug Fixes
+
+- ✅ **Streak Tracking Fixed**: `logDailyUsage` now syncs `current_streak`/`xp`/`last_active_at` to `profiles` table (was only updating `onboarding_progress`). Leaderboard reads streaks correctly.
+- ✅ **Leaderboard Auto-Filter**: Default filter matches the logged-in user's role (student sees students, creator sees creators).
+- ✅ **Avatar DiceBear 503 Fallback**: `AvatarImage` sets `src=undefined` on load error, gracefully falling back to initials/placeholder instead of showing broken image.
+- ✅ **CSP Framing Violation Fixed**: Added `https://*.supabase.co` to `frame-src` directive — Supabase Studio iframes in admin no longer blocked.
+- ✅ **Cover Image 400 Fixed**: Applied `getCleanBannerUrl()` to profile cover images to strip stale signed URL tokens.
+- ✅ **PDF Preview Fixed**: Added 15-second timeout for iframe load failure, fixed spinner positioning with `position: relative` on container.
+- ✅ **`xlsx` Fully Replaced with `exceljs`**: Rewrote `handleExport` in admin panel to use ExcelJS.Workbook API. Vulnerable `xlsx` package fully removed from dependencies.
+- ✅ **Mouse Cursor Migration**: Column already present on remote Supabase — no additional action needed.
+- ✅ **Deployed to Vercel**: Latest build live at `https://learnifyaitool.psi.vercel.app`.
+
+### v3.5.1 (June 2026) - Performance Optimization & Lazy Loading
+
+- ✅ **6 Heavy Routes Lazy-Loaded**: studio, settings, admin.content, coaching, community-feed, and leaderboard each moved to `.page.tsx` pattern with `React.lazy()` + `<Suspense>` — saved ~1.5 MB from initial bundle.
+- ✅ **GlobalSupportAgent Lazy-Loaded**: ~435 lines + react-markdown removed from critical path. Wrapped in `<Suspense fallback={null}>` in AppShell.
+- ✅ **Parallelized DB Queries**: courses page (lessons + instructor) and billing page (branding + settings) now use `Promise.all` for concurrent fetching.
+- ✅ **CDN Cache Headers**: Added `s-maxage=60, stale-while-revalidate=300` for HTML, 7-day cache for favicon via `vercel.json`.
+- ✅ **`loading="lazy"` on Images**: Remaining `<img>` tags in cohorts, BlockRenderer, and WebPlayground updated for deferred loading.
+- ✅ **Banner 400 Error Fixed**: `getCleanBannerUrl()` utility strips expired `?token=` from signed Supabase URLs. Applied to profile and creator pages with `onError` fallback.
+- ✅ **TypeScript: 0 Errors**: Previously 24 errors resolved across the entire project.
+- ✅ **Supabase Types Regenerated**: All new tables (onboarding, WCMS, playground, project_likes, project_comments) included in generated types.
+- ✅ **Onboarding Start Tour Button Fixed**: Properly awaits `completeStepFn` before advancing, with try/catch error handling.
+- ✅ **MagneticElement Hooks Violation Fixed**: `useTransform` calls moved out of conditional JSX to component top level.
+- ✅ **npm Audit: 4/5 Fixed**: Remaining `xlsx` vulnerability (prototype pollution) — no upstream fix available; replaced with `exceljs` in v3.5.2.
+
 ### v3.5.0 (June 2026) - WCMS, Onboarding, Product Tours, Code Quality & Bug Fixes
 
 - ✅ **WCMS Content Management System**: Full content management with 6 DB tables, 17 server functions, 4 public API endpoints. Page Manager with 14 block types (hero, features, testimonials, pricing, FAQ, etc.), Media Library with upload/preview/delete, Features Catalog (19 icons/17 colors), Menu Manager for navigation editing. Dynamic route `/p/$slug` renders WCMS pages publicly.
