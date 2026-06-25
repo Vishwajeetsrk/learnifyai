@@ -37,6 +37,7 @@ env
 
 # Error files
 *.err
+eslint-output.json
 
 # Client secrets
 client_secret_*.json
