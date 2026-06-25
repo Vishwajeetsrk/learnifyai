@@ -362,6 +362,36 @@ export const logDailyUsage = createServerFn({ method: "POST" })
       .then(() => {})
       .catch(() => {});
 
+    // Also update streaks in profiles table (for leaderboard)
+    const { data: existingProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("current_streak, highest_streak, xp, last_active_at")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (existingProfile) {
+      const now = new Date();
+      let newStreak = existingProfile.current_streak ?? 0;
+      if (existingProfile.last_active_at) {
+        const last = new Date(existingProfile.last_active_at);
+        const diffDays = Math.floor((now.getTime() - last.getTime()) / 86400000);
+        if (diffDays === 1) newStreak += 1;
+        else if (diffDays > 1) newStreak = 1;
+      } else {
+        newStreak = 1;
+      }
+      const newHighest = Math.max(newStreak, existingProfile.highest_streak ?? 0);
+      await supabaseAdmin
+        .from("profiles")
+        .update({
+          current_streak: newStreak,
+          highest_streak: newHighest,
+          last_active_at: now.toISOString(),
+          xp: (existingProfile.xp ?? 0) + (data.xp_earned ?? 10),
+        })
+        .eq("id", userId);
+    }
+
     return { success: true, streak };
   });
 

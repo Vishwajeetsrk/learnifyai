@@ -122,17 +122,23 @@ Avatar.displayName = AvatarPrimitive.Root.displayName;
 const AvatarImage = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Image>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
->(({ className, src, ...props }, ref) => {
-  // Strip profile_border from URL before fetching — DiceBear doesn't support it
+>(({ className, src, onError, ...props }, ref) => {
+  const [imgError, setImgError] = React.useState(false);
   const cleanSrc =
-    typeof src === "string" && src.includes("profile_border")
+    typeof src === "string" && src.includes("profile_border") && !imgError
       ? src.replace(/[?&]profile_border=[^&#]*/g, "").replace(/\?$/, "")
-      : src;
+      : imgError
+        ? undefined
+        : src;
   return (
     <AvatarPrimitive.Image
       ref={ref}
       className={cn("aspect-square h-full w-full rounded-full object-cover", className)}
       src={cleanSrc}
+      onError={(event) => {
+        setImgError(true);
+        onError?.(event);
+      }}
       {...props}
     />
   );

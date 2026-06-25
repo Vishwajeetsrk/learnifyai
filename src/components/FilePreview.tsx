@@ -58,6 +58,15 @@ function PdfPreview({ url, fileName }: { url: string; fileName: string }) {
   const [fullscreen, setFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (!loading) return;
+    const timer = setTimeout(() => {
+      setLoading(false);
+      setError(true);
+    }, 15000);
+    return () => clearTimeout(timer);
+  }, [loading]);
+
   return (
     <div className={cn("flex flex-col h-full", fullscreen && "fixed inset-0 z-50 bg-background")}>
       <div className="flex items-center justify-between gap-2 px-3 py-2 border-b bg-card shrink-0">
@@ -123,7 +132,7 @@ function PdfPreview({ url, fileName }: { url: string; fileName: string }) {
       </div>
       <div
         ref={containerRef}
-        className="flex-1 overflow-auto bg-zinc-100 dark:bg-zinc-900 flex items-start justify-center p-4"
+        className="flex-1 overflow-auto bg-zinc-100 dark:bg-zinc-900 flex items-start justify-center p-4 relative"
       >
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center">

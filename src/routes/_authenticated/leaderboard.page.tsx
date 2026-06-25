@@ -23,9 +23,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { getLeaderboard, getUserRank, xpToLevel, levelToRank } from "@/lib/gamification.functions";
 
 export default function LeaderboardPage() {
-  const { user, hasRole } = useAuth();
+  const { user, roles } = useAuth();
   const [period, setPeriod] = useState<"weekly" | "all">("weekly");
-  const [roleFilter, setRoleFilter] = useState<"all" | "student" | "creator" | "admin">("all");
+  const primaryRole = roles.find((r) => r !== "super_admin") ?? null;
+  const defaultRole: "all" | "student" | "creator" | "admin" =
+    primaryRole === "admin" || primaryRole === "creator" || primaryRole === "student"
+      ? primaryRole
+      : "all";
+  const [roleFilter, setRoleFilter] = useState<"all" | "student" | "creator" | "admin">(defaultRole);
 
   const fetchLb = useServerFn(getLeaderboard);
   const fetchRank = useServerFn(getUserRank);

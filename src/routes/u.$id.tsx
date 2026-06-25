@@ -1597,7 +1597,7 @@ function CourseGrid({
           <div className="aspect-video bg-muted overflow-hidden">
             {c.cover_url ? (
               <img
-                src={c.cover_url}
+                src={getCleanBannerUrl(c.cover_url) ?? c.cover_url}
                 alt=""
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                 loading="lazy"
