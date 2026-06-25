@@ -411,6 +411,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v3.5.3 (June 2026) - Streak Triggers, Signup Role, Avatar Preview & Course Images
+
+- ✅ **Streak Triggers Added**: `logDailyUsage` is now called on dashboard visit (daily), community post creation, course enrollment, and lesson completion — streaks finally advance from real activity, not just onboarding.
+- ✅ **Default "student" Role on Signup**: New email signups automatically get a "student" role in `user_roles` table via `assignDefaultRole` server function. Google OAuth users get it on first dashboard visit.
+- ✅ **Avatar Preview Fallback**: Avatar customization dialog now shows a placeholder icon when DiceBear API returns 503, with auto-retry when changing options.
+- ✅ **Course Images Fixed**: `getCleanBannerUrl()` applied to course thumbnails in "My Learning" section — fixes broken course images from expired signed URLs.
+- ✅ **Leaderboard Filter**: Auto-defaults to user's role (student sees students). Users without roles fall back to "All".
+- ✅ **Deployed to Vercel**: Latest build live.
+
 ### v3.5.2 (June 2026) - Streak, Avatar, CSP, Export & Bug Fixes
 
 - ✅ **Streak Tracking Fixed**: `logDailyUsage` now syncs `current_streak`/`xp`/`last_active_at` to `profiles` table (was only updating `onboarding_progress`). Leaderboard reads streaks correctly.
