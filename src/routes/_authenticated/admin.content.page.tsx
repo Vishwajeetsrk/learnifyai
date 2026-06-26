@@ -462,7 +462,19 @@ function EventsManager() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={removeEvent}>Delete</AlertDialogAction>
+            <AlertDialogAction onClick={async () => {
+              if (!deleteId) return;
+              try {
+                await doAdminAction({ data: { table: "events", action: "delete", id: deleteId } });
+                toast.success("Event deleted");
+                qc.invalidateQueries({ queryKey: ["admin-events"] });
+                qc.invalidateQueries({ queryKey: ["events-public"] });
+              } catch (e: any) {
+                toast.error(e?.message || "Delete failed");
+              } finally {
+                setDeleteId(null);
+              }
+            }}>Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
