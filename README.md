@@ -411,6 +411,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v3.5.4 (June 2026) - Cover Images, Event Delete, Avatar Fallback & Thumbnail Prompt
+
+- ✅ **Cover Images Fixed Everywhere**: `getCleanBannerUrl` now applied to course cover images in all routes (courses.index, courses.$slug, cart, creator, creators.$id) — expired Supabase signed URLs no longer show as broken images.
+- ✅ **Event Delete Fixed**: Switched from Radix AlertDialog (which silently swallows async errors) to `window.confirm` with proper try/catch error handling.
+- ✅ **Event Cover Image in Admin**: Edit dialog preview now applies `getCleanBannerUrl` and hides on error.
+- ✅ **Settings Banner Lost After Logout**: Fixed broken `createSignedUrl` call that extracted only the filename (not the storage path) — now uses the already-public Supabase URL directly.
+- ✅ **Avatar "Preview Unavailable" Gone**: DiceBear 503 fallback now shows a gradient circle with the user's initial letter instead of "Preview unavailable".
+- ✅ **AI Thumbnail More Relevant**: Prompt shortened from ~4000 chars (mostly design fluff) to ~800 chars with clear directives about drawing subject-relevant illustrations for each course category.
+
 ### v3.5.3 (June 2026) - Streak Triggers, Signup Role, Avatar Preview & Course Images
 
 - ✅ **Streak Triggers Added**: `logDailyUsage` is now called on dashboard visit (daily), community post creation, course enrollment, and lesson completion — streaks finally advance from real activity, not just onboarding.
