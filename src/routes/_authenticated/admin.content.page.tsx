@@ -419,17 +419,7 @@ function EventsManager() {
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
-                <Button size="sm" variant="outline" onClick={async () => {
-                  if (!window.confirm("Delete this event? This cannot be undone.")) return;
-                  try {
-                    await doAdminAction({ data: { table: "events", action: "delete", id: e.id } });
-                    toast.success("Event deleted");
-                    qc.invalidateQueries({ queryKey: ["admin-events"] });
-                    qc.invalidateQueries({ queryKey: ["events-public"] });
-                  } catch (err: any) {
-                    toast.error(err?.message || "Delete failed");
-                  }
-                }}>
+                <Button size="sm" variant="outline" onClick={() => setDeleteId(e.id)}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
@@ -450,6 +440,32 @@ function EventsManager() {
           qc.invalidateQueries({ queryKey: ["events-public"] });
         }}
       />
+
+      <AlertDialog open={!!deleteId} onOpenChange={(v) => { if (!v) setDeleteId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this event?</AlertDialogTitle>
+            <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <Button variant="destructive" onClick={async () => {
+              const id = deleteId;
+              if (!id) return;
+              try {
+                await doAdminAction({ data: { table: "events", action: "delete", id } });
+                toast.success("Event deleted");
+                qc.invalidateQueries({ queryKey: ["admin-events"] });
+                qc.invalidateQueries({ queryKey: ["events-public"] });
+              } catch (err: any) {
+                toast.error(err?.message || "Delete failed");
+              } finally {
+                setDeleteId(null);
+              }
+            }}>Delete</Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
     </div>
   );
