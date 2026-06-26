@@ -252,28 +252,44 @@ export default function CommunityPage() {
 
   const toggleLike = async (postId: string, isLiked: boolean) => {
     if (!user) return;
-    if (isLiked) {
-      await supabase
-        .from("post_likes" as any)
-        .delete()
-        .match({ post_id: postId, user_id: user.id });
-    } else {
-      await supabase.from("post_likes" as any).insert({ post_id: postId, user_id: user.id });
+    try {
+      if (isLiked) {
+        const { error } = await supabase
+          .from("post_likes" as any)
+          .delete()
+          .match({ post_id: postId, user_id: user.id });
+        if (error) return toast.error("Failed to unlike post");
+      } else {
+        const { error } = await supabase
+          .from("post_likes" as any)
+          .insert({ post_id: postId, user_id: user.id });
+        if (error) return toast.error("Failed to like post");
+      }
+      qc.invalidateQueries({ queryKey: ["community-posts"] });
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to toggle like");
     }
-    qc.invalidateQueries({ queryKey: ["community-posts"] });
   };
 
   const toggleSave = async (postId: string, isSaved: boolean) => {
     if (!user) return;
-    if (isSaved) {
-      await supabase
-        .from("post_saves" as any)
-        .delete()
-        .match({ post_id: postId, user_id: user.id });
-    } else {
-      await supabase.from("post_saves" as any).insert({ post_id: postId, user_id: user.id });
+    try {
+      if (isSaved) {
+        const { error } = await supabase
+          .from("post_saves" as any)
+          .delete()
+          .match({ post_id: postId, user_id: user.id });
+        if (error) return toast.error("Failed to unsave post");
+      } else {
+        const { error } = await supabase
+          .from("post_saves" as any)
+          .insert({ post_id: postId, user_id: user.id });
+        if (error) return toast.error("Failed to save post");
+      }
+      qc.invalidateQueries({ queryKey: ["community-posts"] });
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to toggle save");
     }
-    qc.invalidateQueries({ queryKey: ["community-posts"] });
   };
 
   const addComment = async (postId: string) => {
@@ -284,7 +300,7 @@ export default function CommunityPage() {
       content: commentText.trim(),
     });
     if (error) {
-      toast.error("Failed to add comment");
+      toast.error(error.message || "Failed to add comment");
     } else {
       setCommentText("");
       qc.invalidateQueries({ queryKey: ["community-posts"] });

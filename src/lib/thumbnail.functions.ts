@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
 const Input = z.object({
-  prompt: z.string().min(3).max(2000),
+  prompt: z.string().min(3).max(8000),
   size: z.enum(["1024x1024", "1536x1024", "1024x1536"]).default("1536x1024"),
 });
 

@@ -584,7 +584,7 @@ export default function SettingsPage() {
       params += `&profile_border=${s.profileBorder}`;
     }
 
-    if (s.avatarBackgroundColor) {
+    if (s.avatarBackgroundColor && s.avatarBackgroundColor !== "transparent") {
       params += `&backgroundColor=${s.avatarBackgroundColor}`;
     }
 

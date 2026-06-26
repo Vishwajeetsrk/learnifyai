@@ -9,7 +9,9 @@ export function getCleanBannerUrl(url: string | null): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
-    if (u.hostname.includes("supabase.co") && u.searchParams.has("token")) {
+    if (u.hostname.includes("supabase.co") && u.pathname.includes("/sign/")) {
+      // Convert signed URL to public URL by replacing /sign/ with /public/
+      u.pathname = u.pathname.replace("/sign/", "/public/");
       u.search = "";
       return u.toString();
     }
