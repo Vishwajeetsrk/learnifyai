@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Calendar, Clock, MapPin, Loader2 } from "lucide-react";
 import { MarketingPage } from "@/components/MarketingPage";
 import { supabase } from "@/integrations/supabase/client";
+import { getCleanBannerUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/events")({
   head: () => ({
@@ -34,6 +36,7 @@ type EventRow = {
 };
 
 function EventsPage() {
+  const [brokenEvents, setBrokenEvents] = useState<Set<string>>(new Set());
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["events-public"],
     queryFn: async () => {
@@ -78,13 +81,14 @@ function EventsPage() {
                 key={e.id}
                 className="rounded-2xl border border-border/60 bg-card p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
               >
-                {e.image_url && (
+                {e.image_url && !brokenEvents.has(e.id) && (
                   <div className="shrink-0 w-full md:w-48 aspect-video rounded-xl overflow-hidden bg-muted">
                     <img
-                      src={e.image_url}
+                      src={getCleanBannerUrl(e.image_url) ?? e.image_url}
                       alt={e.title}
                       className="w-full h-full object-cover"
                       loading="lazy"
+                      onError={() => setBrokenEvents((p) => new Set(p).add(e.id))}
                     />
                   </div>
                 )}

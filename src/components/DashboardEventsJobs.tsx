@@ -1,10 +1,15 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Briefcase, ArrowRight, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { getCleanBannerUrl } from "@/lib/utils";
 
 export function DashboardEventsJobs() {
+  const [brokenImgs, setBrokenImgs] = useState<Set<string>>(new Set());
+  const markBroken = (id: string) => setBrokenImgs((p) => new Set(p).add(id));
+
   const eventsQ = useQuery({
     queryKey: ["dashboard-events"],
     queryFn: async () => {
@@ -56,12 +61,13 @@ export function DashboardEventsJobs() {
           <ul className="space-y-3">
             {events.map((e: any) => (
               <li key={e.id} className="flex gap-3">
-                {e.image_url ? (
+                {e.image_url && !brokenImgs.has(e.id) ? (
                   <img
-                    src={e.image_url}
+                    src={getCleanBannerUrl(e.image_url) ?? e.image_url}
                     alt=""
                     className="h-14 w-20 rounded-md object-cover shrink-0 border"
                     loading="lazy"
+                    onError={() => markBroken(e.id)}
                   />
                 ) : (
                   <div className="h-14 w-20 rounded-md bg-muted grid place-items-center shrink-0">

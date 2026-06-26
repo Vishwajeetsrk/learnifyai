@@ -47,6 +47,7 @@ import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
+import { getCleanBannerUrl } from "@/lib/utils";
 import { savePlan, deletePlan, syncPlanToCashfree } from "@/lib/subscription.functions";
 import {
   adminContentAction,
@@ -337,6 +338,7 @@ function EventsManager() {
   const [editing, setEditing] = useState<EventRow | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [brokenEvents, setBrokenEvents] = useState<Set<string>>(new Set());
   const doAdminAction = useServerFn(adminContentAction);
   const doQuery = useServerFn(adminContentQuery);
 
@@ -398,13 +400,14 @@ function EventsManager() {
               key={e.id}
               className="rounded-xl border border-border/60 bg-card p-4 flex items-center gap-3"
             >
-              {e.image_url ? (
+              {e.image_url && !(brokenEvents.has(e.id)) ? (
                 <img
-                  src={e.image_url}
+                  src={getCleanBannerUrl(e.image_url) ?? e.image_url}
                   alt=""
                   className="h-14 w-20 rounded-md object-cover shrink-0"
                   loading="lazy"
                   decoding="async"
+                  onError={() => setBrokenEvents((p) => new Set(p).add(e.id))}
                 />
               ) : (
                 <div className="h-14 w-20 rounded-md bg-muted grid place-items-center shrink-0">

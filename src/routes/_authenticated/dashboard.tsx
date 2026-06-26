@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   BookOpen,
   Trophy,
@@ -43,6 +43,9 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function DashboardPage() {
   const { user, isAdmin } = useAuth();
   const name = (user?.user_metadata?.full_name as string) ?? user?.email?.split("@")[0] ?? "there";
+  const [brokenImgs, setBrokenImgs] = useState<Set<string>>(new Set());
+
+  const markBroken = (id: string) => setBrokenImgs((p) => new Set(p).add(id));
 
   const logDailyFn = useServerFn(logDailyUsage);
   useEffect(() => {
@@ -230,12 +233,13 @@ function DashboardPage() {
                   >
                     <Link to="/courses/$slug" params={{ slug: e.courses?.slug }} className="block">
                       <div className="aspect-video bg-muted overflow-hidden">
-                        {e.courses?.cover_url ? (
+                        {e.courses?.cover_url && !brokenImgs.has(e.courses.slug) ? (
                           <img
                             src={getCleanBannerUrl(e.courses.cover_url) ?? e.courses.cover_url}
                             alt={e.courses.title}
                             className="w-full h-full object-cover group-hover:scale-105 transition"
                             loading="lazy"
+                            onError={() => markBroken(e.courses.slug)}
                           />
                         ) : (
                           <div className="w-full h-full grid place-items-center">

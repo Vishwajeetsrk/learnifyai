@@ -212,7 +212,7 @@ export default function SettingsPage() {
       ...overrides,
     };
 
-    const baseUrl = `https://api.dicebear.com/9.x/${s.selectedStyle}/svg?seed=${encodeURIComponent(s.seed)}`;
+    const baseUrl = `https://api.dicebear.com/7.x/${s.selectedStyle}/svg?seed=${encodeURIComponent(s.seed)}`;
     let params = "";
 
     if (s.selectedStyle === "avataaars") {
@@ -1442,7 +1442,7 @@ export default function SettingsPage() {
                         }
                       } else {
                         // No avatar yet — create a default DiceBear avatar with border
-                        const defaultUrl = new URL("https://api.dicebear.com/9.x/avataaars/svg");
+                        const defaultUrl = new URL("https://api.dicebear.com/7.x/avataaars/svg");
                         defaultUrl.searchParams.set("seed", seed || "Learnify");
                         defaultUrl.searchParams.set("backgroundColor", "transparent");
                         if (val !== "none") defaultUrl.searchParams.set("profile_border", val);
@@ -1495,7 +1495,7 @@ export default function SettingsPage() {
                           nextUrl = `${baseUrl}?profile_border=${rand}`;
                         }
                       } else {
-                        const defaultUrl = new URL("https://api.dicebear.com/9.x/avataaars/svg");
+                        const defaultUrl = new URL("https://api.dicebear.com/7.x/avataaars/svg");
                         defaultUrl.searchParams.set("seed", seed || "Learnify");
                         defaultUrl.searchParams.set("backgroundColor", "transparent");
                         defaultUrl.searchParams.set("profile_border", rand);
