@@ -101,6 +101,11 @@ export function SiteFooter() {
                 Roadmap
               </Link>
             </li>
+            <li>
+              <Link to="/blog" className="hover:text-foreground transition">
+                Blog
+              </Link>
+            </li>
           </ul>
         </div>
 

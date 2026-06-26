@@ -91,6 +91,7 @@ import PageManager from "@/components/admin/PageManager";
 import MediaLibrary from "@/components/admin/MediaLibrary";
 import FeaturesCatalog from "@/components/admin/FeaturesCatalog";
 import MenuManager from "@/components/admin/MenuManager";
+import BlogManager from "@/components/admin/BlogManager";
 
 // Heavy admin panels — code-split so initial admin page paints fast.
 const IssueCertificate = lazy(() => import("@/components/admin/IssueCertificate"));
@@ -257,6 +258,10 @@ export default function AdminContentPage() {
               <Eye className="h-4 w-4 mr-2" />
               Visibility
             </TabsTrigger>
+            <TabsTrigger value="blog">
+              <FileText className="h-4 w-4 mr-2" />
+              Blog
+            </TabsTrigger>
             <TabsTrigger value="wcms-pages">
               <Globe className="h-4 w-4 mr-2" />
               WCMS Pages
@@ -324,6 +329,11 @@ export default function AdminContentPage() {
           </TabsContent>
           <TabsContent value="wcms-menus" className="mt-6">
             <MenuManager />
+          </TabsContent>
+          <TabsContent value="blog" className="mt-6">
+            <Suspense fallback={<div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>}>
+              <BlogManager />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </div>

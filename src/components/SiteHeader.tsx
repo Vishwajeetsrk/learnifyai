@@ -39,6 +39,13 @@ export function SiteHeader() {
           >
             Pricing
           </Link>
+          <Link
+            to="/blog"
+            preload="intent"
+            className="hover:text-foreground transition"
+          >
+            Blog
+          </Link>
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />

@@ -411,10 +411,16 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v3.5.5 (June 2026) - Blog System, Avatars Public Read & Event Delete Dialog
+
+- ✅ **Blog System**: New `blog_posts` table with rich WYSIWYG editor (TipTap — heading, bold, italic, underline, font size, text color, highlight, alignment, image, video, link). Admin CRUD in Content Manager under "Blog" tab. Public listing at `/blog` and individual posts at `/blog/$slug`. Blog link added to header nav and footer.
+- ✅ **Avatars Bucket Public Read**: New migration makes the `avatars` storage bucket publicly readable — profile photos and banner images now load for all users (not just the owner).
+- ✅ **Event Delete Dialog Polished**: Redesigned with centered layout, red trash icon, clear copy, and async-safe `Button` (not `AlertDialogAction`) for reliable deletion.
+
 ### v3.5.4 (June 2026) - Cover Images, Event Delete, Avatar Fallback & Thumbnail Prompt
 
 - ✅ **Cover Images Fixed Everywhere**: `getCleanBannerUrl` now applied to course cover images in all routes (courses.index, courses.$slug, cart, creator, creators.$id) — expired Supabase signed URLs no longer show as broken images.
-- ✅ **Event Delete Fixed**: Switched from Radix AlertDialog (which silently swallows async errors) to `window.confirm` with proper try/catch error handling.
+- ✅ **Event Delete Fixed**: Restored AlertDialog with async-safe `Button` (not `AlertDialogAction`) to avoid swallowed errors. Polished with centered layout and red trash icon.
 - ✅ **Event Cover Image in Admin**: Edit dialog preview now applies `getCleanBannerUrl` and hides on error.
 - ✅ **Settings Banner Lost After Logout**: Fixed broken `createSignedUrl` call that extracted only the filename (not the storage path) — now uses the already-public Supabase URL directly.
 - ✅ **Avatar "Preview Unavailable" Gone**: DiceBear 503 fallback now shows a gradient circle with the user's initial letter instead of "Preview unavailable".

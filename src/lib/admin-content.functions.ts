@@ -17,6 +17,7 @@ const ALLOWED_TABLES = [
   "wcms_sections",
   "media_library",
   "coaching_roadmaps",
+  "blog_posts",
 ] as const;
 
 const actionSchema = z.object({
