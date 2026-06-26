@@ -30,7 +30,7 @@ import {
   HelpCircle,
   GripVertical,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getCleanBannerUrl } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
 import { runAiTool } from "@/lib/ai-tools.functions";
 import { suggestCourseCategory } from "@/lib/course.functions";
@@ -613,7 +613,7 @@ function CourseFormDialog({
       setPrice(Number(course.price_inr));
       setInstructor(course.instructor);
       setDuration(course.duration_minutes);
-      setCoverUrl(course.cover_url ?? "");
+      setCoverUrl(getCleanBannerUrl(course.cover_url) ?? course.cover_url ?? "");
       setPublished(course.published);
     } else {
       setTitle("");

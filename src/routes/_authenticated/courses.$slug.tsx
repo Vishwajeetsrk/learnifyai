@@ -72,7 +72,7 @@ import { PlaygroundTools } from "@/components/playground-tools";
 import Editor from "@monaco-editor/react";
 import { useAuth } from "@/hooks/use-auth";
 // isAdmin pulled from useAuth below
-import { cn } from "@/lib/utils";
+import { cn, getCleanBannerUrl } from "@/lib/utils";
 import { getProfileBorderClass } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { lessonAiHelper } from "@/lib/lesson-ai.functions";
@@ -754,7 +754,7 @@ function CourseDetail() {
                 <CustomVideoPlayer
                   key={`${active?.id}-${playerRetry}`}
                   url={activeVideo.src}
-                  thumbnailUrl={course?.cover_url || undefined}
+                  thumbnailUrl={getCleanBannerUrl(course?.cover_url ?? null) ?? course?.cover_url ?? undefined}
                   startSeconds={activeProgress?.watched_seconds ?? 0}
                   playbackRate={speed}
                   restrictDownload={!isAdmin && user?.id !== course?.created_by}

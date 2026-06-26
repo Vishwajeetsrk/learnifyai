@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { DashboardSkeleton } from "@/components/Skeletons";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { getCleanBannerUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/creator")({
   head: () => ({ meta: [{ title: "Creator Hub — Learnify AI" }] }),
@@ -233,11 +234,12 @@ function CreatorHub() {
                     <div className="h-12 w-20 rounded-md bg-muted overflow-hidden shrink-0">
                       {c.cover_url ? (
                         <img
-                          src={c.cover_url}
+                          src={getCleanBannerUrl(c.cover_url) ?? c.cover_url}
                           alt={c.title}
                           className="w-full h-full object-cover"
                           loading="lazy"
                           decoding="async"
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                         />
                       ) : null}
                     </div>

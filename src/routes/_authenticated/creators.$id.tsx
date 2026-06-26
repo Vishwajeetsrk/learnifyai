@@ -304,10 +304,11 @@ function CreatorProfile() {
                 <div className="aspect-video bg-gradient-to-br from-muted to-muted/50 overflow-hidden relative">
                   {c.cover_url ? (
                     <img
-                      src={c.cover_url}
+                      src={getCleanBannerUrl(c.cover_url) ?? c.cover_url}
                       alt=""
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                     />
                   ) : (
                     <div className="w-full h-full grid place-items-center">

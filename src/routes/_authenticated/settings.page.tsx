@@ -1028,13 +1028,7 @@ export default function SettingsPage() {
       return;
     }
     if (path.includes("supabase.co")) {
-      supabase.storage
-        .from("avatars")
-        .createSignedUrl(path.split("/").pop()!, 60 * 60 * 24 * 365)
-        .then(({ data }) => {
-          if (data) setBannerSignedUrl(data.signedUrl);
-        })
-        .catch(() => setBannerSignedUrl(path));
+      setBannerSignedUrl(path);
     } else {
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       setBannerSignedUrl(data.publicUrl);
@@ -1627,9 +1621,10 @@ export default function SettingsPage() {
                       {/* Live Preview */}
                       <div className="relative h-40 w-40 rounded-full border-4 border-background bg-card shadow-lg overflow-hidden flex items-center justify-center">
                         {avatarPreviewError ? (
-                          <div className="h-full w-full grid place-items-center text-muted-foreground">
-                            <Sparkles className="h-10 w-10" />
-                            <span className="text-[10px] mt-1">Preview unavailable</span>
+                          <div className="h-full w-full rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 grid place-items-center">
+                            <span className="text-4xl font-bold text-white">
+                              {(seed || "L").charAt(0).toUpperCase()}
+                            </span>
                           </div>
                         ) : (
                           <img

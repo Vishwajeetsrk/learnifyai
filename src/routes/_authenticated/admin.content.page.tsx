@@ -365,19 +365,6 @@ function EventsManager() {
     setOpen(true);
   };
 
-  const removeEvent = async () => {
-    if (!deleteId) return;
-    try {
-      await doAdminAction({ data: { table: "events", action: "delete", id: deleteId } });
-    } catch (e: any) {
-      return toast.error(e?.message || "Delete failed");
-    }
-    toast.success("Event deleted");
-    setDeleteId(null);
-    qc.invalidateQueries({ queryKey: ["admin-events"] });
-    qc.invalidateQueries({ queryKey: ["events-public"] });
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
@@ -432,7 +419,17 @@ function EventsManager() {
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => setDeleteId(e.id)}>
+                <Button size="sm" variant="outline" onClick={async () => {
+                  if (!window.confirm("Delete this event? This cannot be undone.")) return;
+                  try {
+                    await doAdminAction({ data: { table: "events", action: "delete", id: e.id } });
+                    toast.success("Event deleted");
+                    qc.invalidateQueries({ queryKey: ["admin-events"] });
+                    qc.invalidateQueries({ queryKey: ["events-public"] });
+                  } catch (err: any) {
+                    toast.error(err?.message || "Delete failed");
+                  }
+                }}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
@@ -454,30 +451,6 @@ function EventsManager() {
         }}
       />
 
-      <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete event?</AlertDialogTitle>
-            <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={async () => {
-              if (!deleteId) return;
-              try {
-                await doAdminAction({ data: { table: "events", action: "delete", id: deleteId } });
-                toast.success("Event deleted");
-                qc.invalidateQueries({ queryKey: ["admin-events"] });
-                qc.invalidateQueries({ queryKey: ["events-public"] });
-              } catch (e: any) {
-                toast.error(e?.message || "Delete failed");
-              } finally {
-                setDeleteId(null);
-              }
-            }}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
@@ -602,11 +575,12 @@ function EventDialog({
             />
             {form.image_url ? (
               <img
-                src={form.image_url}
+                src={getCleanBannerUrl(form.image_url) ?? form.image_url}
                 alt=""
                 className="mt-2 h-24 w-full rounded-md object-cover border"
                 loading="lazy"
                 decoding="async"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
             ) : null}
           </div>
