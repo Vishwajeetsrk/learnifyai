@@ -442,14 +442,21 @@ function EventsManager() {
       />
 
       <AlertDialog open={!!deleteId} onOpenChange={(v) => { if (!v) setDeleteId(null); }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this event?</AlertDialogTitle>
-            <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button variant="destructive" onClick={async () => {
+        <AlertDialogContent className="max-w-sm">
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center">
+              <Trash2 className="h-7 w-7 text-destructive" />
+            </div>
+            <div className="text-center space-y-1">
+              <AlertDialogTitle className="text-lg">Delete this event?</AlertDialogTitle>
+              <AlertDialogDescription className="text-sm text-muted-foreground">
+                This action cannot be undone. The event will be permanently removed from the site.
+              </AlertDialogDescription>
+            </div>
+          </div>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
+            <Button variant="destructive" className="flex-1" onClick={async () => {
               const id = deleteId;
               if (!id) return;
               try {
