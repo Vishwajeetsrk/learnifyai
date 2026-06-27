@@ -421,7 +421,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Feature Visibility → AppShell**: `useFeatureFlags()` filters sidebar nav items. Disabled features hidden until re-enabled in admin.
 - ✅ **Gmail SMTP Promoted**: Moved from last resort to first email provider tried (before Resend/Brevo).
 - ✅ **File Cleanup**: Removed 60+ files — archive backups, duplicate project, hardcoded scripts, build artifacts, old migration.
-- ✅ **Animated Illustrations**: Added 20 animated SVGs to `public/illustrations/`. Integrated into 404 page (animated "Page Not Found"), events (Globe World), community (Globe World), roadmap (Under Construction), features (Back to School!), billing (Credit Card shuffle), certificates (Lock with Green Tick), course cards (Star Rating), studio upload (uploading), admin WCMS (Website CMS).
+- ✅ **Premium 3D Animated SVGs**: Added 41 animated SVGs to `public/illustrations/`. Integrated into 404 page (animated "Page Not Found"), events (Globe), community (Astronaut Illustration), roadmap (Under Construction), features (AI Spark), billing (Payment Card Security), certificates (Cyber Security), course cards (Star Rating interaction), studio upload (uploading), wallet (Flying Coin), admin WCMS (Website CMS). Premium 3D icon set for AI, education, payments, security, and gamification.
 - ✅ **Blog Delete Fixed**: Loading state with Cancel/Delete disabled during operation.
 - ✅ **Supabase Types Regenerated**: Including `blog_likes` and `blog_comments`.
 - ✅ **Migration Repaired**: `20260620000007` marked reverted to match local deletion.
