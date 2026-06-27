@@ -15,6 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { MarketingPage } from "@/components/MarketingPage";
+import { motion } from "framer-motion";
 import { AiToolsShowcase } from "@/components/AiToolsShowcase";
 import { usePublicFeatures } from "@/hooks/use-wcms-public";
 
@@ -71,11 +72,33 @@ function FeaturesPage() {
       title="Everything you need to learn faster."
       subtitle="A complete learning OS — from AI tutoring to creator tools to career growth."
     >
-      <div className="flex items-center justify-center mb-6">
-        <div className="w-44 h-44 opacity-80">
-          <img src="/illustrations/AI_Spark_Interactive_Assistant.svg" alt="Features" className="w-full h-full" />
-        </div>
-      </div>
+      <motion.div
+        className="flex items-center justify-center mb-6"
+        initial={{ opacity: 0, scale: 0.7 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+      >
+        <motion.div
+          className="w-44 h-44 cursor-pointer relative"
+          whileHover={{ scale: 1.1, rotateZ: [0, -3, 3, 0] }}
+          whileTap={{ scale: 0.9 }}
+          drag
+          dragSnapToOrigin
+          dragElastic={0.3}
+        >
+          <motion.div
+            className="absolute -inset-3 rounded-full bg-primary/10 blur-xl"
+            animate={{ scale: [1, 1.25, 1], opacity: [0.2, 0.5, 0.2] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute -inset-3 rounded-full bg-violet-500/10 blur-2xl"
+            animate={{ scale: [1.1, 1.35, 1.1], opacity: [0.1, 0.3, 0.1] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          />
+          <img src="/illustrations/AI_Spark_Interactive_Assistant.svg" alt="Features" className="w-full h-full relative z-10" />
+        </motion.div>
+      </motion.div>
       {isLoading ? (
         <div className="flex justify-center py-16">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

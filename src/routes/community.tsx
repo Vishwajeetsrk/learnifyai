@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Loader2, Users, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { MarketingPage } from "@/components/MarketingPage";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,11 +55,30 @@ function CommunityPage() {
       title="Learn together, build together"
       subtitle="Browse live cohorts, drop into office hours, or join a study group."
     >
-      <div className="flex items-center justify-center mb-8">
-        <div className="w-48 h-48 opacity-80">
-          <img src="/illustrations/Astronaut_Illustration.svg" alt="Community" className="w-full h-full" />
-        </div>
-      </div>
+      <motion.div
+        className="flex items-center justify-center mb-8"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <motion.div
+          className="w-48 h-48 cursor-pointer relative"
+          whileHover={{ scale: 1.12 }}
+          whileTap={{ scale: 0.92 }}
+          drag
+          dragSnapToOrigin
+          dragElastic={0.4}
+          animate={{ y: [0, -8, 0] }}
+          transition={{ y: { duration: 4, repeat: Infinity, ease: "easeInOut" } }}
+        >
+          <motion.div
+            className="absolute -inset-4 rounded-full bg-violet-500/10 blur-2xl"
+            animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.5, 0.2] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <img src="/illustrations/Astronaut_Illustration.svg" alt="Community" className="w-full h-full relative z-10" />
+        </motion.div>
+      </motion.div>
       <div className="flex items-center justify-end mb-6">
         <Button asChild>
           <Link to="/cohorts">
