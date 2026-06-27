@@ -5,24 +5,26 @@ import { Loader2, Calendar, ArrowRight } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 
-const BlogListing = () => null;
-
 export const Route = createFileRoute("/blog/")({
   head: () => ({ meta: [{ title: "Blog — Learnify AI" }] }),
   component: BlogIndexPage,
 });
 
 function BlogIndexPage() {
-  const { data: posts, isLoading } = useQuery({
+  const { data: posts, isLoading, isError } = useQuery({
     queryKey: ["blog-public"],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("blog_posts")
         .select("id, title, slug, excerpt, featured_image, published_at, created_at")
         .eq("published", true)
         .order("published_at", { ascending: false });
+      if (error) throw error;
       return data ?? [];
     },
+    staleTime: 0,
+    gcTime: 0,
+    retry: 2,
   });
 
   if (isLoading) {

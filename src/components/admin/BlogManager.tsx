@@ -36,14 +36,19 @@ type BlogPost = {
 export default function BlogManager() {
   const qc = useQueryClient();
   const doAdminAction = useServerFn(adminContentAction);
+  const doQuery = useServerFn(adminContentQuery);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editing, setEditing] = useState<BlogPost | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ["blog-posts"],
-    queryFn: () => adminContentQuery({ data: { table: "blog_posts", columns: "*", orderBy: "created_at", ascending: false } }),
+    queryFn: async () => {
+      const result = await doQuery({ data: { table: "blog_posts", columns: "*", orderBy: "created_at", ascending: false } });
+      return (result ?? []) as BlogPost[];
+    },
   });
 
   const [form, setForm] = useState<Partial<BlogPost>>({
@@ -90,7 +95,8 @@ export default function BlogManager() {
         published_at: form.published && !editing?.published_at ? new Date().toISOString() : editing?.published_at || null,
       };
       if (editing) {
-        await doAdminAction({ data: { table: "blog_posts", action: "update", id: editing.id, data: payload } });
+        const res = await doAdminAction({ data: { table: "blog_posts", action: "update", id: editing.id, data: payload } });
+        if (!res) throw new Error("No response from server");
       } else {
         await doAdminAction({ data: { table: "blog_posts", action: "insert", data: payload } });
       }
@@ -104,18 +110,7 @@ export default function BlogManager() {
     }
   };
 
-  const remove = async () => {
-    if (!deleteId) return;
-    try {
-      await doAdminAction({ data: { table: "blog_posts", action: "delete", id: deleteId } });
-      toast.success("Post deleted");
-      qc.invalidateQueries({ queryKey: ["blog-posts"] });
-    } catch (e: any) {
-      toast.error(e?.message || "Delete failed");
-    } finally {
-      setDeleteId(null);
-    }
-  };
+  const [deleting, setDeleting] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -221,8 +216,25 @@ export default function BlogManager() {
             </div>
           </div>
           <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
-            <Button variant="destructive" className="flex-1" onClick={remove}>Delete</Button>
+            <AlertDialogCancel disabled={deleting} className="flex-1">Cancel</AlertDialogCancel>
+            <Button variant="destructive" className="flex-1" disabled={deleting} onClick={async () => {
+              setDeleting(true);
+              try {
+                const id = deleteId;
+                if (!id) return;
+                await doAdminAction({ data: { table: "blog_posts", action: "delete", id } });
+                toast.success("Post deleted");
+                qc.invalidateQueries({ queryKey: ["blog-posts"] });
+              } catch (err: any) {
+                toast.error(err?.message || "Delete failed");
+              } finally {
+                setDeleteId(null);
+                setDeleting(false);
+              }
+            }}>
+              {deleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Delete
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

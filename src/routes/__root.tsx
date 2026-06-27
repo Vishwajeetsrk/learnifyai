@@ -16,15 +16,11 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-lg text-center space-y-6">
-        <div className="relative mx-auto w-32 h-32">
-          <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse" />
-          <div className="absolute inset-2 rounded-full bg-primary/5 flex items-center justify-center">
-            <span className="text-6xl font-black text-primary/30 select-none">?</span>
-          </div>
+        <div className="mx-auto w-64 h-64">
+          <img src="/illustrations/404_Page_not_found.svg" alt="404" className="w-full h-full" />
         </div>
         <div>
-          <h1 className="text-8xl font-black tracking-tighter text-foreground">404</h1>
-          <h2 className="mt-3 text-2xl font-bold text-foreground">Page not found</h2>
+          <h1 className="text-4xl font-bold text-foreground">Page not found</h1>
           <p className="mt-2 text-muted-foreground max-w-sm mx-auto">
             The page you're looking for doesn't exist, was moved, or is temporarily unavailable.
           </p>

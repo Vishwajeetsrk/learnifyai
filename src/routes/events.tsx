@@ -64,6 +64,11 @@ function EventsPage() {
       title="Learn together. In real time."
       subtitle="Workshops, AMAs, and creator showcases — both online and IRL."
     >
+      <div className="flex items-center justify-center mb-6">
+        <div className="w-40 h-40 opacity-80">
+          <img src="/illustrations/Globe_World.svg" alt="Events" className="w-full h-full" />
+        </div>
+      </div>
       {isLoading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

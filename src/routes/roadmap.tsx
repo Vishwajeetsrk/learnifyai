@@ -110,6 +110,11 @@ function RoadmapPage() {
       title="Built in the open."
       subtitle="A living view of what we're shipping next."
     >
+      <div className="flex items-center justify-center mb-6">
+        <div className="w-44 h-44 opacity-80">
+          <img src="/illustrations/Under_Construction_1.svg" alt="Roadmap" className="w-full h-full" />
+        </div>
+      </div>
       {q.isLoading ? (
         <div className="py-16 grid place-items-center">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />

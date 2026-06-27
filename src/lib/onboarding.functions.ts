@@ -369,6 +369,7 @@ export const logDailyUsage = createServerFn({ method: "POST" })
       .eq("id", userId)
       .maybeSingle();
 
+    const xpEarned = data.xp_earned ?? 10;
     if (existingProfile) {
       const now = new Date();
       let newStreak = existingProfile.current_streak ?? 0;
@@ -381,15 +382,22 @@ export const logDailyUsage = createServerFn({ method: "POST" })
         newStreak = 1;
       }
       const newHighest = Math.max(newStreak, existingProfile.highest_streak ?? 0);
-      await supabaseAdmin
-        .from("profiles")
-        .update({
-          current_streak: newStreak,
-          highest_streak: newHighest,
-          last_active_at: now.toISOString(),
-          xp: (existingProfile.xp ?? 0) + (data.xp_earned ?? 10),
-        })
-        .eq("id", userId);
+      await Promise.all([
+        supabaseAdmin
+          .from("profiles")
+          .update({
+            current_streak: newStreak,
+            highest_streak: newHighest,
+            last_active_at: now.toISOString(),
+            xp: (existingProfile.xp ?? 0) + xpEarned,
+          })
+          .eq("id", userId),
+        (supabaseAdmin as any).from("xp_log").insert({
+          user_id: userId,
+          amount: xpEarned,
+          source: "daily",
+        }),
+      ]);
     }
 
     return { success: true, streak };

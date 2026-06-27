@@ -31,6 +31,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { useFeatureFlags } from "@/hooks/use-feature-flags";
 import type { ReactNode } from "react";
 const GlobalSupportAgent = lazy(() =>
   import("@/components/GlobalSupportAgent").then((m) => ({ default: m.GlobalSupportAgent })),
@@ -42,22 +43,22 @@ interface NavItem {
   icon: typeof Sparkles;
   adminOnly?: boolean;
   creatorOnly?: boolean;
+  featureKey?: string;
 }
 const nav: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/community-feed", label: "Community", icon: Users },
-  { to: "/coaching", label: "Coaching", icon: Compass },
-  { to: "/courses", label: "Courses", icon: GraduationCap },
+  { to: "/community-feed", label: "Community", icon: Users, featureKey: "community" },
+  { to: "/coaching", label: "Coaching", icon: Compass, featureKey: "coaching" },
+  { to: "/courses", label: "Courses", icon: GraduationCap, featureKey: "course_builder" },
   { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { to: "/achievements", label: "Achievements", icon: Medal },
   { to: "/cart", label: "Cart", icon: ShoppingCart },
   { to: "/submissions", label: "Submissions", icon: FileCheck2 },
-  // Playground accessible from Courses page
-  { to: "/certificates", label: "Certificates", icon: Award },
-  { to: "/ai", label: "AI Chat", icon: Sparkles },
-  { to: "/ai-tools", label: "AI Tools", icon: Wand2 },
+  { to: "/certificates", label: "Certificates", icon: Award, featureKey: "certificates" },
+  { to: "/ai", label: "AI Chat", icon: Sparkles, featureKey: "ai_tools" },
+  { to: "/ai-tools", label: "AI Tools", icon: Wand2, featureKey: "ai_tools" },
   { to: "/inbox", label: "Inbox", icon: Inbox },
-  { to: "/wallet", label: "Wallet", icon: WalletIcon },
+  { to: "/wallet", label: "Wallet", icon: WalletIcon, featureKey: "wallet" },
   { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 
@@ -69,12 +70,17 @@ const nav: NavItem[] = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { user, isAdmin, isCreator } = useAuth();
+  const { data: flags } = useFeatureFlags();
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navItems = nav.filter((n) => {
     if (n.adminOnly && !isAdmin) return false;
     if (n.creatorOnly && !isCreator) return false;
+    if (n.featureKey) {
+      const flag = flags?.find((f: any) => f.key === n.featureKey);
+      if (flag && (!flag.enabled || flag.maintenance_mode)) return false;
+    }
     return true;
   });
 
@@ -96,7 +102,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         const active = path === item.to || path.startsWith(item.to + "/");
         const Icon = item.icon;
         const showBadge = item.to === "/cart" && (cartCount.data ?? 0) > 0;
-        // Map nav items to data-tour attributes
         const tourKey =
           item.to === "/dashboard"
             ? "nav-dashboard"
@@ -168,44 +173,35 @@ export function AppShell({ children }: { children: ReactNode }) {
         <UserFooter />
       </aside>
 
-      <div className="flex-1 min-w-0 flex flex-col">
-        <header className="md:hidden sticky top-0 z-40 flex items-center justify-between gap-2 h-14 px-3 border-b bg-background/90 backdrop-blur">
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Open menu">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-64 p-0 flex flex-col">
-              <SheetTitle className="sr-only">Navigation</SheetTitle>
-              <div className="flex items-center px-5 h-16 border-b">
-                <Logo height="h-9" />
-              </div>
-
-              <NavList onClick={() => setMobileOpen(false)} />
-              <UserFooter />
-            </SheetContent>
-          </Sheet>
-          <Link to="/" aria-label="Learnify AI">
-            <Logo height="h-8" />
+      {/* Mobile sidebar */}
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden fixed top-3 left-3 z-50 h-9 w-9"
+          >
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-60 p-0">
+          <SheetTitle className="sr-only">Navigation</SheetTitle>
+          <Link
+            to="/"
+            className="flex items-center px-5 h-16 border-b"
+            aria-label="Learnify AI"
+            onClick={() => setMobileOpen(false)}
+          >
+            <Logo height="h-10" />
           </Link>
+          <NavList onClick={() => setMobileOpen(false)} />
+          <UserFooter />
+        </SheetContent>
+      </Sheet>
 
-          <div className="flex items-center gap-1">
-            <Link to="/cart" className="relative p-2 rounded-md hover:bg-accent" aria-label="Cart">
-              <ShoppingCart className="h-5 w-5" />
-              {(cartCount.data ?? 0) > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 text-[9px] bg-primary text-primary-foreground rounded-full h-4 min-w-4 px-1 grid place-items-center font-semibold">
-                  {cartCount.data}
-                </span>
-              )}
-            </Link>
-            <ThemeToggle />
-            <UserAvatarMenu size="sm" />
-          </div>
-        </header>
+      <main className="flex-1 min-w-0">{children}</main>
 
-        <main className="flex-1 min-w-0">{children}</main>
-      </div>
       <Suspense fallback={null}>
         <GlobalSupportAgent />
       </Suspense>

@@ -54,6 +54,11 @@ function CommunityPage() {
       title="Learn together, build together"
       subtitle="Browse live cohorts, drop into office hours, or join a study group."
     >
+      <div className="flex items-center justify-center mb-8">
+        <div className="w-48 h-48 opacity-80">
+          <img src="/illustrations/Globe_World.svg" alt="Community" className="w-full h-full" />
+        </div>
+      </div>
       <div className="flex items-center justify-end mb-6">
         <Button asChild>
           <Link to="/cohorts">

@@ -3,9 +3,23 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/use-auth";
+import { usePublicMenu } from "@/hooks/use-wcms-public";
+import { Loader2 } from "lucide-react";
+
+const HARDCODED_NAV = [
+  { label: "Features", url: "/features" },
+  { label: "AI Tools", url: "/features#ai-tools" },
+  { label: "Creators", url: "/creators" },
+  { label: "Coaches", url: "/coaches" },
+  { label: "Pricing", url: "/pricing" },
+  { label: "Blog", url: "/blog" },
+];
 
 export function SiteHeader() {
   const { isAuthenticated, loading } = useAuth();
+  const { data: menuItems = [], isLoading: menuLoading } = usePublicMenu("main");
+  const navItems = menuItems.length > 0 ? menuItems : HARDCODED_NAV;
+
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/70 border-b border-border/60">
       <div className="container mx-auto px-6 h-16 flex items-center justify-between">
@@ -14,42 +28,23 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
-          <Link to="/features" preload="intent" className="hover:text-foreground transition">
-            Features
-          </Link>
-          <Link
-            to="/features"
-            hash="ai-tools"
-            preload="intent"
-            className="hover:text-foreground transition"
-          >
-            AI Tools
-          </Link>
-          <Link to="/creators" preload="intent" className="hover:text-foreground transition">
-            Creators
-          </Link>
-          <Link to="/coaches" preload="intent" className="hover:text-foreground transition">
-            Coaches
-          </Link>
-          <Link
-            to="/pricing"
-            search={{ subscribe: undefined }}
-            preload="intent"
-            className="hover:text-foreground transition"
-          >
-            Pricing
-          </Link>
-          <Link
-            to="/blog"
-            preload="intent"
-            className="hover:text-foreground transition"
-          >
-            Blog
-          </Link>
+          {menuLoading && menuItems.length === 0 ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            navItems.map((item: any) => (
+              <Link
+                key={item.id || item.label}
+                to={item.url || "/"}
+                preload="intent"
+                className="hover:text-foreground transition"
+              >
+                {item.label}
+              </Link>
+            ))
+          )}
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          {/* While loading, show Sign In / Get Started optimistically (not authenticated yet) */}
           {isAuthenticated && !loading ? (
             <Button
               asChild

@@ -55,4 +55,8 @@ client_secret_*.json
 
 supabase/.temp/
 /learnify playground/
+/archive-review/
+/build.log
+/vite-server.log
+/dist/
 

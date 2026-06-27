@@ -325,11 +325,16 @@ function BillingPage() {
     <AppShell>
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">Billing & Subscription</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your plan, invoices, and payment history.
-          </p>
+        <div className="flex items-start gap-6">
+          <div className="w-28 h-28 shrink-0 hidden sm:block">
+            <img src="/illustrations/Credit_Card_shuffle.svg" alt="Billing" className="w-full h-full" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold">Billing & Subscription</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your plan, invoices, and payment history.
+            </p>
+          </div>
         </div>
 
         {/* Current Plan Card */}

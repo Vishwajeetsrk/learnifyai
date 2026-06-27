@@ -106,7 +106,7 @@ export const awardXP = createServerFn({ method: "POST" })
 
     const newXp = (profile.xp ?? 0) + data.amount;
 
-    await Promise.all([
+    const [profResult, logResult] = await Promise.all([
       supabaseAdmin
         .from("profiles")
         .update({
@@ -123,6 +123,13 @@ export const awardXP = createServerFn({ method: "POST" })
         source: data.source ?? "lesson",
       }),
     ]);
+
+    if (logResult?.error) {
+      console.error("[awardXP] xp_log insert failed:", logResult.error);
+    }
+    if (profResult?.error) {
+      console.error("[awardXP] profile update failed:", profResult.error);
+    }
 
     const { data: allBadges } = await (supabaseAdmin as any)
       .from("badges")

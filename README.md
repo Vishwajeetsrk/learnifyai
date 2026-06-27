@@ -41,6 +41,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 📋 **Billing Dashboard**         | View current plan, invoices, subscription history, cancel/resume subscription           |
 | 🎯 **Onboarding Wizard**         | 8-step guided setup with AI coach, daily habits tracking, and project creation          |
 | 🗺️ **Interactive Product Tours** | Role-specific guided tours (Student, Creator, Admin) with spotlight tooltips             |
+| 📝 **Blog**                     | Read articles, like posts, and comment with community                                     |
 
 ### 🎓 For Creators
 
@@ -66,7 +67,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                         |
 | 📄 **Legal Pages**            | Privacy Policy, Terms of Service, Refund Policy                                                           |
 | 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                  |
-| 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager                                     |
+| 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager, blog system                        |
 | 🎯 **Interactive Tours**      | Role-specific product tours with spotlight cutout and auto-skip for missing targets                       |
 
 ---
@@ -410,6 +411,20 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v3.6.0 (June 2026) - Blog Likes & Comments, WCMS Menus, Animated Illustrations
+
+- ✅ **Blog Likes & Comments**: New `blog_likes` + `blog_comments` tables with RLS. Like button with auth toggle, comment list with author avatars, delete own comments. Migration pushed to remote.
+- ✅ **RichTextEditor Overhaul**: Browser `prompt()` replaced with styled shadcn `Dialog` for URL inputs. Alignment icons fixed (lucide-react). Added: strikethrough, inline code, H4, code block, horizontal rule, clear formatting.
+- ✅ **WCMS Menus → Header/Footer**: `usePublicMenu("main")` drives SiteHeader nav. `usePublicMenu("footer")` groups items by parent into footer sections. Falls back to hardcoded nav.
+- ✅ **Features Catalog → /features**: `usePublicFeatures()` renders WCMS catalog entries. Falls back to hardcoded features.
+- ✅ **Feature Visibility → AppShell**: `useFeatureFlags()` filters sidebar nav items. Disabled features hidden until re-enabled in admin.
+- ✅ **Gmail SMTP Promoted**: Moved from last resort to first email provider tried (before Resend/Brevo).
+- ✅ **File Cleanup**: Removed 60+ files — archive backups, duplicate project, hardcoded scripts, build artifacts, old migration.
+- ✅ **Animated Illustrations**: Added 20 animated SVGs to `public/illustrations/`. Integrated into 404 page (animated "Page Not Found"), events (Globe World), community (Globe World), roadmap (Under Construction), features (Back to School!), billing (Credit Card shuffle), certificates (Lock with Green Tick), course cards (Star Rating), studio upload (uploading), admin WCMS (Website CMS).
+- ✅ **Blog Delete Fixed**: Loading state with Cancel/Delete disabled during operation.
+- ✅ **Supabase Types Regenerated**: Including `blog_likes` and `blog_comments`.
+- ✅ **Migration Repaired**: `20260620000007` marked reverted to match local deletion.
 
 ### v3.5.5 (June 2026) - Blog System, Avatars Public Read & Event Delete Dialog
 
