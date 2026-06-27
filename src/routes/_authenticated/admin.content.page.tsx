@@ -321,7 +321,7 @@ export default function AdminContentPage() {
           <TabsContent value="wcms-pages" className="mt-6">
             <div className="flex items-center justify-end -mt-12 mb-2">
               <div className="w-20 h-20">
-                <img src="/illustrations/Website_CMS.svg" alt="" className="w-full h-full" />
+                <img src="/illustrations/Web_Designing.svg" alt="" className="w-full h-full" />
               </div>
             </div>
             <PageManager />

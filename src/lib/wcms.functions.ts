@@ -330,8 +330,8 @@ export const wcmsUpsertFeature = createServerFn({ method: "POST" })
         icon: z.string().optional(),
         category: z.string().optional(),
         color: z.string().optional(),
-        url: z.string().optional(),
-        badge: z.string().optional(),
+        url: z.string().nullish(),
+        badge: z.string().nullish(),
         sort_order: z.number().optional(),
         enabled: z.boolean().optional(),
       })
