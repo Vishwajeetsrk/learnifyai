@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Calendar, Clock, MapPin, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { MarketingPage } from "@/components/MarketingPage";
 import { supabase } from "@/integrations/supabase/client";
 import { getCleanBannerUrl } from "@/lib/utils";
@@ -64,11 +65,28 @@ function EventsPage() {
       title="Learn together. In real time."
       subtitle="Workshops, AMAs, and creator showcases — both online and IRL."
     >
-      <div className="flex items-center justify-center mb-6">
-        <div className="w-40 h-40 opacity-80">
-          <img src="/illustrations/Globe_World.svg" alt="Events" className="w-full h-full" />
-        </div>
-      </div>
+      <motion.div
+        className="flex items-center justify-center mb-6"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+      >
+        <motion.div
+          className="w-40 h-40 cursor-pointer relative"
+          whileHover={{ scale: 1.15, rotate: [0, -5, 5, -3, 0] }}
+          whileTap={{ scale: 0.95 }}
+          drag
+          dragSnapToOrigin
+          dragElastic={0.3}
+        >
+          <motion.div
+            className="absolute inset-0 rounded-full bg-primary/20 blur-xl"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <img src="/illustrations/Globe_World.svg" alt="Events" className="w-full h-full relative z-10" />
+        </motion.div>
+      </motion.div>
       {isLoading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
