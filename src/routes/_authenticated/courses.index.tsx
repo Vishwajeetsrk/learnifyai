@@ -363,7 +363,7 @@ function CoursesPage() {
                       <Clock className="h-3 w-3 shrink-0" /> {c.duration_minutes} min
                     </span>
                     <span className="flex items-center gap-1">
-                      <img src="/illustrations/Star_Rating.svg" alt="" className="h-4 w-12 shrink-0" /> 4.8
+                      <img src="/illustrations/Star_Rating_interaction.svg" alt="" className="h-4 w-12 shrink-0" /> 4.8
                     </span>
                     <span className="font-semibold text-foreground ml-auto">
                       {inr(Number(c.price_inr))}

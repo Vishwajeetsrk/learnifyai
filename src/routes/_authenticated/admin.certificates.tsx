@@ -572,7 +572,7 @@ function AdminCertificatesPage() {
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 shrink-0 hidden sm:block">
-              <img src="/illustrations/LOCK_WITH_GREEN_TICK.svg" alt="" className="w-full h-full" />
+              <img src="/illustrations/Cyber_Security.svg" alt="" className="w-full h-full" />
             </div>
             <div>
               <h1 className="text-2xl font-display font-semibold flex items-center gap-2">

@@ -327,7 +327,7 @@ function BillingPage() {
         {/* Header */}
         <div className="flex items-start gap-6">
           <div className="w-28 h-28 shrink-0 hidden sm:block">
-            <img src="/illustrations/Credit_Card_shuffle.svg" alt="Billing" className="w-full h-full" />
+            <img src="/illustrations/Payment_Card_Security_animation_Floating_Cards_Morphing_into_Padlock.svg" alt="Billing" className="w-full h-full" />
           </div>
           <div>
             <h1 className="text-3xl font-bold">Billing & Subscription</h1>

@@ -56,7 +56,7 @@ function CommunityPage() {
     >
       <div className="flex items-center justify-center mb-8">
         <div className="w-48 h-48 opacity-80">
-          <img src="/illustrations/Globe_World.svg" alt="Community" className="w-full h-full" />
+          <img src="/illustrations/Astronaut_Illustration.svg" alt="Community" className="w-full h-full" />
         </div>
       </div>
       <div className="flex items-center justify-end mb-6">

@@ -73,7 +73,7 @@ function FeaturesPage() {
     >
       <div className="flex items-center justify-center mb-6">
         <div className="w-44 h-44 opacity-80">
-          <img src="/illustrations/Back_to_school!.svg" alt="Features" className="w-full h-full" />
+          <img src="/illustrations/AI_Spark_Interactive_Assistant.svg" alt="Features" className="w-full h-full" />
         </div>
       </div>
       {isLoading ? (

@@ -571,7 +571,10 @@ function CourseDetail() {
   if (courseQuery.error || !course) {
     return (
       <AppShell>
-        <div className="p-10 text-center">
+        <div className="p-10 text-center space-y-4">
+          <div className="w-32 h-32 mx-auto">
+            <img src="/illustrations/Interactive_Play_and_Pause_button.svg" alt="" className="w-full h-full" />
+          </div>
           <p className="text-sm text-muted-foreground">Course not found.</p>
           <Link to="/courses" className="text-primary text-sm underline mt-2 inline-block">
             Back to courses

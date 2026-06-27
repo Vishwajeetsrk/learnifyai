@@ -343,6 +343,9 @@ function WalletPage() {
       <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-6xl">
         {/* Hero balance card */}
         <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 text-white shadow-xl bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600">
+          <div className="absolute top-4 right-4 w-24 h-24 opacity-20 pointer-events-none">
+            <img src="/illustrations/Flying_Coin.svg" alt="" className="w-full h-full" />
+          </div>
           {/* decorative orbs */}
           <div className="absolute -top-20 -right-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-amber-300/20 blur-3xl" />
