@@ -110,8 +110,6 @@ export default function BlogManager() {
     }
   };
 
-  const [deleting, setDeleting] = useState(false);
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">

@@ -30,12 +30,14 @@ import { Route as CareersRouteImport } from './routes/careers'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as VerifyIdRouteImport } from './routes/verify.$id'
 import { Route as UAtusernameRouteImport } from './routes/u/@$username'
 import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as CertificatesCodeRouteImport } from './routes/certificates.$code'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedWorkspaceRouteImport } from './routes/_authenticated/workspace'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
@@ -190,6 +192,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyIdRoute = VerifyIdRouteImport.update({
   id: '/verify/$id',
   path: '/verify/$id',
@@ -218,6 +225,11 @@ const PSlugRoute = PSlugRouteImport.update({
 const CertificatesCodeRoute = CertificatesCodeRouteImport.update({
   id: '/certificates/$code',
   path: '/certificates/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
@@ -537,12 +549,14 @@ export interface FileRoutesByFullPath {
   '/wallet': typeof AuthenticatedWalletRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/certificates/$code': typeof CertificatesCodeRoute
   '/p/$slug': typeof PSlugRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
+  '/blog/': typeof BlogIndexRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
@@ -614,12 +628,14 @@ export interface FileRoutesByTo {
   '/wallet': typeof AuthenticatedWalletRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/certificates/$code': typeof CertificatesCodeRoute
   '/p/$slug': typeof PSlugRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
+  '/blog': typeof BlogIndexRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
@@ -693,12 +709,14 @@ export interface FileRoutesById {
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/certificates/$code': typeof CertificatesCodeRoute
   '/p/$slug': typeof PSlugRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/u/$id': typeof UIdRoute
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
+  '/blog/': typeof BlogIndexRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
@@ -772,12 +790,14 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/workspace'
     | '/api/chat'
+    | '/blog/$slug'
     | '/certificates/$code'
     | '/p/$slug'
     | '/sitemap/xml'
     | '/u/$id'
     | '/u/@$username'
     | '/verify/$id'
+    | '/blog/'
     | '/admin/certificates'
     | '/admin/content'
     | '/admin/enrichment-runs'
@@ -849,12 +869,14 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/workspace'
     | '/api/chat'
+    | '/blog/$slug'
     | '/certificates/$code'
     | '/p/$slug'
     | '/sitemap/xml'
     | '/u/$id'
     | '/u/@$username'
     | '/verify/$id'
+    | '/blog'
     | '/admin/certificates'
     | '/admin/content'
     | '/admin/enrichment-runs'
@@ -927,12 +949,14 @@ export interface FileRouteTypes {
     | '/_authenticated/wallet'
     | '/_authenticated/workspace'
     | '/api/chat'
+    | '/blog/$slug'
     | '/certificates/$code'
     | '/p/$slug'
     | '/sitemap/xml'
     | '/u/$id'
     | '/u/@$username'
     | '/verify/$id'
+    | '/blog/'
     | '/_authenticated/admin/certificates'
     | '/_authenticated/admin/content'
     | '/_authenticated/admin/enrichment-runs'
@@ -983,12 +1007,14 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
   ApiChatRoute: typeof ApiChatRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   CertificatesCodeRoute: typeof CertificatesCodeRoute
   PSlugRoute: typeof PSlugRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
   UIdRoute: typeof UIdRoute
   UAtusernameRoute: typeof UAtusernameRoute
   VerifyIdRoute: typeof VerifyIdRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   ApiCronAutoMaintenanceRoute: typeof ApiCronAutoMaintenanceRoute
   ApiCronCheckSubscriptionsRoute: typeof ApiCronCheckSubscriptionsRoute
   ApiCronRetryCertEmailsRoute: typeof ApiCronRetryCertEmailsRoute
@@ -1146,6 +1172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify/$id': {
       id: '/verify/$id'
       path: '/verify/$id'
@@ -1186,6 +1219,13 @@ declare module '@tanstack/react-router' {
       path: '/certificates/$code'
       fullPath: '/certificates/$code'
       preLoaderRoute: typeof CertificatesCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
@@ -1693,12 +1733,14 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
   ApiChatRoute: ApiChatRoute,
+  BlogSlugRoute: BlogSlugRoute,
   CertificatesCodeRoute: CertificatesCodeRoute,
   PSlugRoute: PSlugRoute,
   SitemapXmlRoute: SitemapXmlRoute,
   UIdRoute: UIdRoute,
   UAtusernameRoute: UAtusernameRoute,
   VerifyIdRoute: VerifyIdRoute,
+  BlogIndexRoute: BlogIndexRoute,
   ApiCronAutoMaintenanceRoute: ApiCronAutoMaintenanceRoute,
   ApiCronCheckSubscriptionsRoute: ApiCronCheckSubscriptionsRoute,
   ApiCronRetryCertEmailsRoute: ApiCronRetryCertEmailsRoute,

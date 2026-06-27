@@ -581,6 +581,7 @@ function AdminCertificatesPage() {
             <p className="text-muted-foreground text-sm mt-1">
               Design verifiable professional credentials with drag-and-drop.
             </p>
+            </div>
           </div>
           <Button onClick={handleCreate}>
             <Plus className="h-4 w-4" /> New Template
