@@ -449,6 +449,10 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Package Upgrades**: 70+ packages upgraded to latest minor versions (Radix UI, TanStack, Supabase, Tailwind, TipTap, framer-motion, etc.) with zero build errors.
 - ✅ **Unused SVGs Removed**: Deleted 5 unused avatar SVGs (`priya.svg`, `vikram.svg`, `rishabh.svg`, `anjali.svg`, `vishajeet.svg`) from `public/illustrations/` that were causing 404 errors.
 
+### v3.7.2 (July 2026) - Build Fix
+
+- ✅ **Vercel Build Fix**: Downgraded `@lovable.dev/vite-tanstack-config` from 2.6.4 → 2.1.1 to resolve peer dependency conflict. 2.6.4 required `nitro@>=3.0.260603-beta` but our install had `3.0.260429-beta` — Vercel's strict npm resolver rejected the pre-release mismatch.
+
 ### v3.6.0 (June 2026) - Blog Likes & Comments, WCMS Menus, Animated Illustrations
 
 - ✅ **Blog Likes & Comments**: New `blog_likes` + `blog_comments` tables with RLS. Like button with auth toggle, comment list with author avatars, delete own comments. Migration pushed to remote.
