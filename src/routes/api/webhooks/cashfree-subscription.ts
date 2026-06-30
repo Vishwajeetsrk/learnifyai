@@ -440,7 +440,7 @@ async function generateInvoice(
 
     const lineItems = [
       {
-        description: `${planData.name} Plan — ${planData.interval === "month" ? "Monthly" : "Yearly"}`,
+        description: `${planData.name} Plan — ${planData.interval?.startsWith("month") ? "Monthly" : "Yearly"}`,
         amount: amount || planData.price_inr || 0,
       },
     ];

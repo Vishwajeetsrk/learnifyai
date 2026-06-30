@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#eef2ff" stroke="#d0d5e8" stroke-width="1.5"/>
+  <!-- Hair - short -->
+  <path d="M20 46 Q20 16 50 12 Q80 16 80 46 L80 52 L20 52 Z" fill="#111"/>
+  <path d="M18 44 Q18 20 50 16 Q82 20 82 44" fill="#2a2a2a"/>
+  <!-- Face -->
+  <ellipse cx="50" cy="58" rx="26" ry="22" fill="#e8c8a8"/>
+  <!-- Beard -->
+  <path d="M32 64 Q30 78 50 82 Q70 78 68 64" fill="#2a2a2a" opacity="0.8"/>
+  <!-- Mustache -->
+  <path d="M35 64 Q42 68 50 64 Q58 68 65 64" fill="#111" stroke-width="0"/>
+  <!-- Eyes -->
+  <ellipse cx="39" cy="53" rx="3.5" ry="4" fill="#fff"/>
+  <circle cx="39" cy="53" r="2.5" fill="#111"/>
+  <ellipse cx="61" cy="53" rx="3.5" ry="4" fill="#fff"/>
+  <circle cx="61" cy="53" r="2.5" fill="#111"/>
+  <!-- Eyebrows -->
+  <path d="M33 46 Q39 42 45 46" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M55 46 Q61 42 67 46" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Smile -->
+  <path d="M40 70 Q50 76 60 70" fill="none" stroke="#111" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Body -->
+  <rect x="35" y="78" width="30" height="20" rx="5" fill="#6366f1" opacity="0.6"/>
+</svg>

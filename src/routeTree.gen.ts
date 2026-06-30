@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifiedCertificatesRouteImport } from './routes/verified-certificates'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShowcaseRouteImport } from './routes/showcase'
@@ -45,6 +46,8 @@ import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedResumeBuilderRouteImport } from './routes/_authenticated/resume-builder'
+import { Route as AuthenticatedPortfolioBuilderRouteImport } from './routes/_authenticated/portfolio-builder'
 import { Route as AuthenticatedPlaygroundRouteImport } from './routes/_authenticated/playground'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
@@ -56,7 +59,9 @@ import { Route as AuthenticatedCohortsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCoachingRouteImport } from './routes/_authenticated/coaching'
 import { Route as AuthenticatedCertificatesRouteImport } from './routes/_authenticated/certificates'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
+import { Route as AuthenticatedCareerRoadmapRouteImport } from './routes/_authenticated/career-roadmap'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
+import { Route as AuthenticatedAtsCheckerRouteImport } from './routes/_authenticated/ats-checker'
 import { Route as AuthenticatedApplyCreatorRouteImport } from './routes/_authenticated/apply-creator'
 import { Route as AuthenticatedAiToolsRouteImport } from './routes/_authenticated/ai-tools'
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
@@ -86,8 +91,14 @@ import { Route as AuthenticatedAdminMissingVideosRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminEnrichmentRunsRouteImport } from './routes/_authenticated/admin.enrichment-runs'
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
 import { Route as AuthenticatedAdminCertificatesRouteImport } from './routes/_authenticated/admin.certificates'
+import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin/billing'
 import { Route as ApiPublicHooksRunRemindersRouteImport } from './routes/api/public/hooks/run-reminders'
 
+const VerifiedCertificatesRoute = VerifiedCertificatesRouteImport.update({
+  id: '/verified-certificates',
+  path: '/verified-certificates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -268,6 +279,18 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedResumeBuilderRoute =
+  AuthenticatedResumeBuilderRouteImport.update({
+    id: '/resume-builder',
+    path: '/resume-builder',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedPortfolioBuilderRoute =
+  AuthenticatedPortfolioBuilderRouteImport.update({
+    id: '/portfolio-builder',
+    path: '/portfolio-builder',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedPlaygroundRoute = AuthenticatedPlaygroundRouteImport.update({
   id: '/playground',
   path: '/playground',
@@ -326,9 +349,20 @@ const AuthenticatedCartRoute = AuthenticatedCartRouteImport.update({
   path: '/cart',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCareerRoadmapRoute =
+  AuthenticatedCareerRoadmapRouteImport.update({
+    id: '/career-roadmap',
+    path: '/career-roadmap',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedBillingRoute = AuthenticatedBillingRouteImport.update({
   id: '/billing',
   path: '/billing',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAtsCheckerRoute = AuthenticatedAtsCheckerRouteImport.update({
+  id: '/ats-checker',
+  path: '/ats-checker',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedApplyCreatorRoute =
@@ -497,6 +531,12 @@ const AuthenticatedAdminCertificatesRoute =
     path: '/certificates',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminBillingRoute =
+  AuthenticatedAdminBillingRouteImport.update({
+    id: '/billing',
+    path: '/billing',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const ApiPublicHooksRunRemindersRoute =
   ApiPublicHooksRunRemindersRouteImport.update({
     id: '/api/public/hooks/run-reminders',
@@ -525,12 +565,15 @@ export interface FileRoutesByFullPath {
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/verified-certificates': typeof VerifiedCertificatesRoute
   '/achievements': typeof AuthenticatedAchievementsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ai': typeof AuthenticatedAiRoute
   '/ai-tools': typeof AuthenticatedAiToolsRoute
   '/apply-creator': typeof AuthenticatedApplyCreatorRoute
+  '/ats-checker': typeof AuthenticatedAtsCheckerRoute
   '/billing': typeof AuthenticatedBillingRoute
+  '/career-roadmap': typeof AuthenticatedCareerRoadmapRoute
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
   '/coaching': typeof AuthenticatedCoachingRoute
@@ -542,6 +585,8 @@ export interface FileRoutesByFullPath {
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/playground': typeof AuthenticatedPlaygroundRouteWithChildren
+  '/portfolio-builder': typeof AuthenticatedPortfolioBuilderRoute
+  '/resume-builder': typeof AuthenticatedResumeBuilderRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
@@ -557,6 +602,7 @@ export interface FileRoutesByFullPath {
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
   '/blog/': typeof BlogIndexRoute
+  '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
@@ -604,12 +650,15 @@ export interface FileRoutesByTo {
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/verified-certificates': typeof VerifiedCertificatesRoute
   '/achievements': typeof AuthenticatedAchievementsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ai': typeof AuthenticatedAiRoute
   '/ai-tools': typeof AuthenticatedAiToolsRoute
   '/apply-creator': typeof AuthenticatedApplyCreatorRoute
+  '/ats-checker': typeof AuthenticatedAtsCheckerRoute
   '/billing': typeof AuthenticatedBillingRoute
+  '/career-roadmap': typeof AuthenticatedCareerRoadmapRoute
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
   '/coaching': typeof AuthenticatedCoachingRoute
@@ -621,6 +670,8 @@ export interface FileRoutesByTo {
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/playground': typeof AuthenticatedPlaygroundRouteWithChildren
+  '/portfolio-builder': typeof AuthenticatedPortfolioBuilderRoute
+  '/resume-builder': typeof AuthenticatedResumeBuilderRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
@@ -636,6 +687,7 @@ export interface FileRoutesByTo {
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
   '/blog': typeof BlogIndexRoute
+  '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
@@ -685,12 +737,15 @@ export interface FileRoutesById {
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
+  '/verified-certificates': typeof VerifiedCertificatesRoute
   '/_authenticated/achievements': typeof AuthenticatedAchievementsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/ai': typeof AuthenticatedAiRoute
   '/_authenticated/ai-tools': typeof AuthenticatedAiToolsRoute
   '/_authenticated/apply-creator': typeof AuthenticatedApplyCreatorRoute
+  '/_authenticated/ats-checker': typeof AuthenticatedAtsCheckerRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
+  '/_authenticated/career-roadmap': typeof AuthenticatedCareerRoadmapRoute
   '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/certificates': typeof AuthenticatedCertificatesRoute
   '/_authenticated/coaching': typeof AuthenticatedCoachingRoute
@@ -702,6 +757,8 @@ export interface FileRoutesById {
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/playground': typeof AuthenticatedPlaygroundRouteWithChildren
+  '/_authenticated/portfolio-builder': typeof AuthenticatedPortfolioBuilderRoute
+  '/_authenticated/resume-builder': typeof AuthenticatedResumeBuilderRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
@@ -717,6 +774,7 @@ export interface FileRoutesById {
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
   '/blog/': typeof BlogIndexRoute
+  '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
@@ -766,12 +824,15 @@ export interface FileRouteTypes {
     | '/showcase'
     | '/signup'
     | '/terms'
+    | '/verified-certificates'
     | '/achievements'
     | '/admin'
     | '/ai'
     | '/ai-tools'
     | '/apply-creator'
+    | '/ats-checker'
     | '/billing'
+    | '/career-roadmap'
     | '/cart'
     | '/certificates'
     | '/coaching'
@@ -783,6 +844,8 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/onboarding'
     | '/playground'
+    | '/portfolio-builder'
+    | '/resume-builder'
     | '/settings'
     | '/studio'
     | '/submissions'
@@ -798,6 +861,7 @@ export interface FileRouteTypes {
     | '/u/@$username'
     | '/verify/$id'
     | '/blog/'
+    | '/admin/billing'
     | '/admin/certificates'
     | '/admin/content'
     | '/admin/enrichment-runs'
@@ -845,12 +909,15 @@ export interface FileRouteTypes {
     | '/showcase'
     | '/signup'
     | '/terms'
+    | '/verified-certificates'
     | '/achievements'
     | '/admin'
     | '/ai'
     | '/ai-tools'
     | '/apply-creator'
+    | '/ats-checker'
     | '/billing'
+    | '/career-roadmap'
     | '/cart'
     | '/certificates'
     | '/coaching'
@@ -862,6 +929,8 @@ export interface FileRouteTypes {
     | '/leaderboard'
     | '/onboarding'
     | '/playground'
+    | '/portfolio-builder'
+    | '/resume-builder'
     | '/settings'
     | '/studio'
     | '/submissions'
@@ -877,6 +946,7 @@ export interface FileRouteTypes {
     | '/u/@$username'
     | '/verify/$id'
     | '/blog'
+    | '/admin/billing'
     | '/admin/certificates'
     | '/admin/content'
     | '/admin/enrichment-runs'
@@ -925,12 +995,15 @@ export interface FileRouteTypes {
     | '/showcase'
     | '/signup'
     | '/terms'
+    | '/verified-certificates'
     | '/_authenticated/achievements'
     | '/_authenticated/admin'
     | '/_authenticated/ai'
     | '/_authenticated/ai-tools'
     | '/_authenticated/apply-creator'
+    | '/_authenticated/ats-checker'
     | '/_authenticated/billing'
+    | '/_authenticated/career-roadmap'
     | '/_authenticated/cart'
     | '/_authenticated/certificates'
     | '/_authenticated/coaching'
@@ -942,6 +1015,8 @@ export interface FileRouteTypes {
     | '/_authenticated/leaderboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/playground'
+    | '/_authenticated/portfolio-builder'
+    | '/_authenticated/resume-builder'
     | '/_authenticated/settings'
     | '/_authenticated/studio'
     | '/_authenticated/submissions'
@@ -957,6 +1032,7 @@ export interface FileRouteTypes {
     | '/u/@$username'
     | '/verify/$id'
     | '/blog/'
+    | '/_authenticated/admin/billing'
     | '/_authenticated/admin/certificates'
     | '/_authenticated/admin/content'
     | '/_authenticated/admin/enrichment-runs'
@@ -1006,6 +1082,7 @@ export interface RootRouteChildren {
   ShowcaseRoute: typeof ShowcaseRoute
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
+  VerifiedCertificatesRoute: typeof VerifiedCertificatesRoute
   ApiChatRoute: typeof ApiChatRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CertificatesCodeRoute: typeof CertificatesCodeRoute
@@ -1025,6 +1102,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verified-certificates': {
+      id: '/verified-certificates'
+      path: '/verified-certificates'
+      fullPath: '/verified-certificates'
+      preLoaderRoute: typeof VerifiedCertificatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -1277,6 +1361,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/resume-builder': {
+      id: '/_authenticated/resume-builder'
+      path: '/resume-builder'
+      fullPath: '/resume-builder'
+      preLoaderRoute: typeof AuthenticatedResumeBuilderRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/portfolio-builder': {
+      id: '/_authenticated/portfolio-builder'
+      path: '/portfolio-builder'
+      fullPath: '/portfolio-builder'
+      preLoaderRoute: typeof AuthenticatedPortfolioBuilderRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/playground': {
       id: '/_authenticated/playground'
       path: '/playground'
@@ -1354,11 +1452,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCartRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/career-roadmap': {
+      id: '/_authenticated/career-roadmap'
+      path: '/career-roadmap'
+      fullPath: '/career-roadmap'
+      preLoaderRoute: typeof AuthenticatedCareerRoadmapRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/billing': {
       id: '/_authenticated/billing'
       path: '/billing'
       fullPath: '/billing'
       preLoaderRoute: typeof AuthenticatedBillingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/ats-checker': {
+      id: '/_authenticated/ats-checker'
+      path: '/ats-checker'
+      fullPath: '/ats-checker'
+      preLoaderRoute: typeof AuthenticatedAtsCheckerRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/apply-creator': {
@@ -1564,6 +1676,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCertificatesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/billing': {
+      id: '/_authenticated/admin/billing'
+      path: '/billing'
+      fullPath: '/admin/billing'
+      preLoaderRoute: typeof AuthenticatedAdminBillingRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/api/public/hooks/run-reminders': {
       id: '/api/public/hooks/run-reminders'
       path: '/api/public/hooks/run-reminders'
@@ -1575,6 +1694,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminBillingRoute: typeof AuthenticatedAdminBillingRoute
   AuthenticatedAdminCertificatesRoute: typeof AuthenticatedAdminCertificatesRoute
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminEnrichmentRunsRoute: typeof AuthenticatedAdminEnrichmentRunsRoute
@@ -1583,6 +1703,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminBillingRoute: AuthenticatedAdminBillingRoute,
   AuthenticatedAdminCertificatesRoute: AuthenticatedAdminCertificatesRoute,
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
   AuthenticatedAdminEnrichmentRunsRoute: AuthenticatedAdminEnrichmentRunsRoute,
@@ -1654,7 +1775,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAiRoute: typeof AuthenticatedAiRoute
   AuthenticatedAiToolsRoute: typeof AuthenticatedAiToolsRoute
   AuthenticatedApplyCreatorRoute: typeof AuthenticatedApplyCreatorRoute
+  AuthenticatedAtsCheckerRoute: typeof AuthenticatedAtsCheckerRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
+  AuthenticatedCareerRoadmapRoute: typeof AuthenticatedCareerRoadmapRoute
   AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCertificatesRoute: typeof AuthenticatedCertificatesRoute
   AuthenticatedCoachingRoute: typeof AuthenticatedCoachingRoute
@@ -1666,6 +1789,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedLeaderboardRoute: typeof AuthenticatedLeaderboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPlaygroundRoute: typeof AuthenticatedPlaygroundRouteWithChildren
+  AuthenticatedPortfolioBuilderRoute: typeof AuthenticatedPortfolioBuilderRoute
+  AuthenticatedResumeBuilderRoute: typeof AuthenticatedResumeBuilderRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
@@ -1683,7 +1808,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAiRoute: AuthenticatedAiRoute,
   AuthenticatedAiToolsRoute: AuthenticatedAiToolsRoute,
   AuthenticatedApplyCreatorRoute: AuthenticatedApplyCreatorRoute,
+  AuthenticatedAtsCheckerRoute: AuthenticatedAtsCheckerRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
+  AuthenticatedCareerRoadmapRoute: AuthenticatedCareerRoadmapRoute,
   AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCertificatesRoute: AuthenticatedCertificatesRoute,
   AuthenticatedCoachingRoute: AuthenticatedCoachingRoute,
@@ -1695,6 +1822,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedLeaderboardRoute: AuthenticatedLeaderboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPlaygroundRoute: AuthenticatedPlaygroundRouteWithChildren,
+  AuthenticatedPortfolioBuilderRoute: AuthenticatedPortfolioBuilderRoute,
+  AuthenticatedResumeBuilderRoute: AuthenticatedResumeBuilderRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,
@@ -1732,6 +1861,7 @@ const rootRouteChildren: RootRouteChildren = {
   ShowcaseRoute: ShowcaseRoute,
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
+  VerifiedCertificatesRoute: VerifiedCertificatesRoute,
   ApiChatRoute: ApiChatRoute,
   BlogSlugRoute: BlogSlugRoute,
   CertificatesCodeRoute: CertificatesCodeRoute,

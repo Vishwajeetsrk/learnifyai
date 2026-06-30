@@ -212,7 +212,7 @@ export default function SettingsPage() {
       ...overrides,
     };
 
-    const baseUrl = `https://api.dicebear.com/7.x/${s.selectedStyle}/svg?seed=${encodeURIComponent(s.seed)}`;
+    const baseUrl = `https://api.dicebear.com/10.x/${s.selectedStyle}/svg?seed=${encodeURIComponent(s.seed)}`;
     let params = "";
 
     if (s.selectedStyle === "avataaars") {
@@ -220,7 +220,7 @@ export default function SettingsPage() {
       if (s.hairStyle === "noHair") {
         params += `&topProbability=0`;
       } else {
-        params += `&top=${s.hairStyle}`;
+        params += `&topVariant=${s.hairStyle}`;
       }
       params += `&hairColor=${s.hairColor}`;
 
@@ -261,13 +261,13 @@ export default function SettingsPage() {
 
       const mappedAcc = s.accessoriesStyle === "wayfarer" ? "wayfarers" : s.accessoriesStyle;
 
-      params += `&mouth=${mappedMouth}`;
-      params += `&eyes=${mappedEyes}`;
-      params += `&eyebrows=${mappedEyebrows}`;
-      params += `&clothing=${s.clothingStyle}`;
+      params += `&mouthVariant=${mappedMouth}`;
+      params += `&eyesVariant=${mappedEyes}`;
+      params += `&eyebrowsVariant=${mappedEyebrows}`;
+      params += `&clothesVariant=${s.clothingStyle}`;
       params += `&clothesColor=${s.clothingColor}`;
       if (mappedAcc && mappedAcc !== "none") {
-        params += `&accessories=${mappedAcc}`;
+        params += `&accessoriesVariant=${mappedAcc}`;
       } else {
         params += `&accessoriesProbability=0`;
       }
@@ -592,7 +592,9 @@ export default function SettingsPage() {
   }
 
   const currentCartoonUrl = buildCartoonUrl();
-  useEffect(() => { setAvatarPreviewError(false); }, [currentCartoonUrl]);
+  useEffect(() => {
+    setAvatarPreviewError(false);
+  }, [currentCartoonUrl]);
   const doSaveField = useServerFn(saveProfileField);
 
   async function saveCartoonAvatar() {
@@ -635,24 +637,37 @@ export default function SettingsPage() {
       setSeed(seedVal);
       if (u.searchParams.has("skinColor")) setSkinColor(u.searchParams.get("skinColor")!);
       // Hair: avataaars uses "top", adventurer/pixel-art/lorelei use "hair"
-      if (u.searchParams.has("top")) setHairStyle(u.searchParams.get("top")!);
+      // v10.x uses Variant suffix; fall back to v7.x params for backwards compat
+      if (u.searchParams.has("topVariant")) setHairStyle(u.searchParams.get("topVariant")!);
+      else if (u.searchParams.has("top")) setHairStyle(u.searchParams.get("top")!);
       else if (u.searchParams.has("hair")) setHairStyle(u.searchParams.get("hair")!);
       if (u.searchParams.has("hairColor")) setHairColor(u.searchParams.get("hairColor")!);
-      if (u.searchParams.has("mouth")) setMouthStyle(u.searchParams.get("mouth")!);
-      if (u.searchParams.has("eyes")) setEyesStyle(u.searchParams.get("eyes")!);
-      if (u.searchParams.has("clothing")) setClothingStyle(u.searchParams.get("clothing")!);
-      if (u.searchParams.has("clothingColor"))
+      if (u.searchParams.has("mouthVariant")) setMouthStyle(u.searchParams.get("mouthVariant")!);
+      else if (u.searchParams.has("mouth")) setMouthStyle(u.searchParams.get("mouth")!);
+      if (u.searchParams.has("eyesVariant")) setEyesStyle(u.searchParams.get("eyesVariant")!);
+      else if (u.searchParams.has("eyes")) setEyesStyle(u.searchParams.get("eyes")!);
+      if (u.searchParams.has("clothesVariant"))
+        setClothingStyle(u.searchParams.get("clothesVariant")!);
+      else if (u.searchParams.has("clothing"))
+        setClothingStyle(u.searchParams.get("clothing")!);
+      if (u.searchParams.has("clothesColor"))
+        setClothingColor(u.searchParams.get("clothesColor")!);
+      else if (u.searchParams.has("clothingColor"))
         setClothingColor(u.searchParams.get("clothingColor")!);
       if (
-        u.searchParams.has("accessories") ||
+        u.searchParams.has("accessoriesVariant") ||
         u.searchParams.get("accessoriesProbability") === "0"
       ) {
-        setAccessoriesStyle(u.searchParams.get("accessories") || "none");
+        setAccessoriesStyle(u.searchParams.get("accessoriesVariant") || "none");
       }
-      if (u.searchParams.has("eyebrows")) setEyebrowsStyle(u.searchParams.get("eyebrows")!);
-      if (u.searchParams.has("nose")) setNoseStyle(u.searchParams.get("nose")!);
+      if (u.searchParams.has("eyebrowsVariant"))
+        setEyebrowsStyle(u.searchParams.get("eyebrowsVariant")!);
+      else if (u.searchParams.has("eyebrows"))
+        setEyebrowsStyle(u.searchParams.get("eyebrows")!);
+      if (u.searchParams.has("noseVariant")) setNoseStyle(u.searchParams.get("noseVariant")!);
+      else if (u.searchParams.has("nose")) setNoseStyle(u.searchParams.get("nose")!);
       // Hair gender: detect from available hair options
-      const hairVal = u.searchParams.get("top") || u.searchParams.get("hair") || "";
+      const hairVal = u.searchParams.get("topVariant") || u.searchParams.get("top") || u.searchParams.get("hair") || "";
       const femaleHair = ["long", "longBob", "bun", "pigtails", "ponytail", "braids"];
       if (femaleHair.some((h) => hairVal.toLowerCase().includes(h.toLowerCase()))) {
         setHairGender("female");
@@ -1436,7 +1451,7 @@ export default function SettingsPage() {
                         }
                       } else {
                         // No avatar yet — create a default DiceBear avatar with border
-                        const defaultUrl = new URL("https://api.dicebear.com/7.x/avataaars/svg");
+                        const defaultUrl = new URL("https://api.dicebear.com/10.x/avataaars/svg");
                         defaultUrl.searchParams.set("seed", seed || "Learnify");
                         defaultUrl.searchParams.set("backgroundColor", "transparent");
                         if (val !== "none") defaultUrl.searchParams.set("profile_border", val);
@@ -1489,7 +1504,7 @@ export default function SettingsPage() {
                           nextUrl = `${baseUrl}?profile_border=${rand}`;
                         }
                       } else {
-                        const defaultUrl = new URL("https://api.dicebear.com/7.x/avataaars/svg");
+                        const defaultUrl = new URL("https://api.dicebear.com/10.x/avataaars/svg");
                         defaultUrl.searchParams.set("seed", seed || "Learnify");
                         defaultUrl.searchParams.set("backgroundColor", "transparent");
                         defaultUrl.searchParams.set("profile_border", rand);
@@ -1631,7 +1646,6 @@ export default function SettingsPage() {
                             src={currentCartoonUrl}
                             className="h-full w-full object-cover"
                             alt="Avatar Preview"
-                            loading="lazy"
                             decoding="async"
                             onError={() => setAvatarPreviewError(true)}
                           />

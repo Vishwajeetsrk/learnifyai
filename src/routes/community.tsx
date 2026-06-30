@@ -76,7 +76,11 @@ function CommunityPage() {
             animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.5, 0.2] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
-          <img src="/illustrations/Astronaut_Illustration.svg" alt="Community" className="w-full h-full relative z-10" />
+          <img
+            src="/illustrations/Astronaut_Illustration.svg"
+            alt="Community"
+            className="w-full h-full relative z-10"
+          />
         </motion.div>
       </motion.div>
       <div className="flex items-center justify-end mb-6">

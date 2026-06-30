@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560">
+  <defs>
+    <radialGradient id="bg2" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </radialGradient>
+    <linearGradient id="gold2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#d4a84b"/>
+      <stop offset="30%" stop-color="#f5d78a"/>
+      <stop offset="60%" stop-color="#d4a84b"/>
+      <stop offset="100%" stop-color="#f5d78a"/>
+    </linearGradient>
+    <linearGradient id="accent2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#d4a84b" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#f5d78a" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#d4a84b" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="560" rx="16" fill="url(#bg2)"/>
+  <!-- Inner border -->
+  <rect x="18" y="18" width="764" height="524" rx="12" fill="none" stroke="url(#gold2)" stroke-width="1.5" opacity="0.6"/>
+  <rect x="25" y="25" width="750" height="510" rx="8" fill="none" stroke="#d4a84b" stroke-width="0.5" opacity="0.25"/>
+  <!-- Top & bottom bands -->
+  <rect x="0" y="55" width="800" height="2" fill="url(#accent2)"/>
+  <rect x="0" y="505" width="800" height="2" fill="url(#accent2)"/>
+  <!-- Corner emblems -->
+  <g opacity="0.5">
+    <circle cx="40" cy="40" r="18" fill="none" stroke="url(#gold2)" stroke-width="1"/>
+    <circle cx="40" cy="40" r="8" fill="none" stroke="url(#gold2)" stroke-width="0.8"/>
+    <circle cx="760" cy="40" r="18" fill="none" stroke="url(#gold2)" stroke-width="1"/>
+    <circle cx="760" cy="40" r="8" fill="none" stroke="url(#gold2)" stroke-width="0.8"/>
+    <circle cx="40" cy="520" r="18" fill="none" stroke="url(#gold2)" stroke-width="1"/>
+    <circle cx="40" cy="520" r="8" fill="none" stroke="url(#gold2)" stroke-width="0.8"/>
+    <circle cx="760" cy="520" r="18" fill="none" stroke="url(#gold2)" stroke-width="1"/>
+    <circle cx="760" cy="520" r="8" fill="none" stroke="url(#gold2)" stroke-width="0.8"/>
+  </g>
+  <!-- Seal -->
+  <g transform="translate(400, 420)">
+    <circle cx="0" cy="0" r="38" fill="none" stroke="url(#gold2)" stroke-width="1.5" opacity="0.5"/>
+    <circle cx="0" cy="0" r="28" fill="none" stroke="url(#gold2)" stroke-width="0.8" opacity="0.3"/>
+    <text x="0" y="8" text-anchor="middle" fill="url(#gold2)" font-family="serif" font-size="24" font-weight="bold">L</text>
+  </g>
+  <!-- Header -->
+  <text x="400" y="115" text-anchor="middle" fill="url(#gold2)" font-family="serif" font-size="28" letter-spacing="14" font-weight="bold">CERTIFICATE</text>
+  <text x="400" y="145" text-anchor="middle" fill="#a0a0a0" font-family="sans-serif" font-size="10" letter-spacing="8">OF ACHIEVEMENT</text>
+  <text x="400" y="205" text-anchor="middle" fill="#808080" font-family="serif" font-size="13">This certificate is proudly presented to</text>
+  <text x="400" y="260" text-anchor="middle" fill="#f5d78a" font-family="serif" font-size="34" letter-spacing="3">Student Name</text>
+  <text x="400" y="290" text-anchor="middle" fill="#a0a0a0" font-family="serif" font-size="11" font-style="italic">for successfully completing</text>
+  <text x="400" y="330" text-anchor="middle" fill="#e0e0e0" font-family="serif" font-size="20" letter-spacing="1">Course Name</text>
+  <text x="400" y="358" text-anchor="middle" fill="#666" font-family="sans-serif" font-size="10">Awarded: January 1, 2026 &bull; Grade: A+</text>
+  <!-- Divider -->
+  <line x1="320" y1="380" x2="480" y2="380" stroke="url(#gold2)" stroke-width="0.5" opacity="0.4"/>
+  <!-- Signatures -->
+  <line x1="270" y1="470" x2="360" y2="470" stroke="#808080" stroke-width="0.6"/>
+  <text x="315" y="485" text-anchor="middle" fill="#666" font-family="sans-serif" font-size="8">SIGNATURE</text>
+  <line x1="440" y1="470" x2="530" y2="470" stroke="#808080" stroke-width="0.6"/>
+  <text x="485" y="485" text-anchor="middle" fill="#666" font-family="sans-serif" font-size="8">SIGNATURE</text>
+</svg>

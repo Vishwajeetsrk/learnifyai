@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { wcmsGetPublicFeatures, wcmsGetPublicMenu } from "@/lib/wcms-public.functions";
+import { wcmsGetPublicFeatures, wcmsGetPublicMenu, wcmsGetPublicSection } from "@/lib/wcms-public.functions";
 
 // ═══════════════════════════════════════════════════════════════
 // Public WCMS Hooks — No auth required. Use anywhere on the site.
@@ -31,4 +31,13 @@ export function useMenuTree(menuKey: string = "main") {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const children = (parentId: string) => items.filter((i: any) => i.parent_id === parentId);
   return { root, children, items, ...rest };
+}
+
+export function usePublicSection(key: string) {
+  const getSectionFn = useServerFn(wcmsGetPublicSection);
+  return useQuery({
+    queryKey: ["wcms-public-section", key],
+    queryFn: () => getSectionFn({ data: { key } }),
+    staleTime: 5 * 60 * 1000,
+  });
 }

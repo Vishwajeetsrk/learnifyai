@@ -121,7 +121,7 @@ const DEFAULT_BLOCK_CONTENT: Record<string, BlockContent> = {
   pricing: {
     plans: [{ name: "Starter", price: "Free", features: ["Feature 1"], cta_text: "Get Started" }],
   },
-  testimonianl: {
+  testimonial: {
     quote: "Amazing platform!",
     author: "John Doe",
     role: "Developer",
@@ -580,6 +580,7 @@ function BlockEditor({ page, onClose }: { page: WcmsPage; onClose: () => void })
       });
       toast.success("Blocks saved");
       qc.invalidateQueries({ queryKey: ["wcms-blocks", page.id] });
+      qc.invalidateQueries({ queryKey: ["wcms-blocks-preview", page.id] });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       toast.error(e?.message || "Save failed");

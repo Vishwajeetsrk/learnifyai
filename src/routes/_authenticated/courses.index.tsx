@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { enrollFree } from "@/lib/course.functions";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import { getCourseLearners } from "@/lib/gamification.functions";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { getCleanBannerUrl } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -332,12 +333,10 @@ function CoursesPage() {
               >
                 <div className="aspect-video w-full overflow-hidden bg-muted relative border-b border-border/50">
                   {c.cover_url ? (
-                    <img
+                    <SafeImage
                       src={getCleanBannerUrl(c.cover_url) ?? c.cover_url}
                       alt={c.title}
                       className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-primary/10 to-violet-500/10 flex items-center justify-center text-primary/30">
@@ -363,7 +362,12 @@ function CoursesPage() {
                       <Clock className="h-3 w-3 shrink-0" /> {c.duration_minutes} min
                     </span>
                     <span className="flex items-center gap-1">
-                      <img src="/illustrations/Star_Rating_interaction.svg" alt="" className="h-4 w-12 shrink-0" /> 4.8
+                      <img
+                        src="/illustrations/Star_Rating_interaction.svg"
+                        alt=""
+                        className="h-4 w-12 shrink-0"
+                      />{" "}
+                      4.8
                     </span>
                     <span className="font-semibold text-foreground ml-auto">
                       {inr(Number(c.price_inr))}

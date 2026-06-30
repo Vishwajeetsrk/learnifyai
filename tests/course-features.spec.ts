@@ -13,7 +13,9 @@ test.describe("Course Features & AI Tools (Requires Authentication)", () => {
       try {
         await cookieBtn.waitFor({ state: "visible", timeout: 3000 });
         await cookieBtn.click();
-      } catch { /* no cookie banner */ }
+      } catch {
+        /* no cookie banner */
+      }
 
       const emailInput = page.getByPlaceholder(/you@example\.com/i);
       if (await emailInput.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -29,10 +31,16 @@ test.describe("Course Features & AI Tools (Requires Authentication)", () => {
     await page.goto("/courses", { timeout: 15000 });
     await page.waitForLoadState("networkidle").catch(() => {});
 
-    if (page.url().includes("/login")) { test.skip(); return; }
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
 
     const firstCourse = page.locator('a[href^="/courses/"]').first();
-    if (!(await firstCourse.isVisible({ timeout: 3000 }).catch(() => false))) { test.skip(); return; }
+    if (!(await firstCourse.isVisible({ timeout: 3000 }).catch(() => false))) {
+      test.skip();
+      return;
+    }
 
     const href = await firstCourse.getAttribute("href");
     if (!href) return;
@@ -48,7 +56,10 @@ test.describe("Course Features & AI Tools (Requires Authentication)", () => {
   test("should load the course playlist and video player", async ({ page }) => {
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle").catch(() => {});
-    if (page.url().includes("/login")) { test.skip(); return; }
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
 
     const enrolledLink = page.locator('a[href*="/learn"]').first();
     if (await enrolledLink.isVisible({ timeout: 3000 }).catch(() => false)) {
@@ -60,20 +71,33 @@ test.describe("Course Features & AI Tools (Requires Authentication)", () => {
   test("should load AI Tools (Chat, Notes, Ask AI, Playground)", async ({ page }) => {
     await page.goto("/dashboard");
     await page.waitForLoadState("networkidle").catch(() => {});
-    if (page.url().includes("/login")) { test.skip(); return; }
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
 
     await page.goto("/ai");
     await page.waitForLoadState("networkidle").catch(() => {});
-    if (page.url().includes("/login")) { test.skip(); return; }
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
 
     const chatInput = page.getByPlaceholder(/ask|message|type/i).first();
-    await expect(chatInput).toBeVisible({ timeout: 8000 }).catch(() => null);
+    await expect(chatInput)
+      .toBeVisible({ timeout: 8000 })
+      .catch(() => null);
 
     await page.goto("/playground", { timeout: 10000 }).catch(() => {});
     await page.waitForLoadState("networkidle").catch(() => {});
-    if (page.url().includes("/login")) { test.skip(); return; }
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
 
     const editor = page.locator(".monaco-editor").first();
-    await expect(editor).toBeVisible({ timeout: 8000 }).catch(() => null);
+    await expect(editor)
+      .toBeVisible({ timeout: 8000 })
+      .catch(() => null);
   });
 });

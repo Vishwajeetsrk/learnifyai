@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0a1628"/>
+      <stop offset="100%" stop-color="#1a2744"/>
+    </linearGradient>
+    <linearGradient id="gold1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f6d365"/>
+      <stop offset="50%" stop-color="#fda085"/>
+      <stop offset="100%" stop-color="#f6d365"/>
+    </linearGradient>
+    <linearGradient id="accent1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="560" rx="12" fill="url(#bg1)" stroke="#f6d365" stroke-width="3"/>
+  <!-- Outer border -->
+  <rect x="15" y="15" width="770" height="530" rx="8" fill="none" stroke="url(#gold1)" stroke-width="1.5" opacity="0.5"/>
+  <rect x="22" y="22" width="756" height="516" rx="6" fill="none" stroke="#3b82f6" stroke-width="0.5" opacity="0.3"/>
+  <!-- Top gold ribbon -->
+  <rect x="0" y="48" width="800" height="3" fill="url(#gold1)"/>
+  <rect x="0" y="510" width="800" height="3" fill="url(#gold1)"/>
+  <!-- Corner ornaments -->
+  <path d="M30 30 L70 30 L70 38 L38 38 L38 70 L30 70 Z" fill="#f6d365" opacity="0.6"/>
+  <path d="M770 30 L730 30 L730 38 L762 38 L762 70 L770 70 Z" fill="#f6d365" opacity="0.6"/>
+  <path d="M30 530 L70 530 L70 522 L38 522 L38 490 L30 490 Z" fill="#f6d365" opacity="0.6"/>
+  <path d="M770 530 L730 530 L730 522 L762 522 L762 490 L770 490 Z" fill="#f6d365" opacity="0.6"/>
+  <!-- Seal -->
+  <circle cx="400" cy="420" r="40" fill="none" stroke="url(#gold1)" stroke-width="2" opacity="0.4"/>
+  <circle cx="400" cy="420" r="30" fill="url(#accent1)" opacity="0.15"/>
+  <text x="400" y="426" text-anchor="middle" fill="url(#gold1)" font-family="serif" font-size="22">L</text>
+  <!-- Title -->
+  <text x="400" y="130" text-anchor="middle" fill="#f6d365" font-family="serif" font-size="22" letter-spacing="12">CERTIFICATE</text>
+  <text x="400" y="160" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="10" letter-spacing="6">OF COMPLETION</text>
+  <!-- Body -->
+  <text x="400" y="210" text-anchor="middle" fill="#94a3b8" font-family="serif" font-size="14">This is to certify that</text>
+  <text x="400" y="260" text-anchor="middle" fill="#f1f5f9" font-family="serif" font-size="32" letter-spacing="2">Student Name</text>
+  <text x="400" y="290" text-anchor="middle" fill="#f6d365" font-family="serif" font-size="11" font-style="italic">— Awarded on January 1, 2026 —</text>
+  <text x="400" y="325" text-anchor="middle" fill="#94a3b8" font-family="serif" font-size="13" opacity="0.8">has successfully completed the course</text>
+  <text x="400" y="360" text-anchor="middle" fill="#cbd5e1" font-family="serif" font-size="18" letter-spacing="1">Course Name</text>
+  <text x="400" y="385" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="10">with a grade of 92%</text>
+  <!-- Signatures -->
+  <line x1="280" y1="475" x2="370" y2="475" stroke="#94a3b8" stroke-width="0.8"/>
+  <text x="325" y="490" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="8">INSTRUCTOR</text>
+  <line x1="430" y1="475" x2="520" y2="475" stroke="#94a3b8" stroke-width="0.8"/>
+  <text x="475" y="490" text-anchor="middle" fill="#64748b" font-family="sans-serif" font-size="8">AUTHORITY</text>
+</svg>

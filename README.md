@@ -33,6 +33,10 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | Feature                          | Description                                                                             |
 | -------------------------------- | --------------------------------------------------------------------------------------- |
 | 🤖 **AI Tutor**                  | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)        |
+| 📝 **Resume Builder**            | AI-powered ATS-optimized resume generation with PDF/DOCX upload, auto-extract & fill    |
+| 📊 **ATS Checker**               | Analyze resumes against ATS systems — scores, keyword analysis, improvement suggestions |
+| 🗺️ **Career Roadmap**            | Personalized learning paths with skill gap analysis, milestones, and project plans      |
+| 🎨 **Portfolio Builder**         | Full portfolio plan generator with GitHub projects, photo upload, and live preview       |
 | 🎥 **Interactive Course Player** | Video lessons, markdown notes, AI summaries, and practice exercises                     |
 | 💻 **Code Playground**           | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant |
 | 📝 **Smart Notes**               | Auto-generated flashcards, summaries, and quizzes from any lesson                       |
@@ -40,20 +44,20 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 💰 **Wallet**                    | AI credits, course purchases, and withdrawals via Cashfree                              |
 | 📋 **Billing Dashboard**         | View current plan, invoices, subscription history, cancel/resume subscription           |
 | 🎯 **Onboarding Wizard**         | 8-step guided setup with AI coach, daily habits tracking, and project creation          |
-| 🗺️ **Interactive Product Tours** | Role-specific guided tours (Student, Creator, Admin) with spotlight tooltips             |
-| 📝 **Blog**                     | Read articles, like posts, and comment with community                                     |
+| 🗺️ **Interactive Product Tours** | Role-specific guided tours (Student, Creator, Admin, AI Tools) with spotlight tooltips  |
+| 📝 **Blog**                      | Read articles, like posts, and comment with community                                   |
 
 ### 🎓 For Creators
 
-| Feature                      | Description                                                     |
-| ---------------------------- | --------------------------------------------------------------- |
-| 🏗️ **Creator Studio**        | Build courses, add lessons, manage quizzes and assignments      |
-| 🪄 **AI Course Builder**     | Auto-generate course outlines, lessons, and thumbnails          |
-| 🎓 **Certificate Templates** | Assign certificate templates to courses from course detail page |
-| 🧑‍💼 **Coaching Hub**          | Book 1-on-1 sessions, schedule slots, chat, AI roadmap generator |
-| 🗺️ **Manual Roadmap Builder** | Create custom learning roadmaps with phases, skills, milestones |
-| 👥 **Cohorts**               | Live group learning with community spaces                       |
-| 📊 **Earnings Dashboard**    | Revenue tracking, payouts, and invoices                         |
+| Feature                       | Description                                                      |
+| ----------------------------- | ---------------------------------------------------------------- |
+| 🏗️ **Creator Studio**         | Build courses, add lessons, manage quizzes and assignments       |
+| 🪄 **AI Course Builder**      | Auto-generate course outlines, lessons, and thumbnails           |
+| 🎓 **Certificate Templates**  | Assign certificate templates to courses from course detail page  |
+| 🧑‍💼 **Coaching Hub**           | Book 1-on-1 sessions, schedule slots, chat, AI roadmap generator |
+| 🗺️ **Manual Roadmap Builder** | Create custom learning roadmaps with phases, skills, milestones  |
+| 👥 **Cohorts**                | Live group learning with community spaces                        |
+| 📊 **Earnings Dashboard**     | Revenue tracking, payouts, and invoices                          |
 
 ### 🌐 Platform-Wide
 
@@ -67,7 +71,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                         |
 | 📄 **Legal Pages**            | Privacy Policy, Terms of Service, Refund Policy                                                           |
 | 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                  |
-| 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager, blog system                        |
+| 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager, blog system                         |
 | 🎯 **Interactive Tours**      | Role-specific product tours with spotlight cutout and auto-skip for missing targets                       |
 
 ---
@@ -253,8 +257,8 @@ npx playwright test
 | `RESEND_API_KEY`                | 📧       | Resend API key (primary email provider — recommended)                        |
 | `EMAIL_FROM`                    | 📧       | Sender email address (e.g. `noreply@learnify.ai` or `onboarding@resend.dev`) |
 | `BREVO_SMTP_KEY`                | 📧       | Brevo SMTP key (fallback email provider)                                     |
-| `BREVO_SMTP_SERVER`             | 📧       | Brevo SMTP server (e.g. `smtp-relay.brevo.com`)                             |
-| `BREVO_SMTP_PORT`               | 📧       | Brevo SMTP port (e.g. `587`)                                                |
+| `BREVO_SMTP_SERVER`             | 📧       | Brevo SMTP server (e.g. `smtp-relay.brevo.com`)                              |
+| `BREVO_SMTP_PORT`               | 📧       | Brevo SMTP port (e.g. `587`)                                                 |
 | `BREVO_SMTP_LOGIN`              | 📧       | Brevo SMTP login                                                             |
 
 ---
@@ -280,9 +284,13 @@ src/
 │   │   ├── ai.tsx          # AI tutor chat
 │   │   ├── playground.*.tsx   # Code playground
 │   │   ├── billing.tsx     # Billing & subscription dashboard
-│   │   ├── coaching.tsx    # Coaching hub (5 tabs)
-│   │   ├── studio.tsx      # Creator studio
-│   │   ├── wallet.tsx      # Wallet & payments
+│   │   ├── coaching.tsx      # Coaching hub (5 tabs)
+│   │   ├── resume-builder.tsx   # AI-powered resume builder
+│   │   ├── ats-checker.tsx      # ATS score analyzer
+│   │   ├── career-roadmap.tsx   # Career roadmap generator
+│   │   ├── portfolio-builder.tsx # Portfolio builder
+│   │   ├── studio.tsx       # Creator studio
+│   │   ├── wallet.tsx       # Wallet & payments
 │   │   ├── admin.tsx       # Admin panel
 │   │   ├── admin.content.tsx  # Content manager (16 tabs + WCMS)
 │   │   └── admin/
@@ -308,7 +316,8 @@ src/
 │   │   ├── FeaturesCatalog.tsx  # Feature catalog with icons/colors
 │   │   ├── MenuManager.tsx      # Navigation menu editor
 │   │   └── RoadmapBuilder.tsx   # Manual roadmap builder
-│   ├── ProductTour.tsx     # Interactive guided tours
+│   ├── ProductTour.tsx     # Interactive guided tours (10 steps, role-based)
+│   ├── ResumeFileUpload.tsx # Drag-and-drop PDF/DOCX upload for auto-fill
 │   ├── wcms/BlockRenderer.tsx  # WCMS block renderer (14 types)
 │   ├── FilePreview.tsx     # PDF/DOCX/image/text preview
 │   ├── Skeletons.tsx       # Reusable skeleton loaders
@@ -323,6 +332,8 @@ src/
 │   ├── use-motion-pref.tsx # Reduced motion preference
 │   └── use-wcms-public.tsx # WCMS public data hooks
 ├── lib/                    # Server functions & utilities
+│   ├── file-parser.ts      # PDF/DOCX text extraction (pdfjs-dist + mammoth)
+│   ├── resume.functions.ts # Resume generation, ATS scoring, career roadmap, portfolio
 │   ├── cert.functions.ts   # Certificate CRUD + email sending
 │   ├── subscription.functions.ts     # Subscription CRUD + Cashfree
 │   ├── subscription-email.functions.ts # Subscription email notifications
@@ -411,6 +422,19 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v3.7.0 (June 2026) - Resume Builder, ATS Checker, Career Roadmap & Portfolio Builder
+
+- ✅ **Resume Builder** (`/resume-builder`): AI-powered ATS-optimized resume generation. Upload PDF/DOCX to auto-extract fields, or fill manually — generates a polished ATS-friendly resume with proper formatting.
+- ✅ **ATS Checker** (`/ats-checker`): Upload or paste a resume to get an ATS compatibility score, keyword analysis, and improvement suggestions. PDF/DOCX auto-fill supported.
+- ✅ **Career Roadmap** (`/career-roadmap`): Personalized 6-phase learning paths with skill gap analysis, milestones, and project recommendations based on target role.
+- ✅ **Portfolio Builder** (`/portfolio-builder`): Full portfolio plan generator with profile photo upload, project cards (title, description, GitHub link, tech stack), and a live preview tab. PDF/DOCX upload for auto-fill.
+- ✅ **ResumeFileUpload Component**: Shared drag-and-drop file upload used by Resume Builder, ATS Checker, and Portfolio Builder — parses PDF (pdfjs-dist) and DOCX (mammoth) into plain text.
+- ✅ **Server-Side Field Extraction**: New `extractResumeFields` server function uses AI to parse unstructured resume text into structured fields (name, email, skills, experience, education).
+- ✅ **InteractiveDemoCards Updated**: All 7 demo cards now link to actual feature pages via the `route` field. Added Portfolio Builder demo card.
+- ✅ **ProductTour Extended**: New "AI Tools" tour role covering Resume Builder, ATS Checker, Career Roadmap, and Portfolio Builder. All tour target selectors fixed to point at specific nav items.
+- ✅ **PWA Service Worker Fix**: Fixed `sw.js` caching logic — was filtering out all static assets due to `url.startsWith("http")` check.
+- ✅ **TypeScript/Build Fixes**: Fixed `FolderOpen` missing import in InteractiveDemoCards, `DemoCard` type definition, implicit `any` params in server functions, `pdfjs-dist` worker URL, and Portfolio Builder field mapping (`summary`→`bio`, `targetRole`→`tagline`).
 
 ### v3.6.0 (June 2026) - Blog Likes & Comments, WCMS Menus, Animated Illustrations
 

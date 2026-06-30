@@ -31,6 +31,7 @@ import {
   Zap,
   Eye,
   MousePointerClick,
+  FolderOpen,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -255,7 +256,7 @@ export const ADMIN_TOUR: Tour = {
       target: '[data-tour="nav-admin"]',
       title: "Content Manager",
       content:
-        "Manage events, jobs, pricing, FAQs, pages, roadmaps, coupons, and feature visibility.",
+        "Manage events, jobs, pricing, FAQs, pages, roadmaps, coupons, community groups, certificate templates, feature visibility, page builder, media library, features catalog, and navigation menus — all in one place.",
       icon: Eye,
       placement: "right",
     },
@@ -325,7 +326,108 @@ export const FEATURES_TOUR: Tour = {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const ALL_TOURS: Tour[] = [STUDENT_TOUR, CREATOR_TOUR, ADMIN_TOUR, FEATURES_TOUR];
+export const AI_TOOLS_TOUR: Tour = {
+  id: "ai-tools-tour",
+  name: "AI Tools",
+  description: "Master AI-powered learning tools",
+  category: "features",
+  steps: [
+    {
+      id: "ai-tutor",
+      target: '[data-tour="nav-ai"]',
+      title: "AI Tutor",
+      content:
+        "Ask questions, get code explanations, generate notes, and create quizzes — your personal AI teacher available 24/7.",
+      icon: Sparkles,
+      placement: "right",
+    },
+    {
+      id: "resume-builder",
+      target: '[data-tour="nav-resume-builder"]',
+      title: "Resume Builder",
+      content:
+        "Build ATS-friendly resumes in minutes. AI generates professional content optimized for recruiters.",
+      icon: Rocket,
+      placement: "right",
+    },
+    {
+      id: "ats-checker",
+      target: '[data-tour="nav-ats-checker"]',
+      title: "ATS Checker",
+      content:
+        "Analyze your resume against ATS systems. Get scores, keyword analysis, and improvement suggestions.",
+      icon: Target,
+      placement: "right",
+    },
+    {
+      id: "mock-interview",
+      target: '[data-tour="nav-playground"]',
+      title: "Mock Interview",
+      content:
+        "Practice with an AI interviewer. Get real-time feedback on technical and HR questions.",
+      icon: Star,
+      placement: "right",
+    },
+    {
+      id: "career-roadmap",
+      target: '[data-tour="nav-career-roadmap"]',
+      title: "Career Roadmap",
+      content:
+        "Get personalized learning paths based on your career goals. Know exactly what to learn next.",
+      icon: Compass,
+      placement: "right",
+    },
+    {
+      id: "portfolio-builder",
+      target: '[data-tour="nav-portfolio-builder"]',
+      title: "Portfolio Builder",
+      content:
+        "Generate a complete portfolio plan with structure, design, and technical recommendations to showcase your work.",
+      icon: FolderOpen,
+      placement: "right",
+    },
+  ],
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const CERTIFICATES_TOUR: Tour = {
+  id: "certificates-tour",
+  name: "Certificates",
+  description: "Earn and share verified credentials",
+  category: "features",
+  steps: [
+    {
+      id: "cert-generate",
+      target: '[data-tour="nav-certificates"]',
+      title: "Earn Certificates",
+      content:
+        "Complete courses and pass assessments to earn verified certificates with unique IDs and QR codes.",
+      icon: Award,
+      placement: "right",
+    },
+    {
+      id: "cert-share",
+      target: '[data-tour="nav-certificates"]',
+      title: "Share on LinkedIn",
+      content:
+        "One-click sharing to LinkedIn, resumes, and portfolios. Boost your professional profile.",
+      icon: Users,
+      placement: "right",
+    },
+    {
+      id: "cert-verify",
+      target: '[data-tour="nav-certificates"]',
+      title: "Verify Certificates",
+      content:
+        "Every certificate includes a unique verification URL and QR code for instant validation.",
+      icon: Shield,
+      placement: "right",
+    },
+  ],
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const ALL_TOURS: Tour[] = [STUDENT_TOUR, CREATOR_TOUR, ADMIN_TOUR, FEATURES_TOUR, AI_TOOLS_TOUR, CERTIFICATES_TOUR];
 
 // ═══════════════════════════════════════════════════════════════
 // TOUR CONTEXT
@@ -501,6 +603,7 @@ function TourOverlay() {
 
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const [targetFound, setTargetFound] = useState(true);
   const step = currentTour?.steps[currentStepIndex];
   const totalSteps = currentTour?.steps.length ?? 0;
   const progress = getProgress();
@@ -511,10 +614,13 @@ function TourOverlay() {
     if (!step) return;
     let retries = 0;
     const MAX_RETRIES = 5;
+    let cancelled = false;
 
     const findTarget = () => {
+      if (cancelled) return;
       const el = document.querySelector(step.target);
       if (el) {
+        setTargetFound(true);
         const rect = el.getBoundingClientRect();
         setHighlightRect(rect);
 
@@ -549,8 +655,8 @@ function TourOverlay() {
       } else {
         retries++;
         if (retries >= MAX_RETRIES) {
-          // Target doesn't exist on this page — auto-skip to next step
-          nextStep();
+          setTargetFound(false);
+          setHighlightRect(null);
           return;
         }
         setTimeout(findTarget, 200);
@@ -558,7 +664,8 @@ function TourOverlay() {
     };
 
     findTarget();
-  }, [step, currentStepIndex, nextStep]);
+    return () => { cancelled = true; };
+  }, [step, currentStepIndex]);
 
   if (!step || !currentTour) return null;
 
@@ -592,8 +699,9 @@ function TourOverlay() {
           placement === "bottom" && "top-auto",
           placement === "left" && "right-auto",
           placement === "right" && "left-auto",
+          !targetFound && "!fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2",
         )}
-        style={{
+        style={targetFound ? {
           top: Math.max(
             16,
             Math.min(
@@ -616,7 +724,7 @@ function TourOverlay() {
               window.innerWidth - 356,
             ),
           ),
-        }}
+        } : {}}
       >
         {/* Progress bar */}
         <div className="mb-4">
@@ -640,8 +748,16 @@ function TourOverlay() {
           </div>
         </div>
 
+        {/* Target not found hint */}
+        {!targetFound && (
+          <div className="flex items-center gap-2 mb-4 p-2 rounded-lg bg-amber-500/10 text-xs text-amber-600 border border-amber-500/20">
+            <HelpCircle className="h-3.5 w-3.5 shrink-0" />
+            <span>This step is on another page. Navigate there and the tour will continue, or skip this step.</span>
+          </div>
+        )}
+
         {/* Action hint */}
-        {step.action && (
+        {step.action && targetFound && (
           <div className="flex items-center gap-2 mb-4 p-2 rounded-lg bg-muted/50 text-xs text-muted-foreground">
             {step.action === "click" && <MousePointerClick className="h-3.5 w-3.5" />}
             {step.action === "hover" && <Eye className="h-3.5 w-3.5" />}

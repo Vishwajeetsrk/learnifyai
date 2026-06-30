@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8f6ff"/>
+      <stop offset="100%" stop-color="#ede8f8"/>
+    </linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8e8ea0"/>
+      <stop offset="100%" stop-color="#6e6e80"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="318" height="238" rx="6" fill="url(#bg2)" stroke="#7c3aed" stroke-width="2.5"/>
+  <rect x="8" y="8" width="304" height="224" rx="4" fill="none" stroke="#7c3aed" stroke-width="1" opacity="0.4"/>
+  <rect x="14" y="14" width="292" height="212" rx="2" fill="none" stroke="#7c3aed" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3"/>
+  <circle cx="160" cy="42" r="20" fill="none" stroke="#7c3aed" stroke-width="1.5" opacity="0.5"/>
+  <circle cx="160" cy="42" r="14" fill="none" stroke="#7c3aed" stroke-width="0.8" opacity="0.4"/>
+  <text x="160" y="40" font-family="sans-serif" font-size="7" fill="#7c3aed" text-anchor="middle" font-weight="bold" letter-spacing="2">ACHIEVEMENT</text>
+  <text x="160" y="50" font-family="sans-serif" font-size="5" fill="#7c3aed" text-anchor="middle" letter-spacing="1">CERTIFICATE</text>
+  <text x="160" y="82" font-family="serif" font-size="6" fill="#666" text-anchor="middle">This certificate is proudly presented to</text>
+  <text x="160" y="104" font-family="serif" font-size="11" fill="#0f1b3d" text-anchor="middle" font-style="italic" font-weight="bold">Sarah Chen</text>
+  <text x="160" y="126" font-family="serif" font-size="6" fill="#666" text-anchor="middle">for outstanding achievement in</text>
+  <text x="160" y="146" font-family="sans-serif" font-size="8" fill="#7c3aed" text-anchor="middle" font-weight="bold" letter-spacing="1">MACHINE LEARNING</text>
+  <text x="160" y="162" font-family="serif" font-size="5" fill="#888" text-anchor="middle">Completed all modules with distinction</text>
+  <line x1="80" y1="188" x2="240" y2="188" stroke="#7c3aed" stroke-width="0.5" opacity="0.6"/>
+  <text x="120" y="200" font-family="serif" font-size="5" fill="#888" text-anchor="middle">Issued: April 2026</text>
+  <text x="200" y="200" font-family="serif" font-size="5" fill="#888" text-anchor="middle">Certificate ID: LEARN-ML-0426</text>
+  <text x="160" y="218" font-family="sans-serif" font-size="5" fill="#7c3aed" text-anchor="middle" letter-spacing="3">LEARNIFY AI</text>
+</svg>

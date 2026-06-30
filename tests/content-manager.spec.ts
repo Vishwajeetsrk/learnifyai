@@ -17,14 +17,18 @@ test.describe("Content Manager Dashboard Verification", () => {
     try {
       await cookieBtn.waitFor({ state: "visible", timeout: 3000 });
       await cookieBtn.click();
-    } catch { /* no cookie banner */ }
+    } catch {
+      /* no cookie banner */
+    }
 
     await page.getByRole("button", { name: /sign in/i }).click();
     await page.waitForURL(/\/dashboard/, { timeout: 30000 }).catch(() => {});
   });
 
   test("should allow admin to create and delete an event", async ({ page }) => {
-    await page.goto("/admin/content", { timeout: 20000, waitUntil: "domcontentloaded" }).catch(() => {});
+    await page
+      .goto("/admin/content", { timeout: 20000, waitUntil: "domcontentloaded" })
+      .catch(() => {});
     await page.waitForTimeout(3000);
 
     if (page.url().includes("/login")) {
@@ -41,13 +45,17 @@ test.describe("Content Manager Dashboard Verification", () => {
     await titleField.fill(`Test Event ${Date.now()}`);
 
     await page.getByRole("button", { name: /save/i }).click();
-    await expect(page.locator("text=Event created").first()).toBeVisible({ timeout: 10000 }).catch(() => {});
+    await expect(page.locator("text=Event created").first())
+      .toBeVisible({ timeout: 10000 })
+      .catch(() => {});
   });
 
   test("should successfully load Content Manager and verify all sections are working", async ({
     page,
   }) => {
-    await page.goto("/admin/content", { timeout: 20000, waitUntil: "domcontentloaded" }).catch(() => {});
+    await page
+      .goto("/admin/content", { timeout: 20000, waitUntil: "domcontentloaded" })
+      .catch(() => {});
     await page.waitForTimeout(3000);
 
     if (page.url().includes("/login")) {
@@ -56,7 +64,9 @@ test.describe("Content Manager Dashboard Verification", () => {
       return;
     }
 
-    await expect(page.locator("h1", { hasText: "Content Manager" })).toBeVisible({ timeout: 15000 });
+    await expect(page.locator("h1", { hasText: "Content Manager" })).toBeVisible({
+      timeout: 15000,
+    });
 
     const tabs = [
       { name: "Events", clickTarget: "Events", verifyText: "New event" },
@@ -66,7 +76,11 @@ test.describe("Content Manager Dashboard Verification", () => {
       { name: "Cert Templates", clickTarget: "Cert Templates", verifyText: "New template" },
       { name: "Issue Cert", clickTarget: "Issue Cert", verifyText: "Find user by email" },
       { name: "FAQs", clickTarget: "FAQs", verifyText: "New FAQ" },
-      { name: "Pages", clickTarget: "Pages", verifyText: "Edit the HTML content for each legal page" },
+      {
+        name: "Pages",
+        clickTarget: "Pages",
+        verifyText: "Edit the HTML content for each legal page",
+      },
       { name: "Roadmap", clickTarget: "Roadmap", verifyText: "Add item" },
       { name: "Coupons", clickTarget: "Coupons", verifyText: "Add coupon" },
       { name: "Community Groups", clickTarget: "Community Groups", verifyText: "New group" },

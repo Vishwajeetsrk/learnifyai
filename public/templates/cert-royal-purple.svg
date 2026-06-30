@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 560">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a0a2e"/>
+      <stop offset="50%" stop-color="#2d1b4e"/>
+      <stop offset="100%" stop-color="#1a0a2e"/>
+    </linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#c0c0c0"/>
+      <stop offset="50%" stop-color="#e8e8e8"/>
+      <stop offset="100%" stop-color="#c0c0c0"/>
+    </linearGradient>
+    <linearGradient id="purpleAccent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#a855f7" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="560" rx="12" fill="url(#bg3)" stroke="#a855f7" stroke-width="2" opacity="0.5"/>
+  <!-- Ornate border -->
+  <rect x="20" y="20" width="760" height="520" rx="8" fill="none" stroke="url(#silver)" stroke-width="0.8" opacity="0.3"/>
+  <!-- Decorative lines -->
+  <rect x="0" y="60" width="800" height="1" fill="url(#purpleAccent)"/>
+  <rect x="0" y="500" width="800" height="1" fill="url(#purpleAccent)"/>
+  <!-- Diamond ornaments -->
+  <g fill="none" stroke="#a855f7" stroke-width="1" opacity="0.4">
+    <polygon points="40,40 48,48 40,56 32,48" />
+    <polygon points="760,40 768,48 760,56 752,48" />
+    <polygon points="40,520 48,528 40,536 32,528" />
+    <polygon points="760,520 768,528 760,536 752,528" />
+  </g>
+  <!-- Shield seal -->
+  <g transform="translate(400, 420)">
+    <path d="M-30,0 L0,-40 L30,0 L20,30 L0,40 L-20,30 Z" fill="none" stroke="#a855f7" stroke-width="1.5" opacity="0.3"/>
+    <path d="M-18,0 L0,-26 L18,0 L12,20 L0,26 L-12,20 Z" fill="none" stroke="#a855f7" stroke-width="0.8" opacity="0.2"/>
+    <text x="0" y="5" text-anchor="middle" fill="#c084fc" font-family="serif" font-size="18">L</text>
+  </g>
+  <!-- Title -->
+  <text x="400" y="120" text-anchor="middle" fill="#c084fc" font-family="serif" font-size="20" letter-spacing="12">CERTIFICATE</text>
+  <text x="400" y="150" text-anchor="middle" fill="#a0a0a0" font-family="sans-serif" font-size="10" letter-spacing="6">OF COMPLETION</text>
+  <text x="400" y="200" text-anchor="middle" fill="#888" font-family="serif" font-size="13">Presented to</text>
+  <text x="400" y="255" text-anchor="middle" fill="#e8d8ff" font-family="serif" font-size="32" letter-spacing="2">Student Name</text>
+  <text x="400" y="285" text-anchor="middle" fill="#a855f7" font-family="serif" font-size="11" font-style="italic">for outstanding achievement in</text>
+  <text x="400" y="325" text-anchor="middle" fill="#d8c8f0" font-family="serif" font-size="18" letter-spacing="1">Course Name</text>
+  <text x="400" y="350" text-anchor="middle" fill="#666" font-family="sans-serif" font-size="10">Completed: January 1, 2026 &bull; Score: 95/100</text>
+  <!-- Signatures -->
+  <line x1="280" y1="470" x2="370" y2="470" stroke="#888" stroke-width="0.6"/>
+  <text x="325" y="485" text-anchor="middle" fill="#666" font-family="sans-serif" font-size="8">AUTHORIZED SIGNATURE</text>
+  <line x1="430" y1="470" x2="520" y2="470" stroke="#888" stroke-width="0.6"/>
+  <text x="475" y="485" text-anchor="middle" fill="#666" font-family="sans-serif" font-size="8">AUTHORIZED SIGNATURE</text>
+  <!-- Serial -->
+  <text x="400" y="505" text-anchor="middle" fill="#444" font-family="monospace" font-size="8">CERT-PRP-2026-000001</text>
+</svg>

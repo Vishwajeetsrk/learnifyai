@@ -30,7 +30,9 @@ export default function LeaderboardPage() {
     primaryRole === "admin" || primaryRole === "creator" || primaryRole === "student"
       ? primaryRole
       : "all";
-  const [roleFilter, setRoleFilter] = useState<"all" | "student" | "creator" | "admin">(defaultRole);
+  const [roleFilter, setRoleFilter] = useState<"all" | "student" | "creator" | "admin">(
+    defaultRole,
+  );
 
   const fetchLb = useServerFn(getLeaderboard);
   const fetchRank = useServerFn(getUserRank);

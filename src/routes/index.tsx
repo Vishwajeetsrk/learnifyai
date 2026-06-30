@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useMemo } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 import {
   ArrowRight,
@@ -27,7 +28,6 @@ import { Button } from "@/components/ui/button";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { getPlatformStats } from "@/lib/stats.functions";
 
-// Lazy load below-fold heavy components
 const AiToolsShowcase = lazy(() =>
   import("@/components/AiToolsShowcase").then((m) => ({ default: m.AiToolsShowcase })),
 );
@@ -58,40 +58,42 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const features = [
-  {
-    icon: Brain,
-    title: "AI Tutor",
-    desc: "Personalized 1-on-1 tutoring that adapts to how you learn.",
-  },
-  {
-    icon: BookOpen,
-    title: "Smart Notes & Slides",
-    desc: "Generate flashcards, summaries, and decks from any lesson.",
-  },
-  {
-    icon: Trophy,
-    title: "Gamified Progress",
-    desc: "Streaks, XP, badges, and leaderboards that make learning addictive.",
-  },
-  {
-    icon: Users,
-    title: "Creator Economy",
-    desc: "Coaches and creators ship courses, cohorts, and communities.",
-  },
-  {
-    icon: Wallet,
-    title: "Built-in Wallet",
-    desc: "Earnings, payouts, and tipping handled natively.",
-  },
-  {
-    icon: BarChart3,
-    title: "Career Intelligence",
-    desc: "AI-guided paths, resume reviews, and skill graphs.",
-  },
-];
-
 function Index() {
+  const { t } = useTranslation();
+
+  const features = useMemo(() => [
+    {
+      icon: Brain,
+      title: t("home.ecosystem.aiTutor.title"),
+      desc: t("home.ecosystem.aiTutor.desc"),
+    },
+    {
+      icon: BookOpen,
+      title: t("home.ecosystem.smartNotes.title"),
+      desc: t("home.ecosystem.smartNotes.desc"),
+    },
+    {
+      icon: Trophy,
+      title: t("home.ecosystem.gamified.title"),
+      desc: t("home.ecosystem.gamified.desc"),
+    },
+    {
+      icon: Users,
+      title: t("home.ecosystem.creatorEconomy.title"),
+      desc: t("home.ecosystem.creatorEconomy.desc"),
+    },
+    {
+      icon: Wallet,
+      title: t("home.ecosystem.wallet.title"),
+      desc: t("home.ecosystem.wallet.desc"),
+    },
+    {
+      icon: BarChart3,
+      title: t("home.ecosystem.career.title"),
+      desc: t("home.ecosystem.career.desc"),
+    },
+  ], [t]);
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
@@ -112,7 +114,7 @@ function Index() {
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border/60 bg-background/60 backdrop-blur text-xs font-medium text-muted-foreground mb-8 hover:border-primary/50 hover:bg-background/80 transition cursor-default"
             >
               <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
-              The AI-Native Learning OS
+              {t("hero.badge")}
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
@@ -120,8 +122,7 @@ function Index() {
               transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="font-display text-4xl sm:text-5xl md:text-7xl font-semibold tracking-tighter leading-[1.05]"
             >
-              Learn <span className="text-gradient">smarter</span>.<br />
-              Grow faster.
+              {t("hero.title")} <span className="text-gradient">{t("hero.titleHighlight")}</span>.
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -129,8 +130,7 @@ function Index() {
               transition={{ duration: 0.8, delay: 0.25 }}
               className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto"
             >
-              Learnify AI fuses intelligent tutoring, creator-powered courses, and a thriving
-              learning community into one premium experience.
+              {t("hero.subtitle")}
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -144,7 +144,7 @@ function Index() {
                 className="bg-foreground text-background hover:bg-foreground/90 shadow-glow group hover:-translate-y-0.5 hover:shadow-lg transition-all"
               >
                 <Link to="/signup">
-                  Start learning free
+                  {t("common.startFree")}
                   <ArrowRight className="ml-1 h-4 w-4 transition group-hover:translate-x-1" />
                 </Link>
               </Button>
@@ -156,7 +156,7 @@ function Index() {
               >
                 <a href="#demo">
                   <PlayCircle className="mr-1.5 h-4 w-4" />
-                  Watch demo
+                  {t("common.watchDemo")}
                 </a>
               </Button>
             </motion.div>
@@ -167,13 +167,12 @@ function Index() {
       {/* INTERACTIVE DEMO */}
       <section id="demo" className="container mx-auto px-6 py-24 scroll-mt-24">
         <Reveal className="max-w-2xl mx-auto text-center mb-12">
-          <p className="text-sm font-medium text-primary mb-3">See it in action</p>
+          <p className="text-sm font-medium text-primary mb-3">{t("home.demo.badge")}</p>
           <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
-            Try the product. No signup.
+            {t("home.demo.title")}
           </h2>
           <p className="mt-4 text-muted-foreground text-lg">
-            Click through a live AI Tutor chat, generate a quiz, and flip through auto-made
-            flashcards.
+            {t("home.demo.subtitle")}
           </p>
         </Reveal>
         <Reveal variant="scale" delay={0.1}>
@@ -195,12 +194,12 @@ function Index() {
       {/* FEATURES */}
       <section id="features" className="container mx-auto px-6 py-28">
         <Reveal className="max-w-2xl mb-16">
-          <p className="text-sm font-medium text-primary mb-3">Everything in one OS</p>
+          <p className="text-sm font-medium text-primary mb-3">{t("home.ecosystem.badge")}</p>
           <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
-            An ecosystem, not a course catalog.
+            {t("home.ecosystem.title")}
           </h2>
           <p className="mt-4 text-muted-foreground text-lg">
-            Six pillars working together so learners, creators, and institutions all win.
+            {t("home.ecosystem.subtitle")}
           </p>
         </Reveal>
         <StaggerGroup className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -225,13 +224,12 @@ function Index() {
       {/* COMMUNITY */}
       <section className="container mx-auto px-6 py-28">
         <Reveal className="max-w-2xl mx-auto text-center mb-12">
-          <p className="text-sm font-medium text-primary mb-3">Study together</p>
+          <p className="text-sm font-medium text-primary mb-3">{t("home.community.badge")}</p>
           <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
-            Join a learning community.
+            {t("home.community.title")}
           </h2>
           <p className="mt-4 text-muted-foreground text-lg">
-            Live cohorts, study groups, and office hours with dedicated WhatsApp and Discord
-            channels.
+            {t("home.community.subtitle")}
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button
@@ -241,7 +239,7 @@ function Index() {
             >
               <Link to="/cohorts">
                 <Users className="mr-1.5 h-4 w-4" />
-                Browse groups
+                {t("home.community.browseGroups")}
               </Link>
             </Button>
             <Button
@@ -252,7 +250,7 @@ function Index() {
             >
               <Link to="/community">
                 <MessageSquare className="mr-1.5 h-4 w-4" />
-                Community feed
+                {t("home.community.communityFeed")}
               </Link>
             </Button>
           </div>
@@ -280,25 +278,24 @@ function Index() {
       <section id="creators" className="container mx-auto px-6 py-28">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <Reveal variant="left">
-            <p className="text-sm font-medium text-primary mb-3">For creators & coaches</p>
+            <p className="text-sm font-medium text-primary mb-3">{t("home.creators.badge")}</p>
             <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
-              Build a learning business, not just a course.
+              {t("home.creators.title")}
             </h2>
             <p className="mt-5 text-muted-foreground text-lg">
-              Cohorts, communities, drops, and digital products — with a wallet, analytics, and AI
-              co-pilot built in.
+              {t("home.creators.subtitle")}
             </p>
             <StaggerGroup className="mt-8 space-y-3" stagger={0.07}>
               {[
-                "Native payouts in 40+ countries",
-                "Cohort + 1-on-1 + async, in one place",
-                "AI assistant that drafts lessons with your voice",
-                "Community spaces with realtime presence",
-              ].map((t) => (
-                <StaggerItem key={t} variant="left">
+                t("home.creators.payouts"),
+                t("home.creators.cohorts"),
+                t("home.creators.aiAssistant"),
+                t("home.creators.communitySpaces"),
+              ].map((text) => (
+                <StaggerItem key={text} variant="left">
                   <div className="flex items-start gap-3 text-sm">
                     <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                    <span>{t}</span>
+                    <span>{text}</span>
                   </div>
                 </StaggerItem>
               ))}
@@ -307,7 +304,7 @@ function Index() {
               asChild
               className="mt-10 bg-foreground text-background hover:bg-foreground/90 hover:-translate-y-0.5 transition-all"
             >
-              <Link to="/apply-creator">Apply to Creator Program</Link>
+              <Link to="/apply-creator">{t("home.creators.applyCta")}</Link>
             </Button>
           </Reveal>
           <Reveal variant="right" delay={0.1}>
@@ -355,6 +352,7 @@ function Index() {
 }
 
 function LiveStats() {
+  const { t } = useTranslation();
   const { data } = useQuery({
     queryKey: ["platform-stats"],
     queryFn: () => getPlatformStats(),
@@ -368,10 +366,10 @@ function LiveStats() {
   const completion = 96;
 
   const items: Array<{ value: number; suffix?: string; label: string; compact?: boolean }> = [
-    { value: learners, label: "Active learners" },
-    { value: creators, label: "Creators" },
-    { value: sessions, label: "AI sessions" },
-    { value: completion, label: "Completion lift", suffix: "%", compact: false },
+    { value: learners, label: t("home.stats.activeLearners") },
+    { value: creators, label: t("home.stats.creators") },
+    { value: sessions, label: t("home.stats.aiSessions") },
+    { value: completion, label: t("home.stats.completionLift"), suffix: "%", compact: false },
   ];
 
   return (

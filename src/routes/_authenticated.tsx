@@ -58,10 +58,9 @@ function AuthenticatedLayout() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (!(data as any).onboarding_completed && (data as any).current_step !== "complete") {
           const path = window.location.pathname;
-          // Skip redirect for admin routes — admins need full access
           if (path !== "/onboarding" && !path.startsWith("/admin")) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             navigate({ to: "/onboarding" as any, replace: true });
+            setCheckingOnboarding(false);
             return;
           }
         }

@@ -16,7 +16,7 @@ export function DashboardEventsJobs() {
       const { data } = await supabase
         .from("events")
         .select("id, title, starts_at, location, image_url, rsvp_url")
-        .gte("starts_at", new Date().toISOString())
+        .gte("starts_at", new Date(Date.now() - 30 * 86400000).toISOString())
         .order("starts_at", { ascending: true })
         .limit(3);
       return data ?? [];
@@ -38,7 +38,7 @@ export function DashboardEventsJobs() {
 
   const events = eventsQ.data ?? [];
   const jobs = jobsQ.data ?? [];
-  if (events.length === 0 && jobs.length === 0) return null;
+  if (events.length === 0 && jobs.length === 0 && !eventsQ.isLoading && !jobsQ.isLoading) return null;
 
   return (
     <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -183,11 +183,7 @@ function CourseDetail() {
           .eq("course_id", course.id)
           .order("order_index", { ascending: true }),
         course.created_by
-          ? supabase
-              .from("profiles")
-              .select("*")
-              .eq("id", course.created_by)
-              .maybeSingle()
+          ? supabase.from("profiles").select("*").eq("id", course.created_by).maybeSingle()
           : Promise.resolve({ data: null }),
       ]);
 
@@ -516,7 +512,14 @@ function CourseDetail() {
       setEnrollCelebration(true);
       qc.invalidateQueries({ queryKey: ["enrollment", course.id, user?.id] });
       qc.invalidateQueries({ queryKey: ["enrollments"] });
-      logDailyFn({ data: { actions_count: 1, features_used: ["course-enrollment"], xp_earned: 20, notes: `Enrolled in course: ${course.title}` } }).catch(() => {});
+      logDailyFn({
+        data: {
+          actions_count: 1,
+          features_used: ["course-enrollment"],
+          xp_earned: 20,
+          notes: `Enrolled in course: ${course.title}`,
+        },
+      }).catch(() => {});
       if (firstPlayable)
         markStarted({ data: { courseId: course.id, lessonId: firstPlayable } }).catch(() => {});
     } catch (e: any) {
@@ -546,7 +549,9 @@ function CourseDetail() {
           }
         })
         .catch(() => {});
-      logDailyFn({ data: { actions_count: 1, features_used: ["lesson-completion"], xp_earned: 10 } }).catch(() => {});
+      logDailyFn({
+        data: { actions_count: 1, features_used: ["lesson-completion"], xp_earned: 10 },
+      }).catch(() => {});
     }
 
     qc.invalidateQueries({ queryKey: ["progress", course.id, user.id] });
@@ -573,7 +578,11 @@ function CourseDetail() {
       <AppShell>
         <div className="p-10 text-center space-y-4">
           <div className="w-32 h-32 mx-auto">
-            <img src="/illustrations/Interactive_Play_and_Pause_button.svg" alt="" className="w-full h-full" />
+            <img
+              src="/illustrations/Interactive_Play_and_Pause_button.svg"
+              alt=""
+              className="w-full h-full"
+            />
           </div>
           <p className="text-sm text-muted-foreground">Course not found.</p>
           <Link to="/courses" className="text-primary text-sm underline mt-2 inline-block">
@@ -757,7 +766,9 @@ function CourseDetail() {
                 <CustomVideoPlayer
                   key={`${active?.id}-${playerRetry}`}
                   url={activeVideo.src}
-                  thumbnailUrl={getCleanBannerUrl(course?.cover_url ?? null) ?? course?.cover_url ?? undefined}
+                  thumbnailUrl={
+                    getCleanBannerUrl(course?.cover_url ?? null) ?? course?.cover_url ?? undefined
+                  }
                   startSeconds={activeProgress?.watched_seconds ?? 0}
                   playbackRate={speed}
                   restrictDownload={!isAdmin && user?.id !== course?.created_by}

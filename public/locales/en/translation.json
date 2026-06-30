@@ -1,0 +1,295 @@
+{
+  "nav": {
+    "features": "Features",
+    "aiTools": "AI Tools",
+    "creators": "Creators",
+    "coaches": "Coaches",
+    "pricing": "Pricing",
+    "blog": "Blog",
+    "dashboard": "Open app",
+    "signIn": "Sign in",
+    "getStarted": "Get started"
+  },
+  "hero": {
+    "badge": "AI-Powered Learning OS",
+    "title": "Your AI-Powered",
+    "titleHighlight": "Learning OS",
+    "subtitle": "Courses, AI tutoring, career tools, certificates, and community — all in one intelligent platform.",
+    "cta": "Start Learning Free",
+    "secondary": "Explore Courses",
+    "stat1Value": "10,000+",
+    "stat1Label": "Active Learners",
+    "stat2Value": "500+",
+    "stat2Label": "AI Lessons",
+    "stat3Value": "50+",
+    "stat3Label": "Courses"
+  },
+  "features": {
+    "badge": "Platform Features",
+    "title": "Everything you need to",
+    "titleHighlight": "learn & grow",
+    "subtitle": "From AI tutoring to career placement — a complete learning operating system.",
+    "items": {
+      "aiTutor": {
+        "title": "AI Tutor",
+        "desc": "1-on-1 personalized AI tutoring that adapts to your learning style."
+      },
+      "courses": {
+        "title": "Smart Courses",
+        "desc": "Interactive video courses with auto-notes, quizzes, and flashcards."
+      },
+      "certificates": {
+        "title": "Verified Certificates",
+        "desc": "Earn verified certificates with QR codes and LinkedIn integration."
+      },
+      "career": {
+        "title": "Career Tools",
+        "desc": "Resume builder, ATS checker, mock interviews, and career roadmap."
+      },
+      "gamification": {
+        "title": "Gamification",
+        "desc": "XP, streaks, leaderboards, and achievements to keep you motivated."
+      },
+      "community": {
+        "title": "Community",
+        "desc": "Connect with learners, share progress, and join challenges."
+      }
+    }
+  },
+  "pricing": {
+    "badge": "Pricing",
+    "title": "Simple, transparent pricing",
+    "subtitle": "Start free, upgrade when you're ready. All plans include AI-powered learning tools.",
+    "trust": "10,000+ learners trust Learnify AI",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "yearlySave": "Save 17%",
+    "free": "Free",
+    "perMonth": "/month",
+    "perYear": "/year",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "description": "Perfect for getting started with AI-powered learning.",
+        "cta": "Get started free"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "For serious learners and creators who want unlimited access.",
+        "cta": "Start Pro",
+        "badge": "Most Popular"
+      },
+      "careerPro": {
+        "name": "Career Pro",
+        "description": "Complete career toolkit for job seekers and professionals.",
+        "cta": "Become Job Ready",
+        "badge": "Best Value"
+      }
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "searchPlaceholder": "Search questions...",
+      "noResults": "No matching questions found."
+    },
+    "testimonials": {
+      "title": "What our learners say"
+    },
+    "cta": {
+      "title": "Ready to start learning?",
+      "subtitle": "Join 10,000+ learners already building their careers with Learnify AI.",
+      "button": "Get Started Free"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account",
+      "email": "Email",
+      "password": "Password",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "noAccount": "Don't have an account?",
+      "signup": "Sign up"
+    },
+    "signup": {
+      "title": "Create your account",
+      "subtitle": "Start your learning journey",
+      "name": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Get started",
+      "hasAccount": "Already have an account?",
+      "signin": "Sign in"
+    }
+  },
+  "footer": {
+    "description": "AI-powered learning platform with courses, tutoring, career tools, and certificates.",
+    "product": "Product",
+    "resources": "Resources",
+    "company": "Company",
+    "legal": "Legal",
+    "copyright": "Learnify AI. All rights reserved.",
+    "madeWith": "Made with AI and humans"
+  },
+  "courses": {
+    "title": "Explore Courses",
+    "subtitle": "Discover courses designed to help you master new skills",
+    "search": "Search courses...",
+    "enroll": "Enroll Now",
+    "enrolled": "Enrolled",
+    "lessons": "Lessons",
+    "students": "Students",
+    "rating": "Rating"
+  },
+  "verifiedCertificates": {
+    "title": "Your Certificate Journey",
+    "subtitle": "Complete a course, pass assessments, and earn a verified certificate that you can download, share on LinkedIn, and showcase in your portfolio.",
+    "howItWorks": "How It Works",
+    "howItWorksDesc": "Your path from enrollment to certification in 7 simple steps.",
+    "whyTitle": "Why Learnify Certificates Matter",
+    "whyDesc": "Industry-recognized credentials that open doors.",
+    "ctaTitle": "Ready To Earn Your Next Certificate?",
+    "ctaSubtitle": "Complete your course and unlock a verified certificate that showcases your skills.",
+    "startLearning": "Start Learning",
+    "viewPricing": "View Pricing",
+    "scanToVerify": "Scan to verify",
+    "uniqueQR": "Unique QR code on every certificate",
+    "steps": {
+      "enroll": "Enroll in a Course",
+      "enrollDesc": "Choose a course that matches your learning goals and start your journey.",
+      "complete": "Complete All Lessons",
+      "completeDesc": "Watch videos, read learning materials, and finish every module.",
+      "pass": "Pass Quiz & Assessments",
+      "passDesc": "Complete quizzes, assignments, and practical exercises with the required score.",
+      "done": "Course Completed",
+      "doneDesc": "Once all requirements are met, your course will be marked as completed automatically.",
+      "generated": "Certificate Generated",
+      "generatedDesc": "Learnify AI instantly generates a personalized certificate with student name, course name, completion date, certificate ID, QR verification, and Learnify AI Seal.",
+      "download": "Download & Share",
+      "downloadDesc": "Download your certificate as PDF. Share instantly on LinkedIn, resume, portfolio, or personal website.",
+      "showcase": "Showcase Your Achievement",
+      "showcaseDesc": "Strengthen your resume, improve your LinkedIn profile, demonstrate new skills, and build professional credibility."
+    },
+    "benefits": {
+      "industry": "Industry-Relevant Skills",
+      "industryDesc": "Learn practical skills employers actually need.",
+      "verified": "Verified & Secure",
+      "verifiedDesc": "Every certificate includes a unique verification ID and QR code.",
+      "career": "Career Growth",
+      "careerDesc": "Showcase achievements during internships, placements, and job applications.",
+      "share": "Share Anywhere",
+      "shareDesc": "Add certificates to LinkedIn, resumes, portfolios, and professional profiles."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Insights, tutorials, and updates from the Learnify AI team.",
+    "readMore": "Read more",
+    "backToBlog": "Back to blog",
+    "noPosts": "No posts found."
+  },
+  "error": {
+    "notFound": {
+      "title": "Page not found",
+      "desc": "The page you're looking for doesn't exist, was moved, or is temporarily unavailable.",
+      "goHome": "Go home",
+      "browseCourses": "Browse courses",
+      "viewPlans": "View plans"
+    },
+    "somethingWrong": {
+      "title": "Something went wrong",
+      "desc": "An unexpected error occurred. You can try refreshing the page or head back home.",
+      "tryAgain": "Try again",
+      "goHome": "Go home"
+    }
+  },
+  "home": {
+    "demo": {
+      "badge": "See it in action",
+      "title": "Try the product. No signup.",
+      "subtitle": "Click through a live AI Tutor chat, generate a quiz, and flip through auto-made flashcards."
+    },
+    "stats": {
+      "activeLearners": "Active learners",
+      "creators": "Creators",
+      "aiSessions": "AI sessions",
+      "completionLift": "Completion lift"
+    },
+    "ecosystem": {
+      "badge": "Everything in one OS",
+      "title": "An ecosystem, not a course catalog.",
+      "subtitle": "Six pillars working together so learners, creators, and institutions all win.",
+      "aiTutor": { "title": "AI Tutor", "desc": "Personalized 1-on-1 tutoring that adapts to how you learn." },
+      "smartNotes": { "title": "Smart Notes & Slides", "desc": "Generate flashcards, summaries, and decks from any lesson." },
+      "gamified": { "title": "Gamified Progress", "desc": "Streaks, XP, badges, and leaderboards that make learning addictive." },
+      "creatorEconomy": { "title": "Creator Economy", "desc": "Coaches and creators ship courses, cohorts, and communities." },
+      "wallet": { "title": "Built-in Wallet", "desc": "Earnings, payouts, and tipping handled natively." },
+      "career": { "title": "Career Intelligence", "desc": "AI-guided paths, resume reviews, and skill graphs." }
+    },
+    "community": {
+      "badge": "Study together",
+      "title": "Join a learning community.",
+      "subtitle": "Live cohorts, study groups, and office hours with dedicated WhatsApp and Discord channels.",
+      "browseGroups": "Browse groups",
+      "communityFeed": "Community feed"
+    },
+    "creators": {
+      "badge": "For creators & coaches",
+      "title": "Build a learning business, not just a course.",
+      "subtitle": "Cohorts, communities, drops, and digital products — with a wallet, analytics, and AI co-pilot built in.",
+      "payouts": "Native payouts in 40+ countries",
+      "cohorts": "Cohort + 1-on-1 + async, in one place",
+      "aiAssistant": "AI assistant that drafts lessons with your voice",
+      "communitySpaces": "Community spaces with realtime presence",
+      "applyCta": "Apply to Creator Program"
+    }
+  },
+  "common": {
+    "backToHome": "Back to Home",
+    "loading": "Loading...",
+    "search": "Search",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "verified": "Verified",
+    "learnMore": "Learn more",
+    "startFree": "Start learning free",
+    "watchDemo": "Watch demo",
+    "or": "OR",
+    "continueWithGoogle": "Continue with Google",
+    "noCreditCard": "No credit card required",
+    "cancelAnytime": "Cancel anytime",
+    "guarantee": "7-day guarantee",
+    "emailPlaceholder": "you@example.com",
+    "passwordMinLength": "At least 8 characters.",
+    "newHere": "New here?",
+    "createAccount": "Create an account",
+    "alreadyHaveAccount": "Already have an account?",
+    "forgot": "Forgot?",
+    "createFreeAccount": "Create free account",
+    "comparePlans": "Compare plans",
+    "everythingInOnePlatform": "Everything in one platform",
+    "numbersThatSpeak": "Numbers that speak",
+    "programmingLanguages": "Programming Languages",
+    "executionProviders": "Execution Providers",
+    "devTools": "Dev Tools",
+    "aiActionModes": "AI Action Modes",
+    "readyToExperience": "Ready to experience it all?",
+    "startFreeNoCredit": "Start free. No credit card required. All tools included.",
+    "includedInEveryCertificate": "Included In Every Certificate",
+    "certificateOfCompletion": "Certificate of Completion",
+    "machineLearningFundamentals": "Machine Learning Fundamentals",
+    "issuedTo": "Issued to",
+    "demoLearner": "Demo Learner",
+    "certificatesIssued": "Certificates Issued",
+    "verificationRate": "Verification Rate",
+    "coursesAvailable": "Courses Available",
+    "avgRating": "Avg. Rating"
+  }
+}

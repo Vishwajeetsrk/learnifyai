@@ -1,0 +1,46 @@
+# Project Context
+
+Learnify AI is a full-stack, AI-native learning platform built with React 19 + TanStack Start + Tailwind CSS v4, deployed on Vercel with Supabase (PostgreSQL + Auth + Storage).
+
+## What we've built
+
+### Existing features (full pages):
+- Landing, Login, Signup, Pricing, Public WCMS pages (`/p/$slug`)
+- Dashboard, AI Tutor, Course Player, Code Playground, Smart Notes, Community Feed, Coaching Hub, Leaderboard, Wallet, Billing, Certificates, Onboarding Wizard, Product Tours, Blog, Settings
+- Creator Studio, Admin Panel (Content Manager, Subscription Analytics)
+- CustomVideoPlayer, Interactive 3D Cursor, Premium Animated SVG Illustrations
+
+### Newly built features (added in v3.7.0):
+- **Resume Builder** (`/resume-builder`): AI resume generator with PDF/DOCX upload + auto-fill
+- **ATS Checker** (`/ats-checker`): ATS score dashboard with keyword analysis
+- **Career Roadmap** (`/career-roadmap`): Personalized 6-phase career learning paths
+- **Portfolio Builder** (`/portfolio-builder`): Portfolio plan generator with GitHub projects, photo upload, live preview
+
+### New files created:
+- `src/routes/_authenticated/resume-builder.tsx`
+- `src/routes/_authenticated/ats-checker.tsx`
+- `src/routes/_authenticated/career-roadmap.tsx`
+- `src/routes/_authenticated/portfolio-builder.tsx`
+- `src/lib/resume.functions.ts` — `generateResume`, `checkAtsScore`, `generateCareerRoadmap`, `generatePortfolio`, `extractResumeFields`
+- `src/lib/file-parser.ts` — PDF (pdfjs-dist) and DOCX (mammoth) text extraction
+- `src/components/ResumeFileUpload.tsx` — shared drag-and-drop file upload component
+
+### Key modifications:
+- AppShell nav updated with all 4 new feature nav items + data-tour attributes
+- ProductTour updated with portfolio-builder step, all target selectors fixed to specific nav items
+- InteractiveDemoCards updated with `route` field linking to actual pages, added Portfolio Builder card
+- PWA `sw.js` fixed — was filtering out all static assets due to `url.startsWith("http")` check
+- Portfolio Builder field mapping: `summary`→`bio`, `targetRole`→`tagline`, `linkedin`→`socialLinks`
+- `pdfjs-dist` worker configured with `workerSrc = ""` to avoid URL resolution issues
+
+### Known issues:
+- Auto-fill from uploaded PDF/DOCX not working in Resume Builder and ATS Checker — `extractResumeFields` server function needs debugging (not filling fields automatically after upload)
+- The AI server functions (`generateResume`, `checkAtsScore`, etc.) use `user-ai.ts` multi-provider chain (Groq → Gemini → OpenRouter)
+
+### Architecture:
+- React 19 + TanStack Start (file-based routing) + Tailwind CSS v4
+- TanStack Server Functions for backend (Vercel Edge)
+- Supabase (PostgreSQL + Auth + Storage)
+- AI: OpenRouter ←→ Gemini ←→ Groq (fallback chain)
+- Payments: Cashfree (Subscriptions + Wallet + Payouts)
+- Email: Gmail SMTP (primary) ←→ Resend ←→ Brevo

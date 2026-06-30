@@ -74,3 +74,17 @@ export const wcmsGetPublicMenu = createServerFn({ method: "GET" })
     if (error) throw error;
     return items ?? [];
   });
+
+export const wcmsGetPublicSection = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) => z.object({ key: z.string() }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: section, error } = await (supabaseAdmin as any)
+      .from("wcms_sections")
+      .select("*")
+      .eq("key", data.key)
+      .maybeSingle();
+    if (error) throw error;
+    return section ?? null;
+  });

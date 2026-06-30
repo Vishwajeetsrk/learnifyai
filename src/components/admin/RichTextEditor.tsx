@@ -12,8 +12,26 @@ import FontFamily from "@tiptap/extension-font-family";
 import Highlight from "@tiptap/extension-highlight";
 import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect, useState } from "react";
-import { AlignLeft, AlignCenter, AlignRight, Strikethrough, Code, Code2, Minus, RemoveFormatting, Link2, ImageIcon, Video } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Strikethrough,
+  Code,
+  Code2,
+  Minus,
+  RemoveFormatting,
+  Link2,
+  ImageIcon,
+  Video,
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -139,7 +157,11 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
           value={fontSize}
           onChange={(e) => {
             setFontSize(e.target.value);
-            editor.chain().focus().setMark("textStyle", { fontSize: `${e.target.value}px` }).run();
+            editor
+              .chain()
+              .focus()
+              .setMark("textStyle", { fontSize: `${e.target.value}px` })
+              .run();
           }}
           className="h-7 text-xs rounded border bg-background px-1 mr-1"
         >
@@ -152,61 +174,166 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
 
         <Divider />
 
-        <ToolBtn onClick={() => editor.chain().focus().toggleBold().run()} active={isActive("bold")} title="Bold">
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          active={isActive("bold")}
+          title="Bold"
+        >
           <strong className="font-bold">B</strong>
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleItalic().run()} active={isActive("italic")} title="Italic">
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          active={isActive("italic")}
+          title="Italic"
+        >
           <em className="italic">I</em>
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleUnderline().run()} active={isActive("underline")} title="Underline">
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          active={isActive("underline")}
+          title="Underline"
+        >
           <span className="underline">U</span>
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleStrike().run()} active={isActive("strike")} title="Strikethrough">
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          active={isActive("strike")}
+          title="Strikethrough"
+        >
           <Strikethrough className="h-4 w-4" />
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleCode().run()} active={isActive("code")} title="Inline code">
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleCode().run()}
+          active={isActive("code")}
+          title="Inline code"
+        >
           <Code className="h-4 w-4" />
         </ToolBtn>
 
         <Divider />
 
-        <ToolBtn onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={isActive("heading", { level: 1 })} title="Heading 1">
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          active={isActive("heading", { level: 1 })}
+          title="Heading 1"
+        >
           H1
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={isActive("heading", { level: 2 })} title="Heading 2">
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          active={isActive("heading", { level: 2 })}
+          title="Heading 2"
+        >
           H2
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={isActive("heading", { level: 3 })} title="Heading 3">
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          active={isActive("heading", { level: 3 })}
+          title="Heading 3"
+        >
           H3
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()} active={isActive("heading", { level: 4 })} title="Heading 4">
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
+          active={isActive("heading", { level: 4 })}
+          title="Heading 4"
+        >
           H4
         </ToolBtn>
 
         <Divider />
 
-        <ToolBtn onClick={() => editor.chain().focus().setTextAlign("left").run()} active={isActive("textAlign", { textAlign: "left" })} title="Align left">
+        <ToolBtn
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          active={isActive("textAlign", { textAlign: "left" })}
+          title="Align left"
+        >
           <AlignLeft className="h-4 w-4" />
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().setTextAlign("center").run()} active={isActive("textAlign", { textAlign: "center" })} title="Center">
+        <ToolBtn
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          active={isActive("textAlign", { textAlign: "center" })}
+          title="Center"
+        >
           <AlignCenter className="h-4 w-4" />
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().setTextAlign("right").run()} active={isActive("textAlign", { textAlign: "right" })} title="Align right">
+        <ToolBtn
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          active={isActive("textAlign", { textAlign: "right" })}
+          title="Align right"
+        >
           <AlignRight className="h-4 w-4" />
         </ToolBtn>
 
         <Divider />
 
-        <ToolBtn onClick={() => editor.chain().focus().toggleBulletList().run()} active={isActive("bulletList")} title="Bullet list">
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          active={isActive("bulletList")}
+          title="Bullet list"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="8" y1="6" x2="21" y2="6" />
+            <line x1="8" y1="12" x2="21" y2="12" />
+            <line x1="8" y1="18" x2="21" y2="18" />
+            <line x1="3" y1="6" x2="3.01" y2="6" />
+            <line x1="3" y1="12" x2="3.01" y2="12" />
+            <line x1="3" y1="18" x2="3.01" y2="18" />
+          </svg>
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={isActive("orderedList")} title="Numbered list">
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 .5-1.5 1-2 .5-.5 1-1 1-1.5 .5-.5 0-1 0-1H4"/></svg>
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+          active={isActive("orderedList")}
+          title="Numbered list"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="10" y1="6" x2="21" y2="6" />
+            <line x1="10" y1="12" x2="21" y2="12" />
+            <line x1="10" y1="18" x2="21" y2="18" />
+            <path d="M4 6h1v4" />
+            <path d="M4 10h2" />
+            <path d="M6 18H4c0-1 .5-1.5 1-2 .5-.5 1-1 1-1.5 .5-.5 0-1 0-1H4" />
+          </svg>
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleBlockquote().run()} active={isActive("blockquote")} title="Blockquote">
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          active={isActive("blockquote")}
+          title="Blockquote"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
+            <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
+          </svg>
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={isActive("codeBlock")} title="Code block">
+        <ToolBtn
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+          active={isActive("codeBlock")}
+          title="Code block"
+        >
           <Code2 className="h-4 w-4" />
         </ToolBtn>
 
@@ -224,10 +351,16 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
 
         <Divider />
 
-        <ToolBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Horizontal rule">
+        <ToolBtn
+          onClick={() => editor.chain().focus().setHorizontalRule().run()}
+          title="Horizontal rule"
+        >
           <Minus className="h-4 w-4" />
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear formatting">
+        <ToolBtn
+          onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
+          title="Clear formatting"
+        >
           <RemoveFormatting className="h-4 w-4" />
         </ToolBtn>
 
@@ -250,10 +383,32 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
 
         <div className="ml-auto flex gap-0.5">
           <ToolBtn onClick={() => editor.chain().focus().undo().run()} title="Undo">
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M3 7v6h6" />
+              <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+            </svg>
           </ToolBtn>
           <ToolBtn onClick={() => editor.chain().focus().redo().run()} title="Redo">
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 7v6h-6" />
+              <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13" />
+            </svg>
           </ToolBtn>
         </div>
       </div>
@@ -263,7 +418,12 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
         className="prose prose-sm dark:prose-invert max-w-none p-4 min-h-[300px] focus:outline-none [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[280px] [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-muted-foreground [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0"
       />
 
-      <Dialog open={!!dialogMode} onOpenChange={(v) => { if (!v) setDialogMode(null); }}>
+      <Dialog
+        open={!!dialogMode}
+        onOpenChange={(v) => {
+          if (!v) setDialogMode(null);
+        }}
+      >
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{dialogMode ? dialogTitles[dialogMode] : ""}</DialogTitle>
@@ -276,14 +436,20 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
                 value={dialogUrl}
                 onChange={(e) => setDialogUrl(e.target.value)}
                 placeholder={dialogMode ? dialogPlaceholders[dialogMode] : ""}
-                onKeyDown={(e) => { if (e.key === "Enter") handleDialogSubmit(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleDialogSubmit();
+                }}
                 autoFocus
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogMode(null)}>Cancel</Button>
-            <Button onClick={handleDialogSubmit} disabled={!dialogUrl.trim()}>Insert</Button>
+            <Button variant="outline" onClick={() => setDialogMode(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleDialogSubmit} disabled={!dialogUrl.trim()}>
+              Insert
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

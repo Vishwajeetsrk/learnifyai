@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="48" fill="#fef3e2" stroke="#f0d5b5" stroke-width="1.5"/>
+  <!-- Hair -->
+  <path d="M18 48 Q18 15 50 12 Q82 15 82 48 L82 55 Q82 60 78 60 L22 60 Q18 60 18 55 Z" fill="#1a0a00"/>
+  <path d="M20 47 Q20 18 50 15 Q80 18 80 47" fill="#3d2010"/>
+  <!-- Ponytail -->
+  <path d="M72 48 Q85 50 82 70 Q78 82 68 78" fill="#1a0a00"/>
+  <!-- Face -->
+  <ellipse cx="50" cy="58" rx="24" ry="21" fill="#f5d6b8"/>
+  <!-- Eyes -->
+  <ellipse cx="39" cy="54" rx="4" ry="5" fill="#fff"/>
+  <circle cx="39" cy="55" r="2.5" fill="#1a0a00"/>
+  <ellipse cx="61" cy="54" rx="4" ry="5" fill="#fff"/>
+  <circle cx="61" cy="55" r="2.5" fill="#1a0a00"/>
+  <!-- Eyelashes -->
+  <path d="M35 50 L33 47" stroke="#1a0a00" stroke-width="0.8" stroke-linecap="round"/>
+  <path d="M39 49 L38 46" stroke="#1a0a00" stroke-width="0.8" stroke-linecap="round"/>
+  <path d="M57 50 L55 47" stroke="#1a0a00" stroke-width="0.8" stroke-linecap="round"/>
+  <path d="M61 49 L60 46" stroke="#1a0a00" stroke-width="0.8" stroke-linecap="round"/>
+  <!-- Smile -->
+  <path d="M40 66 Q50 73 60 66" fill="none" stroke="#1a0a00" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Earrings -->
+  <circle cx="26" cy="58" r="2" fill="#f59e0b"/>
+  <circle cx="74" cy="58" r="2" fill="#f59e0b"/>
+  <!-- Bindi -->
+  <circle cx="50" cy="45" r="2.5" fill="#ec4899"/>
+  <!-- Body -->
+  <rect x="35" y="78" width="30" height="20" rx="5" fill="#ec4899" opacity="0.6"/>
+</svg>

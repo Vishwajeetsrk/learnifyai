@@ -573,7 +573,13 @@ function CohortList({
                         title={p?.full_name ?? ""}
                       >
                         {p?.avatar_url ? (
-                          <img src={p.avatar_url} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" />
+                          <img
+                            src={p.avatar_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                            decoding="async"
+                          />
                         ) : (
                           <span className="text-[7px] font-medium flex items-center justify-center h-full text-muted-foreground">
                             {(p?.full_name ?? "?")[0]}

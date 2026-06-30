@@ -54,7 +54,9 @@ function DashboardPage() {
     const lastLog = localStorage.getItem("last_daily_log");
     if (lastLog === today) return;
     localStorage.setItem("last_daily_log", today);
-    logDailyFn({ data: { actions_count: 1, xp_earned: 10, notes: "Dashboard visit" } }).catch(() => {});
+    logDailyFn({ data: { actions_count: 1, xp_earned: 10, notes: "Dashboard visit" } }).catch(
+      () => {},
+    );
   }, [user, logDailyFn]);
 
   const enrollQ = useQuery({

@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { getCleanBannerUrl } from "@/lib/utils";
 import {
   Bell,
@@ -58,12 +59,10 @@ function CreatorBannerImage({ src }: { src: string }) {
   if (error) return null;
   return (
     <>
-      <img
+      <SafeImage
         src={cleanSrc}
         alt=""
         className="w-full h-full object-cover"
-        loading="lazy"
-        decoding="async"
         onError={() => setError(true)}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -308,7 +307,9 @@ function CreatorProfile() {
                       alt=""
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
                     />
                   ) : (
                     <div className="w-full h-full grid place-items-center">

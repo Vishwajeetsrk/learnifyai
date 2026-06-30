@@ -1,17 +1,13 @@
-const CACHE_NAME = "learnify-v1";
+const CACHE_NAME = "learnify-v2";
 const STATIC_ASSETS = ["/", "/favicon.ico", "/logo.png", "/manifest.json"];
+
+const ORIGIN = self.location.origin;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches
-      .open(CACHE_NAME)
-      .then((cache) =>
-        Promise.all(
-          STATIC_ASSETS.filter((url) => url.startsWith("http")).map((url) =>
-            cache.add(url).catch(() => {}),
-          ),
-        ),
-      ),
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll(STATIC_ASSETS.map((url) => new Request(ORIGIN + url))).catch(() => {}),
+    ),
   );
   self.skipWaiting();
 });

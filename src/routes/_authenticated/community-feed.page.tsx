@@ -228,7 +228,14 @@ export default function CommunityPage() {
       setPollOptions(["", ""]);
       toast.success(postType === "announcement" ? "Announcement posted" : "Post created");
       qc.invalidateQueries({ queryKey: ["community-posts"] });
-      logDailyFn({ data: { actions_count: 1, features_used: ["community-post"], xp_earned: 5, notes: "Created a community post" } }).catch(() => {});
+      logDailyFn({
+        data: {
+          actions_count: 1,
+          features_used: ["community-post"],
+          xp_earned: 5,
+          notes: "Created a community post",
+        },
+      }).catch(() => {});
     } catch (error: any) {
       toast.error(error.message || "Failed to create post");
     } finally {

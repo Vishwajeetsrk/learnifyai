@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { sendPaymentSuccessEmail } from "@/lib/billing-email.functions";
 
 function verifySignature(rawBody: string, signature: string | null): boolean {
   if (!signature) return false;
@@ -91,6 +92,11 @@ export const Route = createFileRoute("/api/webhooks/cashfree")({
 
         if (error) {
           console.error("[Cashfree webhook] insert error:", error);
+        } else {
+          // Send payment success email (non-blocking)
+          sendPaymentSuccessEmail(userId, `TOPUP-${orderId.slice(-8)}`, amount, paymentMethod).catch((e) =>
+            console.error("Failed to send payment email:", e),
+          );
         }
 
         return new Response(JSON.stringify({ received: true }), {

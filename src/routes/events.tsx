@@ -6,6 +6,7 @@ import { Calendar, Clock, MapPin, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { MarketingPage } from "@/components/MarketingPage";
 import { supabase } from "@/integrations/supabase/client";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { getCleanBannerUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/events")({
@@ -84,7 +85,11 @@ function EventsPage() {
             animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
-          <img src="/illustrations/Globe_World.svg" alt="Events" className="w-full h-full relative z-10" />
+          <img
+            src="/illustrations/Globe_World.svg"
+            alt="Events"
+            className="w-full h-full relative z-10"
+          />
         </motion.div>
       </motion.div>
       {isLoading ? (
@@ -106,11 +111,10 @@ function EventsPage() {
               >
                 {e.image_url && !brokenEvents.has(e.id) && (
                   <div className="shrink-0 w-full md:w-48 aspect-video rounded-xl overflow-hidden bg-muted">
-                    <img
+                    <SafeImage
                       src={getCleanBannerUrl(e.image_url) ?? e.image_url}
                       alt={e.title}
                       className="w-full h-full object-cover"
-                      loading="lazy"
                       onError={() => setBrokenEvents((p) => new Set(p).add(e.id))}
                     />
                   </div>

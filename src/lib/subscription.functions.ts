@@ -62,7 +62,7 @@ async function doSyncPlan(planId: string): Promise<string> {
       plan_max_amount: p.price_inr * 12,
       plan_max_cycles: 0,
       plan_intervals: 1,
-      plan_interval_type: p.interval === "month" ? "MONTH" : "YEAR",
+      plan_interval_type: p.interval?.startsWith("month") ? "MONTH" : "YEAR",
       plan_note: p.description || "",
     }),
   });
@@ -293,7 +293,7 @@ export const createSubscription = createServerFn({ method: "POST" })
     }
 
     const periodEnd = new Date();
-    if (p.interval === "month") periodEnd.setMonth(periodEnd.getMonth() + 1);
+    if (p.interval?.startsWith("month")) periodEnd.setMonth(periodEnd.getMonth() + 1);
     else periodEnd.setFullYear(periodEnd.getFullYear() + 1);
 
     const { error: insErr } = await (supabaseAdmin as any).from("user_subscriptions").insert({
@@ -589,94 +589,200 @@ export const deletePlan = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export type AnalyticsFilters = {
+  dateRange: "today" | "yesterday" | "7d" | "30d" | "90d" | "180d" | "year" | "custom";
+  startDate?: string;
+  endDate?: string;
+  reportType:
+    | "revenue"
+    | "subscriptions"
+    | "invoices"
+    | "payments"
+    | "refunds"
+    | "credits"
+    | "ai-usage"
+    | "certificates"
+    | "courses"
+    | "interviews"
+    | "resume"
+    | "ats"
+    | "all";
+};
+
 export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: plans } = await (supabaseAdmin as any).from("subscription_analytics").select("*");
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    const { data: recentSubs } = await (supabaseAdmin as any)
-      .from("user_subscriptions")
-      .select("*, plan:pricing_plans(name, price_inr), profiles:user_id(full_name, email)")
-      .order("created_at", { ascending: false })
-      .limit(20);
+    // Fetch all KPIs from real DB tables
+    const [
+      { data: mrrResult },
+      { count: activeSubs },
+      { count: totalUsers },
+      { data: plans },
+      { data: recentSubs },
+      { data: recentPayments },
+      { data: recentInvoices },
+      { data: cancelledSubs },
+      { data: expiredSubs },
+      { data: trialSubs },
+    ] = await Promise.all([
+      (supabaseAdmin as any)
+        .from("user_subscriptions")
+        .select("pricing_plans!inner(price_inr)", { count: "exact", head: false })
+        .eq("status", "active"),
+      (supabaseAdmin as any)
+        .from("user_subscriptions")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "active"),
+      (supabaseAdmin as any)
+        .from("profiles")
+        .select("*", { count: "exact", head: true }),
+      (supabaseAdmin as any)
+        .from("pricing_plans")
+        .select("id, name, price_inr, interval, stripe_price_id"),
+      (supabaseAdmin as any)
+        .from("user_subscriptions")
+        .select("*, plan:pricing_plans(name, price_inr), profiles:user_id(full_name, email)")
+        .order("created_at", { ascending: false })
+        .limit(20),
+      (supabaseAdmin as any)
+        .from("payment_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(20),
+      (supabaseAdmin as any)
+        .from("invoices")
+        .select("*")
+        .eq("status", "paid")
+        .order("created_at", { ascending: false })
+        .limit(20),
+      (supabaseAdmin as any)
+        .from("user_subscriptions")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "cancelled"),
+      (supabaseAdmin as any)
+        .from("user_subscriptions")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "expired"),
+      (supabaseAdmin as any)
+        .from("user_subscriptions")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "trial"),
+    ]);
 
-    const { data: recentPayments } = await (supabaseAdmin as any)
-      .from("payment_logs")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(20);
-
-    const totalMrr = (plans || []).reduce((sum: number, p: any) => sum + (p.mrr || 0), 0);
+    const totalMrr = (mrrResult || []).reduce((sum: number, s: any) => sum + Number(s.pricing_plans?.price_inr || 0), 0);
     const totalArr = totalMrr * 12;
-    const totalSubscribers = (plans || []).reduce(
-      (sum: number, p: any) => sum + (p.active_subscribers || 0),
-      0,
+    const activeSubCount = activeSubs || 0;
+    const cancelledCount = cancelledSubs?.length || 0;
+    const expiredCount = expiredSubs?.length || 0;
+    const trialCount = trialSubs?.length || 0;
+    const totalUserCount = totalUsers || 1;
+    const conversionRate = totalUserCount > 0 ? Math.round((activeSubCount / totalUserCount) * 100) : 0;
+    const churnRate = activeSubCount > 0 ? Math.round((cancelledCount / activeSubCount) * 100) : 0;
+    const arpu = activeSubCount > 0 ? Math.round(totalMrr / activeSubCount) : 0;
+
+    // Build plan breakdown from pricing_plans + user_subscriptions counts
+    const planIds = (plans || []).map((p: any) => p.id);
+    const planBreakdown = await Promise.all(
+      planIds.map(async (id: string) => {
+        const { count: active } = await (supabaseAdmin as any)
+          .from("user_subscriptions")
+          .select("*", { count: "exact", head: true })
+          .eq("plan_id", id)
+          .eq("status", "active");
+        const { count: cancelled } = await (supabaseAdmin as any)
+          .from("user_subscriptions")
+          .select("*", { count: "exact", head: true })
+          .eq("plan_id", id)
+          .eq("status", "cancelled");
+        const { count: expired } = await (supabaseAdmin as any)
+          .from("user_subscriptions")
+          .select("*", { count: "exact", head: true })
+          .eq("plan_id", id)
+          .eq("status", "expired");
+        const plan = (plans || []).find((p: any) => p.id === id);
+        return {
+          plan_id: id,
+          plan_name: plan?.name || "Unknown",
+          price_inr: plan?.price_inr || 0,
+          active_subscribers: active || 0,
+          cancelled_count: cancelled || 0,
+          expired_count: expired || 0,
+          mrr: (active || 0) * (plan?.price_inr || 0),
+        };
+      }),
     );
 
-    // Fetch last 30 days of paid invoices for revenue chart
+    // Revenue history from invoices (last 30 days) — show empty if no data
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const { data: dailyInvoices } = await (supabaseAdmin as any)
       .from("invoices")
       .select("total_inr, created_at")
       .eq("status", "paid")
-      .gte("created_at", thirtyDaysAgo);
+      .gte("created_at", thirtyDaysAgo)
+      .order("created_at", { ascending: true });
 
-    // Fetch last 30 days of subscriptions for growth chart
-    const { data: dailySubs } = await supabaseAdmin
-      .from("user_subscriptions")
-      .select("created_at, status")
-      .gte("created_at", thirtyDaysAgo);
-
-    // Group by day
     const revenueMap: Record<string, number> = {};
-    const subMap: Record<string, number> = {};
-
-    // Initialize map keys for last 30 days
     for (let i = 29; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split("T")[0];
-      revenueMap[dateStr] = 0;
-      subMap[dateStr] = 0;
+      revenueMap[d.toISOString().split("T")[0]] = 0;
     }
-
     if (dailyInvoices) {
       for (const inv of dailyInvoices) {
         const dateStr = new Date(inv.created_at).toISOString().split("T")[0];
-        if (revenueMap[dateStr] !== undefined) {
-          revenueMap[dateStr] += Number(inv.total_inr || 0);
-        }
+        if (revenueMap[dateStr] !== undefined) revenueMap[dateStr] += Number(inv.total_inr || 0);
       }
     }
-
-    if (dailySubs) {
-      for (const s of dailySubs) {
-        const dateStr = new Date(s.created_at).toISOString().split("T")[0];
-        if (subMap[dateStr] !== undefined) {
-          subMap[dateStr] += 1;
-        }
-      }
-    }
-
     const revenueHistory = Object.entries(revenueMap).map(([date, revenue]) => ({
       date: new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
       revenue,
     }));
 
+    // Subscriber growth from user_subscriptions (last 30 days)
+    const { data: dailySubs } = await supabaseAdmin
+      .from("user_subscriptions")
+      .select("created_at")
+      .gte("created_at", thirtyDaysAgo)
+      .order("created_at", { ascending: true });
+
+    const subMap: Record<string, number> = {};
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      subMap[d.toISOString().split("T")[0]] = 0;
+    }
+    if (dailySubs) {
+      for (const s of dailySubs) {
+        const dateStr = new Date(s.created_at).toISOString().split("T")[0];
+        if (subMap[dateStr] !== undefined) subMap[dateStr] += 1;
+      }
+    }
     const subscriberHistory = Object.entries(subMap).map(([date, count]) => ({
       date: new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
       count,
     }));
 
     return {
-      plans: plans || [],
+      plans: planBreakdown,
       recentSubscriptions: recentSubs || [],
       recentPayments: recentPayments || [],
+      recentInvoices: recentInvoices || [],
       mrr: totalMrr,
       arr: totalArr,
-      totalSubscribers,
+      totalSubscribers: activeSubCount,
+      newSubscribers: subscriberHistory.reduce((s, d) => s + d.count, 0),
+      cancelledCount,
+      expiredCount,
+      trialCount,
+      totalUsers: totalUserCount,
+      conversionRate,
+      churnRate,
+      arpu,
       revenueHistory,
       subscriberHistory,
     };

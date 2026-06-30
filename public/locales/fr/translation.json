@@ -1,0 +1,295 @@
+{
+  "nav": {
+    "features": "Fonctionnalités",
+    "aiTools": "Outils IA",
+    "creators": "Créateurs",
+    "coaches": "Coachs",
+    "pricing": "Tarifs",
+    "blog": "Blog",
+    "dashboard": "Ouvrir l'app",
+    "signIn": "Se connecter",
+    "getStarted": "Commencer"
+  },
+  "hero": {
+    "badge": "Système d'Apprentissage IA",
+    "title": "Votre",
+    "titleHighlight": "Système d'Apprentissage IA",
+    "subtitle": "Cours, tutorat IA, outils de carrière, certificats et communauté — tout en une plateforme intelligente.",
+    "cta": "Commencer à Apprendre Gratuitement",
+    "secondary": "Explorer les Cours",
+    "stat1Value": "10,000+",
+    "stat1Label": "Apprenants Actifs",
+    "stat2Value": "500+",
+    "stat2Label": "Leçons IA",
+    "stat3Value": "50+",
+    "stat3Label": "Cours"
+  },
+  "features": {
+    "badge": "Fonctionnalités",
+    "title": "Tout ce dont vous avez besoin pour",
+    "titleHighlight": "apprendre et grandir",
+    "subtitle": "Du tutorat IA à l'insertion professionnelle — un système d'apprentissage complet.",
+    "items": {
+      "aiTutor": {
+        "title": "Tuteur IA",
+        "desc": "Tutorat IA personnalisé 1 à 1 qui s'adapte à votre style d'apprentissage."
+      },
+      "courses": {
+        "title": "Cours Intelligents",
+        "desc": "Cours vidéo interactifs avec notes automatiques, quiz et cartes mémoire."
+      },
+      "certificates": {
+        "title": "Certificats Vérifiés",
+        "desc": "Obtenez des certificats vérifiés avec codes QR et intégration LinkedIn."
+      },
+      "career": {
+        "title": "Outils de Carrière",
+        "desc": "Constructeur de CV, vérificateur ATS, entretiens simulés et feuille de route carrière."
+      },
+      "gamification": {
+        "title": "Gamification",
+        "desc": "XP, séries, classements et réalisations pour vous motiver."
+      },
+      "community": {
+        "title": "Communauté",
+        "desc": "Connectez-vous avec d'autres apprenants, partagez vos progrès."
+      }
+    }
+  },
+  "pricing": {
+    "badge": "Tarifs",
+    "title": "Des tarifs simples et transparents",
+    "subtitle": "Commencez gratuitement, améliorez quand vous êtes prêt. Tous les plans incluent des outils d'apprentissage IA.",
+    "trust": "10,000+ apprenants font confiance à Learnify AI",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "yearlySave": "Économisez 17%",
+    "free": "Gratuit",
+    "perMonth": "/mois",
+    "perYear": "/an",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "description": "Parfait pour commencer l'apprentissage assisté par IA.",
+        "cta": "Commencer gratuitement"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Pour les apprenants et créateurs sérieux qui veulent un accès illimité.",
+        "cta": "Commencer Pro",
+        "badge": "Le Plus Populaire"
+      },
+      "careerPro": {
+        "name": "Career Pro",
+        "description": "Kit carrière complet pour les chercheurs d'emploi et professionnels.",
+        "cta": "Prêt pour l'Emploi",
+        "badge": "Meilleur Rapport Qualité-Prix"
+      }
+    },
+    "faq": {
+      "title": "Questions Fréquentes",
+      "searchPlaceholder": "Rechercher des questions...",
+      "noResults": "Aucune question correspondante trouvée."
+    },
+    "testimonials": {
+      "title": "Ce que disent nos apprenants"
+    },
+    "cta": {
+      "title": "Prêt à commencer à apprendre ?",
+      "subtitle": "Rejoignez 10,000+ apprenants qui construisent déjà leur carrière avec Learnify AI.",
+      "button": "Commencer Gratuitement"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Bon retour",
+      "subtitle": "Connectez-vous à votre compte",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "noAccount": "Pas de compte ?",
+      "signup": "S'inscrire"
+    },
+    "signup": {
+      "title": "Créez votre compte",
+      "subtitle": "Commencez votre parcours d'apprentissage",
+      "name": "Nom complet",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "submit": "Commencer",
+      "hasAccount": "Déjà un compte ?",
+      "signin": "Se connecter"
+    }
+  },
+  "footer": {
+    "description": "Plateforme d'apprentissage alimentée par l'IA avec cours, tutorat, outils de carrière et certificats.",
+    "product": "Produit",
+    "resources": "Ressources",
+    "company": "Entreprise",
+    "legal": "Juridique",
+    "copyright": "Learnify AI. Tous droits réservés.",
+    "madeWith": "Fait avec l'IA et des humains"
+  },
+  "courses": {
+    "title": "Explorer les Cours",
+    "subtitle": "Découvrez des cours conçus pour maîtriser de nouvelles compétences",
+    "search": "Rechercher des cours...",
+    "enroll": "S'inscrire Maintenant",
+    "enrolled": "Inscrit",
+    "lessons": "Leçons",
+    "students": "Étudiants",
+    "rating": "Note"
+  },
+  "verifiedCertificates": {
+    "title": "Votre Parcours de Certificat",
+    "subtitle": "Complétez un cours, réussissez les évaluations et obtenez un certificat vérifié que vous pouvez télécharger, partager sur LinkedIn et présenter dans votre portefeuille.",
+    "howItWorks": "Comment Ça Marche",
+    "howItWorksDesc": "Votre chemin de l'inscription à la certification en 7 étapes simples.",
+    "whyTitle": "Pourquoi les Certificats Learnify Comptent",
+    "whyDesc": "Des accréditations reconnues par l'industrie qui ouvrent des portes.",
+    "ctaTitle": "Prêt à Obtenir Votre Prochain Certificat ?",
+    "ctaSubtitle": "Complétez votre cours et débloquez un certificat vérifié qui met en valeur vos compétences.",
+    "startLearning": "Commencer à Apprendre",
+    "viewPricing": "Voir les Tarifs",
+    "scanToVerify": "Scannez pour vérifier",
+    "uniqueQR": "Code QR unique sur chaque certificat",
+    "steps": {
+      "enroll": "Inscrivez-vous à un Cours",
+      "enrollDesc": "Choisissez un cours adapté à vos objectifs d'apprentissage.",
+      "complete": "Complétez Toutes les Leçons",
+      "completeDesc": "Regardez les vidéos, lisez le matériel et terminez chaque module.",
+      "pass": "Réussissez les Quiz et Évaluations",
+      "passDesc": "Complétez les quiz, devoirs et exercices pratiques.",
+      "done": "Cours Terminé",
+      "doneDesc": "Une fois toutes les exigences remplies, votre cours sera marqué comme terminé automatiquement.",
+      "generated": "Certificat Généré",
+      "generatedDesc": "Learnify AI génère instantanément un certificat personnalisé.",
+      "download": "Téléchargez et Partagez",
+      "downloadDesc": "Téléchargez votre certificat en PDF. Partagez sur LinkedIn.",
+      "showcase": "Présentez Votre Réussite",
+      "showcaseDesc": "Renforcez votre CV, améliorez votre profil LinkedIn."
+    },
+    "benefits": {
+      "industry": "Compétences Pertinentes pour l'Industrie",
+      "industryDesc": "Apprenez des compétences pratiques que les employeurs recherchent vraiment.",
+      "verified": "Vérifié et Sécurisé",
+      "verifiedDesc": "Chaque certificat comprend un ID de vérification unique et un code QR.",
+      "career": "Croissance Professionnelle",
+      "careerDesc": "Présentez vos réalisations lors de stages et candidatures.",
+      "share": "Partagez Partout",
+      "shareDesc": "Ajoutez des certificats à LinkedIn, CV, portefeuille et profils professionnels."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Aperçus, tutoriels et mises à jour de l'équipe Learnify AI.",
+    "readMore": "Lire la suite",
+    "backToBlog": "Retour au blog",
+    "noPosts": "Aucun article trouvé."
+  },
+  "error": {
+    "notFound": {
+      "title": "Page non trouvée",
+      "desc": "La page que vous recherchez n'existe pas, a été déplacée ou est temporairement indisponible.",
+      "goHome": "Retour à l'accueil",
+      "browseCourses": "Explorer les cours",
+      "viewPlans": "Voir les tarifs"
+    },
+    "somethingWrong": {
+      "title": "Quelque chose a mal tourné",
+      "desc": "Une erreur inattendue s'est produite. Vous pouvez essayer de rafraîchir la page.",
+      "tryAgain": "Réessayer",
+      "goHome": "Retour à l'accueil"
+    }
+  },
+  "home": {
+    "demo": {
+      "badge": "Voyez-le en action",
+      "title": "Essayez le produit. Pas d'inscription.",
+      "subtitle": "Parcourez un chat AI Tutor en direct, générez un quiz et consultez les flashcards automatiques."
+    },
+    "stats": {
+      "activeLearners": "Apprenants actifs",
+      "creators": "Créateurs",
+      "aiSessions": "Sessions AI",
+      "completionLift": "Augmentation des complétions"
+    },
+    "ecosystem": {
+      "badge": "Tout dans un seul OS",
+      "title": "Un écosystème, pas un catalogue de cours.",
+      "subtitle": "Six piliers qui collaborent pour que les apprenants, créateurs et institutions gagnent tous.",
+      "aiTutor": { "title": "AI Tutor", "desc": "Tutorat personnalisé 1-à-1 qui s'adapte à votre style d'apprentissage." },
+      "smartNotes": { "title": "Notes et Présentations Intelligentes", "desc": "Générez des flashcards, résumés et decks depuis n'importe quelle leçon." },
+      "gamified": { "title": "Progrès Ludifié", "desc": "Séries, XP, badges et classements qui rendent l'apprentissage addictif." },
+      "creatorEconomy": { "title": "Économie des Créateurs", "desc": "Coachs et créateurs lancent des cours, cohortes et communautés." },
+      "wallet": { "title": "Portefeuille Intégré", "desc": "Gains, paiements et pourboires gérés nativement." },
+      "career": { "title": "Intelligence de Carrière", "desc": "Parcours guidés par AI, révisions de CV et graphes de compétences." }
+    },
+    "community": {
+      "badge": "Apprenez ensemble",
+      "title": "Rejoignez une communauté d'apprentissage.",
+      "subtitle": "Cohortes en direct, groupes d'étude et canaux WhatsApp et Discord.",
+      "browseGroups": "Parcourir les groupes",
+      "communityFeed": "Fil communautaire"
+    },
+    "creators": {
+      "badge": "Pour créateurs et coachs",
+      "title": "Construisez un business d'apprentissage, pas juste un cours.",
+      "subtitle": "Cohortes, communautés, lancements et produits digitaux — avec portefeuille, analytiques et copilote AI.",
+      "payouts": "Paiements natifs dans 40+ pays",
+      "cohorts": "Cohorte + 1-à-1 + async, en un seul endroit",
+      "aiAssistant": "Assistant AI qui rédige des leçons avec votre voix",
+      "communitySpaces": "Espaces communautaires avec présence en temps réel",
+      "applyCta": "Postuler au Programme Créateur"
+    }
+  },
+  "common": {
+    "backToHome": "Retour à l'Accueil",
+    "loading": "Chargement...",
+    "search": "Rechercher",
+    "close": "Fermer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "back": "Retour",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "verified": "Vérifié",
+    "learnMore": "En savoir plus",
+    "startFree": "Commencez à apprendre gratuitement",
+    "watchDemo": "Voir la démo",
+    "or": "Ou",
+    "continueWithGoogle": "Continuer avec Google",
+    "noCreditCard": "Pas de carte de crédit",
+    "cancelAnytime": "Annulez à tout moment",
+    "guarantee": "Garantie de 7 jours",
+    "emailPlaceholder": "you@example.com",
+    "passwordMinLength": "Au moins 8 caractères.",
+    "newHere": "Nouveau ici ?",
+    "createAccount": "Créer un compte",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "forgot": "Mot de passe oublié ?",
+    "createFreeAccount": "Créer un compte gratuit",
+    "comparePlans": "Comparer les plans",
+    "everythingInOnePlatform": "Tout sur une plateforme",
+    "numbersThatSpeak": "Des chiffres qui parlent",
+    "programmingLanguages": "Langages de programmation",
+    "executionProviders": "Fournisseurs d'exécution",
+    "devTools": "Outils de développement",
+    "aiActionModes": "Modes d'action AI",
+    "readyToExperience": "Prêt à tout découvrir ?",
+    "startFreeNoCredit": "Commencez gratuitement. Pas de carte de crédit. Tous les outils inclus.",
+    "includedInEveryCertificate": "Inclus dans chaque certificat",
+    "certificateOfCompletion": "Certificat de complétion",
+    "machineLearningFundamentals": "Fondamentaux du Machine Learning",
+    "issuedTo": "Délivré à",
+    "demoLearner": "Apprenant démo",
+    "certificatesIssued": "Certificats délivrés",
+    "verificationRate": "Taux de vérification",
+    "coursesAvailable": "Cours disponibles",
+    "avgRating": "Note moyenne"
+  }
+}

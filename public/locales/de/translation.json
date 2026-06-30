@@ -1,0 +1,295 @@
+{
+  "nav": {
+    "features": "Funktionen",
+    "aiTools": "KI-Tools",
+    "creators": "Ersteller",
+    "coaches": "Coaches",
+    "pricing": "Preise",
+    "blog": "Blog",
+    "dashboard": "App öffnen",
+    "signIn": "Anmelden",
+    "getStarted": "Loslegen"
+  },
+  "hero": {
+    "badge": "KI-gestütztes Lernsystem",
+    "title": "Dein",
+    "titleHighlight": "KI-Lernsystem",
+    "subtitle": "Kurse, KI-Tutoring, Karrierewerkzeuge, Zertifikate und Gemeinschaft — alles in einer intelligenten Plattform.",
+    "cta": "Kostenlos Lernen Starten",
+    "secondary": "Kurse Entdecken",
+    "stat1Value": "10.000+",
+    "stat1Label": "Aktive Lernende",
+    "stat2Value": "500+",
+    "stat2Label": "KI-Lektionen",
+    "stat3Value": "50+",
+    "stat3Label": "Kurse"
+  },
+  "features": {
+    "badge": "Plattform-Funktionen",
+    "title": "Alles was du zum",
+    "titleHighlight": "Lernen und Wachsen brauchst",
+    "subtitle": "Vom KI-Tutoring bis zur Karrierevermittlung — ein vollständiges Lernbetriebssystem.",
+    "items": {
+      "aiTutor": {
+        "title": "KI-Tutor",
+        "desc": "1-zu-1 personalisiertes KI-Tutoring, das sich an deinen Lernstil anpasst."
+      },
+      "courses": {
+        "title": "Intelligente Kurse",
+        "desc": "Interaktive Videokurse mit Auto-Notizen, Quiz und Karteikarten."
+      },
+      "certificates": {
+        "title": "Verifizierte Zertifikate",
+        "desc": "Verdiene verifizierte Zertifikate mit QR-Codes und LinkedIn-Integration."
+      },
+      "career": {
+        "title": "Karrierewerkzeuge",
+        "desc": "Lebenslauf-Builder, ATS-Checker, Simulationsgespräche und Karrierelandschaft."
+      },
+      "gamification": {
+        "title": "Spielification",
+        "desc": "XP, Serien, Ranglisten und Errungenschaften, um dich motiviert zu halten."
+      },
+      "community": {
+        "title": "Gemeinschaft",
+        "desc": "Verbinde dich mit Lernenden, teile Fortschritte und nimm an Herausforderungen teil."
+      }
+    }
+  },
+  "pricing": {
+    "badge": "Preise",
+    "title": "Einfache, transparente Preise",
+    "subtitle": "Kostenlos starten, upgraden wenn du bereit bist. Alle Pläne beinhalten KI-gestützte Lerntools.",
+    "trust": "10.000+ Lernende vertrauen Learnify AI",
+    "monthly": "Monatlich",
+    "yearly": "Jährlich",
+    "yearlySave": "17% sparen",
+    "free": "Kostenlos",
+    "perMonth": "/Monat",
+    "perYear": "/Jahr",
+    "plans": {
+      "starter": {
+        "name": "Starter",
+        "description": "Perfekt für den Einstieg ins KI-gestützte Lernen.",
+        "cta": "Kostenlos starten"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Für ernsthafte Lernende und Ersteller mit unbegrenztem Zugang.",
+        "cta": "Pro Starten",
+        "badge": "Beliebteste"
+      },
+      "careerPro": {
+        "name": "Career Pro",
+        "description": "Komplettes Karriere-Toolkit für Jobsucher und Fachleute.",
+        "cta": "Job-bereit Werden",
+        "badge": "Bester Wert"
+      }
+    },
+    "faq": {
+      "title": "Häufig Gestellte Fragen",
+      "searchPlaceholder": "Fragen suchen...",
+      "noResults": "Keine passenden Fragen gefunden."
+    },
+    "testimonials": {
+      "title": "Was unsere Lernenden sagen"
+    },
+    "cta": {
+      "title": "Bereit mit dem Lernen anzufangen?",
+      "subtitle": "Schließe dich 10.000+ Lernenden an, die bereits ihre Karriere mit Learnify AI aufbauen.",
+      "button": "Kostenlos Starten"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Willkommen zurück",
+      "subtitle": "Melde dich bei deinem Konto an",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "forgotPassword": "Passwort vergessen?",
+      "submit": "Anmelden",
+      "noAccount": "Noch kein Konto?",
+      "signup": "Registrieren"
+    },
+    "signup": {
+      "title": "Erstelle dein Konto",
+      "subtitle": "Starte deine Lernreise",
+      "name": "Vollständiger Name",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "submit": "Loslegen",
+      "hasAccount": "Bereits ein Konto?",
+      "signin": "Anmelden"
+    }
+  },
+  "footer": {
+    "description": "KI-gestützte Lernplattform mit Kursen, Tutoring, Karrierewerkzeugen und Zertifikaten.",
+    "product": "Produkt",
+    "resources": "Ressourcen",
+    "company": "Unternehmen",
+    "legal": "Rechtliches",
+    "copyright": "Learnify AI. Alle Rechte vorbehalten.",
+    "madeWith": "Mit KI und Menschen gemacht"
+  },
+  "courses": {
+    "title": "Kurse Entdecken",
+    "subtitle": "Entdecke Kurse, die dir helfen, neue Fähigkeiten zu meistern",
+    "search": "Kurse suchen...",
+    "enroll": "Jetzt Einschreiben",
+    "enrolled": "Eingeschrieben",
+    "lessons": "Lektionen",
+    "students": "Schüler",
+    "rating": "Bewertung"
+  },
+  "verifiedCertificates": {
+    "title": "Dein Zertifikatsweg",
+    "subtitle": "Schließe einen Kurs ab, bestehe Bewertungen und erhalte ein verifiziertes Zertifikat, das du herunterladen, auf LinkedIn teilen und in deinem Portfolio präsentieren kannst.",
+    "howItWorks": "So Funktioniert Es",
+    "howItWorksDesc": "Dein Weg von der Einschreibung bis zur Zertifizierung in 7 einfachen Schritten.",
+    "whyTitle": "Warum Learnify-Zertifikate Wichtig Sind",
+    "whyDesc": "Von der Branche anerkannte Referenzen, die Türen öffnen.",
+    "ctaTitle": "Bereit, Dein Nächstes Zertifikat Zu Erhalten?",
+    "ctaSubtitle": "Schließe deinen Kurs ab und schalte ein verifiziertes Zertifikat frei.",
+    "startLearning": "Lernen Starten",
+    "viewPricing": "Preise Ansehen",
+    "scanToVerify": "Scannen zum Verifizieren",
+    "uniqueQR": "Eindeutiger QR-Code auf jedem Zertifikat",
+    "steps": {
+      "enroll": "Schreibe Dich in Einen Kurs Ein",
+      "enrollDesc": "Wähle einen Kurs, der zu deinen Lernzielen passt.",
+      "complete": "Schließe Alle Lektionen Ab",
+      "completeDesc": "Schau dir Videos an, lies Lernmaterial und beende jedes Modul.",
+      "pass": "Bestehe Quiz und Bewertungen",
+      "passDesc": "Schließe Quiz, Aufgaben und praktische Übungen ab.",
+      "done": "Kurs Abgeschlossen",
+      "doneDesc": "Sobald alle Anforderungen erfüllt sind, wird dein Kurs automatisch als abgeschlossen markiert.",
+      "generated": "Zertifikat Generiert",
+      "generatedDesc": "Learnify AI generiert sofort ein personalisiertes Zertifikat.",
+      "download": "Herunterladen und Teilen",
+      "downloadDesc": "Lade dein Zertifikat als PDF herunter. Teile es auf LinkedIn.",
+      "showcase": "Präsentiere Deine Leistung",
+      "showcaseDesc": "Stärke deinen Lebenslauf, verbessere dein LinkedIn-Profil."
+    },
+    "benefits": {
+      "industry": "Branchenrelevante Fähigkeiten",
+      "industryDesc": "Lerne praktische Fähigkeiten, die Arbeitgeber wirklich brauchen.",
+      "verified": "Verifiziert und Sicher",
+      "verifiedDesc": "Jedes Zertifikat enthält eine eindeutige Verifizierungs-ID und einen QR-Code.",
+      "career": "Karrierewachstum",
+      "careerDesc": "Präsentiere Errungenschaften bei Praktika, Platzierungen und Bewerbungen.",
+      "share": "Überall Teilen",
+      "shareDesc": "Füge Zertifikate zu LinkedIn, Lebenslauf, Portfolio und beruflichen Profilen hinzu."
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "subtitle": "Einblicke, Tutorials und Updates vom Learnify AI Team.",
+    "readMore": "Weiterlesen",
+    "backToBlog": "Zurück zum Blog",
+    "noPosts": "Keine Beiträge gefunden."
+  },
+  "error": {
+    "notFound": {
+      "title": "Seite nicht gefunden",
+      "desc": "Die gesuchte Seite existiert nicht, wurde verschoben oder ist vorübergehend nicht verfügbar.",
+      "goHome": "Zur Startseite",
+      "browseCourses": "Kurse durchsuchen",
+      "viewPlans": "Pläne ansehen"
+    },
+    "somethingWrong": {
+      "title": "Etwas ist schiefgelaufen",
+      "desc": "Ein unerwarteter Fehler ist aufgetreten. Du kannst versuchen, die Seite zu aktualisieren.",
+      "tryAgain": "Erneut Versuchen",
+      "goHome": "Zur Startseite"
+    }
+  },
+  "home": {
+    "demo": {
+      "badge": "Sehen Sie es in Aktion",
+      "title": "Testen Sie das Produkt. Keine Anmeldung.",
+      "subtitle": "Durchlaufen Sie einen Live AI-Tutor-Chat, generieren Sie ein Quiz und blättern Sie durch Auto-Flashcards."
+    },
+    "stats": {
+      "activeLearners": "Aktive Lernende",
+      "creators": "Ersteller",
+      "aiSessions": "AI-Sitzungen",
+      "completionLift": "Abschlusssteigerung"
+    },
+    "ecosystem": {
+      "badge": "Alles in einem OS",
+      "title": "Ein Ökosystem, kein Kurskatalog.",
+      "subtitle": "Sechs Säulen arbeiten zusammen, damit Lernende, Ersteller und Institutionen alle gewinnen.",
+      "aiTutor": { "title": "AI-Tutor", "desc": "Personalisiertes 1-zu-1-Tutoring, das sich an Ihren Lernstil anpasst." },
+      "smartNotes": { "title": "Intelligente Notizen & Folien", "desc": "Generieren Sie Flashcards, Zusammenfassungen und Decks aus jeder Lektion." },
+      "gamified": { "title": "Spielifizierter Fortschritt", "desc": "Serien, XP, Abzeichen und Ranglisten, die das Lernen süchtig machen." },
+      "creatorEconomy": { "title": "Ersteller-Ökonomie", "desc": "Coaches und Ersteller erstellen Kurse, Cohorts und Gemeinschaften." },
+      "wallet": { "title": "Integriertes Wallet", "desc": "Verdienste, Auszahlungen und Trinkgelder werden nativ behandelt." },
+      "career": { "title": "Karriere-Intelligenz", "desc": "KI-geführte Pfade, Lebenslauf-Reviews und Kompetenzgraphen." }
+    },
+    "community": {
+      "badge": "Gemeinsam lernen",
+      "title": "Treten Sie einer Lerngemeinschaft bei.",
+      "subtitle": "Live-Cohorts, Lerngruppen und WhatsApp- und Discord-Kanäle.",
+      "browseGroups": "Gruppen durchsuchen",
+      "communityFeed": "Community-Feed"
+    },
+    "creators": {
+      "badge": "Für Ersteller & Coaches",
+      "title": "Bauen Sie ein Lerngeschäft auf, nicht nur einen Kurs.",
+      "subtitle": "Cohorts, Gemeinschaften, Drops und digitale Produkte — mit Wallet, Analysen und AI-Kopilot.",
+      "payouts": "Native Auszahlungen in 40+ Ländern",
+      "cohorts": "Cohort + 1-zu-1 + async, an einem Ort",
+      "aiAssistant": "AI-Assistent, der Lektionen mit Ihrer Stimme verfasst",
+      "communitySpaces": "Community-Räume mit Echtzeit-Anwesenheit",
+      "applyCta": "Beim Ersteller-Programm bewerben"
+    }
+  },
+  "common": {
+    "backToHome": "Zurück zur Startseite",
+    "loading": "Laden...",
+    "search": "Suchen",
+    "close": "Schließen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "verified": "Verifiziert",
+    "learnMore": "Mehr erfahren",
+    "startFree": "Kostenlos mit dem Lernen beginnen",
+    "watchDemo": "Demo ansehen",
+    "or": "Oder",
+    "continueWithGoogle": "Mit Google fortfahren",
+    "noCreditCard": "Keine Kreditkarte erforderlich",
+    "cancelAnytime": "Jederzeit kündbar",
+    "guarantee": "7-Tage-Garantie",
+    "emailPlaceholder": "you@example.com",
+    "passwordMinLength": "Mindestens 8 Zeichen.",
+    "newHere": "Neu hier?",
+    "createAccount": "Konto erstellen",
+    "alreadyHaveAccount": "Haben Sie bereits ein Konto?",
+    "forgot": "Vergessen?",
+    "createFreeAccount": "Kostenloses Konto erstellen",
+    "comparePlans": "Pläne vergleichen",
+    "everythingInOnePlatform": "Alles auf einer Plattform",
+    "numbersThatSpeak": "Sprechende Zahlen",
+    "programmingLanguages": "Programmiersprachen",
+    "executionProviders": "Ausführungsanbieter",
+    "devTools": "Entwicklerwerkzeuge",
+    "aiActionModes": "AI-Aktionsmodi",
+    "readyToExperience": "Bereit, alles zu erleben?",
+    "startFreeNoCredit": "Kostenlos starten. Keine Kreditkarte. Alle Werkzeuge inklusive.",
+    "includedInEveryCertificate": "In jedem Zertifikat enthalten",
+    "certificateOfCompletion": "Abschlusszertifikat",
+    "machineLearningFundamentals": "Machine-Learning-Grundlagen",
+    "issuedTo": "Ausgestellt an",
+    "demoLearner": "Demo-Lernender",
+    "certificatesIssued": "Ausgestellte Zertifikate",
+    "verificationRate": "Verifizierungsrate",
+    "coursesAvailable": "Verfügbare Kurse",
+    "avgRating": "Durchschn. Bewertung"
+  }
+}

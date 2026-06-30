@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdfbf5"/>
+      <stop offset="100%" stop-color="#f5f0e8"/>
+    </linearGradient>
+    <linearGradient id="gold1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c9a84c"/>
+      <stop offset="100%" stop-color="#b8952e"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="308" height="228" rx="4" fill="none" stroke="#c9a84c" stroke-width="3"/>
+  <rect x="12" y="12" width="296" height="216" rx="2" fill="none" stroke="#c9a84c" stroke-width="1" stroke-dasharray="4,3"/>
+  <rect x="1" y="1" width="318" height="238" rx="6" fill="url(#bg1)" stroke="#c9a84c" stroke-width="2"/>
+  <polygon points="160,25 170,45 192,48 176,63 180,85 160,75 140,85 144,63 128,48 150,45" fill="#c9a84c" opacity="0.8"/>
+  <text x="160" y="58" font-family="serif" font-size="10" fill="#0f1b3d" text-anchor="middle" font-weight="bold" letter-spacing="3">CERTIFICATE</text>
+  <text x="160" y="70" font-family="serif" font-size="7" fill="#c9a84c" text-anchor="middle" letter-spacing="2">OF COMPLETION</text>
+  <text x="160" y="92" font-family="serif" font-size="6" fill="#666" text-anchor="middle">This is to certify that</text>
+  <text x="160" y="112" font-family="serif" font-size="10" fill="#0f1b3d" text-anchor="middle" font-style="italic" font-weight="bold">Alex Johnson</text>
+  <text x="160" y="130" font-family="serif" font-size="6" fill="#666" text-anchor="middle">has successfully completed the course</text>
+  <text x="160" y="148" font-family="sans-serif" font-size="7" fill="#0f1b3d" text-anchor="middle" font-weight="bold">AI Fundamentals</text>
+  <text x="160" y="162" font-family="serif" font-size="5" fill="#888" text-anchor="middle">with a grade of 92%</text>
+  <line x1="80" y1="188" x2="240" y2="188" stroke="#c9a84c" stroke-width="0.5"/>
+  <text x="120" y="200" font-family="serif" font-size="5" fill="#888" text-anchor="middle">Issued: March 2026</text>
+  <text x="200" y="200" font-family="serif" font-size="5" fill="#888" text-anchor="middle">Valid: Lifetime</text>
+  <text x="160" y="218" font-family="sans-serif" font-size="5" fill="#c9a84c" text-anchor="middle" letter-spacing="2">LEARNIFY AI</text>
+</svg>

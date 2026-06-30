@@ -20,6 +20,9 @@ import {
   Sparkles,
   CreditCard,
   PieChart,
+  FileText,
+  Map,
+  FolderOpen,
 } from "lucide-react";
 import { useState, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -59,6 +62,10 @@ const nav: NavItem[] = [
   { to: "/ai-tools", label: "AI Tools", icon: Wand2, featureKey: "ai_tools" },
   { to: "/inbox", label: "Inbox", icon: Inbox },
   { to: "/wallet", label: "Wallet", icon: WalletIcon, featureKey: "wallet" },
+  { to: "/resume-builder", label: "Resume Builder", icon: FileText, featureKey: "ai_tools" },
+  { to: "/ats-checker", label: "ATS Checker", icon: BarChart3, featureKey: "ai_tools" },
+  { to: "/career-roadmap", label: "Career Roadmap", icon: Map, featureKey: "ai_tools" },
+  { to: "/portfolio-builder", label: "Portfolio Builder", icon: FolderOpen, featureKey: "ai_tools" },
   { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 
@@ -66,6 +73,7 @@ const nav: NavItem[] = [
   { to: "/studio", label: "Studio", icon: Clapperboard, creatorOnly: true },
   { to: "/admin", label: "Admin", icon: Shield, adminOnly: true },
   { to: "/admin/subscriptions", label: "Subscriptions", icon: PieChart, adminOnly: true },
+  { to: "/admin/billing", label: "Billing OS", icon: BarChart3, adminOnly: true },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -125,9 +133,19 @@ export function AppShell({ children }: { children: ReactNode }) {
                               ? "nav-admin"
                               : item.to === "/wallet"
                                 ? "nav-wallet"
-                                : item.to === "/inbox"
-                                  ? "nav-inbox"
-                                  : undefined;
+              : item.to === "/playground"
+                ? "nav-playground"
+                : item.to === "/inbox"
+                  ? "nav-inbox"
+                : item.to === "/resume-builder"
+                  ? "nav-resume-builder"
+                  : item.to === "/ats-checker"
+                    ? "nav-ats-checker"
+                    : item.to === "/career-roadmap"
+                      ? "nav-career-roadmap"
+                      : item.to === "/portfolio-builder"
+                        ? "nav-portfolio-builder"
+                        : undefined;
         return (
           <Link
             key={item.to}
@@ -176,11 +194,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Mobile sidebar */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden fixed top-3 left-3 z-50 h-9 w-9"
-          >
+          <Button variant="ghost" size="icon" className="md:hidden fixed top-3 left-3 z-50 h-9 w-9">
             <Menu className="h-5 w-5" />
             <span className="sr-only">Open menu</span>
           </Button>

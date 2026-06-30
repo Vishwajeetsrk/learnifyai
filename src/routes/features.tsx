@@ -20,19 +20,59 @@ import { AiToolsShowcase } from "@/components/AiToolsShowcase";
 import { usePublicFeatures } from "@/hooks/use-wcms-public";
 
 const ICON_MAP: Record<string, any> = {
-  Sparkles, Zap, Code: FileText, Users, Award: Trophy, Trophy, Map: BookOpen,
-  MessageSquare, Bot: Brain, Image: FileText, MessageCircle: MessageSquare,
-  Smartphone: Zap, Folder: BookOpen, BookOpen, Rocket: Zap, Star: Sparkles,
-  Heart: Trophy, Globe: Users, Search: Zap, Home: Zap,
+  Sparkles,
+  Zap,
+  Code: FileText,
+  Users,
+  Award: Trophy,
+  Trophy,
+  Map: BookOpen,
+  MessageSquare,
+  Bot: Brain,
+  Image: FileText,
+  MessageCircle: MessageSquare,
+  Smartphone: Zap,
+  Folder: BookOpen,
+  BookOpen,
+  Rocket: Zap,
+  Star: Sparkles,
+  Heart: Trophy,
+  Globe: Users,
+  Search: Zap,
+  Home: Zap,
 };
 
 const fallbackFeatures = [
-  { icon: Brain, name: "AI Tutor", description: "Personalized 1-on-1 tutoring that adapts to how you learn." },
-  { icon: BookOpen, name: "Smart Notes & Slides", description: "Generate flashcards, summaries, and decks from any lesson." },
-  { icon: Trophy, name: "Gamified Progress", description: "Streaks, XP, badges, and leaderboards that make learning addictive." },
-  { icon: Users, name: "Creator Economy", description: "Coaches and creators ship courses, cohorts, and communities." },
-  { icon: Wallet, name: "Built-in Wallet", description: "Earnings, payouts, and tipping handled natively." },
-  { icon: BarChart3, name: "Career Intelligence", description: "AI-guided paths, resume reviews, and skill graphs." },
+  {
+    icon: Brain,
+    name: "AI Tutor",
+    description: "Personalized 1-on-1 tutoring that adapts to how you learn.",
+  },
+  {
+    icon: BookOpen,
+    name: "Smart Notes & Slides",
+    description: "Generate flashcards, summaries, and decks from any lesson.",
+  },
+  {
+    icon: Trophy,
+    name: "Gamified Progress",
+    description: "Streaks, XP, badges, and leaderboards that make learning addictive.",
+  },
+  {
+    icon: Users,
+    name: "Creator Economy",
+    description: "Coaches and creators ship courses, cohorts, and communities.",
+  },
+  {
+    icon: Wallet,
+    name: "Built-in Wallet",
+    description: "Earnings, payouts, and tipping handled natively.",
+  },
+  {
+    icon: BarChart3,
+    name: "Career Intelligence",
+    description: "AI-guided paths, resume reviews, and skill graphs.",
+  },
 ];
 
 export const Route = createFileRoute("/features")({
@@ -57,14 +97,15 @@ export const Route = createFileRoute("/features")({
 
 function FeaturesPage() {
   const { data: wcmsFeatures, isLoading } = usePublicFeatures();
-  const features = wcmsFeatures && wcmsFeatures.length > 0
-    ? wcmsFeatures.map((f: any) => ({
-        icon: ICON_MAP[f.icon] || Sparkles,
-        name: f.name,
-        description: f.description || "",
-        url: f.url,
-      }))
-    : fallbackFeatures;
+  const features =
+    wcmsFeatures && wcmsFeatures.length > 0
+      ? wcmsFeatures.map((f: any) => ({
+          icon: ICON_MAP[f.icon] || Sparkles,
+          name: f.name,
+          description: f.description || "",
+          url: f.url,
+        }))
+      : fallbackFeatures;
 
   return (
     <MarketingPage
@@ -96,7 +137,11 @@ function FeaturesPage() {
             animate={{ scale: [1.1, 1.35, 1.1], opacity: [0.1, 0.3, 0.1] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
           />
-          <img src="/illustrations/AI_Spark_Interactive_Assistant.svg" alt="Features" className="w-full h-full relative z-10" />
+          <img
+            src="/illustrations/AI_Spark_Interactive_Assistant.svg"
+            alt="Features"
+            className="w-full h-full relative z-10"
+          />
         </motion.div>
       </motion.div>
       {isLoading ? (

@@ -12,7 +12,12 @@ if (process.env.VERCEL) {
 }
 
 export default defineConfig({
-  nitro: { preset: "vercel" },
+  nitro: {
+    preset: process.env.VERCEL ? "vercel" : "node-server",
+    output: process.env.VERCEL
+      ? undefined
+      : { dir: "dist", serverDir: "dist/server" },
+  },
   vite: {
     envPrefix: ["VITE_", "NEXT_PUBLIC_"],
     // Exclude nodemailer from client-side pre-bundling (dev server)

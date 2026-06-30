@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import jsPDF from "jspdf";
-import { autoTable } from "jspdf-autotable";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { downloadInvoicePdf } from "@/lib/invoice-pdf";
 import {
   Loader2,
   Wallet as WalletIcon,
@@ -215,122 +214,34 @@ function WalletPage() {
   async function downloadInvoice(tx: any) {
     if (!user) return;
     try {
-      const doc = new jsPDF();
-
-      // Check user's own branding settings (Team plan admins can customize)
       const { data: profileBrand } = await supabase
         .from("profiles")
-        .select(
-          "invoice_company_name, invoice_legal_name, invoice_gstin, invoice_prefix, invoice_footer, invoice_logo_url, invoice_contact, org_name, org_logo_url",
-        )
+        .select("invoice_company_name,invoice_legal_name,invoice_gstin,invoice_prefix,invoice_footer,invoice_logo_url,invoice_contact,org_name,org_logo_url")
         .eq("id", user.id)
         .maybeSingle();
 
-      const companyName =
-        profileBrand?.invoice_company_name || inv.invoice_company_name || "Learnify AI";
-      const legalName =
-        profileBrand?.invoice_legal_name || inv.invoice_legal_name || "Learnify EdTech Pvt. Ltd.";
-      const gstin = profileBrand?.invoice_gstin || inv.invoice_gstin || "29XXXXX1234X1Z5";
-      const prefix = profileBrand?.invoice_prefix || inv.invoice_prefix || "LRN";
-      const footerText =
-        profileBrand?.invoice_footer ||
-        inv.invoice_footer ||
-        "This is a computer generated invoice and does not require a signature.";
-      const logoUrl =
-        profileBrand?.invoice_logo_url || profileBrand?.org_logo_url || inv.invoice_logo_url;
-      const contact = profileBrand?.invoice_contact || inv.invoice_contact;
+      const inv = {
+        invoice_number: `${profileBrand?.invoice_prefix || "LRN"}-${tx.id?.split("-")[0]?.toUpperCase() || "NA"}`,
+        created_at: tx.created_at,
+        due_date: null,
+        status: tx.status === "completed" ? "paid" : tx.status,
+        amount_inr: Number(tx.amount_inr || 0),
+        total_inr: Number(tx.amount_inr || 0),
+        tax_inr: 0,
+        line_items: [{ description: tx.description || "Wallet Top-up", amount: Number(tx.amount_inr || 0), quantity: 1 }],
+        notes: null,
+        payment_method: null,
+      };
 
-      // Logo (if configured) — fetch and convert to base64
-      let logoHeight = 0;
-      if (logoUrl) {
-        try {
-          const resp = await fetch(logoUrl);
-          const blob = await resp.blob();
-          const base64 = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result as string);
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-          });
-          doc.addImage(base64, "PNG", 14, 10, 36, 36);
-          logoHeight = 36;
-        } catch (e) {
-          console.warn("Invoice logo load failed:", e);
-        }
-      }
-
-      // Header
-      const headerY = logoHeight > 0 ? 16 : 22;
-      doc.setFontSize(22);
-      doc.setTextColor(79, 70, 229);
-      doc.text(companyName, logoHeight > 0 ? 56 : 14, headerY);
-
-      let infoY = headerY + 8;
-      doc.setFontSize(10);
-      doc.setTextColor(100);
-      doc.text(legalName, logoHeight > 0 ? 56 : 14, infoY);
-
-      infoY += 5;
-      doc.text(`GSTIN: ${gstin}`, logoHeight > 0 ? 56 : 14, infoY);
-
-      let rightY = headerY;
-      doc.setFontSize(20);
-      doc.setTextColor(0);
-      doc.text("INVOICE", 150, rightY);
-
-      rightY += 8;
-      doc.setFontSize(10);
-      doc.setTextColor(50);
-      doc.text(
-        `Invoice Number: ${prefix}-${tx.id?.split("-")[0]?.toUpperCase() ?? "NA"}`,
-        150,
-        rightY,
-      );
-
-      rightY += 5;
-      doc.text(
-        `Date: ${tx.created_at ? format(new Date(tx.created_at), "dd MMM yyyy") : "N/A"}`,
-        150,
-        rightY,
-      );
-
-      // Contact (if configured)
-      let separatorY = Math.max(infoY, rightY) + 6;
-      if (contact) {
-        separatorY += 5;
-        doc.setFontSize(9);
-        doc.setTextColor(100);
-        doc.text(contact, logoHeight > 0 ? 56 : 14, separatorY - 3);
-      }
-
-      doc.setDrawColor(200);
-      doc.line(14, separatorY, 196, separatorY);
-
-      const billToY = separatorY + 10;
-      doc.setFontSize(12);
-      doc.setTextColor(0);
-      doc.text("Bill To:", 14, billToY);
-      doc.setFontSize(10);
-      doc.setTextColor(80);
-      doc.text(user.email ?? "Customer", 14, billToY + 7);
-
-      // Table
-      autoTable(doc, {
-        startY: billToY + 16,
-        headStyles: { fillColor: [79, 70, 229] },
-        head: [["Description", "Amount"]],
-        body: [[tx.description ?? "Wallet Top-up", `INR ${Number(tx.amount_inr ?? 0).toFixed(2)}`]],
-        foot: [["Total Paid", `INR ${Number(tx.amount_inr ?? 0).toFixed(2)}`]],
-        footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: "bold" },
+      await downloadInvoicePdf(inv, user.email ?? "Customer", {
+        company_name: profileBrand?.invoice_company_name || tx.invoice_company_name,
+        legal_name: profileBrand?.invoice_legal_name || tx.invoice_legal_name,
+        gstin: profileBrand?.invoice_gstin || tx.invoice_gstin,
+        prefix: profileBrand?.invoice_prefix || tx.invoice_prefix,
+        footer: profileBrand?.invoice_footer || tx.invoice_footer,
+        logo_url: profileBrand?.invoice_logo_url || profileBrand?.org_logo_url || tx.invoice_logo_url,
+        contact: profileBrand?.invoice_contact || tx.invoice_contact,
       });
-
-      // Footer
-      doc.setFontSize(9);
-      doc.setTextColor(150);
-      const lastTable = (doc as any).lastAutoTable;
-      doc.text(footerText, 14, (lastTable?.finalY ?? 200) + 30);
-
-      doc.save(`${companyName.replace(/\s+/g, "_")}_Invoice_${tx.id?.split("-")[0] ?? "NA"}.pdf`);
     } catch (err: any) {
       toast.error(err?.message ?? "Failed to generate invoice");
     }

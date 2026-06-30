@@ -88,6 +88,7 @@ import {
   ChallengeBadge,
 } from "@/components/GamificationBadges";
 import { FilePreview } from "@/components/FilePreview";
+import { SafeImage } from "@/components/ui/SafeImage";
 import { getCleanBannerUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/u/$id")({
@@ -106,12 +107,10 @@ function BannerImage({ src }: { src: string }) {
   if (error) return null;
   return (
     <div className="h-48 md:h-56 lg:h-64 w-full bg-muted relative overflow-hidden">
-      <img
+      <SafeImage
         src={cleanSrc}
         alt="Banner"
         className="w-full h-full object-cover"
-        loading="lazy"
-        decoding="async"
         onError={() => setError(true)}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
@@ -1596,11 +1595,10 @@ function CourseGrid({
         >
           <div className="aspect-video bg-muted overflow-hidden">
             {c.cover_url ? (
-              <img
+              <SafeImage
                 src={getCleanBannerUrl(c.cover_url) ?? c.cover_url}
                 alt=""
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                loading="lazy"
               />
             ) : (
               <div className="w-full h-full grid place-items-center">

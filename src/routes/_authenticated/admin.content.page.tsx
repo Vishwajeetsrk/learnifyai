@@ -29,6 +29,7 @@ import {
   Sparkles,
   Menu,
   Layout,
+  Layers,
 } from "lucide-react";
 import {
   CertificateRender,
@@ -92,6 +93,10 @@ import MediaLibrary from "@/components/admin/MediaLibrary";
 import FeaturesCatalog from "@/components/admin/FeaturesCatalog";
 import MenuManager from "@/components/admin/MenuManager";
 import BlogManager from "@/components/admin/BlogManager";
+import rishabhAvatar from "@/assets/avatars/Rishabh-Sharma.png";
+import anjaliAvatar from "@/assets/avatars/Anjali-Verma.png";
+import priyaAvatar from "@/assets/avatars/Priya-Kapoor.png";
+import vikramAvatar from "@/assets/avatars/Vikram-Singh.png";
 
 // Heavy admin panels — code-split so initial admin page paints fast.
 const IssueCertificate = lazy(() => import("@/components/admin/IssueCertificate"));
@@ -127,10 +132,41 @@ type JobRow = {
   closes_at: string | null;
 };
 
+type SectionEntry = { title: string; tab: string };
+
+const SECTION_TOURS: Record<string, { what: string; how: string; where: string }> = {
+  events: { what: "Create and manage events for the community — workshops, webinars, meetups, and conferences.", how: "Click 'Add Event' to create a new one. Fill in title, date, location, and optional image. Edit or delete existing events from the list.", where: "Events appear on the Events page and the Dashboard in the Upcoming Events section. Public events are visible to all logged-in users." },
+  jobs: { what: "Post job openings from partner companies directly on the platform for students and alumni.", how: "Click 'Add Job' and fill in title, team, location, and apply URL. Toggle active/inactive to control visibility.", where: "Jobs appear on the Careers page and the Dashboard in the Latest Jobs section. Active jobs are visible to all logged-in users." },
+  pricing: { what: "Manage subscription plans (Starter, Pro, Team), pricing tiers, and plan features for the platform.", how: "Edit plan name, price, description, and toggle features. Use the 'Sync to Cashfree' button to push changes to the payment gateway.", where: "Pricing plans are displayed on the Pricing page. Changes take effect immediately for new subscriptions." },
+  site: { what: "Configure global site settings — AI credits per plan, referral bonuses, and platform-wide configuration.", how: "Adjust credit amounts, referral rewards, and toggle features like AI tutor or playground access.", where: "Site settings apply globally across the entire platform. Changes affect all users." },
+  "cert-templates": { what: "Design and manage certificate templates with custom text, colors, fonts, borders, and backgrounds.", how: "Use the visual editor to customize each template. Live preview updates in real-time. Add elements like logos, signatures, and student details.", where: "Certificate templates are used when issuing certificates to students. They appear as options in the 'Issue Cert' section." },
+  "issue-cert": { what: "Issue certificates to students manually or in bulk. Award them to any user on the platform.", how: "Search for a student, select a template, optionally write a personal message, and click Issue. The certificate is created instantly with a unique verification code.", where: "Students see issued certificates on their Certificates page. Each certificate has a unique verification link they can share on LinkedIn." },
+  faqs: { what: "Manage the FAQ section displayed on the Pricing page. Organize questions by category.", how: "Click 'Add FAQ' to create a new question-answer pair. Group them under categories like Plans, Billing, Features. Edit or reorder as needed.", where: "FAQs appear on the Pricing page organized by category tabs. They help users find answers to common questions." },
+  pages: { what: "Create and manage custom legal and informational pages like Privacy Policy, Terms of Service, Refund Policy, and About Us.", how: "Click 'Add Page' to create a new page with a rich text editor. Support for dynamic variables like {{company_name}} and {{email}}.", where: "Custom pages are linked in the footer and other public areas of the site." },
+  roadmap: { what: "Manage the public product roadmap showing upcoming features, in-progress work, and shipped items.", how: "Add roadmap items with title, description, status (planned, in-progress, shipped), and category. Drag to reorder within each status column.", where: "The roadmap is displayed on the Roadmap page visible to all users. It helps communicate product direction." },
+  coupons: { what: "Create and manage discount coupons for subscriptions. Set discount percentage, max uses, and expiry.", how: "Click 'Add Coupon' to generate a coupon code. Set discount type (percentage or flat), max redemptions, and expiration date. Copy coupon code to share.", where: "Coupons are applied at checkout on the Pricing page. Users enter the code to get the discount." },
+  community: { what: "Create and manage community groups for focused discussions. Each group has its own feed and members.", how: "Click 'Add Group' to create a new community group. Set name, description, cover image, and privacy settings. Monitor active members and posts.", where: "Community groups appear on the Community page. Users can join groups and participate in discussions." },
+  features: { what: "Toggle feature visibility across the platform. Enable, disable, or set maintenance mode for any feature.", how: "Use the switches to enable/disable features. Toggle maintenance mode to show a maintenance banner. Changes take effect immediately.", where: "Feature visibility affects the entire platform — nav items, routes, and feature access." },
+  blog: { what: "Write and publish blog posts. Manage the blog with markdown editor, featured images, and publish controls.", how: "Click 'New Post' to write a blog post. Set title, slug, excerpt, featured image, and publish date. Toggle published status to go live.", where: "Blog posts appear on the public Blog page at /blog. Recent posts are also highlighted on the Dashboard." },
+  "wcms-pages": { what: "Build custom landing pages using the drag-and-drop WCMS (Web Content Management System) page builder.", how: "Click 'Add Page' to create a new page. Use the visual builder to add sections, rows, and content blocks. Preview before publishing.", where: "WCMS pages are served at their configured URL paths. They support custom layouts beyond standard routes." },
+  "wcms-media": { what: "Upload and manage media files — images, SVGs, PDFs, and documents used across the platform.", how: "Upload files by clicking the upload area or drag-and-drop. Files are organized by type. Click to copy the URL or delete unwanted files.", where: "Media library items can be used in WCMS pages, blog posts, email templates, and anywhere content is edited." },
+  "wcms-features": { what: "Create and manage feature cards showcasing platform capabilities, used on landing pages and marketing sections.", how: "Add features with icon, title, description, and optional link. Drag to reorder. Toggle visibility per feature.", where: "Features appear on WCMS pages through the Features Section block. They highlight platform capabilities." },
+  "wcms-menus": { what: "Build and manage navigation menus for the site header and footer with custom links.", how: "Add menu items with custom labels and URLs. Drag to reorder. Support for nested sub-menus and separator items.", where: "Menus are rendered in the site header (top navigation) and footer based on the configured menu location." },
+  "wcms-sections": { what: "Manage reusable WCMS content sections that can be embedded across multiple pages.", how: "Create sections with the visual builder. Use them in any WCMS page by selecting from the sections library. Updates sync everywhere.", where: "Sections are reusable blocks that can appear on any WCMS page. Great for headers, CTAs, and recurring content patterns." },
+};
+
+const TAB_LABELS: Record<string, string> = {
+  events: "Events", jobs: "Jobs", pricing: "Pricing", site: "Site", "cert-templates": "Cert Templates",
+  "issue-cert": "Issue Cert", faqs: "FAQs", pages: "Pages", roadmap: "Roadmap", coupons: "Coupons",
+  community: "Community Groups", features: "Visibility", blog: "Blog", "wcms-pages": "WCMS Pages",
+  "wcms-media": "Media Library", "wcms-features": "Features Catalog", "wcms-menus": "Menus", "wcms-sections": "Sections",
+};
+
 export default function AdminContentPage() {
   const { isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showTour, setShowTour] = useState<string | null>(null);
   const requestedTab = (() => {
     const search = location.search as unknown;
     if (search && typeof search === "object" && "tab" in search)
@@ -199,7 +235,16 @@ export default function AdminContentPage() {
             >
               <ArrowLeft className="h-3.5 w-3.5" /> Back to admin
             </Link>
-            <h1 className="font-display text-3xl font-bold">Content Manager</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="font-display text-3xl font-bold">Content Manager</h1>
+              <button
+                onClick={() => setShowTour(showTour === tab ? null : tab)}
+                className="h-7 w-7 rounded-full border border-muted-foreground/30 text-muted-foreground hover:text-foreground hover:border-foreground/50 transition-colors flex items-center justify-center text-xs font-bold"
+                title={`About ${TAB_LABELS[tab] || tab}`}
+              >
+                ?
+              </button>
+            </div>
             <p className="text-sm text-muted-foreground mt-1">
               Manage events, jobs, pricing, FAQs, pages, roadmaps, coupons, community groups,
               certificate templates, feature visibility, page builder, media library, features
@@ -278,6 +323,10 @@ export default function AdminContentPage() {
               <Menu className="h-4 w-4 mr-2" />
               Menus
             </TabsTrigger>
+            <TabsTrigger value="wcms-sections">
+              <Layers className="h-4 w-4 mr-2" />
+              Sections
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="events" className="mt-6">
             <EventsManager />
@@ -335,12 +384,47 @@ export default function AdminContentPage() {
           <TabsContent value="wcms-menus" className="mt-6">
             <MenuManager />
           </TabsContent>
+          <TabsContent value="wcms-sections" className="mt-6">
+            <SectionsManager />
+          </TabsContent>
           <TabsContent value="blog" className="mt-6">
-            <Suspense fallback={<div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>}>
+            <Suspense
+              fallback={
+                <div className="flex justify-center py-10">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                </div>
+              }
+            >
               <BlogManager />
             </Suspense>
           </TabsContent>
         </Tabs>
+
+        {/* Tour Popup */}
+        {showTour && SECTION_TOURS[showTour] && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setShowTour(null)}>
+            <div className="bg-background rounded-2xl border shadow-2xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">{TAB_LABELS[showTour] || showTour}</h3>
+                <button onClick={() => setShowTour(null)} className="h-8 w-8 rounded-full hover:bg-muted flex items-center justify-center transition-colors"><X className="h-4 w-4" /></button>
+              </div>
+              <div className="space-y-4">
+                <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/10">
+                  <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-1.5"><HelpCircle className="h-4 w-4" /> What is this?</h4>
+                  <p className="text-sm text-muted-foreground">{SECTION_TOURS[showTour].what}</p>
+                </div>
+                <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
+                  <h4 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-1.5"><ArrowLeft className="h-4 w-4 rotate-45" /> How to use?</h4>
+                  <p className="text-sm text-muted-foreground">{SECTION_TOURS[showTour].how}</p>
+                </div>
+                <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/10">
+                  <h4 className="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-1 flex items-center gap-1.5"><Eye className="h-4 w-4" /> Where it shows?</h4>
+                  <p className="text-sm text-muted-foreground">{SECTION_TOURS[showTour].where}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AppShell>
   );
@@ -402,7 +486,7 @@ function EventsManager() {
               key={e.id}
               className="rounded-xl border border-border/60 bg-card p-4 flex items-center gap-3"
             >
-              {e.image_url && !(brokenEvents.has(e.id)) ? (
+              {e.image_url && !brokenEvents.has(e.id) ? (
                 <img
                   src={getCleanBannerUrl(e.image_url) ?? e.image_url}
                   alt=""
@@ -456,7 +540,12 @@ function EventsManager() {
         }}
       />
 
-      <AlertDialog open={!!deleteId} onOpenChange={(v) => { if (!v) setDeleteId(null); }}>
+      <AlertDialog
+        open={!!deleteId}
+        onOpenChange={(v) => {
+          if (!v) setDeleteId(null);
+        }}
+      >
         <AlertDialogContent className="max-w-sm">
           <div className="flex flex-col items-center gap-4 py-4">
             <div className="h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center">
@@ -471,24 +560,29 @@ function EventsManager() {
           </div>
           <AlertDialogFooter className="gap-2">
             <AlertDialogCancel className="flex-1">Cancel</AlertDialogCancel>
-            <Button variant="destructive" className="flex-1" onClick={async () => {
-              const id = deleteId;
-              if (!id) return;
-              try {
-                await doAdminAction({ data: { table: "events", action: "delete", id } });
-                toast.success("Event deleted");
-                qc.invalidateQueries({ queryKey: ["admin-events"] });
-                qc.invalidateQueries({ queryKey: ["events-public"] });
-              } catch (err: any) {
-                toast.error(err?.message || "Delete failed");
-              } finally {
-                setDeleteId(null);
-              }
-            }}>Delete</Button>
+            <Button
+              variant="destructive"
+              className="flex-1"
+              onClick={async () => {
+                const id = deleteId;
+                if (!id) return;
+                try {
+                  await doAdminAction({ data: { table: "events", action: "delete", id } });
+                  toast.success("Event deleted");
+                  qc.invalidateQueries({ queryKey: ["admin-events"] });
+                  qc.invalidateQueries({ queryKey: ["events-public"] });
+                } catch (err: any) {
+                  toast.error(err?.message || "Delete failed");
+                } finally {
+                  setDeleteId(null);
+                }
+              }}
+            >
+              Delete
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
     </div>
   );
 }
@@ -618,7 +712,9 @@ function EventDialog({
                 className="mt-2 h-24 w-full rounded-md object-cover border"
                 loading="lazy"
                 decoding="async"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
               />
             ) : null}
           </div>
@@ -678,10 +774,11 @@ function JobsManager() {
     } catch (e: any) {
       return toast.error(e?.message || "Delete failed");
     }
-    toast.success("Job deleted");
-    setDeleteId(null);
-    qc.invalidateQueries({ queryKey: ["admin-jobs"] });
-    qc.invalidateQueries({ queryKey: ["jobs-public"] });
+      toast.success("Job deleted");
+      setDeleteId(null);
+      qc.invalidateQueries({ queryKey: ["admin-jobs"] });
+      qc.invalidateQueries({ queryKey: ["dashboard-jobs"] });
+      qc.invalidateQueries({ queryKey: ["jobs-public"] });
   };
 
   return (
@@ -749,6 +846,7 @@ function JobsManager() {
         job={editing}
         onSaved={() => {
           qc.invalidateQueries({ queryKey: ["admin-jobs"] });
+          qc.invalidateQueries({ queryKey: ["dashboard-jobs"] });
           qc.invalidateQueries({ queryKey: ["jobs-public"] });
         }}
       />
@@ -927,6 +1025,7 @@ type PlanRow = {
   order_index: number;
   active: boolean;
   price_inr: number;
+  yearly_price?: number | null;
   interval: string | null;
   ai_credits_monthly: number;
   max_courses: number;
@@ -972,6 +1071,7 @@ function PricingManager() {
       order_index: (plans.length + 1) * 10,
       active: true,
       price_inr: 0,
+      yearly_price: null,
       interval: "month",
       ai_credits_monthly: 0,
       max_courses: -1,
@@ -1030,7 +1130,12 @@ function PricingManager() {
                     )}
                   </div>
                   <div className="text-xs text-muted-foreground mt-0.5 break-words">
-                    {p.interval ? `${p.interval}ly` : "One-time"} ·{" "}
+                    {p.interval?.startsWith("month")
+                      ? "monthly"
+                      : p.interval
+                        ? `${p.interval}ly`
+                        : "One-time"}{" "}
+                    · {p.yearly_price ? `₹${p.yearly_price}/yr · ` : ""}
                     {p.ai_credits_monthly > 0
                       ? `${p.ai_credits_monthly.toLocaleString("en-IN")} AI credits/mo`
                       : "No AI credits"}
@@ -1202,13 +1307,24 @@ function PlanDialog({
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <Label>Price INR</Label>
               <Input
                 type="number"
                 value={form.price_inr}
                 onChange={(e) => setForm({ ...form, price_inr: Number(e.target.value) || 0 })}
+              />
+            </div>
+            <div>
+              <Label>Yearly price</Label>
+              <Input
+                type="number"
+                value={form.yearly_price ?? ""}
+                onChange={(e) =>
+                  setForm({ ...form, yearly_price: e.target.value ? Number(e.target.value) : null })
+                }
+                placeholder="Auto-calculated"
               />
             </div>
             <div>
@@ -1264,7 +1380,40 @@ function PlanDialog({
                 onChange={(e) => setForm({ ...form, color: e.target.value })}
                 placeholder="#7c3aed"
               />
+              <div className="flex gap-2 mt-2">
+                {[
+                  { hex: "#2563EB", name: "Blue" },
+                  { hex: "#6366F1", name: "Indigo" },
+                  { hex: "#8B5CF6", name: "Purple" },
+                  { hex: "#10B981", name: "Green" },
+                  { hex: "#F59E0B", name: "Amber" },
+                  { hex: "#EC4899", name: "Pink" },
+                  { hex: "#7c3aed", name: "Violet" },
+                  { hex: "#0ea5e9", name: "Sky" },
+                ].map((c) => (
+                  <button
+                    key={c.hex}
+                    type="button"
+                    title={c.name}
+                    className={`w-6 h-6 rounded-full border-2 transition-all ${
+                      form.color === c.hex
+                        ? "border-foreground scale-110"
+                        : "border-transparent hover:scale-110"
+                    }`}
+                    style={{ background: c.hex }}
+                    onClick={() => setForm({ ...form, color: c.hex })}
+                  />
+                ))}
+              </div>
             </div>
+          </div>
+          <div>
+            <Label>Cashfree Plan ID</Label>
+            <Input
+              value={form.cashfree_plan_id ?? ""}
+              onChange={(e) => setForm({ ...form, cashfree_plan_id: e.target.value || null })}
+              placeholder="e.g. plan_xxxxx"
+            />
           </div>
           <div>
             <Label>Description</Label>
@@ -2816,7 +2965,8 @@ function FaqDialog({
             Cancel
           </Button>
           <Button onClick={save} disabled={saving}>
-            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Save
+            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            Save
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -2824,6 +2974,388 @@ function FaqDialog({
   );
 }
 
+// ═══════════════════════════════════════════════
+// Sections Manager (wcms_sections)
+// ═══════════════════════════════════════════════
+
+function SectionsManager() {
+  const qc = useQueryClient();
+  const [editing, setEditing] = useState<any | null>(null);
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const doQuery = useServerFn(adminContentQuery);
+  const doAction = useServerFn(adminContentUpsert);
+
+  const { data: sections = [], isLoading } = useQuery({
+    queryKey: ["admin-sections"],
+    queryFn: async () => {
+      const result = await doQuery({
+        data: { table: "wcms_sections", orderBy: "key", ascending: true },
+      });
+      return result ?? [];
+    },
+  });
+
+  const save = async () => {
+    if (!editing?.key || !editing?.name) {
+      toast.error("Key and name are required");
+      return;
+    }
+    setSaving(true);
+    try {
+      await doAction({
+        data: {
+          table: "wcms_sections",
+          data: {
+            key: editing.key,
+            name: editing.name,
+            description: editing.description,
+            content: editing.content,
+            block_type: "custom",
+          },
+          onConflict: "key",
+        },
+      });
+      toast.success("Section saved");
+      qc.invalidateQueries({ queryKey: ["admin-sections"] });
+      setOpen(false);
+    } catch (e: any) {
+      toast.error(e?.message || "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const remove = async () => {
+    if (!deletingId) return;
+    try {
+      await doAction({
+        data: { table: "wcms_sections", action: "delete", id: deletingId, matchKey: "id" },
+      });
+      toast.success("Section deleted");
+      qc.invalidateQueries({ queryKey: ["admin-sections"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Delete failed");
+    }
+    setDeletingId(null);
+  };
+
+  const seedDefaultSections = async () => {
+    const defaults = [
+      {
+        key: "pricing-hero",
+        name: "Pricing Hero",
+        description: "Headline and subtitle for the pricing page hero section",
+        content: {
+          headline: "Simple, transparent pricing",
+          subheadline:
+            "Start free, upgrade when you're ready. All plans include AI-powered learning tools.",
+          cta: "Get Started Free",
+          trust: "10,000+ learners trust Learnify AI",
+        },
+      },
+      {
+        key: "pricing-faq",
+        name: "Pricing FAQ",
+        description: "FAQ items for the pricing page",
+        content: {
+          categories: ["Plans", "Billing", "Features", "Technical", "Students"],
+          items: [
+            {
+              q: "Can I switch plans anytime?",
+              a: "Yes, you can upgrade or downgrade at any time. Changes take effect immediately.",
+              category: "Plans",
+            },
+            {
+              q: "Is there a free trial?",
+              a: "The Starter plan is free forever with basic features. Premium plans have a 7-day money-back guarantee.",
+              category: "Plans",
+            },
+            {
+              q: "What payment methods do you accept?",
+              a: "We accept all major credit cards, debit cards, UPI, and Net Banking through our secure payment partner Cashfree.",
+              category: "Billing",
+            },
+            {
+              q: "Can I get a refund?",
+              a: "Yes, we offer a 7-day money-back guarantee on all premium plans. Contact support for assistance.",
+              category: "Billing",
+            },
+            {
+              q: "What AI features are included?",
+              a: "AI Tutor, Resume Builder, Interview Coach, Certificate Generator, and Career Roadmap are included in Pro and above.",
+              category: "Features",
+            },
+            {
+              q: "Do you offer team or enterprise plans?",
+              a: "Yes, we offer custom plans for teams and organizations. Contact our sales team for a quote.",
+              category: "Plans",
+            },
+            {
+              q: "How do certificates work?",
+              a: "Complete a course and pass the assessment to earn a verified certificate with QR code, unique ID, and LinkedIn sharing.",
+              category: "Features",
+            },
+            {
+              q: "Is my data secure?",
+              a: "Yes, we use SSL encryption, secure payment processing, and follow industry best practices for data protection.",
+              category: "Technical",
+            },
+            {
+              q: "Can I access courses offline?",
+              a: "Currently, courses are available online only. However, you can save materials for offline reading.",
+              category: "Technical",
+            },
+            {
+              q: "Is Learnify suitable for beginners?",
+              a: "Absolutely! Our courses range from beginner to advanced. AI tutor adapts to your skill level.",
+              category: "Students",
+            },
+          ],
+        },
+      },
+      {
+        key: "pricing-testimonials",
+        name: "Pricing Testimonials",
+        description: "Testimonials shown on the pricing page",
+        content: {
+          items: [
+            {
+              name: "Rishabh Sharma",
+              college: "Delhi University",
+              role: "CS Student",
+              rating: 5,
+              review:
+                "Learnify AI helped me create my resume and get interview ready. The AI tutor is amazing — it explained DSA concepts way better than my textbooks.",
+              achievement: "Landed Internship at Microsoft",
+              avatar: rishabhAvatar,
+            },
+            {
+              name: "Anjali Verma",
+              college: "IIT Bombay",
+              role: "Placement Prep",
+              rating: 5,
+              review:
+                "I went from zero coding confidence to cracking 3 company interviews. The mock interview feature is a game changer.",
+              achievement: "Got Placement at Google",
+              avatar: anjaliAvatar,
+            },
+            {
+              name: "Priya Kapoor",
+              college: "SRM University",
+              role: "Final Year Student",
+              rating: 5,
+              review:
+                "I completed 3 certifications in one month and landed my first freelance project!",
+              achievement: "Freelance Success — Earned ₹50K/mo",
+              avatar: priyaAvatar,
+            },
+            {
+              name: "Vikram Singh",
+              college: "NIT Trichy",
+              role: "Career Switcher",
+              rating: 5,
+              review: "Switched from mechanical engineering to software development in 6 months.",
+              achievement: "Successfully Career Switched",
+              avatar: vikramAvatar,
+            },
+          ],
+        },
+      },
+      {
+        key: "pricing-trust",
+        name: "Pricing Trust Badges",
+        description: "Trust signals shown on the pricing page",
+        content: {
+          items: [
+            { label: "Secure Payments", color: "#2563EB" },
+            { label: "Money Back Guarantee", color: "#10B981" },
+            { label: "Instant Activation", color: "#F59E0B" },
+            { label: "Human Support", color: "#8B5CF6" },
+            { label: "Made For India", color: "#EC4899" },
+            { label: "SSL Secured", color: "#6366F1" },
+          ],
+        },
+      },
+    ];
+    setSaving(true);
+    try {
+      for (const section of defaults) {
+        await doAction({
+          data: {
+            table: "wcms_sections",
+            data: { ...section, block_type: "custom" },
+            onConflict: "key",
+          },
+        });
+      }
+      toast.success("Default sections seeded!");
+      qc.invalidateQueries({ queryKey: ["admin-sections"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Seed failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-10">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Sections</h3>
+          <p className="text-sm text-muted-foreground">
+            Manage reusable content sections used across marketing pages.
+          </p>
+        </div>
+        <Button
+          size="sm"
+          onClick={() => {
+            setEditing({ key: "", name: "", description: "", content: {} });
+            setOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4 mr-2" /> New Section
+        </Button>
+      </div>
+      <div className="flex justify-end -mt-2 mb-2">
+        <Button size="sm" variant="outline" onClick={seedDefaultSections}>
+          <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Seed Default Sections
+        </Button>
+      </div>
+      {sections.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-10">No sections yet.</p>
+      ) : (
+        <div className="grid gap-3">
+          {sections.map((s: any) => (
+            <div
+              key={s.id}
+              className="rounded-lg border bg-card p-4 flex items-start justify-between gap-4"
+            >
+              <div className="min-w-0">
+                <div className="font-semibold text-sm">{s.name}</div>
+                <div className="text-xs text-muted-foreground mt-0.5 font-mono">{s.key}</div>
+                {s.description && (
+                  <p className="text-xs text-muted-foreground mt-1">{s.description}</p>
+                )}
+                <div className="text-[10px] text-muted-foreground/60 mt-1">
+                  Updated {format(new Date(s.updated_at), "MMM d, yyyy")}
+                </div>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setEditing(s);
+                    setOpen(true);
+                  }}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setDeletingId(s.id)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle>{editing?.id ? "Edit Section" : "New Section"}</DialogTitle>
+            <DialogDescription>
+              Content is rendered on marketing pages. Use JSON format for structured content.
+            </DialogDescription>
+          </DialogHeader>
+          {editing && (
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+              <div>
+                <Label>Key</Label>
+                <Input
+                  value={editing.key}
+                  onChange={(e) => setEditing({ ...editing, key: e.target.value })}
+                  placeholder="certificate-journey"
+                />
+              </div>
+              <div>
+                <Label>Name</Label>
+                <Input
+                  value={editing.name}
+                  onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+                  placeholder="Certificate Journey"
+                />
+              </div>
+              <div>
+                <Label>Description</Label>
+                <Input
+                  value={editing.description || ""}
+                  onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+                  placeholder="Shown on the pricing page"
+                />
+              </div>
+              <div>
+                <Label>Content (JSON)</Label>
+                <Textarea
+                  rows={16}
+                  value={JSON.stringify(editing.content || {}, null, 2)}
+                  onChange={(e) => {
+                    try {
+                      const parsed = JSON.parse(e.target.value);
+                      setEditing({ ...editing, content: parsed });
+                    } catch {
+                      // Allow editing even if invalid JSON
+                    }
+                  }}
+                  className="font-mono text-xs"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={save} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={!!deletingId} onOpenChange={(v) => !v && setDeletingId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Section?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The section will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={remove}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
 // ─────────────────────────── Pages (Terms, Refund, Privacy) ───────────────────────────
 
 const PAGE_KEYS = [

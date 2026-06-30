@@ -2,23 +2,27 @@ import { Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useAuth } from "@/hooks/use-auth";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
 import { Loader2 } from "lucide-react";
-
-const HARDCODED_NAV = [
-  { label: "Features", url: "/features" },
-  { label: "AI Tools", url: "/features#ai-tools" },
-  { label: "Creators", url: "/creators" },
-  { label: "Coaches", url: "/coaches" },
-  { label: "Pricing", url: "/pricing" },
-  { label: "Blog", url: "/blog" },
-];
+import { useTranslation } from "react-i18next";
 
 export function SiteHeader() {
   const { isAuthenticated, loading } = useAuth();
   const { data: menuItems = [], isLoading: menuLoading } = usePublicMenu("main");
-  const navItems = menuItems.length > 0 ? menuItems : HARDCODED_NAV;
+  const { t, ready } = useTranslation();
+  const tr = (key: string, fallback: string) => (ready ? t(key) : fallback);
+
+  const fallbackNav = [
+    { label: tr("nav.features", "Features"), url: "/features" },
+    { label: tr("nav.aiTools", "AI Tools"), url: "/features#ai-tools" },
+    { label: tr("nav.creators", "Creators"), url: "/creators" },
+    { label: tr("nav.coaches", "Coaches"), url: "/coaches" },
+    { label: tr("nav.pricing", "Pricing"), url: "/pricing" },
+    { label: tr("nav.blog", "Blog"), url: "/blog" },
+  ];
+  const navItems = menuItems.length > 0 ? menuItems : fallbackNav;
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/70 border-b border-border/60">
@@ -45,6 +49,7 @@ export function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <LanguageSwitcher />
           {isAuthenticated && !loading ? (
             <Button
               asChild
@@ -52,14 +57,14 @@ export function SiteHeader() {
               className="bg-foreground text-background hover:bg-foreground/90"
             >
               <Link to="/dashboard" preload="intent">
-                Open app
+                {tr("nav.dashboard", "Dashboard")}
               </Link>
             </Button>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm">
                 <Link to="/login" preload="intent">
-                  Sign in
+                  {tr("nav.signIn", "Sign in")}
                 </Link>
               </Button>
               <Button
@@ -68,7 +73,7 @@ export function SiteHeader() {
                 className="bg-foreground text-background hover:bg-foreground/90"
               >
                 <Link to="/signup" preload="intent">
-                  Get started
+                  {tr("nav.getStarted", "Get Started")}
                 </Link>
               </Button>
             </>

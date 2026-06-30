@@ -494,7 +494,15 @@ function AdminOverview() {
 
     // ─── 4. TRANSACTIONS ───
     const txWs = wb.addWorksheet("Transactions");
-    txWs.addRow(["Transaction ID", "User ID", "Amount (₹)", "Type", "Status", "Description", "Date"]);
+    txWs.addRow([
+      "Transaction ID",
+      "User ID",
+      "Amount (₹)",
+      "Type",
+      "Status",
+      "Description",
+      "Date",
+    ]);
     tx.forEach((t) =>
       txWs.addRow([
         t.id,
@@ -511,7 +519,16 @@ function AdminOverview() {
     // ─── 5. USERS ───
     const userRows = usersQuery.data?.rows ?? [];
     const usersWs = wb.addWorksheet("Users");
-    usersWs.addRow(["User ID", "Full Name", "Email", "Roles", "Status", "AI Credits", "Joined", "Last Sign In"]);
+    usersWs.addRow([
+      "User ID",
+      "Full Name",
+      "Email",
+      "Roles",
+      "Status",
+      "AI Credits",
+      "Joined",
+      "Last Sign In",
+    ]);
     userRows.forEach((u) =>
       usersWs.addRow([
         u.id,
@@ -550,7 +567,9 @@ function AdminOverview() {
 
     // ─── Download ───
     const buffer = await wb.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;

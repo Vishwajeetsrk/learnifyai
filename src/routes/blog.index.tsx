@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Loader2, Calendar, ArrowRight } from "lucide-react";
+import { Loader2, Calendar, ArrowRight, User } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,7 +11,11 @@ export const Route = createFileRoute("/blog/")({
 });
 
 function BlogIndexPage() {
-  const { data: posts, isLoading, isError } = useQuery({
+  const {
+    data: posts,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ["blog-public"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -53,40 +57,30 @@ function BlogIndexPage() {
             <p className="text-sm mt-1">Check back soon for new content.</p>
           </div>
         ) : (
-          <div className="grid gap-8">
+          <div className="grid gap-4">
             {posts.map((post: any) => (
               <Link
                 key={post.id}
                 to="/blog/$slug"
                 params={{ slug: post.slug }}
-                className="group rounded-2xl border bg-card overflow-hidden hover:shadow-lg transition-all hover:-translate-y-0.5"
+                className="group flex items-start gap-4 p-4 rounded-xl border bg-card hover:shadow-md transition-all hover:-translate-y-0.5"
               >
-                {post.featured_image && (
-                  <div className="aspect-video w-full overflow-hidden bg-muted">
-                    <img
-                      src={post.featured_image}
-                      alt={post.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                    />
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-1">
+                  <User className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                    <Calendar className="h-3 w-3" />
+                    <span>{format(new Date(post.published_at || post.created_at), "MMM d, yyyy")}</span>
                   </div>
-                )}
-                <div className="p-6">
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
-                    <Calendar className="h-3.5 w-3.5" />
-                    <span>{format(new Date(post.published_at || post.created_at), "PPP")}</span>
-                  </div>
-                  <h2 className="text-xl font-semibold group-hover:text-primary transition-colors">
+                  <h2 className="font-semibold group-hover:text-primary transition-colors line-clamp-1">
                     {post.title}
                   </h2>
                   {post.excerpt && (
-                    <p className="text-muted-foreground mt-2 line-clamp-2">{post.excerpt}</p>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{post.excerpt}</p>
                   )}
-                  <div className="flex items-center gap-1 text-sm font-medium text-primary mt-4">
-                    Read more <ArrowRight className="h-3.5 w-3.5" />
-                  </div>
                 </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-3" />
               </Link>
             ))}
           </div>
