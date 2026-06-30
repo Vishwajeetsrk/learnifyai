@@ -18,7 +18,7 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-lg text-center space-y-6">
         <div className="mx-auto w-64 h-64">
-          <img src="/illustrations/404_Page_not_found.svg" alt="404" className="w-full h-full" />
+          <img src="/illustrations/404_Page_not_found.svg" alt="404" className="w-full h-full" loading="lazy" />
         </div>
         <div>
           <h1 className="text-4xl font-bold text-foreground">Page not found</h1>

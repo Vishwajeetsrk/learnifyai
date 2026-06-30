@@ -579,7 +579,7 @@ function CourseDetail() {
         <div className="p-10 text-center space-y-4">
           <div className="w-32 h-32 mx-auto">
             <img
-              src="/illustrations/Interactive_Play_and_Pause_button.svg"
+              src="/illustrations/Interactive_Play_and_Pause_button.svg" loading="lazy"
               alt=""
               className="w-full h-full"
             />

@@ -95,7 +95,7 @@ function SignupPage() {
     <div className="min-h-screen bg-hero flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center justify-center mb-8" aria-label="Learnify AI">
-          <img src={logoUrl} alt="Learnify AI" className="h-12 w-auto" />
+          <img src={logoUrl} alt="Learnify AI" className="h-12 w-auto" loading="lazy" />
         </Link>
         <div className="bg-card border rounded-2xl p-8 shadow-card">
           <h1 className="text-2xl font-display font-semibold mb-1">Create your account</h1>

@@ -29,7 +29,7 @@ export default defineConfig({
       external: ["nodemailer"],
     },
     build: {
-      chunkSizeWarningLimit: 2500,
+      chunkSizeWarningLimit: 500,
       rollupOptions: {
         external: ["nodemailer", "nodemailer/lib/mailer/index.js"],
         onwarn(warning, warn) {
@@ -41,14 +41,17 @@ export default defineConfig({
         output: {
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
-            // Split out large, self-contained libraries to reduce vendor chunk size.
-            // Core libraries (react, react-dom, @tanstack, @supabase) must remain in the default 'vendor'
-            // chunk to avoid circular dependencies and runtime initialization crashes.
             if (id.includes("xlsx")) return "vendor-xlsx";
             if (id.includes("jspdf") || id.includes("html2canvas-pro")) return "vendor-pdf";
             if (id.includes("recharts")) return "vendor-charts";
             if (id.includes("highlight.js")) return "vendor-highlight";
             if (id.includes("@tiptap")) return "vendor-editor";
+            if (id.includes("framer-motion")) return "vendor-framer";
+            if (id.includes("monaco-editor")) return "vendor-monaco";
+            if (id.includes("@supabase")) return "vendor-supabase";
+            if (id.includes("pdfjs-dist")) return "vendor-pdfjs";
+            if (id.includes("react-markdown") || id.includes("remark-") || id.includes("rehype-")) return "vendor-markdown";
+            if (id.includes("lucide-react")) return "vendor-icons";
             return "vendor";
           },
         },

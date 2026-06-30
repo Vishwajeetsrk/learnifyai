@@ -363,7 +363,7 @@ function CoursesPage() {
                     </span>
                     <span className="flex items-center gap-1">
                       <img
-                        src="/illustrations/Star_Rating_interaction.svg"
+                        src="/illustrations/Star_Rating_interaction.svg" loading="lazy"
                         alt=""
                         className="h-4 w-12 shrink-0"
                       />{" "}

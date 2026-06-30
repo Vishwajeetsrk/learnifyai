@@ -178,7 +178,7 @@ function ProjectsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       {LANG_ICONS[p.language] && (
-                        <img src={LANG_ICONS[p.language]} alt="" className="w-4 h-4 shrink-0" />
+                        <img src={LANG_ICONS[p.language]} alt="" className="w-4 h-4 shrink-0" loading="lazy" />
                       )}
                       <Link
                         to="/playground/editor"

@@ -499,7 +499,7 @@ function AdminCertificatesPage() {
           <>
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 shrink-0 hidden sm:block"><img src="/illustrations/Cyber_Security.svg" alt="" className="w-full h-full" /></div>
+                <div className="w-14 h-14 shrink-0 hidden sm:block"><img src="/illustrations/Cyber_Security.svg" alt="" className="w-full h-full" loading="lazy" /></div>
                 <div>
                   <h2 className="text-xl font-display font-semibold">Certificate Designer</h2>
                   <p className="text-muted-foreground text-sm mt-1">Design verifiable professional credentials with drag-and-drop.</p>
@@ -552,7 +552,7 @@ function AdminCertificatesPage() {
               {uploadedCanvaTemplates.map((tmpl) => (
                 <div key={tmpl.id} className="rounded-xl border bg-card overflow-hidden group">
                   <div className="aspect-[800/560] bg-muted overflow-hidden relative">
-                    <img src={tmpl.src} alt={tmpl.name} className="w-full h-full object-cover" />
+                    <img src={tmpl.src} alt={tmpl.name} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <Button size="sm" variant="secondary"><Eye className="h-4 w-4 mr-1" /> View</Button>
                       <Button size="sm" variant="secondary"><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>
@@ -569,7 +569,7 @@ function AdminCertificatesPage() {
               ].map((tmpl) => (
                 <div key={tmpl.name} className="rounded-xl border bg-card overflow-hidden group">
                   <div className="aspect-[800/560] bg-muted overflow-hidden relative">
-                    <img src={tmpl.src} alt={tmpl.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                    <img src={tmpl.src} alt={tmpl.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <Button size="sm" variant="secondary"><Eye className="h-4 w-4 mr-1" /> View</Button>
                       <Button size="sm" variant="secondary"><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>

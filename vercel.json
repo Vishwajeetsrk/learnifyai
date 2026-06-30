@@ -42,6 +42,18 @@
     {
       "source": "/favicon.ico",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+    },
+    {
+      "source": "/illustrations/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/certificate(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/logo.png",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     }
   ]
 }

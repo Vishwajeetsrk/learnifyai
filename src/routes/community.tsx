@@ -77,7 +77,7 @@ function CommunityPage() {
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
           <img
-            src="/illustrations/Astronaut_Illustration.svg"
+            src="/illustrations/Astronaut_Illustration.svg" loading="lazy"
             alt="Community"
             className="w-full h-full relative z-10"
           />

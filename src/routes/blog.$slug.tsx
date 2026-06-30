@@ -32,7 +32,7 @@ export const Route = createFileRoute("/blog/$slug")({
       <div className="min-h-[50vh] flex flex-col items-center justify-center gap-6 px-4">
         <div className="w-48 h-48">
           <img
-            src="/illustrations/404_Page_not_found.svg"
+            src="/illustrations/404_Page_not_found.svg" loading="lazy"
             alt="Not found"
             className="w-full h-full"
           />

@@ -35,16 +35,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // Safety timeout — if Supabase never responds, show the UI anyway after 5s
     const safetyTimer = setTimeout(() => setLoading(false), 5000);
 
-    // Register auth listener first
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    } = supabase.auth.onAuthStateChange((event, newSession) => {
       setSession(newSession);
+
+      if (event === "SIGNED_OUT" && !newSession) {
+        sessionStorage.setItem("auth_session_expired", "true");
+      }
+
       if (newSession?.access_token) {
-        // Sync token to cookie for server functions (useServerFn) to read
         document.cookie = `sb-access-token=${newSession.access_token}; path=/; max-age=31536000; SameSite=Lax`;
       } else {
         document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
@@ -57,7 +59,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    // Hydrate any existing session
     supabase.auth
       .getSession()
       .then(async ({ data }) => {
@@ -72,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       .catch((error) => {
         console.error("Failed to restore Supabase session", error);
+        sessionStorage.setItem("auth_session_expired", "true");
       })
       .finally(() => {
         clearTimeout(safetyTimer);

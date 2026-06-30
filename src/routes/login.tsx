@@ -23,6 +23,13 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
+    if (sessionStorage.getItem("auth_session_expired") === "true") {
+      sessionStorage.removeItem("auth_session_expired");
+      toast.info("Your session expired. Please sign in again.");
+    }
+  }, []);
+
+  useEffect(() => {
     if (!loading && isAuthenticated) navigate({ to: "/dashboard", replace: true });
   }, [loading, isAuthenticated, navigate]);
 
@@ -64,7 +71,7 @@ function LoginPage() {
     <div className="min-h-screen bg-hero flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center justify-center mb-8" aria-label="Learnify AI">
-          <img src={logoUrl} alt="Learnify AI" className="h-12 w-auto" />
+          <img src={logoUrl} alt="Learnify AI" className="h-12 w-auto" loading="lazy" />
         </Link>
         <div className="bg-card border rounded-2xl p-8 shadow-card">
           <h1 className="text-2xl font-display font-semibold mb-1">Welcome back</h1>

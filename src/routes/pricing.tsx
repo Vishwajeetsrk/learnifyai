@@ -421,40 +421,46 @@ function PricingPage() {
     error,
   } = useQuery<Plan[]>({
     queryKey: ["pricing-plans"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pricing_plans")
-        .select("*")
-        .eq("active", true)
-        .order("order_index", { ascending: true });
-      if (error) throw error;
-      const dbPlans: Plan[] = ((data ?? []) as any[]).map((p) => ({
-        ...p,
-        features: Array.isArray(p.features) ? p.features : [],
-        price_inr: Number(p.price_inr || 0),
-        max_courses: Number(p.max_courses ?? -1),
-        ai_credits_monthly: Number(p.ai_credits_monthly || 0),
-        price_label: (p.price_label || "").replace(/\/mo(nth)?$/i, ""),
-      })) as Plan[];
-      // Merge DB plans into default tiers: DB plan overrides default by name
-      return DEFAULT_TIERS.map((def) => {
-        const match = dbPlans.find((db) => db.name.toLowerCase() === def.name.toLowerCase());
-        return match
-          ? {
-              ...def,
-              ...match,
-              id: match.id,
-              price_label: def.price_label,
-              price_inr: def.price_inr,
-              yearly_price: def.yearly_price,
-              interval: def.interval,
-              features: match.features.length > 0 ? match.features : def.features,
-            }
-          : def;
-      });
+    queryFn: async ({ signal }) => {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      try {
+        const { data, error } = await supabase
+          .from("pricing_plans")
+          .select("*")
+          .eq("active", true)
+          .order("order_index", { ascending: true });
+        if (error) throw error;
+        const dbPlans: Plan[] = ((data ?? []) as any[]).map((p) => ({
+          ...p,
+          features: Array.isArray(p.features) ? p.features : [],
+          price_inr: Number(p.price_inr || 0),
+          max_courses: Number(p.max_courses ?? -1),
+          ai_credits_monthly: Number(p.ai_credits_monthly || 0),
+          price_label: (p.price_label || "").replace(/\/mo(nth)?$/i, ""),
+        })) as Plan[];
+        return DEFAULT_TIERS.map((def) => {
+          const match = dbPlans.find((db) => db.name.toLowerCase() === def.name.toLowerCase());
+          return match
+            ? {
+                ...def,
+                ...match,
+                id: match.id,
+                price_label: def.price_label,
+                price_inr: def.price_inr,
+                yearly_price: def.yearly_price,
+                interval: def.interval,
+                features: match.features.length > 0 ? match.features : def.features,
+              }
+            : def;
+        });
+      } finally {
+        clearTimeout(timeout);
+      }
     },
-    retry: 2,
-    staleTime: 60_000,
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    staleTime: 120_000,
   });
 
   const currentSub = useQuery({
@@ -862,14 +868,20 @@ function PricingPage() {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : error ? (
-            <div className="space-y-3 rounded-3xl border border-destructive/20 bg-destructive/5 p-10 text-center">
+            <div className="space-y-4 rounded-3xl border border-destructive/20 bg-destructive/5 p-10 text-center">
               <p className="text-lg font-semibold text-destructive">
-                Pricing is currently unavailable.
+                Pricing is temporarily unavailable
               </p>
-              <p className="text-sm text-muted-foreground">
-                We couldn&apos;t load the pricing details right now. Please refresh or try again
-                later.
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                We couldn&apos;t load the pricing details. This is usually temporary — please
+                refresh or check back shortly.
               </p>
+              <Button
+                variant="outline"
+                onClick={() => qc.invalidateQueries({ queryKey: ["pricing-plans"] })}
+              >
+                Try again
+              </Button>
             </div>
           ) : !tiers || tiers.length === 0 ? (
             <p className="text-center text-muted-foreground py-12">Pricing coming soon.</p>
