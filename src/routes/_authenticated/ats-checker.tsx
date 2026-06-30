@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { checkAtsScore } from "@/lib/resume.functions";
+import { checkAtsScore, extractResumeFields } from "@/lib/resume.functions";
 import { ResumeFileUpload } from "@/components/ResumeFileUpload";
 
 export const Route = createFileRoute("/_authenticated/ats-checker")({
@@ -21,17 +21,30 @@ export const Route = createFileRoute("/_authenticated/ats-checker")({
 
 function AtsCheckerPage() {
   const checkFn = useServerFn(checkAtsScore);
+  const extractFn = useServerFn(extractResumeFields);
   const [tab, setTab] = useState("input");
   const [loading, setLoading] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const [result, setResult] = useState<any>(null);
 
   const [resumeText, setResumeText] = useState("");
   const [targetRole, setTargetRole] = useState("");
   const [industry, setIndustry] = useState("");
 
-  const handleFileExtracted = (text: string) => {
+  const handleFileExtracted = async (text: string) => {
     setResumeText(text);
-    toast.success("Resume text extracted! Review and check ATS score.");
+    setExtracting(true);
+    try {
+      const fields = await extractFn({ data: { rawText: text } });
+      console.log("[ATSChecker] extractResumeFields response:", fields);
+      if (fields.targetRole) setTargetRole(fields.targetRole);
+      toast.success("Resume parsed! Fields auto-filled.");
+    } catch (err: any) {
+      console.error("[ATSChecker] extractResumeFields error:", err);
+      toast.success("Resume text extracted! Fill in target role and check ATS score.");
+    } finally {
+      setExtracting(false);
+    }
   };
 
   const handleCheck = async () => {

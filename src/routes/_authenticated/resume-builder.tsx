@@ -63,6 +63,7 @@ function ResumeBuilderPage() {
     setExtracting(true);
     try {
       const fields = await extractFn({ data: { rawText: text } });
+      console.log("[ResumeBuilder] extractResumeFields response:", fields);
       setForm((f) => ({
         ...f,
         fullName: fields.fullName || f.fullName,
@@ -75,9 +76,11 @@ function ResumeBuilderPage() {
         skills: fields.skills || f.skills,
         certifications: fields.certifications || f.certifications,
         projects: fields.projects || f.projects,
+        targetRole: fields.targetRole || f.targetRole,
       }));
       toast.success("Fields auto-filled from uploaded resume!");
     } catch (err: any) {
+      console.error("[ResumeBuilder] extractResumeFields error:", err);
       toast.error(err.message || "Failed to parse resume");
     } finally {
       setExtracting(false);

@@ -75,13 +75,21 @@ function PortfolioBuilderPage() {
     setExtracting(true);
     try {
       const fields = await extractFn({ data: { rawText: text } });
+      console.log("[PortfolioBuilder] extractResumeFields response:", fields);
+
+      const normalizeLinkedin = (val: string) => {
+        if (!val) return "";
+        const cleaned = val.replace(/^https?:\/\//, "").replace(/^linkedin\.com\/in\//, "").replace(/\/$/, "");
+        return cleaned ? `https://linkedin.com/in/${cleaned}` : "";
+      };
+
       setForm((f) => ({
         ...f,
         fullName: fields.fullName || f.fullName,
-        bio: fields.summary || fields.bio || f.bio,
-        tagline: fields.targetRole ? `${fields.targetRole}` : f.tagline,
+        bio: fields.summary || f.bio,
+        tagline: fields.targetRole || f.tagline,
         socialLinks: fields.linkedin
-          ? [...new Set([`https://${fields.linkedin.replace(/^https?:\/\//, '')}`, ...f.socialLinks.split('\n').filter(Boolean)])].join('\n')
+          ? [...new Set([normalizeLinkedin(fields.linkedin), ...f.socialLinks.split('\n').filter(Boolean)])].filter(Boolean).join('\n')
           : f.socialLinks,
         skills: fields.skills || f.skills,
         experience: fields.experience || f.experience,
@@ -90,24 +98,24 @@ function PortfolioBuilderPage() {
       }));
 
       if (fields.projects) {
-        const projectLines = fields.projects.split('\n');
+        const projectLines = fields.projects.split('\n').filter(Boolean);
         const parsedProjects: ProjectEntry[] = projectLines.map((line: string) => {
-          const match = line.match(/([^()]+)\(([^)]+)\):?\s*(.*)/);
-          if (match) {
-            return {
-              name: match[1].trim(),
-              githubUrl: match[2].trim(),
-              description: match[3]?.trim() || "",
-              techStack: ""
-            };
-          }
-          return { name: line.trim(), description: "", techStack: "", githubUrl: "" };
-        }).filter((p: ProjectEntry) => p.name);
+          const dashMatch = line.match(/^\s*[-*]\s*(.+)/);
+          const content = dashMatch ? dashMatch[1] : line;
+          const urlMatch = content.match(/(https?:\/\/[^\s]+)/);
+          const githubUrl = urlMatch ? urlMatch[1] : "";
+          const nameOnly = content.replace(/(https?:\/\/[^\s]+)/, "").replace(/[:\-–]\s*$/, "").trim();
+          const parts = nameOnly.split(/[:\-–]/).map((s: string) => s.trim()).filter(Boolean);
+          const name = parts[0] || content.trim();
+          const description = parts.slice(1).join(": ") || "";
+          return { name, description, techStack: "", githubUrl };
+        }).filter((p: ProjectEntry) => p.name.length > 1);
         setProjects(parsedProjects);
       }
 
       toast.success("Profile auto-filled from uploaded resume!");
     } catch (err: any) {
+      console.error("[PortfolioBuilder] extractResumeFields error:", err);
       toast.error(err.message || "Failed to parse resume");
     } finally {
       setExtracting(false);

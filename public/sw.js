@@ -1,5 +1,5 @@
 const CACHE_NAME = "learnify-v3";
-const STATIC_ASSETS = ["/", "/favicon.ico", "/logo.png", "/manifest.json"];
+const STATIC_ASSETS = ["/", "/favicon.ico", "/logo.png", "/manifest.json", "/offline.html"];
 
 const ORIGIN = self.location.origin;
 
@@ -53,14 +53,13 @@ self.addEventListener("fetch", (event) => {
             }
             return response;
           })
-          .catch(() => cached || new Response("Offline", { status: 503 }));
+          .catch(() => {
+            if (isHtml) return caches.match("/offline.html");
+            return cached || new Response("Offline", { status: 503 });
+          });
 
       if (isHtml) {
-        if (cached) {
-          fetchAndCache();
-          return cached;
-        }
-        return fetchAndCache();
+        return cached || fetchAndCache();
       }
 
       if (isImage || isStatic) {
