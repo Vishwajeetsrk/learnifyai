@@ -10,6 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import fontsCss from "../fonts.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import "@/i18n";
 
@@ -167,6 +168,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "apple-touch-icon",
         href: "/logo.png",
         sizes: "192x192",
+      },
+      {
+        rel: "stylesheet",
+        href: fontsCss,
       },
       {
         rel: "stylesheet",

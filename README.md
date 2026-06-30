@@ -453,6 +453,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 - ✅ **Vercel Build Fix**: Downgraded `@lovable.dev/vite-tanstack-config` from 2.6.4 → 2.1.1 to resolve peer dependency conflict. 2.6.4 required `nitro@>=3.0.260603-beta` but our install had `3.0.260429-beta` — Vercel's strict npm resolver rejected the pre-release mismatch.
 
+### v3.7.3 (July 2026) - CSS Build Fix
+
+- ✅ **CSS Missed-semicolon Fix**: Moved `@fontsource` imports from `styles.css` into a separate `fonts.css` loaded as a standalone `<link>` element. Tailwind v4's `@import` handler was trying to process `@fontsource` CSS files and failing with a PostCSS "Missed semicolon" error.
+- ✅ **fonts.css**: New standalone CSS file for self-hosted font declarations, imported via `?url` in `__root.tsx` to avoid Tailwind CSS preprocessing.
+
 ### v3.6.0 (June 2026) - Blog Likes & Comments, WCMS Menus, Animated Illustrations
 
 - ✅ **Blog Likes & Comments**: New `blog_likes` + `blog_comments` tables with RLS. Like button with auth toggle, comment list with author avatars, delete own comments. Migration pushed to remote.
