@@ -436,6 +436,19 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **PWA Service Worker Fix**: Fixed `sw.js` caching logic — was filtering out all static assets due to `url.startsWith("http")` check.
 - ✅ **TypeScript/Build Fixes**: Fixed `FolderOpen` missing import in InteractiveDemoCards, `DemoCard` type definition, implicit `any` params in server functions, `pdfjs-dist` worker URL, and Portfolio Builder field mapping (`summary`→`bio`, `targetRole`→`tagline`).
 
+### v3.7.1 (June 2026) - Performance, Auto-Fill Fixes & PWA Offline Page
+
+- ✅ **Auto-Fill Bug Fixed**: All 3 tools (Resume Builder, ATS Checker, Portfolio Builder) now properly call `extractResumeFields` on PDF/DOCX upload. Resume Builder now auto-fills `targetRole`. ATS Checker now parses target role from uploaded resume. Portfolio Builder has fixed LinkedIn URL normalization and improved project parsing.
+- ✅ **Pricing Page 503 Fix**: Added 10s query timeout, 3 retries with exponential backoff, and a retry button on error. CMS section hooks (`usePublicSection`) now also retry on failure.
+- ✅ **Auth Refresh Token**: Graceful handling of expired/invalid Supabase refresh tokens. Detects `SIGNED_OUT` events from token expiry, shows "Your session expired" toast on login page.
+- ✅ **PWA Offline Page**: New branded `/offline.html` fallback page. Service Worker now serves it on network failure instead of bare "Offline" text. Cache bumped to `learnify-v3`.
+- ✅ **Service Worker Optimization**: Stale-while-revalidate for HTML (serves cached shell immediately), runtime caching for images and static assets.
+- ✅ **Vite Chunk Splitting**: Split `framer-motion`, `monaco-editor`, `@supabase`, `pdfjs-dist`, `react-markdown`, `lucide-react` into separate vendor chunks. Warning limit lowered from 2500 kB → 500 kB.
+- ✅ **Vercel Cache Headers**: Added `Cache-Control: public, max-age=31536000, immutable` for `/illustrations/`, `/certificate*`, `/logo.png`.
+- ✅ **Lazy Loading**: Added `loading="lazy"` to 14 images across 12 files (decorative SVGs, certificate templates, language icons).
+- ✅ **Package Upgrades**: 70+ packages upgraded to latest minor versions (Radix UI, TanStack, Supabase, Tailwind, TipTap, framer-motion, etc.) with zero build errors.
+- ✅ **Unused SVGs Removed**: Deleted 5 unused avatar SVGs (`priya.svg`, `vikram.svg`, `rishabh.svg`, `anjali.svg`, `vishajeet.svg`) from `public/illustrations/` that were causing 404 errors.
+
 ### v3.6.0 (June 2026) - Blog Likes & Comments, WCMS Menus, Animated Illustrations
 
 - ✅ **Blog Likes & Comments**: New `blog_likes` + `blog_comments` tables with RLS. Like button with auth toggle, comment list with author avatars, delete own comments. Migration pushed to remote.
