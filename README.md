@@ -65,7 +65,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | ----------------------------- | --------------------------------------------------------------------------------------------------------- |
 | 💬 **Community Feed**         | Social learning with posts, comments, likes, edit/delete, rich text editor                                |
 | 📥 **Inbox**                  | Direct messaging between coaches and students                                                             |
-| ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates, email templates, content management                         |
+| ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates, email templates, content management, subscription management, coupon CRUD |
 | 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                                               |
 | 📧 **Email System**           | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback |
 | 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                         |
@@ -422,6 +422,17 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v3.8.0 (July 2026) - Character Customization, PDF Extraction, Enrollment Emails & Admin Tools
+
+- ✅ **Character Customization Fixed**: Fixed 22 wrong DiceBear API parameter names across 5 art styles (Adventurer, Robot, Pixel Art, Fun Emoji, Lorelei). All styles now correctly use the `Variant` suffix (e.g., `hairVariant`, `eyesVariant`, `mouthVariant`). Previously, bare parameter names were silently ignored by DiceBear, causing all non-Avataaars styles to render random defaults.
+- ✅ **PDF Extraction Fixed**: Changed `pdfjs-dist` worker source from broken empty string to CDN URL (`cdnjs.cloudflare.com`). Added per-page error handling so one corrupted page doesn't kill extraction. Increased Zod limits: extraction 50K→100K chars, ATS 20K→50K chars. Fixed ATS checker showing success toast on failure.
+- ✅ **Enrollment Confirmation Emails**: Wired up the previously dead `course_enrolled` DB template. Both paid checkout (`checkoutCart`) and free enrollment (`enrollFree`) now send confirmation emails with course details and dashboard link. Falls back to inline HTML when DB template is missing.
+- ✅ **Admin Subscription Management**: New actions on the admin billing page — activate, cancel, pause, and extend subscriptions with dropdown menu UI. Server function `adminUpdateSubscription` logs all actions to `subscription_events`.
+- ✅ **Admin Coupon Management**: Full CRUD for coupon codes in the admin billing page. Server functions `getCoupons`, `saveCoupon`, `deleteCoupon` with a dialog-based editor for code, discount type, max uses, validity, and active status.
+- ✅ **Invoice Email CTAs Updated**: Billing email buttons now accurately say "View & Download Invoice" with helper text explaining the PDF is on the billing page (previously said "Download Invoice PDF" but linked to generic billing page).
+- ✅ **Avatar Preview Cache Fix**: Added nonce-based cache busting for avatar preview image to prevent stale renders when switching styles.
+- ✅ **Misc Fixes**: DropdownMenu import for admin billing, verify-student Link type error, SectionsManager seed function fix.
 
 ### v3.7.0 (June 2026) - Resume Builder, ATS Checker, Career Roadmap & Portfolio Builder
 
