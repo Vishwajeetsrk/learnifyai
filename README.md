@@ -45,6 +45,8 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 📋 **Billing Dashboard**         | View current plan, invoices, subscription history, cancel/resume subscription           |
 | 🎯 **Onboarding Wizard**         | 8-step guided setup with AI coach, daily habits tracking, and project creation          |
 | 🗺️ **Interactive Product Tours** | Role-specific guided tours (Student, Creator, Admin, AI Tools) with spotlight tooltips  |
+| 🎤 **Interview Prep**            | Mock interviews with AI feedback — 8 roles, Chat/Voice/Video modes, 3 difficulty levels |
+| 💻 **Coding Challenges**         | Daily challenges, difficulty/category filters, points, and Playground Editor integration |
 | 📝 **Blog**                      | Read articles, like posts, and comment with community                                   |
 
 ### 🎓 For Creators
@@ -65,7 +67,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | ----------------------------- | --------------------------------------------------------------------------------------------------------- |
 | 💬 **Community Feed**         | Social learning with posts, comments, likes, edit/delete, rich text editor                                |
 | 📥 **Inbox**                  | Direct messaging between coaches and students                                                             |
-| ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates, email templates, content management, subscription management, coupon CRUD, student verification |
+| ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates (templates/canva/bulk/analytics/categories), email templates, content management, subscription management, coupon CRUD, student verification |
 | 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                                               |
 | 📧 **Email System**           | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback |
 | 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                         |
@@ -288,6 +290,8 @@ src/
 │   │   ├── resume-builder.tsx   # AI-powered resume builder
 │   │   ├── ats-checker.tsx      # ATS score analyzer
 │   │   ├── career-roadmap.tsx   # Career roadmap generator (structured JSON)
+│   │   ├── interview.tsx        # Interview prep (8 roles, 3 modes, AI eval)
+│   │   ├── challenges.tsx       # Coding challenges (daily, filters, points)
 │   │   ├── portfolio-builder.tsx # Portfolio builder
 │   │   ├── verify-student.tsx   # Student email verification
 │   │   ├── studio.tsx       # Creator studio
@@ -423,6 +427,14 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v3.9.1 (July 2026) - PDF Worker Fix, Character Clothing, Cert Tabs, Interview & Challenges
+
+- ✅ **PDF Worker CDN Fix**: Switched from cdnjs (doesn't host pdf.js v6.x) to unpkg CDN for `pdf.worker.min.mjs`. PDF extraction now loads correctly on Vercel.
+- ✅ **Character Clothing Style Fixed**: Replaced broken DiceBear image previews in the clothing style picker with styled icon+text card buttons in a responsive grid. Images were failing to load causing duplicate alt text.
+- ✅ **Admin Certificates Tabs Polished**: Improved sub-tab styling with active background highlight, tighter gaps, and matching help icon colors.
+- ✅ **Interview Prep** (`/interview`): Full mock interview system — 8 job roles (Frontend, Backend, Full-Stack, Data Scientist, DevOps, Mobile, PM, UI/UX), 3 modes (Chat, Voice with Web Speech API, Video), 3 difficulty levels, 10 questions per session with AI generation and evaluation, score/feedback/model answer, results page with grade and breakdown.
+- ✅ **Coding Challenges** (`/challenges`): Daily challenge banner, difficulty filters (Easy/Medium/Hard), category filters (Algorithms, Data Structures, JavaScript, Python, SQL, System Design), challenge cards with points/solved status, links to Playground Editor.
 
 ### v3.9.0 (July 2026) - Career Roadmap Redesign, Skill Logo System & Build Fixes
 
