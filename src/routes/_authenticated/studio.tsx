@@ -4,7 +4,7 @@ import { Loader2, RefreshCcw } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 
-const StudioPage = lazy(() => import("./studio.page"));
+const StudioPage = lazy(() => import("@/views/studio.view"));
 
 function StudioFallback() {
   return (

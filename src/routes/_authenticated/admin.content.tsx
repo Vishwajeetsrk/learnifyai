@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-const AdminContentPage = lazy(() => import("./admin.content.page"));
+const AdminContentPage = lazy(() => import("@/views/admin.content.view"));
 
 function AdminContentFallback() {
   return (

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-const SettingsPage = lazy(() => import("./settings.page"));
+const SettingsPage = lazy(() => import("@/views/settings.view"));
 
 function SettingsFallback() {
   return (

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-const LeaderboardPage = lazy(() => import("./leaderboard.page"));
+const LeaderboardPage = lazy(() => import("@/views/leaderboard.view"));
 
 function LeaderboardFallback() {
   return (

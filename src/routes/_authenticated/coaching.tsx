@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-const CoachingDashboard = lazy(() => import("./coaching.page"));
+const CoachingDashboard = lazy(() => import("@/views/coaching.view"));
 
 function CoachingFallback() {
   return (

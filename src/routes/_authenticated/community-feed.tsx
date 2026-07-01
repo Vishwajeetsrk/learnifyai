@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-const CommunityPage = lazy(() => import("./community-feed.page"));
+const CommunityPage = lazy(() => import("@/views/community-feed.view"));
 
 function CommunityFallback() {
   return (
