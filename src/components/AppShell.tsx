@@ -23,6 +23,8 @@ import {
   FileText,
   Map,
   FolderOpen,
+  Briefcase,
+  Code2,
 } from "lucide-react";
 import { useState, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -66,6 +68,8 @@ const nav: NavItem[] = [
   { to: "/ats-checker", label: "ATS Checker", icon: BarChart3, featureKey: "ai_tools" },
   { to: "/career-roadmap", label: "Career Roadmap", icon: Map, featureKey: "ai_tools" },
   { to: "/portfolio-builder", label: "Portfolio Builder", icon: FolderOpen, featureKey: "ai_tools" },
+  { to: "/interview", label: "Interview Prep", icon: Briefcase, featureKey: "ai_tools" },
+  { to: "/challenges", label: "Challenges", icon: Code2, featureKey: "ai_tools" },
   { to: "/billing", label: "Billing", icon: CreditCard },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 

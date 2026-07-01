@@ -64,61 +64,6 @@ type CertTemplate = {
   config_json: { elements: CertElement[]; design: CertDesign };
 };
 
-const CERT_TEMPLATES_DATA = [
-  {
-    id: "learnify-classic-navy-gold",
-    name: "Classic Navy & Gold",
-    category: "Professional",
-    theme: { primary: "#0A1F44", secondary: "#D4AF37", accent: "#1E40AF", background: "#FFFFFF" },
-    layout: "Landscape",
-    style: "Corporate Luxury",
-  },
-  {
-    id: "learnify-royal-purple",
-    name: "Royal Purple Prestige",
-    category: "Achievement",
-    theme: { primary: "#5B21B6", secondary: "#EAB308", accent: "#8B5CF6", background: "#FFFFFF" },
-    layout: "Landscape",
-    style: "Prestige Award",
-  },
-  {
-    id: "learnify-modern-glass",
-    name: "Glassmorphism Future",
-    category: "Technology",
-    theme: { primary: "#2563EB", secondary: "#06B6D4", accent: "#8B5CF6", background: "#F8FAFC" },
-    layout: "Landscape",
-    style: "Futuristic SaaS",
-  },
-  {
-    id: "learnify-black-gold",
-    name: "Executive Black & Gold",
-    category: "Executive",
-    theme: { primary: "#111827", secondary: "#FBBF24", accent: "#F59E0B", background: "#0F172A" },
-    layout: "Landscape",
-    style: "Luxury Executive",
-  },
-  {
-    id: "learnify-emerald-elite",
-    name: "Emerald Elite",
-    category: "Certification",
-    theme: { primary: "#065F46", secondary: "#FBBF24", accent: "#10B981", background: "#FFFFFF" },
-    layout: "Landscape",
-    style: "Academic Excellence",
-  },
-];
-
-const DYNAMIC_VARIABLES = [
-  "{{student_name}}", "{{course_name}}", "{{completion_date}}", "{{issue_date}}",
-  "{{certificate_id}}", "{{instructor_name}}", "{{organization_name}}",
-  "{{verification_url}}", "{{linkedin_url}}", "{{skills_earned}}",
-  "{{grade}}", "{{score}}", "{{duration}}", "{{credits}}",
-];
-
-const VERIFICATION_FEATURES = [
-  "QR Verification", "Certificate ID", "Public Verification Page",
-  "LinkedIn Sharing", "Download PDF", "Print Certificate", "Digital Seal", "Tamper Protection",
-];
-
 const THEMES = [
   { id: "classic", name: "Classic", accent: "#c9a84c", bg: "#fdfbf5", text: "#0f1b3d" },
   { id: "modern-blue", name: "Modern Blue", accent: "#2563eb", bg: "#f8fafc", text: "#1e293b" },
@@ -145,15 +90,6 @@ function makeDefaultTemplate(): CertTemplate {
   const t = THEMES[0];
   return { id: crypto.randomUUID(), name: "New Template", type: t.name, config_json: { elements: [...DEFAULT_ELEMENTS], design: applyTheme(t) } };
 }
-
-const MOCK_CATEGORIES = [
-  { id: "1", name: "Professional", count: 24, color: "#3b82f6" },
-  { id: "2", name: "Achievement", count: 18, color: "#10b981" },
-  { id: "3", name: "Technology", count: 12, color: "#f59e0b" },
-  { id: "4", name: "Executive", count: 9, color: "#ec4899" },
-  { id: "5", name: "Certification", count: 15, color: "#8b5cf6" },
-  { id: "6", name: "Academic", count: 7, color: "#06b6d4" },
-];
 
 const MOCK_BULK_ISSUES = [
   { id: "1", date: "2026-06-25", count: 45, course: "Web Development Bootcamp", status: "completed", issuedBy: "Admin" },
@@ -210,7 +146,6 @@ function AdminCertificatesPage() {
   const [saving, setSaving] = useState(false);
   const [viewTemplate, setViewTemplate] = useState<any>(null);
   const [editingCategory, setEditingCategory] = useState<any>(null);
-  const [categories, setCategories] = useState(MOCK_CATEGORIES);
   const [categorySearch, setCategorySearch] = useState("");
   const [templateSearch, setTemplateSearch] = useState("");
   const [bulkSearch, setBulkSearch] = useState("");
@@ -219,6 +154,8 @@ function AdminCertificatesPage() {
   const [uploadedCanvaTemplates, setUploadedCanvaTemplates] = useState<Array<{ id: string; name: string; src: string; type: string; category: string }>>([]);
   const canvaFileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [viewCanvaTemplate, setViewCanvaTemplate] = useState<any>(null);
+  const [editCanvaTemplate, setEditCanvaTemplate] = useState<any>(null);
 
   const q = useQuery({
     enabled: !!isAdmin,
@@ -242,21 +179,11 @@ function AdminCertificatesPage() {
 
   const dbTemplates = q.data ?? [];
   const allTemplates = useMemo(() => {
-    const seen = new Set<string>();
-    const merged: any[] = [];
-    for (const t of CERT_TEMPLATES_DATA) {
-      if (!seen.has(t.id)) {
-        seen.add(t.id);
-        merged.push({ ...t, config_json: { elements: [...DEFAULT_ELEMENTS], design: applyTheme(THEMES[0]) } });
-      }
-    }
-    for (const t of dbTemplates) {
-      if (!seen.has(t.id)) {
-        seen.add(t.id);
-        merged.push(t);
-      }
-    }
-    return merged;
+    return dbTemplates.map((t: any) => ({
+      ...t,
+      theme: { primary: t.config_json?.design?.accent_color || "#0A1F44", secondary: "#D4AF37", background: t.config_json?.design?.bg_color || "#FFFFFF" },
+      style: t.config_json?.design?.font_family || "Professional",
+    }));
   }, [dbTemplates]);
 
   const filteredTemplates = allTemplates.filter((t: any) =>
@@ -268,7 +195,28 @@ function AdminCertificatesPage() {
     b.course.toLowerCase().includes(bulkSearch.toLowerCase())
   );
 
-  const filteredCategories = categories.filter((c) =>
+  const CATEGORY_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6", "#06b6d4"];
+  const [localCategories, setLocalCategories] = useState<Record<string, string>>({});
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    dbTemplates.forEach((t: any) => {
+      const cat = t.category || "Uncategorized";
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return counts;
+  }, [dbTemplates]);
+  const categoryNames = ["All", ...Object.keys(categoryCounts).sort()];
+  const categoriesList = useMemo(() =>
+    Object.entries(categoryCounts).map(([name, count], i) => ({
+      id: name,
+      name,
+      count,
+      color: localCategories[name] || CATEGORY_COLORS[i % CATEGORY_COLORS.length],
+    })),
+    [categoryCounts, localCategories]
+  );
+
+  const filteredCategories = categoriesList.filter((c) =>
     c.name.toLowerCase().includes(categorySearch.toLowerCase())
   );
 
@@ -348,24 +296,19 @@ function AdminCertificatesPage() {
     setActive({ ...active, config_json: { ...active.config_json, elements: [...active.config_json.elements, { id: crypto.randomUUID(), type: "org_logo", x: 60, y: 40, width: 100, height: 100 }] } });
   };
 
-  const handleAddCategory = () => setEditingCategory({ id: crypto.randomUUID(), name: "", color: "#3b82f6", count: 0 });
+  const handleAddCategory = () => setEditingCategory({ id: "", name: "", color: "#3b82f6" });
 
   const handleSaveCategory = () => {
     if (!editingCategory?.name) { toast.error("Category name is required"); return; }
-    if (categories.some((c) => c.id === editingCategory.id)) {
-      setCategories((prev) => prev.map((c) => (c.id === editingCategory.id ? editingCategory : c)));
-      toast.success("Category updated");
-    } else {
-      setCategories((prev) => [...prev, editingCategory]);
-      toast.success("Category added");
-    }
+    setLocalCategories((prev) => ({ ...prev, [editingCategory.name]: editingCategory.color }));
+    toast.success("Category saved");
     setEditingCategory(null);
   };
 
-  const handleDeleteCategory = (id: string) => {
+  const handleDeleteCategory = (name: string) => {
     if (!confirm("Delete this category?")) return;
-    setCategories((prev) => prev.filter((c) => c.id !== id));
-    toast.success("Category deleted");
+    setLocalCategories((prev) => { const next = { ...prev }; delete next[name]; return next; });
+    toast.success("Category color cleared");
   };
 
   const getPatternStyle = (pattern: string, bg: string, accent: string) => {
@@ -557,8 +500,8 @@ function AdminCertificatesPage() {
                   <div className="aspect-[800/560] bg-muted overflow-hidden relative">
                     <img src={tmpl.src} alt={tmpl.name} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <Button size="sm" variant="secondary"><Eye className="h-4 w-4 mr-1" /> View</Button>
-                      <Button size="sm" variant="secondary"><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>
+                      <Button size="sm" variant="secondary" onClick={() => setViewCanvaTemplate(tmpl)}><Eye className="h-4 w-4 mr-1" /> View</Button>
+                      <Button size="sm" variant="secondary" onClick={() => setEditCanvaTemplate(tmpl)}><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>
                       <Button size="sm" variant="destructive" onClick={() => setUploadedCanvaTemplates((prev) => prev.filter((t) => t.id !== tmpl.id))}><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </div>
@@ -574,9 +517,9 @@ function AdminCertificatesPage() {
                   <div className="aspect-[800/560] bg-muted overflow-hidden relative">
                     <img src={tmpl.src} alt={tmpl.name} className="w-full h-full object-cover" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <Button size="sm" variant="secondary"><Eye className="h-4 w-4 mr-1" /> View</Button>
-                      <Button size="sm" variant="secondary"><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>
-                      <Button size="sm" variant="destructive"><Trash2 className="h-4 w-4" /></Button>
+                      <Button size="sm" variant="secondary" onClick={() => setViewCanvaTemplate(tmpl)}><Eye className="h-4 w-4 mr-1" /> View</Button>
+                      <Button size="sm" variant="secondary" onClick={() => setEditCanvaTemplate(tmpl)}><Edit3 className="h-4 w-4 mr-1" /> Edit</Button>
+                      <Button size="sm" variant="destructive" onClick={() => toast.error("Built-in templates cannot be deleted")}><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </div>
                   <div className="p-4"><h3 className="text-sm font-semibold">{tmpl.name}</h3><Badge variant="secondary" className="text-[9px] mt-1">{tmpl.category}</Badge></div>
@@ -712,7 +655,7 @@ function AdminCertificatesPage() {
             </div>
             {editingCategory && (
               <div className="rounded-xl border bg-card p-6 space-y-4">
-                <h3 className="font-semibold">{categories.some((c) => c.id === editingCategory.id) ? "Edit" : "New"} Category</h3>
+                <h3 className="font-semibold">{editingCategory?.id ? "Edit" : "New"} Category</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div><Label>Name</Label><Input value={editingCategory.name} onChange={(e) => setEditingCategory({ ...editingCategory, name: e.target.value })} placeholder="Category name" /></div>
                   <div><Label>Color</Label><div className="flex items-center gap-2"><input type="color" value={editingCategory.color} onChange={(e) => setEditingCategory({ ...editingCategory, color: e.target.value })} className="w-10 h-10 rounded border cursor-pointer" /><Input value={editingCategory.color} onChange={(e) => setEditingCategory({ ...editingCategory, color: e.target.value })} /></div></div>
@@ -729,7 +672,7 @@ function AdminCertificatesPage() {
                   </div>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => setEditingCategory(cat)}><Edit3 className="h-3.5 w-3.5" /></Button>
-                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleDeleteCategory(cat.id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => handleDeleteCategory(cat.name)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                   </div>
                 </div>
               ))}
@@ -765,6 +708,55 @@ function AdminCertificatesPage() {
                 <Button onClick={() => { setViewTemplate(null); setActive({ ...viewTemplate, config_json: { elements: [...DEFAULT_ELEMENTS], design: applyTheme(THEMES[0]) } }); }}><Edit3 className="h-4 w-4 mr-2" /> Edit</Button>
                 <Button variant="outline"><Download className="h-4 w-4 mr-2" /> Download</Button>
                 <Button variant="outline"><ExternalLink className="h-4 w-4 mr-2" /> Open in Canva</Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Canva Template View Dialog */}
+        {viewCanvaTemplate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setViewCanvaTemplate(null)}>
+            <motion.div className="bg-background rounded-2xl border shadow-2xl max-w-2xl w-full p-6" onClick={(e) => e.stopPropagation()} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">{viewCanvaTemplate.name}</h3>
+                <Button variant="ghost" size="sm" onClick={() => setViewCanvaTemplate(null)}><X className="h-4 w-4" /></Button>
+              </div>
+              <div className="aspect-[1.414] rounded-lg overflow-hidden border bg-muted mb-4">
+                <img src={viewCanvaTemplate.src} alt={viewCanvaTemplate.name} className="w-full h-full object-contain" />
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">{viewCanvaTemplate.category}</Badge>
+                <span className="text-xs text-muted-foreground">{viewCanvaTemplate.type?.toUpperCase()}</span>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Canva Template Edit Dialog */}
+        {editCanvaTemplate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setEditCanvaTemplate(null)}>
+            <motion.div className="bg-background rounded-2xl border shadow-2xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Edit Template</h3>
+                <Button variant="ghost" size="sm" onClick={() => setEditCanvaTemplate(null)}><X className="h-4 w-4" /></Button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <Label>Name</Label>
+                  <Input value={editCanvaTemplate.name} onChange={(e) => setEditCanvaTemplate({ ...editCanvaTemplate, name: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Category</Label>
+                  <Input value={editCanvaTemplate.category} onChange={(e) => setEditCanvaTemplate({ ...editCanvaTemplate, category: e.target.value })} />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2 mt-6">
+                <Button variant="outline" onClick={() => setEditCanvaTemplate(null)}>Cancel</Button>
+                <Button onClick={() => {
+                  setUploadedCanvaTemplates((prev) => prev.map((t) => t.id === editCanvaTemplate.id ? editCanvaTemplate : t));
+                  toast.success("Template updated");
+                  setEditCanvaTemplate(null);
+                }}><Save className="h-4 w-4 mr-2" /> Save</Button>
               </div>
             </motion.div>
           </div>

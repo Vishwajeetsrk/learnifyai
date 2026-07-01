@@ -4,33 +4,79 @@ import { X, Sparkles, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 
 const TARGET_DATE_KEY = "learnify_launch_offer_date";
+const DISMISSED_KEY = "learnify_promo_banner_dismissed";
+
+interface PromoBannerContent {
+  enabled?: boolean;
+  headline?: string;
+  discount?: string;
+  subtitle?: string;
+  cta?: string;
+  ctaLink?: string;
+  timerDays?: number;
+  bgGradient?: string;
+  dismissible?: boolean;
+}
+
+const DEFAULT_CONTENT: PromoBannerContent = {
+  enabled: true,
+  headline: "Launch Offer",
+  discount: "20% Off",
+  subtitle: "Limited Time",
+  cta: "Claim Now",
+  ctaLink: "/signup",
+  timerDays: 7,
+  bgGradient: "from-blue-600 via-indigo-600 to-purple-700",
+  dismissible: true,
+};
 
 interface LaunchOfferBannerProps {
   className?: string;
 }
 
 export function LaunchOfferBanner({ className }: LaunchOfferBannerProps) {
-  const [dismissed, setDismissed] = useState(false);
+  const [content, setContent] = useState<PromoBannerContent>(DEFAULT_CONTENT);
+  const [loaded, setLoaded] = useState(false);
+  const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISSED_KEY) === "true");
   const [targetDate, setTargetDate] = useState<Date | null>(null);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    let stored = localStorage.getItem(TARGET_DATE_KEY);
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("wcms_sections")
+          .select("content")
+          .eq("key", "promo-banner")
+          .maybeSingle();
+        if (data?.content) {
+          setContent({ ...DEFAULT_CONTENT, ...(data.content as PromoBannerContent) });
+        }
+      } catch {
+        // use defaults
+      }
+      setLoaded(true);
+    })();
+  }, []);
+
+  useEffect(() => {
     let date: Date;
+    const stored = localStorage.getItem(TARGET_DATE_KEY);
     if (stored) {
       date = new Date(stored);
       if (isNaN(date.getTime())) {
-        date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        date = new Date(Date.now() + (content.timerDays || 7) * 24 * 60 * 60 * 1000);
         localStorage.setItem(TARGET_DATE_KEY, date.toISOString());
       }
     } else {
-      date = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      date = new Date(Date.now() + (content.timerDays || 7) * 24 * 60 * 60 * 1000);
       localStorage.setItem(TARGET_DATE_KEY, date.toISOString());
     }
     setTargetDate(date);
-  }, []);
+  }, [content.timerDays]);
 
   useEffect(() => {
     if (!targetDate) return;
@@ -52,12 +98,17 @@ export function LaunchOfferBanner({ className }: LaunchOfferBannerProps) {
     return () => clearInterval(id);
   }, [targetDate]);
 
-  if (dismissed) return null;
+  if (!loaded) return null;
+  if (!content.enabled) return null;
+  if (content.dismissible && dismissed) return null;
+
+  const linkTo = content.ctaLink || "/signup";
 
   return (
     <motion.div
       className={cn(
-        "relative bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 text-white overflow-hidden",
+        "relative bg-gradient-to-r text-white overflow-hidden",
+        content.bgGradient || "from-blue-600 via-indigo-600 to-purple-700",
         className,
       )}
       initial={{ height: 0, opacity: 0 }}
@@ -71,12 +122,14 @@ export function LaunchOfferBanner({ className }: LaunchOfferBannerProps) {
       <div className="relative px-4 py-2.5 flex items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm flex-wrap">
         <span className="inline-flex items-center gap-1.5 font-bold uppercase tracking-wider">
           <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
-          Launch Offer
+          {content.headline}
         </span>
         <span className="inline-flex items-center gap-1">
           <Percent className="w-3.5 h-3.5 text-yellow-300" />
-          <span className="font-semibold">20% Off</span>
-          <span className="hidden sm:inline text-white/70">— Limited Time</span>
+          <span className="font-semibold">{content.discount}</span>
+          {content.subtitle && (
+            <span className="hidden sm:inline text-white/70">— {content.subtitle}</span>
+          )}
         </span>
         <span className="hidden sm:inline text-white/40">|</span>
         <span className="inline-flex items-center gap-2 font-mono">
@@ -110,15 +163,20 @@ export function LaunchOfferBanner({ className }: LaunchOfferBannerProps) {
           size="sm"
           className="h-7 text-[10px] sm:text-xs px-3 rounded-full bg-white text-indigo-700 hover:bg-white/90 font-bold shadow-sm"
         >
-          <Link to="/signup">Claim Now</Link>
+          <Link to={linkTo}>{content.cta}</Link>
         </Button>
-        <button
-          onClick={() => setDismissed(true)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/10 transition-colors"
-          aria-label="Dismiss"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
+        {content.dismissible && (
+          <button
+            onClick={() => {
+              setDismissed(true);
+              localStorage.setItem(DISMISSED_KEY, "true");
+            }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/10 transition-colors"
+            aria-label="Dismiss"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
     </motion.div>
   );

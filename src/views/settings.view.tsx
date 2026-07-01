@@ -457,6 +457,7 @@ export default function SettingsPage() {
       const clothingMap: Record<string, string> = {
         shirtCrewNeck: "variant01",
         shirtVNeck: "variant02",
+        shirtOpen: "variant03",
         hoodie: "variant03",
         collarAndSweater: "variant04",
         blazerAndShirt: "variant05",
@@ -785,6 +786,7 @@ export default function SettingsPage() {
     const clothes = [
       "shirtCrewNeck",
       "shirtVNeck",
+      "shirtOpen",
       "hoodie",
       "collarAndSweater",
       "blazerAndShirt",
@@ -2223,6 +2225,7 @@ export default function SettingsPage() {
                                 {[
                                   { id: "shirtCrewNeck", label: "Crew Neck", icon: "👕" },
                                   { id: "shirtVNeck", label: "V-Neck", icon: "🎽" },
+                                  { id: "shirtOpen", label: "Open Shirt", icon: "👚" },
                                   { id: "hoodie", label: "Hoodie", icon: "🧥" },
                                   { id: "collarAndSweater", label: "Sweater", icon: "🧶" },
                                   { id: "blazerAndShirt", label: "Blazer", icon: "🤵" },

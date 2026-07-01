@@ -3049,20 +3049,6 @@ function SectionsManager() {
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const remove = async () => {
-    if (!deletingId) return;
-    try {
-      await doDelete({
-        data: { table: "wcms_sections", action: "delete", id: deletingId, matchKey: "id" },
-      });
-      toast.success("Section deleted");
-      qc.invalidateQueries({ queryKey: ["admin-sections"] });
-    } catch (e: any) {
-      toast.error(e?.message || "Delete failed");
-    }
-    setDeletingId(null);
-  };
-
   const seedDefaultSections = async () => {
     const defaults = [
       {
@@ -3198,6 +3184,22 @@ function SectionsManager() {
             { label: "Made For India", color: "#EC4899" },
             { label: "SSL Secured", color: "#6366F1" },
           ],
+        },
+      },
+      {
+        key: "promo-banner",
+        name: "Promotional Banner",
+        description: "Launch offer banner shown across the site",
+        content: {
+          enabled: true,
+          headline: "Launch Offer",
+          discount: "20% Off",
+          subtitle: "Limited Time",
+          cta: "Claim Now",
+          ctaLink: "/signup",
+          timerDays: 7,
+          bgGradient: "from-blue-600 via-indigo-600 to-purple-700",
+          dismissible: true,
         },
       },
     ];
@@ -3370,7 +3372,17 @@ function SectionsManager() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={remove}>Delete</AlertDialogAction>
+            <Button variant="destructive" onClick={() => {
+              const id = deletingId;
+              if (!id) return;
+              doDelete({ data: { table: "wcms_sections", action: "delete", id, matchKey: "id" } })
+                .then(() => {
+                  toast.success("Section deleted");
+                  qc.invalidateQueries({ queryKey: ["admin-sections"] });
+                })
+                .catch((e: any) => toast.error(e?.message || "Delete failed"))
+                .finally(() => setDeletingId(null));
+            }}>Delete</Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
