@@ -138,7 +138,75 @@ export const generateCareerRoadmap = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `You are an expert career coach and learning path designer. Create detailed, actionable career roadmaps. Current year: 2025-2026. Be specific with resources, projects, and milestones.`,
+          content: `You are an expert career coach and learning path designer. Create detailed, actionable career roadmaps. Current year: 2025-2026. Be specific with resources, projects, and milestones. Return ONLY valid JSON matching this schema, no markdown, no code fences:
+
+{
+  "title": string,
+  "summary": string (2-3 sentence overview),
+  "timeline_months": number,
+  "current_skills": string[],
+  "target_skills": string[],
+  "skill_gap": [
+    {
+      "skill": string,
+      "priority": "high" | "medium" | "low",
+      "why": string
+    }
+  ],
+  "phases": [
+    {
+      "title": string (e.g. "Foundation"),
+      "subtitle": string (e.g. "Months 1-3"),
+      "color": string (hex color like "#3b82f6"),
+      "description": string,
+      "skills": [
+        {
+          "name": string,
+          "topics": string[] (specific topics to learn)
+        }
+      ],
+      "courses": [
+        {
+          "title": string,
+          "provider": string (e.g. "Coursera", "freeCodeCamp", "YouTube"),
+          "url": string (real URL if known, else ""),
+          "is_free": boolean,
+          "duration": string
+        }
+      ],
+      "projects": [
+        {
+          "title": string,
+          "description": string,
+          "tech_stack": string[],
+          "difficulty": "beginner" | "intermediate" | "advanced"
+        }
+      ],
+      "milestones": string[]
+    }
+  ],
+  "monthly_milestones": [
+    {
+      "month": number,
+      "goal": string,
+      "deliverable": string
+    }
+  ],
+  "interview_prep": {
+    "topics": string[],
+    "platforms": string[],
+    "questions": string[]
+  }
+}
+
+Requirements:
+- Provide 2-4 phases depending on timeline
+- Each phase should have 2-4 skills, 2-3 courses, 2-3 projects, 3-5 milestones
+- Courses should prefer free resources (freeCodeCamp, The Odin Project, CS50, YouTube)
+- Projects should be realistic portfolio pieces with specific tech stacks
+- Monthly milestones should be specific and measurable
+- Skill gap analysis should explain WHY each skill matters
+- Use real, well-known learning platforms and resources`,
         },
         {
           role: "user",
@@ -149,52 +217,22 @@ ${data.currentRole ? `- Current Role: ${data.currentRole}` : ""}
 - Current Skills: ${data.skills}
 ${data.experience ? `- Experience: ${data.experience}` : ""}
 ${data.education ? `- Education: ${data.education}` : ""}
-- Learning Preference: ${data.learningStyle}
-
-Return in markdown with these sections:
-## Phase 1: Foundation (Month 1-${data.timeline === "3 months" ? "1" : data.timeline === "6 months" ? "2" : "3"})
-- Skills to learn with specific topics
-- Free resources (real courses, docs, YouTube channels)
-- Mini projects to build
-
-## Phase 2: Intermediate (Month ${data.timeline === "3 months" ? "2" : data.timeline === "6 months" ? "3" : "4-6"})
-- Advanced skills
-- Practice platforms
-- Portfolio projects with descriptions
-
-## Phase 3: Advanced (Month ${data.timeline === "3 months" ? "3" : data.timeline === "6 months" ? "4-6" : "7-12"})
-- Specialization areas
-- Real-world projects
-- Certification recommendations
-
-## Skill Gap Analysis
-- Current vs required skills
-- Priority order
-
-## Monthly Milestones
-- Specific, measurable goals per month
-
-## Resources
-- Best courses (free + paid)
-- Books, blogs, communities
-- Practice platforms
-
-## Portfolio Projects
-- 4-6 project ideas with tech stacks
-
-## Interview Preparation
-- Key topics to master
-- Practice platforms
-- Common questions`,
+- Learning Preference: ${data.learningStyle}`,
         },
       ],
+      response_format: { type: "json_object" },
       temperature: 0.7,
     };
 
     const res = await callUserAiChat(body as any, "pro");
     if (!res.ok) throw new Error(`Roadmap generation failed (${res.status})`);
     const payload = await res.json();
-    return { content: payload.choices?.[0]?.message?.content ?? "" };
+    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return { roadmap: JSON.parse(content) };
+    } catch {
+      return { roadmap: null, rawContent: content };
+    }
   });
 
 const ExtractResumeInput = z.object({
