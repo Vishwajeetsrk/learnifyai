@@ -35,7 +35,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🤖 **AI Tutor**                  | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)        |
 | 📝 **Resume Builder**            | AI-powered ATS-optimized resume generation with PDF/DOCX upload, auto-extract & fill    |
 | 📊 **ATS Checker**               | Analyze resumes against ATS systems — scores, keyword analysis, improvement suggestions |
-| 🗺️ **Career Roadmap**            | Personalized learning paths with skill gap analysis, milestones, and project plans      |
+| 🗺️ **Career Roadmap**            | Structured JSON roadmaps with timeline, skill gap charts, courses, projects & milestones |
 | 🎨 **Portfolio Builder**         | Full portfolio plan generator with GitHub projects, photo upload, and live preview       |
 | 🎥 **Interactive Course Player** | Video lessons, markdown notes, AI summaries, and practice exercises                     |
 | 💻 **Code Playground**           | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant |
@@ -65,7 +65,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | ----------------------------- | --------------------------------------------------------------------------------------------------------- |
 | 💬 **Community Feed**         | Social learning with posts, comments, likes, edit/delete, rich text editor                                |
 | 📥 **Inbox**                  | Direct messaging between coaches and students                                                             |
-| ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates, email templates, content management, subscription management, coupon CRUD |
+| ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates, email templates, content management, subscription management, coupon CRUD, student verification |
 | 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                                               |
 | 📧 **Email System**           | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback |
 | 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                         |
@@ -157,8 +157,8 @@ Follow these steps to set up and run the platform locally:
 git clone https://github.com/Vishwajeetsrk/learnifyai.git
 cd learnifyai
 
-# Install npm packages
-npm install
+# Install dependencies (pnpm recommended — Vercel uses pnpm)
+pnpm install
 ```
 
 #### 2. Environment Configuration
@@ -205,7 +205,7 @@ node scripts/seed_courses.mjs
 Start the client application in development mode:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:8080](http://localhost:8080) (or the port shown in your terminal) to access the application.
@@ -216,10 +216,10 @@ To compile a production bundle and run the server locally:
 
 ```bash
 # Build the application
-npm run build
+pnpm build
 
 # Preview the built production output
-npm run preview
+pnpm preview
 ```
 
 #### 7. Quality Checks & Verification
@@ -228,10 +228,10 @@ Keep the codebase clean and verify logic using the following quality assurance c
 
 ```bash
 # Run linting
-npm run lint
+pnpm lint
 
 # Format the codebase
-npm run format
+pnpm format
 
 # Run E2E Playwright tests
 npx playwright test
@@ -287,8 +287,9 @@ src/
 │   │   ├── coaching.tsx      # Coaching hub (5 tabs)
 │   │   ├── resume-builder.tsx   # AI-powered resume builder
 │   │   ├── ats-checker.tsx      # ATS score analyzer
-│   │   ├── career-roadmap.tsx   # Career roadmap generator
+│   │   ├── career-roadmap.tsx   # Career roadmap generator (structured JSON)
 │   │   ├── portfolio-builder.tsx # Portfolio builder
+│   │   ├── verify-student.tsx   # Student email verification
 │   │   ├── studio.tsx       # Creator studio
 │   │   ├── wallet.tsx       # Wallet & payments
 │   │   ├── admin.tsx       # Admin panel
@@ -391,11 +392,11 @@ src/
 
 | Command                | Description              |
 | ---------------------- | ------------------------ |
-| `npm run dev`          | Start Vite dev server    |
-| `npm run build`        | Production build         |
-| `npm run preview`      | Preview production build |
-| `npm run lint`         | Run ESLint               |
-| `npm run format`       | Run Prettier             |
+| `pnpm dev`             | Start Vite dev server    |
+| `pnpm build`           | Production build         |
+| `pnpm preview`         | Preview production build |
+| `pnpm lint`            | Run ESLint               |
+| `pnpm format`          | Run Prettier             |
 | `npx playwright test`  | Run E2E tests            |
 | `npx supabase db push` | Run database migrations  |
 
@@ -422,6 +423,20 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v3.9.0 (July 2026) - Career Roadmap Redesign, Skill Logo System & Build Fixes
+
+- ✅ **Career Roadmap Redesign**: Complete rewrite with structured JSON output. AI now returns phases, skills (with topics), courses (with URLs, provider, free/paid), projects (with difficulty, tech stack), skill gap analysis (with priority), monthly milestones, and interview prep. New timeline visualization with vertical stepper, recharts skill gap bar chart, and rich course/project cards.
+- ✅ **SkillBadge System Extended**: 30+ new logos via Simple Icons CDN (Supabase, Firebase, Canva, Claude, OpenAI, Vercel, Netlify, Blender, Notion, Slack, Azure, Heroku, Google Cloud, etc.). New `size` prop (`sm`/`md`/`lg`). Fallback to lucide icons for unlisted skills.
+- ✅ **Student Verification Flow**: New `/verify-student` route with `.edu` email OTP verification. Auto-applies STUDENT25 coupon for verified students. Server functions for sending OTP, verifying, and checking status.
+- ✅ **Framer-Motion Build Fix**: Removed standalone `vendor-framer` chunk split — framer-motion v12 needs React's `createContext` at runtime, which was unavailable when code-split into a separate chunk.
+- ✅ **Missing tiptap Packages**: Installed `@tiptap/extension-underline` and `@tiptap/extension-link` that were imported but not in `package.json`, causing Vercel build failure.
+- ✅ **DiceBear Parameter Fix**: Fixed 22 wrong parameter names across 5 styles (Adventurer, Robot, Pixel Art, Fun Emoji, Lorelei). All now correctly use `Variant` suffix (`hairVariant`, `eyesVariant`, etc.). Bare names were silently ignored.
+- ✅ **PDF Extraction Fixed**: CDN worker URL for pdfjs-dist, per-page error handling, increased Zod limits (extraction 100K, ATS 50K).
+- ✅ **Enrollment Confirmation Emails**: Wired up dead `course_enrolled` DB template for both paid and free enrollments.
+- ✅ **Admin Subscription Management**: Activate/cancel/pause/extend actions with dropdown UI.
+- ✅ **Admin Coupon Management**: Full CRUD dialog for coupon codes in admin billing.
+- ✅ **Invoice Email CTAs**: Updated to "View & Download Invoice" with accurate helper text.
 
 ### v3.8.0 (July 2026) - Character Customization, PDF Extraction, Enrollment Emails & Admin Tools
 
