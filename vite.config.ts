@@ -49,8 +49,6 @@ export default defineConfig({
             if (id.includes("monaco-editor")) return "vendor-monaco";
             if (id.includes("@supabase")) return "vendor-supabase";
             if (id.includes("pdfjs-dist")) return "vendor-pdfjs";
-            if (id.includes("react-markdown") || id.includes("remark-") || id.includes("rehype-")) return "vendor-markdown";
-            if (id.includes("lucide-react")) return "vendor-icons";
             return "vendor";
           },
         },
