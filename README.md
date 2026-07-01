@@ -458,6 +458,10 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **CSS Missed-semicolon Fix**: Moved `@fontsource` imports from `styles.css` into a separate `fonts.css` loaded as a standalone `<link>` element. Tailwind v4's `@import` handler was trying to process `@fontsource` CSS files and failing with a PostCSS "Missed semicolon" error.
 - ✅ **fonts.css**: New standalone CSS file for self-hosted font declarations, imported via `?url` in `__root.tsx` to avoid Tailwind CSS preprocessing.
 
+### v3.7.4 (July 2026) - Route Tree Warnings Fix
+
+- ✅ **Route Warnings Eliminated**: Moved 6 page component files (`coaching`, `community-feed`, `leaderboard`, `settings`, `studio`, `admin.content`) from `src/routes/_authenticated/*.page.tsx` → `src/views/*.view.tsx`. TanStack Router's file-based routing plugin was scanning all `.tsx` files inside `src/routes/` and emitting "does not export a Route" warnings. Moving non-route component files out of the routes directory eliminates the warnings completely.
+
 ### v3.6.0 (June 2026) - Blog Likes & Comments, WCMS Menus, Animated Illustrations
 
 - ✅ **Blog Likes & Comments**: New `blog_likes` + `blog_comments` tables with RLS. Like button with auth toggle, comment list with author avatars, delete own comments. Migration pushed to remote.
