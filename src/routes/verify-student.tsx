@@ -16,6 +16,7 @@ import {
 } from "@/lib/student-verification.functions";
 
 export const Route = createFileRoute("/verify-student")({
+  head: () => ({ meta: [{ title: "Student Verification — Learnify AI" }, { name: "description", content: "Verify your .edu student email to get 20% off all paid plans on Learnify AI." }] }),
   component: VerifyStudentPage,
 });
 
@@ -190,9 +191,9 @@ function VerifyStudentPage() {
             )}
 
             <div className="pt-4 border-t">
-              <p className="text-xs text-muted-foreground text-center">
+              <p className="text-xs text-muted-foreground text-center leading-relaxed">
                 Don't have a .edu email?{" "}
-                <Link to="/signup" className="text-primary hover:underline">
+                <Link to="/signup" className="text-primary hover:underline font-medium">
                   Sign up normally
                 </Link>{" "}
                 or contact support for alternative verification.

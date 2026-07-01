@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Award, Loader2, Download, Mail, ExternalLink, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { AppShell } from "@/components/AppShell";
+import { CertificatesListSkeleton } from "@/components/Skeletons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -59,9 +60,7 @@ function CertsPage() {
         </div>
 
         {q.isLoading ? (
-          <div className="py-20 grid place-items-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
+          <CertificatesListSkeleton />
         ) : certs.length === 0 ? (
           <div className="mt-8 rounded-2xl border bg-card p-12 text-center shadow-card">
             <ShieldCheck className="h-10 w-10 mx-auto text-muted-foreground" />

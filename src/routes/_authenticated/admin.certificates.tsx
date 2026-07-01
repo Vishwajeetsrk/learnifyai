@@ -20,6 +20,7 @@ import { DesignerWorkspace } from "@/components/certificate-designer/DesignerWor
 import { motion, AnimatePresence } from "framer-motion";
 
 export const Route = createFileRoute("/_authenticated/admin/certificates")({
+  head: () => ({ meta: [{ title: "Certificate Management — Learnify AI" }, { name: "description", content: "Manage certificate templates, bulk issue, analytics, and categories." }] }),
   component: AdminCertificatesPage,
 });
 

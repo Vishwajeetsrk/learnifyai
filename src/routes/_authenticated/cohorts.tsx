@@ -17,6 +17,7 @@ import {
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { CohortsSkeleton } from "@/components/Skeletons";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -485,11 +486,7 @@ function CohortList({
   onDelete?: (id: string) => void;
 }) {
   if (loading)
-    return (
-      <div className="py-20 grid place-items-center">
-        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <CohortsSkeleton />;
   if (cohorts.length === 0)
     return (
       <div className="rounded-2xl border bg-card p-12 text-center text-sm text-muted-foreground">

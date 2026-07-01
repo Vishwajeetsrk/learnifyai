@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { Loader2, ShoppingCart, Trash2, CreditCard, ArrowRight, Tag, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
+import { CartSkeleton } from "@/components/Skeletons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -209,9 +210,7 @@ function CartPage() {
         </div>
 
         {q.isLoading ? (
-          <div className="py-20 grid place-items-center">
-            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-          </div>
+          <CartSkeleton />
         ) : items.length === 0 ? (
           <div className="mt-8 rounded-3xl border bg-gradient-to-br from-indigo-50 via-violet-50 to-fuchsia-50 p-12 text-center shadow-card">
             <div className="mx-auto h-16 w-16 rounded-2xl bg-white grid place-items-center shadow-card">

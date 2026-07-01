@@ -91,9 +91,9 @@ export function buildHtml({
         <!-- CTA -->
         <tr><td style="padding:28px 32px 8px;text-align:center">
           <a href="${safeUrl}" style="display:inline-block;background:#4f46e5;color:#ffffff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px;box-shadow:0 6px 16px rgba(79,70,229,.35)">
-            View &amp; download certificate
+            View &amp; Download Certificate
           </a>
-          <div style="margin-top:10px;font-size:12px;color:#64748b">Open the link to download as PDF, print, or share.</div>
+          <div style="margin-top:10px;font-size:12px;color:#64748b">Click above to view your certificate and download it as a PDF.</div>
         </td></tr>
 
         <!-- Details -->

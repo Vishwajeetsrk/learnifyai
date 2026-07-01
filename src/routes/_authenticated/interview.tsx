@@ -101,6 +101,38 @@ function InterviewPage() {
 
   const totalQuestions = 10;
 
+  // Persist session to localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = localStorage.getItem("learnify-interview-session");
+    if (saved) {
+      try {
+        const s = JSON.parse(saved);
+        if (s.step === "interview" && s.questionIndex < totalQuestions) {
+          setStep(s.step);
+          setRole(s.role);
+          setDifficulty(s.difficulty);
+          setMode(s.mode);
+          setQuestionIndex(s.questionIndex);
+          setPreviousQuestions(s.previousQuestions || []);
+          setScores(s.scores || []);
+          if (s.currentQuestion) setCurrentQuestion(s.currentQuestion);
+        }
+      } catch {}
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (step === "interview") {
+      localStorage.setItem("learnify-interview-session", JSON.stringify({
+        step, role, difficulty, mode, questionIndex, previousQuestions, scores, currentQuestion,
+      }));
+    } else {
+      localStorage.removeItem("learnify-interview-session");
+    }
+  }, [step, role, difficulty, mode, questionIndex, previousQuestions, scores, currentQuestion]);
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       synthRef.current = window.speechSynthesis;

@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getChallenges } from "@/lib/playground/challenges";
+import { ChallengesSkeleton } from "@/components/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/challenges")({
   head: () => ({ meta: [{ title: "Coding Challenges — Learnify AI" }] }),
@@ -76,8 +77,14 @@ function ChallengesPage() {
 
   const data = challenges.data ?? [];
 
-  // Simulate daily challenge (first easy challenge)
-  const dailyChallenge = data.find((c: any) => c.difficulty === "easy") || data[0];
+  // Date-based daily challenge rotation (same challenge all day, rotates at midnight)
+  const dailyChallenge = (() => {
+    if (data.length === 0) return null;
+    const today = new Date();
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    const idx = seed % data.length;
+    return data[idx];
+  })();
 
   return (
     <AppShell>
@@ -169,9 +176,7 @@ function ChallengesPage() {
 
         {/* Challenges List */}
         {challenges.isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
+          <ChallengesSkeleton />
         ) : data.length === 0 ? (
           <div className="text-center py-20">
             <Code2 className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />

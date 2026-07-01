@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
+import { CreatorProfileSkeleton } from "@/components/Skeletons";
 import { getCleanBannerUrl } from "@/lib/utils";
 import {
   Bell,
@@ -142,12 +143,7 @@ function CreatorProfile() {
   if (profileQuery.isLoading) {
     return (
       <AppShell>
-        <div className="py-24 grid place-items-center">
-          <div className="relative">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <div className="absolute inset-0 animate-ping rounded-full bg-primary/20" />
-          </div>
-        </div>
+        <CreatorProfileSkeleton />
       </AppShell>
     );
   }
