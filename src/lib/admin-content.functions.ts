@@ -162,3 +162,29 @@ export const adminContentUpsert = createServerFn({ method: "POST" })
     if (error) throw error;
     return { success: true };
   });
+
+export const cleanupTestEvents = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const userId = context.userId!;
+    await checkAdminRole(userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: testEvents, error: fetchError } = await (supabaseAdmin as any)
+      .from("events")
+      .select("id, title")
+      .like("title", "Test Event%");
+
+    if (fetchError) throw fetchError;
+    if (!testEvents || testEvents.length === 0) return { deleted: 0 };
+
+    const ids = testEvents.map((e: any) => e.id);
+    const { error: deleteError } = await (supabaseAdmin as any)
+      .from("events")
+      .delete()
+      .in("id", ids);
+
+    if (deleteError) throw deleteError;
+    return { deleted: ids.length };
+  });

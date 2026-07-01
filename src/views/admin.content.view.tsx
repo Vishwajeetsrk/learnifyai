@@ -54,6 +54,7 @@ import {
   adminContentAction,
   adminContentUpsert,
   adminContentQuery,
+  cleanupTestEvents,
 } from "@/lib/admin-content.functions";
 import {
   Select,
@@ -93,10 +94,13 @@ import MediaLibrary from "@/components/admin/MediaLibrary";
 import FeaturesCatalog from "@/components/admin/FeaturesCatalog";
 import MenuManager from "@/components/admin/MenuManager";
 import BlogManager from "@/components/admin/BlogManager";
-import rishabhAvatar from "@/assets/avatars/Rishabh-Sharma.png";
-import anjaliAvatar from "@/assets/avatars/Anjali-Verma.png";
-import priyaAvatar from "@/assets/avatars/Priya-Kapoor.png";
-import vikramAvatar from "@/assets/avatars/Vikram-Singh.png";
+
+const AVATAR_URLS = {
+  rishabh: "/avatars/Rishabh-Sharma.png",
+  anjali: "/avatars/Anjali-Verma.png",
+  priya: "/avatars/Priya-Kapoor.png",
+  vikram: "/avatars/Vikram-Singh.png",
+};
 
 // Heavy admin panels — code-split so initial admin page paints fast.
 const IssueCertificate = lazy(() => import("@/components/admin/IssueCertificate"));
@@ -440,6 +444,7 @@ function EventsManager() {
   const [brokenEvents, setBrokenEvents] = useState<Set<string>>(new Set());
   const doAdminAction = useServerFn(adminContentAction);
   const doQuery = useServerFn(adminContentQuery);
+  const doCleanupTestEvents = useServerFn(cleanupTestEvents);
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ["admin-events"],
@@ -466,7 +471,22 @@ function EventsManager() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        {events.some((e) => e.title?.startsWith("Test Event")) && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async () => {
+              const result = await doCleanupTestEvents({ data: undefined });
+              if (result?.deleted) {
+                toast.success(`Deleted ${result.deleted} test events`);
+                qc.invalidateQueries({ queryKey: ["admin-events"] });
+              }
+            }}
+          >
+            Clean up test events
+          </Button>
+        )}
         <Button onClick={newEvent}>
           <Plus className="h-4 w-4 mr-2" />
           New event
@@ -3130,7 +3150,7 @@ function SectionsManager() {
               review:
                 "Learnify AI helped me create my resume and get interview ready. The AI tutor is amazing — it explained DSA concepts way better than my textbooks.",
               achievement: "Landed Internship at Microsoft",
-              avatar: rishabhAvatar,
+              avatar: AVATAR_URLS.rishabh,
             },
             {
               name: "Anjali Verma",
@@ -3140,7 +3160,7 @@ function SectionsManager() {
               review:
                 "I went from zero coding confidence to cracking 3 company interviews. The mock interview feature is a game changer.",
               achievement: "Got Placement at Google",
-              avatar: anjaliAvatar,
+              avatar: AVATAR_URLS.anjali,
             },
             {
               name: "Priya Kapoor",
@@ -3150,7 +3170,7 @@ function SectionsManager() {
               review:
                 "I completed 3 certifications in one month and landed my first freelance project!",
               achievement: "Freelance Success — Earned ₹50K/mo",
-              avatar: priyaAvatar,
+              avatar: AVATAR_URLS.priya,
             },
             {
               name: "Vikram Singh",
@@ -3159,7 +3179,7 @@ function SectionsManager() {
               rating: 5,
               review: "Switched from mechanical engineering to software development in 6 months.",
               achievement: "Successfully Career Switched",
-              avatar: vikramAvatar,
+              avatar: AVATAR_URLS.vikram,
             },
           ],
         },

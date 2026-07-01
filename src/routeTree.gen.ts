@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyStudentRouteImport } from './routes/verify-student'
 import { Route as VerifiedCertificatesRouteImport } from './routes/verified-certificates'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SignupRouteImport } from './routes/signup'
@@ -94,6 +95,11 @@ import { Route as AuthenticatedAdminCertificatesRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin/billing'
 import { Route as ApiPublicHooksRunRemindersRouteImport } from './routes/api/public/hooks/run-reminders'
 
+const VerifyStudentRoute = VerifyStudentRouteImport.update({
+  id: '/verify-student',
+  path: '/verify-student',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifiedCertificatesRoute = VerifiedCertificatesRouteImport.update({
   id: '/verified-certificates',
   path: '/verified-certificates',
@@ -566,6 +572,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
+  '/verify-student': typeof VerifyStudentRoute
   '/achievements': typeof AuthenticatedAchievementsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ai': typeof AuthenticatedAiRoute
@@ -651,6 +658,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
+  '/verify-student': typeof VerifyStudentRoute
   '/achievements': typeof AuthenticatedAchievementsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ai': typeof AuthenticatedAiRoute
@@ -738,6 +746,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/terms': typeof TermsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
+  '/verify-student': typeof VerifyStudentRoute
   '/_authenticated/achievements': typeof AuthenticatedAchievementsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/ai': typeof AuthenticatedAiRoute
@@ -825,6 +834,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/verified-certificates'
+    | '/verify-student'
     | '/achievements'
     | '/admin'
     | '/ai'
@@ -910,6 +920,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/verified-certificates'
+    | '/verify-student'
     | '/achievements'
     | '/admin'
     | '/ai'
@@ -996,6 +1007,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/terms'
     | '/verified-certificates'
+    | '/verify-student'
     | '/_authenticated/achievements'
     | '/_authenticated/admin'
     | '/_authenticated/ai'
@@ -1083,6 +1095,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   TermsRoute: typeof TermsRoute
   VerifiedCertificatesRoute: typeof VerifiedCertificatesRoute
+  VerifyStudentRoute: typeof VerifyStudentRoute
   ApiChatRoute: typeof ApiChatRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CertificatesCodeRoute: typeof CertificatesCodeRoute
@@ -1102,6 +1115,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify-student': {
+      id: '/verify-student'
+      path: '/verify-student'
+      fullPath: '/verify-student'
+      preLoaderRoute: typeof VerifyStudentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verified-certificates': {
       id: '/verified-certificates'
       path: '/verified-certificates'
@@ -1862,6 +1882,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   TermsRoute: TermsRoute,
   VerifiedCertificatesRoute: VerifiedCertificatesRoute,
+  VerifyStudentRoute: VerifyStudentRoute,
   ApiChatRoute: ApiChatRoute,
   BlogSlugRoute: BlogSlugRoute,
   CertificatesCodeRoute: CertificatesCodeRoute,

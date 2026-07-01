@@ -11,9 +11,6 @@ import {
   TrendingUp,
   Loader2,
   Users,
-  GraduationCap,
-  Shield,
-  Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -23,24 +20,15 @@ import { useAuth } from "@/hooks/use-auth";
 import { getLeaderboard, getUserRank, xpToLevel, levelToRank } from "@/lib/gamification.functions";
 
 export default function LeaderboardPage() {
-  const { user, roles } = useAuth();
+  const { user } = useAuth();
   const [period, setPeriod] = useState<"weekly" | "all">("weekly");
-  const primaryRole = roles.find((r) => r !== "super_admin") ?? null;
-  const defaultRole: "all" | "student" | "creator" | "admin" =
-    primaryRole === "admin" || primaryRole === "creator" || primaryRole === "student"
-      ? primaryRole
-      : "all";
-  const [roleFilter, setRoleFilter] = useState<"all" | "student" | "creator" | "admin">(
-    defaultRole,
-  );
 
   const fetchLb = useServerFn(getLeaderboard);
   const fetchRank = useServerFn(getUserRank);
 
   const lb = useQuery({
-    queryKey: ["leaderboard", period, roleFilter],
-    queryFn: () =>
-      fetchLb({ data: { period, role: roleFilter === "all" ? undefined : roleFilter } }),
+    queryKey: ["leaderboard", period],
+    queryFn: () => fetchLb({ data: { period } }),
   });
 
   const myRank = useQuery({
@@ -179,42 +167,6 @@ export default function LeaderboardPage() {
           </Button>
         </div>
 
-        {/* Role filter tabs */}
-        <div className="flex gap-1 mb-5 bg-muted/50 rounded-xl p-1 w-fit border">
-          <Button
-            variant={roleFilter === "all" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setRoleFilter("all")}
-            className="rounded-lg text-xs gap-1.5"
-          >
-            <Users className="h-3.5 w-3.5" /> All
-          </Button>
-          <Button
-            variant={roleFilter === "student" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setRoleFilter("student")}
-            className="rounded-lg text-xs gap-1.5"
-          >
-            <GraduationCap className="h-3.5 w-3.5" /> Students
-          </Button>
-          <Button
-            variant={roleFilter === "creator" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setRoleFilter("creator")}
-            className="rounded-lg text-xs gap-1.5"
-          >
-            <Sparkles className="h-3.5 w-3.5" /> Creators
-          </Button>
-          <Button
-            variant={roleFilter === "admin" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => setRoleFilter("admin")}
-            className="rounded-lg text-xs gap-1.5"
-          >
-            <Shield className="h-3.5 w-3.5" /> Admins
-          </Button>
-        </div>
-
         {/* Podium */}
         {topUsers.length >= 3 && (
           <div className="flex items-end justify-center gap-3 mb-8">
@@ -273,11 +225,16 @@ export default function LeaderboardPage() {
           ) : topUsers.length === 0 ? (
             <div className="p-12 text-center">
               <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mb-3">
                 {period === "weekly"
                   ? "No activity this week yet. Start learning to earn XP!"
                   : "No users yet."}
               </p>
+              {period === "weekly" && (
+                <Button variant="outline" size="sm" className="text-xs" asChild>
+                  <Link to="/courses">Browse Courses</Link>
+                </Button>
+              )}
             </div>
           ) : (
             <div className="divide-y">

@@ -942,7 +942,7 @@ function PricingPage() {
               variant="outline"
               className="shrink-0 h-10 rounded-xl border-violet-500/30 text-violet-700 hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-violet-950/40"
             >
-              <Link to="/signup">
+              <Link to="/verify-student">
                 Verify Now
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>

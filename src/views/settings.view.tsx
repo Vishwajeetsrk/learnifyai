@@ -1643,6 +1643,7 @@ export default function SettingsPage() {
                           </div>
                         ) : (
                           <img
+                            key={currentCartoonUrl}
                             src={currentCartoonUrl}
                             className="h-full w-full object-cover"
                             alt="Avatar Preview"
@@ -1665,12 +1666,35 @@ export default function SettingsPage() {
                                 type="button"
                                 onClick={() => {
                                   setSelectedStyle(style.id);
-                                  // Update defaults based on style to prevent glitchy params
+                                  // Reset all options to defaults for the new style
+                                  setMouthStyle("default");
+                                  setEyesStyle("default");
+                                  setEyebrowsStyle("default");
+                                  setAccessoriesStyle("none");
+                                  setClothingStyle("shirtCrewNeck");
+                                  setSkinColor("ffdbb4");
+                                  setHairColor("4a3728");
+                                  setClothingColor("3c4f76");
+                                  setAvatarBackgroundColor("transparent");
                                   if (style.id === "avataaars") {
+                                    setHairGender("male");
                                     setHairStyle("shortFlat");
                                   } else if (style.id === "adventurer") {
+                                    setHairGender("male");
                                     setHairStyle("short01");
+                                  } else if (style.id === "bottts") {
+                                    setHairGender("male");
+                                    setHairStyle("shortFlat");
+                                  } else if (style.id === "pixel-art") {
+                                    setHairGender("male");
+                                    setHairStyle("shortFlat");
+                                  } else if (style.id === "fun-emoji") {
+                                    setHairStyle("shortFlat");
+                                  } else if (style.id === "lorelei") {
+                                    setHairGender("female");
+                                    setHairStyle("straight01");
                                   }
+                                  setAvatarPreviewError(false);
                                 }}
                                 className={`rounded-lg border p-2 text-center text-xs font-medium transition ${
                                   selectedStyle === style.id

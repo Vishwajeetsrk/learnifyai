@@ -161,6 +161,20 @@ export const createSubscription = createServerFn({ method: "POST" })
 
     // Apply coupon discount if provided
     let finalAmount = p.price_inr;
+    let appliedCoupon: string | null = null;
+
+    // Auto-apply student discount for verified students
+    if (!data.couponCode) {
+      const { data: profileCheck } = await (supabaseAdmin as any)
+        .from("profiles")
+        .select("student_verified")
+        .eq("id", uid)
+        .single();
+      if (profileCheck?.student_verified) {
+        data.couponCode = "STUDENT25";
+      }
+    }
+
     if (data.couponCode) {
       const { data: coupon } = await (supabaseAdmin as any)
         .from("coupon_codes")
@@ -182,6 +196,7 @@ export const createSubscription = createServerFn({ method: "POST" })
           } else if (coupon.discount_amount_inr) {
             finalAmount = Math.max(1, p.price_inr - coupon.discount_amount_inr);
           }
+          appliedCoupon = data.couponCode.toUpperCase();
           // Increment usage
           await (supabaseAdmin as any)
             .from("coupon_codes")
