@@ -3,7 +3,7 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 export const getPublicProfile = createServerFn({ method: "GET" })
-  .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const id = data.id;
@@ -128,7 +128,7 @@ export const getPublicProfile = createServerFn({ method: "GET" })
   });
 
 export const getCreatorAnalytics = createServerFn({ method: "GET" })
-  .inputValidator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const id = data.id;

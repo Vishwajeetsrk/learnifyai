@@ -98,7 +98,7 @@ export const getBillingOverview = createServerFn({ method: "GET" })
 
 export const getInvoicesList = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { status?: string; date_from?: string; date_to?: string; search?: string; page?: number; per_page?: number }) =>
+  .validator((d: { status?: string; date_from?: string; date_to?: string; search?: string; page?: number; per_page?: number }) =>
     z.object({
       status: z.string().optional(),
       date_from: z.string().optional(),
@@ -150,7 +150,7 @@ export const getBillingSettings = createServerFn({ method: "GET" })
 
 export const updateBillingSetting = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { key: string; value: string }) =>
+  .validator((d: { key: string; value: string }) =>
     z.object({ key: z.string(), value: z.string() }).parse(d),
   )
   .handler(async ({ data }) => {
@@ -176,7 +176,7 @@ export const getInvoiceTemplates = createServerFn({ method: "GET" })
 
 export const saveInvoiceTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id?: string; name: string; content: any }) =>
+  .validator((d: { id?: string; name: string; content: any }) =>
     z.object({
       id: z.string().optional(),
       name: z.string(),
@@ -202,7 +202,7 @@ export const saveInvoiceTemplate = createServerFn({ method: "POST" })
 
 export const deleteInvoiceTemplate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { id: string }) =>
+  .validator((d: { id: string }) =>
     z.object({ id: z.string() }).parse(d),
   )
   .handler(async ({ data }) => {
@@ -217,7 +217,7 @@ export const deleteInvoiceTemplate = createServerFn({ method: "POST" })
 
 export const createManualInvoice = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { user_id: string; total_inr: number; description?: string; line_items?: any; due_date?: string }) =>
+  .validator((d: { user_id: string; total_inr: number; description?: string; line_items?: any; due_date?: string }) =>
     z.object({
       user_id: z.string(),
       total_inr: z.number().positive(),
@@ -253,7 +253,7 @@ export const createManualInvoice = createServerFn({ method: "POST" })
 
 export const getPaymentLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { page?: number; per_page?: number }) =>
+  .validator((d: { page?: number; per_page?: number }) =>
     z.object({
       page: z.number().optional().default(1),
       per_page: z.number().optional().default(50),
@@ -273,7 +273,7 @@ export const getPaymentLogs = createServerFn({ method: "GET" })
 
 export const getRefunds = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { page?: number; per_page?: number }) =>
+  .validator((d: { page?: number; per_page?: number }) =>
     z.object({
       page: z.number().optional().default(1),
       per_page: z.number().optional().default(50),
@@ -293,7 +293,7 @@ export const getRefunds = createServerFn({ method: "GET" })
 
 export const processRefund = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { invoice_id: string; amount_inr: number; reason?: string }) =>
+  .validator((d: { invoice_id: string; amount_inr: number; reason?: string }) =>
     z.object({
       invoice_id: z.string(),
       amount_inr: z.number().positive(),
@@ -352,7 +352,7 @@ export const getCashfreeStatus = createServerFn({ method: "GET" })
 
 export const getAuditLogs = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { page?: number; per_page?: number }) =>
+  .validator((d: { page?: number; per_page?: number }) =>
     z.object({
       page: z.number().optional().default(1),
       per_page: z.number().optional().default(50),
@@ -372,7 +372,7 @@ export const getAuditLogs = createServerFn({ method: "GET" })
 
 export const createBillingExport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { type: string; date_from?: string; date_to?: string; format?: string }) =>
+  .validator((d: { type: string; date_from?: string; date_to?: string; format?: string }) =>
     z.object({
       type: z.string(),
       date_from: z.string().optional(),
@@ -397,7 +397,7 @@ export const createBillingExport = createServerFn({ method: "POST" })
 
 export const getSubscriptionBillingData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { user_id?: string }) =>
+  .validator((d: { user_id?: string }) =>
     z.object({ user_id: z.string().optional() }).parse(d),
   )
   .handler(async ({ data }) => {
@@ -431,7 +431,7 @@ export const getSubscriptionBillingData = createServerFn({ method: "GET" })
 
 export const exportBillingData = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { type: string; format: string; date_from?: string; date_to?: string }) =>
+  .validator((d: { type: string; format: string; date_from?: string; date_to?: string }) =>
     z.object({ type: z.string(), format: z.string(), date_from: z.string().optional(), date_to: z.string().optional() }).parse(d),
   )
   .handler(async ({ data }) => {

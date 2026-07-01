@@ -177,7 +177,7 @@ async function aiSummarizeTranscript(
 
 export const verifyYoutubeKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ url: z.string().min(1).max(500) }).parse(d))
+  .validator((d: unknown) => z.object({ url: z.string().min(1).max(500) }).parse(d))
   .handler(async ({ data }) => {
     const apiKey = process.env.YOUTUBE_API_KEY;
     if (!apiKey) throw new Error("YOUTUBE_API_KEY is not configured.");
@@ -189,7 +189,7 @@ export const verifyYoutubeKey = createServerFn({ method: "POST" })
 
 export const startCourseEnrichment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         courseId: z.string().uuid(),
@@ -454,7 +454,7 @@ async function runEnrichment(
 
 export const cancelEnrichmentRun = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ runId: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ runId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase
@@ -467,7 +467,7 @@ export const cancelEnrichmentRun = createServerFn({ method: "POST" })
 
 export const listAllEnrichmentRuns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         keyStatus: z.string().optional(),
@@ -510,7 +510,7 @@ export const listAllEnrichmentRuns = createServerFn({ method: "GET" })
 
 export const getEnrichmentRun = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ runId: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ runId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const [{ data: run }, { data: progress }] = await Promise.all([
@@ -526,7 +526,7 @@ export const getEnrichmentRun = createServerFn({ method: "GET" })
 
 export const listCourseEnrichmentRuns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { data: runs } = await supabase
@@ -542,7 +542,7 @@ export const listCourseEnrichmentRuns = createServerFn({ method: "GET" })
 
 export const regenerateCourseFromYouTube = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         courseId: z.string().uuid(),
@@ -566,7 +566,7 @@ export const regenerateCourseFromYouTube = createServerFn({ method: "POST" })
 
 export const searchYoutubeVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ query: z.string().min(1).max(200) }).parse(d))
+  .validator((d: unknown) => z.object({ query: z.string().min(1).max(200) }).parse(d))
   .handler(async ({ data }) => {
     const apiKey = process.env.YOUTUBE_API_KEY;
     if (!apiKey) throw new Error("YOUTUBE_API_KEY is not configured.");

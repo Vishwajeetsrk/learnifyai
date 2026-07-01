@@ -192,7 +192,7 @@ async function executeTool(name: string, args: any) {
 }
 
 export const agentChat = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => MessageSchema.parse(data))
+  .validator((data: unknown) => MessageSchema.parse(data))
   .handler(async ({ data }) => {
     const messages: any[] = [
       ...(data.history ?? []).map((m: any) => ({ role: m.role, content: m.content })),

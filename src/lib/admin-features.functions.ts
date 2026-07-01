@@ -25,7 +25,7 @@ export const adminListFeatureFlags = createServerFn({ method: "GET" })
 
 export const adminUpdateFeatureFlag = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => d as { id: string; updates: any })
+  .validator((d) => d as { id: string; updates: any })
   .handler(async ({ data: { id, updates }, context }) => {
     const { data: userRoles } = await supabaseAdmin
       .from("user_roles")

@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const getChallenges = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         difficulty: z.enum(["easy", "medium", "hard"]).optional(),
@@ -27,7 +27,7 @@ export const getChallenges = createServerFn({ method: "GET" })
   });
 
 export const getChallenge = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => z.object({ slug: z.string() }).parse(data))
+  .validator((data: unknown) => z.object({ slug: z.string() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const supabase = context.supabase as any;
@@ -42,7 +42,7 @@ export const getChallenge = createServerFn({ method: "GET" })
   });
 
 export const submitChallenge = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         challengeId: z.string().uuid(),
@@ -156,7 +156,7 @@ export const getLeaderboard = createServerFn({ method: "GET" }).handler(async ()
 });
 
 export const createInterview = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         title: z.string().min(1).max(200),

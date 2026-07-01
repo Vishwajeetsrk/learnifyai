@@ -84,14 +84,14 @@ async function doSyncPlan(planId: string): Promise<string> {
 
 export const syncPlanToCashfree = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { planId: string }) => z.object({ planId: z.string() }).parse(d))
+  .validator((d: { planId: string }) => z.object({ planId: z.string() }).parse(d))
   .handler(async ({ data }) => {
     return { cashfree_plan_id: await doSyncPlan(data.planId) };
   });
 
 export const createSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { planId: string; couponCode?: string }) =>
+  .validator((d: { planId: string; couponCode?: string }) =>
     z.object({ planId: z.string(), couponCode: z.string().optional() }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -318,7 +318,7 @@ export const createSubscription = createServerFn({ method: "POST" })
 
 export const cancelSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: Record<string, never>) => z.object({}).parse(d))
+  .validator((d: Record<string, never>) => z.object({}).parse(d))
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: sub } = await (supabaseAdmin as any)
@@ -359,7 +359,7 @@ export const cancelSubscription = createServerFn({ method: "POST" })
 
 export const resumeSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: Record<string, never>) => z.object({}).parse(d))
+  .validator((d: Record<string, never>) => z.object({}).parse(d))
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: sub } = await (supabaseAdmin as any)
@@ -419,7 +419,7 @@ export const resumeSubscription = createServerFn({ method: "POST" })
 
 export const upgradeDowngrade = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { newPlanId: string }) => z.object({ newPlanId: z.string() }).parse(d))
+  .validator((d: { newPlanId: string }) => z.object({ newPlanId: z.string() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const uid = context.userId!;
@@ -564,7 +564,7 @@ export const getSubscriptionHistory = createServerFn({ method: "GET" })
 
 export const savePlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: any) => z.object({ plan: z.any() }).parse(d))
+  .validator((d: any) => z.object({ plan: z.any() }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const plan = data.plan;
@@ -581,7 +581,7 @@ export const savePlan = createServerFn({ method: "POST" })
 
 export const deletePlan = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: any) => z.object({ planId: z.string() }).parse(d))
+  .validator((d: any) => z.object({ planId: z.string() }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("pricing_plans").delete().eq("id", data.planId);

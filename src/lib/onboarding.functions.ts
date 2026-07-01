@@ -77,7 +77,7 @@ export const getOnboardingProgress = createServerFn({ method: "GET" })
 // ───────── Complete a Step ─────────
 export const completeOnboardingStep = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         step: z.enum(ONBOARDING_STEPS),
@@ -144,7 +144,7 @@ export const completeOnboardingStep = createServerFn({ method: "POST" })
 // ───────── Save AI Profile ─────────
 export const saveAiOnboardingProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         goals: z.array(z.string()),
@@ -174,7 +174,7 @@ export const saveAiOnboardingProfile = createServerFn({ method: "POST" })
 // ───────── AI Coach Chat ─────────
 export const sendOnboardingCoachMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         message: z.string().min(1),
@@ -297,7 +297,7 @@ Keep responses under 150 words.`;
 // ───────── Log Daily Usage ─────────
 export const logDailyUsage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         actions_count: z.number().optional(),

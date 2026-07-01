@@ -22,7 +22,7 @@ const ResumeInput = z.object({
 
 export const generateResume = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => ResumeInput.parse(d))
+  .validator((d: unknown) => ResumeInput.parse(d))
   .handler(async ({ data }) => {
     const body = {
       messages: [
@@ -69,7 +69,7 @@ const AtsInput = z.object({
 
 export const checkAtsScore = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => AtsInput.parse(d))
+  .validator((d: unknown) => AtsInput.parse(d))
   .handler(async ({ data }) => {
     const body = {
       messages: [
@@ -132,7 +132,7 @@ const CareerInput = z.object({
 
 export const generateCareerRoadmap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => CareerInput.parse(d))
+  .validator((d: unknown) => CareerInput.parse(d))
   .handler(async ({ data }) => {
     const body = {
       messages: [
@@ -203,7 +203,7 @@ const ExtractResumeInput = z.object({
 
 export const extractResumeFields = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => ExtractResumeInput.parse(d))
+  .validator((d: unknown) => ExtractResumeInput.parse(d))
   .handler(async ({ data }) => {
     const body = {
       messages: [
@@ -258,7 +258,7 @@ const PortfolioInput = z.object({
 
 export const generatePortfolio = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => PortfolioInput.parse(d))
+  .validator((d: unknown) => PortfolioInput.parse(d))
   .handler(async ({ data }) => {
     const body = {
       messages: [

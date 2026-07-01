@@ -60,7 +60,7 @@ function computeDiscount(
 
 export const checkoutCart = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         coupon: z.string().max(32).optional().nullable(),
@@ -230,7 +230,7 @@ async function checkCourseLimit(supabaseAdmin: any, userId: string): Promise<voi
 /* ---------------- Enroll free course directly ---------------- */
 export const enrollFree = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -254,7 +254,7 @@ export const enrollFree = createServerFn({ method: "POST" })
 
 export const markCourseStarted = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({ courseId: z.string().uuid(), lessonId: z.string().uuid().optional() }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -292,7 +292,7 @@ export const markCourseStarted = createServerFn({ method: "POST" })
 /* ---------------- Update progress + auto-complete on cert ---------------- */
 export const recomputeProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const [{ count: total }, { count: done }, { data: cert }] = await Promise.all([
@@ -331,7 +331,7 @@ export const recomputeProgress = createServerFn({ method: "POST" })
 /* ---------------- Suggest course category ---------------- */
 export const suggestCourseCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         title: z.string().max(300),

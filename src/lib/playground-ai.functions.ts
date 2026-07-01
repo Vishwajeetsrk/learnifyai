@@ -50,7 +50,7 @@ function buildGeminiProvider(key: string) {
 }
 
 export const playgroundAiDebug = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => Input.parse(input))
+  .validator((input: unknown) => Input.parse(input))
   .handler(async ({ data }) => {
     const groqKey = process.env.GROQ_API_KEY?.trim();
     const geminiKey = process.env.GEMINI_API_KEY?.trim();

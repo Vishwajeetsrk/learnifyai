@@ -50,7 +50,7 @@ function pickCompiler(language: string): string {
 }
 
 export const executeCode = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => RunCodeSchema.parse(data))
+  .validator((data: unknown) => RunCodeSchema.parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
@@ -129,7 +129,7 @@ export const getRunHistory = createServerFn({ method: "GET" })
   });
 
 export const executeTestCases = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         language: z.string(),

@@ -64,7 +64,7 @@ export function xpForLevel(level: number): number {
 /* ── Award XP ──────────────────────────────────────────────────── */
 
 export const awardXP = createServerFn({ method: "POST" })
-  .inputValidator((input: { userId: string; amount: number; source?: string }) =>
+  .validator((input: { userId: string; amount: number; source?: string }) =>
     z
       .object({
         userId: z.string().uuid(),
@@ -166,7 +166,7 @@ export const awardXP = createServerFn({ method: "POST" })
 /* ── Leaderboard (weekly or all-time) ──────────────────────────── */
 
 export const getLeaderboard = createServerFn({ method: "GET" })
-  .inputValidator((input: { period?: "weekly" | "all"; role?: "student" | "creator" | "admin" }) =>
+  .validator((input: { period?: "weekly" | "all"; role?: "student" | "creator" | "admin" }) =>
     z
       .object({
         period: z.enum(["weekly", "all"]).optional(),
@@ -249,7 +249,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
 /* ── Achievements / Badges ─────────────────────────────────────── */
 
 export const getUserAchievements = createServerFn({ method: "GET" })
-  .inputValidator((input: { userId: string }) =>
+  .validator((input: { userId: string }) =>
     z.object({ userId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data }) => {
@@ -272,7 +272,7 @@ export const getUserAchievements = createServerFn({ method: "GET" })
   });
 
 export const getCourseLearners = createServerFn({ method: "GET" })
-  .inputValidator((input: { courseId: string; limit?: number }) =>
+  .validator((input: { courseId: string; limit?: number }) =>
     z.object({ courseId: z.string().uuid(), limit: z.number().optional() }).parse(input),
   )
   .handler(async ({ data }) => {
@@ -307,7 +307,7 @@ export const getCourseLearners = createServerFn({ method: "GET" })
 /* ── Current user rank ─────────────────────────────────────────── */
 
 export const getUserRank = createServerFn({ method: "GET" })
-  .inputValidator((input: { userId: string }) =>
+  .validator((input: { userId: string }) =>
     z.object({ userId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data }) => {

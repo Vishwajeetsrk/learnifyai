@@ -149,7 +149,7 @@ function titleFor(d: z.infer<typeof Input>): string {
 
 export const runAiTool = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data, context }) => {
     let ragContext = "";
 

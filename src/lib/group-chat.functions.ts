@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const sendGroupMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         cohortId: z.string().uuid(),

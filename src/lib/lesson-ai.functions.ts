@@ -36,7 +36,7 @@ function buildPrompt(d: z.infer<typeof Input>, ragContext?: string) {
 
 export const lessonAiHelper = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const [

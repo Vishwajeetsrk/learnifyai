@@ -118,7 +118,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
 
 export const adminSetAiCredits = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         userId: z.string().uuid(),
@@ -142,7 +142,7 @@ export const adminSetAiCredits = createServerFn({ method: "POST" })
 
 export const adminUpdateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         userId: z.string().uuid(),
@@ -173,7 +173,7 @@ export const adminUpdateUser = createServerFn({ method: "POST" })
 
 export const adminSetPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({ userId: z.string().uuid(), password: z.string().min(8).max(128) }).parse(d),
   )
   .handler(async ({ data, context }) => {
@@ -187,7 +187,7 @@ export const adminSetPassword = createServerFn({ method: "POST" })
 
 export const adminSetDisabled = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userId: z.string().uuid(), disabled: z.boolean() }).parse(d))
+  .validator((d) => z.object({ userId: z.string().uuid(), disabled: z.boolean() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     if (data.userId === context.userId) throw new Error("You cannot disable your own account");
@@ -202,7 +202,7 @@ export const adminSetDisabled = createServerFn({ method: "POST" })
 
 export const adminDeleteUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ userId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     if (data.userId === context.userId) throw new Error("You cannot delete your own account");
@@ -216,7 +216,7 @@ const appRoleSchema = z.enum(APP_ROLES);
 
 export const adminSetUserRoles = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         userId: z.string().uuid(),
@@ -253,7 +253,7 @@ export const adminSetUserRoles = createServerFn({ method: "POST" })
 
 export const adminCreateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         email: z.string().email().max(255),

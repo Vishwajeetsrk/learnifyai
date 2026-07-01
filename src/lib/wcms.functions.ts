@@ -38,7 +38,7 @@ export const wcmsListPages = createServerFn({ method: "GET" })
 
 export const wcmsGetPage = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ slug: z.string() }).parse(d))
+  .validator((d: unknown) => z.object({ slug: z.string() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,7 +53,7 @@ export const wcmsGetPage = createServerFn({ method: "GET" })
 
 export const wcmsUpsertPage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -104,7 +104,7 @@ export const wcmsUpsertPage = createServerFn({ method: "POST" })
 
 export const wcmsDeletePage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -118,7 +118,7 @@ export const wcmsDeletePage = createServerFn({ method: "POST" })
 
 export const wcmsListBlocks = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ pageId: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ pageId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -134,7 +134,7 @@ export const wcmsListBlocks = createServerFn({ method: "GET" })
 
 export const wcmsSaveBlocks = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         pageId: z.string().uuid(),
@@ -177,7 +177,7 @@ export const wcmsSaveBlocks = createServerFn({ method: "POST" })
 
 export const wcmsDeleteBlock = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -191,7 +191,7 @@ export const wcmsDeleteBlock = createServerFn({ method: "POST" })
 
 export const wcmsListMedia = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         folder: z.string().optional(),
@@ -217,7 +217,7 @@ export const wcmsListMedia = createServerFn({ method: "GET" })
 
 export const wcmsUploadMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         filename: z.string(),
@@ -252,7 +252,7 @@ export const wcmsUploadMedia = createServerFn({ method: "POST" })
 
 export const wcmsUpdateMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         id: z.string().uuid(),
@@ -280,7 +280,7 @@ export const wcmsUpdateMedia = createServerFn({ method: "POST" })
 
 export const wcmsDeleteMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -320,7 +320,7 @@ export const wcmsPublicFeatures = createServerFn({ method: "GET" }).handler(asyn
 
 export const wcmsUpsertFeature = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -372,7 +372,7 @@ export const wcmsUpsertFeature = createServerFn({ method: "POST" })
 
 export const wcmsDeleteFeature = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -386,7 +386,7 @@ export const wcmsDeleteFeature = createServerFn({ method: "POST" })
 
 export const wcmsListMenus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ menuKey: z.string().optional() }).parse(d))
+  .validator((d: unknown) => z.object({ menuKey: z.string().optional() }).parse(d))
   .handler(async ({ data, context }) => {
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -401,7 +401,7 @@ export const wcmsListMenus = createServerFn({ method: "GET" })
 
 export const wcmsSaveMenus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         menuKey: z.string(),
@@ -446,7 +446,7 @@ export const wcmsSaveMenus = createServerFn({ method: "POST" })
 
 export const wcmsDeleteMenuItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -474,7 +474,7 @@ export const wcmsListSections = createServerFn({ method: "GET" })
 
 export const wcmsUpsertSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -514,7 +514,7 @@ export const wcmsUpsertSection = createServerFn({ method: "POST" })
 
 export const wcmsDeleteSection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -528,7 +528,7 @@ export const wcmsDeleteSection = createServerFn({ method: "POST" })
 
 export const wcmsListRoadmaps = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         learnerId: z.string().uuid().optional(),
@@ -557,7 +557,7 @@ export const wcmsListRoadmaps = createServerFn({ method: "GET" })
 
 export const wcmsSaveRoadmap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         id: z.string().uuid().optional(),
@@ -612,7 +612,7 @@ export const wcmsSaveRoadmap = createServerFn({ method: "POST" })
 
 export const wcmsDeleteRoadmap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -627,7 +627,7 @@ export const wcmsDeleteRoadmap = createServerFn({ method: "POST" })
 
 export const wcmsDuplicateRoadmap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -655,7 +655,7 @@ export const wcmsDuplicateRoadmap = createServerFn({ method: "POST" })
 
 export const wcmsGenerateAiRoadmap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ prompt: z.string().min(1) }).parse(d))
+  .validator((d: unknown) => z.object({ prompt: z.string().min(1) }).parse(d))
   .handler(async ({ data }) => {
     const { generateText } = await import("ai");
     const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");

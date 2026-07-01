@@ -12,7 +12,7 @@ function getCashfreeApi() {
 
 export const createCashfreeOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { amountInr: number; email?: string }) =>
+  .validator((d: { amountInr: number; email?: string }) =>
     z.object({ amountInr: z.number(), email: z.string().optional() }).parse(d),
   )
   .handler(async ({ data: { amountInr, email }, context }) => {
@@ -62,7 +62,7 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
 
 export const verifyCashfreePayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { amountInr: number; method: string; cashfree_order_id: string }) =>
+  .validator((d: { amountInr: number; method: string; cashfree_order_id: string }) =>
     z
       .object({
         amountInr: z.number(),
@@ -122,7 +122,7 @@ export const verifyCashfreePayment = createServerFn({ method: "POST" })
 
 export const processCashfreePayout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: { amountInr: number; method: string; destination: string }) =>
+  .validator((d: { amountInr: number; method: string; destination: string }) =>
     z.object({ amountInr: z.number(), method: z.string(), destination: z.string() }).parse(d),
   )
   .handler(async ({ data, context }) => {

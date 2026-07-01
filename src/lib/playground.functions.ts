@@ -178,7 +178,7 @@ async function runPiston(lang: string, source: string, stdin: string): Promise<R
 }
 
 export const executeCode = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => RunSchema.parse(d))
+  .validator((d: unknown) => RunSchema.parse(d))
   .handler(async ({ data }) => {
     // JS/TS: local VM (fastest)
     if (data.language === "javascript" || data.language === "typescript") {

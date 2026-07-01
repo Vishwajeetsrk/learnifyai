@@ -4,7 +4,7 @@ import { z } from "zod";
 
 export const sendCommunityMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         content: z.string().min(1).max(2000),

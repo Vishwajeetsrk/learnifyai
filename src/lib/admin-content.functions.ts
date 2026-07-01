@@ -43,7 +43,7 @@ async function checkAdminRole(userId: string) {
 
 export const adminContentAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => actionSchema.parse(d))
+  .validator((d: unknown) => actionSchema.parse(d))
   .handler(async ({ data, context }) => {
     const userId = context.userId!;
     await checkAdminRole(userId);
@@ -81,7 +81,7 @@ export const adminContentAction = createServerFn({ method: "POST" })
 
 export const adminContentQuery = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         table: z.enum(ALLOWED_TABLES),
@@ -140,7 +140,7 @@ export const adminContentQuery = createServerFn({ method: "GET" })
 
 export const adminContentUpsert = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         table: z.enum(ALLOWED_TABLES),

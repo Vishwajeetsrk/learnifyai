@@ -197,7 +197,7 @@ async function executeTool(name: string, args: any) {
 }
 
 export const supportChat = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => SupportMessageSchema.parse(data))
+  .validator((data: unknown) => SupportMessageSchema.parse(data))
   .handler(async ({ data }) => {
     const messages: any[] = [
       ...(data.history ?? []).map((m: any) => ({ role: m.role, content: m.content })),

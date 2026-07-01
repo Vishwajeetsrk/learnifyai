@@ -4,7 +4,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const saveProfileField = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         field: z.string(),
@@ -26,7 +26,7 @@ export const saveProfileField = createServerFn({ method: "POST" })
   });
 
 export const assignDefaultRole = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({ userId: z.string(), role: z.enum(["student", "creator", "admin"]) }).parse(d),
   )
   .handler(async ({ data }) => {

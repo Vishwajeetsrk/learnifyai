@@ -62,7 +62,7 @@ const ProcessMaterialInput = z.object({
 
 export const processCourseMaterial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => ProcessMaterialInput.parse(d))
+  .validator((d: unknown) => ProcessMaterialInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
@@ -122,7 +122,7 @@ const SearchInput = z.object({
 
 export const searchCourseContext = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => SearchInput.parse(d))
+  .validator((d: unknown) => SearchInput.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
 

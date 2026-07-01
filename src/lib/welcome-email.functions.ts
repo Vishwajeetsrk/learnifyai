@@ -154,7 +154,7 @@ async function loadTemplate(id: string): Promise<{ subject: string; html_body: s
 // ─── Server Functions ─────────────────────────────────────────────
 
 export const sendWelcomeEmail = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ email: z.string().email(), fullName: z.string().optional() }).parse(input),
   )
   .handler(async ({ data }) => {
@@ -210,7 +210,7 @@ export const adminListEmailTemplates = createServerFn({ method: "GET" }).handler
 
 // ─── Admin: get single template ────────────────────────────────────
 export const adminGetEmailTemplate = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ id: z.string() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string() }).parse(input))
   .handler(async ({ data }) => {
     const { data: tpl, error } = await (supabaseAdmin as any)
       .from("email_templates")
@@ -230,7 +230,7 @@ export const adminGetEmailTemplate = createServerFn({ method: "POST" })
 
 // ─── Admin: save (upsert) template ────────────────────────────────
 export const adminSaveEmailTemplate = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         id: z.string(),
@@ -259,7 +259,7 @@ export const adminSaveEmailTemplate = createServerFn({ method: "POST" })
 
 // ─── Admin: send test email ────────────────────────────────────────
 export const adminSendTestEmail = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         templateId: z.string(),

@@ -54,7 +54,7 @@ export function checkThumbnailPromptSafety(prompt: string): string | null {
 
 export const generateCourseThumbnail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data) => Input.parse(data))
+  .validator((data) => Input.parse(data))
   .handler(async ({ data }) => {
     const safety = checkThumbnailPromptSafety(data.prompt);
     if (safety) throw new Error(safety);

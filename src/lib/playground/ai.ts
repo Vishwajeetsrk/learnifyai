@@ -27,7 +27,7 @@ const AISchema = z.object({
 });
 
 export const aiCodeAssistant = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => AISchema.parse(data))
+  .validator((data: unknown) => AISchema.parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ data }) => {
     const apiKey = process.env.OPENROUTER_API_KEY;

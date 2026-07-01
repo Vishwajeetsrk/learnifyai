@@ -77,7 +77,7 @@ const TEMPLATE_FILES: Record<
 };
 
 export const createProject = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => CreateProjectSchema.parse(data))
+  .validator((data: unknown) => CreateProjectSchema.parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const supabase = context.supabase as any;
@@ -120,7 +120,7 @@ export const getProjects = createServerFn({ method: "GET" })
   });
 
 export const getProject = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const supabase = context.supabase as any;
@@ -137,7 +137,7 @@ export const getProject = createServerFn({ method: "GET" })
   });
 
 export const updateProject = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => UpdateProjectSchema.parse(data))
+  .validator((data: unknown) => UpdateProjectSchema.parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const supabase = context.supabase as any;
@@ -161,7 +161,7 @@ export const updateProject = createServerFn({ method: "POST" })
   });
 
 export const deleteProject = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const supabase = context.supabase as any;
@@ -178,7 +178,7 @@ export const deleteProject = createServerFn({ method: "POST" })
   });
 
 export const duplicateProject = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ id: z.string().uuid() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const supabase = context.supabase as any;
@@ -218,7 +218,7 @@ export const duplicateProject = createServerFn({ method: "POST" })
   });
 
 export const getProjectFiles = createServerFn({ method: "GET" })
-  .inputValidator((data: unknown) => z.object({ projectId: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ projectId: z.string().uuid() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const supabase = context.supabase as any;
@@ -240,7 +240,7 @@ export const getProjectFiles = createServerFn({ method: "GET" })
   });
 
 export const saveFile = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         fileId: z.string().uuid().optional(),
@@ -291,7 +291,7 @@ export const saveFile = createServerFn({ method: "POST" })
   });
 
 export const deleteFile = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => z.object({ fileId: z.string().uuid() }).parse(data))
+  .validator((data: unknown) => z.object({ fileId: z.string().uuid() }).parse(data))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const supabase = context.supabase as any;
@@ -314,7 +314,7 @@ export const deleteFile = createServerFn({ method: "POST" })
   });
 
 export const saveEditorCode = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         projectId: z.string().uuid().optional(),
@@ -393,7 +393,7 @@ export const saveEditorCode = createServerFn({ method: "POST" })
   });
 
 export const bulkSyncFiles = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) =>
+  .validator((data: unknown) =>
     z
       .object({
         projectId: z.string().uuid(),

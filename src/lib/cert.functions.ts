@@ -337,7 +337,7 @@ export async function sendEmail({
 /** Test email sending — reports detailed provider results. */
 export const testEmailSending = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z.object({ email1: z.string().email(), email2: z.string().email() }).parse(d),
   )
   .handler(async ({ data }) => {
@@ -449,7 +449,7 @@ export const testEmailSending = createServerFn({ method: "POST" })
 /** Email a certificate link to the recipient (learner's own cert). */
 export const emailCertificate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         code: z
@@ -497,7 +497,7 @@ export const emailCertificate = createServerFn({ method: "POST" })
 /** Admin: send/resend any certificate by id, logging the attempt. */
 export const adminEmailCertificate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         certificateId: z.string().uuid(),

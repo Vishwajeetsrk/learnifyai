@@ -31,7 +31,7 @@ function buildProvider(key: string) {
 }
 
 export const gradeExercise = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => Input.parse(input))
+  .validator((input: unknown) => Input.parse(input))
   .handler(async ({ data }) => {
     const key = process.env.OPENROUTER_API_KEY?.trim();
     if (!key) {

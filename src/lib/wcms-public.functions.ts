@@ -6,7 +6,7 @@ import { z } from "zod";
 // ═══════════════════════════════════════════════════════════════
 
 export const wcmsGetPublicPage = createServerFn({ method: "GET" })
-  .inputValidator((d: unknown) => z.object({ slug: z.string() }).parse(d))
+  .validator((d: unknown) => z.object({ slug: z.string() }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -61,7 +61,7 @@ export const wcmsGetPublicFeatures = createServerFn({ method: "GET" }).handler(a
 });
 
 export const wcmsGetPublicMenu = createServerFn({ method: "GET" })
-  .inputValidator((d: unknown) => z.object({ menuKey: z.string() }).parse(d))
+  .validator((d: unknown) => z.object({ menuKey: z.string() }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,7 +76,7 @@ export const wcmsGetPublicMenu = createServerFn({ method: "GET" })
   });
 
 export const wcmsGetPublicSection = createServerFn({ method: "GET" })
-  .inputValidator((d: unknown) => z.object({ key: z.string() }).parse(d))
+  .validator((d: unknown) => z.object({ key: z.string() }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

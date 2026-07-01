@@ -44,7 +44,7 @@ function schemaHint(n: number) {
 
 export const generateFullCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data }) => {
     const prompt = `Build a complete ${data.level} course on "${data.topic}".
 Target audience: ${data.audience || "self-taught learners"}.
@@ -197,7 +197,7 @@ const slugify = (s: string) =>
 
 export const materializeCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => Materialize.parse(d))
+  .validator((d: unknown) => Materialize.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const bp = data.blueprint;
@@ -312,7 +312,7 @@ const AutoCompleteSchema = z.object({ courseId: z.string().uuid() });
 
 export const autoCompleteCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => AutoCompleteSchema.parse(d))
+  .validator((d: unknown) => AutoCompleteSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -549,7 +549,7 @@ export const autoCompleteCourse = createServerFn({ method: "POST" })
 
 export const generateLessonNotes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) =>
+  .validator((d: unknown) =>
     z
       .object({
         title: z.string().min(1).max(300),
