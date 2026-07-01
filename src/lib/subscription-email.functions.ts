@@ -95,24 +95,27 @@ export async function sendSubscriptionActivatedEmail(
 
   const html = emailWrapper(`
     <h2 style="font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 16px;">
-      🎉 Welcome to ${planName}!
+      Welcome to ${planName}!
     </h2>
     <p style="font-size: 15px; color: #374151; line-height: 1.6;">
       Hi ${profile.full_name || "there"}, your <strong>${planName}</strong> subscription is now active!
     </p>
     <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin: 16px 0;">
       <p style="margin: 0; font-size: 14px; color: #166534;">
-        <strong>Amount:</strong> ₹${amount}/month<br>
+        <strong>Amount:</strong> ${"\u20B9"}${amount}/month<br>
         <strong>Plan:</strong> ${planName}<br>
-        <strong>Status:</strong> Active ✓
+        <strong>Status:</strong> Active
       </p>
     </div>
     <p style="font-size: 15px; color: #374151; line-height: 1.6;">
       You now have access to all ${planName} features. Start exploring!
     </p>
     <div style="text-align: center; margin: 24px 0;">
-      <a href="${BASE_URL}/dashboard" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+      <a href="${BASE_URL}/dashboard" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; margin-right: 8px;">
         Go to Dashboard
+      </a>
+      <a href="${BASE_URL}/billing" style="display: inline-block; background: #ffffff; color: #7c3aed; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; border: 2px solid #7c3aed; margin-top: 8px;">
+        View Invoice & Download PDF
       </a>
     </div>
   `);
@@ -139,20 +142,20 @@ export async function sendPaymentSuccessEmail(
 
   const html = emailWrapper(`
     <h2 style="font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 16px;">
-      Payment Confirmed ✓
+      Payment Confirmed
     </h2>
     <p style="font-size: 15px; color: #374151; line-height: 1.6;">
       Hi ${profile.full_name || "there"}, your payment for <strong>${planName}</strong> has been processed.
     </p>
     <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin: 16px 0;">
       <p style="margin: 0; font-size: 14px; color: #1e40af;">
-        <strong>Amount:</strong> ₹${amount}<br>
+        <strong>Amount:</strong> ${"\u20B9"}${amount}<br>
         <strong>Next billing:</strong> ${nextBillingDate}
       </p>
     </div>
     <div style="text-align: center; margin: 24px 0;">
       <a href="${BASE_URL}/billing" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-        View Billing
+        View Invoice & Download PDF
       </a>
     </div>
   `);

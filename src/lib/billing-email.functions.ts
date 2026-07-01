@@ -105,13 +105,13 @@ export async function sendInvoiceCreatedEmail(
     <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin: 16px 0;">
       <p style="margin: 0; font-size: 14px; color: #166534;">
         <strong>Invoice:</strong> ${invoiceNumber}<br>
-        <strong>Amount:</strong> ₹${amount.toLocaleString("en-IN")}<br>
+        <strong>Amount:</strong> ${"\u20B9"}${amount.toLocaleString("en-IN")}<br>
         <strong>Due Date:</strong> ${dueDate}
       </p>
     </div>
     <div style="text-align: center; margin: 24px 0;">
       <a href="${BASE_URL}/billing" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-        View Invoice
+        View & Download Invoice PDF
       </a>
     </div>
   `);
@@ -134,7 +134,7 @@ export async function sendPaymentSuccessEmail(
 
   const html = emailWrapper(`
     <h2 style="font-size: 20px; font-weight: 600; color: #111827; margin-bottom: 16px;">
-      Payment Confirmed ✓
+      Payment Confirmed
     </h2>
     <p style="font-size: 15px; color: #374151; line-height: 1.6;">
       Hi ${profile.full_name || "there"}, your payment has been processed successfully.
@@ -142,13 +142,13 @@ export async function sendPaymentSuccessEmail(
     <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin: 16px 0;">
       <p style="margin: 0; font-size: 14px; color: #1e40af;">
         <strong>Invoice:</strong> ${invoiceNumber}<br>
-        <strong>Amount:</strong> ₹${amount.toLocaleString("en-IN")}<br>
+        <strong>Amount:</strong> ${"\u20B9"}${amount.toLocaleString("en-IN")}<br>
         <strong>Method:</strong> ${paymentMethod}
       </p>
     </div>
     <div style="text-align: center; margin: 24px 0;">
       <a href="${BASE_URL}/billing" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-        View Receipt
+        Download Invoice PDF
       </a>
     </div>
   `);

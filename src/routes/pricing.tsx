@@ -45,6 +45,7 @@ import {
   Map,
   Search,
   X,
+  Tag,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -380,6 +381,7 @@ function PricingPage() {
   const [learnerCount, setLearnerCount] = useState(2134);
   const [faqSearch, setFaqSearch] = useState("");
   const [faqCategory, setFaqCategory] = useState<string | null>(null);
+  const [couponCode, setCouponCode] = useState("");
 
   const cmsFaqItems = cmsFaq?.content?.items ?? FAQ_ITEMS;
   const cmsFaqCategories = cmsFaq?.content?.categories ?? FAQ_CATEGORIES;
@@ -502,7 +504,9 @@ function PricingPage() {
           if (upsertErr) throw new Error(upsertErr.message);
         }
       }
-      const sub = await doSubscribe({ data: { planId } });
+      const sub = await doSubscribe({
+        data: { planId, couponCode: couponCode.trim() || undefined },
+      });
       if (sub.free) {
         toast.success("Free plan activated! Welcome to Learnify AI.");
         qc.invalidateQueries({ queryKey: ["my-subscription"] });
@@ -858,6 +862,38 @@ function PricingPage() {
                 </span>
               </button>
             </div>
+          </motion.div>
+        </section>
+
+        {/* ========== COUPON INPUT ========== */}
+        <section className="container mx-auto px-6 pb-4 max-w-lg">
+          <motion.div
+            className="flex items-center gap-2"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            <div className="relative flex-1">
+              <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                placeholder="Have a coupon code?"
+                className="w-full h-10 pl-9 pr-4 rounded-xl border bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+              />
+            </div>
+            {couponCode && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-10 text-xs shrink-0"
+                onClick={() => setCouponCode("")}
+              >
+                Clear
+              </Button>
+            )}
           </motion.div>
         </section>
 

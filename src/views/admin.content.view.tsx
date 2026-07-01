@@ -3004,7 +3004,8 @@ function SectionsManager() {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const doQuery = useServerFn(adminContentQuery);
-  const doAction = useServerFn(adminContentUpsert);
+  const doUpsert = useServerFn(adminContentUpsert);
+  const doDelete = useServerFn(adminContentAction);
 
   const { data: sections = [], isLoading } = useQuery({
     queryKey: ["admin-sections"],
@@ -3023,7 +3024,7 @@ function SectionsManager() {
     }
     setSaving(true);
     try {
-      await doAction({
+      await doUpsert({
         data: {
           table: "wcms_sections",
           data: {
@@ -3051,7 +3052,7 @@ function SectionsManager() {
   const remove = async () => {
     if (!deletingId) return;
     try {
-      await doAction({
+      await doDelete({
         data: { table: "wcms_sections", action: "delete", id: deletingId, matchKey: "id" },
       });
       toast.success("Section deleted");

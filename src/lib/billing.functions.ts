@@ -142,7 +142,12 @@ export const getBillingSettings = createServerFn({ method: "GET" })
     const map: Record<string, string> = {};
     if (data) {
       for (const row of data) {
-        map[row.key] = row.value;
+        // value is JSONB — flatten nested objects into dot-notation keys
+        if (row.value && typeof row.value === "object") {
+          for (const [k, v] of Object.entries(row.value)) {
+            map[k] = typeof v === "string" ? v : JSON.stringify(v);
+          }
+        }
       }
     }
     return map;
@@ -155,10 +160,38 @@ export const updateBillingSetting = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Map flat keys back to their parent JSONB group
+    const keyGroupMap: Record<string, string> = {
+      company_name: "branding", legal_name: "branding", company_logo_url: "branding",
+      logo_url: "branding", brand_color: "branding", primary_color: "branding",
+      secondary_color: "branding", success_color: "branding", warning_color: "branding", danger_color: "branding",
+      gst_enabled: "tax", gstin: "tax", cgst_rate: "tax", sgst_rate: "tax", igst_rate: "tax",
+      enable_tds: "tax", tds_enabled: "tax", tds_rate: "tax", hsn_code: "tax", sac_code: "tax",
+      invoice_prefix: "invoice", prefix: "invoice", invoice_footer: "invoice", footer: "invoice",
+      invoice_terms: "invoice", terms: "invoice", invoice_currency: "invoice", currency: "invoice",
+      show_qr: "invoice", watermark: "invoice",
+      support_email: "support", support_phone: "support", support_address: "support",
+      email: "support", phone: "support", address: "support",
+      environment: "cashfree", connected_merchant: "cashfree", last_sync: "cashfree", webhook_url: "cashfree",
+    };
+
+    const group = keyGroupMap[data.key] || "branding";
+
+    // Fetch existing group value
+    const { data: existing } = await (supabaseAdmin as any)
+      .from("billing_settings")
+      .select("value")
+      .eq("key", group)
+      .maybeSingle();
+
+    const existingValue = existing?.value && typeof existing.value === "object" ? existing.value : {};
+    const newValue = { ...existingValue, [data.key]: data.value };
+
     const { error } = await (supabaseAdmin as any)
       .from("billing_settings")
-      .upsert({ key: data.key, value: data.value, updated_at: new Date().toISOString() })
-      .eq("key", data.key);
+      .upsert({ key: group, value: newValue, updated_at: new Date().toISOString() })
+      .eq("key", group);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
