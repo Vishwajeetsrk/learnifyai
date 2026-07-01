@@ -624,15 +624,66 @@ export type AnalyticsFilters = {
     | "all";
 };
 
+function getDateRangeFilter(dateRange: string, startDate?: string, endDate?: string) {
+  const now = new Date();
+  let from: Date | null = null;
+  let to: Date | null = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+  switch (dateRange) {
+    case "today":
+      from = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      break;
+    case "yesterday":
+      from = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+      to = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59);
+      break;
+    case "7d":
+      from = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      break;
+    case "30d":
+      from = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      break;
+    case "90d":
+      from = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
+      break;
+    case "180d":
+      from = new Date(Date.now() - 180 * 24 * 60 * 60 * 1000);
+      break;
+    case "year":
+      from = new Date(now.getFullYear(), 0, 1);
+      break;
+    case "custom":
+      if (startDate) from = new Date(startDate);
+      if (endDate) to = new Date(endDate + "T23:59:59");
+      break;
+    default:
+      from = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  }
+
+  return {
+    from: from ? from.toISOString() : null,
+    to: to ? to.toISOString() : null,
+    days: from ? Math.ceil((to!.getTime() - from.getTime()) / (1000 * 60 * 60 * 24)) : 30,
+  };
+}
+
 export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async () => {
+  .validator((d: AnalyticsFilters) => d)
+  .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const range = getDateRangeFilter(data.dateRange, data.startDate, data.endDate);
+    const fromIso = range.from;
+    const toIso = range.to;
+    const days = range.days;
 
-    // Fetch all KPIs from real DB tables
+    // Fetch all KPIs from real DB tables with date filters
+    const baseSubQuery = (supabaseAdmin as any).from("user_subscriptions").select("*", { count: "exact", head: true });
+    const dateFilteredSubQuery = fromIso
+      ? baseSubQuery.gte("created_at", fromIso).lte("created_at", toIso)
+      : baseSubQuery;
+
     const [
       { data: mrrResult },
       { count: activeSubs },
@@ -663,18 +714,18 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
         .from("user_subscriptions")
         .select("*, plan:pricing_plans(name, price_inr), profiles:user_id(full_name, email)")
         .order("created_at", { ascending: false })
-        .limit(20),
+        .limit(50),
       (supabaseAdmin as any)
         .from("payment_logs")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(20),
+        .limit(50),
       (supabaseAdmin as any)
         .from("invoices")
         .select("*")
         .eq("status", "paid")
         .order("created_at", { ascending: false })
-        .limit(20),
+        .limit(50),
       (supabaseAdmin as any)
         .from("user_subscriptions")
         .select("*", { count: "exact", head: true })
@@ -732,17 +783,19 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
       }),
     );
 
-    // Revenue history from invoices (last 30 days) — show empty if no data
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    // Revenue history from invoices (uses date range)
+    const chartFrom = fromIso || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const { data: dailyInvoices } = await (supabaseAdmin as any)
       .from("invoices")
       .select("total_inr, created_at")
       .eq("status", "paid")
-      .gte("created_at", thirtyDaysAgo)
+      .gte("created_at", chartFrom)
+      .lte("created_at", toIso || new Date().toISOString())
       .order("created_at", { ascending: true });
 
     const revenueMap: Record<string, number> = {};
-    for (let i = 29; i >= 0; i--) {
+    const numDays = Math.min(Math.max(days, 1), 365);
+    for (let i = numDays - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       revenueMap[d.toISOString().split("T")[0]] = 0;
@@ -758,15 +811,16 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
       revenue,
     }));
 
-    // Subscriber growth from user_subscriptions (last 30 days)
+    // Subscriber growth from user_subscriptions (uses date range)
     const { data: dailySubs } = await supabaseAdmin
       .from("user_subscriptions")
       .select("created_at")
-      .gte("created_at", thirtyDaysAgo)
+      .gte("created_at", chartFrom)
+      .lte("created_at", toIso || new Date().toISOString())
       .order("created_at", { ascending: true });
 
     const subMap: Record<string, number> = {};
-    for (let i = 29; i >= 0; i--) {
+    for (let i = numDays - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       subMap[d.toISOString().split("T")[0]] = 0;
