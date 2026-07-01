@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Trophy,
   Flame,
@@ -22,6 +23,7 @@ import { getLeaderboard, getUserRank, xpToLevel, levelToRank } from "@/lib/gamif
 export default function LeaderboardPage() {
   const { user } = useAuth();
   const [period, setPeriod] = useState<"weekly" | "all">("weekly");
+  const { t } = useTranslation();
 
   const fetchLb = useServerFn(getLeaderboard);
   const fetchRank = useServerFn(getUserRank);
@@ -81,9 +83,9 @@ export default function LeaderboardPage() {
             <Trophy className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-display font-bold tracking-tight">Leaderboard</h1>
+            <h1 className="text-3xl font-display font-bold tracking-tight">{t("leaderboard.title")}</h1>
             <p className="text-muted-foreground text-sm flex items-center gap-1.5 mt-0.5">
-              <TrendingUp className="h-3.5 w-3.5" /> Compete and rise to the top
+              <TrendingUp className="h-3.5 w-3.5" /> {t("leaderboard.subtitle")}
             </p>
           </div>
         </div>
@@ -155,7 +157,7 @@ export default function LeaderboardPage() {
             onClick={() => setPeriod("weekly")}
             className="rounded-lg text-xs gap-1.5"
           >
-            <Flame className="h-3.5 w-3.5" /> Weekly
+            <Flame className="h-3.5 w-3.5" /> {t("leaderboard.weekly")}
           </Button>
           <Button
             variant={period === "all" ? "default" : "ghost"}
@@ -163,7 +165,7 @@ export default function LeaderboardPage() {
             onClick={() => setPeriod("all")}
             className="rounded-lg text-xs gap-1.5"
           >
-            <Trophy className="h-3.5 w-3.5" /> All Time
+            <Trophy className="h-3.5 w-3.5" /> {t("leaderboard.allTime")}
           </Button>
         </div>
 
@@ -227,12 +229,12 @@ export default function LeaderboardPage() {
               <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
               <p className="text-sm text-muted-foreground mb-3">
                 {period === "weekly"
-                  ? "No activity this week yet. Start learning to earn XP!"
-                  : "No users yet."}
+                  ? t("leaderboard.noActivity")
+                  : t("leaderboard.noUsers")}
               </p>
               {period === "weekly" && (
                 <Button variant="outline" size="sm" className="text-xs" asChild>
-                  <Link to="/courses">Browse Courses</Link>
+                  <Link to="/courses">{t("leaderboard.browseCourses")}</Link>
                 </Button>
               )}
             </div>
@@ -306,8 +308,7 @@ export default function LeaderboardPage() {
         {/* Info */}
         <div className="mt-6 text-center text-[11px] text-muted-foreground">
           <p>
-            Earn XP by completing lessons, passing tests, solving challenges, and maintaining
-            streaks.
+            {t("leaderboard.earnXP")}
           </p>
         </div>
       </div>
