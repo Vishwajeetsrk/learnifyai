@@ -355,3 +355,127 @@ Return in markdown:
     const payload = await res.json();
     return { content: payload.choices?.[0]?.message?.content ?? "" };
   });
+
+// ─── Interview Prep ──────────────────────────────────────────
+
+const InterviewInput = z.object({
+  role: z.string().min(2).max(100),
+  mode: z.enum(["voice", "chat", "video"]),
+  difficulty: z.enum(["easy", "medium", "hard"]),
+  questionIndex: z.number().min(0).max(20),
+  previousQuestions: z.array(z.string()).optional(),
+  userAnswer: z.string().max(10000).optional(),
+});
+
+export const generateInterviewQuestion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => InterviewInput.parse(d))
+  .handler(async ({ data }) => {
+    const body = {
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert technical interviewer for ${data.role} positions. Generate realistic interview questions appropriate for ${data.difficulty} difficulty. 
+
+For each question, return ONLY valid JSON matching this schema, no markdown, no code fences:
+{
+  "question": string,
+  "type": "behavioral" | "technical" | "system-design" | "coding" | "scenario",
+  "tips": string[] (2-3 hints for the candidate),
+  "expectedPoints": string[] (3-5 key points a good answer should cover),
+  "followUp": string (a natural follow-up question)
+}
+
+Rules:
+- Generate questions appropriate for the job role
+- Mix question types (behavioral, technical, system-design, coding, scenario)
+- Easy: basic concepts, simple scenarios
+- Medium: intermediate concepts, trade-offs, real-world scenarios
+- Hard: advanced concepts, architecture decisions, edge cases
+- Each question should be unique and not repeat previous questions
+- Return ONLY the JSON object`,
+        },
+        {
+          role: "user",
+          content: `Generate question ${data.questionIndex + 1} for a ${data.difficulty} ${data.role} interview.
+${data.previousQuestions && data.previousQuestions.length > 0 ? `\nPrevious questions asked (avoid repeating):\n${data.previousQuestions.join("\n")}` : ""}`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.8,
+    };
+
+    const res = await callUserAiChat(body as any, "pro");
+    if (!res.ok) throw new Error(`Question generation failed (${res.status})`);
+    const payload = await res.json();
+    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return { question: JSON.parse(content) };
+    } catch {
+      return { question: null, rawContent: content };
+    }
+  });
+
+const EvaluateInput = z.object({
+  role: z.string().min(2).max(100),
+  question: z.string().min(2).max(5000),
+  answer: z.string().min(1).max(10000),
+  expectedPoints: z.array(z.string()).optional(),
+  difficulty: z.enum(["easy", "medium", "hard"]),
+});
+
+export const evaluateInterviewAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => EvaluateInput.parse(d))
+  .handler(async ({ data }) => {
+    const body = {
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert interview evaluator for ${data.role} positions. Evaluate the candidate's answer to the interview question.
+
+Return ONLY valid JSON matching this schema, no markdown, no code fences:
+{
+  "score": number (0-100),
+  "rating": "excellent" | "good" | "average" | "needs-improvement" | "poor",
+  "strengths": string[] (2-3 things done well),
+  "improvements": string[] (2-3 areas to improve),
+  "feedback": string (2-3 sentence overall feedback),
+  "modelAnswer": string (a brief model answer for comparison),
+  "pointsCovered": string[] (which expected points were covered),
+  "pointsMissed": string[] (which expected points were missed)
+}
+
+Scoring criteria:
+- 90-100: Excellent — comprehensive, well-structured, shows deep understanding
+- 70-89: Good — covers key points, good explanation, minor gaps
+- 50-69: Average — partially correct, missing key points, needs more detail
+- 30-49: Needs improvement — significant gaps, incorrect information
+- 0-29: Poor — largely incorrect or irrelevant
+
+Be constructive and specific in feedback.`,
+        },
+        {
+          role: "user",
+          content: `Question: ${data.question}
+
+Candidate's Answer: ${data.answer}
+
+Difficulty: ${data.difficulty}
+${data.expectedPoints ? `\nExpected key points:\n${data.expectedPoints.map((p) => `- ${p}`).join("\n")}` : ""}`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3,
+    };
+
+    const res = await callUserAiChat(body as any, "pro");
+    if (!res.ok) throw new Error(`Evaluation failed (${res.status})`);
+    const payload = await res.json();
+    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return { evaluation: JSON.parse(content) };
+    } catch {
+      return { evaluation: null, rawContent: content };
+    }
+  });

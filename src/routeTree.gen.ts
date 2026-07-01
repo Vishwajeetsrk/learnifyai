@@ -52,12 +52,14 @@ import { Route as AuthenticatedPortfolioBuilderRouteImport } from './routes/_aut
 import { Route as AuthenticatedPlaygroundRouteImport } from './routes/_authenticated/playground'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedLeaderboardRouteImport } from './routes/_authenticated/leaderboard'
+import { Route as AuthenticatedInterviewRouteImport } from './routes/_authenticated/interview'
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreatorRouteImport } from './routes/_authenticated/creator'
 import { Route as AuthenticatedCommunityFeedRouteImport } from './routes/_authenticated/community-feed'
 import { Route as AuthenticatedCohortsRouteImport } from './routes/_authenticated/cohorts'
 import { Route as AuthenticatedCoachingRouteImport } from './routes/_authenticated/coaching'
+import { Route as AuthenticatedChallengesRouteImport } from './routes/_authenticated/challenges'
 import { Route as AuthenticatedCertificatesRouteImport } from './routes/_authenticated/certificates'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
 import { Route as AuthenticatedCareerRoadmapRouteImport } from './routes/_authenticated/career-roadmap'
@@ -313,6 +315,11 @@ const AuthenticatedLeaderboardRoute =
     path: '/leaderboard',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedInterviewRoute = AuthenticatedInterviewRouteImport.update({
+  id: '/interview',
+  path: '/interview',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedInboxRoute = AuthenticatedInboxRouteImport.update({
   id: '/inbox',
   path: '/inbox',
@@ -342,6 +349,11 @@ const AuthenticatedCohortsRoute = AuthenticatedCohortsRouteImport.update({
 const AuthenticatedCoachingRoute = AuthenticatedCoachingRouteImport.update({
   id: '/coaching',
   path: '/coaching',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedChallengesRoute = AuthenticatedChallengesRouteImport.update({
+  id: '/challenges',
+  path: '/challenges',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedCertificatesRoute =
@@ -583,12 +595,14 @@ export interface FileRoutesByFullPath {
   '/career-roadmap': typeof AuthenticatedCareerRoadmapRoute
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
+  '/challenges': typeof AuthenticatedChallengesRoute
   '/coaching': typeof AuthenticatedCoachingRoute
   '/cohorts': typeof AuthenticatedCohortsRouteWithChildren
   '/community-feed': typeof AuthenticatedCommunityFeedRoute
   '/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
+  '/interview': typeof AuthenticatedInterviewRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/playground': typeof AuthenticatedPlaygroundRouteWithChildren
@@ -669,12 +683,14 @@ export interface FileRoutesByTo {
   '/career-roadmap': typeof AuthenticatedCareerRoadmapRoute
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
+  '/challenges': typeof AuthenticatedChallengesRoute
   '/coaching': typeof AuthenticatedCoachingRoute
   '/cohorts': typeof AuthenticatedCohortsRouteWithChildren
   '/community-feed': typeof AuthenticatedCommunityFeedRoute
   '/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
+  '/interview': typeof AuthenticatedInterviewRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/playground': typeof AuthenticatedPlaygroundRouteWithChildren
@@ -757,12 +773,14 @@ export interface FileRoutesById {
   '/_authenticated/career-roadmap': typeof AuthenticatedCareerRoadmapRoute
   '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/certificates': typeof AuthenticatedCertificatesRoute
+  '/_authenticated/challenges': typeof AuthenticatedChallengesRoute
   '/_authenticated/coaching': typeof AuthenticatedCoachingRoute
   '/_authenticated/cohorts': typeof AuthenticatedCohortsRouteWithChildren
   '/_authenticated/community-feed': typeof AuthenticatedCommunityFeedRoute
   '/_authenticated/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRoute
+  '/_authenticated/interview': typeof AuthenticatedInterviewRoute
   '/_authenticated/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/playground': typeof AuthenticatedPlaygroundRouteWithChildren
@@ -845,12 +863,14 @@ export interface FileRouteTypes {
     | '/career-roadmap'
     | '/cart'
     | '/certificates'
+    | '/challenges'
     | '/coaching'
     | '/cohorts'
     | '/community-feed'
     | '/creator'
     | '/dashboard'
     | '/inbox'
+    | '/interview'
     | '/leaderboard'
     | '/onboarding'
     | '/playground'
@@ -931,12 +951,14 @@ export interface FileRouteTypes {
     | '/career-roadmap'
     | '/cart'
     | '/certificates'
+    | '/challenges'
     | '/coaching'
     | '/cohorts'
     | '/community-feed'
     | '/creator'
     | '/dashboard'
     | '/inbox'
+    | '/interview'
     | '/leaderboard'
     | '/onboarding'
     | '/playground'
@@ -1018,12 +1040,14 @@ export interface FileRouteTypes {
     | '/_authenticated/career-roadmap'
     | '/_authenticated/cart'
     | '/_authenticated/certificates'
+    | '/_authenticated/challenges'
     | '/_authenticated/coaching'
     | '/_authenticated/cohorts'
     | '/_authenticated/community-feed'
     | '/_authenticated/creator'
     | '/_authenticated/dashboard'
     | '/_authenticated/inbox'
+    | '/_authenticated/interview'
     | '/_authenticated/leaderboard'
     | '/_authenticated/onboarding'
     | '/_authenticated/playground'
@@ -1416,6 +1440,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLeaderboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/interview': {
+      id: '/_authenticated/interview'
+      path: '/interview'
+      fullPath: '/interview'
+      preLoaderRoute: typeof AuthenticatedInterviewRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/inbox': {
       id: '/_authenticated/inbox'
       path: '/inbox'
@@ -1456,6 +1487,13 @@ declare module '@tanstack/react-router' {
       path: '/coaching'
       fullPath: '/coaching'
       preLoaderRoute: typeof AuthenticatedCoachingRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/challenges': {
+      id: '/_authenticated/challenges'
+      path: '/challenges'
+      fullPath: '/challenges'
+      preLoaderRoute: typeof AuthenticatedChallengesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/certificates': {
@@ -1800,12 +1838,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedCareerRoadmapRoute: typeof AuthenticatedCareerRoadmapRoute
   AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCertificatesRoute: typeof AuthenticatedCertificatesRoute
+  AuthenticatedChallengesRoute: typeof AuthenticatedChallengesRoute
   AuthenticatedCoachingRoute: typeof AuthenticatedCoachingRoute
   AuthenticatedCohortsRoute: typeof AuthenticatedCohortsRouteWithChildren
   AuthenticatedCommunityFeedRoute: typeof AuthenticatedCommunityFeedRoute
   AuthenticatedCreatorRoute: typeof AuthenticatedCreatorRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
+  AuthenticatedInterviewRoute: typeof AuthenticatedInterviewRoute
   AuthenticatedLeaderboardRoute: typeof AuthenticatedLeaderboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPlaygroundRoute: typeof AuthenticatedPlaygroundRouteWithChildren
@@ -1833,12 +1873,14 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCareerRoadmapRoute: AuthenticatedCareerRoadmapRoute,
   AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCertificatesRoute: AuthenticatedCertificatesRoute,
+  AuthenticatedChallengesRoute: AuthenticatedChallengesRoute,
   AuthenticatedCoachingRoute: AuthenticatedCoachingRoute,
   AuthenticatedCohortsRoute: AuthenticatedCohortsRouteWithChildren,
   AuthenticatedCommunityFeedRoute: AuthenticatedCommunityFeedRoute,
   AuthenticatedCreatorRoute: AuthenticatedCreatorRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRoute,
+  AuthenticatedInterviewRoute: AuthenticatedInterviewRoute,
   AuthenticatedLeaderboardRoute: AuthenticatedLeaderboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPlaygroundRoute: AuthenticatedPlaygroundRouteWithChildren,
