@@ -46,7 +46,6 @@ export default defineConfig({
             if (id.includes("recharts")) return "vendor-charts";
             if (id.includes("highlight.js")) return "vendor-highlight";
             if (id.includes("@tiptap")) return "vendor-editor";
-            if (id.includes("framer-motion")) return "vendor-framer";
             if (id.includes("monaco-editor")) return "vendor-monaco";
             if (id.includes("@supabase")) return "vendor-supabase";
             if (id.includes("pdfjs-dist")) return "vendor-pdfjs";
