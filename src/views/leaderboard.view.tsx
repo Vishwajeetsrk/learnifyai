@@ -109,7 +109,7 @@ export default function LeaderboardPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <Link
-                      to="/creators/$id"
+                      to="/u/$id"
                       params={{ id: user?.id ?? "" }}
                       className="font-semibold text-sm hover:underline"
                     >
@@ -193,7 +193,7 @@ export default function LeaderboardPage() {
                     </div>
                   </div>
                   <Link
-                    to="/creators/$id"
+                    to="/u/$id"
                     params={{ id: u.id }}
                     className="text-xs font-medium text-center leading-tight line-clamp-1 hover:underline"
                   >
@@ -260,7 +260,7 @@ export default function LeaderboardPage() {
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <Link
-                            to="/creators/$id"
+                            to="/u/$id"
                             params={{ id: u.id }}
                             className={`text-sm font-medium truncate hover:underline ${isMe ? "text-primary" : "hover:text-foreground"}`}
                           >
@@ -272,7 +272,10 @@ export default function LeaderboardPage() {
                     </div>
                     <div className="flex items-center gap-3 sm:gap-5 shrink-0">
                       <div className="hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground">
-                        <Flame className="h-3 w-3 text-orange-400" /> Lv.{level}
+                        <Flame className="h-3 w-3 text-orange-400" /> {u.current_streak ?? 0}d
+                      </div>
+                      <div className="hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground">
+                        Lv.{level}
                       </div>
                       <div className="flex items-center gap-1.5 text-yellow-500 font-semibold text-sm min-w-[70px] justify-end">
                         <Star className="h-3.5 w-3.5" fill="currentColor" />
