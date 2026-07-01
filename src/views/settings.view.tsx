@@ -2219,38 +2219,32 @@ export default function SettingsPage() {
                               <Label className="text-xs font-semibold text-muted-foreground">
                                 Clothing Style
                               </Label>
-                              <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
+                              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                                 {[
-                                  { id: "shirtCrewNeck", label: "Crew Neck" },
-                                  { id: "shirtVNeck", label: "V-Neck" },
-                                  { id: "hoodie", label: "Hoodie" },
-                                  { id: "collarAndSweater", label: "Sweater" },
-                                  { id: "blazerAndShirt", label: "Blazer" },
-                                  { id: "overall", label: "Overalls" },
-                                  { id: "graphicShirt", label: "Graphic Tee" },
+                                  { id: "shirtCrewNeck", label: "Crew Neck", icon: "👕" },
+                                  { id: "shirtVNeck", label: "V-Neck", icon: "🎽" },
+                                  { id: "hoodie", label: "Hoodie", icon: "🧥" },
+                                  { id: "collarAndSweater", label: "Sweater", icon: "🧶" },
+                                  { id: "blazerAndShirt", label: "Blazer", icon: "🤵" },
+                                  { id: "overall", label: "Overalls", icon: "👷" },
+                                  { id: "graphicShirt", label: "Graphic Tee", icon: "🎨" },
                                 ].map((c) => (
                                   <button
                                     key={c.id}
                                     type="button"
                                     onClick={() => setClothingStyle(c.id)}
-                                    className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${clothingStyle === c.id ? "border-primary shadow-sm" : "border-border"}`}
+                                    className={`relative rounded-xl border-2 flex flex-col items-center gap-1.5 p-3 transition-all bg-card hover:bg-accent ${clothingStyle === c.id ? "border-primary shadow-sm ring-1 ring-primary/20" : "border-border"}`}
                                     title={c.label}
                                   >
-                                    <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
-                                      <img
-                                        src={buildCartoonUrl({ clothingStyle: c.id })}
-                                        className="w-full h-full object-cover scale-[2.2] -translate-y-[28%]"
-                                        alt={c.label}
-                                        loading="lazy"
-                                        decoding="async"
-                                      />
+                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${clothingStyle === c.id ? "bg-primary/10" : "bg-muted/50"}`}>
+                                      {c.icon}
                                     </div>
-                                    <span className="text-[9px] font-medium truncate w-full text-center">
+                                    <span className={`text-[10px] font-medium w-full text-center leading-tight ${clothingStyle === c.id ? "text-primary" : "text-muted-foreground"}`}>
                                       {c.label}
                                     </span>
                                     {clothingStyle === c.id && (
-                                      <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
-                                        <Check className="h-2 w-2" />
+                                      <div className="absolute top-1.5 right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
+                                        <Check className="h-2.5 w-2.5" />
                                       </div>
                                     )}
                                   </button>

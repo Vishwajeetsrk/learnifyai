@@ -437,7 +437,7 @@ function AdminCertificatesPage() {
         </div>
 
         {/* Sub-tabs */}
-        <div className="flex items-center gap-1 mb-8 border-b border-border overflow-x-auto">
+        <div className="flex items-center gap-0.5 mb-8 border-b border-border overflow-x-auto pb-0">
           {[
             { id: "all", label: "All Templates", icon: LayoutGrid },
             { id: "canva", label: "Canva Templates", icon: LayoutTemplate },
@@ -446,18 +446,25 @@ function AdminCertificatesPage() {
             { id: "categories", label: "Categories", icon: FolderTree },
           ].map((tab) => {
             const Icon = tab.icon;
+            const isActive = activeSubTab === tab.id;
             return (
-              <div key={tab.id} className="flex items-center gap-1">
+              <div key={tab.id} className="flex items-center gap-0.5">
                 <button
                   onClick={() => setActiveSubTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                    activeSubTab === tab.id ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                  className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all -mb-[1px] ${
+                    isActive
+                      ? "border-primary text-primary bg-primary/5"
+                      : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/30"
                   }`}
                 >
                   <Icon className="w-4 h-4" />
                   {tab.label}
                 </button>
-                <button onClick={() => setShowTour(showTour === tab.id ? null : tab.id)} className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded" title="What is this?">
+                <button
+                  onClick={() => setShowTour(showTour === tab.id ? null : tab.id)}
+                  className={`text-muted-foreground hover:text-foreground transition-colors p-1 rounded mb-0.5 ${isActive ? "text-primary/60 hover:text-primary" : ""}`}
+                  title={`What is ${tab.label}?`}
+                >
                   <HelpCircle className="w-3.5 h-3.5" />
                 </button>
               </div>
