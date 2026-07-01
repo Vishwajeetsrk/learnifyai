@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   Plus, Trash2, Save, Edit3, ShieldCheck, Copy, Upload, BarChart3,
   FolderTree, Users, Eye, Download, Award, Search, ExternalLink,
-  CheckCircle2, TrendingUp, Share2, FileText, LayoutTemplate, LayoutGrid,
+  CheckCircle2, TrendingUp, FileText, LayoutTemplate, LayoutGrid,
   HelpCircle, X, Info, Globe, ArrowRight, Palette,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { AppShell } from "@/components/AppShell";
 import { listTemplates, saveTemplate, deleteTemplate } from "@/lib/certificate-admin.functions";
+import { getCertificateAnalytics } from "@/lib/cert.functions";
 import { useAuth } from "@/hooks/use-auth";
 import { DesignerWorkspace } from "@/components/certificate-designer/DesignerWorkspace";
 import { motion, AnimatePresence } from "framer-motion";
@@ -162,19 +163,6 @@ const MOCK_BULK_ISSUES = [
   { id: "5", date: "2026-06-05", count: 18, course: "Machine Learning Bootcamp", status: "completed", issuedBy: "System" },
 ];
 
-const MOCK_ANALYTICS = {
-  totalIssued: 2847,
-  verified: 2693,
-  linkedinShares: 1843,
-  activeTemplates: 5,
-  monthlyGrowth: [120, 185, 232, 318, 395, 450, 388, 525, 640, 765, 880, 910],
-  recentIssues: [
-    { date: "2026-06-25", count: 45, course: "Web Development Bootcamp" },
-    { date: "2026-06-20", count: 32, course: "Data Structures & Algorithms" },
-    { date: "2026-06-15", count: 28, course: "Python Programming Mastery" },
-  ],
-};
-
 const TAB_TOUR_INFO: Record<string, { title: string; whatIsIt: string; howToUse: string; whereItShows: string }> = {
   all: {
     title: "All Templates",
@@ -236,6 +224,13 @@ function AdminCertificatesPage() {
     enabled: !!isAdmin,
     queryKey: ["admin-cert-templates"],
     queryFn: () => getTemplates(),
+  });
+
+  const getAnalytics = useServerFn(getCertificateAnalytics);
+  const analyticsQ = useQuery({
+    enabled: !!isAdmin,
+    queryKey: ["admin-cert-analytics"],
+    queryFn: () => getAnalytics(),
   });
 
   if (!isAdmin)
@@ -640,52 +635,68 @@ function AdminCertificatesPage() {
         {activeSubTab === "analytics" && (
           <div className="space-y-6">
             <div><h2 className="text-xl font-semibold">Certificate Analytics</h2><p className="text-sm text-muted-foreground">Track certificate issuance, verification, and engagement.</p></div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: "Total Issued", value: MOCK_ANALYTICS.totalIssued.toLocaleString(), change: "+23%", color: "text-emerald-600", icon: Award },
-                { label: "Verified", value: MOCK_ANALYTICS.verified.toLocaleString(), change: "+18%", color: "text-emerald-600", icon: CheckCircle2 },
-                { label: "LinkedIn Shares", value: MOCK_ANALYTICS.linkedinShares.toLocaleString(), change: "+12%", color: "text-emerald-600", icon: Share2 },
-                { label: "Active Templates", value: MOCK_ANALYTICS.activeTemplates.toString(), change: "+2", color: "text-emerald-600", icon: FileText },
-              ].map((stat) => (
-                <div key={stat.label} className="rounded-xl border bg-card p-5">
-                  <div className="flex items-center justify-between mb-2"><div className="text-xs text-muted-foreground">{stat.label}</div><stat.icon className="h-4 w-4 text-muted-foreground" /></div>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <div className="flex items-center gap-1 mt-1"><TrendingUp className={`h-3 w-3 ${stat.color}`} /><span className={`text-xs font-medium ${stat.color}`}>{stat.change}</span><span className="text-xs text-muted-foreground">vs last month</span></div>
-                </div>
-              ))}
-            </div>
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="md:col-span-2 rounded-xl border bg-card p-6">
-                <h3 className="font-semibold mb-4">Issuance Trend (2026)</h3>
-                <div className="flex items-end gap-1.5 h-48">
-                  {MOCK_ANALYTICS.monthlyGrowth.map((val, i) => {
-                    const max = Math.max(...MOCK_ANALYTICS.monthlyGrowth);
-                    const h = (val / max) * 100;
-                    return (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <span className="text-[9px] text-muted-foreground">{val}</span>
-                        <div className="w-full rounded-t bg-primary/80 hover:bg-primary transition-colors cursor-pointer" style={{ height: `${h}%` }} title={`${val} certificates`} />
-                        <span className="text-[9px] text-muted-foreground">{["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i]}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+            {analyticsQ.isLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="rounded-xl border bg-card p-5 animate-pulse">
+                    <div className="h-3 w-20 bg-muted rounded mb-2" />
+                    <div className="h-7 w-16 bg-muted rounded" />
+                  </div>
+                ))}
               </div>
-              <div className="rounded-xl border bg-card p-6">
-                <h3 className="font-semibold mb-3">Recent Issues</h3>
-                <div className="space-y-3">
-                  {MOCK_ANALYTICS.recentIssues.map((issue, i) => (
-                    <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><Award className="h-4 w-4 text-primary" /></div>
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium truncate">{issue.course}</div>
-                        <div className="text-xs text-muted-foreground">{issue.date} · {issue.count} certs</div>
-                      </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: "Total Issued", value: (analyticsQ.data?.totalIssued ?? 0).toLocaleString(), icon: Award },
+                    { label: "Verified", value: (analyticsQ.data?.totalVerified ?? 0).toLocaleString(), icon: CheckCircle2 },
+                    { label: "Active Templates", value: (analyticsQ.data?.activeTemplates ?? 0).toString(), icon: FileText },
+                    { label: "Recent Issues", value: (analyticsQ.data?.recentIssues?.length ?? 0).toString(), icon: TrendingUp },
+                  ].map((stat) => (
+                    <div key={stat.label} className="rounded-xl border bg-card p-5">
+                      <div className="flex items-center justify-between mb-2"><div className="text-xs text-muted-foreground">{stat.label}</div><stat.icon className="h-4 w-4 text-muted-foreground" /></div>
+                      <div className="text-2xl font-bold">{stat.value}</div>
                     </div>
                   ))}
                 </div>
-              </div>
-            </div>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="md:col-span-2 rounded-xl border bg-card p-6">
+                    <h3 className="font-semibold mb-4">Issuance Trend</h3>
+                    <div className="flex items-end gap-1.5 h-48">
+                      {(analyticsQ.data?.monthlyGrowth ?? []).map((val, i) => {
+                        const max = Math.max(...(analyticsQ.data?.monthlyGrowth ?? [1]));
+                        const h = max > 0 ? (val / max) * 100 : 0;
+                        return (
+                          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                            <span className="text-[9px] text-muted-foreground">{val}</span>
+                            <div className="w-full rounded-t bg-primary/80 hover:bg-primary transition-colors cursor-pointer" style={{ height: `${h}%` }} title={`${val} certificates`} />
+                            <span className="text-[9px] text-muted-foreground">{["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][i]}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div className="rounded-xl border bg-card p-6">
+                    <h3 className="font-semibold mb-3">Recent Issues</h3>
+                    <div className="space-y-3">
+                      {(analyticsQ.data?.recentIssues ?? []).length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No recent issues.</p>
+                      ) : (
+                        (analyticsQ.data?.recentIssues ?? []).map((issue, i) => (
+                          <div key={i} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/30">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0"><Award className="h-4 w-4 text-primary" /></div>
+                            <div className="min-w-0">
+                              <div className="text-sm font-medium truncate">{issue.course}</div>
+                              <div className="text-xs text-muted-foreground">{issue.date}</div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 

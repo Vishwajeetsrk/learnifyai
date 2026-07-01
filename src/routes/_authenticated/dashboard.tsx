@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BookOpen,
   Trophy,
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 });
 
 function DashboardPage() {
+  const { t } = useTranslation();
   const { user, isAdmin } = useAuth();
   const name = (user?.user_metadata?.full_name as string) ?? user?.email?.split("@")[0] ?? "there";
   const [brokenImgs, setBrokenImgs] = useState<Set<string>>(new Set());
@@ -118,10 +120,10 @@ function DashboardPage() {
     <AppShell>
       <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-6xl">
         <h1 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight">
-          Welcome back, {name}.
+          {t("dashboard.welcome", { name })}
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
-          Track your courses, tests, and certificates.
+          {t("dashboard.subtitle")}
         </p>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
@@ -129,11 +131,11 @@ function DashboardPage() {
             Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
           ) : (
             <>
-              <StatCard label="Enrolled" value={String(enrolled.length)} icon={BookOpen} />
-              <StatCard label="Completed" value={String(totalCompleted)} icon={GraduationCap} />
-              <StatCard label="Certificates" value={String(totalCerts)} icon={Award} />
+              <StatCard label={t("dashboard.enrolled")} value={String(enrolled.length)} icon={BookOpen} />
+              <StatCard label={t("dashboard.completed")} value={String(totalCompleted)} icon={GraduationCap} />
+              <StatCard label={t("dashboard.certificates")} value={String(totalCerts)} icon={Award} />
               <StatCard
-                label="Test attempts"
+                label={t("dashboard.testAttempts")}
                 value={String((attemptsQ.data ?? []).length)}
                 icon={Trophy}
               />
@@ -144,34 +146,34 @@ function DashboardPage() {
         {isAdmin && (
           <div className="mt-6">
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">
-              Admin shortcuts
+              {t("dashboard.adminShortcuts")}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <AdminShortcut
                 to="/admin/content"
                 icon={NotebookPen}
-                title="Content Manager"
-                desc="Events, jobs, pricing, FAQs"
+                title={t("dashboard.contentManager")}
+                desc={t("dashboard.contentManagerDesc")}
               />
               <AdminShortcut
                 to="/admin/content"
                 search={{ tab: "events" }}
                 icon={Calendar}
-                title="Events & Jobs"
-                desc="Create, edit, delete listings"
+                title={t("dashboard.eventsJobs")}
+                desc={t("dashboard.eventsJobsDesc")}
               />
               <AdminShortcut
                 to="/admin/content"
                 search={{ tab: "cert-templates" }}
                 icon={FileBadge2}
-                title="Certificate Templates"
-                desc="Design & manage templates"
+                title={t("dashboard.certTemplates")}
+                desc={t("dashboard.certTemplatesDesc")}
               />
               <AdminShortcut
                 to="/studio"
                 icon={NotebookPen}
-                title="Course Builder"
-                desc="Add lessons & modules"
+                title={t("dashboard.courseBuilder")}
+                desc={t("dashboard.courseBuilderDesc")}
               />
             </div>
           </div>
@@ -179,12 +181,12 @@ function DashboardPage() {
 
         <div className="mt-8">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-display text-xl font-semibold">My Learning</h2>
+            <h2 className="font-display text-xl font-semibold">{t("dashboard.myLearning")}</h2>
             <Link
               to="/courses"
               className="text-xs text-primary hover:underline inline-flex items-center gap-1"
             >
-              Browse more <ArrowRight className="h-3 w-3" />
+              {t("dashboard.browseMore")} <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
 
@@ -207,12 +209,12 @@ function DashboardPage() {
           ) : enrolled.length === 0 ? (
             <div className="rounded-2xl border bg-card p-12 text-center shadow-card">
               <BookOpen className="h-10 w-10 mx-auto text-muted-foreground" />
-              <p className="mt-3 font-medium">No courses yet.</p>
+              <p className="mt-3 font-medium">{t("dashboard.noCourses")}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Enroll in a course to start learning and tracking progress.
+                {t("dashboard.noCoursesDesc")}
               </p>
               <Link to="/courses" className="text-sm text-primary mt-3 inline-block">
-                Explore courses →
+                {t("dashboard.exploreCourses")} →
               </Link>
             </div>
           ) : (
@@ -257,12 +259,12 @@ function DashboardPage() {
                         </Badge>
                         {cert && (
                           <Badge className="text-[10px] bg-emerald-500 hover:bg-emerald-500 shrink-0">
-                            Certified
+                            {t("dashboard.certified")}
                           </Badge>
                         )}
                         {e.status === "completed" && !cert && (
                           <Badge variant="outline" className="text-[10px] shrink-0">
-                            Done
+                            {t("dashboard.done")}
                           </Badge>
                         )}
                       </div>
@@ -275,7 +277,7 @@ function DashboardPage() {
                       </Link>
                       <div className="mt-auto">
                         <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
-                          <span className="truncate">{e.progress_pct}% complete</span>
+                          <span className="truncate">{e.progress_pct}{t("dashboard.complete")}</span>
                           <span className="shrink-0 ml-2">
                             {format(new Date(e.last_activity_at), "dd MMM")}
                           </span>
@@ -283,7 +285,7 @@ function DashboardPage() {
                         <Progress value={e.progress_pct} className="h-1.5" />
                         {attempts.length > 0 && (
                           <p className="text-[10px] text-muted-foreground mt-1.5">
-                            {attempts.length} test attempt{attempts.length === 1 ? "" : "s"} · best{" "}
+                            {attempts.length}{attempts.length === 1 ? t("dashboard.testAttempt") : t("dashboard.testAttemptsPlural")}{t("dashboard.bestScore")}
                             {Math.round(best * 100)}%
                           </p>
                         )}
@@ -300,7 +302,7 @@ function DashboardPage() {
                             params={{ slug: e.courses?.slug }}
                             search={{ tab: "playground" } as any}
                           >
-                            <Code2 className="h-3.5 w-3.5 shrink-0" /> Playground
+                            <Code2 className="h-3.5 w-3.5 shrink-0" /> {t("dashboard.playground")}
                           </Link>
                         </Button>
                       </div>
@@ -317,13 +319,13 @@ function DashboardPage() {
           <div className="mt-10">
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display text-xl font-semibold flex items-center gap-2">
-                <Award className="h-5 w-5 text-primary" /> Your Certificates
+                <Award className="h-5 w-5 text-primary" /> {t("dashboard.yourCertificates")}
               </h2>
               <Link
                 to="/certificates"
                 className="text-xs text-primary hover:underline inline-flex items-center gap-1"
               >
-                View all <ArrowRight className="h-3 w-3" />
+                {t("dashboard.viewAll")} <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -343,11 +345,11 @@ function DashboardPage() {
                       </Badge>
                     </div>
                     <p className="mt-6 text-[10px] uppercase tracking-[0.25em] opacity-80">
-                      Certificate
+                      {t("dashboard.certificate")}
                     </p>
                     <p className="font-display font-semibold leading-tight line-clamp-2">
                       {(enrolled.find((e: any) => e.course_id === c.course_id) as any)?.courses
-                        ?.title ?? "Course"}
+                        ?.title ?? t("dashboard.courseFallback")}
                     </p>
                     <p className="text-[10px] opacity-80 mt-2 font-mono">
                       {format(new Date(c.issued_at), "dd MMM yyyy")} · #{c.code.slice(0, 8)}
@@ -365,9 +367,9 @@ function DashboardPage() {
             className="rounded-2xl border bg-card p-5 shadow-card hover:shadow-lg transition"
           >
             <FileCheck2 className="h-5 w-5 text-primary" />
-            <h3 className="mt-3 font-display font-semibold">My Submissions</h3>
+            <h3 className="mt-3 font-display font-semibold">{t("dashboard.mySubmissions")}</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              View status and feedback on your assignment work.
+              {t("dashboard.mySubmissionsDesc")}
             </p>
           </Link>
           <Link
@@ -375,9 +377,9 @@ function DashboardPage() {
             className="rounded-2xl border bg-card p-5 shadow-card hover:shadow-lg transition"
           >
             <Trophy className="h-5 w-5 text-primary" />
-            <h3 className="mt-3 font-display font-semibold">AI Tools History</h3>
+            <h3 className="mt-3 font-display font-semibold">{t("dashboard.aiToolsHistory")}</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Reuse past quizzes, flashcards, and study briefs.
+              {t("dashboard.aiToolsDesc")}
             </p>
           </Link>
         </div>
@@ -395,6 +397,7 @@ function DashboardPage() {
 }
 
 function UpgradePlans() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const currentSub = useQuery({
     enabled: !!user,
@@ -418,11 +421,10 @@ function UpgradePlans() {
       <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
       <div className="relative z-10 text-center md:text-left">
         <h2 className="font-display text-2xl sm:text-3xl font-semibold flex items-center justify-center md:justify-start gap-2">
-          <Sparkles className="h-6 w-6 text-primary animate-pulse" /> Upgrade to Pro
+          <Sparkles className="h-6 w-6 text-primary animate-pulse" /> {t("dashboard.upgradeToPro")}
         </h2>
         <p className="text-muted-foreground mt-2 max-w-lg text-sm sm:text-base">
-          Unlock unlimited AI sessions, premium courses, creator tools, and priority support.
-          Elevate your learning journey today.
+          {t("dashboard.upgradeDesc")}
         </p>
       </div>
       <Button
@@ -431,7 +433,7 @@ function UpgradePlans() {
         className="shrink-0 relative z-10 shadow-glow hover:-translate-y-0.5 transition-all w-full md:w-auto"
       >
         <Link to="/pricing" search={{ subscribe: undefined }}>
-          View Pricing & Upgrade <ArrowRight className="ml-2 h-4 w-4" />
+          {t("dashboard.viewPricing")} <ArrowRight className="ml-2 h-4 w-4" />
         </Link>
       </Button>
     </div>
@@ -439,6 +441,7 @@ function UpgradePlans() {
 }
 
 function DashboardCommunity() {
+  const { t } = useTranslation();
   const { user } = useAuth();
 
   const { data: cohorts = [], isLoading } = useQuery({
@@ -489,13 +492,13 @@ function DashboardCommunity() {
     <div className="mt-10">
       <div className="flex items-center justify-between mb-3">
         <h2 className="font-display text-xl font-semibold flex items-center gap-2">
-          <Users className="h-5 w-5 text-primary" /> Your Community
+          <Users className="h-5 w-5 text-primary" /> {t("dashboard.yourCommunity")}
         </h2>
         <Link
           to="/cohorts"
           className="text-xs text-primary hover:underline inline-flex items-center gap-1"
         >
-          View all <ArrowRight className="h-3 w-3" />
+          {t("dashboard.viewAll")} <ArrowRight className="h-3 w-3" />
         </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -526,7 +529,7 @@ function DashboardCommunity() {
                 className="mt-3 inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
               >
                 <ExternalLink className="h-3 w-3" />
-                Join group chat
+                {t("dashboard.joinGroupChat")}
               </a>
             )}
           </div>

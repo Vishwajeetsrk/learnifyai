@@ -772,3 +772,55 @@ export const retryPendingCertificateEmails = createServerFn({ method: "POST" })
     }
     return { retried, succeeded, failed };
   });
+
+export const getCertificateAnalytics = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const supabase = (await import("@/integrations/supabase/client")).supabase;
+
+    const [certsResult, templatesResult, emailResult, auditResult] = await Promise.all([
+      supabase.from("certificates").select("id, issued_at, course_id, courses:course_id(title)"),
+      supabase.from("certificate_templates").select("id"),
+      supabase.from("certificate_email_log").select("id, status"),
+      supabase.from("certificate_audit_log").select("id, action, course_title, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10),
+    ]);
+
+    const certs = certsResult.data ?? [];
+    const totalIssued = certs.length;
+    const activeTemplates = (templatesResult.data ?? []).length;
+    const totalVerified = (emailResult.data ?? []).filter((r) => r.status === "sent").length;
+
+    const monthlyCounts: Record<string, number> = {};
+    const now = new Date();
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      monthlyCounts[key] = 0;
+    }
+    certs.forEach((c) => {
+      if (!c.issued_at) return;
+      const d = new Date(c.issued_at);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      if (key in monthlyCounts) monthlyCounts[key] = (monthlyCounts[key] ?? 0) + 1;
+    });
+    const monthlyGrowth = Object.values(monthlyCounts);
+
+    const recentIssues = (auditResult.data ?? [])
+      .filter((r) => r.action === "issued" || r.action === "bulk_issued")
+      .slice(0, 5)
+      .map((r) => ({
+        date: r.created_at?.slice(0, 10) ?? "",
+        course: r.course_title ?? "Unknown",
+        count: 1,
+      }));
+
+    return {
+      totalIssued,
+      totalVerified,
+      activeTemplates,
+      monthlyGrowth,
+      recentIssues,
+    };
+  }
+);
