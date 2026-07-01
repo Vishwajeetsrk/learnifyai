@@ -38,6 +38,8 @@ import {
   Ban,
   Filter,
   Calendar,
+  CalendarPlus,
+  CheckCircle,
 } from "lucide-react";
 import {
   getBillingOverview,
@@ -51,13 +53,24 @@ import {
   getCashfreeStatus,
   getSubscriptionBillingData,
   exportBillingData,
+  getCoupons,
+  saveCoupon,
+  deleteCoupon,
 } from "@/lib/billing.functions";
+
+import { adminUpdateSubscription } from "@/lib/subscription.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -430,6 +443,7 @@ function BillingOSPage() {
             <TabsTrigger value="credits">Credits</TabsTrigger>
             <TabsTrigger value="refunds">Refunds</TabsTrigger>
             <TabsTrigger value="taxes">Taxes</TabsTrigger>
+            <TabsTrigger value="coupons">Coupons</TabsTrigger>
             <TabsTrigger value="cashfree">Cashfree</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
@@ -612,6 +626,7 @@ function BillingOSPage() {
                       <TableHead>Start Date</TableHead>
                       <TableHead>End Date</TableHead>
                       <TableHead>Amount</TableHead>
+                      <TableHead className="w-32">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -634,8 +649,11 @@ function BillingOSPage() {
                               <Badge className={cn("text-xs border", STATUS_BADGE[sub.status] || "bg-zinc-500/10 text-zinc-500")}>{sub.status}</Badge>
                             </TableCell>
                             <TableCell className="text-xs text-muted-foreground">{sub.created_at ? format(new Date(sub.created_at), "MMM d, yyyy") : "—"}</TableCell>
-                            <TableCell className="text-xs text-muted-foreground">{sub.end_date ? format(new Date(sub.end_date), "MMM d, yyyy") : "—"}</TableCell>
+                            <TableCell className="text-xs text-muted-foreground">{sub.current_period_end ? format(new Date(sub.current_period_end), "MMM d, yyyy") : "—"}</TableCell>
                             <TableCell className="font-medium">{plan?.price_inr > 0 ? inr(plan.price_inr) : "Free"}</TableCell>
+                            <TableCell>
+                              <SubscriptionActions sub={sub} />
+                            </TableCell>
                           </TableRow>
                         );
                       })}
@@ -836,6 +854,11 @@ function BillingOSPage() {
             )}
           </TabsContent>
 
+          {/* ============ COUPONS ============ */}
+          <TabsContent value="coupons" className="space-y-4">
+            <CouponsManager />
+          </TabsContent>
+
           {/* ============ CASHFREE ============ */}
           <TabsContent value="cashfree" className="space-y-4">
             {cashfreeStatus.isLoading ? (
@@ -1015,4 +1038,261 @@ function BillingOSPage() {
       </div>
     </AppShell>
   );
+}
+
+function CouponsManager() {
+  const qc = useQueryClient();
+  const [editing, setEditing] = useState<any | null>(null);
+  const [open, setOpen] = useState(false);
+  const doQuery = useServerFn(getCoupons);
+  const doSave = useServerFn(saveCoupon);
+  const doDelete = useServerFn(deleteCoupon);
+
+  const { data: coupons = [], isLoading } = useQuery({
+    queryKey: ["admin-coupons"],
+    queryFn: () => doQuery({ data: undefined }),
+  });
+
+  const handleSave = async () => {
+    if (!editing?.code) {
+      toast.error("Coupon code is required");
+      return;
+    }
+    try {
+      await doSave({ data: editing });
+      toast.success("Coupon saved");
+      qc.invalidateQueries({ queryKey: ["admin-coupons"] });
+      setOpen(false);
+      setEditing(null);
+    } catch (e: any) {
+      toast.error(e?.message || "Save failed");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this coupon?")) return;
+    try {
+      await doDelete({ data: { id } });
+      toast.success("Coupon deleted");
+      qc.invalidateQueries({ queryKey: ["admin-coupons"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Delete failed");
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-lg font-semibold">Coupon Codes</h3>
+          <p className="text-sm text-muted-foreground">Manage discount coupons for subscriptions.</p>
+        </div>
+        <Button
+          size="sm"
+          onClick={() => {
+            setEditing({ code: "", description: "", discount_percent: 10, active: true });
+            setOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4 mr-1" /> New Coupon
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>
+      ) : coupons.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-10">No coupons yet.</p>
+      ) : (
+        <div className="rounded-xl border bg-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Code</TableHead>
+                <TableHead>Discount</TableHead>
+                <TableHead>Uses</TableHead>
+                <TableHead>Valid Until</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-24">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {coupons.map((c: any) => (
+                <TableRow key={c.id}>
+                  <TableCell className="font-mono font-semibold">{c.code}</TableCell>
+                  <TableCell>
+                    {c.discount_percent ? `${c.discount_percent}%` : c.discount_amount_inr ? `₹${c.discount_amount_inr}` : "—"}
+                  </TableCell>
+                  <TableCell>{c.used_count ?? 0}{c.max_uses ? ` / ${c.max_uses}` : ""}</TableCell>
+                  <TableCell>{c.valid_until ? format(new Date(c.valid_until), "MMM d, yyyy") : "Never"}</TableCell>
+                  <TableCell>
+                    <Badge variant={c.active ? "default" : "secondary"}>
+                      {c.active ? "Active" : "Inactive"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7"
+                        onClick={() => { setEditing(c); setOpen(true); }}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 text-destructive"
+                        onClick={() => handleDelete(c.id)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {/* Coupon Dialog */}
+      {open && editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-background rounded-2xl border shadow-2xl w-full max-w-md p-6 space-y-4">
+            <h3 className="text-lg font-semibold">{editing.id ? "Edit" : "New"} Coupon</h3>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label>Code *</Label>
+                <Input
+                  value={editing.code || ""}
+                  onChange={(e) => setEditing({ ...editing, code: e.target.value.toUpperCase() })}
+                  placeholder="e.g. SAVE20"
+                  className="font-mono"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Description</Label>
+                <Input
+                  value={editing.description || ""}
+                  onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+                  placeholder="e.g. 20% off for new users"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Percent Off (%)</Label>
+                  <Input
+                    type="number"
+                    value={editing.discount_percent || ""}
+                    onChange={(e) => setEditing({ ...editing, discount_percent: e.target.value ? Number(e.target.value) : undefined, discount_amount_inr: undefined })}
+                    placeholder="10"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Flat Off (₹)</Label>
+                  <Input
+                    type="number"
+                    value={editing.discount_amount_inr || ""}
+                    onChange={(e) => setEditing({ ...editing, discount_amount_inr: e.target.value ? Number(e.target.value) : undefined, discount_percent: undefined })}
+                    placeholder="50"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label>Max Uses</Label>
+                  <Input
+                    type="number"
+                    value={editing.max_uses || ""}
+                    onChange={(e) => setEditing({ ...editing, max_uses: e.target.value ? Number(e.target.value) : undefined })}
+                    placeholder="Unlimited"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Valid Until</Label>
+                  <Input
+                    type="date"
+                    value={editing.valid_until ? editing.valid_until.slice(0, 10) : ""}
+                    onChange={(e) => setEditing({ ...editing, valid_until: e.target.value || undefined })}
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editing.active ?? true}
+                  onChange={(e) => setEditing({ ...editing, active: e.target.checked })}
+                  className="rounded"
+                />
+                <Label className="text-sm">Active</Label>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" onClick={() => { setOpen(false); setEditing(null); }}>Cancel</Button>
+              <Button onClick={handleSave}>Save Coupon</Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SubscriptionActions({ sub }: { sub: any }) {
+  const qc = useQueryClient();
+  const doUpdate = useServerFn(adminUpdateSubscription);
+
+  const handleAction = async (action: "activate" | "cancel" | "pause" | "extend", extendDays?: number) => {
+    const label = { activate: "Activate", cancel: "Cancel", pause: "Pause", extend: "Extend" }[action];
+    if (!confirm(`${label} this subscription?`)) return;
+    try {
+      await doUpdate({ data: { subscriptionId: sub.id, action, extendDays } });
+      toast.success(`Subscription ${action}d`);
+      qc.invalidateQueries({ queryKey: ["admin-subscription-data"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Action failed");
+    }
+  };
+
+  if (sub.status === "active") {
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-7 px-2">
+            <Settings className="h-3.5 w-3.5 mr-1" /> Manage
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-40">
+          <DropdownMenuItem onClick={() => handleAction("cancel")}>
+            <XCircle className="h-4 w-4 mr-2 text-destructive" /> Cancel
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleAction("pause")}>
+            <Clock className="h-4 w-4 mr-2" /> Pause
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleAction("extend", 30)}>
+            <CalendarPlus className="h-4 w-4 mr-2" /> Extend 30d
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
+
+  if (sub.status === "cancelled" || sub.status === "expired") {
+    return (
+      <Button variant="ghost" size="sm" className="h-7 px-2 text-emerald-600" onClick={() => handleAction("activate")}>
+        <CheckCircle className="h-3.5 w-3.5 mr-1" /> Reactivate
+      </Button>
+    );
+  }
+
+  if (sub.status === "paused") {
+    return (
+      <Button variant="ghost" size="sm" className="h-7 px-2 text-emerald-600" onClick={() => handleAction("activate")}>
+        <CheckCircle className="h-3.5 w-3.5 mr-1" /> Resume
+      </Button>
+    );
+  }
+
+  return <span className="text-xs text-muted-foreground">—</span>;
 }

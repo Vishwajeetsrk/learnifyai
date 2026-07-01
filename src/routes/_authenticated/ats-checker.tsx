@@ -41,7 +41,7 @@ function AtsCheckerPage() {
       toast.success("Resume parsed! Fields auto-filled.");
     } catch (err: any) {
       console.error("[ATSChecker] extractResumeFields error:", err);
-      toast.success("Resume text extracted! Fill in target role and check ATS score.");
+      toast.warning("Resume text captured. Auto-fill failed — fill in target role manually.");
     } finally {
       setExtracting(false);
     }

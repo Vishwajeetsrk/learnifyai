@@ -296,7 +296,7 @@ export default function SettingsPage() {
         };
         const mappedHair =
           hairMap[s.hairStyle as string] || (s.hairGender === "male" ? "short01" : "long01");
-        params += `&hair=${mappedHair}`;
+        params += `&hairVariant=${mappedHair}`;
         params += `&hairProbability=100`;
       }
       const mouthMap: Record<string, string> = {
@@ -309,7 +309,7 @@ export default function SettingsPage() {
         scream: "variant07",
         tongue: "variant08",
       };
-      params += `&mouth=${mouthMap[s.mouthStyle as string] || "variant01"}`;
+      params += `&mouthVariant=${mouthMap[s.mouthStyle as string] || "variant01"}`;
       const eyesMap: Record<string, string> = {
         default: "variant01",
         happy: "variant02",
@@ -320,7 +320,7 @@ export default function SettingsPage() {
         hearts: "variant07",
         close: "variant08",
       };
-      params += `&eyes=${eyesMap[s.eyesStyle as string] || "variant01"}`;
+      params += `&eyesVariant=${eyesMap[s.eyesStyle as string] || "variant01"}`;
       const eyebrowsMap: Record<string, string> = {
         default: "variant01",
         angry: "variant02",
@@ -330,7 +330,7 @@ export default function SettingsPage() {
         unibrow: "variant06",
         up: "variant07",
       };
-      params += `&eyebrows=${eyebrowsMap[s.eyebrowsStyle as string] || "variant01"}`;
+      params += `&eyebrowsVariant=${eyebrowsMap[s.eyebrowsStyle as string] || "variant01"}`;
       if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
         const accMap: Record<string, string> = {
           prescription01: "variant01",
@@ -339,7 +339,7 @@ export default function SettingsPage() {
           wayfarer: "variant04",
           kurt: "variant05",
         };
-        params += `&glasses=${accMap[s.accessoriesStyle as string] || "variant01"}`;
+        params += `&glassesVariant=${accMap[s.accessoriesStyle as string] || "variant01"}`;
         params += `&glassesProbability=100`;
       } else {
         params += `&glassesProbability=0`;
@@ -366,7 +366,7 @@ export default function SettingsPage() {
           dreads: "glowingBulb02",
           bigHair: "antennaCrooked",
         };
-        params += `&top=${topMap[s.hairStyle as string] || "antenna"}`;
+        params += `&topVariant=${topMap[s.hairStyle as string] || "antenna"}`;
         params += `&topProbability=100`;
       }
       const eyesMap: Record<string, string> = {
@@ -379,7 +379,7 @@ export default function SettingsPage() {
         hearts: "hearts",
         close: "dizzy",
       };
-      params += `&eyes=${eyesMap[s.eyesStyle as string] || "round"}`;
+      params += `&eyesVariant=${eyesMap[s.eyesStyle as string] || "round"}`;
       const mouthMap: Record<string, string> = {
         default: "smile01",
         smile: "smile02",
@@ -390,7 +390,7 @@ export default function SettingsPage() {
         scream: "square01",
         tongue: "bite",
       };
-      params += `&mouth=${mouthMap[s.mouthStyle as string] || "smile01"}`;
+      params += `&mouthVariant=${mouthMap[s.mouthStyle as string] || "smile01"}`;
       params += `&mouthProbability=100`;
       if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
         const sidesMap: Record<string, string> = {
@@ -400,7 +400,7 @@ export default function SettingsPage() {
           wayfarer: "cables02",
           kurt: "square",
         };
-        params += `&sides=${sidesMap[s.accessoriesStyle as string] || "antenna01"}`;
+        params += `&sidesVariant=${sidesMap[s.accessoriesStyle as string] || "antenna01"}`;
         params += `&sidesProbability=100`;
       } else {
         params += `&sidesProbability=0`;
@@ -429,7 +429,7 @@ export default function SettingsPage() {
           dreads: "long08",
           bigHair: "long09",
         };
-        params += `&hair=${hairMap[s.hairStyle as string] || (s.hairGender === "male" ? "short01" : "long01")}`;
+        params += `&hairVariant=${hairMap[s.hairStyle as string] || (s.hairGender === "male" ? "short01" : "long01")}`;
         params += `&hairProbability=100`;
       }
       const eyesMap: Record<string, string> = {
@@ -442,7 +442,7 @@ export default function SettingsPage() {
         hearts: "variant07",
         close: "variant08",
       };
-      params += `&eyes=${eyesMap[s.eyesStyle as string] || "variant01"}`;
+      params += `&eyesVariant=${eyesMap[s.eyesStyle as string] || "variant01"}`;
       const mouthMap: Record<string, string> = {
         default: "happy01",
         smile: "happy02",
@@ -453,7 +453,7 @@ export default function SettingsPage() {
         scream: "happy05",
         tongue: "happy06",
       };
-      params += `&mouth=${mouthMap[s.mouthStyle as string] || "happy01"}`;
+      params += `&mouthVariant=${mouthMap[s.mouthStyle as string] || "happy01"}`;
       const clothingMap: Record<string, string> = {
         shirtCrewNeck: "variant01",
         shirtVNeck: "variant02",
@@ -463,7 +463,7 @@ export default function SettingsPage() {
         overall: "variant06",
         graphicShirt: "variant07",
       };
-      params += `&clothing=${clothingMap[s.clothingStyle as string] || "variant01"}`;
+      params += `&clothesVariant=${clothingMap[s.clothingStyle as string] || "variant01"}`;
       if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
         const accMap: Record<string, string> = {
           prescription01: "light01",
@@ -472,7 +472,7 @@ export default function SettingsPage() {
           wayfarer: "dark02",
           kurt: "dark03",
         };
-        params += `&glasses=${accMap[s.accessoriesStyle as string] || "light01"}`;
+        params += `&glassesVariant=${accMap[s.accessoriesStyle as string] || "light01"}`;
         params += `&glassesProbability=100`;
       } else {
         params += `&glassesProbability=0`;
@@ -489,7 +489,7 @@ export default function SettingsPage() {
         hearts: "love",
         close: "closed",
       };
-      params += `&eyes=${eyesMap[s.eyesStyle as string] || "plain"}`;
+      params += `&eyesVariant=${eyesMap[s.eyesStyle as string] || "plain"}`;
       const mouthMap: Record<string, string> = {
         default: "plain",
         smile: "wideSmile",
@@ -500,7 +500,7 @@ export default function SettingsPage() {
         scream: "shout",
         tongue: "tongueOut",
       };
-      params += `&mouth=${mouthMap[s.mouthStyle as string] || "plain"}`;
+      params += `&mouthVariant=${mouthMap[s.mouthStyle as string] || "plain"}`;
     } else if (s.selectedStyle === "lorelei") {
       params += `&skinColor=${s.skinColor}`;
       params += `&hairColor=${s.hairColor}`;
@@ -523,7 +523,7 @@ export default function SettingsPage() {
         dreads: "variant17",
         bigHair: "variant18",
       };
-      params += `&hair=${hairMap[s.hairStyle as string] || "variant01"}`;
+      params += `&hairVariant=${hairMap[s.hairStyle as string] || "variant01"}`;
       const eyesMap: Record<string, string> = {
         default: "variant01",
         happy: "variant02",
@@ -534,7 +534,7 @@ export default function SettingsPage() {
         hearts: "variant07",
         close: "variant08",
       };
-      params += `&eyes=${eyesMap[s.eyesStyle as string] || "variant01"}`;
+      params += `&eyesVariant=${eyesMap[s.eyesStyle as string] || "variant01"}`;
       const mouthMap: Record<string, string> = {
         default: "happy01",
         smile: "happy02",
@@ -545,7 +545,7 @@ export default function SettingsPage() {
         scream: "happy05",
         tongue: "happy06",
       };
-      params += `&mouth=${mouthMap[s.mouthStyle as string] || "happy01"}`;
+      params += `&mouthVariant=${mouthMap[s.mouthStyle as string] || "happy01"}`;
       const eyebrowsMap: Record<string, string> = {
         default: "variant01",
         angry: "variant02",
@@ -555,7 +555,7 @@ export default function SettingsPage() {
         unibrow: "variant06",
         up: "variant07",
       };
-      params += `&eyebrows=${eyebrowsMap[s.eyebrowsStyle as string] || "variant01"}`;
+      params += `&eyebrowsVariant=${eyebrowsMap[s.eyebrowsStyle as string] || "variant01"}`;
       if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
         const accMap: Record<string, string> = {
           prescription01: "variant01",
@@ -564,7 +564,7 @@ export default function SettingsPage() {
           wayfarer: "variant04",
           kurt: "variant05",
         };
-        params += `&glasses=${accMap[s.accessoriesStyle as string] || "variant01"}`;
+        params += `&glassesVariant=${accMap[s.accessoriesStyle as string] || "variant01"}`;
         params += `&glassesProbability=100`;
       } else {
         params += `&glassesProbability=0`;
@@ -577,14 +577,14 @@ export default function SettingsPage() {
         variant05: "variant05",
         variant06: "variant06",
       };
-      params += `&nose=${noseMap[s.noseStyle as string] || "variant01"}`;
+      params += `&noseVariant=${noseMap[s.noseStyle as string] || "variant01"}`;
     }
 
     if (s.profileBorder && s.profileBorder !== "none") {
       params += `&profile_border=${s.profileBorder}`;
     }
 
-    if (s.avatarBackgroundColor && s.avatarBackgroundColor !== "transparent") {
+    if (s.avatarBackgroundColor && s.avatarBackgroundColor !== "transparent" && s.selectedStyle !== "fun-emoji") {
       params += `&backgroundColor=${s.avatarBackgroundColor}`;
     }
 
@@ -592,8 +592,12 @@ export default function SettingsPage() {
   }
 
   const currentCartoonUrl = buildCartoonUrl();
+  const [previewNonce, setPreviewNonce] = useState(0);
   useEffect(() => {
     setAvatarPreviewError(false);
+  }, [currentCartoonUrl]);
+  useEffect(() => {
+    setPreviewNonce((n) => n + 1);
   }, [currentCartoonUrl]);
   const doSaveField = useServerFn(saveProfileField);
 
@@ -1643,7 +1647,7 @@ export default function SettingsPage() {
                           </div>
                         ) : (
                           <img
-                            key={currentCartoonUrl}
+                            key={`avatar-${previewNonce}`}
                             src={currentCartoonUrl}
                             className="h-full w-full object-cover"
                             alt="Avatar Preview"
@@ -1673,9 +1677,10 @@ export default function SettingsPage() {
                                   setAccessoriesStyle("none");
                                   setClothingStyle("shirtCrewNeck");
                                   setSkinColor("ffdbb4");
-                                  setHairColor("4a3728");
-                                  setClothingColor("3c4f76");
-                                  setAvatarBackgroundColor("transparent");
+                                   setHairColor("4a3728");
+                                   setClothingColor("3c4f76");
+                                   setAvatarBackgroundColor("transparent");
+                                   setNoseStyle("default");
                                   if (style.id === "avataaars") {
                                     setHairGender("male");
                                     setHairStyle("shortFlat");

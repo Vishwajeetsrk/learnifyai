@@ -495,3 +495,86 @@ export const exportBillingData = createServerFn({ method: "GET" })
     const { data: rows } = await query;
     return { rows: rows || [], type: data.type, format: data.format };
   });
+
+// ─── Coupon Management ───────────────────────────────────────
+
+export const getCoupons = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await (supabaseAdmin as any)
+      .from("coupon_codes")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+export const saveCoupon = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: {
+    id?: string;
+    code: string;
+    description?: string;
+    discount_percent?: number;
+    discount_amount_inr?: number;
+    max_uses?: number;
+    applicable_plan_ids?: string[];
+    valid_from?: string;
+    valid_until?: string;
+    active?: boolean;
+  }) =>
+    z.object({
+      id: z.string().uuid().optional(),
+      code: z.string().min(1).max(50),
+      description: z.string().optional(),
+      discount_percent: z.number().min(1).max(100).optional(),
+      discount_amount_inr: z.number().min(0).optional(),
+      max_uses: z.number().min(1).optional(),
+      applicable_plan_ids: z.array(z.string()).optional(),
+      valid_from: z.string().optional(),
+      valid_until: z.string().optional(),
+      active: z.boolean().optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const payload: any = {
+      code: data.code.toUpperCase(),
+      description: data.description ?? null,
+      discount_percent: data.discount_percent ?? null,
+      discount_amount_inr: data.discount_amount_inr ?? null,
+      max_uses: data.max_uses ?? null,
+      applicable_plan_ids: data.applicable_plan_ids ?? null,
+      valid_from: data.valid_from ?? new Date().toISOString(),
+      valid_until: data.valid_until ?? null,
+      active: data.active ?? true,
+    };
+
+    if (data.id) {
+      const { error } = await (supabaseAdmin as any)
+        .from("coupon_codes")
+        .update(payload)
+        .eq("id", data.id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await (supabaseAdmin as any)
+        .from("coupon_codes")
+        .insert(payload);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteCoupon = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await (supabaseAdmin as any)
+      .from("coupon_codes")
+      .delete()
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

@@ -3204,7 +3204,7 @@ function SectionsManager() {
     setSaving(true);
     try {
       for (const section of defaults) {
-        await doAction({
+        await doUpsert({
           data: {
             table: "wcms_sections",
             data: { ...section, block_type: "custom" },

@@ -111,8 +111,9 @@ export async function sendInvoiceCreatedEmail(
     </div>
     <div style="text-align: center; margin: 24px 0;">
       <a href="${BASE_URL}/billing" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-        View & Download Invoice PDF
+        View &amp; Download Invoice
       </a>
+      <div style="margin-top: 10px; font-size: 12px; color: #6b7280;">Open the billing page to view details and download as PDF.</div>
     </div>
   `);
 
@@ -148,8 +149,9 @@ export async function sendPaymentSuccessEmail(
     </div>
     <div style="text-align: center; margin: 24px 0;">
       <a href="${BASE_URL}/billing" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-        Download Invoice PDF
+        View &amp; Download Invoice
       </a>
+      <div style="margin-top: 10px; font-size: 12px; color: #6b7280;">Open the billing page to download your invoice as PDF.</div>
     </div>
   `);
 

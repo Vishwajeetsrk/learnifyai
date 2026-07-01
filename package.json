@@ -54,6 +54,7 @@
     "@radix-ui/react-tooltip": "^1.2.11",
     "@supabase/supabase-js": "^2.110.0",
     "@tailwindcss/vite": "^4.3.2",
+    "@tanstack/query-core": "^5.101.2",
     "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-router": "^1.170.16",
     "@tanstack/react-start": "^1.168.26",

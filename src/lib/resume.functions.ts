@@ -62,7 +62,7 @@ Use strong action verbs, quantify achievements, include relevant keywords for ${
   });
 
 const AtsInput = z.object({
-  resumeText: z.string().min(50).max(20000),
+  resumeText: z.string().min(50).max(50000),
   targetRole: z.string().min(2).max(200),
   industry: z.string().max(200).optional(),
 });
@@ -198,7 +198,7 @@ Return in markdown with these sections:
   });
 
 const ExtractResumeInput = z.object({
-  rawText: z.string().min(20).max(50000),
+  rawText: z.string().min(20).max(100000),
 });
 
 export const extractResumeFields = createServerFn({ method: "POST" })

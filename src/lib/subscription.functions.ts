@@ -802,3 +802,74 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
       subscriberHistory,
     };
   });
+
+// ─── Admin Subscription Management ───────────────────────────
+
+export const adminUpdateSubscription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: {
+    subscriptionId: string;
+    action: "activate" | "cancel" | "pause" | "extend";
+    extendDays?: number;
+  }) =>
+    z.object({
+      subscriptionId: z.string().uuid(),
+      action: z.enum(["activate", "cancel", "pause", "extend"]),
+      extendDays: z.number().min(1).max(365).optional(),
+    }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: sub, error: fetchErr } = await (supabaseAdmin as any)
+      .from("user_subscriptions")
+      .select("*")
+      .eq("id", data.subscriptionId)
+      .single();
+    if (fetchErr || !sub) throw new Error("Subscription not found");
+
+    const now = new Date().toISOString();
+    let updatePayload: any = { updated_at: now };
+
+    switch (data.action) {
+      case "activate":
+        updatePayload.status = "active";
+        updatePayload.current_period_start = now;
+        if (!sub.current_period_end || new Date(sub.current_period_end) < new Date()) {
+          const periodEnd = new Date();
+          periodEnd.setMonth(periodEnd.getMonth() + 1);
+          updatePayload.current_period_end = periodEnd.toISOString();
+        }
+        break;
+      case "cancel":
+        updatePayload.status = "cancelled";
+        updatePayload.will_renew = false;
+        break;
+      case "pause":
+        updatePayload.status = "paused";
+        break;
+      case "extend":
+        if (!data.extendDays) throw new Error("extendDays required");
+        const currentEnd = sub.current_period_end ? new Date(sub.current_period_end) : new Date();
+        currentEnd.setDate(currentEnd.getDate() + data.extendDays);
+        updatePayload.current_period_end = currentEnd.toISOString();
+        updatePayload.status = "active";
+        break;
+    }
+
+    const { error } = await (supabaseAdmin as any)
+      .from("user_subscriptions")
+      .update(updatePayload)
+      .eq("id", data.subscriptionId);
+    if (error) throw new Error(error.message);
+
+    // Log the event
+    await (supabaseAdmin as any).from("subscription_events").insert({
+      subscription_id: data.subscriptionId,
+      user_id: sub.user_id,
+      event_type: `ADMIN_${data.action.toUpperCase()}`,
+      payload: { action: data.action, extendDays: data.extendDays, admin_note: "Admin action" },
+    });
+
+    return { ok: true };
+  });

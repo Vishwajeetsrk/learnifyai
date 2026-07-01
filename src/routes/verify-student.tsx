@@ -78,7 +78,7 @@ function VerifyStudentPage() {
             </CardHeader>
             <CardContent className="text-center">
               <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
-                <Link to="/pricing">
+                <Link to="/pricing" search={{ subscribe: undefined }}>
                   Browse Plans
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
