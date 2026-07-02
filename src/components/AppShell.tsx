@@ -51,6 +51,7 @@ interface NavItem {
   featureKey?: string;
 }
 const nav: NavItem[] = [
+  // ── Main navigation ──
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/courses", label: "Courses", icon: GraduationCap, featureKey: "course_builder" },
   { to: "/ai", label: "AI Tutor", icon: Sparkles, featureKey: "ai_tools" },
@@ -62,11 +63,12 @@ const nav: NavItem[] = [
   { to: "/cart", label: "Cart", icon: ShoppingCart },
   { to: "/wallet", label: "Wallet", icon: WalletIcon, featureKey: "wallet" },
   { to: "/settings", label: "Account", icon: SettingsIcon },
-  { to: "/creators", label: "Creators", icon: Users },
-  { to: "/coaches", label: "Coaches", icon: Compass },
 
+  // ── Creator-only ──
   { to: "/creator", label: "Creator", icon: BarChart3, creatorOnly: true },
   { to: "/studio", label: "Studio", icon: Clapperboard, creatorOnly: true },
+
+  // ── Admin-only ──
   { to: "/admin", label: "Admin", icon: Shield, adminOnly: true },
   { to: "/admin/subscriptions", label: "Subscriptions", icon: PieChart, adminOnly: true },
   { to: "/admin/billing", label: "Billing OS", icon: BarChart3, adminOnly: true },
