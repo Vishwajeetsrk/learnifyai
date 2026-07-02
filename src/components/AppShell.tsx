@@ -62,6 +62,8 @@ const nav: NavItem[] = [
   { to: "/cart", label: "Cart", icon: ShoppingCart },
   { to: "/wallet", label: "Wallet", icon: WalletIcon, featureKey: "wallet" },
   { to: "/settings", label: "Account", icon: SettingsIcon },
+  { to: "/creators", label: "Creators", icon: Users },
+  { to: "/coaches", label: "Coaches", icon: Compass },
 
   { to: "/creator", label: "Creator", icon: BarChart3, creatorOnly: true },
   { to: "/studio", label: "Studio", icon: Clapperboard, creatorOnly: true },

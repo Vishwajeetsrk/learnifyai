@@ -445,7 +445,7 @@ function CreatorsPage() {
 
       <div className="mt-14 text-center">
         <Button asChild size="lg">
-          <Link to="/signup">Apply to become a creator</Link>
+          <Link to="/apply-creator">Apply to become a creator</Link>
         </Button>
       </div>
     </MarketingPage>

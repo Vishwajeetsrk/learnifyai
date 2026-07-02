@@ -543,7 +543,7 @@ function CoachesPage() {
 
       <div className="mt-14 text-center">
         <Button asChild size="lg">
-          <Link to="/contact">Talk to our coach team</Link>
+          <Link to="/apply-coach">Apply to become a coach</Link>
         </Button>
       </div>
     </MarketingPage>
