@@ -38,15 +38,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { generateCareerRoadmap } from "@/lib/resume.functions";
 import { SkillBadge } from "@/components/SkillBadge";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 export const Route = createFileRoute("/_authenticated/career-roadmap")({
   head: () => ({ meta: [{ title: "Career Roadmap — Learnify AI" }] }),
@@ -66,14 +58,7 @@ const STYLES = [
   { value: "mentor-led", label: "Mentor-Led" },
 ];
 
-const PHASE_COLORS = [
-  "#3b82f6",
-  "#8b5cf6",
-  "#f59e0b",
-  "#10b981",
-  "#ef4444",
-  "#06b6d4",
-];
+const PHASE_COLORS = ["#3b82f6", "#8b5cf6", "#f59e0b", "#10b981", "#ef4444", "#06b6d4"];
 
 function PriorityBadge({ priority }: { priority: string }) {
   const styles: Record<string, string> = {
@@ -82,7 +67,10 @@ function PriorityBadge({ priority }: { priority: string }) {
     low: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300",
   };
   return (
-    <Badge variant="outline" className={`${styles[priority] || ""} text-[10px] uppercase font-semibold`}>
+    <Badge
+      variant="outline"
+      className={`${styles[priority] || ""} text-[10px] uppercase font-semibold`}
+    >
       {priority}
     </Badge>
   );
@@ -145,7 +133,7 @@ interface RoadmapData {
   };
 }
 
-function CareerRoadmapPage() {
+export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) {
   const generateFn = useServerFn(generateCareerRoadmap);
   const [tab, setTab] = useState("form");
   const [loading, setLoading] = useState(false);
@@ -162,8 +150,7 @@ function CareerRoadmapPage() {
     learningStyle: "self-paced",
   });
 
-  const update = (field: string, value: string) =>
-    setForm((f) => ({ ...f, [field]: value }));
+  const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
   const handleGenerate = async () => {
     if (!form.targetRole.trim()) return toast.error("Enter your target role");
@@ -212,9 +199,8 @@ function CareerRoadmapPage() {
     toast.success("Roadmap downloaded!");
   };
 
-  return (
-    <AppShell>
-      <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
+  const mainContent = (
+    <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
         <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
           <div>
             <div className="text-xs uppercase tracking-widest text-primary font-medium flex items-center gap-1.5">
@@ -288,10 +274,7 @@ function CareerRoadmapPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label>Timeline</Label>
-                  <Select
-                    value={form.timeline}
-                    onValueChange={(v) => update("timeline", v)}
-                  >
+                  <Select value={form.timeline} onValueChange={(v) => update("timeline", v)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -351,7 +334,7 @@ function CareerRoadmapPage() {
                     variant="outline"
                     onClick={() => {
                       navigator.clipboard.writeText(
-                        roadmapData ? JSON.stringify(roadmapData, null, 2) : rawContent || ""
+                        roadmapData ? JSON.stringify(roadmapData, null, 2) : rawContent || "",
                       );
                       toast.success("Copied!");
                     }}
@@ -376,8 +359,10 @@ function CareerRoadmapPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppShell>
   );
+
+  if (embedded) return mainContent;
+  return <AppShell>{mainContent}</AppShell>;
 }
 
 function StructuredRoadmap({ data }: { data: RoadmapData }) {
@@ -451,16 +436,9 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
               <ResponsiveContainer width="100%" height={Math.max(150, gapChartData.length * 36)}>
                 <BarChart data={gapChartData} layout="vertical" margin={{ left: 0, right: 20 }}>
                   <XAxis type="number" domain={[0, 3]} hide />
-                  <YAxis
-                    type="category"
-                    dataKey="name"
-                    width={120}
-                    tick={{ fontSize: 12 }}
-                  />
+                  <YAxis type="category" dataKey="name" width={120} tick={{ fontSize: 12 }} />
                   <Tooltip
-                    formatter={(v: number) =>
-                      v === 3 ? "High" : v === 2 ? "Medium" : "Low"
-                    }
+                    formatter={(v: number) => (v === 3 ? "High" : v === 2 ? "Medium" : "Low")}
                   />
                   <Bar dataKey="priority" radius={[0, 4, 4, 0]}>
                     {gapChartData.map((entry, i) => (
@@ -558,7 +536,10 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                                   <span className="font-medium">{c.title}</span>
                                 )}
                                 {c.is_free && (
-                                  <Badge variant="outline" className="text-[10px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                  >
                                     Free
                                   </Badge>
                                 )}
@@ -601,7 +582,10 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                           <ul className="space-y-1">
                             {phase.milestones.map((m, j) => (
                               <li key={j} className="text-sm flex items-start gap-2">
-                                <Circle className="h-2 w-2 mt-1.5 shrink-0" style={{ fill: color }} />
+                                <Circle
+                                  className="h-2 w-2 mt-1.5 shrink-0"
+                                  style={{ fill: color }}
+                                />
                                 {m}
                               </li>
                             ))}
@@ -627,10 +611,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {data.monthly_milestones.map((m) => (
-                <div
-                  key={m.month}
-                  className="p-2.5 rounded-lg border bg-card text-sm"
-                >
+                <div key={m.month} className="p-2.5 rounded-lg border bg-card text-sm">
                   <div className="font-semibold text-primary">Month {m.month}</div>
                   <div className="font-medium mt-0.5">{m.goal}</div>
                   <div className="text-xs text-muted-foreground mt-1">

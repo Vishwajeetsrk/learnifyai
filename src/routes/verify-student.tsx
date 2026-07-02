@@ -3,7 +3,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { GraduationCap, Mail, ShieldCheck, ArrowRight, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  GraduationCap,
+  Mail,
+  ShieldCheck,
+  ArrowRight,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +24,15 @@ import {
 } from "@/lib/student-verification.functions";
 
 export const Route = createFileRoute("/verify-student")({
-  head: () => ({ meta: [{ title: "Student Verification — Learnify AI" }, { name: "description", content: "Verify your .edu student email to get 20% off all paid plans on Learnify AI." }] }),
+  head: () => ({
+    meta: [
+      { title: "Student Verification — Learnify AI" },
+      {
+        name: "description",
+        content: "Verify your .edu student email to get 20% off all paid plans on Learnify AI.",
+      },
+    ],
+  }),
   component: VerifyStudentPage,
 });
 
@@ -27,6 +43,20 @@ function VerifyStudentPage() {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [verified, setVerified] = useState(false);
+
+  const isStudentEmail = (e: string) => {
+    const lower = e.toLowerCase().trim();
+    return (
+      lower.endsWith(".edu") ||
+      lower.endsWith(".ac.in") ||
+      lower.endsWith(".edu.in") ||
+      lower.endsWith(".ac.uk") ||
+      lower.endsWith(".edu.au") ||
+      lower.includes("university") ||
+      lower.includes("college") ||
+      lower.includes("student")
+    );
+  };
 
   const statusQuery = useQuery({
     queryKey: ["student-verification-status"],
@@ -69,11 +99,15 @@ function VerifyStudentPage() {
               <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/10 grid place-items-center mb-4">
                 <CheckCircle2 className="h-8 w-8 text-emerald-500" />
               </div>
-              <CardTitle className="text-emerald-600 dark:text-emerald-400">Student Verified!</CardTitle>
+              <CardTitle className="text-emerald-600 dark:text-emerald-400">
+                Student Verified!
+              </CardTitle>
               <CardDescription>
                 Your student status has been verified. You get 20% off all paid plans.
                 {statusQuery.data?.email && (
-                  <span className="block mt-1 text-sm">Verified with: {statusQuery.data.email}</span>
+                  <span className="block mt-1 text-sm">
+                    Verified with: {statusQuery.data.email}
+                  </span>
                 )}
               </CardDescription>
             </CardHeader>
@@ -115,24 +149,24 @@ function VerifyStudentPage() {
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="email"
-                    placeholder="your.name@university.edu"
+                    placeholder="your.name@university.edu or .ac.in"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-9"
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && email.endsWith(".edu")) {
+                      if (e.key === "Enter" && isStudentEmail(email)) {
                         sendOtpMutation.mutate();
                       }
                     }}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground text-center">
-                  Must be a valid .edu email address
+                  Must be a valid student email address (.edu, .ac.in, .edu.in)
                 </p>
                 <Button
                   className="w-full"
                   onClick={() => sendOtpMutation.mutate()}
-                  disabled={!email.endsWith(".edu") || sendOtpMutation.isPending}
+                  disabled={!isStudentEmail(email) || sendOtpMutation.isPending}
                 >
                   {sendOtpMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />

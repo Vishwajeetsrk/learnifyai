@@ -47,7 +47,15 @@ import { cn } from "@/lib/utils";
 import { getProfileBorderClass } from "@/components/ui/avatar";
 
 export const Route = createFileRoute("/_authenticated/workspace")({
-  head: () => ({ meta: [{ title: "Workspace — Learnify AI" }, { name: "description", content: "Manage your projects with Kanban boards, task tracking, and collaboration tools." }] }),
+  head: () => ({
+    meta: [
+      { title: "Workspace — Learnify AI" },
+      {
+        name: "description",
+        content: "Manage your projects with Kanban boards, task tracking, and collaboration tools.",
+      },
+    ],
+  }),
   component: WorkspacePage,
 });
 

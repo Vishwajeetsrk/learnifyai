@@ -137,6 +137,39 @@ function CertsPage() {
             })}
           </div>
         )}
+
+        {/* Certificate Licensing & Governance Advisory */}
+        <div className="mt-12 p-6 rounded-2xl border bg-card shadow-sm space-y-4">
+          <div className="flex items-center gap-2 text-primary font-bold text-sm">
+            <ShieldCheck className="w-5 h-5 text-emerald-500" /> Certificate Accreditation & Legal Licensing Guide
+          </div>
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Learnify AI certificates feature cryptographic SHA-256 signatures and QR code instant verification. To upgrade your platform certificates with government-recognized accreditation in India, apply through these official portals:
+          </p>
+          <div className="grid md:grid-cols-3 gap-4 text-xs">
+            <div className="p-3.5 rounded-xl border bg-muted/30">
+              <div className="font-semibold text-foreground mb-1">1. MSME Udyam Registration</div>
+              <p className="text-muted-foreground text-[11px]">Free official registration for Indian educational technology platforms.</p>
+              <a href="https://udyamregistration.gov.in" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline font-medium mt-2">
+                Apply on Udyam Portal <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+            <div className="p-3.5 rounded-xl border bg-muted/30">
+              <div className="font-semibold text-foreground mb-1">2. Skill India / NSDC Partner</div>
+              <p className="text-muted-foreground text-[11px]">Partner with NSDC for official Skill India recognized certificates.</p>
+              <a href="https://nsdcindia.org" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline font-medium mt-2">
+                NSDC Partner Portal <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+            <div className="p-3.5 rounded-xl border bg-muted/30">
+              <div className="font-semibold text-foreground mb-1">3. ISO 9001 / ISO 27001</div>
+              <p className="text-muted-foreground text-[11px]">Quality management and data security compliance for global accreditation.</p>
+              <a href="https://www.iso.org" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:underline font-medium mt-2">
+                ISO Certification Guide <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
     </AppShell>
   );

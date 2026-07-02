@@ -427,7 +427,14 @@ export const CERTIFICATES_TOUR: Tour = {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const ALL_TOURS: Tour[] = [STUDENT_TOUR, CREATOR_TOUR, ADMIN_TOUR, FEATURES_TOUR, AI_TOOLS_TOUR, CERTIFICATES_TOUR];
+export const ALL_TOURS: Tour[] = [
+  STUDENT_TOUR,
+  CREATOR_TOUR,
+  ADMIN_TOUR,
+  FEATURES_TOUR,
+  AI_TOOLS_TOUR,
+  CERTIFICATES_TOUR,
+];
 
 // ═══════════════════════════════════════════════════════════════
 // TOUR CONTEXT
@@ -664,7 +671,9 @@ function TourOverlay() {
     };
 
     findTarget();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [step, currentStepIndex]);
 
   if (!step || !currentTour) return null;
@@ -701,30 +710,34 @@ function TourOverlay() {
           placement === "right" && "left-auto",
           !targetFound && "!fixed !left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2",
         )}
-        style={targetFound ? {
-          top: Math.max(
-            16,
-            Math.min(
-              placement === "bottom"
-                ? tooltipPos.y + 12
-                : placement === "top"
-                  ? tooltipPos.y - 320
-                  : tooltipPos.y - 100,
-              window.innerHeight - 340,
-            ),
-          ),
-          left: Math.max(
-            16,
-            Math.min(
-              placement === "right"
-                ? tooltipPos.x + 12
-                : placement === "left"
-                  ? tooltipPos.x - 356
-                  : tooltipPos.x - 170,
-              window.innerWidth - 356,
-            ),
-          ),
-        } : {}}
+        style={
+          targetFound
+            ? {
+                top: Math.max(
+                  16,
+                  Math.min(
+                    placement === "bottom"
+                      ? tooltipPos.y + 12
+                      : placement === "top"
+                        ? tooltipPos.y - 320
+                        : tooltipPos.y - 100,
+                    window.innerHeight - 340,
+                  ),
+                ),
+                left: Math.max(
+                  16,
+                  Math.min(
+                    placement === "right"
+                      ? tooltipPos.x + 12
+                      : placement === "left"
+                        ? tooltipPos.x - 356
+                        : tooltipPos.x - 170,
+                    window.innerWidth - 356,
+                  ),
+                ),
+              }
+            : {}
+        }
       >
         {/* Progress bar */}
         <div className="mb-4">
@@ -752,7 +765,10 @@ function TourOverlay() {
         {!targetFound && (
           <div className="flex items-center gap-2 mb-4 p-2 rounded-lg bg-amber-500/10 text-xs text-amber-600 border border-amber-500/20">
             <HelpCircle className="h-3.5 w-3.5 shrink-0" />
-            <span>This step is on another page. Navigate there and the tour will continue, or skip this step.</span>
+            <span>
+              This step is on another page. Navigate there and the tour will continue, or skip this
+              step.
+            </span>
           </div>
         )}
 

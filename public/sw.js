@@ -5,9 +5,11 @@ const ORIGIN = self.location.origin;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) =>
-      cache.addAll(STATIC_ASSETS.map((url) => new Request(ORIGIN + url))).catch(() => {}),
-    ),
+    caches
+      .open(CACHE_NAME)
+      .then((cache) =>
+        cache.addAll(STATIC_ASSETS.map((url) => new Request(ORIGIN + url))).catch(() => {}),
+      ),
   );
   self.skipWaiting();
 });
@@ -39,8 +41,12 @@ self.addEventListener("fetch", (event) => {
   if (url.pathname.startsWith("/api/")) return;
 
   const isHtml = request.headers.get("accept")?.includes("text/html");
-  const isImage = request.destination === "image" || /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(url.pathname);
-  const isStatic = request.destination === "script" || request.destination === "style" || request.destination === "font";
+  const isImage =
+    request.destination === "image" || /\.(png|jpg|jpeg|gif|svg|webp|ico)$/i.test(url.pathname);
+  const isStatic =
+    request.destination === "script" ||
+    request.destination === "style" ||
+    request.destination === "font";
 
   event.respondWith(
     caches.match(request).then((cached) => {

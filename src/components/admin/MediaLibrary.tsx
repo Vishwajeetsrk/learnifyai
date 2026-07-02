@@ -87,14 +87,20 @@ export default function MediaLibrary() {
     queryFn: () =>
       listMediaFn({
         data: { folder: folderFilter === "All" ? undefined : folderFilter, limit: 200 },
-      }),
+      }).then((data) =>
+        (data ?? []).map((m) => ({
+          ...m,
+          tags: m.tags ?? [],
+          folder: m.folder ?? "",
+        })),
+      ),
   });
 
   const filtered = media.filter((m: MediaItem) =>
     search
       ? m.original_name.toLowerCase().includes(search.toLowerCase()) ||
         m.alt_text?.toLowerCase().includes(search.toLowerCase()) ||
-        m.tags.some((t) => t.includes(search.toLowerCase()))
+        (m.tags ?? []).some((t) => t.includes(search.toLowerCase()))
       : true,
   );
 

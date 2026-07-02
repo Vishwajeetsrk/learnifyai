@@ -263,7 +263,10 @@ export const extractResumeFields = createServerFn({ method: "POST" })
 }
 If a field cannot be found, set it to an empty string. Merge all work history into the experience field. Merge all education entries into the education field.`,
         },
-        { role: "user", content: `Extract structured info from this resume:\n"""${data.rawText}"""` },
+        {
+          role: "user",
+          content: `Extract structured info from this resume:\n"""${data.rawText}"""`,
+        },
       ],
       response_format: { type: "json_object" },
       temperature: 0.1,

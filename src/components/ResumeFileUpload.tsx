@@ -68,7 +68,13 @@ export function ResumeFileUpload({ onTextExtracted, label, className }: ResumeFi
         onClick={() => inputRef.current?.click()}
         className={cn(
           "border-2 border-dashed rounded-xl p-4 sm:p-6 text-center cursor-pointer transition-colors",
-          loading ? "border-primary/30 bg-primary/5" : error ? "border-red-300 bg-red-50 dark:bg-red-950/20" : fileName ? "border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20" : "border-muted-foreground/20 hover:border-primary/40 hover:bg-accent/50",
+          loading
+            ? "border-primary/30 bg-primary/5"
+            : error
+              ? "border-red-300 bg-red-50 dark:bg-red-950/20"
+              : fileName
+                ? "border-emerald-300 bg-emerald-50 dark:bg-emerald-950/20"
+                : "border-muted-foreground/20 hover:border-primary/40 hover:bg-accent/50",
         )}
       >
         <input
@@ -88,7 +94,15 @@ export function ResumeFileUpload({ onTextExtracted, label, className }: ResumeFi
           <div className="flex items-center justify-center gap-2 text-sm text-red-600 dark:text-red-400">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {error}
-            <Button variant="ghost" size="sm" className="text-xs h-6" onClick={(e) => { e.stopPropagation(); setError(null); }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs h-6"
+              onClick={(e) => {
+                e.stopPropagation();
+                setError(null);
+              }}
+            >
               Try again
             </Button>
           </div>

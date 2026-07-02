@@ -9,7 +9,9 @@ const HARDCODED_SECTIONS = [
     title: "Product",
     links: [
       { label: "Features", url: "/features" },
-      { label: "AI Tools", url: "/ai-tools" },
+      { label: "AI Tools", url: "/features#ai-tools" },
+      { label: "Creators", url: "/creators" },
+      { label: "Coaches", url: "/coaches" },
       { label: "Pricing", url: "/pricing" },
       { label: "Roadmap", url: "/roadmap" },
       { label: "Blog", url: "/blog" },
@@ -18,8 +20,10 @@ const HARDCODED_SECTIONS = [
   {
     title: "Resources",
     links: [
+      { label: "Documentation", url: "/docs" },
       { label: "Community", url: "/community" },
       { label: "Events", url: "/events" },
+      { label: "Showcase", url: "/showcase" },
     ],
   },
   {

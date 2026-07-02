@@ -27,7 +27,7 @@ const DEFAULT_CONTENT: PromoBannerContent = {
   discount: "20% Off",
   subtitle: "Limited Time",
   cta: "Claim Now",
-  ctaLink: "/signup",
+  ctaLink: "/pricing?coupon=LAUNCH20",
   timerDays: 7,
   bgGradient: "from-blue-600 via-indigo-600 to-purple-700",
   dismissible: true,

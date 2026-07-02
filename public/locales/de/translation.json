@@ -219,12 +219,30 @@
       "badge": "Alles in einem OS",
       "title": "Ein Ökosystem, kein Kurskatalog.",
       "subtitle": "Sechs Säulen arbeiten zusammen, damit Lernende, Ersteller und Institutionen alle gewinnen.",
-      "aiTutor": { "title": "AI-Tutor", "desc": "Personalisiertes 1-zu-1-Tutoring, das sich an Ihren Lernstil anpasst." },
-      "smartNotes": { "title": "Intelligente Notizen & Folien", "desc": "Generieren Sie Flashcards, Zusammenfassungen und Decks aus jeder Lektion." },
-      "gamified": { "title": "Spielifizierter Fortschritt", "desc": "Serien, XP, Abzeichen und Ranglisten, die das Lernen süchtig machen." },
-      "creatorEconomy": { "title": "Ersteller-Ökonomie", "desc": "Coaches und Ersteller erstellen Kurse, Cohorts und Gemeinschaften." },
-      "wallet": { "title": "Integriertes Wallet", "desc": "Verdienste, Auszahlungen und Trinkgelder werden nativ behandelt." },
-      "career": { "title": "Karriere-Intelligenz", "desc": "KI-geführte Pfade, Lebenslauf-Reviews und Kompetenzgraphen." }
+      "aiTutor": {
+        "title": "AI-Tutor",
+        "desc": "Personalisiertes 1-zu-1-Tutoring, das sich an Ihren Lernstil anpasst."
+      },
+      "smartNotes": {
+        "title": "Intelligente Notizen & Folien",
+        "desc": "Generieren Sie Flashcards, Zusammenfassungen und Decks aus jeder Lektion."
+      },
+      "gamified": {
+        "title": "Spielifizierter Fortschritt",
+        "desc": "Serien, XP, Abzeichen und Ranglisten, die das Lernen süchtig machen."
+      },
+      "creatorEconomy": {
+        "title": "Ersteller-Ökonomie",
+        "desc": "Coaches und Ersteller erstellen Kurse, Cohorts und Gemeinschaften."
+      },
+      "wallet": {
+        "title": "Integriertes Wallet",
+        "desc": "Verdienste, Auszahlungen und Trinkgelder werden nativ behandelt."
+      },
+      "career": {
+        "title": "Karriere-Intelligenz",
+        "desc": "KI-geführte Pfade, Lebenslauf-Reviews und Kompetenzgraphen."
+      }
     },
     "community": {
       "badge": "Gemeinsam lernen",

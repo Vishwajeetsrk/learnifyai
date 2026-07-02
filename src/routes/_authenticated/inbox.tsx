@@ -28,7 +28,7 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/inbox")({
   head: () => ({ meta: [{ title: "Inbox — Learnify AI" }] }),
-  component: InboxPage,
+  component: () => <InboxPage />,
 });
 
 type NotifAction = { to: string; label: string; icon?: any } | null;
@@ -136,7 +136,7 @@ function FlashcardViewer({ body }: { body: string }) {
   );
 }
 
-function InboxPage() {
+export function InboxPage({ embedded = false }: { embedded?: boolean }) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -186,9 +186,8 @@ function InboxPage() {
     qc.invalidateQueries({ queryKey: ["inbox-reminders"] });
   };
 
-  return (
-    <AppShell>
-      <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-4xl">
+  const mainContent = (
+    <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-4xl">
         <div className="flex items-center gap-2">
           <InboxIcon className="h-5 w-5 text-primary" />
           <h1 className="text-2xl sm:text-3xl font-display font-semibold">Inbox</h1>
@@ -343,6 +342,8 @@ function InboxPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppShell>
   );
+
+  if (embedded) return mainContent;
+  return <AppShell>{mainContent}</AppShell>;
 }

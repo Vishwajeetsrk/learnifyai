@@ -39,7 +39,7 @@ export const getOnboardingProgress = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabaseAdmin as any)
+    const { data, error } = await supabaseAdmin
       .from("onboarding_progress")
       .select("*")
       .eq("user_id", userId)
@@ -52,7 +52,7 @@ export const getOnboardingProgress = createServerFn({ method: "GET" })
 
     if (!data) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: created, error: createErr } = await (supabaseAdmin as any)
+      const { data: created, error: createErr } = await supabaseAdmin
         .from("onboarding_progress")
         .insert({
           user_id: userId,
@@ -90,7 +90,7 @@ export const completeOnboardingStep = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: progress, error: fetchErr } = await (supabaseAdmin as any)
+    const { data: progress, error: fetchErr } = await supabaseAdmin
       .from("onboarding_progress")
       .select("completed_steps, ai_profile")
       .eq("user_id", userId)
@@ -131,10 +131,9 @@ export const completeOnboardingStep = createServerFn({ method: "POST" })
       updateData.onboarding_completed_at = new Date().toISOString();
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await supabaseAdmin
       .from("onboarding_progress")
-      .update(updateData)
+      .update(updateData as never)
       .eq("user_id", userId);
     if (error && !isTableMissing(error)) throw error;
 
@@ -160,7 +159,7 @@ export const saveAiOnboardingProfile = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await supabaseAdmin
       .from("onboarding_progress")
       .update({
         ai_profile: data,
@@ -188,12 +187,12 @@ export const sendOnboardingCoachMessage = createServerFn({ method: "POST" })
 
     let aiProfile: Record<string, unknown> = {};
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: progress } = await (supabaseAdmin as any)
+    const { data: progress } = await supabaseAdmin
       .from("onboarding_progress")
       .select("ai_profile")
       .eq("user_id", userId)
       .maybeSingle();
-    if (progress) aiProfile = progress.ai_profile ?? {};
+    if (progress) aiProfile = (progress.ai_profile ?? {}) as Record<string, unknown>;
 
     const { generateText } = await import("ai");
     const { createOpenAICompatible } = await import("@ai-sdk/openai-compatible");
@@ -280,7 +279,7 @@ Keep responses under 150 words.`;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabaseAdmin as any)
+    await supabaseAdmin
       .from("onboarding_coaching")
       .insert({
         user_id: userId,
@@ -288,8 +287,7 @@ Keep responses under 150 words.`;
         message: data.message,
         response: result.text,
       })
-      .then(() => {})
-      .catch(() => {});
+      .then(undefined, () => {});
 
     return { response: result.text };
   });
@@ -314,7 +312,7 @@ export const logDailyUsage = createServerFn({ method: "POST" })
     const today = new Date().toISOString().split("T")[0];
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from("onboarding_daily_usage").upsert(
+    const { error } = await supabaseAdmin.from("onboarding_daily_usage").upsert(
       {
         user_id: userId,
         usage_date: today,
@@ -330,7 +328,7 @@ export const logDailyUsage = createServerFn({ method: "POST" })
 
     // Update streak
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: usage } = await (supabaseAdmin as any)
+    const { data: usage } = await supabaseAdmin
       .from("onboarding_daily_usage")
       .select("usage_date")
       .eq("user_id", userId)
@@ -355,12 +353,11 @@ export const logDailyUsage = createServerFn({ method: "POST" })
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabaseAdmin as any)
+    await supabaseAdmin
       .from("onboarding_progress")
       .update({ daily_streak: streak, last_active_date: today })
       .eq("user_id", userId)
-      .then(() => {})
-      .catch(() => {});
+      .then(undefined, () => {});
 
     // Also update streaks in profiles table (for leaderboard)
     const { data: existingProfile } = await supabaseAdmin
@@ -392,7 +389,7 @@ export const logDailyUsage = createServerFn({ method: "POST" })
             xp: (existingProfile.xp ?? 0) + xpEarned,
           })
           .eq("id", userId),
-        (supabaseAdmin as any).from("xp_log").insert({
+        supabaseAdmin.from("xp_log").insert({
           user_id: userId,
           amount: xpEarned,
           source: "daily",
@@ -411,13 +408,13 @@ export const skipOnboarding = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await supabaseAdmin
       .from("onboarding_progress")
       .update({
         current_step: "complete",
         onboarding_completed: true,
         onboarding_completed_at: new Date().toISOString(),
-        completed_steps: ONBOARDING_STEPS,
+        completed_steps: [...ONBOARDING_STEPS],
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", userId);
@@ -433,7 +430,7 @@ export const resetOnboarding = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await supabaseAdmin
       .from("onboarding_progress")
       .update({
         current_step: "welcome",

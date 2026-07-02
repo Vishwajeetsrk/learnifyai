@@ -219,12 +219,30 @@
       "badge": "Everything in one OS",
       "title": "An ecosystem, not a course catalog.",
       "subtitle": "Six pillars working together so learners, creators, and institutions all win.",
-      "aiTutor": { "title": "AI Tutor", "desc": "Personalized 1-on-1 tutoring that adapts to how you learn." },
-      "smartNotes": { "title": "Smart Notes & Slides", "desc": "Generate flashcards, summaries, and decks from any lesson." },
-      "gamified": { "title": "Gamified Progress", "desc": "Streaks, XP, badges, and leaderboards that make learning addictive." },
-      "creatorEconomy": { "title": "Creator Economy", "desc": "Coaches and creators ship courses, cohorts, and communities." },
-      "wallet": { "title": "Built-in Wallet", "desc": "Earnings, payouts, and tipping handled natively." },
-      "career": { "title": "Career Intelligence", "desc": "AI-guided paths, resume reviews, and skill graphs." }
+      "aiTutor": {
+        "title": "AI Tutor",
+        "desc": "Personalized 1-on-1 tutoring that adapts to how you learn."
+      },
+      "smartNotes": {
+        "title": "Smart Notes & Slides",
+        "desc": "Generate flashcards, summaries, and decks from any lesson."
+      },
+      "gamified": {
+        "title": "Gamified Progress",
+        "desc": "Streaks, XP, badges, and leaderboards that make learning addictive."
+      },
+      "creatorEconomy": {
+        "title": "Creator Economy",
+        "desc": "Coaches and creators ship courses, cohorts, and communities."
+      },
+      "wallet": {
+        "title": "Built-in Wallet",
+        "desc": "Earnings, payouts, and tipping handled natively."
+      },
+      "career": {
+        "title": "Career Intelligence",
+        "desc": "AI-guided paths, resume reviews, and skill graphs."
+      }
     },
     "community": {
       "badge": "Study together",

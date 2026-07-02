@@ -94,9 +94,12 @@ export const Route = createFileRoute("/api/webhooks/cashfree")({
           console.error("[Cashfree webhook] insert error:", error);
         } else {
           // Send payment success email (non-blocking)
-          sendPaymentSuccessEmail(userId, `TOPUP-${orderId.slice(-8)}`, amount, paymentMethod).catch((e) =>
-            console.error("Failed to send payment email:", e),
-          );
+          sendPaymentSuccessEmail(
+            userId,
+            `TOPUP-${orderId.slice(-8)}`,
+            amount,
+            paymentMethod,
+          ).catch((e) => console.error("Failed to send payment email:", e));
         }
 
         return new Response(JSON.stringify({ received: true }), {

@@ -18,14 +18,7 @@ import { Button } from "@/components/ui/button";
 import { playgroundAiDebug } from "@/lib/playground-ai.functions";
 
 type ActionKey =
-  | "diagnose"
-  | "explain"
-  | "fix"
-  | "optimize"
-  | "convert"
-  | "tests"
-  | "docs"
-  | "generate";
+  "diagnose" | "explain" | "fix" | "optimize" | "convert" | "tests" | "docs" | "generate";
 
 const ACTIONS: {
   key: ActionKey;

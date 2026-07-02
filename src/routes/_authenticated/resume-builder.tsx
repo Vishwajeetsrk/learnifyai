@@ -33,7 +33,7 @@ const TEMPLATES = [
   { value: "executive", label: "Executive" },
 ];
 
-function ResumeBuilderPage() {
+export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) {
   const generateFn = useServerFn(generateResume);
   const extractFn = useServerFn(extractResumeFields);
   const [tab, setTab] = useState("form");
@@ -56,8 +56,7 @@ function ResumeBuilderPage() {
     template: "modern",
   });
 
-  const update = (field: string, value: string) =>
-    setForm((f) => ({ ...f, [field]: value }));
+  const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
   const handleFileExtracted = async (text: string) => {
     setExtracting(true);
@@ -125,9 +124,8 @@ function ResumeBuilderPage() {
     toast.success("Copied to clipboard!");
   };
 
-  return (
-    <AppShell>
-      <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
+  const mainContent = (
+    <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
         <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
           <div>
             <div className="text-xs uppercase tracking-widest text-primary font-medium flex items-center gap-1.5">
@@ -272,10 +270,7 @@ function ResumeBuilderPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Template Style</Label>
-                  <Select
-                    value={form.template}
-                    onValueChange={(v) => update("template", v)}
-                  >
+                  <Select value={form.template} onValueChange={(v) => update("template", v)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -321,15 +316,15 @@ function ResumeBuilderPage() {
                   </Button>
                 </div>
                 <div className="border rounded-xl p-6 bg-card prose prose-sm dark:prose-invert max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {result}
-                  </ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
                 </div>
               </div>
             )}
           </TabsContent>
         </Tabs>
       </div>
-    </AppShell>
   );
+
+  if (embedded) return mainContent;
+  return <AppShell>{mainContent}</AppShell>;
 }

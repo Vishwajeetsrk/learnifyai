@@ -117,7 +117,7 @@ export const awardXP = createServerFn({ method: "POST" })
         })
         .eq("id", data.userId),
 
-      (supabaseAdmin as any).from("xp_log").insert({
+      supabaseAdmin.from("xp_log").insert({
         user_id: data.userId,
         amount: data.amount,
         source: data.source ?? "lesson",
@@ -131,7 +131,7 @@ export const awardXP = createServerFn({ method: "POST" })
       console.error("[awardXP] profile update failed:", profResult.error);
     }
 
-    const { data: allBadges } = await (supabaseAdmin as any)
+    const { data: allBadges } = await supabaseAdmin
       .from("badges")
       .select("id, xp_required, streak_required, category");
 
@@ -154,7 +154,7 @@ export const awardXP = createServerFn({ method: "POST" })
         return false;
       });
       if (toAward.length > 0) {
-        await (supabaseAdmin as any)
+        await supabaseAdmin
           .from("user_badges")
           .insert(toAward.map((b: any) => ({ user_id: data.userId, badge_id: b.id })));
       }
@@ -179,7 +179,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
 
     let filteredUserIds: string[] | null = null;
     if (data.role) {
-      const { data: roles } = await (supabaseAdmin as any)
+      const { data: roles } = await supabaseAdmin
         .from("user_roles")
         .select("user_id")
         .eq("role", data.role);
@@ -192,7 +192,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
       weekStart.setDate(weekStart.getDate() - weekStart.getDay());
       weekStart.setHours(0, 0, 0, 0);
 
-      const { data: logs } = await (supabaseAdmin as any)
+      const { data: logs } = await supabaseAdmin
         .from("xp_log")
         .select("user_id, amount")
         .gte("created_at", weekStart.toISOString());
@@ -249,9 +249,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
 /* ── Achievements / Badges ─────────────────────────────────────── */
 
 export const getUserAchievements = createServerFn({ method: "GET" })
-  .validator((input: { userId: string }) =>
-    z.object({ userId: z.string().uuid() }).parse(input),
-  )
+  .validator((input: { userId: string }) => z.object({ userId: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -307,9 +305,7 @@ export const getCourseLearners = createServerFn({ method: "GET" })
 /* ── Current user rank ─────────────────────────────────────────── */
 
 export const getUserRank = createServerFn({ method: "GET" })
-  .validator((input: { userId: string }) =>
-    z.object({ userId: z.string().uuid() }).parse(input),
-  )
+  .validator((input: { userId: string }) => z.object({ userId: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 

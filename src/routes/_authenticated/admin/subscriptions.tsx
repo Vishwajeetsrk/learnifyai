@@ -71,7 +71,11 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const inr = (n: number) =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(n);
 
 const DATE_RANGE_OPTIONS = [
   { value: "today", label: "Today" },
@@ -117,7 +121,7 @@ function exportToCSV(data: Record<string, any>[], filename: string) {
             ? `"${str.replace(/"/g, '""')}"`
             : str;
         })
-        .join(",")
+        .join(","),
     ),
   ].join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -137,7 +141,7 @@ function exportToExcel(data: Record<string, any>[], filename: string) {
     '<?mso-application progid="Excel.Sheet"?>\n' +
     '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"\n' +
     ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n' +
-    "<Worksheet ss:Name=\"Sheet1\">\n<Table>\n" +
+    '<Worksheet ss:Name="Sheet1">\n<Table>\n' +
     `<Row>${headers.map((h) => `<Cell><Data ss:Type="String">${h}</Data></Cell>`).join("")}</Row>\n` +
     data
       .map(
@@ -145,10 +149,11 @@ function exportToExcel(data: Record<string, any>[], filename: string) {
           `<Row>${headers
             .map((h) => {
               const val = row[h];
-              const isNum = typeof val === "number" || (typeof val === "string" && /^\d+\.?\d*$/.test(val));
+              const isNum =
+                typeof val === "number" || (typeof val === "string" && /^\d+\.?\d*$/.test(val));
               return `<Cell><Data ss:Type="${isNum ? "Number" : "String"}">${String(val ?? "")}</Data></Cell>`;
             })
-            .join("")}</Row>`
+            .join("")}</Row>`,
       )
       .join("\n") +
     "\n</Table>\n</Worksheet>\n</Workbook>";
@@ -164,7 +169,9 @@ function exportToExcel(data: Record<string, any>[], filename: string) {
 function AdminSubscriptionsPage() {
   const [dateRange, setDateRange] = useState<string>("30d");
   const [reportType, setReportType] = useState<string>("all");
-  const [chartTab, setChartTab] = useState<"overview" | "revenue" | "subscribers" | "plans">("overview");
+  const [chartTab, setChartTab] = useState<"overview" | "revenue" | "subscribers" | "plans">(
+    "overview",
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [customStart, setCustomStart] = useState("");
   const [customEnd, setCustomEnd] = useState("");
@@ -177,26 +184,77 @@ function AdminSubscriptionsPage() {
     reportType: reportType as AnalyticsFilters["reportType"],
   };
 
+  const getAnalyticsFn = useServerFn(getAdminSubscriptionAnalytics);
+
   const analytics = useQuery({
     queryKey: ["admin-subscription-analytics", filters],
     queryFn: async () => {
-      const fn = getAdminSubscriptionAnalytics;
-      return await fn({ data: filters });
+      return await getAnalyticsFn({ data: filters });
     },
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const data = analytics.data;
 
   const kpiCards = data
     ? [
-        { label: "MRR", value: inr(data.mrr), icon: IndianRupee, color: "text-emerald-500", bgColor: "bg-emerald-500/10" },
-        { label: "ARR", value: inr(data.arr), icon: TrendingUp, color: "text-blue-500", bgColor: "bg-blue-500/10" },
-        { label: "Active Subscribers", value: data.totalSubscribers.toLocaleString(), icon: Users, color: "text-violet-500", bgColor: "bg-violet-500/10" },
-        { label: "New (30d)", value: data.newSubscribers.toLocaleString(), icon: UserPlus, color: "text-emerald-500", bgColor: "bg-emerald-500/10" },
-        { label: "Cancelled", value: data.cancelledCount.toLocaleString(), icon: UserX, color: "text-red-500", bgColor: "bg-red-500/10" },
-        { label: "Expired", value: data.expiredCount.toLocaleString(), icon: Timer, color: "text-zinc-500", bgColor: "bg-zinc-500/10" },
-        { label: "Trial", value: data.trialCount.toLocaleString(), icon: Target, color: "text-purple-500", bgColor: "bg-purple-500/10" },
-        { label: "Conversion", value: `${data.conversionRate}%`, icon: Activity, color: "text-orange-500", bgColor: "bg-orange-500/10" },
+        {
+          label: "MRR",
+          value: inr(data.mrr),
+          icon: IndianRupee,
+          color: "text-emerald-500",
+          bgColor: "bg-emerald-500/10",
+        },
+        {
+          label: "ARR",
+          value: inr(data.arr),
+          icon: TrendingUp,
+          color: "text-blue-500",
+          bgColor: "bg-blue-500/10",
+        },
+        {
+          label: "Active Subscribers",
+          value: data.totalSubscribers.toLocaleString(),
+          icon: Users,
+          color: "text-violet-500",
+          bgColor: "bg-violet-500/10",
+        },
+        {
+          label: "New (30d)",
+          value: data.newSubscribers.toLocaleString(),
+          icon: UserPlus,
+          color: "text-emerald-500",
+          bgColor: "bg-emerald-500/10",
+        },
+        {
+          label: "Cancelled",
+          value: data.cancelledCount.toLocaleString(),
+          icon: UserX,
+          color: "text-red-500",
+          bgColor: "bg-red-500/10",
+        },
+        {
+          label: "Expired",
+          value: data.expiredCount.toLocaleString(),
+          icon: Timer,
+          color: "text-zinc-500",
+          bgColor: "bg-zinc-500/10",
+        },
+        {
+          label: "Trial",
+          value: data.trialCount.toLocaleString(),
+          icon: Target,
+          color: "text-purple-500",
+          bgColor: "bg-purple-500/10",
+        },
+        {
+          label: "Conversion",
+          value: `${data.conversionRate}%`,
+          icon: Activity,
+          color: "text-orange-500",
+          bgColor: "bg-orange-500/10",
+        },
         {
           label: "Churn Rate",
           value: `${data.churnRate}%`,
@@ -204,7 +262,13 @@ function AdminSubscriptionsPage() {
           color: data.churnRate > 10 ? "text-red-500" : "text-emerald-500",
           bgColor: data.churnRate > 10 ? "bg-red-500/10" : "bg-emerald-500/10",
         },
-        { label: "ARPU", value: inr(data.arpu), icon: DollarSign, color: "text-cyan-500", bgColor: "bg-cyan-500/10" },
+        {
+          label: "ARPU",
+          value: inr(data.arpu),
+          icon: DollarSign,
+          color: "text-cyan-500",
+          bgColor: "bg-cyan-500/10",
+        },
       ]
     : [];
 
@@ -238,7 +302,8 @@ function AdminSubscriptionsPage() {
     }
   };
 
-  const selectedRangeLabel = DATE_RANGE_OPTIONS.find((o) => o.value === dateRange)?.label || dateRange;
+  const selectedRangeLabel =
+    DATE_RANGE_OPTIONS.find((o) => o.value === dateRange)?.label || dateRange;
 
   return (
     <AppShell>
@@ -250,7 +315,9 @@ function AdminSubscriptionsPage() {
             <p className="text-muted-foreground mt-1">Real metrics from database records.</p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs">Admin Only</Badge>
+            <Badge variant="outline" className="text-xs">
+              Admin Only
+            </Badge>
             <div className="relative">
               <Button variant="outline" size="sm" onClick={() => setExportOpen(!exportOpen)}>
                 <Download className="h-4 w-4 mr-1.5" /> Export
@@ -258,13 +325,19 @@ function AdminSubscriptionsPage() {
               {exportOpen && (
                 <div className="absolute right-0 top-full mt-1 z-50 bg-card border rounded-lg shadow-lg py-1 min-w-[120px]">
                   <button
-                    onClick={() => { handleExport("csv"); setExportOpen(false); }}
+                    onClick={() => {
+                      handleExport("csv");
+                      setExportOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-muted flex items-center gap-2"
                   >
                     <FileText className="h-3.5 w-3.5" /> CSV
                   </button>
                   <button
-                    onClick={() => { handleExport("excel"); setExportOpen(false); }}
+                    onClick={() => {
+                      handleExport("excel");
+                      setExportOpen(false);
+                    }}
                     className="w-full px-3 py-2 text-sm text-left hover:bg-muted flex items-center gap-2"
                   >
                     <FileText className="h-3.5 w-3.5" /> Excel (.xls)
@@ -313,7 +386,12 @@ function AdminSubscriptionsPage() {
               />
             </div>
           )}
-          <Button variant="ghost" size="sm" onClick={() => analytics.refetch()} disabled={analytics.isFetching}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => analytics.refetch()}
+            disabled={analytics.isFetching}
+          >
             <RefreshCw className={cn("h-3.5 w-3.5", analytics.isFetching && "animate-spin")} />
           </Button>
         </div>
@@ -344,8 +422,19 @@ function AdminSubscriptionsPage() {
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
+        ) : analytics.isError ? (
+          <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-10 text-center space-y-3">
+            <p className="font-semibold text-destructive">Failed to load analytics</p>
+            <p className="text-sm text-muted-foreground">
+              {(analytics.error as any)?.message || "An error occurred while fetching data."}
+            </p>
+            <Button size="sm" variant="outline" onClick={() => analytics.refetch()}>
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+              Retry
+            </Button>
+          </div>
         ) : !data ? (
-          <div className="text-center text-muted-foreground py-20">Failed to load analytics.</div>
+          <div className="text-center text-muted-foreground py-20">No analytics data available.</div>
         ) : (
           <>
             {/* KPI Cards */}
@@ -353,7 +442,12 @@ function AdminSubscriptionsPage() {
               {kpiCards.map((kpi) => (
                 <div key={kpi.label} className="rounded-xl border bg-card p-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", kpi.bgColor)}>
+                    <div
+                      className={cn(
+                        "w-8 h-8 rounded-lg flex items-center justify-center",
+                        kpi.bgColor,
+                      )}
+                    >
                       <kpi.icon className={cn("h-4 w-4", kpi.color)} />
                     </div>
                     <p className="text-xs text-muted-foreground">{kpi.label}</p>
@@ -380,9 +474,7 @@ function AdminSubscriptionsPage() {
                     {tab}
                   </button>
                 ))}
-                <span className="ml-auto text-xs text-muted-foreground">
-                  {selectedRangeLabel}
-                </span>
+                <span className="ml-auto text-xs text-muted-foreground">{selectedRangeLabel}</span>
               </div>
 
               {chartTab === "overview" && (
@@ -403,10 +495,24 @@ function AdminSubscriptionsPage() {
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="oklch(0 0 0 / 0.05)" />
                         <XAxis dataKey="date" stroke="oklch(0.5 0.03 260)" fontSize={11} />
-                        <YAxis yAxisId="left" stroke="oklch(0.5 0.03 260)" fontSize={11} tickFormatter={(v: number) => `₹${(v / 1000).toFixed(0)}k`} />
-                        <YAxis yAxisId="right" orientation="right" stroke="oklch(0.5 0.03 260)" fontSize={11} />
+                        <YAxis
+                          yAxisId="left"
+                          stroke="oklch(0.5 0.03 260)"
+                          fontSize={11}
+                          tickFormatter={(v: number) => `₹${(v / 1000).toFixed(0)}k`}
+                        />
+                        <YAxis
+                          yAxisId="right"
+                          orientation="right"
+                          stroke="oklch(0.5 0.03 260)"
+                          fontSize={11}
+                        />
                         <Tooltip
-                          contentStyle={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)" }}
+                          contentStyle={{
+                            borderRadius: 12,
+                            border: "1px solid var(--border)",
+                            background: "var(--card)",
+                          }}
                           formatter={(value: number, name: string) => [
                             name === "revenue" ? inr(value) : value,
                             name === "revenue" ? "Revenue" : "New Subscribers",
@@ -454,12 +560,26 @@ function AdminSubscriptionsPage() {
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="oklch(0 0 0 / 0.05)" />
                         <XAxis dataKey="date" stroke="oklch(0.5 0.03 260)" fontSize={11} />
-                        <YAxis stroke="oklch(0.5 0.03 260)" fontSize={11} tickFormatter={(v: number) => `₹${(v / 1000).toFixed(0)}k`} />
+                        <YAxis
+                          stroke="oklch(0.5 0.03 260)"
+                          fontSize={11}
+                          tickFormatter={(v: number) => `₹${(v / 1000).toFixed(0)}k`}
+                        />
                         <Tooltip
-                          contentStyle={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)" }}
+                          contentStyle={{
+                            borderRadius: 12,
+                            border: "1px solid var(--border)",
+                            background: "var(--card)",
+                          }}
                           formatter={(v: number) => [inr(v), "Revenue"]}
                         />
-                        <Area type="monotone" dataKey="revenue" stroke="#10b981" fill="url(#revGrad)" strokeWidth={2} />
+                        <Area
+                          type="monotone"
+                          dataKey="revenue"
+                          stroke="#10b981"
+                          fill="url(#revGrad)"
+                          strokeWidth={2}
+                        />
                       </AreaChart>
                     </ResponsiveContainer>
                   )}
@@ -480,7 +600,11 @@ function AdminSubscriptionsPage() {
                         <XAxis dataKey="date" stroke="oklch(0.5 0.03 260)" fontSize={11} />
                         <YAxis stroke="oklch(0.5 0.03 260)" fontSize={11} />
                         <Tooltip
-                          contentStyle={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)" }}
+                          contentStyle={{
+                            borderRadius: 12,
+                            border: "1px solid var(--border)",
+                            background: "var(--card)",
+                          }}
                           formatter={(v: number) => [v, "New"]}
                         />
                         <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
@@ -501,7 +625,9 @@ function AdminSubscriptionsPage() {
                         cx="50%"
                         cy="50%"
                         outerRadius={100}
-                        label={({ plan_name, percent }: any) => `${plan_name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ plan_name, percent }: any) =>
+                          `${plan_name} ${(percent * 100).toFixed(0)}%`
+                        }
                       >
                         {data.plans
                           .filter((p: any) => p.active_subscribers > 0)
@@ -510,7 +636,11 @@ function AdminSubscriptionsPage() {
                           ))}
                       </Pie>
                       <Tooltip
-                        contentStyle={{ borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)" }}
+                        contentStyle={{
+                          borderRadius: 12,
+                          border: "1px solid var(--border)",
+                          background: "var(--card)",
+                        }}
                         formatter={(v: number, n: string) => [v, n]}
                       />
                     </PieChart>
@@ -527,14 +657,21 @@ function AdminSubscriptionsPage() {
               </div>
               <div className="divide-y">
                 {data.plans.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">No plan data available.</div>
+                  <div className="p-8 text-center text-muted-foreground">
+                    No plan data available.
+                  </div>
                 ) : (
                   data.plans.map((plan: any) => (
-                    <div key={plan.plan_id} className="flex items-center justify-between px-4 py-3 hover:bg-muted/30">
+                    <div
+                      key={plan.plan_id}
+                      className="flex items-center justify-between px-4 py-3 hover:bg-muted/30"
+                    >
                       <div className="flex items-center gap-4">
                         <div>
                           <p className="font-medium">{plan.plan_name}</p>
-                          <p className="text-xs text-muted-foreground">{plan.price_inr > 0 ? inr(plan.price_inr) : "Free"}/mo</p>
+                          <p className="text-xs text-muted-foreground">
+                            {plan.price_inr > 0 ? inr(plan.price_inr) : "Free"}/mo
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4 text-xs">
@@ -578,7 +715,9 @@ function AdminSubscriptionsPage() {
                   </div>
                 </div>
                 {data.recentSubscriptions.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">No subscriptions in this period.</div>
+                  <div className="p-8 text-center text-muted-foreground">
+                    No subscriptions in this period.
+                  </div>
                 ) : (
                   <div className="divide-y max-h-80 overflow-y-auto">
                     {data.recentSubscriptions
@@ -587,7 +726,9 @@ function AdminSubscriptionsPage() {
                         const profile = sub.profiles as any;
                         const plan = sub.plan as any;
                         return (
-                          (profile?.full_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (profile?.full_name || "")
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
                           (profile?.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
                           (plan?.name || "").toLowerCase().includes(searchTerm.toLowerCase())
                         );
@@ -596,7 +737,10 @@ function AdminSubscriptionsPage() {
                         const plan = sub.plan as any;
                         const profile = sub.profiles as any;
                         return (
-                          <div key={sub.id} className="flex items-center justify-between px-4 py-3 hover:bg-muted/30">
+                          <div
+                            key={sub.id}
+                            className="flex items-center justify-between px-4 py-3 hover:bg-muted/30"
+                          >
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold">
                                 {profile?.full_name?.charAt(0) || "?"}
@@ -607,15 +751,24 @@ function AdminSubscriptionsPage() {
                                 </p>
                                 <p className="text-xs text-muted-foreground truncate">
                                   {plan?.name || "Unknown"} ·{" "}
-                                  {sub.created_at ? format(new Date(sub.created_at), "MMM d, yyyy") : "—"}
+                                  {sub.created_at
+                                    ? format(new Date(sub.created_at), "MMM d, yyyy")
+                                    : "—"}
                                 </p>
                               </div>
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
-                              <Badge className={cn("text-xs border", STATUS_COLORS[sub.status] || "bg-zinc-500/10 text-zinc-500")}>
+                              <Badge
+                                className={cn(
+                                  "text-xs border",
+                                  STATUS_COLORS[sub.status] || "bg-zinc-500/10 text-zinc-500",
+                                )}
+                              >
                                 {sub.status}
                               </Badge>
-                              <span className="text-xs font-medium">{plan?.price_inr > 0 ? inr(plan.price_inr) : "Free"}</span>
+                              <span className="text-xs font-medium">
+                                {plan?.price_inr > 0 ? inr(plan.price_inr) : "Free"}
+                              </span>
                             </div>
                           </div>
                         );
@@ -630,11 +783,16 @@ function AdminSubscriptionsPage() {
                   <h3 className="font-semibold">Payment Events</h3>
                 </div>
                 {data.recentPayments.length === 0 ? (
-                  <div className="p-8 text-center text-muted-foreground">No payments in this period.</div>
+                  <div className="p-8 text-center text-muted-foreground">
+                    No payments in this period.
+                  </div>
                 ) : (
                   <div className="divide-y max-h-80 overflow-y-auto">
                     {data.recentPayments.map((payment: any) => (
-                      <div key={payment.id} className="flex items-center justify-between px-4 py-3 hover:bg-muted/30">
+                      <div
+                        key={payment.id}
+                        className="flex items-center justify-between px-4 py-3 hover:bg-muted/30"
+                      >
                         <div className="flex items-center gap-3">
                           {payment.status === "processed" || payment.status === "completed" ? (
                             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
@@ -646,12 +804,16 @@ function AdminSubscriptionsPage() {
                           <div>
                             <p className="text-sm font-medium">{payment.event_type || "Payment"}</p>
                             <p className="text-xs text-muted-foreground">
-                              {payment.created_at ? format(new Date(payment.created_at), "MMM d, HH:mm") : "—"}
+                              {payment.created_at
+                                ? format(new Date(payment.created_at), "MMM d, HH:mm")
+                                : "—"}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {payment.amount && <span className="text-xs font-medium">{inr(payment.amount)}</span>}
+                          {payment.amount && (
+                            <span className="text-xs font-medium">{inr(payment.amount)}</span>
+                          )}
                           <Badge
                             variant="outline"
                             className={cn(

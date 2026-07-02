@@ -221,7 +221,9 @@ const DEMOS: DemoCard[] = [
               <Mic className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="font-semibold text-xs text-pink-700 dark:text-pink-300">AI Interviewer</p>
+              <p className="font-semibold text-xs text-pink-700 dark:text-pink-300">
+                AI Interviewer
+              </p>
               <p className="text-[10px] text-muted-foreground">Question 3 of 5</p>
             </div>
           </div>
@@ -343,7 +345,8 @@ const DEMOS: DemoCard[] = [
     icon: FolderOpen,
     title: "Portfolio Builder",
     headline: "Build Your Professional Portfolio",
-    description: "Generate a complete portfolio plan with structure, content, and design recommendations.",
+    description:
+      "Generate a complete portfolio plan with structure, content, and design recommendations.",
     color: "#8B5CF6",
     gradient: "from-violet-500/10 to-violet-600/5",
     badge: { label: "Career Essential", color: "#8B5CF6" },
@@ -366,7 +369,9 @@ const DEMOS: DemoCard[] = [
               <FolderOpen className="w-4 h-4 text-white" />
             </div>
             <div>
-              <p className="font-semibold text-xs text-violet-700 dark:text-violet-300">Portfolio Preview</p>
+              <p className="font-semibold text-xs text-violet-700 dark:text-violet-300">
+                Portfolio Preview
+              </p>
               <p className="text-[10px] text-muted-foreground">Developer Style</p>
             </div>
           </div>
@@ -552,7 +557,10 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                 {/* Benefits */}
                 <div className="space-y-1 mb-4">
                   {demo.benefits.map((b) => (
-                    <div key={b} className="flex items-center gap-1.5 text-[11px] text-foreground/70">
+                    <div
+                      key={b}
+                      className="flex items-center gap-1.5 text-[11px] text-foreground/70"
+                    >
                       <Check className="w-3 h-3 text-emerald-500 shrink-0" />
                       {b}
                     </div>
@@ -728,9 +736,7 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
             size="lg"
             className="h-12 px-8 text-base font-semibold rounded-xl"
             onClick={() => {
-              document
-                .getElementById("interactive-demo")
-                ?.scrollIntoView({ behavior: "smooth" });
+              document.getElementById("interactive-demo")?.scrollIntoView({ behavior: "smooth" });
             }}
           >
             <Play className="w-5 h-5 mr-2" />

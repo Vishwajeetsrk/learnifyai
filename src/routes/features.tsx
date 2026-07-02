@@ -138,7 +138,8 @@ function FeaturesPage() {
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
           />
           <img
-            src="/illustrations/AI_Spark_Interactive_Assistant.svg" loading="lazy"
+            src="/illustrations/AI_Spark_Interactive_Assistant.svg"
+            loading="lazy"
             alt="Features"
             className="w-full h-full relative z-10"
           />

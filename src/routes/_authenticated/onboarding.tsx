@@ -139,12 +139,13 @@ function OnboardingPage() {
         const stepIdx = ONBOARDING_STEPS.findIndex((s) => s.id === progress?.current_step);
         if (stepIdx >= 0) setCurrentStep(stepIdx);
         if (progress?.ai_profile) {
+          const profile = progress.ai_profile as any;
           setAiProfile((prev) => ({
-            goals: progress.ai_profile.goals ?? prev.goals,
-            experience: progress.ai_profile.experience ?? prev.experience,
-            interests: progress.ai_profile.interests ?? prev.interests,
-            preferred_hours: progress.ai_profile.preferred_hours ?? prev.preferred_hours,
-            learning_style: progress.ai_profile.learning_style ?? prev.learning_style,
+            goals: profile.goals ?? prev.goals,
+            experience: profile.experience ?? prev.experience,
+            interests: profile.interests ?? prev.interests,
+            preferred_hours: profile.preferred_hours ?? prev.preferred_hours,
+            learning_style: profile.learning_style ?? prev.learning_style,
           }));
         }
         setLoading(false);
@@ -338,7 +339,7 @@ function OnboardingPage() {
                 the platform together.
               </p>
             </div>
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 max-w-lg mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-lg mx-auto">
               {[
                 { icon: Sparkles, label: "AI Tutoring", desc: "24/7 assistance" },
                 { icon: Code, label: "Playground", desc: "Write & run code" },

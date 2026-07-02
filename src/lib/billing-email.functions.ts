@@ -77,7 +77,9 @@ function emailWrapper(content: string): string {
 </html>`;
 }
 
-async function getProfile(userId: string): Promise<{ email: string | null; full_name: string | null } | null> {
+async function getProfile(
+  userId: string,
+): Promise<{ email: string | null; full_name: string | null } | null> {
   const { data } = await supabaseAdmin
     .from("profiles")
     .select("email, full_name")

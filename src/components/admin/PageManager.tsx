@@ -141,7 +141,7 @@ type WcmsPage = {
   meta_description: string | null;
   og_image_url: string | null;
   published: boolean;
-  template: string;
+  template: string | null;
   sort_order: number;
   created_at: string;
 };
@@ -408,7 +408,7 @@ export default function PageManager() {
                 <div className="space-y-2">
                   <Label>Template</Label>
                   <Select
-                    value={editing.template}
+                    value={editing.template ?? undefined}
                     onValueChange={(v) => setEditing({ ...editing, template: v })}
                   >
                     <SelectTrigger>

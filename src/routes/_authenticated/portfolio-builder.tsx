@@ -1,7 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { FolderOpen, Loader2, Sparkles, Download, Check, ChevronRight, Upload, ImagePlus, Github, ExternalLink, AlertCircle } from "lucide-react";
+import {
+  FolderOpen,
+  Loader2,
+  Sparkles,
+  Download,
+  Check,
+  ChevronRight,
+  Upload,
+  ImagePlus,
+  Github,
+  ExternalLink,
+  AlertCircle,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { AppShell } from "@/components/AppShell";
@@ -44,7 +56,7 @@ type ProjectEntry = {
   githubUrl: string;
 };
 
-function PortfolioBuilderPage() {
+export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean }) {
   const generateFn = useServerFn(generatePortfolio);
   const extractFn = useServerFn(extractResumeFields);
   const [tab, setTab] = useState("form");
@@ -68,8 +80,7 @@ function PortfolioBuilderPage() {
 
   const [projects, setProjects] = useState<ProjectEntry[]>([]);
 
-  const update = (field: string, value: string) =>
-    setForm((f) => ({ ...f, [field]: value }));
+  const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
   const handleFileExtracted = async (text: string) => {
     setExtracting(true);
@@ -79,7 +90,10 @@ function PortfolioBuilderPage() {
 
       const normalizeLinkedin = (val: string) => {
         if (!val) return "";
-        const cleaned = val.replace(/^https?:\/\//, "").replace(/^linkedin\.com\/in\//, "").replace(/\/$/, "");
+        const cleaned = val
+          .replace(/^https?:\/\//, "")
+          .replace(/^linkedin\.com\/in\//, "")
+          .replace(/\/$/, "");
         return cleaned ? `https://linkedin.com/in/${cleaned}` : "";
       };
 
@@ -89,7 +103,14 @@ function PortfolioBuilderPage() {
         bio: fields.summary || f.bio,
         tagline: fields.targetRole || f.tagline,
         socialLinks: fields.linkedin
-          ? [...new Set([normalizeLinkedin(fields.linkedin), ...f.socialLinks.split('\n').filter(Boolean)])].filter(Boolean).join('\n')
+          ? [
+              ...new Set([
+                normalizeLinkedin(fields.linkedin),
+                ...f.socialLinks.split("\n").filter(Boolean),
+              ]),
+            ]
+              .filter(Boolean)
+              .join("\n")
           : f.socialLinks,
         skills: fields.skills || f.skills,
         experience: fields.experience || f.experience,
@@ -98,18 +119,26 @@ function PortfolioBuilderPage() {
       }));
 
       if (fields.projects) {
-        const projectLines = fields.projects.split('\n').filter(Boolean);
-        const parsedProjects: ProjectEntry[] = projectLines.map((line: string) => {
-          const dashMatch = line.match(/^\s*[-*]\s*(.+)/);
-          const content = dashMatch ? dashMatch[1] : line;
-          const urlMatch = content.match(/(https?:\/\/[^\s]+)/);
-          const githubUrl = urlMatch ? urlMatch[1] : "";
-          const nameOnly = content.replace(/(https?:\/\/[^\s]+)/, "").replace(/[:\-–]\s*$/, "").trim();
-          const parts = nameOnly.split(/[:\-–]/).map((s: string) => s.trim()).filter(Boolean);
-          const name = parts[0] || content.trim();
-          const description = parts.slice(1).join(": ") || "";
-          return { name, description, techStack: "", githubUrl };
-        }).filter((p: ProjectEntry) => p.name.length > 1);
+        const projectLines = fields.projects.split("\n").filter(Boolean);
+        const parsedProjects: ProjectEntry[] = projectLines
+          .map((line: string) => {
+            const dashMatch = line.match(/^\s*[-*]\s*(.+)/);
+            const content = dashMatch ? dashMatch[1] : line;
+            const urlMatch = content.match(/(https?:\/\/[^\s]+)/);
+            const githubUrl = urlMatch ? urlMatch[1] : "";
+            const nameOnly = content
+              .replace(/(https?:\/\/[^\s]+)/, "")
+              .replace(/[:\-–]\s*$/, "")
+              .trim();
+            const parts = nameOnly
+              .split(/[:\-–]/)
+              .map((s: string) => s.trim())
+              .filter(Boolean);
+            const name = parts[0] || content.trim();
+            const description = parts.slice(1).join(": ") || "";
+            return { name, description, techStack: "", githubUrl };
+          })
+          .filter((p: ProjectEntry) => p.name.length > 1);
         setProjects(parsedProjects);
       }
 
@@ -185,9 +214,8 @@ function PortfolioBuilderPage() {
     toast.success("Portfolio plan downloaded!");
   };
 
-  return (
-    <AppShell>
-      <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
+  const mainContent = (
+    <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
         <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
           <div>
             <div className="text-xs uppercase tracking-widest text-primary font-medium flex items-center gap-1.5">
@@ -197,7 +225,8 @@ function PortfolioBuilderPage() {
               Portfolio Builder
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Generate a professional portfolio plan with structure, content, and design recommendations.
+              Generate a professional portfolio plan with structure, content, and design
+              recommendations.
             </p>
           </div>
         </div>
@@ -220,9 +249,7 @@ function PortfolioBuilderPage() {
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Upload className="h-4 w-4 text-primary" />
                 Upload resume to auto-fill (optional)
-                {extracting && (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
-                )}
+                {extracting && <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />}
               </div>
               <ResumeFileUpload onTextExtracted={handleFileExtracted} />
               {extracting && (
@@ -255,7 +282,11 @@ function PortfolioBuilderPage() {
                       onChange={handlePhotoChange}
                       className="hidden"
                     />
-                    <Button variant="outline" size="sm" onClick={() => photoInputRef.current?.click()}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => photoInputRef.current?.click()}
+                    >
                       <ImagePlus className="h-4 w-4 mr-1.5" />
                       {photoPreview ? "Change Photo" : "Upload Photo"}
                     </Button>
@@ -315,8 +346,17 @@ function PortfolioBuilderPage() {
                   <Card key={idx}>
                     <CardContent className="p-3 sm:p-4 space-y-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-muted-foreground">Project {idx + 1}</span>
-                        <Button variant="ghost" size="sm" className="h-6 text-xs text-destructive" onClick={() => removeProject(idx)}>Remove</Button>
+                        <span className="text-xs font-medium text-muted-foreground">
+                          Project {idx + 1}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 text-xs text-destructive"
+                          onClick={() => removeProject(idx)}
+                        >
+                          Remove
+                        </Button>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <Input
@@ -383,10 +423,7 @@ function PortfolioBuilderPage() {
                 </div>
                 <div className="space-y-2">
                   <Label>Portfolio Style</Label>
-                  <Select
-                    value={form.style}
-                    onValueChange={(v) => update("style", v)}
-                  >
+                  <Select value={form.style} onValueChange={(v) => update("style", v)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -439,9 +476,7 @@ function PortfolioBuilderPage() {
                   </Button>
                 </div>
                 <div className="border rounded-xl p-6 bg-card prose prose-sm dark:prose-invert max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {result}
-                  </ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
                 </div>
               </div>
             )}
@@ -453,7 +488,9 @@ function PortfolioBuilderPage() {
                 <div className="w-3 h-3 rounded-full bg-red-500" />
                 <div className="w-3 h-3 rounded-full bg-amber-500" />
                 <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                <span className="text-xs text-muted-foreground ml-2 font-mono">portfolio-preview</span>
+                <span className="text-xs text-muted-foreground ml-2 font-mono">
+                  portfolio-preview
+                </span>
               </div>
               <div className="bg-gradient-to-br from-background to-muted/30 p-6 sm:p-10">
                 {/* Hero */}
@@ -475,12 +512,16 @@ function PortfolioBuilderPage() {
                     )}
                     {form.socialLinks && (
                       <div className="flex items-center gap-3 mt-3 justify-center sm:justify-start">
-                        {form.socialLinks.split("\n").filter(Boolean).slice(0, 3).map((link, i) => (
-                          <Badge key={i} variant="outline" className="text-[10px] gap-1">
-                            <ExternalLink className="h-3 w-3" />
-                            {link.replace(/https?:\/\//, "").split("/")[0]}
-                          </Badge>
-                        ))}
+                        {form.socialLinks
+                          .split("\n")
+                          .filter(Boolean)
+                          .slice(0, 3)
+                          .map((link, i) => (
+                            <Badge key={i} variant="outline" className="text-[10px] gap-1">
+                              <ExternalLink className="h-3 w-3" />
+                              {link.replace(/https?:\/\//, "").split("/")[0]}
+                            </Badge>
+                          ))}
                       </div>
                     )}
                   </div>
@@ -489,7 +530,9 @@ function PortfolioBuilderPage() {
                 {/* Skills */}
                 {form.skills && (
                   <div className="mb-8">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Skills</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                      Skills
+                    </h3>
                     <div className="flex flex-wrap gap-2">
                       {form.skills.split(",").map((s, i) => (
                         <Badge key={i} variant="secondary" className="text-xs">
@@ -503,32 +546,46 @@ function PortfolioBuilderPage() {
                 {/* Projects */}
                 {projects.filter((p) => p.name).length > 0 && (
                   <div className="mb-8">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Projects</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                      Projects
+                    </h3>
                     <div className="grid gap-3">
-                      {projects.filter((p) => p.name).map((p, i) => (
-                        <Card key={i}>
-                          <CardContent className="p-4">
-                            <div className="flex items-start justify-between gap-2">
-                              <div>
-                                <h4 className="font-semibold">{p.name}</h4>
-                                {p.description && <p className="text-sm text-muted-foreground mt-1">{p.description}</p>}
-                                {p.techStack && (
-                                  <div className="flex flex-wrap gap-1.5 mt-2">
-                                    {p.techStack.split(",").map((t) => (
-                                      <Badge key={t.trim()} variant="outline" className="text-[10px]">{t.trim()}</Badge>
-                                    ))}
-                                  </div>
+                      {projects
+                        .filter((p) => p.name)
+                        .map((p, i) => (
+                          <Card key={i}>
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <h4 className="font-semibold">{p.name}</h4>
+                                  {p.description && (
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                      {p.description}
+                                    </p>
+                                  )}
+                                  {p.techStack && (
+                                    <div className="flex flex-wrap gap-1.5 mt-2">
+                                      {p.techStack.split(",").map((t) => (
+                                        <Badge
+                                          key={t.trim()}
+                                          variant="outline"
+                                          className="text-[10px]"
+                                        >
+                                          {t.trim()}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                {p.githubUrl && (
+                                  <a href={p.githubUrl} target="_blank" rel="noopener noreferrer">
+                                    <Github className="h-5 w-5 text-muted-foreground hover:text-foreground transition" />
+                                  </a>
                                 )}
                               </div>
-                              {p.githubUrl && (
-                                <a href={p.githubUrl} target="_blank" rel="noopener noreferrer">
-                                  <Github className="h-5 w-5 text-muted-foreground hover:text-foreground transition" />
-                                </a>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                            </CardContent>
+                          </Card>
+                        ))}
                     </div>
                   </div>
                 )}
@@ -536,7 +593,9 @@ function PortfolioBuilderPage() {
                 {/* Experience */}
                 {form.experience && (
                   <div className="mb-8">
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Experience</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                      Experience
+                    </h3>
                     <p className="text-sm whitespace-pre-wrap">{form.experience}</p>
                   </div>
                 )}
@@ -544,7 +603,9 @@ function PortfolioBuilderPage() {
                 {/* Education */}
                 {form.education && (
                   <div>
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Education</h3>
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                      Education
+                    </h3>
                     <p className="text-sm">{form.education}</p>
                   </div>
                 )}
@@ -560,6 +621,8 @@ function PortfolioBuilderPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppShell>
   );
+
+  if (embedded) return mainContent;
+  return <AppShell>{mainContent}</AppShell>;
 }

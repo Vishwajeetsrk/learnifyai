@@ -485,8 +485,7 @@ function CohortList({
   onEdit?: (c: any) => void;
   onDelete?: (id: string) => void;
 }) {
-  if (loading)
-    return <CohortsSkeleton />;
+  if (loading) return <CohortsSkeleton />;
   if (cohorts.length === 0)
     return (
       <div className="rounded-2xl border bg-card p-12 text-center text-sm text-muted-foreground">

@@ -21,8 +21,12 @@ export function StudentJourney() {
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Your Journey To Getting Hired</h2>
-        <p className="mt-3 text-muted-foreground">From zero experience to career ready — all in one platform.</p>
+        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+          Your Journey To Getting Hired
+        </h2>
+        <p className="mt-3 text-muted-foreground">
+          From zero experience to career ready — all in one platform.
+        </p>
       </motion.div>
 
       <div className="relative">
@@ -56,12 +60,7 @@ export function StudentJourney() {
               </div>
 
               {/* Label */}
-              <div
-                className={cn(
-                  "flex-1 text-left",
-                  i % 2 !== 0 && "sm:text-right",
-                )}
-              >
+              <div className={cn("flex-1 text-left", i % 2 !== 0 && "sm:text-right")}>
                 <motion.div
                   className="inline-block rounded-xl border bg-card px-5 py-3 shadow-sm"
                   whileHover={{ y: -2 }}

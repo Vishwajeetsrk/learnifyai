@@ -38,7 +38,8 @@ export function DashboardEventsJobs() {
 
   const events = eventsQ.data ?? [];
   const jobs = jobsQ.data ?? [];
-  if (events.length === 0 && jobs.length === 0 && !eventsQ.isLoading && !jobsQ.isLoading) return null;
+  if (events.length === 0 && jobs.length === 0 && !eventsQ.isLoading && !jobsQ.isLoading)
+    return null;
 
   return (
     <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-4">

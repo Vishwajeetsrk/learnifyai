@@ -7,12 +7,7 @@ import { validateFiles } from "@/lib/upload-validation";
 export { formatFileSize, formatSpeed, formatETA } from "@/lib/upload-validation";
 
 export type UploadStatus =
-  | "pending"
-  | "uploading"
-  | "processing"
-  | "completed"
-  | "failed"
-  | "cancelled";
+  "pending" | "uploading" | "processing" | "completed" | "failed" | "cancelled";
 
 export interface UploadItem {
   id: string;

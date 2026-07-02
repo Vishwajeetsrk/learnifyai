@@ -35,6 +35,7 @@ import { RecommendedCourses } from "@/components/RecommendedCourses";
 import { DashboardEventsJobs } from "@/components/DashboardEventsJobs";
 import { DashboardSkeleton, StatCardSkeleton } from "@/components/Skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TourChecklist } from "@/components/ProductTour";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Learnify AI" }] }),
@@ -122,18 +123,28 @@ function DashboardPage() {
         <h1 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight">
           {t("dashboard.welcome", { name })}
         </h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          {t("dashboard.subtitle")}
-        </p>
+        <p className="text-muted-foreground mt-1 text-sm">{t("dashboard.subtitle")}</p>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
           {enrollQ.isLoading ? (
             Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
           ) : (
             <>
-              <StatCard label={t("dashboard.enrolled")} value={String(enrolled.length)} icon={BookOpen} />
-              <StatCard label={t("dashboard.completed")} value={String(totalCompleted)} icon={GraduationCap} />
-              <StatCard label={t("dashboard.certificates")} value={String(totalCerts)} icon={Award} />
+              <StatCard
+                label={t("dashboard.enrolled")}
+                value={String(enrolled.length)}
+                icon={BookOpen}
+              />
+              <StatCard
+                label={t("dashboard.completed")}
+                value={String(totalCompleted)}
+                icon={GraduationCap}
+              />
+              <StatCard
+                label={t("dashboard.certificates")}
+                value={String(totalCerts)}
+                icon={Award}
+              />
               <StatCard
                 label={t("dashboard.testAttempts")}
                 value={String((attemptsQ.data ?? []).length)}
@@ -141,6 +152,11 @@ function DashboardPage() {
               />
             </>
           )}
+        </div>
+
+        {/* Available Product Tours */}
+        <div className="mt-6">
+          <TourChecklist />
         </div>
 
         {isAdmin && (
@@ -210,9 +226,7 @@ function DashboardPage() {
             <div className="rounded-2xl border bg-card p-12 text-center shadow-card">
               <BookOpen className="h-10 w-10 mx-auto text-muted-foreground" />
               <p className="mt-3 font-medium">{t("dashboard.noCourses")}</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                {t("dashboard.noCoursesDesc")}
-              </p>
+              <p className="text-sm text-muted-foreground mt-1">{t("dashboard.noCoursesDesc")}</p>
               <Link to="/courses" className="text-sm text-primary mt-3 inline-block">
                 {t("dashboard.exploreCourses")} →
               </Link>
@@ -277,7 +291,10 @@ function DashboardPage() {
                       </Link>
                       <div className="mt-auto">
                         <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
-                          <span className="truncate">{e.progress_pct}{t("dashboard.complete")}</span>
+                          <span className="truncate">
+                            {e.progress_pct}
+                            {t("dashboard.complete")}
+                          </span>
                           <span className="shrink-0 ml-2">
                             {format(new Date(e.last_activity_at), "dd MMM")}
                           </span>
@@ -285,7 +302,11 @@ function DashboardPage() {
                         <Progress value={e.progress_pct} className="h-1.5" />
                         {attempts.length > 0 && (
                           <p className="text-[10px] text-muted-foreground mt-1.5">
-                            {attempts.length}{attempts.length === 1 ? t("dashboard.testAttempt") : t("dashboard.testAttemptsPlural")}{t("dashboard.bestScore")}
+                            {attempts.length}
+                            {attempts.length === 1
+                              ? t("dashboard.testAttempt")
+                              : t("dashboard.testAttemptsPlural")}
+                            {t("dashboard.bestScore")}
                             {Math.round(best * 100)}%
                           </p>
                         )}
@@ -368,9 +389,7 @@ function DashboardPage() {
           >
             <FileCheck2 className="h-5 w-5 text-primary" />
             <h3 className="mt-3 font-display font-semibold">{t("dashboard.mySubmissions")}</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              {t("dashboard.mySubmissionsDesc")}
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">{t("dashboard.mySubmissionsDesc")}</p>
           </Link>
           <Link
             to="/ai-tools"
@@ -378,9 +397,7 @@ function DashboardPage() {
           >
             <Trophy className="h-5 w-5 text-primary" />
             <h3 className="mt-3 font-display font-semibold">{t("dashboard.aiToolsHistory")}</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              {t("dashboard.aiToolsDesc")}
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">{t("dashboard.aiToolsDesc")}</p>
           </Link>
         </div>
 

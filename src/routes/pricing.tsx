@@ -383,9 +383,27 @@ function PricingPage() {
   const [faqCategory, setFaqCategory] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
 
+  const AVATAR_MAP: Record<string, string> = {
+    "Rishabh Sharma": rishabhAvatar,
+    "Anjali Verma": anjaliAvatar,
+    "Priya Kapoor": priyaAvatar,
+    "Vikram Singh": vikramAvatar,
+    "Vishwajeet": vishwajeetAvatar,
+  };
+
   const cmsFaqItems = cmsFaq?.content?.items ?? FAQ_ITEMS;
   const cmsFaqCategories = cmsFaq?.content?.categories ?? FAQ_CATEGORIES;
-  const cmsTestimonialItems = cmsTestimonials?.content?.items ?? TESTIMONIALS;
+  const rawTestimonials = cmsTestimonials?.content?.items ?? TESTIMONIALS;
+  const cmsTestimonialItems = useMemo(() => {
+    return rawTestimonials.map((item: any) => ({
+      ...item,
+      avatar:
+        AVATAR_MAP[item.name] ||
+        (typeof item.avatar === "string" && item.avatar.startsWith("http") ? item.avatar : null) ||
+        (typeof item.avatar === "string" && item.avatar.startsWith("data:") ? item.avatar : null) ||
+        `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(item.name || "Student")}`,
+    }));
+  }, [rawTestimonials]);
   const cmsHeroContent = cmsHero?.content;
 
   const faqCategories = useMemo(() => {
@@ -448,10 +466,10 @@ function PricingPage() {
                 ...def,
                 ...match,
                 id: match.id,
-                price_label: def.price_label,
-                price_inr: def.price_inr,
-                yearly_price: def.yearly_price,
-                interval: def.interval,
+                price_label: match.price_label || def.price_label,
+                price_inr: typeof match.price_inr === "number" ? match.price_inr : def.price_inr,
+                yearly_price: typeof match.yearly_price === "number" ? match.yearly_price : def.yearly_price,
+                interval: match.interval || def.interval,
                 features: match.features.length > 0 ? match.features : def.features,
               }
             : def;
@@ -723,18 +741,16 @@ function PricingPage() {
           </div>
         </section>
 
-        {/* ========== INTERACTIVE DEMO ========== */}
-        <section id="interactive-demo" className="container mx-auto px-6 py-16 md:py-20 max-w-6xl">
-          <InteractiveDemoCards />
-        </section>
+        {/* ========== ROI SAVINGS ========== */}
+        <ROISavingsSection />
 
         {/* ========== BUILD YOUR PLAN ========== */}
-        <section id="build-your-plan" className="container mx-auto px-6 py-16 md:py-20 max-w-6xl">
+        <section id="build-your-plan" className="container mx-auto px-6 py-12 max-w-6xl">
           <SavingsCalculator />
         </section>
 
-        {/* ========== ROI SAVINGS ========== */}
-        <ROISavingsSection />
+        {/* ========== COMPETITOR COMPARISON (INSTANT FIX: BEFORE WHY LEARNERS UPGRADE) ========== */}
+        <CompetitorComparison />
 
         {/* ========== WHY LEARNERS UPGRADE ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-5xl">
@@ -1011,8 +1027,10 @@ function PricingPage() {
         {/* ========== STUDENT JOURNEY ========== */}
         <StudentJourney />
 
-        {/* ========== COMPETITOR COMPARISON ========== */}
-        <CompetitorComparison />
+        {/* ========== INTERACTIVE DEMO (TOOLS SHOWCASE) ========== */}
+        <section id="interactive-demo" className="container mx-auto px-6 py-16 md:py-20 max-w-6xl">
+          <InteractiveDemoCards />
+        </section>
 
         {/* ========== FOUNDER MESSAGE ========== */}
         <section className="container mx-auto px-6 py-12 max-w-4xl">
@@ -1108,19 +1126,12 @@ function PricingPage() {
                   <img
                     src={t.avatar}
                     alt={t.name}
-                    className="h-10 w-10 rounded-full object-cover shrink-0 bg-muted"
+                    className="h-10 w-10 rounded-full object-cover shrink-0 border border-primary/20 shadow-sm"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                      const fallback = target.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = "flex";
+                      target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(t.name || "Student")}`;
                     }}
                   />
-                  <div
-                    className="h-10 w-10 rounded-full bg-primary/10 text-primary font-bold text-sm items-center justify-center shrink-0 hidden"
-                  >
-                    {t.name?.charAt(0)}
-                  </div>
                   <div className="min-w-0">
                     <div className="text-sm font-semibold truncate">{t.name}</div>
                     <div className="text-xs text-muted-foreground truncate">
@@ -1177,19 +1188,12 @@ function PricingPage() {
                   <img
                     src={selectedTestimonial.avatar}
                     alt={selectedTestimonial.name}
-                    className="h-12 w-12 rounded-full object-cover shrink-0 bg-muted"
+                    className="h-12 w-12 rounded-full object-cover shrink-0 border border-primary/20 shadow-sm"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                      const fallback = target.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = "flex";
+                      target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(selectedTestimonial.name || "Student")}`;
                     }}
                   />
-                  <div
-                    className="h-12 w-12 rounded-full bg-primary/10 text-primary font-bold text-lg items-center justify-center shrink-0 hidden"
-                  >
-                    {selectedTestimonial.name?.charAt(0)}
-                  </div>
                   <div>
                     <div className="text-base font-semibold">{selectedTestimonial.name}</div>
                     <div className="text-sm text-muted-foreground">

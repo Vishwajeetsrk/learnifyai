@@ -214,6 +214,24 @@ function CertificatePage() {
             <Button size="sm" variant="outline" onClick={share}>
               <Share2 className="h-4 w-4" /> Share
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="bg-[#0A66C2] text-white hover:bg-[#004182] hover:text-white border-none"
+              onClick={() => {
+                const issueDateObj = new Date(row.issued_at);
+                const year = issueDateObj.getFullYear();
+                const month = issueDateObj.getMonth() + 1;
+                const linkedinUrl = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent(
+                  row.course_title ?? "Learnify AI Certification",
+                )}&organizationName=Learnify+AI&issueYear=${year}&issueMonth=${month}&certUrl=${encodeURIComponent(
+                  verifyUrl,
+                )}&certId=${encodeURIComponent(row.code)}`;
+                window.open(linkedinUrl, "_blank", "noopener,noreferrer");
+              }}
+            >
+              Add to LinkedIn
+            </Button>
             <Button size="sm" variant="outline" onClick={() => setEmailOpen(true)}>
               <Mail className="h-4 w-4" /> Email
             </Button>

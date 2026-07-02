@@ -118,20 +118,22 @@ export const checkoutCart = createServerFn({ method: "POST" })
           `Insufficient wallet balance. Need ₹${total}, have ₹${balance}. Please top up.`,
         );
       }
-
-      // Debit (only if total > 0)
-      if (total > 0) {
-        const desc = `Course purchase: ${items.map((c: any) => c.courses?.title).join(", ")}${coupon ? ` (coupon ${coupon} -₹${discount})` : ""}`;
-        const { error: dErr } = await supabase.from("wallet_transactions").insert({
-          user_id: userId,
-          amount_inr: total,
-          type: "debit",
-          status: "completed",
-          description: desc,
-        });
-        if (dErr) throw new Error(dErr.message);
-      }
     }
+
+    // Always debit the wallet for the course purchase (even if paid via Cashfree)
+    // This ensures wallet balance stays correct: Cashfree top-up credit - course debit = 0
+    if (total > 0) {
+      const desc = `Course purchase: ${items.map((c: any) => c.courses?.title).join(", ")}${coupon ? ` (coupon ${coupon} -₹${discount})` : ""}`;
+      const { error: dErr } = await supabase.from("wallet_transactions").insert({
+        user_id: userId,
+        amount_inr: total,
+        type: "debit",
+        status: "completed",
+        description: desc,
+      });
+      if (dErr) throw new Error(dErr.message);
+    }
+
 
     // Check plan course limit before enrolling
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -263,7 +265,8 @@ export const enrollFree = createServerFn({ method: "POST" })
       .select("title, slug")
       .eq("id", data.courseId)
       .maybeSingle();
-    if (courseInfo) sendEnrollmentEmails(userId, [{ title: courseInfo.title, slug: courseInfo.slug }]);
+    if (courseInfo)
+      sendEnrollmentEmails(userId, [{ title: courseInfo.title, slug: courseInfo.slug }]);
 
     return { ok: true };
   });
@@ -425,7 +428,10 @@ async function sendEnrollmentEmails(
 
     if (tpl) {
       const render = (s: string, vars: Record<string, string>) =>
-        Object.entries(vars).reduce((out, [k, v]) => out.replace(new RegExp(`{{${k}}}`, "g"), v), s);
+        Object.entries(vars).reduce(
+          (out, [k, v]) => out.replace(new RegExp(`{{${k}}}`, "g"), v),
+          s,
+        );
       subject = render(tpl.subject, { name, course_title: courses[0]?.title || "Course" });
       html = render(tpl.html_body, {
         name,
@@ -457,5 +463,9 @@ async function sendEnrollmentEmails(
 }
 
 function escapeHtml(s: string) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }

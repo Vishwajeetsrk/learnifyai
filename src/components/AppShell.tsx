@@ -52,26 +52,17 @@ interface NavItem {
 }
 const nav: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/community-feed", label: "Community", icon: Users, featureKey: "community" },
-  { to: "/coaching", label: "Coaching", icon: Compass, featureKey: "coaching" },
   { to: "/courses", label: "Courses", icon: GraduationCap, featureKey: "course_builder" },
-  { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
-  { to: "/achievements", label: "Achievements", icon: Medal },
-  { to: "/cart", label: "Cart", icon: ShoppingCart },
-  { to: "/submissions", label: "Submissions", icon: FileCheck2 },
-  { to: "/certificates", label: "Certificates", icon: Award, featureKey: "certificates" },
-  { to: "/ai", label: "AI Chat", icon: Sparkles, featureKey: "ai_tools" },
+  { to: "/ai", label: "AI Tutor", icon: Sparkles, featureKey: "ai_tools" },
+  { to: "/career-studio", label: "Career Studio", icon: Briefcase, featureKey: "ai_tools" },
+  { to: "/community-hub", label: "Community", icon: Users, featureKey: "community" },
+  { to: "/community-hub?tab=challenges", label: "Coding Challenges", icon: Code2, featureKey: "ai_tools" },
+  { to: "/coaching", label: "Coaching", icon: Compass, featureKey: "coaching" },
   { to: "/ai-tools", label: "AI Tools", icon: Wand2, featureKey: "ai_tools" },
-  { to: "/inbox", label: "Inbox", icon: Inbox },
+  { to: "/certificates", label: "Certificates", icon: Award, featureKey: "certificates" },
+  { to: "/cart", label: "Cart", icon: ShoppingCart },
   { to: "/wallet", label: "Wallet", icon: WalletIcon, featureKey: "wallet" },
-  { to: "/resume-builder", label: "Resume Builder", icon: FileText, featureKey: "ai_tools" },
-  { to: "/ats-checker", label: "ATS Checker", icon: BarChart3, featureKey: "ai_tools" },
-  { to: "/career-roadmap", label: "Career Roadmap", icon: Map, featureKey: "ai_tools" },
-  { to: "/portfolio-builder", label: "Portfolio Builder", icon: FolderOpen, featureKey: "ai_tools" },
-  { to: "/interview", label: "Interview Prep", icon: Briefcase, featureKey: "ai_tools" },
-  { to: "/challenges", label: "Challenges", icon: Code2, featureKey: "ai_tools" },
-  { to: "/billing", label: "Billing", icon: CreditCard },
-  { to: "/settings", label: "Settings", icon: SettingsIcon },
+  { to: "/settings", label: "Account", icon: SettingsIcon },
 
   { to: "/creator", label: "Creator", icon: BarChart3, creatorOnly: true },
   { to: "/studio", label: "Studio", icon: Clapperboard, creatorOnly: true },
@@ -137,19 +128,19 @@ export function AppShell({ children }: { children: ReactNode }) {
                               ? "nav-admin"
                               : item.to === "/wallet"
                                 ? "nav-wallet"
-              : item.to === "/playground"
-                ? "nav-playground"
-                : item.to === "/inbox"
-                  ? "nav-inbox"
-                : item.to === "/resume-builder"
-                  ? "nav-resume-builder"
-                  : item.to === "/ats-checker"
-                    ? "nav-ats-checker"
-                    : item.to === "/career-roadmap"
-                      ? "nav-career-roadmap"
-                      : item.to === "/portfolio-builder"
-                        ? "nav-portfolio-builder"
-                        : undefined;
+                                : item.to === "/playground"
+                                  ? "nav-playground"
+                                  : item.to === "/inbox"
+                                    ? "nav-inbox"
+                                    : item.to === "/resume-builder"
+                                      ? "nav-resume-builder"
+                                      : item.to === "/ats-checker"
+                                        ? "nav-ats-checker"
+                                        : item.to === "/career-roadmap"
+                                          ? "nav-career-roadmap"
+                                          : item.to === "/portfolio-builder"
+                                            ? "nav-portfolio-builder"
+                                            : undefined;
         return (
           <Link
             key={item.to}
@@ -218,7 +209,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </SheetContent>
       </Sheet>
 
-      <main className="flex-1 min-w-0">{children}</main>
+      <main className="flex-1 min-w-0 pl-12 md:pl-0">{children}</main>
 
       <Suspense fallback={null}>
         <GlobalSupportAgent />

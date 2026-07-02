@@ -587,7 +587,11 @@ export default function SettingsPage() {
       params += `&profile_border=${s.profileBorder}`;
     }
 
-    if (s.avatarBackgroundColor && s.avatarBackgroundColor !== "transparent" && s.selectedStyle !== "fun-emoji") {
+    if (
+      s.avatarBackgroundColor &&
+      s.avatarBackgroundColor !== "transparent" &&
+      s.selectedStyle !== "fun-emoji"
+    ) {
       params += `&backgroundColor=${s.avatarBackgroundColor}`;
     }
 
@@ -655,10 +659,8 @@ export default function SettingsPage() {
       else if (u.searchParams.has("eyes")) setEyesStyle(u.searchParams.get("eyes")!);
       if (u.searchParams.has("clothesVariant"))
         setClothingStyle(u.searchParams.get("clothesVariant")!);
-      else if (u.searchParams.has("clothing"))
-        setClothingStyle(u.searchParams.get("clothing")!);
-      if (u.searchParams.has("clothesColor"))
-        setClothingColor(u.searchParams.get("clothesColor")!);
+      else if (u.searchParams.has("clothing")) setClothingStyle(u.searchParams.get("clothing")!);
+      if (u.searchParams.has("clothesColor")) setClothingColor(u.searchParams.get("clothesColor")!);
       else if (u.searchParams.has("clothingColor"))
         setClothingColor(u.searchParams.get("clothingColor")!);
       if (
@@ -669,12 +671,15 @@ export default function SettingsPage() {
       }
       if (u.searchParams.has("eyebrowsVariant"))
         setEyebrowsStyle(u.searchParams.get("eyebrowsVariant")!);
-      else if (u.searchParams.has("eyebrows"))
-        setEyebrowsStyle(u.searchParams.get("eyebrows")!);
+      else if (u.searchParams.has("eyebrows")) setEyebrowsStyle(u.searchParams.get("eyebrows")!);
       if (u.searchParams.has("noseVariant")) setNoseStyle(u.searchParams.get("noseVariant")!);
       else if (u.searchParams.has("nose")) setNoseStyle(u.searchParams.get("nose")!);
       // Hair gender: detect from available hair options
-      const hairVal = u.searchParams.get("topVariant") || u.searchParams.get("top") || u.searchParams.get("hair") || "";
+      const hairVal =
+        u.searchParams.get("topVariant") ||
+        u.searchParams.get("top") ||
+        u.searchParams.get("hair") ||
+        "";
       const femaleHair = ["long", "longBob", "bun", "pigtails", "ponytail", "braids"];
       if (femaleHair.some((h) => hairVal.toLowerCase().includes(h.toLowerCase()))) {
         setHairGender("female");
@@ -1321,13 +1326,13 @@ export default function SettingsPage() {
     <AppShell>
       <div className="px-4 md:px-10 py-8 max-w-4xl">
         <div className="mb-6">
-          <div className="text-xs uppercase tracking-widest text-primary font-medium">{t("settings.page.heading")}</div>
+          <div className="text-xs uppercase tracking-widest text-primary font-medium">
+            {t("settings.page.heading")}
+          </div>
           <h1 className="mt-1 text-2xl sm:text-3xl font-display font-semibold tracking-tight">
             {t("settings.page.title")}
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {t("settings.page.subtitle")}
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm">{t("settings.page.subtitle")}</p>
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
@@ -1372,7 +1377,8 @@ export default function SettingsPage() {
                   className="text-xs gap-1.5 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
                 >
                   <Link to="/u/$id" params={{ id: user?.id ?? "" }}>
-                    <ExternalLink className="h-3.5 w-3.5" /> {t("settings.profile.viewPublicProfile")}
+                    <ExternalLink className="h-3.5 w-3.5" />{" "}
+                    {t("settings.profile.viewPublicProfile")}
                   </Link>
                 </Button>
               </div>
@@ -1420,7 +1426,8 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={() => setCartoonOpen(true)}
                   >
-                    <Sparkles className="h-4 w-4 text-yellow-500 fill-yellow-500" /> {t("settings.profile.avatar.customizeCharacter")}
+                    <Sparkles className="h-4 w-4 text-yellow-500 fill-yellow-500" />{" "}
+                    {t("settings.profile.avatar.customizeCharacter")}
                   </Button>
                   {profileQ.data?.avatar_url ? (
                     <Button size="sm" type="button" variant="outline" onClick={removeAvatar}>
@@ -1680,10 +1687,10 @@ export default function SettingsPage() {
                                   setAccessoriesStyle("none");
                                   setClothingStyle("shirtCrewNeck");
                                   setSkinColor("ffdbb4");
-                                   setHairColor("4a3728");
-                                   setClothingColor("3c4f76");
-                                   setAvatarBackgroundColor("transparent");
-                                   setNoseStyle("default");
+                                  setHairColor("4a3728");
+                                  setClothingColor("3c4f76");
+                                  setAvatarBackgroundColor("transparent");
+                                  setNoseStyle("default");
                                   if (style.id === "avataaars") {
                                     setHairGender("male");
                                     setHairStyle("shortFlat");
@@ -2222,33 +2229,47 @@ export default function SettingsPage() {
                               <Label className="text-xs font-semibold text-muted-foreground">
                                 Clothing Style
                               </Label>
-                              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                                 {[
-                                  { id: "shirtCrewNeck", label: "Crew Neck", icon: "👕" },
-                                  { id: "shirtVNeck", label: "V-Neck", icon: "🎽" },
-                                  { id: "shirtOpen", label: "Open Shirt", icon: "👚" },
-                                  { id: "hoodie", label: "Hoodie", icon: "🧥" },
-                                  { id: "collarAndSweater", label: "Sweater", icon: "🧶" },
-                                  { id: "blazerAndShirt", label: "Blazer", icon: "🤵" },
-                                  { id: "overall", label: "Overalls", icon: "👷" },
-                                  { id: "graphicShirt", label: "Graphic Tee", icon: "🎨" },
+                                  { id: "shirtCrewNeck", label: "Crew Neck" },
+                                  { id: "shirtVNeck", label: "V-Neck" },
+                                  { id: "shirtOpen", label: "Open Shirt" },
+                                  { id: "dress", label: "Dress" },
+                                  { id: "hoodie", label: "Hoodie" },
+                                  { id: "collarAndSweater", label: "Sweater" },
+                                  { id: "blazerAndShirt", label: "Blazer" },
+                                  { id: "overall", label: "Overalls" },
+                                  { id: "graphicShirt", label: "Graphic Tee" },
                                 ].map((c) => (
                                   <button
                                     key={c.id}
                                     type="button"
                                     onClick={() => setClothingStyle(c.id)}
-                                    className={`relative rounded-xl border-2 flex flex-col items-center gap-1.5 p-3 transition-all bg-card hover:bg-accent ${clothingStyle === c.id ? "border-primary shadow-sm ring-1 ring-primary/20" : "border-border"}`}
+                                    className={`relative rounded-xl border-2 flex flex-col items-center gap-1 p-1 transition-all overflow-hidden bg-card hover:bg-accent ${clothingStyle === c.id ? "border-primary shadow-sm ring-1 ring-primary/20" : "border-border"}`}
                                     title={c.label}
                                   >
-                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${clothingStyle === c.id ? "bg-primary/10" : "bg-muted/50"}`}>
-                                      {c.icon}
+                                    <div className="w-full aspect-square bg-muted/50 rounded-lg overflow-hidden flex items-center justify-center">
+                                      <img
+                                        src={buildCartoonUrl({
+                                          clothingStyle: c.id,
+                                          ...(selectedStyle === "avataaars"
+                                            ? { hairStyle: "noHair" }
+                                            : {}),
+                                        })}
+                                        className="w-full h-full object-cover scale-[2.2] translate-y-3"
+                                        alt={c.label}
+                                        loading="lazy"
+                                        decoding="async"
+                                      />
                                     </div>
-                                    <span className={`text-[10px] font-medium w-full text-center leading-tight ${clothingStyle === c.id ? "text-primary" : "text-muted-foreground"}`}>
+                                    <span
+                                      className={`text-[9px] font-medium truncate w-full text-center leading-tight ${clothingStyle === c.id ? "text-primary" : "text-muted-foreground"}`}
+                                    >
                                       {c.label}
                                     </span>
                                     {clothingStyle === c.id && (
-                                      <div className="absolute top-1.5 right-1.5 bg-primary text-primary-foreground rounded-full p-0.5">
-                                        <Check className="h-2.5 w-2.5" />
+                                      <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
+                                        <Check className="h-2 w-2" />
                                       </div>
                                     )}
                                   </button>

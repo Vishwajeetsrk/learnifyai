@@ -1,15 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 export type CursorVariant =
-  | "default"
-  | "text"
-  | "button"
-  | "hidden"
-  | "magnetic"
-  | "grab"
-  | "grabbing"
-  | "loading"
-  | "none"; // none means completely disabled (e.g. over monaco editor)
+  "default" | "text" | "button" | "hidden" | "magnetic" | "grab" | "grabbing" | "loading" | "none"; // none means completely disabled (e.g. over monaco editor)
 
 interface CursorContextType {
   variant: CursorVariant;

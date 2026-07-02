@@ -1,7 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { BarChart3, Loader2, Upload, Sparkles, Check, X, AlertTriangle, ChevronRight, FileText } from "lucide-react";
+import {
+  BarChart3,
+  Loader2,
+  Upload,
+  Sparkles,
+  Check,
+  X,
+  AlertTriangle,
+  ChevronRight,
+  FileText,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/ats-checker")({
   component: AtsCheckerPage,
 });
 
-function AtsCheckerPage() {
+export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
   const checkFn = useServerFn(checkAtsScore);
   const extractFn = useServerFn(extractResumeFields);
   const [tab, setTab] = useState("input");
@@ -55,7 +65,11 @@ function AtsCheckerPage() {
     setLoading(true);
     try {
       const res = await checkFn({
-        data: { resumeText: resumeText.trim(), targetRole: targetRole.trim(), industry: industry.trim() || undefined },
+        data: {
+          resumeText: resumeText.trim(),
+          targetRole: targetRole.trim(),
+          industry: industry.trim() || undefined,
+        },
       });
       setResult(res);
       setTab("results");
@@ -69,12 +83,18 @@ function AtsCheckerPage() {
 
   const gradeColor = (g: string) => {
     switch (g) {
-      case "A": return "text-emerald-500";
-      case "B": return "text-blue-500";
-      case "C": return "text-amber-500";
-      case "D": return "text-orange-500";
-      case "F": return "text-red-500";
-      default: return "text-muted-foreground";
+      case "A":
+        return "text-emerald-500";
+      case "B":
+        return "text-blue-500";
+      case "C":
+        return "text-amber-500";
+      case "D":
+        return "text-orange-500";
+      case "F":
+        return "text-red-500";
+      default:
+        return "text-muted-foreground";
     }
   };
 
@@ -86,16 +106,18 @@ function AtsCheckerPage() {
       </div>
       <div className="w-full h-2.5 rounded-full bg-muted overflow-hidden">
         <div
-          className={cn("h-full rounded-full transition-all duration-700", color.replace("text-", "bg-").replace("500", "500/80"))}
+          className={cn(
+            "h-full rounded-full transition-all duration-700",
+            color.replace("text-", "bg-").replace("500", "500/80"),
+          )}
           style={{ width: `${score}%` }}
         />
       </div>
     </div>
   );
 
-  return (
-    <AppShell>
-      <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
+  const mainContent = (
+    <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
         <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
           <div>
             <div className="text-xs uppercase tracking-widest text-primary font-medium flex items-center gap-1.5">
@@ -105,7 +127,8 @@ function AtsCheckerPage() {
               ATS Checker
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Analyze your resume against ATS systems. Get scores, keyword analysis, and improvement suggestions.
+              Analyze your resume against ATS systems. Get scores, keyword analysis, and improvement
+              suggestions.
             </p>
           </div>
         </div>
@@ -132,7 +155,9 @@ function AtsCheckerPage() {
               <div className="flex items-center justify-between">
                 <Label>Paste Resume Text *</Label>
                 {resumeText && (
-                  <span className="text-[11px] text-muted-foreground">{resumeText.length.toLocaleString()} chars</span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {resumeText.length.toLocaleString()} chars
+                  </span>
                 )}
               </div>
               <Textarea
@@ -188,10 +213,18 @@ Senior Engineer at Tech Corp (2020-Present)
               <div className="space-y-6 max-w-3xl">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   {[
-                    { label: "Overall Score", score: result.overall_score, color: "text-emerald-500" },
+                    {
+                      label: "Overall Score",
+                      score: result.overall_score,
+                      color: "text-emerald-500",
+                    },
                     { label: "Format", score: result.format_score, color: "text-blue-500" },
                     { label: "Keywords", score: result.keywords_score, color: "text-amber-500" },
-                    { label: "Readability", score: result.readability_score, color: "text-violet-500" },
+                    {
+                      label: "Readability",
+                      score: result.readability_score,
+                      color: "text-violet-500",
+                    },
                     { label: "Impact", score: result.impact_score, color: "text-rose-500" },
                   ].map((s) => (
                     <div key={s.label} className="rounded-xl border bg-card p-4">
@@ -201,7 +234,9 @@ Senior Engineer at Tech Corp (2020-Present)
                   ))}
                   <div className="rounded-xl border bg-card p-4">
                     <div className="text-xs text-muted-foreground mb-1">Grade</div>
-                    <div className={cn("text-2xl font-bold", gradeColor(result.grade))}>{result.grade}</div>
+                    <div className={cn("text-2xl font-bold", gradeColor(result.grade))}>
+                      {result.grade}
+                    </div>
                   </div>
                 </div>
 
@@ -215,15 +250,30 @@ Senior Engineer at Tech Corp (2020-Present)
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1.5">
-                      <div className={cn("w-1.5 h-1.5 rounded-full", result.section_order_ok ? "bg-emerald-500" : "bg-red-500")} />
+                      <div
+                        className={cn(
+                          "w-1.5 h-1.5 rounded-full",
+                          result.section_order_ok ? "bg-emerald-500" : "bg-red-500",
+                        )}
+                      />
                       Section Order {result.section_order_ok ? "OK" : "Fix"}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <div className={cn("w-1.5 h-1.5 rounded-full", result.length_ok ? "bg-emerald-500" : "bg-red-500")} />
+                      <div
+                        className={cn(
+                          "w-1.5 h-1.5 rounded-full",
+                          result.length_ok ? "bg-emerald-500" : "bg-red-500",
+                        )}
+                      />
                       Length {result.length_ok ? "OK" : "Too Long/Short"}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <div className={cn("w-1.5 h-1.5 rounded-full", result.contact_info_present ? "bg-emerald-500" : "bg-red-500")} />
+                      <div
+                        className={cn(
+                          "w-1.5 h-1.5 rounded-full",
+                          result.contact_info_present ? "bg-emerald-500" : "bg-red-500",
+                        )}
+                      />
                       Contact Info {result.contact_info_present ? "OK" : "Missing"}
                     </div>
                   </div>
@@ -236,13 +286,18 @@ Senior Engineer at Tech Corp (2020-Present)
                     </h3>
                     <ul className="space-y-1.5">
                       {(result.strengths ?? []).map((s: string, i: number) => (
-                        <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <li
+                          key={i}
+                          className="text-sm text-muted-foreground flex items-start gap-2"
+                        >
                           <Check className="h-3.5 w-3.5 text-emerald-500 mt-0.5 shrink-0" />
                           {s}
                         </li>
                       ))}
                       {(result.strengths ?? []).length === 0 && (
-                        <li className="text-sm text-muted-foreground italic">No strengths detected</li>
+                        <li className="text-sm text-muted-foreground italic">
+                          No strengths detected
+                        </li>
                       )}
                     </ul>
                   </div>
@@ -253,13 +308,18 @@ Senior Engineer at Tech Corp (2020-Present)
                     </h3>
                     <ul className="space-y-1.5">
                       {(result.weaknesses ?? []).map((w: string, i: number) => (
-                        <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <li
+                          key={i}
+                          className="text-sm text-muted-foreground flex items-start gap-2"
+                        >
                           <X className="h-3.5 w-3.5 text-red-400 mt-0.5 shrink-0" />
                           {w}
                         </li>
                       ))}
                       {(result.weaknesses ?? []).length === 0 && (
-                        <li className="text-sm text-muted-foreground italic">No weaknesses detected</li>
+                        <li className="text-sm text-muted-foreground italic">
+                          No weaknesses detected
+                        </li>
                       )}
                     </ul>
                   </div>
@@ -274,12 +334,18 @@ Senior Engineer at Tech Corp (2020-Present)
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {(result.present_keywords ?? []).map((k: string, i: number) => (
-                          <Badge key={i} variant="outline" className="text-[10px] bg-emerald-500/5 border-emerald-500/20">
+                          <Badge
+                            key={i}
+                            variant="outline"
+                            className="text-[10px] bg-emerald-500/5 border-emerald-500/20"
+                          >
                             {k}
                           </Badge>
                         ))}
                         {(result.present_keywords ?? []).length === 0 && (
-                          <span className="text-xs text-muted-foreground italic">None detected</span>
+                          <span className="text-xs text-muted-foreground italic">
+                            None detected
+                          </span>
                         )}
                       </div>
                     </div>
@@ -289,12 +355,18 @@ Senior Engineer at Tech Corp (2020-Present)
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {(result.missing_keywords ?? []).map((k: string, i: number) => (
-                          <Badge key={i} variant="outline" className="text-[10px] bg-red-500/5 border-red-500/20">
+                          <Badge
+                            key={i}
+                            variant="outline"
+                            className="text-[10px] bg-red-500/5 border-red-500/20"
+                          >
                             {k}
                           </Badge>
                         ))}
                         {(result.missing_keywords ?? []).length === 0 && (
-                          <span className="text-xs text-muted-foreground italic">All key terms present!</span>
+                          <span className="text-xs text-muted-foreground italic">
+                            All key terms present!
+                          </span>
                         )}
                       </div>
                     </div>
@@ -307,7 +379,10 @@ Senior Engineer at Tech Corp (2020-Present)
                   </h3>
                   <ul className="space-y-2">
                     {(result.improvement_suggestions ?? []).map((s: string, i: number) => (
-                      <li key={i} className="text-sm flex items-start gap-2 text-amber-800 dark:text-amber-200">
+                      <li
+                        key={i}
+                        className="text-sm flex items-start gap-2 text-amber-800 dark:text-amber-200"
+                      >
                         <ChevronRight className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                         {s}
                       </li>
@@ -323,6 +398,8 @@ Senior Engineer at Tech Corp (2020-Present)
           </TabsContent>
         </Tabs>
       </div>
-    </AppShell>
   );
+
+  if (embedded) return mainContent;
+  return <AppShell>{mainContent}</AppShell>;
 }

@@ -1462,7 +1462,12 @@ function LessonForm({
         </div>
         <div className="flex items-center justify-center py-2">
           <div className="w-16 h-16">
-            <img src="/illustrations/uploading.svg" alt="" className="w-full h-full" loading="lazy" />
+            <img
+              src="/illustrations/uploading.svg"
+              alt=""
+              className="w-full h-full"
+              loading="lazy"
+            />
           </div>
         </div>
         {videoError && !uploadingVideo ? (

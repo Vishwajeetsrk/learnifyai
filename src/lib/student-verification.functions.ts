@@ -9,7 +9,18 @@ function generateOtp(): string {
 export const sendStudentVerificationOtp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) =>
-    z.object({ email: z.string().email().regex(/\.edu$/i, "Must be a .edu email") }).parse(d),
+    z
+      .object({
+        email: z
+          .string()
+          .email()
+          .refine(
+            (val) =>
+              /(\.edu|\.ac\.in|\.edu\.in|\.ac\.uk|\.edu\.au|university|college)/i.test(val),
+            { message: "Must be a valid student email address (.edu, .ac.in, .edu.in)" }
+          ),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -65,9 +76,7 @@ export const sendStudentVerificationOtp = createServerFn({ method: "POST" })
 
 export const verifyStudentOtp = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: unknown) =>
-    z.object({ otp: z.string().length(6) }).parse(d),
-  )
+  .validator((d: unknown) => z.object({ otp: z.string().length(6) }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 

@@ -15,17 +15,7 @@ export type CertElement = {
   color?: string;
   align?: "left" | "center" | "right" | "justify";
   fontWeight?:
-    | "normal"
-    | "bold"
-    | "100"
-    | "200"
-    | "300"
-    | "400"
-    | "500"
-    | "600"
-    | "700"
-    | "800"
-    | "900";
+    "normal" | "bold" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900";
   fontStyle?: "normal" | "italic";
   textDecoration?: "none" | "underline" | "line-through";
   letterSpacing?: number;

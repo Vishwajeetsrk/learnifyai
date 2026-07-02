@@ -679,7 +679,9 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
     const days = range.days;
 
     // Fetch all KPIs from real DB tables with date filters
-    const baseSubQuery = supabaseAdmin.from("user_subscriptions").select("*", { count: "exact", head: true });
+    const baseSubQuery = supabaseAdmin
+      .from("user_subscriptions")
+      .select("*", { count: "exact", head: true });
     const dateFilteredSubQuery = fromIso
       ? baseSubQuery.gte("created_at", fromIso).lte("created_at", toIso)
       : baseSubQuery;
@@ -704,12 +706,8 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
         .from("user_subscriptions")
         .select("*", { count: "exact", head: true })
         .eq("status", "active"),
-      supabaseAdmin
-        .from("profiles")
-        .select("*", { count: "exact", head: true }),
-      supabaseAdmin
-        .from("pricing_plans")
-        .select("id, name, price_inr, interval, cashfree_plan_id"),
+      supabaseAdmin.from("profiles").select("*", { count: "exact", head: true }),
+      supabaseAdmin.from("pricing_plans").select("id, name, price_inr, interval, cashfree_plan_id"),
       supabaseAdmin
         .from("user_subscriptions")
         .select("*, plan:pricing_plans(name, price_inr), profiles:user_id(full_name, email)")
@@ -740,14 +738,18 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
         .eq("status", "trial"),
     ]);
 
-    const totalMrr = (mrrResult || []).reduce((sum: number, s: any) => sum + Number(s.pricing_plans?.price_inr || 0), 0);
+    const totalMrr = (mrrResult || []).reduce(
+      (sum: number, s: any) => sum + Number(s.pricing_plans?.price_inr || 0),
+      0,
+    );
     const totalArr = totalMrr * 12;
     const activeSubCount = activeSubs || 0;
     const cancelledCount = cancelledSubs?.length || 0;
     const expiredCount = expiredSubs?.length || 0;
     const trialCount = trialSubs?.length || 0;
     const totalUserCount = totalUsers || 1;
-    const conversionRate = totalUserCount > 0 ? Math.round((activeSubCount / totalUserCount) * 100) : 0;
+    const conversionRate =
+      totalUserCount > 0 ? Math.round((activeSubCount / totalUserCount) * 100) : 0;
     const churnRate = activeSubCount > 0 ? Math.round((cancelledCount / activeSubCount) * 100) : 0;
     const arpu = activeSubCount > 0 ? Math.round(totalMrr / activeSubCount) : 0;
 
@@ -861,16 +863,19 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
 
 export const adminUpdateSubscription = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: {
-    subscriptionId: string;
-    action: "activate" | "cancel" | "pause" | "extend";
-    extendDays?: number;
-  }) =>
-    z.object({
-      subscriptionId: z.string().uuid(),
-      action: z.enum(["activate", "cancel", "pause", "extend"]),
-      extendDays: z.number().min(1).max(365).optional(),
-    }).parse(d),
+  .validator(
+    (d: {
+      subscriptionId: string;
+      action: "activate" | "cancel" | "pause" | "extend";
+      extendDays?: number;
+    }) =>
+      z
+        .object({
+          subscriptionId: z.string().uuid(),
+          action: z.enum(["activate", "cancel", "pause", "extend"]),
+          extendDays: z.number().min(1).max(365).optional(),
+        })
+        .parse(d),
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -927,4 +932,3 @@ export const adminUpdateSubscription = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
-

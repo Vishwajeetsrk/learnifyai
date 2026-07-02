@@ -49,7 +49,11 @@ const DEFAULT_BRANDING: BrandingData = {
 
 function hexToRgb(hex: string): [number, number, number] {
   const c = hex.replace("#", "");
-  return [parseInt(c.substring(0, 2), 16), parseInt(c.substring(2, 4), 16), parseInt(c.substring(4, 6), 16)];
+  return [
+    parseInt(c.substring(0, 2), 16),
+    parseInt(c.substring(2, 4), 16),
+    parseInt(c.substring(4, 6), 16),
+  ];
 }
 
 export async function downloadInvoicePdf(
@@ -87,14 +91,14 @@ export async function downloadInvoicePdf(
   // --- Company name (white, on colored bar) ---
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(20);
-  doc.text(branding.company_name, logoHeight > 0 ? 56 : 14, logoHeight > 0 ? 22 : 18);
+  doc.text(String(branding.company_name || "Learnify AI"), logoHeight > 0 ? 56 : 14, logoHeight > 0 ? 22 : 18);
 
   // --- Legal name + GSTIN (lighter on bar) ---
   doc.setFontSize(8);
   doc.setTextColor(220, 220, 255);
   const textX = logoHeight > 0 ? 56 : 14;
-  doc.text(branding.legal_name, textX, logoHeight > 0 ? 30 : 26);
-  doc.text(`GSTIN: ${branding.gstin}`, textX, logoHeight > 0 ? 37 : 32);
+  doc.text(String(branding.legal_name || ""), textX, logoHeight > 0 ? 30 : 26);
+  doc.text(`GSTIN: ${branding.gstin || ""}`, textX, logoHeight > 0 ? 37 : 32);
 
   // --- INVOICE title (right side on bar) ---
   doc.setFontSize(16);
@@ -107,13 +111,22 @@ export async function downloadInvoicePdf(
   doc.setFontSize(9);
   doc.setTextColor(80);
   const rightStartY = Math.max(logoHeight > 0 ? 56 : 48, 48);
-  doc.text(`Invoice #: ${inv.invoice_number}`, 196, rightStartY, { align: "right" });
-  doc.text(`Date: ${inv.created_at ? format(new Date(inv.created_at), "dd MMM yyyy") : "N/A"}`, 196, rightStartY + 5, { align: "right" });
+  doc.text(`Invoice #: ${inv.invoice_number || ""}`, 196, rightStartY, { align: "right" });
+  doc.text(
+    `Date: ${inv.created_at ? format(new Date(inv.created_at), "dd MMM yyyy") : "N/A"}`,
+    196,
+    rightStartY + 5,
+    { align: "right" },
+  );
   if (inv.due_date) {
-    doc.text(`Due Date: ${format(new Date(inv.due_date), "dd MMM yyyy")}`, 196, rightStartY + 10, { align: "right" });
+    doc.text(`Due Date: ${format(new Date(inv.due_date), "dd MMM yyyy")}`, 196, rightStartY + 10, {
+      align: "right",
+    });
   }
   if (inv.paid_at) {
-    doc.text(`Paid On: ${format(new Date(inv.paid_at), "dd MMM yyyy")}`, 196, rightStartY + 15, { align: "right" });
+    doc.text(`Paid On: ${format(new Date(inv.paid_at), "dd MMM yyyy")}`, 196, rightStartY + 15, {
+      align: "right",
+    });
   }
 
   // --- Status badge ---
@@ -130,7 +143,7 @@ export async function downloadInvoicePdf(
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
-  doc.text(inv.status.toUpperCase(), 173, badgeY, { align: "center" });
+  doc.text(String((inv.status || "").toUpperCase()), 173, badgeY, { align: "center" });
 
   // --- Contact line ---
   let contactY = Math.max(rightStartY + 28, logoHeight > 0 ? 65 : 58);
@@ -138,7 +151,7 @@ export async function downloadInvoicePdf(
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.setTextColor(120);
-    doc.text(branding.contact, textX, contactY);
+    doc.text(String(branding.contact), textX, contactY);
     contactY += 5;
   }
 
@@ -158,7 +171,7 @@ export async function downloadInvoicePdf(
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.setTextColor(60);
-  doc.text(userEmail || "Customer", 14, billToY + 7);
+  doc.text(String(userEmail || "Customer"), 14, billToY + 7);
   let billToDetails = billToY + 7;
   if (inv.gstin) {
     billToDetails += 6;
@@ -181,7 +194,9 @@ export async function downloadInvoicePdf(
     });
   } else {
     const p = Number(inv.amount_inr || inv.total_inr || 0);
-    tableBody = [["Subscription Plan / Renewal", `₹${p.toFixed(2)}`, 1, `₹${(inv.total_inr || p).toFixed(2)}`]];
+    tableBody = [
+      ["Subscription Plan / Renewal", `₹${p.toFixed(2)}`, 1, `₹${(inv.total_inr || p).toFixed(2)}`],
+    ];
   }
 
   const subtotal = Number(inv.amount_inr || inv.subtotal_inr || inv.total_inr || 0);
@@ -207,7 +222,14 @@ export async function downloadInvoicePdf(
       fontSize: 9,
     },
     head: [["#", "Description", "HSN/SAC", "Qty", "Rate (₹)", "Amount (₹)"]],
-    body: tableBody.map((row, i) => [(i + 1).toString(), row[0], "", row[2].toString(), row[1], row[3]]),
+    body: tableBody.map((row, i) => [
+      (i + 1).toString(),
+      row[0],
+      "",
+      row[2].toString(),
+      row[1],
+      row[3],
+    ]),
     foot: [
       ...(tax > 0 ? [["", "Subtotal", "", "", "", `₹${subtotal.toFixed(2)}`]] : []),
       ...(tax > 0 ? [["", "CGST @ 9%", "", "", "", `₹${cgst.toFixed(2)}`]] : []),
@@ -225,13 +247,14 @@ export async function downloadInvoicePdf(
   });
 
   // --- Footer ---
-  const finalY = (doc as any).lastAutoTable?.finalY ?? 200;
+  const lastTable = (doc as any).lastAutoTable;
+  const finalY = Number(lastTable && typeof lastTable.finalY === "number" ? lastTable.finalY : 200) || 200;
   let footerY = finalY + 15;
 
   doc.setFontSize(8);
   doc.setTextColor(130);
   doc.setFont("helvetica", "italic");
-  doc.text(branding.footer, 14, footerY);
+  doc.text(String(branding.footer || ""), 14, footerY);
 
   if (inv.notes) {
     footerY += 6;
@@ -259,8 +282,8 @@ export async function downloadInvoicePdf(
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   doc.setTextColor(80);
-  doc.text(`Invoice #: ${inv.invoice_number}`, 20, footerY + 15);
-  doc.text(`Status: ${inv.status.toUpperCase()}`, 20, footerY + 21);
+  doc.text(`Invoice #: ${inv.invoice_number || ""}`, 20, footerY + 15);
+  doc.text(`Status: ${String(inv.status || "").toUpperCase()}`, 20, footerY + 21);
   if (inv.cashfree_order_id) {
     doc.text(`Order ID: ${inv.cashfree_order_id}`, 110, footerY + 15);
   }
@@ -270,7 +293,11 @@ export async function downloadInvoicePdf(
   doc.setFontSize(7);
   doc.setTextColor(150);
   doc.setFont("helvetica", "italic");
-  doc.text(`Digitally verified at: ${typeof window !== "undefined" ? window.location.origin : ""}/verify-invoice/${inv.invoice_number}`, 14, footerY);
+  doc.text(
+    `Digitally verified at: ${typeof window !== "undefined" ? window.location.origin : ""}/verify-invoice/${inv.invoice_number || ""}`,
+    14,
+    footerY,
+  );
 
   // --- Bottom bar ---
   doc.setFillColor(primary[0], primary[1], primary[2]);
@@ -278,17 +305,23 @@ export async function downloadInvoicePdf(
   doc.setFontSize(7);
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "normal");
-  doc.text(`© ${new Date().getFullYear()} ${branding.company_name}. ${branding.legal_name}`, 105, 295, { align: "center" });
+  doc.text(
+    `© ${new Date().getFullYear()} ${branding.company_name || "Learnify AI"}. ${branding.legal_name || ""}`,
+    105,
+    295,
+    { align: "center" },
+  );
 
   // --- Watermark for paid invoices ---
   if (inv.status === "paid") {
     doc.setFontSize(48);
-    doc.setTextColor(34, 197, 94, 0.08);
+    doc.setTextColor(34, 197, 94); // removing alpha since 4th param in setTextColor might not be fully supported/causes crash depending on version
     doc.setFont("helvetica", "bold");
+    // jsPDF setTextColor accepts (r, g, b) or gray value. Some versions don't accept 4th param alpha. Let's set it via opacity/color
     doc.text("PAID", 105, 160, { align: "center", angle: 45 });
   }
 
-  doc.save(`${branding.company_name.replace(/\s+/g, "_")}_${inv.invoice_number}.pdf`);
+  doc.save(`${(branding.company_name || "Learnify_AI").replace(/\s+/g, "_")}_${inv.invoice_number || "invoice"}.pdf`);
 }
 
 export function formatCurrency(amount: number): string {

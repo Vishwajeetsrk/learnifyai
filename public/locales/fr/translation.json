@@ -219,12 +219,30 @@
       "badge": "Tout dans un seul OS",
       "title": "Un écosystème, pas un catalogue de cours.",
       "subtitle": "Six piliers qui collaborent pour que les apprenants, créateurs et institutions gagnent tous.",
-      "aiTutor": { "title": "AI Tutor", "desc": "Tutorat personnalisé 1-à-1 qui s'adapte à votre style d'apprentissage." },
-      "smartNotes": { "title": "Notes et Présentations Intelligentes", "desc": "Générez des flashcards, résumés et decks depuis n'importe quelle leçon." },
-      "gamified": { "title": "Progrès Ludifié", "desc": "Séries, XP, badges et classements qui rendent l'apprentissage addictif." },
-      "creatorEconomy": { "title": "Économie des Créateurs", "desc": "Coachs et créateurs lancent des cours, cohortes et communautés." },
-      "wallet": { "title": "Portefeuille Intégré", "desc": "Gains, paiements et pourboires gérés nativement." },
-      "career": { "title": "Intelligence de Carrière", "desc": "Parcours guidés par AI, révisions de CV et graphes de compétences." }
+      "aiTutor": {
+        "title": "AI Tutor",
+        "desc": "Tutorat personnalisé 1-à-1 qui s'adapte à votre style d'apprentissage."
+      },
+      "smartNotes": {
+        "title": "Notes et Présentations Intelligentes",
+        "desc": "Générez des flashcards, résumés et decks depuis n'importe quelle leçon."
+      },
+      "gamified": {
+        "title": "Progrès Ludifié",
+        "desc": "Séries, XP, badges et classements qui rendent l'apprentissage addictif."
+      },
+      "creatorEconomy": {
+        "title": "Économie des Créateurs",
+        "desc": "Coachs et créateurs lancent des cours, cohortes et communautés."
+      },
+      "wallet": {
+        "title": "Portefeuille Intégré",
+        "desc": "Gains, paiements et pourboires gérés nativement."
+      },
+      "career": {
+        "title": "Intelligence de Carrière",
+        "desc": "Parcours guidés par AI, révisions de CV et graphes de compétences."
+      }
     },
     "community": {
       "badge": "Apprenez ensemble",

@@ -3,16 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Trophy,
-  Flame,
-  Star,
-  Medal,
-  Crown,
-  TrendingUp,
-  Loader2,
-  Users,
-} from "lucide-react";
+import { Trophy, Flame, Star, Medal, Crown, TrendingUp, Loader2, Users } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -75,15 +66,16 @@ export default function LeaderboardPage() {
   };
 
   return (
-    <AppShell>
-      <div className="px-4 md:px-10 py-8 max-w-4xl mx-auto">
+    <div className="px-4 md:px-10 py-8 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 grid place-items-center shadow-lg">
             <Trophy className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-display font-bold tracking-tight">{t("leaderboard.title")}</h1>
+            <h1 className="text-3xl font-display font-bold tracking-tight">
+              {t("leaderboard.title")}
+            </h1>
             <p className="text-muted-foreground text-sm flex items-center gap-1.5 mt-0.5">
               <TrendingUp className="h-3.5 w-3.5" /> {t("leaderboard.subtitle")}
             </p>
@@ -228,9 +220,7 @@ export default function LeaderboardPage() {
             <div className="p-12 text-center">
               <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
               <p className="text-sm text-muted-foreground mb-3">
-                {period === "weekly"
-                  ? t("leaderboard.noActivity")
-                  : t("leaderboard.noUsers")}
+                {period === "weekly" ? t("leaderboard.noActivity") : t("leaderboard.noUsers")}
               </p>
               {period === "weekly" && (
                 <Button variant="outline" size="sm" className="text-xs" asChild>
@@ -307,11 +297,8 @@ export default function LeaderboardPage() {
 
         {/* Info */}
         <div className="mt-6 text-center text-[11px] text-muted-foreground">
-          <p>
-            {t("leaderboard.earnXP")}
-          </p>
+          <p>{t("leaderboard.earnXP")}</p>
         </div>
-      </div>
-    </AppShell>
+    </div>
   );
 }

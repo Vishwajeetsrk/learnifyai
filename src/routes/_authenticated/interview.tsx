@@ -74,7 +74,7 @@ interface Evaluation {
   pointsMissed: string[];
 }
 
-function InterviewPage() {
+export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const generateQuestion = useServerFn(generateInterviewQuestion);
   const evaluateAnswer = useServerFn(evaluateInterviewAnswer);
 
@@ -125,9 +125,19 @@ function InterviewPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (step === "interview") {
-      localStorage.setItem("learnify-interview-session", JSON.stringify({
-        step, role, difficulty, mode, questionIndex, previousQuestions, scores, currentQuestion,
-      }));
+      localStorage.setItem(
+        "learnify-interview-session",
+        JSON.stringify({
+          step,
+          role,
+          difficulty,
+          mode,
+          questionIndex,
+          previousQuestions,
+          scores,
+          currentQuestion,
+        }),
+      );
     } else {
       localStorage.removeItem("learnify-interview-session");
     }
@@ -152,7 +162,8 @@ function InterviewPage() {
   );
 
   const startVoiceRecognition = useCallback(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       return;
     }
@@ -275,11 +286,11 @@ function InterviewPage() {
     setPreviousQuestions([]);
   };
 
-  const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+  const avgScore =
+    scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
 
-  return (
-    <AppShell>
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+  const mainContent = (
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 grid place-items-center shadow-lg">
@@ -287,7 +298,9 @@ function InterviewPage() {
           </div>
           <div>
             <h1 className="text-3xl font-display font-bold tracking-tight">Interview Prep</h1>
-            <p className="text-muted-foreground text-sm">Practice mock interviews with AI feedback</p>
+            <p className="text-muted-foreground text-sm">
+              Practice mock interviews with AI feedback
+            </p>
           </div>
         </div>
 
@@ -337,7 +350,12 @@ function InterviewPage() {
                           : "border-border hover:border-primary/40 hover:bg-muted/30",
                       )}
                     >
-                      <Icon className={cn("h-6 w-6 mx-auto mb-2", mode === m.id ? "text-primary" : "text-muted-foreground")} />
+                      <Icon
+                        className={cn(
+                          "h-6 w-6 mx-auto mb-2",
+                          mode === m.id ? "text-primary" : "text-muted-foreground",
+                        )}
+                      />
                       <span className="text-sm font-medium block">{m.label}</span>
                       <span className="text-xs text-muted-foreground">{m.desc}</span>
                     </button>
@@ -363,18 +381,15 @@ function InterviewPage() {
                         : "border-border hover:border-primary/40",
                     )}
                   >
-                    <span className={cn("px-2 py-0.5 rounded-full text-xs", d.color)}>{d.label}</span>
+                    <span className={cn("px-2 py-0.5 rounded-full text-xs", d.color)}>
+                      {d.label}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <Button
-              size="lg"
-              onClick={handleStart}
-              disabled={!role}
-              className="w-full sm:w-auto"
-            >
+            <Button size="lg" onClick={handleStart} disabled={!role} className="w-full sm:w-auto">
               Start Interview <ChevronRight className="h-4 w-4 ml-1.5" />
             </Button>
           </div>
@@ -425,12 +440,18 @@ function InterviewPage() {
                           onClick={() => setIsMuted(!isMuted)}
                           className="text-xs"
                         >
-                          {isMuted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+                          {isMuted ? (
+                            <VolumeX className="h-3.5 w-3.5" />
+                          ) : (
+                            <Volume2 className="h-3.5 w-3.5" />
+                          )}
                         </Button>
                       )}
                     </div>
                   </div>
-                  <h3 className="text-lg font-semibold leading-relaxed">{currentQuestion.question}</h3>
+                  <h3 className="text-lg font-semibold leading-relaxed">
+                    {currentQuestion.question}
+                  </h3>
 
                   {showTips && currentQuestion.tips.length > 0 && (
                     <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/10">
@@ -465,13 +486,21 @@ function InterviewPage() {
                             onClick={isRecording ? stopVoiceRecognition : startVoiceRecognition}
                             className="rounded-full h-14 w-14"
                           >
-                            {isRecording ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+                            {isRecording ? (
+                              <MicOff className="h-6 w-6" />
+                            ) : (
+                              <Mic className="h-6 w-6" />
+                            )}
                           </Button>
                           <div>
                             <p className="text-sm font-medium">
-                              {isRecording ? "Recording... Click to stop" : "Click to start recording"}
+                              {isRecording
+                                ? "Recording... Click to stop"
+                                : "Click to start recording"}
                             </p>
-                            <p className="text-xs text-muted-foreground">Speak your answer clearly</p>
+                            <p className="text-xs text-muted-foreground">
+                              Speak your answer clearly
+                            </p>
                           </div>
                         </div>
                         {userAnswer && (
@@ -501,10 +530,16 @@ function InterviewPage() {
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold">Evaluation</h3>
                       <div className="flex items-center gap-2">
-                        <span className={cn(
-                          "text-2xl font-bold",
-                          evaluation.score >= 70 ? "text-emerald-500" : evaluation.score >= 50 ? "text-yellow-500" : "text-red-500",
-                        )}>
+                        <span
+                          className={cn(
+                            "text-2xl font-bold",
+                            evaluation.score >= 70
+                              ? "text-emerald-500"
+                              : evaluation.score >= 50
+                                ? "text-yellow-500"
+                                : "text-red-500",
+                          )}
+                        >
                           {evaluation.score}
                         </span>
                         <span className="text-sm text-muted-foreground">/ 100</span>
@@ -521,7 +556,9 @@ function InterviewPage() {
                           </p>
                           <ul className="text-sm space-y-1">
                             {evaluation.strengths.map((s, i) => (
-                              <li key={i} className="text-muted-foreground">• {s}</li>
+                              <li key={i} className="text-muted-foreground">
+                                • {s}
+                              </li>
                             ))}
                           </ul>
                         </div>
@@ -533,7 +570,9 @@ function InterviewPage() {
                           </p>
                           <ul className="text-sm space-y-1">
                             {evaluation.improvements.map((s, i) => (
-                              <li key={i} className="text-muted-foreground">• {s}</li>
+                              <li key={i} className="text-muted-foreground">
+                                • {s}
+                              </li>
                             ))}
                           </ul>
                         </div>
@@ -548,7 +587,8 @@ function InterviewPage() {
                     )}
 
                     <Button onClick={handleNextQuestion} className="w-full">
-                      {questionIndex + 1 >= totalQuestions ? "See Results" : "Next Question"} <ChevronRight className="h-4 w-4 ml-1.5" />
+                      {questionIndex + 1 >= totalQuestions ? "See Results" : "Next Question"}{" "}
+                      <ChevronRight className="h-4 w-4 ml-1.5" />
                     </Button>
                   </div>
                 )}
@@ -575,10 +615,16 @@ function InterviewPage() {
                   <p className="text-xs text-muted-foreground mt-1">Questions</p>
                 </div>
                 <div className="p-4 rounded-xl bg-muted/50">
-                  <p className={cn(
-                    "text-3xl font-bold",
-                    avgScore >= 70 ? "text-emerald-500" : avgScore >= 50 ? "text-yellow-500" : "text-red-500",
-                  )}>
+                  <p
+                    className={cn(
+                      "text-3xl font-bold",
+                      avgScore >= 70
+                        ? "text-emerald-500"
+                        : avgScore >= 50
+                          ? "text-yellow-500"
+                          : "text-red-500",
+                    )}
+                  >
                     {avgScore >= 70 ? "A" : avgScore >= 50 ? "B" : avgScore >= 30 ? "C" : "D"}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">Grade</p>
@@ -603,7 +649,11 @@ function InterviewPage() {
                       <div
                         className={cn(
                           "h-full rounded-full transition-all",
-                          score >= 70 ? "bg-emerald-500" : score >= 50 ? "bg-yellow-500" : "bg-red-500",
+                          score >= 70
+                            ? "bg-emerald-500"
+                            : score >= 50
+                              ? "bg-yellow-500"
+                              : "bg-red-500",
                         )}
                         style={{ width: `${score}%` }}
                       />
@@ -616,6 +666,8 @@ function InterviewPage() {
           </div>
         )}
       </div>
-    </AppShell>
   );
+
+  if (embedded) return mainContent;
+  return <AppShell>{mainContent}</AppShell>;
 }

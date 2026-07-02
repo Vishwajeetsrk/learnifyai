@@ -50,12 +50,14 @@ const FALLBACK_CONTENT = {
     {
       icon: "📝",
       title: "Pass Quiz & Assessments",
-      description: "Complete quizzes, assignments, and practical exercises with the required score.",
+      description:
+        "Complete quizzes, assignments, and practical exercises with the required score.",
     },
     {
       icon: "✅",
       title: "Course Completed",
-      description: "Once all requirements are met, your course will be marked as completed automatically.",
+      description:
+        "Once all requirements are met, your course will be marked as completed automatically.",
     },
     {
       icon: "🏆",
@@ -112,7 +114,8 @@ const FALLBACK_CONTENT = {
   ],
   cta: {
     headline: "Ready To Earn Your Next Certificate?",
-    description: "Complete your course and unlock a verified certificate that showcases your skills.",
+    description:
+      "Complete your course and unlock a verified certificate that showcases your skills.",
     primary_label: "Start Learning",
     primary_url: "/signup",
     secondary_label: "View Sample Certificate",
@@ -167,7 +170,15 @@ function FeatureIcon({ feature }: { feature: string }) {
 
 function CalendarIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
       <line x1="16" y1="2" x2="16" y2="6" />
       <line x1="8" y1="2" x2="8" y2="6" />
@@ -178,7 +189,15 @@ function CalendarIcon({ className }: { className?: string }) {
 
 function PenIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
     </svg>
   );
@@ -186,7 +205,15 @@ function PenIcon({ className }: { className?: string }) {
 
 function DatabaseIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <ellipse cx="12" cy="5" rx="9" ry="3" />
       <path d="M3 12a9 3 0 0 0 18 0" />
       <path d="M3 5v14a9 3 0 0 0 18 0V5" />
@@ -217,8 +244,12 @@ export function CertificateJourney() {
             {content.badge}
           </Badge>
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight">{content.headline}</h2>
-          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">{content.subheadline}</p>
-          <p className="mt-3 text-sm text-muted-foreground/80 max-w-xl mx-auto">{content.description}</p>
+          <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+            {content.subheadline}
+          </p>
+          <p className="mt-3 text-sm text-muted-foreground/80 max-w-xl mx-auto">
+            {content.description}
+          </p>
         </motion.div>
 
         {/* Stats row */}
@@ -256,7 +287,9 @@ export function CertificateJourney() {
           transition={{ duration: 0.6 }}
         >
           <h3 className="text-2xl md:text-3xl font-bold tracking-tight">How It Works</h3>
-          <p className="mt-2 text-muted-foreground">Your path from enrollment to certification in 7 simple steps.</p>
+          <p className="mt-2 text-muted-foreground">
+            Your path from enrollment to certification in 7 simple steps.
+          </p>
         </motion.div>
 
         {/* Desktop: horizontal timeline */}
@@ -283,7 +316,9 @@ export function CertificateJourney() {
                   </div>
                 </motion.div>
                 <h4 className="text-sm font-bold mt-3">{step.title}</h4>
-                <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">{step.description}</p>
+                <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                  {step.description}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -314,7 +349,9 @@ export function CertificateJourney() {
                 </motion.div>
                 <div className="flex-1 pt-1">
                   <h4 className="text-sm font-bold">{step.title}</h4>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{step.description}</p>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    {step.description}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -331,8 +368,12 @@ export function CertificateJourney() {
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
         >
-          <h3 className="text-2xl md:text-3xl font-bold tracking-tight">Why Learnify Certificates Matter</h3>
-          <p className="mt-2 text-muted-foreground">Industry-recognized credentials that open doors.</p>
+          <h3 className="text-2xl md:text-3xl font-bold tracking-tight">
+            Why Learnify Certificates Matter
+          </h3>
+          <p className="mt-2 text-muted-foreground">
+            Industry-recognized credentials that open doors.
+          </p>
         </motion.div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {(content.benefits as any[]).map((benefit: any, i: number) => (
@@ -396,7 +437,9 @@ export function CertificateJourney() {
             <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center mx-auto">
               <Award className="w-7 h-7 text-amber-600" />
             </div>
-            <h4 className="font-semibold text-sm tracking-wide text-muted-foreground">Certificate of Completion</h4>
+            <h4 className="font-semibold text-sm tracking-wide text-muted-foreground">
+              Certificate of Completion
+            </h4>
             <h3 className="text-xl md:text-2xl font-bold">Machine Learning Fundamentals</h3>
             <div className="h-px bg-border w-3/4 mx-auto" />
             <p className="text-sm text-muted-foreground">Issued to: Demo Learner</p>
@@ -441,13 +484,22 @@ export function CertificateJourney() {
           <h3 className="text-2xl md:text-3xl font-bold">{content.cta.headline}</h3>
           <p className="mt-3 text-white/80 text-sm max-w-md mx-auto">{content.cta.description}</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
-            <Button asChild size="lg" className="rounded-xl bg-white text-primary hover:bg-white/90 shadow-lg shadow-black/20 font-semibold px-8">
+            <Button
+              asChild
+              size="lg"
+              className="rounded-xl bg-white text-primary hover:bg-white/90 shadow-lg shadow-black/20 font-semibold px-8"
+            >
               <Link to={content.cta.primary_url as any}>
                 {content.cta.primary_label}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="rounded-xl border-white/30 text-white hover:bg-white/10 hover:text-white px-8">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="rounded-xl border-white/30 text-white hover:bg-white/10 hover:text-white px-8"
+            >
               <Link to={content.cta.secondary_url as any}>
                 <ExternalLink className="w-4 h-4 mr-2" />
                 {content.cta.secondary_label}

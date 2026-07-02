@@ -1,7 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Terminal, Code, Palette, Share2, Brain } from "lucide-react";
 
-export const SKILL_LOGOS: Record<string, { devicon?: string; simpleIcons?: string; lucide?: React.ElementType }> = {
+export const SKILL_LOGOS: Record<
+  string,
+  { devicon?: string; simpleIcons?: string; lucide?: React.ElementType }
+> = {
   HTML: { devicon: "html5/html5-original.svg" },
   CSS: { devicon: "css3/css3-original.svg" },
   JavaScript: { devicon: "javascript/javascript-original.svg" },

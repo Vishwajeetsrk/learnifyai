@@ -1,6 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { wcmsGetPublicFeatures, wcmsGetPublicMenu, wcmsGetPublicSection } from "@/lib/wcms-public.functions";
+import {
+  wcmsGetPublicFeatures,
+  wcmsGetPublicMenu,
+  wcmsGetPublicSection,
+} from "@/lib/wcms-public.functions";
 
 // ═══════════════════════════════════════════════════════════════
 // Public WCMS Hooks — No auth required. Use anywhere on the site.

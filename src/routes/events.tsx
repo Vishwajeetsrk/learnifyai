@@ -86,7 +86,8 @@ function EventsPage() {
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           />
           <img
-            src="/illustrations/Globe_World.svg" loading="lazy"
+            src="/illustrations/Globe_World.svg"
+            loading="lazy"
             alt="Events"
             className="w-full h-full relative z-10"
           />

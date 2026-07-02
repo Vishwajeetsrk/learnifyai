@@ -34,7 +34,9 @@ export function CompetitorComparison() {
         transition={{ duration: 0.6 }}
       >
         <h2 className="text-3xl md:text-4xl font-bold tracking-tight">How We Compare</h2>
-        <p className="mt-3 text-muted-foreground">See why Learnify AI is the complete career platform.</p>
+        <p className="mt-3 text-muted-foreground">
+          See why Learnify AI is the complete career platform.
+        </p>
       </motion.div>
 
       <div className="rounded-2xl border bg-card overflow-hidden">
@@ -44,10 +46,7 @@ export function CompetitorComparison() {
           {COMPETITORS.map((c, i) => (
             <div
               key={c.name}
-              className={cn(
-                "text-xs font-bold text-center",
-                c.highlight && "text-primary",
-              )}
+              className={cn("text-xs font-bold text-center", c.highlight && "text-primary")}
             >
               {c.short}
             </div>

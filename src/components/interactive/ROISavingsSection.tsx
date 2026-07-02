@@ -26,8 +26,12 @@ export function ROISavingsSection() {
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Why Pay For Multiple Tools?</h2>
-        <p className="mt-3 text-muted-foreground">One platform replaces six expensive subscriptions.</p>
+        <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+          Why Pay For Multiple Tools?
+        </h2>
+        <p className="mt-3 text-muted-foreground">
+          One platform replaces six expensive subscriptions.
+        </p>
       </motion.div>
 
       <div className="grid md:grid-cols-2 gap-8 items-start">
@@ -57,7 +61,9 @@ export function ROISavingsSection() {
           ))}
           <div className="flex items-center justify-between pt-3 border-t-2 border-destructive">
             <span className="text-sm font-bold text-destructive">Total</span>
-            <span className="text-lg font-extrabold text-destructive">₹{totalCost.toLocaleString("en-IN")}/mo</span>
+            <span className="text-lg font-extrabold text-destructive">
+              ₹{totalCost.toLocaleString("en-IN")}/mo
+            </span>
           </div>
         </motion.div>
 

@@ -30,7 +30,7 @@ const actionSchema = z.object({
 
 async function checkAdminRole(userId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: roles } = await (supabaseAdmin as any)
+  const { data: roles } = await supabaseAdmin
     .from("user_roles")
     .select("role")
     .eq("user_id", userId);
@@ -52,24 +52,28 @@ export const adminContentAction = createServerFn({ method: "POST" })
 
     if (data.action === "delete") {
       if (!data.id) throw new Error("id required for delete");
-      const { error } = await (supabaseAdmin as any)
-        .from(data.table)
+      const tableName: string = data.table;
+      const { error } = await (supabaseAdmin.from(tableName as any) as any)
         .delete()
         .eq(data.matchKey || "id", data.id);
-      if (error) throw error;
+      if (error) {
+        console.error("Delete failed:", error.message);
+        throw error;
+      }
       return { success: true };
     }
 
     if (data.action === "insert") {
-      const { error } = await (supabaseAdmin as any).from(data.table).insert(data.data);
+      const tableName: string = data.table;
+      const { error } = await supabaseAdmin.from(tableName as never).insert(data.data);
       if (error) throw error;
       return { success: true };
     }
 
     if (data.action === "update") {
       if (!data.id) throw new Error("id required for update");
-      const { error } = await (supabaseAdmin as any)
-        .from(data.table)
+      const tableName: string = data.table;
+      const { error } = await (supabaseAdmin.from(tableName as any) as any)
         .update(data.data)
         .eq(data.matchKey || "id", data.id);
       if (error) throw error;
@@ -104,7 +108,7 @@ export const adminContentQuery = createServerFn({ method: "GET" })
     await checkAdminRole(userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let query = (supabaseAdmin as any).from(data.table).select(data.columns || "*");
+    let query = supabaseAdmin.from(data.table).select(data.columns || "*");
     if (data.eqFilter) {
       query = query.eq(data.eqFilter.column, data.eqFilter.value);
     }
@@ -158,7 +162,7 @@ export const adminContentUpsert = createServerFn({ method: "POST" })
     const opts: any = {};
     if (data.onConflict) opts.onConflict = data.onConflict;
 
-    const { error } = await (supabaseAdmin as any).from(data.table).upsert(data.data, opts);
+    const { error } = await supabaseAdmin.from(data.table).upsert(data.data, opts);
     if (error) throw error;
     return { success: true };
   });
@@ -171,19 +175,15 @@ export const cleanupTestEvents = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: testEvents, error: fetchError } = await (supabaseAdmin as any)
-      .from("events")
+    const { data: testEvents, error: fetchError } = await (supabaseAdmin.from("events") as any)
       .select("id, title")
-      .like("title", "Test Event%");
+      .or("title.ilike.%Test Event%,title.ilike.%test%");
 
     if (fetchError) throw fetchError;
     if (!testEvents || testEvents.length === 0) return { deleted: 0 };
 
     const ids = testEvents.map((e: any) => e.id);
-    const { error: deleteError } = await (supabaseAdmin as any)
-      .from("events")
-      .delete()
-      .in("id", ids);
+    const { error: deleteError } = await supabaseAdmin.from("events").delete().in("id", ids);
 
     if (deleteError) throw deleteError;
     return { deleted: ids.length };

@@ -24,7 +24,7 @@ import { ChallengesSkeleton } from "@/components/Skeletons";
 
 export const Route = createFileRoute("/_authenticated/challenges")({
   head: () => ({ meta: [{ title: "Coding Challenges — Learnify AI" }] }),
-  component: ChallengesPage,
+  component: () => <ChallengesPage />,
 });
 
 const DIFFICULTY_FILTERS = [
@@ -59,7 +59,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   "system-design": "🏗️",
 };
 
-function ChallengesPage() {
+export function ChallengesPage({ embedded = false }: { embedded?: boolean }) {
   const fetchChallenges = useServerFn(getChallenges);
   const [difficulty, setDifficulty] = useState("all");
   const [category, setCategory] = useState("all");
@@ -86,9 +86,8 @@ function ChallengesPage() {
     return data[idx];
   })();
 
-  return (
-    <AppShell>
-      <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
+  const mainContent = (
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
@@ -97,7 +96,9 @@ function ChallengesPage() {
             </div>
             <div>
               <h1 className="text-3xl font-display font-bold tracking-tight">Coding Challenges</h1>
-              <p className="text-muted-foreground text-sm">Daily coding challenges to sharpen your skills</p>
+              <p className="text-muted-foreground text-sm">
+                Daily coding challenges to sharpen your skills
+              </p>
             </div>
           </div>
           <Link to="/playground/leaderboard">
@@ -116,7 +117,10 @@ function ChallengesPage() {
             </div>
             <h3 className="text-lg font-semibold mb-1">{dailyChallenge.title}</h3>
             <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
-              <Badge variant="outline" className={cn("text-xs", DIFFICULTY_COLORS[dailyChallenge.difficulty])}>
+              <Badge
+                variant="outline"
+                className={cn("text-xs", DIFFICULTY_COLORS[dailyChallenge.difficulty])}
+              >
                 {dailyChallenge.difficulty}
               </Badge>
               <span>{dailyChallenge.category}</span>
@@ -205,7 +209,10 @@ function ChallengesPage() {
                         {isSolved && <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <Badge variant="outline" className={cn("text-[10px]", DIFFICULTY_COLORS[challenge.difficulty])}>
+                        <Badge
+                          variant="outline"
+                          className={cn("text-[10px]", DIFFICULTY_COLORS[challenge.difficulty])}
+                        >
                           {challenge.difficulty}
                         </Badge>
                         <span className="text-xs text-muted-foreground">{challenge.category}</span>
@@ -226,6 +233,8 @@ function ChallengesPage() {
           </div>
         )}
       </div>
-    </AppShell>
   );
+
+  if (embedded) return mainContent;
+  return <AppShell>{mainContent}</AppShell>;
 }

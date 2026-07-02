@@ -219,12 +219,30 @@
       "badge": "Todo en un solo OS",
       "title": "Un ecosistema, no un catálogo de cursos.",
       "subtitle": "Seis pilares trabajando juntos para que estudiantes, creadores e instituciones ganen.",
-      "aiTutor": { "title": "AI Tutor", "desc": "Tutoría personalizada 1-a-1 que se adapta a tu estilo de aprendizaje." },
-      "smartNotes": { "title": "Notas y Presentaciones Inteligentes", "desc": "Genera flashcards, resúmenes y mazos desde cualquier lección." },
-      "gamified": { "title": "Progreso Gamificado", "desc": "Rachas, XP, insignias y tablas de clasificación que hacen el aprendizaje adictivo." },
-      "creatorEconomy": { "title": "Economía de Creadores", "desc": "Entrenadores y creadores lanzan cursos, cohortes y comunidades." },
-      "wallet": { "title": "Billetera Integrada", "desc": "Ganancias, pagos y propinas manejadas de forma nativa." },
-      "career": { "title": "Inteligencia de Carrera", "desc": "Rutas guiadas por AI, revisiones de CV y grafos de habilidades." }
+      "aiTutor": {
+        "title": "AI Tutor",
+        "desc": "Tutoría personalizada 1-a-1 que se adapta a tu estilo de aprendizaje."
+      },
+      "smartNotes": {
+        "title": "Notas y Presentaciones Inteligentes",
+        "desc": "Genera flashcards, resúmenes y mazos desde cualquier lección."
+      },
+      "gamified": {
+        "title": "Progreso Gamificado",
+        "desc": "Rachas, XP, insignias y tablas de clasificación que hacen el aprendizaje adictivo."
+      },
+      "creatorEconomy": {
+        "title": "Economía de Creadores",
+        "desc": "Entrenadores y creadores lanzan cursos, cohortes y comunidades."
+      },
+      "wallet": {
+        "title": "Billetera Integrada",
+        "desc": "Ganancias, pagos y propinas manejadas de forma nativa."
+      },
+      "career": {
+        "title": "Inteligencia de Carrera",
+        "desc": "Rutas guiadas por AI, revisiones de CV y grafos de habilidades."
+      }
     },
     "community": {
       "badge": "Aprende juntos",

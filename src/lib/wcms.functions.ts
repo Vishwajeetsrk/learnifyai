@@ -9,7 +9,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 async function checkAdmin(userId: string) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: roles } = await (supabaseAdmin as any)
+  const { data: roles } = await supabaseAdmin
     .from("user_roles")
     .select("role")
     .eq("user_id", userId);
@@ -28,7 +28,7 @@ export const wcmsListPages = createServerFn({ method: "GET" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabaseAdmin as any)
+    const { data, error } = await supabaseAdmin
       .from("wcms_pages")
       .select("*")
       .order("sort_order", { ascending: true });
@@ -42,7 +42,7 @@ export const wcmsGetPage = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: page, error } = await (supabaseAdmin as any)
+    const { data: page, error } = await supabaseAdmin
       .from("wcms_pages")
       .select("*")
       .eq("slug", data.slug)
@@ -87,16 +87,14 @@ export const wcmsUpsertPage = createServerFn({ method: "POST" })
     };
 
     if (data.id) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabaseAdmin as any)
+      const { error } = await supabaseAdmin
         .from("wcms_pages")
-        .update(upsertData)
+        .update(upsertData as never)
         .eq("id", data.id);
       if (error) throw error;
     } else {
       upsertData.created_by = context.userId;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabaseAdmin as any).from("wcms_pages").insert(upsertData);
+      const { error } = await supabaseAdmin.from("wcms_pages").insert(upsertData as never);
       if (error) throw error;
     }
     return { success: true };
@@ -109,7 +107,7 @@ export const wcmsDeletePage = createServerFn({ method: "POST" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from("wcms_pages").delete().eq("id", data.id);
+    const { error } = await supabaseAdmin.from("wcms_pages").delete().eq("id", data.id);
     if (error) throw error;
     return { success: true };
   });
@@ -123,7 +121,7 @@ export const wcmsListBlocks = createServerFn({ method: "GET" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: blocks, error } = await (supabaseAdmin as any)
+    const { data: blocks, error } = await supabaseAdmin
       .from("wcms_blocks")
       .select("*")
       .eq("page_id", data.pageId)
@@ -157,7 +155,7 @@ export const wcmsSaveBlocks = createServerFn({ method: "POST" })
 
     // Delete existing blocks for this page, then re-insert
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabaseAdmin as any).from("wcms_blocks").delete().eq("page_id", data.pageId);
+    await supabaseAdmin.from("wcms_blocks").delete().eq("page_id", data.pageId);
 
     if (data.blocks.length > 0) {
       const rows = data.blocks.map((b) => ({
@@ -169,7 +167,7 @@ export const wcmsSaveBlocks = createServerFn({ method: "POST" })
         visible: b.visible ?? true,
       }));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabaseAdmin as any).from("wcms_blocks").insert(rows);
+      const { error } = await supabaseAdmin.from("wcms_blocks").insert(rows);
       if (error) throw error;
     }
     return { success: true };
@@ -182,7 +180,7 @@ export const wcmsDeleteBlock = createServerFn({ method: "POST" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from("wcms_blocks").delete().eq("id", data.id);
+    const { error } = await supabaseAdmin.from("wcms_blocks").delete().eq("id", data.id);
     if (error) throw error;
     return { success: true };
   });
@@ -205,7 +203,7 @@ export const wcmsListMedia = createServerFn({ method: "GET" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabaseAdmin as any).from("media_library").select("*");
+    let query = supabaseAdmin.from("media_library").select("*");
     if (data.folder) query = query.eq("folder", data.folder);
     if (data.tags && data.tags.length > 0) query = query.overlaps("tags", data.tags);
     query = query.order("created_at", { ascending: false });
@@ -235,7 +233,7 @@ export const wcmsUploadMedia = createServerFn({ method: "POST" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from("media_library").insert({
+    const { error } = await supabaseAdmin.from("media_library").insert({
       filename: data.filename,
       original_name: data.original_name,
       mime_type: data.mime_type,
@@ -270,9 +268,9 @@ export const wcmsUpdateMedia = createServerFn({ method: "POST" })
     if (data.folder !== undefined) updateData.folder = data.folder;
     if (data.tags !== undefined) updateData.tags = data.tags;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await supabaseAdmin
       .from("media_library")
-      .update(updateData)
+      .update(updateData as never)
       .eq("id", data.id);
     if (error) throw error;
     return { success: true };
@@ -285,7 +283,7 @@ export const wcmsDeleteMedia = createServerFn({ method: "POST" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from("media_library").delete().eq("id", data.id);
+    const { error } = await supabaseAdmin.from("media_library").delete().eq("id", data.id);
     if (error) throw error;
     return { success: true };
   });
@@ -298,7 +296,7 @@ export const wcmsListFeatures = createServerFn({ method: "GET" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabaseAdmin as any)
+    const { data, error } = await supabaseAdmin
       .from("wcms_features")
       .select("*")
       .order("sort_order", { ascending: true });
@@ -309,7 +307,7 @@ export const wcmsListFeatures = createServerFn({ method: "GET" })
 export const wcmsPublicFeatures = createServerFn({ method: "GET" }).handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabaseAdmin as any)
+  const { data, error } = await supabaseAdmin
     .from("wcms_features")
     .select("*")
     .eq("enabled", true)
@@ -357,14 +355,14 @@ export const wcmsUpsertFeature = createServerFn({ method: "POST" })
 
     if (data.id) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabaseAdmin as any)
+      const { error } = await supabaseAdmin
         .from("wcms_features")
-        .update(upsertData)
+        .update(upsertData as never)
         .eq("id", data.id);
       if (error) throw error;
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabaseAdmin as any).from("wcms_features").insert(upsertData);
+      const { error } = await supabaseAdmin.from("wcms_features").insert(upsertData as never);
       if (error) throw error;
     }
     return { success: true };
@@ -377,7 +375,7 @@ export const wcmsDeleteFeature = createServerFn({ method: "POST" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from("wcms_features").delete().eq("id", data.id);
+    const { error } = await supabaseAdmin.from("wcms_features").delete().eq("id", data.id);
     if (error) throw error;
     return { success: true };
   });
@@ -391,7 +389,7 @@ export const wcmsListMenus = createServerFn({ method: "GET" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabaseAdmin as any).from("wcms_menus").select("*");
+    let query = supabaseAdmin.from("wcms_menus").select("*");
     if (data.menuKey) query = query.eq("menu_key", data.menuKey);
     query = query.order("sort_order", { ascending: true });
     const { data: menus, error } = await query;
@@ -424,7 +422,7 @@ export const wcmsSaveMenus = createServerFn({ method: "POST" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabaseAdmin as any).from("wcms_menus").delete().eq("menu_key", data.menuKey);
+    await supabaseAdmin.from("wcms_menus").delete().eq("menu_key", data.menuKey);
 
     if (data.items.length > 0) {
       const rows = data.items.map((item) => ({
@@ -438,7 +436,7 @@ export const wcmsSaveMenus = createServerFn({ method: "POST" })
         open_new_tab: item.open_new_tab ?? false,
       }));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabaseAdmin as any).from("wcms_menus").insert(rows);
+      const { error } = await supabaseAdmin.from("wcms_menus").insert(rows);
       if (error) throw error;
     }
     return { success: true };
@@ -451,7 +449,7 @@ export const wcmsDeleteMenuItem = createServerFn({ method: "POST" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from("wcms_menus").delete().eq("id", data.id);
+    const { error } = await supabaseAdmin.from("wcms_menus").delete().eq("id", data.id);
     if (error) throw error;
     return { success: true };
   });
@@ -464,7 +462,7 @@ export const wcmsListSections = createServerFn({ method: "GET" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabaseAdmin as any)
+    const { data, error } = await supabaseAdmin
       .from("wcms_sections")
       .select("*")
       .order("name", { ascending: true });
@@ -499,14 +497,14 @@ export const wcmsUpsertSection = createServerFn({ method: "POST" })
     };
     if (data.id) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabaseAdmin as any)
+      const { error } = await supabaseAdmin
         .from("wcms_sections")
-        .update(upsertData)
+        .update(upsertData as never)
         .eq("id", data.id);
       if (error) throw error;
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabaseAdmin as any).from("wcms_sections").insert(upsertData);
+      const { error } = await supabaseAdmin.from("wcms_sections").insert(upsertData as never);
       if (error) throw error;
     }
     return { success: true };
@@ -519,7 +517,7 @@ export const wcmsDeleteSection = createServerFn({ method: "POST" })
     await checkAdmin(context.userId!);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from("wcms_sections").delete().eq("id", data.id);
+    const { error } = await supabaseAdmin.from("wcms_sections").delete().eq("id", data.id);
     if (error) throw error;
     return { success: true };
   });
@@ -539,7 +537,7 @@ export const wcmsListRoadmaps = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabaseAdmin as any).from("coaching_roadmaps").select("*");
+    let query = supabaseAdmin.from("coaching_roadmaps").select("*");
 
     if (data.templatesOnly) {
       query = query.eq("is_template", true).not("published_at", "is", null);
@@ -597,14 +595,14 @@ export const wcmsSaveRoadmap = createServerFn({ method: "POST" })
 
     if (data.id) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabaseAdmin as any)
+      const { error } = await supabaseAdmin
         .from("coaching_roadmaps")
-        .update(upsertData)
+        .update(upsertData as never)
         .eq("id", data.id);
       if (error) throw error;
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabaseAdmin as any).from("coaching_roadmaps").insert(upsertData);
+      const { error } = await supabaseAdmin.from("coaching_roadmaps").insert(upsertData as never);
       if (error) throw error;
     }
     return { success: true };
@@ -616,7 +614,7 @@ export const wcmsDeleteRoadmap = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await supabaseAdmin
       .from("coaching_roadmaps")
       .delete()
       .eq("id", data.id)
@@ -631,7 +629,7 @@ export const wcmsDuplicateRoadmap = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: original, error: fetchErr } = await (supabaseAdmin as any)
+    const { data: original, error: fetchErr } = await supabaseAdmin
       .from("coaching_roadmaps")
       .select("*")
       .eq("id", data.id)
@@ -646,7 +644,7 @@ export const wcmsDuplicateRoadmap = createServerFn({ method: "POST" })
     rest.published_at = null;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabaseAdmin as any).from("coaching_roadmaps").insert(rest);
+    const { error } = await supabaseAdmin.from("coaching_roadmaps").insert(rest);
     if (error) throw error;
     return { success: true };
   });

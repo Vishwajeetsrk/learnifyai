@@ -73,14 +73,24 @@ function CourseCardLearners({ courseId }: { courseId: string }) {
 
 const FIXED_CATEGORIES = [
   "All",
-  "Development",
-  "Design",
-  "Marketing",
-  "AI & Data",
-  "Business",
-  "Personal Growth",
+  "Full Stack Development",
+  "Python",
+  "AI & Prompt Engineering",
+  "Data Science",
+  "Cyber Security",
+  "UI/UX Design",
+  "Resume Builder",
+  "Interview Preparation",
+  "Career Roadmaps",
+  "Digital Marketing",
+  "Freelancing",
+  "Personal Branding",
+  "Academic & CS Fundamentals",
+  "Business & Startups",
+  "Finance & Investing",
 ] as const;
 type PriceFilter = "all" | "free" | "paid";
+type LevelFilter = "all" | "beginner" | "intermediate" | "advanced";
 
 function CoursesPage() {
   const [q, setQ] = useState("");
@@ -363,7 +373,8 @@ function CoursesPage() {
                     </span>
                     <span className="flex items-center gap-1">
                       <img
-                        src="/illustrations/Star_Rating_interaction.svg" loading="lazy"
+                        src="/illustrations/Star_Rating_interaction.svg"
+                        loading="lazy"
                         alt=""
                         className="h-4 w-12 shrink-0"
                       />{" "}

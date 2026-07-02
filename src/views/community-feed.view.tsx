@@ -315,8 +315,7 @@ export default function CommunityPage() {
   };
 
   return (
-    <AppShell>
-      <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="max-w-3xl mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 grid place-items-center shadow-lg relative overflow-hidden">
             <div className="absolute inset-0 bg-white/20 hover:bg-transparent transition-colors" />
@@ -1274,8 +1273,7 @@ export default function CommunityPage() {
         <div className="mt-10">
           <CommunityChat />
         </div>
-      </div>
-    </AppShell>
+    </div>
   );
 }
 

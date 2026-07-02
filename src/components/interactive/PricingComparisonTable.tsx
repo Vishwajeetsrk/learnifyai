@@ -254,9 +254,7 @@ export function PricingComparisonTable({
             <div key={section.title}>
               {/* Section title */}
               <div className="bg-muted/50 px-3 lg:px-4 py-2.5 border-b border-border/30">
-                <h3 className="text-xs lg:text-sm font-bold text-foreground/80">
-                  {section.title}
-                </h3>
+                <h3 className="text-xs lg:text-sm font-bold text-foreground/80">{section.title}</h3>
               </div>
 
               {/* Feature rows */}

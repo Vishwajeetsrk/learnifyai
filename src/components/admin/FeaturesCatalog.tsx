@@ -74,9 +74,9 @@ type WcmsFeature = {
   key: string;
   name: string;
   description: string | null;
-  icon: string;
-  category: string;
-  color: string;
+  icon: string | null;
+  category: string | null;
+  color: string | null;
   url: string | null;
   badge: string | null;
   sort_order: number;
@@ -279,9 +279,9 @@ export default function FeaturesCatalog() {
                 </div>
                 <div
                   className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: f.color + "20" }}
+                  style={{ backgroundColor: (f.color ?? "#6366f1") + "20" }}
                 >
-                  <IconComp className="h-5 w-5" style={{ color: f.color }} />
+                  <IconComp className="h-5 w-5" style={{ color: f.color ?? "#6366f1" }} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="font-medium flex items-center gap-2">
@@ -289,7 +289,7 @@ export default function FeaturesCatalog() {
                     {f.badge && (
                       <Badge
                         className="text-[10px] px-1.5"
-                        style={{ backgroundColor: f.color, color: "white" }}
+                        style={{ backgroundColor: f.color ?? "#6366f1", color: "white" }}
                       >
                         {f.badge}
                       </Badge>
@@ -376,7 +376,7 @@ export default function FeaturesCatalog() {
                 <div className="space-y-2">
                   <Label>Category</Label>
                   <Select
-                    value={editing.category}
+                    value={editing.category ?? ""}
                     onValueChange={(v) => setEditing({ ...editing, category: v })}
                   >
                     <SelectTrigger>
@@ -434,14 +434,14 @@ export default function FeaturesCatalog() {
                   {PRESET_COLORS.map((c) => (
                     <button
                       key={c}
-                      className={`h-7 w-7 rounded-full border-2 transition-all ${editing.color === c ? "border-foreground scale-110" : "border-transparent"}`}
+                      className={`h-7 w-7 rounded-full border-2 transition-all ${(editing.color ?? "#6366f1" === c) ? "border-foreground scale-110" : "border-transparent"}`}
                       style={{ backgroundColor: c }}
                       onClick={() => setEditing({ ...editing, color: c })}
                     />
                   ))}
                   <input
                     type="color"
-                    value={editing.color}
+                    value={editing.color ?? "#6366f1"}
                     onChange={(e) => setEditing({ ...editing, color: e.target.value })}
                     className="h-7 w-7 rounded-full cursor-pointer border-0"
                   />
@@ -460,15 +460,17 @@ export default function FeaturesCatalog() {
                 <div className="flex items-center gap-3 p-3 rounded-lg bg-card border">
                   <div
                     className="h-10 w-10 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: editing.color + "20" }}
+                    style={{ backgroundColor: editing.color ?? "#6366f1" + "20" }}
                   >
                     {ICON_OPTIONS.find((io) => io.value === editing.icon)?.Icon ? (
                       (() => {
                         const IC = ICON_OPTIONS.find((io) => io.value === editing.icon)!.Icon;
-                        return <IC className="h-5 w-5" style={{ color: editing.color }} />;
+                        return (
+                          <IC className="h-5 w-5" style={{ color: editing.color ?? "#6366f1" }} />
+                        );
                       })()
                     ) : (
-                      <Sparkles className="h-5 w-5" style={{ color: editing.color }} />
+                      <Sparkles className="h-5 w-5" style={{ color: editing.color ?? "#6366f1" }} />
                     )}
                   </div>
                   <div>
@@ -480,7 +482,7 @@ export default function FeaturesCatalog() {
                   {editing.badge && (
                     <Badge
                       className="ml-auto text-[10px]"
-                      style={{ backgroundColor: editing.color, color: "white" }}
+                      style={{ backgroundColor: editing.color ?? "#6366f1", color: "white" }}
                     >
                       {editing.badge}
                     </Badge>

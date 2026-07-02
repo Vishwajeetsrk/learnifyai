@@ -14,9 +14,7 @@ if (process.env.VERCEL) {
 export default defineConfig({
   nitro: {
     preset: process.env.VERCEL ? "vercel" : "node-server",
-    output: process.env.VERCEL
-      ? undefined
-      : { dir: "dist", serverDir: "dist/server" },
+    output: process.env.VERCEL ? undefined : { dir: "dist", serverDir: "dist/server" },
   },
   vite: {
     envPrefix: ["VITE_", "NEXT_PUBLIC_"],
@@ -52,13 +50,16 @@ export default defineConfig({
             if (id.includes("framer-motion") || id.includes("motion-")) return "vendor-motion";
             if (id.includes("lucide-react") || id.includes("lucide-static")) return "vendor-icons";
             if (id.includes("@radix-ui")) return "vendor-radix";
-            if (id.includes("@hookform/resolvers") || id.includes("react-hook-form")) return "vendor-forms";
+            if (id.includes("@hookform/resolvers") || id.includes("react-hook-form"))
+              return "vendor-forms";
             if (id.includes("date-fns") || id.includes("dayjs")) return "vendor-dates";
-            if (id.includes("react-markdown") || id.includes("rehype") || id.includes("remark")) return "vendor-markdown";
+            if (id.includes("react-markdown") || id.includes("rehype") || id.includes("remark"))
+              return "vendor-markdown";
             if (id.includes("@hello-pangea/dnd")) return "vendor-dnd";
             if (id.includes("zod")) return "vendor-validation";
             if (id.includes("mammoth") || id.includes("jszip")) return "vendor-docs";
-            if (id.includes("cmdk") || id.includes("vaul") || id.includes("sonner")) return "vendor-overlays";
+            if (id.includes("cmdk") || id.includes("vaul") || id.includes("sonner"))
+              return "vendor-overlays";
             return "vendor";
           },
         },

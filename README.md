@@ -22,32 +22,35 @@
 
 Learnify AI is a **full-stack, AI-powered learning platform** that combines intelligent tutoring, creator tools, gamification, and career growth into one premium experience.
 
-### 🎥 Platform Walkthrough & Features Demo
+### 🎥 Platform Demo
 
 <div align="center">
-  <img src="src/assets/learnify_demo_full.webp" alt="Learnify AI Platform Demo" width="100%" style="border-radius: 10px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);" />
+  <a href="https://learnifyaitool.vercel.app/" target="_blank">
+    <img src="src/assets/learnify_demo.gif" alt="Learnify AI Platform Demo — Click to open Live Demo" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);" />
+  </a>
+  <p><em>👆 Click to open the live demo</em></p>
 </div>
 
 ### ✨ For Learners
 
-| Feature                          | Description                                                                             |
-| -------------------------------- | --------------------------------------------------------------------------------------- |
-| 🤖 **AI Tutor**                  | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)        |
-| 📝 **Resume Builder**            | AI-powered ATS-optimized resume generation with PDF/DOCX upload, auto-extract & fill    |
-| 📊 **ATS Checker**               | Analyze resumes against ATS systems — scores, keyword analysis, improvement suggestions |
-| 🗺️ **Career Roadmap**            | Structured JSON roadmaps with timeline, skill gap charts, courses, projects & milestones |
-| 🎨 **Portfolio Builder**         | Full portfolio plan generator with GitHub projects, photo upload, and live preview       |
-| 🎥 **Interactive Course Player** | Video lessons, markdown notes, AI summaries, and practice exercises                     |
-| 💻 **Code Playground**           | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant |
-| 📝 **Smart Notes**               | Auto-generated flashcards, summaries, and quizzes from any lesson                       |
-| 🏆 **Gamification**              | XP, streaks, badges, leaderboards, and achievements                                     |
-| 💰 **Wallet**                    | AI credits, course purchases, and withdrawals via Cashfree                              |
-| 📋 **Billing Dashboard**         | View current plan, invoices, subscription history, cancel/resume subscription           |
-| 🎯 **Onboarding Wizard**         | 8-step guided setup with AI coach, daily habits tracking, and project creation          |
-| 🗺️ **Interactive Product Tours** | Role-specific guided tours (Student, Creator, Admin, AI Tools) with spotlight tooltips  |
-| 🎤 **Interview Prep**            | Mock interviews with AI feedback — 8 roles, Chat/Voice/Video modes, 3 difficulty levels |
-| 💻 **Coding Challenges**         | Daily challenges, difficulty/category filters, points, and Playground Editor integration |
-| 📝 **Blog**                      | Read articles, like posts, and comment with community                                   |
+| Feature                          | Description                                                                              |
+| -------------------------------- | ---------------------------------------------------------------------------------------- |
+| 🤖 **AI Tutor**                  | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)         |
+| 💼 **Career Studio (9-in-1)**    | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder, **LinkedIn Optimizer**, **Career Analytics**, **Internship Tracker**, and **Skill Gap Analysis** |
+| 🎓 **12 Launch Course Categories**| Full Stack, Python, AI & Prompting, Data Science, Cyber Security, UI/UX, Resume, Interview, Roadmaps, Marketing, Freelancing, Personal Branding |
+| 📚 **Documentation Hub (`/docs`)** | Comprehensive platform guides for Students, Creators (Free/Paid), and Coaches (Free/Paid) |
+| 🎥 **Interactive Watch Demo**    | Guided modal tour covering platform features, credit usage, and creator earning model |
+| 📱 **Mobile App (Android & iOS)**| Mobile app showcase with VIP early access registration |
+| 📜 **Certificate Accreditation** | Cryptographic QR verification with MSME Udyam, NSDC Skill India, and ISO 9001 accreditation guide |
+| 🎥 **Interactive Course Player** | Video lessons, markdown notes, AI summaries, and practice exercises                      |
+| 💻 **Code Playground**           | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant  |
+| 📝 **Smart Notes**               | Auto-generated flashcards, summaries, and quizzes from any lesson                        |
+| 🏆 **Gamification**              | XP, streaks, badges, leaderboards, and achievements                                      |
+| 💰 **Wallet & AI Credits**       | Starter 500 AI credits/mo, wallet top-ups (₹99–₹1,999), Cashfree gateway integration     |
+| 📋 **Billing Dashboard**         | Plan management, Cashfree invoices, coupons (`WELCOME20`, `STUDENT50`, `LAUNCH20`)       |
+| 🎯 **Onboarding Wizard**         | 8-step guided setup with AI coach, daily habits tracking, and project creation           |
+| 🗺️ **Interactive Product Tours** | Role-specific guided tours (Student, Creator, Admin, AI Tools) with spotlight tooltips   |
+| 📝 **Blog**                      | Read articles, like posts, and comment with community                                    |
 
 ### 🎓 For Creators
 
@@ -63,18 +66,18 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 
 ### 🌐 Platform-Wide
 
-| Feature                       | Description                                                                                               |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
-| 💬 **Community Feed**         | Social learning with posts, comments, likes, edit/delete, rich text editor                                |
-| 📥 **Inbox**                  | Direct messaging between coaches and students                                                             |
+| Feature                       | Description                                                                                                                                                                               |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 💬 **Community Feed**         | Social learning with posts, comments, likes, edit/delete, rich text editor                                                                                                                |
+| 📥 **Inbox**                  | Direct messaging between coaches and students                                                                                                                                             |
 | ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates (templates/canva/bulk/analytics/categories), email templates, content management, subscription management, coupon CRUD, student verification |
-| 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                                               |
-| 📧 **Email System**           | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback |
-| 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                         |
-| 📄 **Legal Pages**            | Privacy Policy, Terms of Service, Refund Policy                                                           |
-| 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                  |
-| 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager, blog system                         |
-| 🎯 **Interactive Tours**      | Role-specific product tours with spotlight cutout and auto-skip for missing targets                       |
+| 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                                                                                                                               |
+| 📧 **Email System**           | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback                                                                                 |
+| 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                                                                                                         |
+| 📄 **Legal Pages**            | Privacy Policy, Terms of Service, Refund Policy                                                                                                                                           |
+| 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                                                                                                  |
+| 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager, blog system                                                                                                         |
+| 🎯 **Interactive Tours**      | Role-specific product tours with spotlight cutout and auto-skip for missing targets                                                                                                       |
 
 ---
 
@@ -427,6 +430,20 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v4.0.0 (July 2026) - Responsive Overhaul, SVG Icons, Navigation Deduplication & GitHub Demo GIF
+
+- ✅ **SVG Icons Throughout**: Replaced all emoji icons with proper inline SVG icons across Avatar Customizer (clothing/art/accessories pickers), Career Studio, Community Hub, and Sidebar navigation — no more broken or inconsistent emoji rendering.
+- ✅ **Duplicate Sidebar Removed**: Fixed double-rendering of the AppShell sidebar/navigation that was appearing on Community Hub, Career Studio, and all authenticated pages. Each page now renders a single sidebar correctly.
+- ✅ **Interview Prep Deduplication**: Removed the redundant "Interview Prep" top-level sidebar link — it is now only accessible as a tab inside Career Studio (`/career-studio`), eliminating the duplicate route.
+- ✅ **Career Studio Responsive**: Full mobile responsiveness for all Career Studio sub-pages (Resume Builder, ATS Checker, Career Roadmap, Portfolio Builder, LinkedIn Optimizer, Career Analytics, Internship Tracker, Skill Gap Analysis). SVG icons in sidebar tab list, no fake/placeholder data.
+- ✅ **Community Hub Responsive**: Fixed Community Feed layout on mobile — post composer toolbar wraps correctly, poll/post/announce buttons use full-width on small screens, chat panel collapses gracefully. Duplicate sidebar rendering eliminated.
+- ✅ **Mobile App Section Fixed**: "Learnify AI Mobile App Coming Soon" section on the landing page now renders correctly with proper theming, app store badges with SVG icons, and a responsive two-column layout for desktop and stacked layout for mobile.
+- ✅ **Footer & Header Nav Updated**: All navigation pages (Product, Features, AI Tools, Pricing, Roadmap, Blog, Resources, Community, Events, Company, About, Careers, Contact, FAQ, Legal) verified functional with WCMS-driven menus.
+- ✅ **Blog Page Fixed**: Blog listing page renders correctly with proper card grid layout, thumbnail images, category badges, and read-time estimates. No fake data — pulls from live Supabase `blog_posts` table.
+- ✅ **Admin Content Manager**: All CRUD operations (add, edit, update, delete) confirmed working across all 16 content tabs: Events, Jobs, Pricing, FAQs, Pages, Roadmaps, Coupons, Community Groups, Certificate Templates, Feature Visibility, Page Builder, Media Library, and more.
+- ✅ **Internship Tracker CRUD Fixed**: Add/Edit/Delete operations in Internship & Job Application Tracker use local state (no fake data); status updates (Applied → Interviewing → Offer → Rejected) work correctly with confirmation dialogs.
+- ✅ **README Demo GIF**: Added `learnify_demo.gif` to README hero section with clickable link to live demo. Replaced broken `.webp` reference with the actual animated GIF asset.
 
 ### v3.9.1 (July 2026) - PDF Worker Fix, Character Clothing, Cert Tabs, Interview & Challenges
 

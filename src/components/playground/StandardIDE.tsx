@@ -238,7 +238,7 @@ export function StandardIDE({
                   <FolderOpen className="h-4 w-4" />
                   Explorer
                 </span>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onAddFile}>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onAddFile}>
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>

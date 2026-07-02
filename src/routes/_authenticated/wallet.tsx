@@ -216,7 +216,9 @@ function WalletPage() {
     try {
       const { data: profileBrand } = await supabase
         .from("profiles")
-        .select("invoice_company_name,invoice_legal_name,invoice_gstin,invoice_prefix,invoice_footer,invoice_logo_url,invoice_contact,org_name,org_logo_url")
+        .select(
+          "invoice_company_name,invoice_legal_name,invoice_gstin,invoice_prefix,invoice_footer,invoice_logo_url,invoice_contact,org_name,org_logo_url",
+        )
         .eq("id", user.id)
         .maybeSingle();
 
@@ -228,7 +230,13 @@ function WalletPage() {
         amount_inr: Number(tx.amount_inr || 0),
         total_inr: Number(tx.amount_inr || 0),
         tax_inr: 0,
-        line_items: [{ description: tx.description || "Wallet Top-up", amount: Number(tx.amount_inr || 0), quantity: 1 }],
+        line_items: [
+          {
+            description: tx.description || "Wallet Top-up",
+            amount: Number(tx.amount_inr || 0),
+            quantity: 1,
+          },
+        ],
         notes: null,
         payment_method: null,
       };
@@ -239,7 +247,8 @@ function WalletPage() {
         gstin: profileBrand?.invoice_gstin || tx.invoice_gstin,
         prefix: profileBrand?.invoice_prefix || tx.invoice_prefix,
         footer: profileBrand?.invoice_footer || tx.invoice_footer,
-        logo_url: profileBrand?.invoice_logo_url || profileBrand?.org_logo_url || tx.invoice_logo_url,
+        logo_url:
+          profileBrand?.invoice_logo_url || profileBrand?.org_logo_url || tx.invoice_logo_url,
         contact: profileBrand?.invoice_contact || tx.invoice_contact,
       });
     } catch (err: any) {
@@ -255,7 +264,12 @@ function WalletPage() {
         {/* Hero balance card */}
         <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 text-white shadow-xl bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600">
           <div className="absolute top-4 right-4 w-24 h-24 opacity-20 pointer-events-none">
-            <img src="/illustrations/Flying_Coin.svg" alt="" className="w-full h-full" loading="lazy" />
+            <img
+              src="/illustrations/Flying_Coin.svg"
+              alt=""
+              className="w-full h-full"
+              loading="lazy"
+            />
           </div>
           {/* decorative orbs */}
           <div className="absolute -top-20 -right-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />

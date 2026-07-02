@@ -24,6 +24,7 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as DocsRouteImport } from './routes/docs'
 import { Route as CreatorsRouteImport } from './routes/creators'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CommunityRouteImport } from './routes/community'
@@ -56,16 +57,19 @@ import { Route as AuthenticatedInterviewRouteImport } from './routes/_authentica
 import { Route as AuthenticatedInboxRouteImport } from './routes/_authenticated/inbox'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreatorRouteImport } from './routes/_authenticated/creator'
+import { Route as AuthenticatedCommunityHubRouteImport } from './routes/_authenticated/community-hub'
 import { Route as AuthenticatedCommunityFeedRouteImport } from './routes/_authenticated/community-feed'
 import { Route as AuthenticatedCohortsRouteImport } from './routes/_authenticated/cohorts'
 import { Route as AuthenticatedCoachingRouteImport } from './routes/_authenticated/coaching'
 import { Route as AuthenticatedChallengesRouteImport } from './routes/_authenticated/challenges'
 import { Route as AuthenticatedCertificatesRouteImport } from './routes/_authenticated/certificates'
 import { Route as AuthenticatedCartRouteImport } from './routes/_authenticated/cart'
+import { Route as AuthenticatedCareerStudioRouteImport } from './routes/_authenticated/career-studio'
 import { Route as AuthenticatedCareerRoadmapRouteImport } from './routes/_authenticated/career-roadmap'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedAtsCheckerRouteImport } from './routes/_authenticated/ats-checker'
 import { Route as AuthenticatedApplyCreatorRouteImport } from './routes/_authenticated/apply-creator'
+import { Route as AuthenticatedApplyCoachRouteImport } from './routes/_authenticated/apply-coach'
 import { Route as AuthenticatedAiToolsRouteImport } from './routes/_authenticated/ai-tools'
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -170,6 +174,11 @@ const FaqRoute = FaqRouteImport.update({
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CreatorsRoute = CreatorsRouteImport.update({
@@ -335,6 +344,12 @@ const AuthenticatedCreatorRoute = AuthenticatedCreatorRouteImport.update({
   path: '/creator',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCommunityHubRoute =
+  AuthenticatedCommunityHubRouteImport.update({
+    id: '/community-hub',
+    path: '/community-hub',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCommunityFeedRoute =
   AuthenticatedCommunityFeedRouteImport.update({
     id: '/community-feed',
@@ -367,6 +382,12 @@ const AuthenticatedCartRoute = AuthenticatedCartRouteImport.update({
   path: '/cart',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedCareerStudioRoute =
+  AuthenticatedCareerStudioRouteImport.update({
+    id: '/career-studio',
+    path: '/career-studio',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCareerRoadmapRoute =
   AuthenticatedCareerRoadmapRouteImport.update({
     id: '/career-roadmap',
@@ -389,6 +410,11 @@ const AuthenticatedApplyCreatorRoute =
     path: '/apply-creator',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedApplyCoachRoute = AuthenticatedApplyCoachRouteImport.update({
+  id: '/apply-coach',
+  path: '/apply-coach',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAiToolsRoute = AuthenticatedAiToolsRouteImport.update({
   id: '/ai-tools',
   path: '/ai-tools',
@@ -570,6 +596,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/creators': typeof CreatorsRoute
+  '/docs': typeof DocsRoute
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -589,16 +616,19 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ai': typeof AuthenticatedAiRoute
   '/ai-tools': typeof AuthenticatedAiToolsRoute
+  '/apply-coach': typeof AuthenticatedApplyCoachRoute
   '/apply-creator': typeof AuthenticatedApplyCreatorRoute
   '/ats-checker': typeof AuthenticatedAtsCheckerRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/career-roadmap': typeof AuthenticatedCareerRoadmapRoute
+  '/career-studio': typeof AuthenticatedCareerStudioRoute
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
   '/challenges': typeof AuthenticatedChallengesRoute
   '/coaching': typeof AuthenticatedCoachingRoute
   '/cohorts': typeof AuthenticatedCohortsRouteWithChildren
   '/community-feed': typeof AuthenticatedCommunityFeedRoute
+  '/community-hub': typeof AuthenticatedCommunityHubRoute
   '/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
@@ -658,6 +688,7 @@ export interface FileRoutesByTo {
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/creators': typeof CreatorsRoute
+  '/docs': typeof DocsRoute
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -677,16 +708,19 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/ai': typeof AuthenticatedAiRoute
   '/ai-tools': typeof AuthenticatedAiToolsRoute
+  '/apply-coach': typeof AuthenticatedApplyCoachRoute
   '/apply-creator': typeof AuthenticatedApplyCreatorRoute
   '/ats-checker': typeof AuthenticatedAtsCheckerRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/career-roadmap': typeof AuthenticatedCareerRoadmapRoute
+  '/career-studio': typeof AuthenticatedCareerStudioRoute
   '/cart': typeof AuthenticatedCartRoute
   '/certificates': typeof AuthenticatedCertificatesRoute
   '/challenges': typeof AuthenticatedChallengesRoute
   '/coaching': typeof AuthenticatedCoachingRoute
   '/cohorts': typeof AuthenticatedCohortsRouteWithChildren
   '/community-feed': typeof AuthenticatedCommunityFeedRoute
+  '/community-hub': typeof AuthenticatedCommunityHubRoute
   '/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/inbox': typeof AuthenticatedInboxRoute
@@ -748,6 +782,7 @@ export interface FileRoutesById {
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
   '/creators': typeof CreatorsRoute
+  '/docs': typeof DocsRoute
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
@@ -767,16 +802,19 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/ai': typeof AuthenticatedAiRoute
   '/_authenticated/ai-tools': typeof AuthenticatedAiToolsRoute
+  '/_authenticated/apply-coach': typeof AuthenticatedApplyCoachRoute
   '/_authenticated/apply-creator': typeof AuthenticatedApplyCreatorRoute
   '/_authenticated/ats-checker': typeof AuthenticatedAtsCheckerRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/career-roadmap': typeof AuthenticatedCareerRoadmapRoute
+  '/_authenticated/career-studio': typeof AuthenticatedCareerStudioRoute
   '/_authenticated/cart': typeof AuthenticatedCartRoute
   '/_authenticated/certificates': typeof AuthenticatedCertificatesRoute
   '/_authenticated/challenges': typeof AuthenticatedChallengesRoute
   '/_authenticated/coaching': typeof AuthenticatedCoachingRoute
   '/_authenticated/cohorts': typeof AuthenticatedCohortsRouteWithChildren
   '/_authenticated/community-feed': typeof AuthenticatedCommunityFeedRoute
+  '/_authenticated/community-hub': typeof AuthenticatedCommunityHubRoute
   '/_authenticated/creator': typeof AuthenticatedCreatorRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/inbox': typeof AuthenticatedInboxRoute
@@ -838,6 +876,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/contact'
     | '/creators'
+    | '/docs'
     | '/events'
     | '/faq'
     | '/features'
@@ -857,16 +896,19 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ai'
     | '/ai-tools'
+    | '/apply-coach'
     | '/apply-creator'
     | '/ats-checker'
     | '/billing'
     | '/career-roadmap'
+    | '/career-studio'
     | '/cart'
     | '/certificates'
     | '/challenges'
     | '/coaching'
     | '/cohorts'
     | '/community-feed'
+    | '/community-hub'
     | '/creator'
     | '/dashboard'
     | '/inbox'
@@ -926,6 +968,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/contact'
     | '/creators'
+    | '/docs'
     | '/events'
     | '/faq'
     | '/features'
@@ -945,16 +988,19 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ai'
     | '/ai-tools'
+    | '/apply-coach'
     | '/apply-creator'
     | '/ats-checker'
     | '/billing'
     | '/career-roadmap'
+    | '/career-studio'
     | '/cart'
     | '/certificates'
     | '/challenges'
     | '/coaching'
     | '/cohorts'
     | '/community-feed'
+    | '/community-hub'
     | '/creator'
     | '/dashboard'
     | '/inbox'
@@ -1015,6 +1061,7 @@ export interface FileRouteTypes {
     | '/community'
     | '/contact'
     | '/creators'
+    | '/docs'
     | '/events'
     | '/faq'
     | '/features'
@@ -1034,16 +1081,19 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/ai'
     | '/_authenticated/ai-tools'
+    | '/_authenticated/apply-coach'
     | '/_authenticated/apply-creator'
     | '/_authenticated/ats-checker'
     | '/_authenticated/billing'
     | '/_authenticated/career-roadmap'
+    | '/_authenticated/career-studio'
     | '/_authenticated/cart'
     | '/_authenticated/certificates'
     | '/_authenticated/challenges'
     | '/_authenticated/coaching'
     | '/_authenticated/cohorts'
     | '/_authenticated/community-feed'
+    | '/_authenticated/community-hub'
     | '/_authenticated/creator'
     | '/_authenticated/dashboard'
     | '/_authenticated/inbox'
@@ -1105,6 +1155,7 @@ export interface RootRouteChildren {
   CommunityRoute: typeof CommunityRoute
   ContactRoute: typeof ContactRoute
   CreatorsRoute: typeof CreatorsRoute
+  DocsRoute: typeof DocsRoute
   EventsRoute: typeof EventsRoute
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
@@ -1242,6 +1293,13 @@ declare module '@tanstack/react-router' {
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/creators': {
@@ -1468,6 +1526,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreatorRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/community-hub': {
+      id: '/_authenticated/community-hub'
+      path: '/community-hub'
+      fullPath: '/community-hub'
+      preLoaderRoute: typeof AuthenticatedCommunityHubRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/community-feed': {
       id: '/_authenticated/community-feed'
       path: '/community-feed'
@@ -1510,6 +1575,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCartRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/career-studio': {
+      id: '/_authenticated/career-studio'
+      path: '/career-studio'
+      fullPath: '/career-studio'
+      preLoaderRoute: typeof AuthenticatedCareerStudioRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/career-roadmap': {
       id: '/_authenticated/career-roadmap'
       path: '/career-roadmap'
@@ -1536,6 +1608,13 @@ declare module '@tanstack/react-router' {
       path: '/apply-creator'
       fullPath: '/apply-creator'
       preLoaderRoute: typeof AuthenticatedApplyCreatorRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/apply-coach': {
+      id: '/_authenticated/apply-coach'
+      path: '/apply-coach'
+      fullPath: '/apply-coach'
+      preLoaderRoute: typeof AuthenticatedApplyCoachRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/ai-tools': {
@@ -1832,16 +1911,19 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedAiRoute: typeof AuthenticatedAiRoute
   AuthenticatedAiToolsRoute: typeof AuthenticatedAiToolsRoute
+  AuthenticatedApplyCoachRoute: typeof AuthenticatedApplyCoachRoute
   AuthenticatedApplyCreatorRoute: typeof AuthenticatedApplyCreatorRoute
   AuthenticatedAtsCheckerRoute: typeof AuthenticatedAtsCheckerRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedCareerRoadmapRoute: typeof AuthenticatedCareerRoadmapRoute
+  AuthenticatedCareerStudioRoute: typeof AuthenticatedCareerStudioRoute
   AuthenticatedCartRoute: typeof AuthenticatedCartRoute
   AuthenticatedCertificatesRoute: typeof AuthenticatedCertificatesRoute
   AuthenticatedChallengesRoute: typeof AuthenticatedChallengesRoute
   AuthenticatedCoachingRoute: typeof AuthenticatedCoachingRoute
   AuthenticatedCohortsRoute: typeof AuthenticatedCohortsRouteWithChildren
   AuthenticatedCommunityFeedRoute: typeof AuthenticatedCommunityFeedRoute
+  AuthenticatedCommunityHubRoute: typeof AuthenticatedCommunityHubRoute
   AuthenticatedCreatorRoute: typeof AuthenticatedCreatorRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedInboxRoute: typeof AuthenticatedInboxRoute
@@ -1867,16 +1949,19 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedAiRoute: AuthenticatedAiRoute,
   AuthenticatedAiToolsRoute: AuthenticatedAiToolsRoute,
+  AuthenticatedApplyCoachRoute: AuthenticatedApplyCoachRoute,
   AuthenticatedApplyCreatorRoute: AuthenticatedApplyCreatorRoute,
   AuthenticatedAtsCheckerRoute: AuthenticatedAtsCheckerRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedCareerRoadmapRoute: AuthenticatedCareerRoadmapRoute,
+  AuthenticatedCareerStudioRoute: AuthenticatedCareerStudioRoute,
   AuthenticatedCartRoute: AuthenticatedCartRoute,
   AuthenticatedCertificatesRoute: AuthenticatedCertificatesRoute,
   AuthenticatedChallengesRoute: AuthenticatedChallengesRoute,
   AuthenticatedCoachingRoute: AuthenticatedCoachingRoute,
   AuthenticatedCohortsRoute: AuthenticatedCohortsRouteWithChildren,
   AuthenticatedCommunityFeedRoute: AuthenticatedCommunityFeedRoute,
+  AuthenticatedCommunityHubRoute: AuthenticatedCommunityHubRoute,
   AuthenticatedCreatorRoute: AuthenticatedCreatorRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedInboxRoute: AuthenticatedInboxRoute,
@@ -1910,6 +1995,7 @@ const rootRouteChildren: RootRouteChildren = {
   CommunityRoute: CommunityRoute,
   ContactRoute: ContactRoute,
   CreatorsRoute: CreatorsRoute,
+  DocsRoute: DocsRoute,
   EventsRoute: EventsRoute,
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,

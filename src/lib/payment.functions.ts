@@ -94,6 +94,17 @@ export const verifyCashfreePayment = createServerFn({ method: "POST" })
 
     const orderData = await res.json();
 
+    // STRICT SECURITY CHECK 1: Ensure order customer_id matches current authenticated user ID
+    const cashfreeCustomerId = orderData.customer_details?.customer_id;
+    if (!cashfreeCustomerId || cashfreeCustomerId !== context.userId) {
+      throw new Error("Security Error: Cashfree order customer ID mismatch.");
+    }
+
+    // STRICT SECURITY CHECK 2: Ensure order amount matches requested verification amount
+    if (Math.abs(Number(orderData.order_amount) - Number(data.amountInr)) > 0.01) {
+      throw new Error("Security Error: Cashfree order amount mismatch.");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: existingTx } = await supabaseAdmin

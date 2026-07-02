@@ -62,7 +62,8 @@ export default function BlogManager() {
       const result = await doQuery({
         data: { table: "blog_posts", columns: "*", orderBy: "created_at", ascending: false },
       });
-      return (result ?? []) as BlogPost[];
+      if (result && !Array.isArray(result)) return [];
+      return (result ?? []) as unknown as BlogPost[];
     },
   });
 

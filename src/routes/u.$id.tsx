@@ -199,7 +199,10 @@ function getSocialLinks(profile: any): Array<{ url: string; platform: string }> 
   const links: Array<{ url: string; platform: string }> = [];
   if (profile.website) links.push({ url: profile.website, platform: "website" });
   if (profile.social_links) {
-    const sl = typeof profile.social_links === "string" ? JSON.parse(profile.social_links) : profile.social_links;
+    const sl =
+      typeof profile.social_links === "string"
+        ? JSON.parse(profile.social_links)
+        : profile.social_links;
     for (const [key, val] of Object.entries(sl || {})) {
       if (val && typeof val === "string" && val.startsWith("http")) {
         links.push({ url: val, platform: key });
@@ -571,10 +574,14 @@ function PublicProfilePage() {
         {/* Banner */}
         {profile.banner_url && (profile as any).show_banner !== false ? (
           <BannerImage src={profile.banner_url} />
-        ) : null}
+        ) : (
+          <div className="h-44 md:h-56 w-full bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 rounded-b-2xl relative overflow-hidden shadow-sm">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent" />
+          </div>
+        )}
 
         {/* Profile Info */}
-        <div className="px-4 sm:px-6 lg:px-10 -mt-16 relative z-10">
+        <div className="px-4 sm:px-6 lg:px-10 -mt-14 relative z-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-5">
             {/* Avatar with background shield */}
             <div className="relative">
@@ -1540,7 +1547,8 @@ function PublicProfilePage() {
                         {Object.entries(profile.social_links).map(([platform, url]) => {
                           if (!url || typeof url !== "string" || url.trim() === "") return null;
                           let displayName = platform.charAt(0).toUpperCase() + platform.slice(1);
-                          if (platform === "twitter" || platform === "x") displayName = "X (Twitter)";
+                          if (platform === "twitter" || platform === "x")
+                            displayName = "X (Twitter)";
                           else if (platform === "github") displayName = "GitHub";
                           else if (platform === "linkedin") displayName = "LinkedIn";
                           else if (platform === "youtube") displayName = "YouTube";

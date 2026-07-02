@@ -27,6 +27,10 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/Reveal";
 import { getPlatformStats } from "@/lib/stats.functions";
+import { ComparisonSection } from "@/components/interactive/ComparisonSection";
+import { MobileAppBanner } from "@/components/interactive/MobileAppBanner";
+import { WatchDemoModal } from "@/components/interactive/WatchDemoModal";
+import { useState } from "react";
 
 const AiToolsShowcase = lazy(() =>
   import("@/components/AiToolsShowcase").then((m) => ({ default: m.AiToolsShowcase })),
@@ -60,39 +64,43 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { t } = useTranslation();
+  const [showWatchDemo, setShowWatchDemo] = useState(false);
 
-  const features = useMemo(() => [
-    {
-      icon: Brain,
-      title: t("home.ecosystem.aiTutor.title"),
-      desc: t("home.ecosystem.aiTutor.desc"),
-    },
-    {
-      icon: BookOpen,
-      title: t("home.ecosystem.smartNotes.title"),
-      desc: t("home.ecosystem.smartNotes.desc"),
-    },
-    {
-      icon: Trophy,
-      title: t("home.ecosystem.gamified.title"),
-      desc: t("home.ecosystem.gamified.desc"),
-    },
-    {
-      icon: Users,
-      title: t("home.ecosystem.creatorEconomy.title"),
-      desc: t("home.ecosystem.creatorEconomy.desc"),
-    },
-    {
-      icon: Wallet,
-      title: t("home.ecosystem.wallet.title"),
-      desc: t("home.ecosystem.wallet.desc"),
-    },
-    {
-      icon: BarChart3,
-      title: t("home.ecosystem.career.title"),
-      desc: t("home.ecosystem.career.desc"),
-    },
-  ], [t]);
+  const features = useMemo(
+    () => [
+      {
+        icon: Brain,
+        title: t("home.ecosystem.aiTutor.title"),
+        desc: t("home.ecosystem.aiTutor.desc"),
+      },
+      {
+        icon: BookOpen,
+        title: t("home.ecosystem.smartNotes.title"),
+        desc: t("home.ecosystem.smartNotes.desc"),
+      },
+      {
+        icon: Trophy,
+        title: t("home.ecosystem.gamified.title"),
+        desc: t("home.ecosystem.gamified.desc"),
+      },
+      {
+        icon: Users,
+        title: t("home.ecosystem.creatorEconomy.title"),
+        desc: t("home.ecosystem.creatorEconomy.desc"),
+      },
+      {
+        icon: Wallet,
+        title: t("home.ecosystem.wallet.title"),
+        desc: t("home.ecosystem.wallet.desc"),
+      },
+      {
+        icon: BarChart3,
+        title: t("home.ecosystem.career.title"),
+        desc: t("home.ecosystem.career.desc"),
+      },
+    ],
+    [t],
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -149,15 +157,13 @@ function Index() {
                 </Link>
               </Button>
               <Button
-                asChild
                 size="lg"
                 variant="outline"
+                onClick={() => setShowWatchDemo(true)}
                 className="hover:-translate-y-0.5 transition-all"
               >
-                <a href="#demo">
-                  <PlayCircle className="mr-1.5 h-4 w-4" />
-                  {t("common.watchDemo")}
-                </a>
+                <PlayCircle className="mr-1.5 h-4 w-4" />
+                {t("common.watchDemo")}
               </Button>
             </motion.div>
           </div>
@@ -171,9 +177,7 @@ function Index() {
           <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
             {t("home.demo.title")}
           </h2>
-          <p className="mt-4 text-muted-foreground text-lg">
-            {t("home.demo.subtitle")}
-          </p>
+          <p className="mt-4 text-muted-foreground text-lg">{t("home.demo.subtitle")}</p>
         </Reveal>
         <Reveal variant="scale" delay={0.1}>
           <Suspense
@@ -198,9 +202,7 @@ function Index() {
           <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
             {t("home.ecosystem.title")}
           </h2>
-          <p className="mt-4 text-muted-foreground text-lg">
-            {t("home.ecosystem.subtitle")}
-          </p>
+          <p className="mt-4 text-muted-foreground text-lg">{t("home.ecosystem.subtitle")}</p>
         </Reveal>
         <StaggerGroup className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((f) => (
@@ -228,9 +230,7 @@ function Index() {
           <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
             {t("home.community.title")}
           </h2>
-          <p className="mt-4 text-muted-foreground text-lg">
-            {t("home.community.subtitle")}
-          </p>
+          <p className="mt-4 text-muted-foreground text-lg">{t("home.community.subtitle")}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Button
               asChild
@@ -282,9 +282,7 @@ function Index() {
             <h2 className="font-display text-4xl md:text-5xl font-semibold tracking-tight">
               {t("home.creators.title")}
             </h2>
-            <p className="mt-5 text-muted-foreground text-lg">
-              {t("home.creators.subtitle")}
-            </p>
+            <p className="mt-5 text-muted-foreground text-lg">{t("home.creators.subtitle")}</p>
             <StaggerGroup className="mt-8 space-y-3" stagger={0.07}>
               {[
                 t("home.creators.payouts"),
@@ -344,7 +342,16 @@ function Index() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
+      {/* COMPARISON MATRIX (BEFORE FINAL CTA) */}
+      <ComparisonSection />
+
+      {/* MOBILE APP BANNER */}
+      <section className="container mx-auto px-6 py-20">
+        <MobileAppBanner />
+      </section>
+
+      {/* WATCH DEMO MODAL */}
+      <WatchDemoModal open={showWatchDemo} onOpenChange={setShowWatchDemo} />
 
       <SiteFooter />
     </div>

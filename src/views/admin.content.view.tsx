@@ -139,31 +139,133 @@ type JobRow = {
 type SectionEntry = { title: string; tab: string };
 
 const SECTION_TOURS: Record<string, { what: string; how: string; where: string }> = {
-  events: { what: "Create and manage events for the community — workshops, webinars, meetups, and conferences.", how: "Click 'Add Event' to create a new one. Fill in title, date, location, and optional image. Edit or delete existing events from the list.", where: "Events appear on the Events page and the Dashboard in the Upcoming Events section. Public events are visible to all logged-in users." },
-  jobs: { what: "Post job openings from partner companies directly on the platform for students and alumni.", how: "Click 'Add Job' and fill in title, team, location, and apply URL. Toggle active/inactive to control visibility.", where: "Jobs appear on the Careers page and the Dashboard in the Latest Jobs section. Active jobs are visible to all logged-in users." },
-  pricing: { what: "Manage subscription plans (Starter, Pro, Team), pricing tiers, and plan features for the platform.", how: "Edit plan name, price, description, and toggle features. Use the 'Sync to Cashfree' button to push changes to the payment gateway.", where: "Pricing plans are displayed on the Pricing page. Changes take effect immediately for new subscriptions." },
-  site: { what: "Configure global site settings — AI credits per plan, referral bonuses, and platform-wide configuration.", how: "Adjust credit amounts, referral rewards, and toggle features like AI tutor or playground access.", where: "Site settings apply globally across the entire platform. Changes affect all users." },
-  "cert-templates": { what: "Design and manage certificate templates with custom text, colors, fonts, borders, and backgrounds.", how: "Use the visual editor to customize each template. Live preview updates in real-time. Add elements like logos, signatures, and student details.", where: "Certificate templates are used when issuing certificates to students. They appear as options in the 'Issue Cert' section." },
-  "issue-cert": { what: "Issue certificates to students manually or in bulk. Award them to any user on the platform.", how: "Search for a student, select a template, optionally write a personal message, and click Issue. The certificate is created instantly with a unique verification code.", where: "Students see issued certificates on their Certificates page. Each certificate has a unique verification link they can share on LinkedIn." },
-  faqs: { what: "Manage the FAQ section displayed on the Pricing page. Organize questions by category.", how: "Click 'Add FAQ' to create a new question-answer pair. Group them under categories like Plans, Billing, Features. Edit or reorder as needed.", where: "FAQs appear on the Pricing page organized by category tabs. They help users find answers to common questions." },
-  pages: { what: "Create and manage custom legal and informational pages like Privacy Policy, Terms of Service, Refund Policy, and About Us.", how: "Click 'Add Page' to create a new page with a rich text editor. Support for dynamic variables like {{company_name}} and {{email}}.", where: "Custom pages are linked in the footer and other public areas of the site." },
-  roadmap: { what: "Manage the public product roadmap showing upcoming features, in-progress work, and shipped items.", how: "Add roadmap items with title, description, status (planned, in-progress, shipped), and category. Drag to reorder within each status column.", where: "The roadmap is displayed on the Roadmap page visible to all users. It helps communicate product direction." },
-  coupons: { what: "Create and manage discount coupons for subscriptions. Set discount percentage, max uses, and expiry.", how: "Click 'Add Coupon' to generate a coupon code. Set discount type (percentage or flat), max redemptions, and expiration date. Copy coupon code to share.", where: "Coupons are applied at checkout on the Pricing page. Users enter the code to get the discount." },
-  community: { what: "Create and manage community groups for focused discussions. Each group has its own feed and members.", how: "Click 'Add Group' to create a new community group. Set name, description, cover image, and privacy settings. Monitor active members and posts.", where: "Community groups appear on the Community page. Users can join groups and participate in discussions." },
-  features: { what: "Toggle feature visibility across the platform. Enable, disable, or set maintenance mode for any feature.", how: "Use the switches to enable/disable features. Toggle maintenance mode to show a maintenance banner. Changes take effect immediately.", where: "Feature visibility affects the entire platform — nav items, routes, and feature access." },
-  blog: { what: "Write and publish blog posts. Manage the blog with markdown editor, featured images, and publish controls.", how: "Click 'New Post' to write a blog post. Set title, slug, excerpt, featured image, and publish date. Toggle published status to go live.", where: "Blog posts appear on the public Blog page at /blog. Recent posts are also highlighted on the Dashboard." },
-  "wcms-pages": { what: "Build custom landing pages using the drag-and-drop WCMS (Web Content Management System) page builder.", how: "Click 'Add Page' to create a new page. Use the visual builder to add sections, rows, and content blocks. Preview before publishing.", where: "WCMS pages are served at their configured URL paths. They support custom layouts beyond standard routes." },
-  "wcms-media": { what: "Upload and manage media files — images, SVGs, PDFs, and documents used across the platform.", how: "Upload files by clicking the upload area or drag-and-drop. Files are organized by type. Click to copy the URL or delete unwanted files.", where: "Media library items can be used in WCMS pages, blog posts, email templates, and anywhere content is edited." },
-  "wcms-features": { what: "Create and manage feature cards showcasing platform capabilities, used on landing pages and marketing sections.", how: "Add features with icon, title, description, and optional link. Drag to reorder. Toggle visibility per feature.", where: "Features appear on WCMS pages through the Features Section block. They highlight platform capabilities." },
-  "wcms-menus": { what: "Build and manage navigation menus for the site header and footer with custom links.", how: "Add menu items with custom labels and URLs. Drag to reorder. Support for nested sub-menus and separator items.", where: "Menus are rendered in the site header (top navigation) and footer based on the configured menu location." },
-  "wcms-sections": { what: "Manage reusable WCMS content sections that can be embedded across multiple pages.", how: "Create sections with the visual builder. Use them in any WCMS page by selecting from the sections library. Updates sync everywhere.", where: "Sections are reusable blocks that can appear on any WCMS page. Great for headers, CTAs, and recurring content patterns." },
+  events: {
+    what: "Create and manage events for the community — workshops, webinars, meetups, and conferences.",
+    how: "Click 'Add Event' to create a new one. Fill in title, date, location, and optional image. Edit or delete existing events from the list.",
+    where:
+      "Events appear on the Events page and the Dashboard in the Upcoming Events section. Public events are visible to all logged-in users.",
+  },
+  jobs: {
+    what: "Post job openings from partner companies directly on the platform for students and alumni.",
+    how: "Click 'Add Job' and fill in title, team, location, and apply URL. Toggle active/inactive to control visibility.",
+    where:
+      "Jobs appear on the Careers page and the Dashboard in the Latest Jobs section. Active jobs are visible to all logged-in users.",
+  },
+  pricing: {
+    what: "Manage subscription plans (Starter, Pro, Team), pricing tiers, and plan features for the platform.",
+    how: "Edit plan name, price, description, and toggle features. Use the 'Sync to Cashfree' button to push changes to the payment gateway.",
+    where:
+      "Pricing plans are displayed on the Pricing page. Changes take effect immediately for new subscriptions.",
+  },
+  site: {
+    what: "Configure global site settings — AI credits per plan, referral bonuses, and platform-wide configuration.",
+    how: "Adjust credit amounts, referral rewards, and toggle features like AI tutor or playground access.",
+    where: "Site settings apply globally across the entire platform. Changes affect all users.",
+  },
+  "cert-templates": {
+    what: "Design and manage certificate templates with custom text, colors, fonts, borders, and backgrounds.",
+    how: "Use the visual editor to customize each template. Live preview updates in real-time. Add elements like logos, signatures, and student details.",
+    where:
+      "Certificate templates are used when issuing certificates to students. They appear as options in the 'Issue Cert' section.",
+  },
+  "issue-cert": {
+    what: "Issue certificates to students manually or in bulk. Award them to any user on the platform.",
+    how: "Search for a student, select a template, optionally write a personal message, and click Issue. The certificate is created instantly with a unique verification code.",
+    where:
+      "Students see issued certificates on their Certificates page. Each certificate has a unique verification link they can share on LinkedIn.",
+  },
+  faqs: {
+    what: "Manage the FAQ section displayed on the Pricing page. Organize questions by category.",
+    how: "Click 'Add FAQ' to create a new question-answer pair. Group them under categories like Plans, Billing, Features. Edit or reorder as needed.",
+    where:
+      "FAQs appear on the Pricing page organized by category tabs. They help users find answers to common questions.",
+  },
+  pages: {
+    what: "Create and manage custom legal and informational pages like Privacy Policy, Terms of Service, Refund Policy, and About Us.",
+    how: "Click 'Add Page' to create a new page with a rich text editor. Support for dynamic variables like {{company_name}} and {{email}}.",
+    where: "Custom pages are linked in the footer and other public areas of the site.",
+  },
+  roadmap: {
+    what: "Manage the public product roadmap showing upcoming features, in-progress work, and shipped items.",
+    how: "Add roadmap items with title, description, status (planned, in-progress, shipped), and category. Drag to reorder within each status column.",
+    where:
+      "The roadmap is displayed on the Roadmap page visible to all users. It helps communicate product direction.",
+  },
+  coupons: {
+    what: "Create and manage discount coupons for subscriptions. Set discount percentage, max uses, and expiry.",
+    how: "Click 'Add Coupon' to generate a coupon code. Set discount type (percentage or flat), max redemptions, and expiration date. Copy coupon code to share.",
+    where:
+      "Coupons are applied at checkout on the Pricing page. Users enter the code to get the discount.",
+  },
+  community: {
+    what: "Create and manage community groups for focused discussions. Each group has its own feed and members.",
+    how: "Click 'Add Group' to create a new community group. Set name, description, cover image, and privacy settings. Monitor active members and posts.",
+    where:
+      "Community groups appear on the Community page. Users can join groups and participate in discussions.",
+  },
+  features: {
+    what: "Toggle feature visibility across the platform. Enable, disable, or set maintenance mode for any feature.",
+    how: "Use the switches to enable/disable features. Toggle maintenance mode to show a maintenance banner. Changes take effect immediately.",
+    where:
+      "Feature visibility affects the entire platform — nav items, routes, and feature access.",
+  },
+  blog: {
+    what: "Write and publish blog posts. Manage the blog with markdown editor, featured images, and publish controls.",
+    how: "Click 'New Post' to write a blog post. Set title, slug, excerpt, featured image, and publish date. Toggle published status to go live.",
+    where:
+      "Blog posts appear on the public Blog page at /blog. Recent posts are also highlighted on the Dashboard.",
+  },
+  "wcms-pages": {
+    what: "Build custom landing pages using the drag-and-drop WCMS (Web Content Management System) page builder.",
+    how: "Click 'Add Page' to create a new page. Use the visual builder to add sections, rows, and content blocks. Preview before publishing.",
+    where:
+      "WCMS pages are served at their configured URL paths. They support custom layouts beyond standard routes.",
+  },
+  "wcms-media": {
+    what: "Upload and manage media files — images, SVGs, PDFs, and documents used across the platform.",
+    how: "Upload files by clicking the upload area or drag-and-drop. Files are organized by type. Click to copy the URL or delete unwanted files.",
+    where:
+      "Media library items can be used in WCMS pages, blog posts, email templates, and anywhere content is edited.",
+  },
+  "wcms-features": {
+    what: "Create and manage feature cards showcasing platform capabilities, used on landing pages and marketing sections.",
+    how: "Add features with icon, title, description, and optional link. Drag to reorder. Toggle visibility per feature.",
+    where:
+      "Features appear on WCMS pages through the Features Section block. They highlight platform capabilities.",
+  },
+  "wcms-menus": {
+    what: "Build and manage navigation menus for the site header and footer with custom links.",
+    how: "Add menu items with custom labels and URLs. Drag to reorder. Support for nested sub-menus and separator items.",
+    where:
+      "Menus are rendered in the site header (top navigation) and footer based on the configured menu location.",
+  },
+  "wcms-sections": {
+    what: "Manage reusable WCMS content sections that can be embedded across multiple pages.",
+    how: "Create sections with the visual builder. Use them in any WCMS page by selecting from the sections library. Updates sync everywhere.",
+    where:
+      "Sections are reusable blocks that can appear on any WCMS page. Great for headers, CTAs, and recurring content patterns.",
+  },
 };
 
 const TAB_LABELS: Record<string, string> = {
-  events: "Events", jobs: "Jobs", pricing: "Pricing", site: "Site", "cert-templates": "Cert Templates",
-  "issue-cert": "Issue Cert", faqs: "FAQs", pages: "Pages", roadmap: "Roadmap", coupons: "Coupons",
-  community: "Community Groups", features: "Visibility", blog: "Blog", "wcms-pages": "WCMS Pages",
-  "wcms-media": "Media Library", "wcms-features": "Features Catalog", "wcms-menus": "Menus", "wcms-sections": "Sections",
+  events: "Events",
+  jobs: "Jobs",
+  pricing: "Pricing",
+  site: "Site",
+  "cert-templates": "Cert Templates",
+  "issue-cert": "Issue Cert",
+  faqs: "FAQs",
+  pages: "Pages",
+  roadmap: "Roadmap",
+  coupons: "Coupons",
+  community: "Community Groups",
+  features: "Visibility",
+  blog: "Blog",
+  "wcms-pages": "WCMS Pages",
+  "wcms-media": "Media Library",
+  "wcms-features": "Features Catalog",
+  "wcms-menus": "Menus",
+  "wcms-sections": "Sections",
 };
 
 export default function AdminContentPage() {
@@ -374,7 +476,12 @@ export default function AdminContentPage() {
           <TabsContent value="wcms-pages" className="mt-6">
             <div className="flex items-center justify-end -mt-12 mb-2">
               <div className="w-20 h-20">
-                <img src="/illustrations/Web_Designing.svg" alt="" className="w-full h-full" loading="lazy" />
+                <img
+                  src="/illustrations/Web_Designing.svg"
+                  alt=""
+                  className="w-full h-full"
+                  loading="lazy"
+                />
               </div>
             </div>
             <PageManager />
@@ -406,23 +513,40 @@ export default function AdminContentPage() {
 
         {/* Tour Popup */}
         {showTour && SECTION_TOURS[showTour] && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setShowTour(null)}>
-            <div className="bg-background rounded-2xl border shadow-2xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowTour(null)}
+          >
+            <div
+              className="bg-background rounded-2xl border shadow-2xl max-w-lg w-full p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">{TAB_LABELS[showTour] || showTour}</h3>
-                <button onClick={() => setShowTour(null)} className="h-8 w-8 rounded-full hover:bg-muted flex items-center justify-center transition-colors"><X className="h-4 w-4" /></button>
+                <button
+                  onClick={() => setShowTour(null)}
+                  className="h-8 w-8 rounded-full hover:bg-muted flex items-center justify-center transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
               <div className="space-y-4">
                 <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/10">
-                  <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-1.5"><HelpCircle className="h-4 w-4" /> What is this?</h4>
+                  <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-1.5">
+                    <HelpCircle className="h-4 w-4" /> What is this?
+                  </h4>
                   <p className="text-sm text-muted-foreground">{SECTION_TOURS[showTour].what}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
-                  <h4 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-1.5"><ArrowLeft className="h-4 w-4 rotate-45" /> How to use?</h4>
+                  <h4 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-1.5">
+                    <ArrowLeft className="h-4 w-4 rotate-45" /> How to use?
+                  </h4>
                   <p className="text-sm text-muted-foreground">{SECTION_TOURS[showTour].how}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/10">
-                  <h4 className="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-1 flex items-center gap-1.5"><Eye className="h-4 w-4" /> Where it shows?</h4>
+                  <h4 className="text-sm font-semibold text-purple-600 dark:text-purple-400 mb-1 flex items-center gap-1.5">
+                    <Eye className="h-4 w-4" /> Where it shows?
+                  </h4>
                   <p className="text-sm text-muted-foreground">{SECTION_TOURS[showTour].where}</p>
                 </div>
               </div>
@@ -452,7 +576,7 @@ function EventsManager() {
       const result = await doQuery({
         data: { table: "events", orderBy: "starts_at", ascending: true },
       });
-      return (result ?? []) as EventRow[];
+      return (result ?? []) as unknown as EventRow[];
     },
   });
 
@@ -769,7 +893,7 @@ function JobsManager() {
       const result = await doQuery({
         data: { table: "job_postings", orderBy: "created_at", ascending: false },
       });
-      return (result ?? []) as JobRow[];
+      return (result ?? []) as unknown as JobRow[];
     },
   });
 
@@ -794,11 +918,11 @@ function JobsManager() {
     } catch (e: any) {
       return toast.error(e?.message || "Delete failed");
     }
-      toast.success("Job deleted");
-      setDeleteId(null);
-      qc.invalidateQueries({ queryKey: ["admin-jobs"] });
-      qc.invalidateQueries({ queryKey: ["dashboard-jobs"] });
-      qc.invalidateQueries({ queryKey: ["jobs-public"] });
+    toast.success("Job deleted");
+    setDeleteId(null);
+    qc.invalidateQueries({ queryKey: ["admin-jobs"] });
+    qc.invalidateQueries({ queryKey: ["dashboard-jobs"] });
+    qc.invalidateQueries({ queryKey: ["jobs-public"] });
   };
 
   return (
@@ -1060,6 +1184,7 @@ function PricingManager() {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const doSavePlan = useServerFn(savePlan);
   const doDeletePlan = useServerFn(deletePlan);
   const doSyncPlan = useServerFn(syncPlanToCashfree);
@@ -1071,7 +1196,7 @@ function PricingManager() {
       const result = await doQuery({
         data: { table: "pricing_plans", orderBy: "order_index", ascending: true },
       });
-      return (result ?? []).map((p: any) => ({
+      return ((result ?? []) as unknown as any[]).map((p: any) => ({
         ...p,
         features: Array.isArray(p.features) ? p.features : [],
       })) as PlanRow[];
@@ -1115,9 +1240,109 @@ function PricingManager() {
     }
   };
 
+  const seedDefaultPlans = async () => {
+    const defaults = [
+      {
+        name: "Starter",
+        price_label: "Free",
+        price_inr: 0,
+        yearly_price: null,
+        interval: null,
+        ai_credits_monthly: 500,
+        max_courses: 3,
+        description: "Perfect for getting started with AI-powered learning.",
+        features: ["3 free courses", "Basic AI tutor", "Community access", "Progress tracking", "Basic certificates", "Email support", "500 AI credits / month", "Course notes & summaries", "Basic quiz access"],
+        cta_label: "Get Started Free",
+        cta_to: "/signup",
+        highlighted: false,
+        order_index: 10,
+        active: true,
+        badge: null,
+        color: "#2563EB",
+        cashfree_plan_id: null,
+      },
+      {
+        name: "Pro",
+        price_label: "₹199/mo",
+        price_inr: 199,
+        yearly_price: 1999,
+        interval: "month",
+        ai_credits_monthly: 10000,
+        max_courses: -1,
+        description: "For serious learners and creators who want unlimited access.",
+        features: ["Unlimited courses", "Advanced AI tutor", "All certificates", "Resume Builder", "ATS Checker", "AI Career Coach", "Mock Interviews", "Learning Roadmaps", "Download resources", "Community challenges", "Priority support", "10,000 AI credits / month"],
+        cta_label: "Start Pro",
+        cta_to: "/signup?plan=pro",
+        highlighted: true,
+        order_index: 20,
+        active: true,
+        badge: "Most Popular",
+        color: "#6366F1",
+        cashfree_plan_id: null,
+      },
+      {
+        name: "Career Pro",
+        price_label: "₹399/mo",
+        price_inr: 399,
+        yearly_price: 3999,
+        interval: "month",
+        ai_credits_monthly: 25000,
+        max_courses: -1,
+        description: "Complete career toolkit for job seekers and professionals.",
+        features: ["Everything in Pro", "Custom certificate templates", "Portfolio Builder", "LinkedIn Optimizer", "Internship Tracker", "Career Analytics", "Interview recording & playback", "Advanced ATS optimization", "Skill gap analysis", "Project recommendations", "Lifetime certificate access", "Priority support", "25,000 AI credits / month"],
+        cta_label: "Become Job Ready",
+        cta_to: "/signup?plan=career-pro",
+        highlighted: false,
+        order_index: 30,
+        active: true,
+        badge: "Best Value",
+        color: "#8B5CF6",
+        cashfree_plan_id: null,
+      },
+      {
+        name: "Team",
+        price_label: "₹4,999/mo",
+        price_inr: 4999,
+        yearly_price: 47990,
+        interval: "month",
+        ai_credits_monthly: 50000,
+        max_courses: -1,
+        description: "For cohorts, schools, and companies scaling learning.",
+        features: ["Everything in Career Pro", "Admin dashboard", "Team management", "Bulk enrollment", "Attendance tracking", "Batch management", "SSO + RBAC", "White label", "Custom domain", "Department analytics", "Certificate automation", "API access", "Dedicated support", "50,000 AI credits / month"],
+        cta_label: "Book Demo",
+        cta_to: "/contact",
+        highlighted: false,
+        order_index: 40,
+        active: true,
+        badge: null,
+        color: "#7c3aed",
+        cashfree_plan_id: null,
+      },
+    ];
+    setSaving(true);
+    try {
+      for (const plan of defaults) {
+        await doSavePlan({
+          data: plan,
+        });
+      }
+      toast.success("Default plans seeded!");
+      qc.invalidateQueries({ queryKey: ["admin-plans"] });
+      qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Seed failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button size="sm" variant="outline" onClick={seedDefaultPlans} disabled={saving}>
+          {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1.5" />}
+          Seed Default Plans
+        </Button>
         <Button onClick={newPlan}>
           <Plus className="h-4 w-4 mr-2" />
           New plan
@@ -1559,7 +1784,7 @@ function SiteSettingsManager() {
     queryFn: async () => {
       const result = await doQuery({ data: { table: "site_settings", columns: "key,value" } });
       const m: Record<string, string> = {};
-      (result ?? []).forEach((r: any) => {
+      ((result ?? []) as unknown as any[]).forEach((r: any) => {
         m[r.key] = r.value ?? "";
       });
       return m;
@@ -1736,7 +1961,7 @@ function CertTemplatesManager() {
       const result = await doQuery({
         data: { table: "certificate_templates", orderBy: "created_at", ascending: true },
       });
-      return (result ?? []) as TemplateRow[];
+      return (result ?? []) as unknown as TemplateRow[];
     },
   });
 
@@ -2755,6 +2980,7 @@ function FaqsManager() {
   const [editing, setEditing] = useState<FaqRow | null>(null);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const doAdminAction = useServerFn(adminContentAction);
   const doQuery = useServerFn(adminContentQuery);
 
@@ -2770,7 +2996,7 @@ function FaqsManager() {
           ascending2: true,
         },
       });
-      return (result ?? []) as FaqRow[];
+      return (result ?? []) as unknown as FaqRow[];
     },
   });
 
@@ -2799,9 +3025,73 @@ function FaqsManager() {
     qc.invalidateQueries({ queryKey: ["public-faqs"] });
   };
 
+  const seedDefaultFaqs = async () => {
+    const defaults: { question: string; answer: string; category: string; order_index: number; published: boolean }[] = [
+      // Plans & Pricing
+      { question: "Can I switch plans anytime?", answer: "Yes, you can upgrade or downgrade at any time. Changes take effect immediately and your billing will be prorated.", category: "Plans & Pricing", order_index: 10, published: true },
+      { question: "Is there a free trial?", answer: "The Starter plan is free forever with basic features. All premium plans come with a 7-day money-back guarantee so you can try risk-free.", category: "Plans & Pricing", order_index: 20, published: true },
+      { question: "What happens when I run out of AI credits?", answer: "You can purchase additional AI credit top-ups at any time, or upgrade to a higher plan for more monthly credits.", category: "Plans & Pricing", order_index: 30, published: true },
+      { question: "Do you offer student discounts?", answer: "Yes! We offer a 50% discount for verified students. Contact support with your student ID to apply the discount.", category: "Plans & Pricing", order_index: 40, published: true },
+      { question: "Can I cancel my subscription anytime?", answer: "Yes, you can cancel anytime. Your access continues until the end of the current billing period.", category: "Plans & Pricing", order_index: 50, published: true },
+      // Billing
+      { question: "What payment methods do you accept?", answer: "We accept all major credit cards, debit cards, UPI, Net Banking, and popular wallets through our secure payment partner Cashfree.", category: "Billing", order_index: 60, published: true },
+      { question: "Can I get a refund?", answer: "Yes, we offer a 7-day money-back guarantee on all premium plans. Contact our support team within 7 days of purchase for a full refund.", category: "Billing", order_index: 70, published: true },
+      { question: "How do I download my invoice?", answer: "Invoices are available in your account settings under Billing History. You can download PDF invoices for all past payments.", category: "Billing", order_index: 80, published: true },
+      { question: "Is my payment information secure?", answer: "Absolutely. We use PCI-compliant payment processing through Cashfree. Your card details are never stored on our servers.", category: "Billing", order_index: 90, published: true },
+      { question: "Do you offer GST invoices?", answer: "Yes, GST invoices are available for all Indian customers. Make sure your GST number is added in your billing settings.", category: "Billing", order_index: 100, published: true },
+      // Features
+      { question: "What AI features are included?", answer: "AI Tutor, Resume Builder, Interview Coach, Certificate Generator, and Career Roadmap are included in Pro and above plans.", category: "Features", order_index: 110, published: true },
+      { question: "How do certificates work?", answer: "Complete a course and pass the assessment to earn a verified certificate with a unique QR code and ID. Certificates can be shared on LinkedIn.", category: "Features", order_index: 120, published: true },
+      { question: "Is there a mobile app?", answer: "Learnify AI is fully responsive and works on all devices. A dedicated mobile app is coming soon.", category: "Features", order_index: 130, published: true },
+      { question: "Can I download course materials?", answer: "Yes, you can download video transcripts, notes, and code samples for offline reference.", category: "Features", order_index: 140, published: true },
+      { question: "Do you offer placement assistance?", answer: "Pro and Team plans include resume review, mock interviews, and career guidance. Team plans also include direct company referrals.", category: "Features", order_index: 150, published: true },
+      // Technical
+      { question: "Is my data secure?", answer: "Yes, we use SSL encryption, secure payment processing, and follow industry best practices for data protection. Your data is stored securely on Cloudflare.", category: "Technical", order_index: 160, published: true },
+      { question: "Can I access courses offline?", answer: "Currently, courses are available online only. However, you can save video transcripts and notes for offline reading.", category: "Technical", order_index: 170, published: true },
+      { question: "What browsers are supported?", answer: "Learnify AI works on all modern browsers including Chrome, Firefox, Safari, and Edge.", category: "Technical", order_index: 180, published: true },
+      { question: "How do I reset my password?", answer: "Click 'Forgot Password' on the login page. We'll send a password reset link to your registered email.", category: "Technical", order_index: 190, published: true },
+      { question: "What is the AI Tutor and how does it work?", answer: "The AI Tutor is an intelligent chatbot powered by GPT-4 that can explain concepts, debug code, answer questions, and guide you through your learning journey in real-time.", category: "Technical", order_index: 200, published: true },
+      // Account
+      { question: "How do I update my profile?", answer: "Go to your Account Settings to update your name, email, password, and profile picture.", category: "Account", order_index: 210, published: true },
+      { question: "How do I delete my account?", answer: "Go to Account Settings > Danger Zone. Enter your password to confirm. All your data will be permanently deleted within 30 days.", category: "Account", order_index: 220, published: true },
+      { question: "How do I change my email address?", answer: "Go to Account Settings and update your email. You'll receive a verification link at the new address.", category: "Account", order_index: 230, published: true },
+      { question: "Can I have multiple devices logged in?", answer: "Yes, you can access your account from multiple devices simultaneously.", category: "Account", order_index: 240, published: true },
+      { question: "How do I view my learning progress?", answer: "Your dashboard shows course progress, completed courses, certificates earned, and AI credit usage.", category: "Account", order_index: 250, published: true },
+      // Students
+      { question: "Is Learnify suitable for beginners?", answer: "Absolutely! Our courses range from beginner to advanced. The AI Tutor adapts to your skill level and explains concepts at your pace.", category: "Students", order_index: 260, published: true },
+      { question: "How do I get verified as a student?", answer: "Upload your valid student ID or university email in Account Settings. Verification is processed within 24 hours.", category: "Students", order_index: 270, published: true },
+      { question: "Can I get a discount as a student?", answer: "Yes, verified students get 50% off on all premium plans. Complete student verification first, then the discount will be applied automatically.", category: "Students", order_index: 280, published: true },
+      { question: "Can I refer a friend?", answer: "Yes! Share your referral link from the dashboard. Both you and your friend get 500 bonus AI credits when they sign up.", category: "Students", order_index: 290, published: true },
+      { question: "Do you offer college partnerships?", answer: "Yes, we partner with colleges and universities to provide bulk access. Contact our enterprise sales team for custom pricing.", category: "Students", order_index: 300, published: true },
+    ];
+    setSaving(true);
+    try {
+      for (const faq of defaults) {
+        await doAdminAction({
+          data: {
+            table: "faqs",
+            action: "create",
+            data: faq,
+          },
+        });
+      }
+      toast.success("Default FAQs seeded!");
+      qc.invalidateQueries({ queryKey: ["admin-faqs"] });
+      qc.invalidateQueries({ queryKey: ["public-faqs"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Seed failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button size="sm" variant="outline" onClick={seedDefaultFaqs} disabled={saving}>
+          {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1.5" />}
+          Seed Default FAQs
+        </Button>
         <Button onClick={newFaq}>
           <Plus className="h-4 w-4 mr-2" />
           New FAQ
@@ -3003,6 +3293,7 @@ function SectionsManager() {
   const [editing, setEditing] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [jsonText, setJsonText] = useState("{}");
   const doQuery = useServerFn(adminContentQuery);
   const doUpsert = useServerFn(adminContentUpsert);
   const doDelete = useServerFn(adminContentAction);
@@ -3013,7 +3304,7 @@ function SectionsManager() {
       const result = await doQuery({
         data: { table: "wcms_sections", orderBy: "key", ascending: true },
       });
-      return result ?? [];
+      return (result ?? []) as unknown as any[];
     },
   });
 
@@ -3022,6 +3313,14 @@ function SectionsManager() {
       toast.error("Key and name are required");
       return;
     }
+    let parsedContent = {};
+    try {
+      parsedContent = JSON.parse(jsonText);
+    } catch (err: any) {
+      toast.error("Invalid JSON content: " + err.message);
+      return;
+    }
+
     setSaving(true);
     try {
       await doUpsert({
@@ -3031,7 +3330,7 @@ function SectionsManager() {
             key: editing.key,
             name: editing.name,
             description: editing.description,
-            content: editing.content,
+            content: parsedContent,
             block_type: "custom",
           },
           onConflict: "key",
@@ -3244,6 +3543,7 @@ function SectionsManager() {
           size="sm"
           onClick={() => {
             setEditing({ key: "", name: "", description: "", content: {} });
+            setJsonText("{}");
             setOpen(true);
           }}
         >
@@ -3280,16 +3580,13 @@ function SectionsManager() {
                   variant="outline"
                   onClick={() => {
                     setEditing(s);
+                    setJsonText(JSON.stringify(s.content || {}, null, 2));
                     setOpen(true);
                   }}
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setDeletingId(s.id)}
-                >
+                <Button size="sm" variant="outline" onClick={() => setDeletingId(s.id)}>
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
@@ -3336,15 +3633,8 @@ function SectionsManager() {
                 <Label>Content (JSON)</Label>
                 <Textarea
                   rows={16}
-                  value={JSON.stringify(editing.content || {}, null, 2)}
-                  onChange={(e) => {
-                    try {
-                      const parsed = JSON.parse(e.target.value);
-                      setEditing({ ...editing, content: parsed });
-                    } catch {
-                      // Allow editing even if invalid JSON
-                    }
-                  }}
+                  value={jsonText}
+                  onChange={(e) => setJsonText(e.target.value)}
                   className="font-mono text-xs"
                 />
               </div>
@@ -3372,17 +3662,22 @@ function SectionsManager() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <Button variant="destructive" onClick={() => {
-              const id = deletingId;
-              if (!id) return;
-              doDelete({ data: { table: "wcms_sections", action: "delete", id, matchKey: "id" } })
-                .then(() => {
-                  toast.success("Section deleted");
-                  qc.invalidateQueries({ queryKey: ["admin-sections"] });
-                })
-                .catch((e: any) => toast.error(e?.message || "Delete failed"))
-                .finally(() => setDeletingId(null));
-            }}>Delete</Button>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                const id = deletingId;
+                if (!id) return;
+                doDelete({ data: { table: "wcms_sections", action: "delete", id, matchKey: "id" } })
+                  .then(() => {
+                    toast.success("Section deleted");
+                    qc.invalidateQueries({ queryKey: ["admin-sections"] });
+                  })
+                  .catch((e: any) => toast.error(e?.message || "Delete failed"))
+                  .finally(() => setDeletingId(null));
+              }}
+            >
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -3416,7 +3711,7 @@ function PagesManager() {
         },
       });
       const m: Record<string, string> = {};
-      (result ?? []).forEach((r: any) => {
+      ((result ?? []) as unknown as any[]).forEach((r: any) => {
         m[r.key] = r.value ?? "";
       });
       keys.forEach((k) => {

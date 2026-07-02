@@ -154,7 +154,7 @@ export default function RoadmapBuilder({ user, isCreator }: { user: any; isCreat
     queryKey: ["coaching-roadmaps", user?.id],
     queryFn: async () => {
       const result = await listRoadmapsFn({ data: {} });
-      return result as Roadmap[];
+      return result as unknown as Roadmap[];
     },
     enabled: !!user,
   });

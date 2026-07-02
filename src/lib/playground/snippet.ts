@@ -9,14 +9,7 @@ export interface SnippetInput {
 }
 
 export type SnippetLang =
-  | "curl"
-  | "fetch"
-  | "axios"
-  | "node"
-  | "python"
-  | "kotlin"
-  | "swift"
-  | "dart";
+  "curl" | "fetch" | "axios" | "node" | "python" | "kotlin" | "swift" | "dart";
 
 export const SNIPPET_LANGS: { id: SnippetLang; label: string }[] = [
   { id: "curl", label: "cURL" },
