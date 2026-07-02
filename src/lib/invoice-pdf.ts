@@ -372,12 +372,13 @@ export async function downloadInvoicePdf(
 
   // ─── 14. PAID WATERMARK ────────────────────────────────────────────────────
   if (inv.status === "paid") {
+    doc.saveGraphicsState();
+    doc.setGState(new (doc as any).GState({ opacity: 0.08 }));
     doc.setFontSize(52);
     doc.setTextColor(34, 197, 94);
     doc.setFont("helvetica", "bold");
-    doc.setGState(doc.GState({ opacity: 0.08 }));
-    doc.text("PAID", pageW / 2, 165, { align: "center", angle: 45 });
-    doc.setGState(doc.GState({ opacity: 1 }));
+    doc.text("PAID", pageW / 2, 165, { align: "center" });
+    doc.restoreGraphicsState();
   }
 
   doc.save(`${(branding.company_name || "Learnify_AI").replace(/\s+/g, "_")}_${inv.invoice_number || "invoice"}.pdf`);
