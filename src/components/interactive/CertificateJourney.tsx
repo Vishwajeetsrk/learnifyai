@@ -38,41 +38,41 @@ const FALLBACK_CONTENT = {
     "Every certificate earned on Learnify AI is securely generated, verifiable, and designed to help you demonstrate your skills to employers, colleges, and clients.",
   steps: [
     {
-      icon: "📚",
+      icon: "book",
       title: "Enroll in a Course",
       description: "Choose a course that matches your learning goals and start your journey.",
     },
     {
-      icon: "🎥",
+      icon: "video",
       title: "Complete All Lessons",
       description: "Watch videos, read learning materials, and finish every module.",
     },
     {
-      icon: "📝",
+      icon: "file-check",
       title: "Pass Quiz & Assessments",
       description:
         "Complete quizzes, assignments, and practical exercises with the required score.",
     },
     {
-      icon: "✅",
+      icon: "check-circle",
       title: "Course Completed",
       description:
         "Once all requirements are met, your course will be marked as completed automatically.",
     },
     {
-      icon: "🏆",
+      icon: "award",
       title: "Certificate Generated",
       description:
         "Learnify AI instantly generates a personalized certificate with student name, course name, completion date, certificate ID, QR verification, and Learnify AI Seal.",
     },
     {
-      icon: "📥",
+      icon: "download",
       title: "Download & Share",
       description:
         "Download your certificate as PDF. Share instantly on LinkedIn, resume, portfolio, or personal website.",
     },
     {
-      icon: "🚀",
+      icon: "rocket",
       title: "Showcase Your Achievement",
       description:
         "Strengthen your resume, improve your LinkedIn profile, demonstrate new skills, and build professional credibility.",
@@ -80,22 +80,22 @@ const FALLBACK_CONTENT = {
   ],
   benefits: [
     {
-      icon: "🎓",
+      icon: "graduation-cap",
       title: "Industry-Relevant Skills",
       description: "Learn practical skills employers actually need.",
     },
     {
-      icon: "🔒",
+      icon: "shield-check",
       title: "Verified & Secure",
       description: "Every certificate includes a unique verification ID and QR code.",
     },
     {
-      icon: "📈",
+      icon: "trending-up",
       title: "Career Growth",
       description: "Showcase achievements during internships, placements, and job applications.",
     },
     {
-      icon: "🌎",
+      icon: "globe",
       title: "Share Anywhere",
       description: "Add certificates to LinkedIn, resumes, portfolios, and professional profiles.",
     },

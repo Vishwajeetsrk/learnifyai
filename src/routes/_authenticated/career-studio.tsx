@@ -102,9 +102,9 @@ function LinkedInOptimizerView() {
       return;
     }
     setGenerated([
-      `🚀 ${headline} | Ex-Intern @ Top Tech | Building Scalable Web Apps & AI Tools`,
-      `💻 Full Stack Engineer specializing in ${headline} | React, Node.js, Python | Open to Roles`,
-      `✨ Driven ${headline} | 5+ Projects Shipped | Hackathon Winner | Passionate about AI & UX`,
+      `${headline} | Ex-Intern @ Top Tech | Building Scalable Web Apps & AI Tools`,
+      `Full Stack Engineer specializing in ${headline} | React, Node.js, Python | Open to Roles`,
+      `Driven ${headline} | 5+ Projects Shipped | Hackathon Winner | Passionate about AI & UX`,
     ]);
     toast.success("Generated 3 AI-optimized LinkedIn headlines!");
   };

@@ -272,7 +272,18 @@ function AdminOverview() {
   const usersQuery = useQuery({
     enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "users"],
-    queryFn: () => listUsersFn(),
+    queryFn: async () => {
+      try {
+        const res = await listUsersFn();
+        if (!res || typeof res !== "object") {
+          throw new Error("Invalid or empty response from admin API");
+        }
+        return res;
+      } catch (err: any) {
+        console.error("[admin.tsx] usersQuery error:", err);
+        throw err;
+      }
+    },
   });
 
   // Cohorts

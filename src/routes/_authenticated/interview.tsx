@@ -19,6 +19,13 @@ import {
   Volume2,
   VolumeX,
   Briefcase,
+  Palette,
+  Settings,
+  Rocket,
+  BarChart3 as BarChart3Icon,
+  Wrench,
+  Smartphone,
+  Clipboard,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -33,14 +40,14 @@ export const Route = createFileRoute("/_authenticated/interview")({
 });
 
 const JOB_ROLES = [
-  { id: "frontend", label: "Frontend Developer", icon: "🎨" },
-  { id: "backend", label: "Backend Developer", icon: "⚙️" },
-  { id: "fullstack", label: "Full-Stack Developer", icon: "🚀" },
-  { id: "dataScience", label: "Data Scientist", icon: "📊" },
-  { id: "devops", label: "DevOps Engineer", icon: "🔧" },
-  { id: "mobile", label: "Mobile Developer", icon: "📱" },
-  { id: "pm", label: "Product Manager", icon: "📋" },
-  { id: "designer", label: "UI/UX Designer", icon: "🎯" },
+  { id: "frontend", label: "Frontend Developer", icon: Palette },
+  { id: "backend", label: "Backend Developer", icon: Settings },
+  { id: "fullstack", label: "Full-Stack Developer", icon: Rocket },
+  { id: "dataScience", label: "Data Scientist", icon: BarChart3Icon },
+  { id: "devops", label: "DevOps Engineer", icon: Wrench },
+  { id: "mobile", label: "Mobile Developer", icon: Smartphone },
+  { id: "pm", label: "Product Manager", icon: Clipboard },
+  { id: "designer", label: "UI/UX Designer", icon: Target },
 ];
 
 const DIFFICULTIES = [
@@ -313,21 +320,24 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
                 <Briefcase className="h-4 w-4 text-primary" /> Select Job Role
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {JOB_ROLES.map((r) => (
-                  <button
-                    key={r.id}
-                    onClick={() => setRole(r.id)}
-                    className={cn(
-                      "p-4 rounded-xl border text-left transition-all",
-                      role === r.id
-                        ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-border hover:border-primary/40 hover:bg-muted/30",
-                    )}
-                  >
-                    <span className="text-2xl mb-2 block">{r.icon}</span>
-                    <span className="text-sm font-medium">{r.label}</span>
-                  </button>
-                ))}
+                {JOB_ROLES.map((r) => {
+                  const Icon = r.icon;
+                  return (
+                    <button
+                      key={r.id}
+                      onClick={() => setRole(r.id)}
+                      className={cn(
+                        "p-4 rounded-xl border text-left transition-all",
+                        role === r.id
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-border hover:border-primary/40 hover:bg-muted/30",
+                      )}
+                    >
+                      <Icon className="h-6 w-6 mb-2 text-primary" />
+                      <span className="text-sm font-medium block">{r.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

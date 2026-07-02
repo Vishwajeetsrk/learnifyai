@@ -165,23 +165,62 @@ function AIPage() {
   };
 
   const deleteConversation = async (id: string) => {
-    await supabase.from("chat_messages").delete().eq("conversation_id", id);
-    const { error } = await supabase.from("chat_conversations").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    if (activeId === id) newChat();
-    void loadConversations();
+    try {
+      const { error: msgErr } = await supabase.from("chat_messages").delete().eq("conversation_id", id);
+      if (msgErr) console.error("[deleteConversation] msgs:", msgErr);
+      const { error } = await supabase.from("chat_conversations").delete().eq("id", id);
+      if (error) {
+        toast.error("Failed to delete: " + error.message);
+        return;
+      }
+      toast.success("Conversation deleted");
+      if (activeId === id) newChat();
+      setConversations((prev) => prev.filter((c) => c.id !== id));
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to delete conversation");
+    }
   };
 
   const deleteAllChats = async () => {
-    const { data: convs } = await supabase.from("chat_conversations").select("id");
-    const ids = (convs ?? []).map((c) => c.id);
-    if (ids.length === 0) return toast.info("No chats to delete");
-    await supabase.from("chat_messages").delete().in("conversation_id", ids);
-    const { error } = await supabase.from("chat_conversations").delete().in("id", ids);
-    if (error) return toast.error(error.message);
-    toast.success("All chat history deleted");
-    newChat();
-    void loadConversations();
+    if (!user) return;
+    try {
+      // First delete all messages belonging to user's conversations
+      const { data: convs } = await supabase
+        .from("chat_conversations")
+        .select("id")
+        .eq("user_id", user.id);
+      const ids = (convs ?? []).map((c) => c.id);
+      if (ids.length === 0) {
+        toast.info("No chats to delete");
+        return;
+      }
+      // Delete messages first (foreign key constraint)
+      const { error: msgError } = await supabase
+        .from("chat_messages")
+        .delete()
+        .in("conversation_id", ids);
+      if (msgError) {
+        console.error("[deleteAllChats] messages:", msgError);
+        toast.error("Failed to delete messages: " + msgError.message);
+        return;
+      }
+      // Then delete conversations
+      const { error } = await supabase
+        .from("chat_conversations")
+        .delete()
+        .eq("user_id", user.id);
+      if (error) {
+        console.error("[deleteAllChats] conversations:", error);
+        toast.error("Failed to delete conversations: " + error.message);
+        return;
+      }
+      toast.success(`Deleted ${ids.length} conversation${ids.length === 1 ? "" : "s"}`);
+      newChat();
+      setConversations([]);
+    } catch (e: any) {
+      console.error("[deleteAllChats] unexpected:", e);
+      toast.error(e?.message || "Failed to delete chats");
+    }
   };
 
   const send = async () => {

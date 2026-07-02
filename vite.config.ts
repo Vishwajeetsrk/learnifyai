@@ -58,9 +58,10 @@ export default defineConfig({
             if (id.includes("@hello-pangea/dnd")) return "vendor-dnd";
             if (id.includes("zod")) return "vendor-validation";
             if (id.includes("mammoth") || id.includes("jszip")) return "vendor-docs";
-            if (id.includes("cmdk") || id.includes("vaul") || id.includes("sonner"))
-              return "vendor-overlays";
-            return "vendor";
+            if (id.includes("cmdk")) return "vendor-cmdk";
+            if (id.includes("vaul")) return "vendor-vaul";
+            if (id.includes("sonner")) return "vendor-sonner";
+            return false;
           },
         },
       },

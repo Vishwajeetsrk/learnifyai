@@ -51,6 +51,7 @@ function BlogIndexPage() {
     data: posts,
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ["blog-public"],
     queryFn: async () => {
@@ -59,11 +60,19 @@ function BlogIndexPage() {
         .select("id, title, slug, excerpt, featured_image, published_at, created_at, content, tags")
         .eq("published", true)
         .order("published_at", { ascending: false });
-      if (error) throw error;
+      if (error) {
+        // Table doesn't exist → return empty (don't crash)
+        if (error.code === "42P01" || error.message?.includes("does not exist")) {
+          console.warn("[Blog] blog_posts table not found, returning empty");
+          return [];
+        }
+        throw error;
+      }
       return data ?? [];
     },
     staleTime: 60_000,
-    retry: 2,
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
   });
 
   const featured = posts?.[0];
@@ -101,7 +110,17 @@ function BlogIndexPage() {
           {isError && (
             <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-10 text-center text-muted-foreground">
               <p className="font-medium text-destructive">Failed to load posts</p>
-              <p className="text-sm mt-1">Please try again in a moment.</p>
+              <p className="text-sm mt-1 mb-4">Please try again in a moment.</p>
+              <button
+                onClick={() => void refetch()}
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                  <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                </svg>
+                Retry
+              </button>
             </div>
           )}
 

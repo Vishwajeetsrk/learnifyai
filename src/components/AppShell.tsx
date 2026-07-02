@@ -56,7 +56,6 @@ const nav: NavItem[] = [
   { to: "/ai", label: "AI Tutor", icon: Sparkles, featureKey: "ai_tools" },
   { to: "/career-studio", label: "Career Studio", icon: Briefcase, featureKey: "ai_tools" },
   { to: "/community-hub", label: "Community", icon: Users, featureKey: "community" },
-  { to: "/community-hub?tab=challenges", label: "Coding Challenges", icon: Code2, featureKey: "ai_tools" },
   { to: "/coaching", label: "Coaching", icon: Compass, featureKey: "coaching" },
   { to: "/ai-tools", label: "AI Tools", icon: Wand2, featureKey: "ai_tools" },
   { to: "/certificates", label: "Certificates", icon: Award, featureKey: "certificates" },
