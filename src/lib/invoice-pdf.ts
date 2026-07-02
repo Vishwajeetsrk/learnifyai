@@ -102,12 +102,12 @@ export async function downloadInvoicePdf(
   const margin = 14;
 
   // ─── 1. HEADER GRADIENT BAND ─────────────────────────────────────────────
-  // Left: deep primary, Right: secondary — simulate gradient with two overlapping rects
+  // Solid header with primary color
   doc.setFillColor(primary[0], primary[1], primary[2]);
   doc.rect(0, 0, pageW, 58, "F");
-  // Subtle diagonal accent strip
+  // Accent strip on right side
   doc.setFillColor(secondary[0], secondary[1], secondary[2]);
-  doc.triangle(120, 0, pageW, 0, pageW, 58, "F");
+  doc.rect(pageW - 30, 0, 30, 58, "F");
 
   // ─── 2. LOGO (top-left in header) ────────────────────────────────────────
   // Try custom logo_url first, then fallback to /logo.png
