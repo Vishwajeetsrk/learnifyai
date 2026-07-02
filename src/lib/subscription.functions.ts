@@ -98,7 +98,7 @@ export const createSubscription = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const uid = context.userId!;
 
-    const { data: existing } = await (supabaseAdmin as any)
+    const { data: existing } = await supabaseAdmin
       .from("user_subscriptions")
       .select("id, status, plan_id")
       .eq("user_id", uid)
@@ -119,7 +119,7 @@ export const createSubscription = createServerFn({ method: "POST" })
       const periodEnd = new Date();
       periodEnd.setFullYear(periodEnd.getFullYear() + 1);
 
-      const { error: insErr } = await (supabaseAdmin as any).from("user_subscriptions").insert({
+      const { error: insErr } = await supabaseAdmin.from("user_subscriptions").insert({
         user_id: uid,
         plan_id: data.planId,
         status: "active",
@@ -144,7 +144,7 @@ export const createSubscription = createServerFn({ method: "POST" })
       }
 
       // Log event
-      await (supabaseAdmin as any).from("subscription_events").insert({
+      await supabaseAdmin.from("subscription_events").insert({
         subscription_id: null,
         user_id: uid,
         event_type: "FREE_PLAN_ACTIVATED",
@@ -165,7 +165,7 @@ export const createSubscription = createServerFn({ method: "POST" })
 
     // Auto-apply student discount for verified students
     if (!data.couponCode) {
-      const { data: profileCheck } = await (supabaseAdmin as any)
+      const { data: profileCheck } = await supabaseAdmin
         .from("profiles")
         .select("student_verified")
         .eq("id", uid)
@@ -176,7 +176,7 @@ export const createSubscription = createServerFn({ method: "POST" })
     }
 
     if (data.couponCode) {
-      const { data: coupon } = await (supabaseAdmin as any)
+      const { data: coupon } = await supabaseAdmin
         .from("coupon_codes")
         .select("*")
         .eq("code", data.couponCode.toUpperCase())
@@ -198,7 +198,7 @@ export const createSubscription = createServerFn({ method: "POST" })
           }
           appliedCoupon = data.couponCode.toUpperCase();
           // Increment usage
-          await (supabaseAdmin as any)
+          await supabaseAdmin
             .from("coupon_codes")
             .update({ used_count: coupon.used_count + 1 })
             .eq("id", coupon.id);
@@ -206,7 +206,7 @@ export const createSubscription = createServerFn({ method: "POST" })
       }
     }
 
-    const { data: profile } = await (supabaseAdmin as any)
+    const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("full_name, email")
       .eq("id", uid)
@@ -311,7 +311,7 @@ export const createSubscription = createServerFn({ method: "POST" })
     if (p.interval?.startsWith("month")) periodEnd.setMonth(periodEnd.getMonth() + 1);
     else periodEnd.setFullYear(periodEnd.getFullYear() + 1);
 
-    const { error: insErr } = await (supabaseAdmin as any).from("user_subscriptions").insert({
+    const { error: insErr } = await supabaseAdmin.from("user_subscriptions").insert({
       user_id: uid,
       plan_id: data.planId,
       cashfree_subscription_id: sub.subscription_id || subId,
@@ -336,7 +336,7 @@ export const cancelSubscription = createServerFn({ method: "POST" })
   .validator((d: Record<string, never>) => z.object({}).parse(d))
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: sub } = await (supabaseAdmin as any)
+    const { data: sub } = await supabaseAdmin
       .from("user_subscriptions")
       .select("*")
       .eq("user_id", context.userId)
@@ -357,12 +357,12 @@ export const cancelSubscription = createServerFn({ method: "POST" })
       }).catch(() => {});
     }
 
-    await (supabaseAdmin as any)
+    await supabaseAdmin
       .from("user_subscriptions")
       .update({ status: "cancelled", cancelled_at: new Date().toISOString(), will_renew: false })
       .eq("id", sub.id);
 
-    await (supabaseAdmin as any).from("subscription_events").insert({
+    await supabaseAdmin.from("subscription_events").insert({
       subscription_id: sub.id,
       user_id: context.userId,
       event_type: "SUBSCRIPTION_CANCELLED",
@@ -377,7 +377,7 @@ export const resumeSubscription = createServerFn({ method: "POST" })
   .validator((d: Record<string, never>) => z.object({}).parse(d))
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: sub } = await (supabaseAdmin as any)
+    const { data: sub } = await supabaseAdmin
       .from("user_subscriptions")
       .select("*")
       .eq("user_id", context.userId)
@@ -411,7 +411,7 @@ export const resumeSubscription = createServerFn({ method: "POST" })
     const periodEnd = new Date();
     periodEnd.setMonth(periodEnd.getMonth() + 1);
 
-    await (supabaseAdmin as any)
+    await supabaseAdmin
       .from("user_subscriptions")
       .update({
         status: "active",
@@ -422,7 +422,7 @@ export const resumeSubscription = createServerFn({ method: "POST" })
       })
       .eq("id", sub.id);
 
-    await (supabaseAdmin as any).from("subscription_events").insert({
+    await supabaseAdmin.from("subscription_events").insert({
       subscription_id: sub.id,
       user_id: context.userId,
       event_type: "SUBSCRIPTION_RESUMED",
@@ -439,7 +439,7 @@ export const upgradeDowngrade = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const uid = context.userId!;
 
-    const { data: currentSub } = await (supabaseAdmin as any)
+    const { data: currentSub } = await supabaseAdmin
       .from("user_subscriptions")
       .select("*, plan:pricing_plans(*)")
       .eq("user_id", uid)
@@ -485,7 +485,7 @@ export const upgradeDowngrade = createServerFn({ method: "POST" })
       ).catch(() => {});
     }
 
-    await (supabaseAdmin as any)
+    await supabaseAdmin
       .from("user_subscriptions")
       .update({ status: "cancelled", will_renew: false })
       .eq("id", currentSub.id);
@@ -495,7 +495,7 @@ export const upgradeDowngrade = createServerFn({ method: "POST" })
       const periodEnd = new Date();
       periodEnd.setFullYear(periodEnd.getFullYear() + 1);
 
-      await (supabaseAdmin as any).from("user_subscriptions").insert({
+      await supabaseAdmin.from("user_subscriptions").insert({
         user_id: uid,
         plan_id: data.newPlanId,
         status: "active",
@@ -517,7 +517,7 @@ export const upgradeDowngrade = createServerFn({ method: "POST" })
         );
       }
 
-      await (supabaseAdmin as any).from("subscription_events").insert({
+      await supabaseAdmin.from("subscription_events").insert({
         subscription_id: null,
         user_id: uid,
         event_type: "PLAN_CHANGED",
@@ -542,7 +542,7 @@ export const getUserSubscription = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await (supabaseAdmin as any)
+    const { data } = await supabaseAdmin
       .from("user_subscriptions")
       .select("*, plan:pricing_plans(*)")
       .eq("user_id", context.userId)
@@ -555,7 +555,7 @@ export const getUserInvoices = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await (supabaseAdmin as any)
+    const { data } = await supabaseAdmin
       .from("invoices")
       .select("*")
       .eq("user_id", context.userId)
@@ -568,7 +568,7 @@ export const getSubscriptionHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await (supabaseAdmin as any)
+    const { data } = await supabaseAdmin
       .from("user_subscriptions")
       .select("*, plan:pricing_plans(name, price_inr, interval)")
       .eq("user_id", context.userId)
@@ -679,7 +679,7 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
     const days = range.days;
 
     // Fetch all KPIs from real DB tables with date filters
-    const baseSubQuery = (supabaseAdmin as any).from("user_subscriptions").select("*", { count: "exact", head: true });
+    const baseSubQuery = supabaseAdmin.from("user_subscriptions").select("*", { count: "exact", head: true });
     const dateFilteredSubQuery = fromIso
       ? baseSubQuery.gte("created_at", fromIso).lte("created_at", toIso)
       : baseSubQuery;
@@ -696,45 +696,45 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
       { data: expiredSubs },
       { data: trialSubs },
     ] = await Promise.all([
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("user_subscriptions")
         .select("pricing_plans!inner(price_inr)", { count: "exact", head: false })
         .eq("status", "active"),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("user_subscriptions")
         .select("*", { count: "exact", head: true })
         .eq("status", "active"),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("profiles")
         .select("*", { count: "exact", head: true }),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("pricing_plans")
-        .select("id, name, price_inr, interval, stripe_price_id"),
-      (supabaseAdmin as any)
+        .select("id, name, price_inr, interval, cashfree_plan_id"),
+      supabaseAdmin
         .from("user_subscriptions")
         .select("*, plan:pricing_plans(name, price_inr), profiles:user_id(full_name, email)")
         .order("created_at", { ascending: false })
         .limit(50),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("payment_logs")
         .select("*")
         .order("created_at", { ascending: false })
         .limit(50),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("invoices")
         .select("*")
         .eq("status", "paid")
         .order("created_at", { ascending: false })
         .limit(50),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("user_subscriptions")
         .select("*", { count: "exact", head: true })
         .eq("status", "cancelled"),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("user_subscriptions")
         .select("*", { count: "exact", head: true })
         .eq("status", "expired"),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("user_subscriptions")
         .select("*", { count: "exact", head: true })
         .eq("status", "trial"),
@@ -755,17 +755,17 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
     const planIds = (plans || []).map((p: any) => p.id);
     const planBreakdown = await Promise.all(
       planIds.map(async (id: string) => {
-        const { count: active } = await (supabaseAdmin as any)
+        const { count: active } = await supabaseAdmin
           .from("user_subscriptions")
           .select("*", { count: "exact", head: true })
           .eq("plan_id", id)
           .eq("status", "active");
-        const { count: cancelled } = await (supabaseAdmin as any)
+        const { count: cancelled } = await supabaseAdmin
           .from("user_subscriptions")
           .select("*", { count: "exact", head: true })
           .eq("plan_id", id)
           .eq("status", "cancelled");
-        const { count: expired } = await (supabaseAdmin as any)
+        const { count: expired } = await supabaseAdmin
           .from("user_subscriptions")
           .select("*", { count: "exact", head: true })
           .eq("plan_id", id)
@@ -785,7 +785,7 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
 
     // Revenue history from invoices (uses date range)
     const chartFrom = fromIso || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const { data: dailyInvoices } = await (supabaseAdmin as any)
+    const { data: dailyInvoices } = await supabaseAdmin
       .from("invoices")
       .select("total_inr, created_at")
       .eq("status", "paid")
@@ -875,7 +875,7 @@ export const adminUpdateSubscription = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: sub, error: fetchErr } = await (supabaseAdmin as any)
+    const { data: sub, error: fetchErr } = await supabaseAdmin
       .from("user_subscriptions")
       .select("*")
       .eq("id", data.subscriptionId)
@@ -911,14 +911,14 @@ export const adminUpdateSubscription = createServerFn({ method: "POST" })
         break;
     }
 
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await supabaseAdmin
       .from("user_subscriptions")
       .update(updatePayload)
       .eq("id", data.subscriptionId);
     if (error) throw new Error(error.message);
 
     // Log the event
-    await (supabaseAdmin as any).from("subscription_events").insert({
+    await supabaseAdmin.from("subscription_events").insert({
       subscription_id: data.subscriptionId,
       user_id: sub.user_id,
       event_type: `ADMIN_${data.action.toUpperCase()}`,
@@ -927,3 +927,4 @@ export const adminUpdateSubscription = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+

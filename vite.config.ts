@@ -49,6 +49,16 @@ export default defineConfig({
             if (id.includes("monaco-editor")) return "vendor-monaco";
             if (id.includes("@supabase")) return "vendor-supabase";
             if (id.includes("pdfjs-dist")) return "vendor-pdfjs";
+            if (id.includes("framer-motion") || id.includes("motion-")) return "vendor-motion";
+            if (id.includes("lucide-react") || id.includes("lucide-static")) return "vendor-icons";
+            if (id.includes("@radix-ui")) return "vendor-radix";
+            if (id.includes("@hookform/resolvers") || id.includes("react-hook-form")) return "vendor-forms";
+            if (id.includes("date-fns") || id.includes("dayjs")) return "vendor-dates";
+            if (id.includes("react-markdown") || id.includes("rehype") || id.includes("remark")) return "vendor-markdown";
+            if (id.includes("@hello-pangea/dnd")) return "vendor-dnd";
+            if (id.includes("zod")) return "vendor-validation";
+            if (id.includes("mammoth") || id.includes("jszip")) return "vendor-docs";
+            if (id.includes("cmdk") || id.includes("vaul") || id.includes("sonner")) return "vendor-overlays";
             return "vendor";
           },
         },

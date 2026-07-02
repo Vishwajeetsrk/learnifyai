@@ -3031,6 +3031,7 @@ export type Database = {
           org_name: string | null;
           payout_destination: Json;
           show_banner: boolean;
+          student_verified: boolean | null;
           skills: string[] | null;
           social_links: Json;
           ui_prefs: Json;
@@ -3070,6 +3071,7 @@ export type Database = {
           org_name?: string | null;
           payout_destination?: Json;
           show_banner?: boolean;
+          student_verified?: boolean | null;
           skills?: string[] | null;
           social_links?: Json;
           ui_prefs?: Json;
@@ -3109,6 +3111,7 @@ export type Database = {
           org_name?: string | null;
           payout_destination?: Json;
           show_banner?: boolean;
+          student_verified?: boolean | null;
           skills?: string[] | null;
           social_links?: Json;
           ui_prefs?: Json;

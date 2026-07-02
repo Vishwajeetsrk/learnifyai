@@ -25,30 +25,30 @@ export const getBillingOverview = createServerFn({ method: "GET" })
       { data: refunds },
       { data: creditData },
     ] = await Promise.all([
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("invoices")
         .select("total_inr")
         .eq("status", "paid"),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("user_subscriptions")
         .select("pricing_plans!inner(price_inr)")
         .eq("status", "active"),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("user_subscriptions")
         .select("*", { count: "exact", head: true })
         .eq("status", "active"),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("invoices")
         .select("total_inr, count")
         .eq("status", "paid")
         .gte("created_at", startOfMonth),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("payment_logs")
         .select("status"),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("billing_refunds")
         .select("*", { count: "exact", head: true }),
-      (supabaseAdmin as any)
+      supabaseAdmin
         .from("ai_credits")
         .select("credits_remaining, credits_used"),
     ]);
@@ -110,7 +110,7 @@ export const getInvoicesList = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let query = (supabaseAdmin as any)
+    let query = supabaseAdmin
       .from("invoices")
       .select("*, user:profiles!user_id(full_name, email)")
       .order("created_at", { ascending: false });
@@ -136,7 +136,7 @@ export const getBillingSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await (supabaseAdmin as any)
+    const { data } = await supabaseAdmin
       .from("billing_settings")
       .select("*");
     const map: Record<string, string> = {};
@@ -179,7 +179,7 @@ export const updateBillingSetting = createServerFn({ method: "POST" })
     const group = keyGroupMap[data.key] || "branding";
 
     // Fetch existing group value
-    const { data: existing } = await (supabaseAdmin as any)
+    const { data: existing } = await supabaseAdmin
       .from("billing_settings")
       .select("value")
       .eq("key", group)
@@ -188,7 +188,7 @@ export const updateBillingSetting = createServerFn({ method: "POST" })
     const existingValue = existing?.value && typeof existing.value === "object" ? existing.value : {};
     const newValue = { ...existingValue, [data.key]: data.value };
 
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await supabaseAdmin
       .from("billing_settings")
       .upsert({ key: group, value: newValue, updated_at: new Date().toISOString() })
       .eq("key", group);
@@ -200,7 +200,7 @@ export const getInvoiceTemplates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await (supabaseAdmin as any)
+    const { data } = await supabaseAdmin
       .from("billing_templates")
       .select("*")
       .order("created_at", { ascending: false });
@@ -219,13 +219,13 @@ export const saveInvoiceTemplate = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.id) {
-      const { error } = await (supabaseAdmin as any)
+      const { error } = await supabaseAdmin
         .from("billing_templates")
         .update({ name: data.name, content: data.content, updated_at: new Date().toISOString() })
         .eq("id", data.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await (supabaseAdmin as any)
+      const { error } = await supabaseAdmin
         .from("billing_templates")
         .insert({ name: data.name, content: data.content });
       if (error) throw new Error(error.message);
@@ -240,7 +240,7 @@ export const deleteInvoiceTemplate = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await supabaseAdmin
       .from("billing_templates")
       .delete()
       .eq("id", data.id);
@@ -262,7 +262,7 @@ export const createManualInvoice = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const invoiceNumber = generateInvoiceNumber();
-    const { error } = await (supabaseAdmin as any).from("invoices").insert({
+    const { error } = await supabaseAdmin.from("invoices").insert({
       user_id: data.user_id,
       invoice_number: invoiceNumber,
       total_inr: data.total_inr,
@@ -296,7 +296,7 @@ export const getPaymentLogs = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const from = (data.page - 1) * data.per_page;
     const to = from + data.per_page - 1;
-    const { data: logs, count } = await (supabaseAdmin as any)
+    const { data: logs, count } = await supabaseAdmin
       .from("payment_logs")
       .select("*", { count: "exact" })
       .order("created_at", { ascending: false })
@@ -316,7 +316,7 @@ export const getRefunds = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const from = (data.page - 1) * data.per_page;
     const to = from + data.per_page - 1;
-    const { data: refunds, count } = await (supabaseAdmin as any)
+    const { data: refunds, count } = await supabaseAdmin
       .from("billing_refunds")
       .select("*, invoice:invoices!invoice_id(*), user:profiles!user_id(full_name, email)")
       .order("created_at", { ascending: false })
@@ -335,7 +335,7 @@ export const processRefund = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error: refundErr } = await (supabaseAdmin as any).from("billing_refunds").insert({
+    const { error: refundErr } = await supabaseAdmin.from("billing_refunds").insert({
       invoice_id: data.invoice_id,
       amount_inr: data.amount_inr,
       reason: data.reason || null,
@@ -344,13 +344,13 @@ export const processRefund = createServerFn({ method: "POST" })
     });
     if (refundErr) throw new Error(refundErr.message);
 
-    const { data: invoice } = await (supabaseAdmin as any)
+    const { data: invoice } = await supabaseAdmin
       .from("invoices")
       .select("user_id, invoice_number")
       .eq("id", data.invoice_id)
       .single();
 
-    const { error: invErr } = await (supabaseAdmin as any)
+    const { error: invErr } = await supabaseAdmin
       .from("invoices")
       .update({ status: "refunded", updated_at: new Date().toISOString() })
       .eq("id", data.invoice_id);
@@ -395,7 +395,7 @@ export const getAuditLogs = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const from = (data.page - 1) * data.per_page;
     const to = from + data.per_page - 1;
-    const { data: logs, count } = await (supabaseAdmin as any)
+    const { data: logs, count } = await supabaseAdmin
       .from("billing_audit_logs")
       .select("*", { count: "exact" })
       .order("created_at", { ascending: false })
@@ -415,7 +415,7 @@ export const createBillingExport = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await (supabaseAdmin as any).from("billing_exports").insert({
+    const { error } = await supabaseAdmin.from("billing_exports").insert({
       user_id: context!.userId,
       type: data.type,
       date_from: data.date_from || null,
@@ -437,19 +437,19 @@ export const getSubscriptionBillingData = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const uid = data.user_id;
 
-    const { data: subscriptions } = await (supabaseAdmin as any)
+    const { data: subscriptions } = await supabaseAdmin
       .from("user_subscriptions")
       .select("*, plan:pricing_plans(*)")
       .order("created_at", { ascending: false })
       .limit(50);
 
-    const { data: invoices } = await (supabaseAdmin as any)
+    const { data: invoices } = await supabaseAdmin
       .from("invoices")
       .select("*")
       .order("created_at", { ascending: false })
       .limit(100);
 
-    const { data: payments } = await (supabaseAdmin as any)
+    const { data: payments } = await supabaseAdmin
       .from("payment_logs")
       .select("*")
       .order("created_at", { ascending: false })
@@ -473,19 +473,19 @@ export const exportBillingData = createServerFn({ method: "GET" })
 
     switch (data.type) {
       case "invoices":
-        query = (supabaseAdmin as any).from("invoices").select("*, user:profiles!user_id(full_name, email)");
+        query = supabaseAdmin.from("invoices").select("*, user:profiles!user_id(full_name, email)");
         break;
       case "payments":
-        query = (supabaseAdmin as any).from("payment_logs").select("*");
+        query = supabaseAdmin.from("payment_logs").select("*");
         break;
       case "subscriptions":
-        query = (supabaseAdmin as any).from("user_subscriptions").select("*, plan:pricing_plans(name, price_inr, interval), user:profiles!user_id(full_name, email)");
+        query = supabaseAdmin.from("user_subscriptions").select("*, plan:pricing_plans(name, price_inr, interval), user:profiles!user_id(full_name, email)");
         break;
       case "refunds":
-        query = (supabaseAdmin as any).from("billing_refunds").select("*, invoice:invoices!invoice_id(invoice_number), user:profiles!user_id(full_name, email)");
+        query = supabaseAdmin.from("billing_refunds").select("*, invoice:invoices!invoice_id(invoice_number), user:profiles!user_id(full_name, email)");
         break;
       default:
-        query = (supabaseAdmin as any).from("invoices").select("*, user:profiles!user_id(full_name, email)");
+        query = supabaseAdmin.from("invoices").select("*, user:profiles!user_id(full_name, email)");
     }
 
     if (data.date_from) query = query.gte("created_at", data.date_from);
@@ -502,7 +502,7 @@ export const getCoupons = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data, error } = await (supabaseAdmin as any)
+    const { data, error } = await supabaseAdmin
       .from("coupon_codes")
       .select("*")
       .order("created_at", { ascending: false });
@@ -552,13 +552,13 @@ export const saveCoupon = createServerFn({ method: "POST" })
     };
 
     if (data.id) {
-      const { error } = await (supabaseAdmin as any)
+      const { error } = await supabaseAdmin
         .from("coupon_codes")
         .update(payload)
         .eq("id", data.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await (supabaseAdmin as any)
+      const { error } = await supabaseAdmin
         .from("coupon_codes")
         .insert(payload);
       if (error) throw new Error(error.message);
@@ -571,7 +571,7 @@ export const deleteCoupon = createServerFn({ method: "POST" })
   .validator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await (supabaseAdmin as any)
+    const { error } = await supabaseAdmin
       .from("coupon_codes")
       .delete()
       .eq("id", data.id);

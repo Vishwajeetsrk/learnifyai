@@ -443,5 +443,490 @@
       "sql": "SQL",
       "systemDesign": "सिस्टम डिज़ाइन"
     }
+  },
+  "settings": {
+    "page": {
+      "heading": "सेटिंग्स",
+      "title": "आपका खाता",
+      "subtitle": "प्रोफ़ाइल, भुगतान, सूचनाएं और सुरक्षा।"
+    },
+    "tabs": {
+      "profile": "प्रोफ़ाइल",
+      "billing": "भुगतान",
+      "notifications": "सूचनाएं",
+      "settings": "सेटिंग्स",
+      "branding": "ब्रांडिंग"
+    },
+    "profile": {
+      "heading": "प्रोफ़ाइल सेटिंग्स",
+      "viewPublicProfile": "सार्वजनिक प्रोफ़ाइल देखें",
+      "saveChanges": "बदलाव सहेजें",
+      "avatar": {
+        "uploadPhoto": "फ़ोटो अपलोड करें",
+        "customizeCharacter": "कैरेक्टर कस्टमाइज़ करें",
+        "remove": "हटाएं",
+        "recommendation": "अनुशंसित 1:1 अनुपात < 5 MB",
+        "borderStyle": "प्रोफ़ाइल बॉर्डर शैली",
+        "borderPlaceholder": "बॉर्डर चुनें",
+        "randomizeBorder": "बॉर्डर रैंडमाइज़ करें",
+        "border": {
+          "none": "कोई नहीं",
+          "solid": "सॉलिड",
+          "double": "डबल",
+          "dashed": "डैश्ड",
+          "dotted": "डॉटेड",
+          "glow": "ग्लो",
+          "neon": "नियॉन",
+          "rainbow": "इंद्रधनुष",
+          "gradient": "ग्रेडिएंट",
+          "shadow": "शैडो"
+        }
+      },
+      "banner": {
+        "heading": "कवर इमेज (बैनर)",
+        "empty": "कोई कवर इमेज नहीं",
+        "upload": "कवर अपलोड करें",
+        "remove": "हटाएं",
+        "showOnProfile": "प्रोफ़ाइल पर दिखाएं",
+        "recommendation": "अनुशंसित 3:1 अनुपात < 5 MB",
+        "alt": "कवर इमेज"
+      },
+      "mouseCursor": {
+        "label": "माउस कर्सर (एनिमेशन)"
+      },
+      "fields": {
+        "name": "नाम",
+        "username": "उपयोगकर्ता नाम *",
+        "email": "ईमेल",
+        "website": "वेबसाइट",
+        "location": "स्थान",
+        "work": "कार्य",
+        "education": "शिक्षा",
+        "bio": "जीवनी",
+        "skills": "कौशल"
+      },
+      "placeholders": {
+        "website": "https://",
+        "location": "भारत",
+        "work": "ड्रीमसिंक",
+        "education": "BCA",
+        "bio": "फ्रंटएंड डेवलपर | UI उत्साही...",
+        "addCustomSkill": "कस्टम कौशल जोड़ें..."
+      },
+      "username": {
+        "available": "उपयोगकर्ता नाम उपलब्ध है",
+        "taken": "उपयोगकर्ता नाम लिया गया"
+      },
+      "skills": {
+        "add": "जोड़ें",
+        "option": {
+          "html": "HTML",
+          "css": "CSS",
+          "javascript": "JavaScript",
+          "python": "Python",
+          "java": "Java",
+          "cpp": "C++",
+          "sql": "SQL",
+          "commandLine": "कमांड लाइन",
+          "react": "React",
+          "git": "Git और GitHub",
+          "numpy": "NumPy",
+          "typescript": "TypeScript",
+          "nodejs": "Node.js",
+          "nextjs": "Next.js",
+          "tailwind": "Tailwind CSS",
+          "docker": "Docker",
+          "aws": "AWS",
+          "mongodb": "MongoDB",
+          "postgresql": "PostgreSQL",
+          "graphql": "GraphQL",
+          "figma": "Figma",
+          "uiux": "UI/UX",
+          "apiDesign": "API डिज़ाइन"
+        }
+      },
+      "social": {
+        "heading": "सोशल मीडिया",
+        "github": "GitHub",
+        "twitter": "X (Twitter)",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "youtube": "YouTube",
+        "twitch": "Twitch",
+        "tiktok": "TikTok",
+        "placeholder": "https://example.com"
+      }
+    },
+    "character": {
+      "dialog": {
+        "title": "अपना कैरेक्टर कस्टमाइज़ करें",
+        "description": "अपना खुद का कार्टून अवतार डिज़ाइन करें। शैलियाँ, रंग, लिंग, अभिव्यक्तियाँ और कपड़े बदलें!"
+      },
+      "artStyle": "कला शैली",
+      "avatarPreviewAlt": "अवतार पूर्वावलोकन",
+      "seed": {
+        "label": "बेस सीड",
+        "placeholder": "बेस फीचर्स रैंडमाइज़ करने के लिए कुछ टाइप करें...",
+        "randomize": "रैंडमाइज़ करें"
+      },
+      "tab": {
+        "faceHair": "चेहरा और बाल",
+        "expression": "अभिव्यक्ति",
+        "clothing": "कपड़े",
+        "background": "पृष्ठभूमि"
+      },
+      "skinColor": "त्वचा का रंग",
+      "skin": {
+        "veryLight": "बहुत हल्का",
+        "light": "हल्का",
+        "tan": "साँवला",
+        "olive": "जैतून",
+        "brown": "भूरा",
+        "dark": "गहरा"
+      },
+      "hair": {
+        "style": "बालों की शैली",
+        "robotStyle": "रोबोट हेड शैली",
+        "maleShort": "पुरुष / छोटे",
+        "femaleLong": "महिला / लंबे",
+        "antennaBulb": "एंटीना / बल्ब",
+        "radarHorn": "रडार / हॉर्न",
+        "male": {
+          "caesarCut": "सीज़र कट",
+          "shortFlat": "शॉर्ट फ्लैट",
+          "shortRound": "शॉर्ट राउंड",
+          "shortWavy": "शॉर्ट वेवी",
+          "shortCurly": "शॉर्ट कर्ली",
+          "mullet": "मुलेट",
+          "bald": "गंजा",
+          "antenna": "एंटीना",
+          "bulb": "बल्ब",
+          "horn": "हॉर्न",
+          "radar": "रडार",
+          "pyramid": "पिरामिड"
+        },
+        "female": {
+          "longStraight": "लंबे सीधे",
+          "straightParted": "सीधे पार्टेड",
+          "longCurly": "लंबे कर्ली",
+          "longCurvy": "लंबे कर्वी",
+          "bobCut": "बॉब कट",
+          "miaCut": "मिया कट",
+          "hairBun": "हेयर बन",
+          "dreads": "ड्रेड्स",
+          "bigHair": "बिग हेयर",
+          "antenna": "एंटीना",
+          "bulb": "बल्ब",
+          "horn": "हॉर्न",
+          "radar": "रडार",
+          "pyramid": "पिरामिड"
+        }
+      },
+      "hairColor": "बालों का रंग",
+      "hairColorOptions": {
+        "black": "काला",
+        "darkBrown": "गहरा भूरा",
+        "lightBrown": "हल्का भूरा",
+        "blonde": "गोरा",
+        "auburn": "लाल भूरा",
+        "platinum": "प्लैटिनम",
+        "pink": "गुलाबी"
+      },
+      "eyebrows": "भौहें",
+      "eyebrowOptions": {
+        "default": "डिफ़ॉल्ट",
+        "angry": "गुस्सा",
+        "flat": "सपाट",
+        "raised": "उठी हुई",
+        "sad": "उदास",
+        "unibrow": "यूनीब्रो",
+        "up": "ऊपर"
+      },
+      "eyes": "आँखों की अभिव्यक्ति",
+      "eyeOptions": {
+        "default": "डिफ़ॉल्ट",
+        "happy": "खुश",
+        "wink": "आँख मारना",
+        "surprised": "हैरान",
+        "squint": "भेंगा",
+        "sideEye": "तिरछी नज़र",
+        "hearts": "दिल",
+        "closed": "बंद"
+      },
+      "nose": "नाक",
+      "noseOptions": {
+        "default": "डिफ़ॉल्ट",
+        "variant2": "वेरिएंट 2",
+        "variant3": "वेरिएंट 3",
+        "variant4": "वेरिएंट 4",
+        "variant5": "वेरिएंट 5",
+        "variant6": "वेरिएंट 6"
+      },
+      "mouth": "मुँह की अभिव्यक्ति",
+      "mouthOptions": {
+        "default": "डिफ़ॉल्ट",
+        "smile": "मुस्कान",
+        "sad": "उदास",
+        "concerned": "चिंतित",
+        "disbelief": "अविश्वास",
+        "grimace": "मुँह बनाना",
+        "scream": "चीख",
+        "tongue": "जीभ"
+      },
+      "accessories": "एक्सेसरीज़",
+      "robotSide": "रोबोट साइड अटैचमेंट",
+      "accessoryOptions": {
+        "none": "कोई नहीं",
+        "regular": "रेगुलर",
+        "round": "गोल",
+        "sunglasses": "सनग्लासेस",
+        "wayfarer": "वेफ़रर",
+        "kurt": "कर्ट",
+        "antenna": "एंटीना",
+        "earphones": "इयरफ़ोन",
+        "cables": "केबल"
+      },
+      "clothing": {
+        "style": "कपड़ों की शैली",
+        "crewNeck": "क्रू नेक",
+        "vNeck": "V-नेक",
+        "openShirt": "खुली शर्ट",
+        "hoodie": "हूडी",
+        "sweater": "स्वेटर",
+        "blazer": "ब्लेज़र",
+        "overalls": "ओवरऑल्स",
+        "graphicTee": "ग्राफ़िक टी",
+        "color": "कपड़ों का रंग",
+        "robotMetal": "रोबोट धातु रंग",
+        "emojiBg": "पृष्ठभूमि रंग"
+      },
+      "clothingColors": {
+        "navy": "नौसेना",
+        "blue": "नीला",
+        "teal": "टील",
+        "green": "हरा",
+        "red": "लाल",
+        "orange": "नारंगी",
+        "purple": "बैंगनी",
+        "pink": "गुलाबी",
+        "gray": "ग्रे"
+      },
+      "background": {
+        "label": "कैरेक्टर पृष्ठभूमि रंग",
+        "transparent": "पारदर्शी",
+        "skyBlue": "आसमानी नीला",
+        "lavender": "लैवेंडर",
+        "pastelIndigo": "पेस्टल इंडिगो",
+        "pastelPink": "पेस्टल गुलाबी",
+        "peach": "आड़ू",
+        "mintGreen": "पुदीना हरा",
+        "lightGray": "हल्का ग्रे",
+        "yellow": "पीला"
+      },
+      "randomizeAll": "सब रैंडमाइज़ करें",
+      "cancel": "रद्द करें",
+      "useAvatar": "कैरेक्टर अवतार का उपयोग करें"
+    },
+    "billing": {
+      "subscription": {
+        "heading": "सदस्यता",
+        "plan": "योजना",
+        "start": "शुरू",
+        "end": "समाप्त",
+        "free": "मुफ़्त",
+        "noActive": "कोई सक्रिय सदस्यता नहीं।",
+        "viewPlans": "योजनाएं देखें"
+      },
+      "wallet": {
+        "heading": "वॉलेट",
+        "availableBalance": "उपलब्ध शेष",
+        "topUp": "टॉप अप",
+        "topUpDialog": {
+          "title": "वॉलेट में पैसे जोड़ें",
+          "description": "Cashfree के माध्यम से टॉप अप (कार्ड/UPI/नेटबैंकिंग)।",
+          "amount": "राशि (INR)",
+          "securePayment": "Cashfree के माध्यम से सुरक्षित भुगतान",
+          "cancel": "रद्द करें",
+          "proceed": "भुगतान करें"
+        },
+        "table": {
+          "when": "कब",
+          "type": "प्रकार",
+          "description": "विवरण",
+          "amount": "राशि",
+          "empty": "अभी तक कोई लेन-देन नहीं।"
+        }
+      },
+      "withdrawals": {
+        "heading": "क्रिएटर निकासी",
+        "description": "Cashfree के माध्यम से कमाई निकालें।",
+        "pendingCount": "{{count}} लंबित",
+        "totalCount": "{{count}} कुल",
+        "debitNotice": "Cashfree Payouts के माध्यम से वॉलेट से डेबिट",
+        "request": "निकासी का अनुरोध करें",
+        "dialog": {
+          "title": "पैसे निकालें",
+          "available": "उपलब्ध: {{balance}}",
+          "amount": "राशि (INR)",
+          "method": "तरीका",
+          "methodUpi": "UPI",
+          "methodBank": "बैंक ट्रांसफर",
+          "upiId": "UPI ID",
+          "accountDetails": "खाता विवरण (नाम, नंबर, IFSC)",
+          "detailsPlaceholder": "विवरण दर्ज करें",
+          "withdraw": "निकालें"
+        },
+        "confirmDelete": "क्या आप इस निकासी रिकॉर्ड को हटाना चाहते हैं?",
+        "deleteAriaLabel": "निकासी हटाएं",
+        "empty": "अभी तक कोई निकासी नहीं।",
+        "status": {
+          "paid": "भुगतान किया",
+          "pending": "लंबित",
+          "rejected": "अस्वीकृत"
+        }
+      }
+    },
+    "notifications": {
+      "heading": "सूचना प्राथमिकताएँ",
+      "description": "चुनें कि आप कौन सी सूचनाएं प्राप्त करना चाहते हैं।",
+      "newSubscriber": "नया सब्सक्राइबर",
+      "newComment": "पाठ पर नई टिप्पणी",
+      "newSale": "नई कोर्स बिक्री",
+      "email": "ईमेल सूचनाएं",
+      "inApp": "इन-ऐप सूचनाएं",
+      "save": "प्राथमिकताएं सहेजें"
+    },
+    "security": {
+      "changePassword": {
+        "heading": "पासवर्ड बदलें",
+        "currentPassword": "वर्तमान पासवर्ड",
+        "newPassword": "नया पासवर्ड",
+        "confirmPassword": "नया पासवर्ड पुष्टि करें",
+        "update": "पासवर्ड अपडेट करें"
+      },
+      "payout": {
+        "heading": "भुगतान विधि",
+        "method": "विधि",
+        "upi": "UPI",
+        "bankTransfer": "बैंक ट्रांसफर",
+        "upiId": "UPI ID",
+        "upiPlaceholder": "name@bank",
+        "accountHolder": "खाता धारक",
+        "ifsc": "IFSC",
+        "accountNumber": "खाता नंबर"
+      },
+      "defaults": {
+        "heading": "नए कोर्स डिफ़ॉल्ट",
+        "defaultPrice": "डिफ़ॉल्ट मूल्य (₹)",
+        "category": "श्रेणी",
+        "level": "स्तर",
+        "categoryOptions": {
+          "general": "सामान्य",
+          "development": "डेवलपमेंट",
+          "design": "डिज़ाइन",
+          "marketing": "मार्केटिंग",
+          "aiData": "AI और डेटा",
+          "business": "व्यवसाय",
+          "personalGrowth": "व्यक्तिगत विकास"
+        },
+        "levelOptions": {
+          "beginner": "शुरुआती",
+          "intermediate": "मध्यवर्ती",
+          "advanced": "उन्नत"
+        }
+      },
+      "saveSettings": "सेटिंग्स सहेजें"
+    },
+    "branding": {
+      "organization": {
+        "heading": "संगठन ब्रांडिंग",
+        "description": "अपने प्रमाणपत्र और चालान को कस्टमाइज़ करें। परिवर्तन आपके द्वारा जारी सभी प्रमाणपत्रों पर लागू होंगे।",
+        "orgName": "संगठन का नाम",
+        "orgNamePlaceholder": "आपकी कंपनी",
+        "logoUrl": "संगठन लोगो URL",
+        "logoUrlPlaceholder": "https://example.com/logo.png",
+        "brandColor": "ब्रांड रंग"
+      },
+      "invoice": {
+        "heading": "चालान कस्टमाइज़ेशन",
+        "description": "अपने संगठन के लिए कस्टम चालान ब्रांडिंग। ये वैश्विक चालान डिफ़ॉल्ट को ओवरराइड करते हैं।",
+        "companyName": "चालान कंपनी का नाम",
+        "companyNamePlaceholder": "आपकी कंपनी",
+        "legalName": "चालान कानूनी नाम",
+        "legalNamePlaceholder": "आपकी कंपनी प्रा. लि.",
+        "gstin": "GSTIN",
+        "gstinPlaceholder": "29XXXXX1234X1Z5",
+        "prefix": "चालान उपसर्ग",
+        "prefixPlaceholder": "INV",
+        "logoUrl": "चालान लोगो URL",
+        "logoUrlPlaceholder": "https://example.com/invoice-logo.png",
+        "contact": "संपर्क (ईमेल/फ़ोन)",
+        "contactPlaceholder": "hello@company.com",
+        "footer": "चालान फुटर",
+        "footerPlaceholder": "आपके व्यवसाय के लिए धन्यवाद!"
+      },
+      "save": "ब्रांडिंग सहेजें"
+    },
+    "style": {
+      "avataaars": "कैज़ुअल कैरेक्टर",
+      "adventurer": "साहसी",
+      "bottts": "रोबोट",
+      "pixelArt": "पिक्सेल आर्ट",
+      "funEmoji": "फन इमोजी",
+      "lorelei": "लोरेली"
+    },
+    "toast": {
+      "profile": {
+        "saved": "प्रोफ़ाइल सहेजी गई",
+        "imageTooLarge": "इमेज 5MB से कम होनी चाहिए",
+        "pickImageFile": "एक इमेज फ़ाइल चुनें",
+        "nameRequired": "नाम खाली नहीं हो सकता",
+        "photoUpdated": "फ़ोटो अपडेट की गई",
+        "photoRemoved": "फ़ोटो हटा दी गई",
+        "failedSavePhoto": "फ़ोटो सहेजने में विफल",
+        "failedRemovePhoto": "फ़ोटो हटाने में विफल",
+        "coverUpdated": "कवर इमेज अपडेट की गई",
+        "coverRemoved": "कवर इमेज हटा दी गई",
+        "failedRemoveCover": "कवर इमेज हटाने में विफल",
+        "coverToggled": "कवर इमेज दृश्यता टॉगल की गई",
+        "mouseCursorToggled": "माउस कर्सर एनिमेशन टॉगल किया गया"
+      },
+      "character": {
+        "updated": "कैरेक्टर अवतार अपडेट हो गया!",
+        "failedSave": "अवतार सहेजने में विफल",
+        "randomized": "सभी फीचर्स रैंडमाइज़ हो गए!",
+        "borderUpdated": "प्रोफ़ाइल बॉर्डर अपडेट हो गया!",
+        "borderRandomized": "प्रोफ़ाइल बॉर्डर रैंडमाइज़ हो गया!",
+        "failedBorder": "बॉर्डर अपडेट करने में विफल",
+        "failedRandomizeBorder": "बॉर्डर रैंडमाइज़ करने में विफल"
+      },
+      "password": {
+        "tooShort": "पासवर्ड कम से कम 8 अक्षर का होना चाहिए",
+        "mismatch": "पासवर्ड मेल नहीं खाते",
+        "incorrectCurrent": "वर्तमान पासवर्ड गलत है",
+        "updated": "पासवर्ड अपडेट हो गया"
+      },
+      "notifications": {
+        "saved": "सूचना प्राथमिकताएं सहेजी गईं",
+        "failedSave": "सूचना प्राथमिकताएं सहेजने में विफल"
+      },
+      "wallet": {
+        "topUpRangeError": "₹50 और ₹100,000 के बीच राशि",
+        "topUpSuccess": "वॉलेट में ₹{{amount}} जोड़े गए",
+        "topUpFailed": "टॉप अप विफल",
+        "minWithdrawal": "न्यूनतम निकासी ₹100 है",
+        "insufficientBalance": "अपर्याप्त शेष",
+        "destinationRequired": "गंतव्य आवश्यक है",
+        "withdrawalProcessed": "निकासी संसाधित हो गई",
+        "withdrawalFailed": "निकासी विफल",
+        "withdrawalDeleted": "हटा दिया गया"
+      },
+      "settings": {
+        "saved": "सेटिंग्स सहेजी गईं"
+      },
+      "branding": {
+        "saved": "ब्रांडिंग सहेजी गई"
+      }
+    }
   }
 }

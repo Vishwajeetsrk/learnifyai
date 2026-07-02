@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useTranslation } from "react-i18next";
 import { saveProfileField } from "@/lib/profile-save.functions";
 import {
   Loader2,
@@ -129,6 +130,7 @@ type Payout = {
 type Defaults = { price_inr: number; category: string; level: string };
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
   const { user, hasRole, isAdmin } = useAuth();
   const qc = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -1319,12 +1321,12 @@ export default function SettingsPage() {
     <AppShell>
       <div className="px-4 md:px-10 py-8 max-w-4xl">
         <div className="mb-6">
-          <div className="text-xs uppercase tracking-widest text-primary font-medium">Settings</div>
+          <div className="text-xs uppercase tracking-widest text-primary font-medium">{t("settings.page.heading")}</div>
           <h1 className="mt-1 text-2xl sm:text-3xl font-display font-semibold tracking-tight">
-            Your account
+            {t("settings.page.title")}
           </h1>
           <p className="text-muted-foreground mt-1 text-sm">
-            Profile, billing, notifications, and security.
+            {t("settings.page.subtitle")}
           </p>
         </div>
 
@@ -1334,24 +1336,24 @@ export default function SettingsPage() {
           >
             <TabsTrigger value="profile">
               <UserIcon className="h-4 w-4" />
-              <span className="ml-1.5">Profile</span>
+              <span className="ml-1.5">{t("settings.tabs.profile")}</span>
             </TabsTrigger>
             <TabsTrigger value="billing">
               <Wallet className="h-4 w-4" />
-              <span className="ml-1.5">Billing</span>
+              <span className="ml-1.5">{t("settings.tabs.billing")}</span>
             </TabsTrigger>
             <TabsTrigger value="notifications">
               <Bell className="h-4 w-4" />
-              <span className="ml-1.5">Notifications</span>
+              <span className="ml-1.5">{t("settings.tabs.notifications")}</span>
             </TabsTrigger>
             <TabsTrigger value="settings">
               <SettingsIcon className="h-4 w-4" />
-              <span className="ml-1.5">Settings</span>
+              <span className="ml-1.5">{t("settings.tabs.settings")}</span>
             </TabsTrigger>
             {isAdmin && (
               <TabsTrigger value="branding">
                 <Building2 className="h-4 w-4" />
-                <span className="ml-1.5">Branding</span>
+                <span className="ml-1.5">{t("settings.tabs.branding")}</span>
               </TabsTrigger>
             )}
           </TabsList>
@@ -1361,7 +1363,7 @@ export default function SettingsPage() {
             <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
                 <h2 className="font-display font-semibold flex items-center gap-2 text-lg">
-                  <UserIcon className="h-4.5 w-4.5 text-primary" /> Profile Settings
+                  <UserIcon className="h-4.5 w-4.5 text-primary" /> {t("settings.profile.heading")}
                 </h2>
                 <Button
                   asChild
@@ -1370,7 +1372,7 @@ export default function SettingsPage() {
                   className="text-xs gap-1.5 rounded-full hover:bg-primary/5 hover:text-primary transition-colors"
                 >
                   <Link to="/u/$id" params={{ id: user?.id ?? "" }}>
-                    <ExternalLink className="h-3.5 w-3.5" /> View Public Profile
+                    <ExternalLink className="h-3.5 w-3.5" /> {t("settings.profile.viewPublicProfile")}
                   </Link>
                 </Button>
               </div>
@@ -1410,7 +1412,7 @@ export default function SettingsPage() {
                     ) : (
                       <Upload className="h-4 w-4" />
                     )}
-                    Upload photo
+                    {t("settings.profile.avatar.uploadPhoto")}
                   </Button>
                   <Button
                     size="sm"
@@ -1418,8 +1420,7 @@ export default function SettingsPage() {
                     variant="outline"
                     onClick={() => setCartoonOpen(true)}
                   >
-                    <Sparkles className="h-4 w-4 text-yellow-500 fill-yellow-500" /> Customize
-                    Character
+                    <Sparkles className="h-4 w-4 text-yellow-500 fill-yellow-500" /> {t("settings.profile.avatar.customizeCharacter")}
                   </Button>
                   {profileQ.data?.avatar_url ? (
                     <Button size="sm" type="button" variant="outline" onClick={removeAvatar}>
@@ -1427,7 +1428,7 @@ export default function SettingsPage() {
                     </Button>
                   ) : null}
                   <p className="w-full text-[10px] text-muted-foreground text-center sm:text-left">
-                    Recommended 1:1 ratio &lt; 5 MB
+                    {t("settings.profile.avatar.recommendation")}
                   </p>
                 </div>
               </div>

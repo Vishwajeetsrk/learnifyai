@@ -443,5 +443,490 @@
       "sql": "SQL",
       "systemDesign": "System Design"
     }
+  },
+  "settings": {
+    "page": {
+      "heading": "Settings",
+      "title": "Your account",
+      "subtitle": "Profile, billing, notifications, and security."
+    },
+    "tabs": {
+      "profile": "Profile",
+      "billing": "Billing",
+      "notifications": "Notifications",
+      "settings": "Settings",
+      "branding": "Branding"
+    },
+    "profile": {
+      "heading": "Profile Settings",
+      "viewPublicProfile": "View Public Profile",
+      "saveChanges": "Save changes",
+      "avatar": {
+        "uploadPhoto": "Upload photo",
+        "customizeCharacter": "Customize Character",
+        "remove": "Remove",
+        "recommendation": "Recommended 1:1 ratio < 5 MB",
+        "borderStyle": "Profile Border Style",
+        "borderPlaceholder": "Select a border",
+        "randomizeBorder": "Randomize Border",
+        "border": {
+          "none": "None",
+          "solid": "Solid",
+          "double": "Double",
+          "dashed": "Dashed",
+          "dotted": "Dotted",
+          "glow": "Glow",
+          "neon": "Neon",
+          "rainbow": "Rainbow",
+          "gradient": "Gradient",
+          "shadow": "Shadow"
+        }
+      },
+      "banner": {
+        "heading": "Cover Image (Banner)",
+        "empty": "No cover image set",
+        "upload": "Upload cover",
+        "remove": "Remove",
+        "showOnProfile": "Show on profile",
+        "recommendation": "Recommended 3:1 ratio < 5 MB",
+        "alt": "Cover Image"
+      },
+      "mouseCursor": {
+        "label": "Mouse Cursor (Animation)"
+      },
+      "fields": {
+        "name": "Name",
+        "username": "Username *",
+        "email": "Email",
+        "website": "Website",
+        "location": "Location",
+        "work": "Work",
+        "education": "Education",
+        "bio": "Bio",
+        "skills": "Skills"
+      },
+      "placeholders": {
+        "website": "https://",
+        "location": "India",
+        "work": "DreamSync",
+        "education": "BCA",
+        "bio": "Frontend Developer | UI Enthusiast...",
+        "addCustomSkill": "Add custom skill..."
+      },
+      "username": {
+        "available": "Username is available",
+        "taken": "Username taken"
+      },
+      "skills": {
+        "add": "Add",
+        "option": {
+          "html": "HTML",
+          "css": "CSS",
+          "javascript": "JavaScript",
+          "python": "Python",
+          "java": "Java",
+          "cpp": "C++",
+          "sql": "SQL",
+          "commandLine": "Command Line",
+          "react": "React",
+          "git": "Git & GitHub",
+          "numpy": "NumPy",
+          "typescript": "TypeScript",
+          "nodejs": "Node.js",
+          "nextjs": "Next.js",
+          "tailwind": "Tailwind CSS",
+          "docker": "Docker",
+          "aws": "AWS",
+          "mongodb": "MongoDB",
+          "postgresql": "PostgreSQL",
+          "graphql": "GraphQL",
+          "figma": "Figma",
+          "uiux": "UI/UX",
+          "apiDesign": "API Design"
+        }
+      },
+      "social": {
+        "heading": "Social media",
+        "github": "GitHub",
+        "twitter": "X (Twitter)",
+        "linkedin": "LinkedIn",
+        "instagram": "Instagram",
+        "youtube": "YouTube",
+        "twitch": "Twitch",
+        "tiktok": "TikTok",
+        "placeholder": "https://example.com"
+      }
+    },
+    "character": {
+      "dialog": {
+        "title": "Customize Your Character",
+        "description": "Design your own custom cartoon avatar. Change styles, colors, gender, expressions, and clothing!"
+      },
+      "artStyle": "Art Style",
+      "avatarPreviewAlt": "Avatar Preview",
+      "seed": {
+        "label": "Base Seed",
+        "placeholder": "Type anything to randomize base features...",
+        "randomize": "Randomize"
+      },
+      "tab": {
+        "faceHair": "Face & Hair",
+        "expression": "Expression",
+        "clothing": "Clothing",
+        "background": "Background"
+      },
+      "skinColor": "Skin Color",
+      "skin": {
+        "veryLight": "Very Light",
+        "light": "Light",
+        "tan": "Tan",
+        "olive": "Olive",
+        "brown": "Brown",
+        "dark": "Dark"
+      },
+      "hair": {
+        "style": "Hair Style",
+        "robotStyle": "Robot Head Style",
+        "maleShort": "Male / Short",
+        "femaleLong": "Female / Long",
+        "antennaBulb": "Antenna / Bulb",
+        "radarHorn": "Radar / Horn",
+        "male": {
+          "caesarCut": "Caesar Cut",
+          "shortFlat": "Short Flat",
+          "shortRound": "Short Round",
+          "shortWavy": "Short Wavy",
+          "shortCurly": "Short Curly",
+          "mullet": "Mullet",
+          "bald": "Bald",
+          "antenna": "Antenna",
+          "bulb": "Bulb",
+          "horn": "Horn",
+          "radar": "Radar",
+          "pyramid": "Pyramid"
+        },
+        "female": {
+          "longStraight": "Long Straight",
+          "straightParted": "Straight Parted",
+          "longCurly": "Long Curly",
+          "longCurvy": "Long Curvy",
+          "bobCut": "Bob Cut",
+          "miaCut": "Mia Cut",
+          "hairBun": "Hair Bun",
+          "dreads": "Dreads",
+          "bigHair": "Big Hair",
+          "antenna": "Antenna",
+          "bulb": "Bulb",
+          "horn": "Horn",
+          "radar": "Radar",
+          "pyramid": "Pyramid"
+        }
+      },
+      "hairColor": "Hair Color",
+      "hairColorOptions": {
+        "black": "Black",
+        "darkBrown": "Dark Brown",
+        "lightBrown": "Light Brown",
+        "blonde": "Blonde",
+        "auburn": "Auburn",
+        "platinum": "Platinum",
+        "pink": "Pink"
+      },
+      "eyebrows": "Eyebrows",
+      "eyebrowOptions": {
+        "default": "Default",
+        "angry": "Angry",
+        "flat": "Flat",
+        "raised": "Raised",
+        "sad": "Sad",
+        "unibrow": "Unibrow",
+        "up": "Up"
+      },
+      "eyes": "Eyes Expression",
+      "eyeOptions": {
+        "default": "Default",
+        "happy": "Happy",
+        "wink": "Wink",
+        "surprised": "Surprised",
+        "squint": "Squint",
+        "sideEye": "Side Eye",
+        "hearts": "Hearts",
+        "closed": "Closed"
+      },
+      "nose": "Nose",
+      "noseOptions": {
+        "default": "Default",
+        "variant2": "Variant 2",
+        "variant3": "Variant 3",
+        "variant4": "Variant 4",
+        "variant5": "Variant 5",
+        "variant6": "Variant 6"
+      },
+      "mouth": "Mouth Expression",
+      "mouthOptions": {
+        "default": "Default",
+        "smile": "Smile",
+        "sad": "Sad",
+        "concerned": "Concerned",
+        "disbelief": "Disbelief",
+        "grimace": "Grimace",
+        "scream": "Scream",
+        "tongue": "Tongue"
+      },
+      "accessories": "Accessories",
+      "robotSide": "Robot Side Attachment",
+      "accessoryOptions": {
+        "none": "None",
+        "regular": "Regular",
+        "round": "Round",
+        "sunglasses": "Sunglasses",
+        "wayfarer": "Wayfarer",
+        "kurt": "Kurt",
+        "antenna": "Antenna",
+        "earphones": "Earphones",
+        "cables": "Cables"
+      },
+      "clothing": {
+        "style": "Clothing Style",
+        "crewNeck": "Crew Neck",
+        "vNeck": "V-Neck",
+        "openShirt": "Open Shirt",
+        "hoodie": "Hoodie",
+        "sweater": "Sweater",
+        "blazer": "Blazer",
+        "overalls": "Overalls",
+        "graphicTee": "Graphic Tee",
+        "color": "Clothing Color",
+        "robotMetal": "Robot Metal Color",
+        "emojiBg": "Background Color"
+      },
+      "clothingColors": {
+        "navy": "Navy",
+        "blue": "Blue",
+        "teal": "Teal",
+        "green": "Green",
+        "red": "Red",
+        "orange": "Orange",
+        "purple": "Purple",
+        "pink": "Pink",
+        "gray": "Gray"
+      },
+      "background": {
+        "label": "Character Background Color",
+        "transparent": "Transparent",
+        "skyBlue": "Sky Blue",
+        "lavender": "Lavender",
+        "pastelIndigo": "Pastel Indigo",
+        "pastelPink": "Pastel Pink",
+        "peach": "Peach",
+        "mintGreen": "Mint Green",
+        "lightGray": "Light Gray",
+        "yellow": "Yellow"
+      },
+      "randomizeAll": "Randomize All",
+      "cancel": "Cancel",
+      "useAvatar": "Use Character Avatar"
+    },
+    "billing": {
+      "subscription": {
+        "heading": "Subscription",
+        "plan": "Plan",
+        "start": "Start",
+        "end": "End",
+        "free": "Free",
+        "noActive": "No active subscription.",
+        "viewPlans": "View plans"
+      },
+      "wallet": {
+        "heading": "Wallet",
+        "availableBalance": "Available balance",
+        "topUp": "Top up",
+        "topUpDialog": {
+          "title": "Add money to wallet",
+          "description": "Top up via Cashfree (card/UPI/netbanking).",
+          "amount": "Amount (INR)",
+          "securePayment": "Secure payment via Cashfree",
+          "cancel": "Cancel",
+          "proceed": "Proceed to pay"
+        },
+        "table": {
+          "when": "When",
+          "type": "Type",
+          "description": "Description",
+          "amount": "Amount",
+          "empty": "No transactions yet."
+        }
+      },
+      "withdrawals": {
+        "heading": "Creator withdrawals",
+        "description": "Withdraw earnings via Cashfree.",
+        "pendingCount": "{{count}} pending",
+        "totalCount": "{{count}} total",
+        "debitNotice": "Wallet debited upfront via Cashfree Payouts",
+        "request": "Request withdrawal",
+        "dialog": {
+          "title": "Withdraw funds",
+          "available": "Available: {{balance}}",
+          "amount": "Amount (INR)",
+          "method": "Method",
+          "methodUpi": "UPI",
+          "methodBank": "Bank transfer",
+          "upiId": "UPI ID",
+          "accountDetails": "Account details (name, number, IFSC)",
+          "detailsPlaceholder": "Enter details",
+          "withdraw": "Withdraw"
+        },
+        "confirmDelete": "Delete this withdrawal record?",
+        "deleteAriaLabel": "Delete withdrawal",
+        "empty": "No withdrawals yet.",
+        "status": {
+          "paid": "Paid",
+          "pending": "Pending",
+          "rejected": "Rejected"
+        }
+      }
+    },
+    "notifications": {
+      "heading": "Notification preferences",
+      "description": "Choose what notifications you receive and how.",
+      "newSubscriber": "New subscriber",
+      "newComment": "New comment on a lesson",
+      "newSale": "New course sale",
+      "email": "Email notifications",
+      "inApp": "In-app notifications",
+      "save": "Save preferences"
+    },
+    "security": {
+      "changePassword": {
+        "heading": "Change password",
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm new password",
+        "update": "Update password"
+      },
+      "payout": {
+        "heading": "Payout method",
+        "method": "Method",
+        "upi": "UPI",
+        "bankTransfer": "Bank transfer",
+        "upiId": "UPI ID",
+        "upiPlaceholder": "name@bank",
+        "accountHolder": "Account holder",
+        "ifsc": "IFSC",
+        "accountNumber": "Account number"
+      },
+      "defaults": {
+        "heading": "New-course defaults",
+        "defaultPrice": "Default price (₹)",
+        "category": "Category",
+        "level": "Level",
+        "categoryOptions": {
+          "general": "General",
+          "development": "Development",
+          "design": "Design",
+          "marketing": "Marketing",
+          "aiData": "AI & Data",
+          "business": "Business",
+          "personalGrowth": "Personal Growth"
+        },
+        "levelOptions": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        }
+      },
+      "saveSettings": "Save settings"
+    },
+    "branding": {
+      "organization": {
+        "heading": "Organization Branding",
+        "description": "Customize how your certificates and invoices appear. Changes apply to all certificates you issue.",
+        "orgName": "Organization Name",
+        "orgNamePlaceholder": "Your Company",
+        "logoUrl": "Organization Logo URL",
+        "logoUrlPlaceholder": "https://example.com/logo.png",
+        "brandColor": "Brand Color"
+      },
+      "invoice": {
+        "heading": "Invoice Customization",
+        "description": "Custom invoice branding for your organization. These override the global invoice defaults.",
+        "companyName": "Invoice company name",
+        "companyNamePlaceholder": "Your Company",
+        "legalName": "Invoice legal name",
+        "legalNamePlaceholder": "Your Company Pvt. Ltd.",
+        "gstin": "GSTIN",
+        "gstinPlaceholder": "29XXXXX1234X1Z5",
+        "prefix": "Invoice prefix",
+        "prefixPlaceholder": "INV",
+        "logoUrl": "Invoice logo URL",
+        "logoUrlPlaceholder": "https://example.com/invoice-logo.png",
+        "contact": "Contact (email/phone)",
+        "contactPlaceholder": "hello@company.com",
+        "footer": "Invoice footer",
+        "footerPlaceholder": "Thank you for your business!"
+      },
+      "save": "Save Branding"
+    },
+    "style": {
+      "avataaars": "Casual Character",
+      "adventurer": "Adventurer",
+      "bottts": "Robot",
+      "pixelArt": "Pixel Art",
+      "funEmoji": "Fun Emoji",
+      "lorelei": "Lorelei"
+    },
+    "toast": {
+      "profile": {
+        "saved": "Profile saved",
+        "imageTooLarge": "Image must be < 5MB",
+        "pickImageFile": "Pick an image file",
+        "nameRequired": "Name cannot be empty",
+        "photoUpdated": "Photo updated",
+        "photoRemoved": "Photo removed",
+        "failedSavePhoto": "Failed to save photo",
+        "failedRemovePhoto": "Failed to remove photo",
+        "coverUpdated": "Cover image updated",
+        "coverRemoved": "Cover image removed",
+        "failedRemoveCover": "Failed to remove cover image",
+        "coverToggled": "Cover image visibility toggled",
+        "mouseCursorToggled": "Mouse cursor animation toggled"
+      },
+      "character": {
+        "updated": "Character avatar updated!",
+        "failedSave": "Failed to save avatar",
+        "randomized": "Randomized all features!",
+        "borderUpdated": "Profile border updated!",
+        "borderRandomized": "Randomized profile border!",
+        "failedBorder": "Failed to update border",
+        "failedRandomizeBorder": "Failed to randomize border"
+      },
+      "password": {
+        "tooShort": "Password must be at least 8 characters",
+        "mismatch": "Passwords don't match",
+        "incorrectCurrent": "Current password is incorrect",
+        "updated": "Password updated"
+      },
+      "notifications": {
+        "saved": "Notification preferences saved",
+        "failedSave": "Failed to save notification preferences"
+      },
+      "wallet": {
+        "topUpRangeError": "Amount between ₹50 and ₹100,000",
+        "topUpSuccess": "₹{{amount}} added to wallet",
+        "topUpFailed": "Top-up failed",
+        "minWithdrawal": "Minimum withdrawal is ₹100",
+        "insufficientBalance": "Insufficient balance",
+        "destinationRequired": "Destination required",
+        "withdrawalProcessed": "Withdrawal processed",
+        "withdrawalFailed": "Withdrawal failed",
+        "withdrawalDeleted": "Deleted"
+      },
+      "settings": {
+        "saved": "Settings saved"
+      },
+      "branding": {
+        "saved": "Branding saved"
+      }
+    }
   }
 }
