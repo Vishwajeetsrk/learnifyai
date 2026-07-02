@@ -194,7 +194,7 @@ function CreatorsPage() {
                 <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                   Current Balance
                 </p>
-                <p className="text-3xl font-bold text-foreground">₹45,250</p>
+                <p className="text-3xl font-bold text-foreground">₹0</p>
               </div>
 
               {payoutStatus === "idle" && (
@@ -263,7 +263,7 @@ function CreatorsPage() {
                 </h3>
               </div>
               <p className="text-xs text-muted-foreground mb-4">
-                Blast an update to your 1,200 active learners with a single click.
+                Blast an update to your learners with a single click.
               </p>
 
               {postStatus === "idle" ? (

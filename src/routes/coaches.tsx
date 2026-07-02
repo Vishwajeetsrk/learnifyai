@@ -365,11 +365,11 @@ function CoachesPage() {
                   <div className="grid grid-cols-2 gap-3 text-[11px] p-2 bg-muted/40 rounded-lg border">
                     <div className="flex flex-col">
                       <span className="text-muted-foreground">Mock Interviews</span>
-                      <span className="font-semibold text-foreground">8.2 / 10</span>
+                      <span className="font-semibold text-foreground">--</span>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-muted-foreground">Code Submissions</span>
-                      <span className="font-semibold text-foreground">94% score</span>
+                      <span className="font-semibold text-foreground">--</span>
                     </div>
                   </div>
                   <Button onClick={handleRunAudit} size="sm" className="w-full text-xs">
