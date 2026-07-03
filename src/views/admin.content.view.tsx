@@ -30,6 +30,10 @@ import {
   Menu,
   Layout,
   Layers,
+  BarChart3,
+  FolderTree,
+  LayoutTemplate,
+  Upload,
 } from "lucide-react";
 import {
   CertificateRender,
@@ -169,8 +173,8 @@ const SECTION_TOURS: Record<string, { what: string; how: string; where: string }
       "Certificate templates are used when issuing certificates to students. They appear as options in the 'Issue Cert' section.",
   },
   "issue-cert": {
-    what: "Issue certificates to students manually or in bulk. Award them to any user on the platform.",
-    how: "Search for a student, select a template, optionally write a personal message, and click Issue. The certificate is created instantly with a unique verification code.",
+    what: "Issue certificates to students individually or in bulk. Upload a CSV to issue to multiple students at once.",
+    how: "Use the single-issue form to award a certificate to one student, or upload a CSV file with name/email/course columns for bulk issuance.",
     where:
       "Students see issued certificates on their Certificates page. Each certificate has a unique verification link they can share on LinkedIn.",
   },
@@ -252,8 +256,8 @@ const TAB_LABELS: Record<string, string> = {
   jobs: "Jobs",
   pricing: "Pricing",
   site: "Site",
-  "cert-templates": "Cert Templates",
-  "issue-cert": "Issue Cert",
+  "cert-templates": "Certificates",
+  "issue-cert": "Bulk Issue",
   faqs: "FAQs",
   pages: "Pages",
   roadmap: "Roadmap",
@@ -379,11 +383,11 @@ export default function AdminContentPage() {
             </TabsTrigger>
             <TabsTrigger value="cert-templates">
               <Award className="h-4 w-4 mr-2" />
-              Cert Templates
+              Certificates
             </TabsTrigger>
             <TabsTrigger value="issue-cert">
-              <Send className="h-4 w-4 mr-2" />
-              Issue Cert
+              <Upload className="h-4 w-4 mr-2" />
+              Bulk Issue
             </TabsTrigger>
             <TabsTrigger value="faqs">
               <HelpCircle className="h-4 w-4 mr-2" />
@@ -2051,6 +2055,25 @@ function CertTemplatesManager() {
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2 pb-4 border-b">
+        <Button variant="default" size="sm" onClick={() => navigate({ to: "/admin/certificates" })}>
+          <ShieldCheck className="h-4 w-4 mr-2" />
+          Full Designer
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => window.open("/admin/certificates?tab=canva", "_self")}>
+          <LayoutTemplate className="h-4 w-4 mr-2" />
+          Canva Templates
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => window.open("/admin/certificates?tab=analytics", "_self")}>
+          <BarChart3 className="h-4 w-4 mr-2" />
+          Analytics
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => window.open("/admin/certificates?tab=categories", "_self")}>
+          <FolderTree className="h-4 w-4 mr-2" />
+          Categories
+        </Button>
+      </div>
+
       <div className="flex flex-wrap justify-end gap-2">
         <input
           id="cert-import-file"

@@ -150,7 +150,16 @@ export const checkoutCart = createServerFn({ method: "POST" })
     if (eErr) throw new Error(eErr.message);
 
     // Credit creator earnings after a successful paid enrollment.
+    // Platform takes 25% commission; creator receives 75%.
+    const COMMISSION_RATE = 0.25;
     const earningRows: Array<{
+      user_id: string;
+      amount_inr: number;
+      type: string;
+      status: string;
+      description: string;
+    }> = [];
+    const commissionRows: Array<{
       user_id: string;
       amount_inr: number;
       type: string;
@@ -165,18 +174,27 @@ export const checkoutCart = createServerFn({ method: "POST" })
           ? Math.max(0, Math.round((price - (discount * price) / subtotal) * 100) / 100)
           : 0;
       if (!creatorId || creatorId === userId || net <= 0) continue;
+      const commission = Math.round(net * COMMISSION_RATE * 100) / 100;
+      const creatorNet = net - commission;
       earningRows.push({
         user_id: creatorId,
-        amount_inr: net,
+        amount_inr: creatorNet,
         type: "credit",
         status: "completed",
-        description: `Creator earning: ${c.courses?.title ?? "Course sale"}`,
+        description: `Creator earning (75%): ${c.courses?.title ?? "Course sale"}`,
+      });
+      commissionRows.push({
+        user_id: creatorId,
+        amount_inr: commission,
+        type: "debit",
+        status: "completed",
+        description: `Platform commission (25%): ${c.courses?.title ?? "Course sale"}`,
       });
     }
     if (earningRows.length) {
       const { error: earnErr } = await supabaseAdmin
         .from("wallet_transactions")
-        .insert(earningRows);
+        .insert([...earningRows, ...commissionRows]);
       if (earnErr) throw new Error(earnErr.message);
     }
 

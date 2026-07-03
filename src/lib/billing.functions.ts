@@ -384,6 +384,92 @@ export const processRefund = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Fetch invoice to validate refund policy
+    const { data: invoice } = await supabaseAdmin
+      .from("invoices")
+      .select("user_id, invoice_number, created_at, line_items")
+      .eq("id", data.invoice_id)
+      .single();
+    if (!invoice) throw new Error("Invoice not found");
+
+    // Auto-approve refund policy checks
+    const createdAt = new Date(invoice.created_at);
+    const daysSincePurchase = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (daysSincePurchase > 7) {
+      // Outside 7-day window — manual review required
+      const { error: refundErr } = await supabaseAdmin.from("billing_refunds").insert({
+        invoice_id: data.invoice_id,
+        amount_inr: data.amount_inr,
+        reason: data.reason || null,
+        status: "pending",
+        user_id: context!.userId!,
+        created_at: new Date().toISOString(),
+      });
+      if (refundErr) throw new Error(refundErr.message);
+      return {
+        ok: true,
+        status: "pending",
+        note: "Refund outside 7-day window. Submitted for manual review.",
+      };
+    }
+
+    // Check subscription AI credits consumed (if line_items reference subscription)
+    const { data: sub } = await supabaseAdmin
+      .from("user_subscriptions")
+      .select("ai_credits_used")
+      .eq("user_id", invoice.user_id)
+      .maybeSingle();
+    const creditsUsed = Number((sub as any)?.ai_credits_used ?? 0);
+    if (creditsUsed > 500) {
+      // Too many AI credits consumed
+      const { error: refundErr } = await supabaseAdmin.from("billing_refunds").insert({
+        invoice_id: data.invoice_id,
+        amount_inr: data.amount_inr,
+        reason: data.reason || null,
+        status: "pending",
+        user_id: context!.userId!,
+        created_at: new Date().toISOString(),
+      });
+      if (refundErr) throw new Error(refundErr.message);
+      return {
+        ok: true,
+        status: "pending",
+        note: "More than 500 AI credits consumed. Submitted for manual review.",
+      };
+    }
+
+    // Check course enrollment progress (<30%) if line_items reference courses
+    const lineItems: any[] = (invoice.line_items as any[]) || [];
+    for (const item of lineItems) {
+      if (item.type === "course") {
+        const { data: enrollment } = await supabaseAdmin
+          .from("enrollments")
+          .select("progress_pct")
+          .eq("user_id", invoice.user_id)
+          .eq("course_id", item.course_id)
+          .maybeSingle();
+        if (enrollment && Number(enrollment.progress_pct) >= 30) {
+          const { error: refundErr } = await supabaseAdmin.from("billing_refunds").insert({
+            invoice_id: data.invoice_id,
+            amount_inr: data.amount_inr,
+            reason: data.reason || null,
+            status: "pending",
+            user_id: context!.userId!,
+            created_at: new Date().toISOString(),
+          });
+          if (refundErr) throw new Error(refundErr.message);
+          return {
+            ok: true,
+            status: "pending",
+            note: "Course progress exceeds 30%. Submitted for manual review.",
+          };
+        }
+      }
+    }
+
+    // Auto-approve: within 7 days, under 500 AI credits, under 30% course progress
     const { error: refundErr } = await supabaseAdmin.from("billing_refunds").insert({
       invoice_id: data.invoice_id,
       amount_inr: data.amount_inr,
@@ -394,12 +480,6 @@ export const processRefund = createServerFn({ method: "POST" })
     });
     if (refundErr) throw new Error(refundErr.message);
 
-    const { data: invoice } = await supabaseAdmin
-      .from("invoices")
-      .select("user_id, invoice_number")
-      .eq("id", data.invoice_id)
-      .single();
-
     const { error: invErr } = await supabaseAdmin
       .from("invoices")
       .update({ status: "refunded", updated_at: new Date().toISOString() })
@@ -407,20 +487,18 @@ export const processRefund = createServerFn({ method: "POST" })
     if (invErr) throw new Error(invErr.message);
 
     // Send refund processed email (non-blocking)
-    if (invoice) {
-      import("@/lib/billing-email.functions").then((m) =>
-        m
-          .sendRefundProcessedEmail(
-            invoice.user_id,
-            invoice.invoice_number,
-            data.amount_inr,
-            data.reason,
-          )
-          .catch((e) => console.error("Failed to send refund email:", e)),
-      );
-    }
+    import("@/lib/billing-email.functions").then((m) =>
+      m
+        .sendRefundProcessedEmail(
+          invoice.user_id,
+          invoice.invoice_number,
+          data.amount_inr,
+          data.reason,
+        )
+        .catch((e) => console.error("Failed to send refund email:", e)),
+    );
 
-    return { ok: true };
+    return { ok: true, status: "completed", note: "Refund auto-approved." };
   });
 
 export const getCashfreeStatus = createServerFn({ method: "GET" })

@@ -207,6 +207,15 @@ export default function CoachingDashboard() {
   const bookSlot = async (slotId: string) => {
     if (!user || !selectedCoachId) return;
     try {
+      // Get slot price
+      const { data: slot } = await (supabase as any)
+        .from("coaching_slots")
+        .select("price_inr, coach_id")
+        .eq("id", slotId)
+        .single();
+
+      const priceInr = Number(slot?.price_inr ?? 0);
+
       const { error: slotError } = await supabase
         .from("coaching_slots" as any)
         .update({ is_booked: true })
@@ -219,6 +228,28 @@ export default function CoachingDashboard() {
         coach_id: selectedCoachId,
       });
       if (bookingError) throw bookingError;
+
+      // Credit coach wallet with 20% commission deducted
+      if (priceInr > 0 && selectedCoachId !== user.id) {
+        const coachShare = Math.round(priceInr * 0.8 * 100) / 100; // 80% to coach
+        const platformFee = priceInr - coachShare; // 20% platform
+        await supabase.from("wallet_transactions").insert([
+          {
+            user_id: selectedCoachId,
+            amount_inr: coachShare,
+            type: "credit",
+            status: "completed",
+            description: `Coaching session earnings (80%): ₹${coachShare}`,
+          },
+          {
+            user_id: selectedCoachId,
+            amount_inr: platformFee,
+            type: "debit",
+            status: "completed",
+            description: `Platform commission (20%): ₹${platformFee}`,
+          },
+        ]);
+      }
 
       toast.success("Session booked successfully!");
       setSelectedCoachId(null);

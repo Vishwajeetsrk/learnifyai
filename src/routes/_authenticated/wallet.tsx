@@ -63,13 +63,14 @@ const inr = (n: number) =>
   }).format(n);
 
 function WalletPage() {
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState<string>("500");
   const [submitting, setSubmitting] = useState(false);
   const createOrder = useServerFn(createCashfreeOrder);
   const verifyTopup = useServerFn(verifyCashfreePayment);
+  const canTopUp = hasRole("creator" as any) || hasRole("coach" as any) || hasRole("admin" as any) || hasRole("super_admin" as any);
 
   const txQuery = useQuery({
     enabled: !!user,
@@ -156,6 +157,7 @@ function WalletPage() {
 
   async function submitTopup() {
     if (!user) return;
+    if (!canTopUp) return toast.error("Only creators, coaches, and admins can top up their wallet.");
     const amt = Number(amount);
     if (!amt || amt < 50) return toast.error("Minimum amount is ₹50");
     if (amt > 100000) return toast.error("Maximum amount is ₹1,00,000");
@@ -295,6 +297,7 @@ function WalletPage() {
               </div>
             </div>
 
+            {canTopUp && (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button
@@ -313,6 +316,7 @@ function WalletPage() {
                 onClose={() => setOpen(false)}
               />
             </Dialog>
+            )}
           </div>
 
           <div className="relative mt-8">
@@ -339,6 +343,7 @@ function WalletPage() {
           </div>
 
           {/* Quick add chips */}
+          {canTopUp && (
           <div className="relative mt-6 flex flex-wrap gap-2">
             {presets.map((p) => (
               <button
@@ -353,6 +358,7 @@ function WalletPage() {
               </button>
             ))}
           </div>
+          )}
         </div>
 
         {/* Processing top-ups */}

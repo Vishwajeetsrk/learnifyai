@@ -25,6 +25,14 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
       throw new Error("Cashfree credentials not configured on the server.");
     }
 
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("phone")
+      .eq("id", context.userId)
+      .maybeSingle();
+    const customerPhone = (profile as any)?.phone || "9999999999";
+
     const orderId = `ord_${context.userId}_${Date.now()}`;
 
     const res = await fetch(`${getCashfreeApi()}/orders`, {
@@ -42,7 +50,7 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
         customer_details: {
           customer_id: context.userId,
           customer_email: email || `${context.userId.slice(0, 8)}@learnify.app`,
-          customer_phone: "9999999999", // Required by Cashfree API; TODO: add phone field to profiles table
+          customer_phone: customerPhone,
         },
       }),
     });
@@ -139,10 +147,6 @@ export const processCashfreePayout = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (!context.userId) throw new Error("Unauthorized");
 
-    const appId = process.env.CASHFREE_APP_ID;
-    const secretKey = process.env.CASHFREE_SECRET_KEY;
-    if (!appId || !secretKey) throw new Error("Cashfree credentials not configured");
-
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Check wallet balance
@@ -157,67 +161,109 @@ export const processCashfreePayout = createServerFn({ method: "POST" })
     );
     if (data.amountInr > balance) throw new Error("Insufficient wallet balance");
 
+    // Check minimum payout threshold
+    if (data.amountInr < 500) throw new Error("Minimum withdrawal amount is ₹500");
+
     // Debit wallet immediately
     const { error: txErr } = await supabaseAdmin.from("wallet_transactions").insert({
       user_id: context.userId,
       amount_inr: data.amountInr,
       type: "debit",
       status: "completed",
-      description: `Withdrawal via Cashfree · ${data.method}`,
+      description: `Withdrawal queued · ${data.method}`,
     });
     if (txErr) throw new Error(txErr.message);
 
-    // Create withdrawal request record
-    const { error: wdErr } = await supabaseAdmin.from("creator_withdrawals").insert({
+    // Queue withdrawal for weekly batch processing
+    const { error: wdErr } = await (supabaseAdmin as any).from("creator_withdrawals").insert({
       user_id: context.userId,
       amount_inr: data.amountInr,
       method: data.method,
       destination: { details: data.destination },
       status: "pending",
+      is_batched: true,
     });
     if (wdErr) throw new Error(wdErr.message);
 
-    // Initiate Cashfree Payouts transfer
-    const transferId = `wtd_${context.userId.slice(0, 8)}_${Date.now()}`;
-    const payoutRes = await fetch("https://api.cashfree.com/payouts/transfers", {
-      method: "POST",
-      headers: {
-        "x-api-version": "2024-01-01",
-        "x-client-id": appId,
-        "x-client-secret": secretKey,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        transfer_id: transferId,
-        transfer_amount: data.amountInr,
-        transfer_currency: "INR",
-        transfer_mode: data.method === "upi" ? "upi" : "banktransfer",
-        transfer_details: {
-          ...(data.method === "upi" ? { upi: { upi_id: data.destination } } : {}),
-        },
-      }),
-    });
+    return {
+      success: true,
+      pending: true,
+      note: "Withdrawal queued for weekly batch processing. Funds arrive within 5–7 business days.",
+    };
+  });
 
-    if (!payoutRes.ok) {
-      const errText = await payoutRes.text();
-      console.error("Cashfree payout failed:", errText);
-      return {
-        success: true,
-        pending: true,
-        note: "Withdrawal recorded. Payout will be processed manually.",
-      };
+export const processPendingPayouts = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const appId = process.env.CASHFREE_APP_ID;
+    const secretKey = process.env.CASHFREE_SECRET_KEY;
+    if (!appId || !secretKey) throw new Error("Cashfree credentials not configured");
+
+    // Fetch all pending batched withdrawals
+    const { data: pending } = await (supabaseAdmin as any)
+      .from("creator_withdrawals")
+      .select("*")
+      .eq("status", "pending")
+      .eq("is_batched", true)
+      .order("created_at", { ascending: true });
+
+    if (!pending || pending.length === 0) return { processed: 0, note: "No pending payouts." };
+
+    let processed = 0;
+    let failed = 0;
+
+    for (const wd of pending) {
+      const dest = wd.destination as any;
+      const transferId = `wtd_${wd.user_id.slice(0, 8)}_${Date.now()}_${processed}`;
+
+      try {
+        const payoutRes = await fetch("https://api.cashfree.com/payouts/transfers", {
+          method: "POST",
+          headers: {
+            "x-api-version": "2024-01-01",
+            "x-client-id": appId,
+            "x-client-secret": secretKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            transfer_id: transferId,
+            transfer_amount: wd.amount_inr,
+            transfer_currency: "INR",
+            transfer_mode: wd.method === "upi" ? "upi" : "banktransfer",
+            transfer_details: {
+              ...(wd.method === "upi" ? { upi: { upi_id: dest?.details } } : {}),
+            },
+          }),
+        });
+
+        if (!payoutRes.ok) {
+          const errText = await payoutRes.text();
+          console.error(`Cashfree payout failed for ${wd.id}:`, errText);
+          failed++;
+          continue;
+        }
+
+        await supabaseAdmin
+          .from("creator_withdrawals")
+          .update({
+            status: "paid",
+            processed_at: new Date().toISOString(),
+            processed_by: context.userId,
+          })
+          .eq("id", wd.id);
+
+        processed++;
+      } catch (e) {
+        console.error(`Payout error for ${wd.id}:`, e);
+        failed++;
+      }
     }
 
-    await supabaseAdmin
-      .from("creator_withdrawals")
-      .update({
-        status: "paid",
-        processed_at: new Date().toISOString(),
-        processed_by: context.userId,
-      })
-      .eq("user_id", context.userId)
-      .order("created_at", { ascending: false })
-      .limit(1);
-
-    return { success: true };
+    return {
+      processed,
+      failed,
+      note: `Batch processed: ${processed} paid, ${failed} failed.`,
+    };
   });
