@@ -591,7 +591,7 @@ function CreatorWithdrawSection({ balance }: { balance: number }) {
   async function submit() {
     if (!user) return;
     const n = Number(amt);
-    if (!n || n < 100) return toast.error("Minimum withdrawal is ₹100");
+    if (!n || n < 500) return toast.error("Minimum withdrawal is ₹500");
     if (n > balance) return toast.error("Insufficient balance");
     if (!dest.trim()) return toast.error("Destination details required");
     setSubmitting(true);
