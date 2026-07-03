@@ -259,7 +259,7 @@ node scripts/sync-migrations.cjs
 Once migrations have finished, seed the essential starting records (pricing plans, courses, events, jobs):
 
 ```bash
-# Seed pricing plans (Starter, Pro, Career Pro, Enterprise)
+# Seed pricing plans (Free, Pro, Career Pro, Enterprise)
 node seed_pricing_plans.cjs
 
 # Seed launch event and job openings
@@ -659,7 +659,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Avatar DiceBear Fix**: `AvatarImage` strips `profile_border` query param before fetching to prevent DiceBear 9.x 400 errors. Border CSS applied separately via `getProfileBorderClass()` with 19 border styles.
 - ✅ **Service Worker Fix**: `public/sw.js` filters out `chrome-extension:` protocol and wraps `cache.add` in try-catch to prevent extension-related crashes.
 - ✅ **Playground Tables Created**: `playground_projects`, `playground_files`, `playground_runs` tables created via resilient migration with RLS policies and indexes.
-- ✅ **Pricing Data Fixed**: Deleted corrupt pricing data (Vishajeet/Vishwajeet), upserted correct Starter/Pro/Team plans via SQL migration.
+- ✅ **Pricing Data Fixed**: Deleted corrupt pricing data (Vishajeet/Vishwajeet), upserted correct Free/Pro/Career Pro/Enterprise plans via SQL migration.
 - ✅ **Email Delivery Improvements**: Added `console.log`/`console.warn`/`console.error` logging to all email providers (Resend API, Resend SMTP, Brevo API, Brevo SMTP, Gmail SMTP). Removed `domainUnverified` block on Resend SMTP to always try it. Gmail SMTP throws on failure instead of silent return.
 - ✅ **npm Audit Fix**: Resolved 4 of 5 vulnerabilities (nodemailer, dompurify, esbuild). xlsx has no fix available (upstream dependency).
 - ✅ **Supabase Types Regenerated**: All new tables (onboarding, WCMS, playground, project_likes, project_comments) now included in generated TypeScript types.
@@ -678,7 +678,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 ### v3.3.1 (June 2026) - Subscription Self-Healing, Video Restrictions, Policy Updates & Revenue Charts
 
 - ✅ **Self-Healing Subscription Creation**: Intercepts `plan_not_found` responses from Cashfree, resets db identifiers, creates the plan programmatically on Cashfree, and retries subscription checkout automatically without interrupting client mandate redirection.
-- ✅ **Pricing Plan DB Clean-up**: Pruned duplicate/obsolete database pricing configurations and correctly seeded Starter (Free), Pro (₹199/mo), and Career Pro (₹499/mo) active configurations with their respective Cashfree API IDs.
+- ✅ **Pricing Plan DB Clean-up**: Pruned duplicate/obsolete database pricing configurations and correctly seeded Free (₹0), Pro (₹199/mo), and Career Pro (₹499/mo) active configurations with their respective Cashfree API IDs.
 - ✅ **New Subscription Analytics Graphs**: Integrated Area and Bar charts into the Admin Subscription Analytics dashboard (`/admin/subscriptions`) showing 30-day paid revenue curves and daily subscriber growth.
 - ✅ **Interactive Subscription Live Demo**: Embedded a mock billing panel into the homepage's Interactive Sandbox Demo, enabling learners to try credit quota systems and sample invoice downloads.
 - ✅ **Copy Protection & Playback restrictions**: Passed `restrictDownload` and `restrictSpeed` properties to `CustomVideoPlayer`, disabling right-clicks, picture-in-picture mode, downloading options, and locking speeds above 1.25x.
@@ -707,7 +707,7 @@ MIT License. See [LICENSE](LICENSE) for details.
   - **Starter** (₹0/month): 500 AI credits, 3 free courses, basic AI tutor
   - **Pro** (₹199/month): Unlimited courses, 10,000 AI credits, notes & flashcards
   - **Career Pro** (₹499/month): Everything in Pro + Resume/ATS/Interview/Career tools, verified certificates
-  - **Enterprise** (Custom): Admin dashboard, SSO, RBAC, white label, API access
+  - **Enterprise** (Custom): Seats, SSO, admin reporting, custom branding
 - ✅ **Subscription Management**: Resume, upgrade, downgrade subscriptions via Cashfree API
 - ✅ **Coupon Codes**: Discount system with percent/amount off, date ranges, plan restrictions
 - ✅ **Grace Period**: Configurable grace period for failed payments before downgrade
@@ -768,7 +768,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🛡️ **Cashfree SDK CSP Fix**: Configured Content Security Policy in `vercel.json` to safely allow Cashfree checkout scripts.
 - ✅ **Email Template / Admin Page Fix**: Resolved client-side pre-bundling crash on the `/admin` page by converting literal dynamic imports of `nodemailer` to variable-based imports.
 - ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.
-- ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Pro plan at ₹199/mo (casual learners), Career Pro at ₹499/mo (job-seekers), Enterprise (Custom) replaces old Team plan.
+- ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Free plan at ₹0 (Acquisition), Pro at ₹199/mo (casual learners), Career Pro at ₹499/mo (job-seekers), Enterprise (Custom) replaces old Team plan.
 
 ### v1.3.0 (June 2026)
 

@@ -68,20 +68,20 @@
     "perMonth": "/mes",
     "perYear": "/año",
     "plans": {
-      "starter": {
-        "name": "Starter",
-        "description": "Perfecto para empezar con el aprendizaje impulsado por IA.",
+      "free": {
+        "name": "Free",
+        "description": "1–3 cursos gratuitos, créditos de IA diarios limitados, acceso comunitario.",
         "cta": "Empezar gratis"
       },
       "pro": {
         "name": "Pro",
-        "description": "Para estudiantes y creadores serios que quieren acceso ilimitado.",
+        "description": "Aprendices casuales — biblioteca completa, mayor límite de créditos IA, notas y tarjetas.",
         "cta": "Empezar Pro",
         "badge": "Más Popular"
       },
       "careerPro": {
         "name": "Career Pro",
-        "description": "Kit completo de carrera para buscadores de empleo y profesionales.",
+        "description": "Buscadores de empleo — todo en Pro + Currículum / ATS / Preparación de entrevistas / Roadmap, certificados verificados incluidos.",
         "cta": "Preparado para el Empleo",
         "badge": "Mejor Valor"
       }

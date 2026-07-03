@@ -218,7 +218,7 @@ export async function sendSubscriptionCancelledEmail(userId: string, planName: s
     </p>
     <p style="font-size: 15px; color: #374151; line-height: 1.6;">
       You'll continue to have access until the end of your current billing period.
-      After that, you'll be moved to the free Starter plan.
+      After that, you'll be moved to the free plan.
     </p>
     <div style="text-align: center; margin: 24px 0;">
       <a href="${BASE_URL}/pricing" style="display: inline-block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">

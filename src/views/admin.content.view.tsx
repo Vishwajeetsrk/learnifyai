@@ -152,7 +152,7 @@ const SECTION_TOURS: Record<string, { what: string; how: string; where: string }
       "Jobs appear on the Careers page and the Dashboard in the Latest Jobs section. Active jobs are visible to all logged-in users.",
   },
   pricing: {
-    what: "Manage subscription plans (Starter, Pro, Team), pricing tiers, and plan features for the platform.",
+    what: "Manage subscription plans (Free, Pro, Career Pro, Enterprise), pricing tiers, and plan features for the platform.",
     how: "Edit plan name, price, description, and toggle features. Use the 'Sync to Cashfree' button to push changes to the payment gateway.",
     where:
       "Pricing plans are displayed on the Pricing page. Changes take effect immediately for new subscriptions.",
@@ -1243,15 +1243,15 @@ function PricingManager() {
   const seedDefaultPlans = async () => {
     const defaults = [
       {
-        name: "Starter",
+        name: "Free",
         price_label: "Free",
         price_inr: 0,
         yearly_price: null,
         interval: null,
         ai_credits_monthly: 500,
         max_courses: 3,
-        description: "Perfect for getting started with AI-powered learning.",
-        features: ["3 free courses", "Basic AI tutor", "Community access", "Progress tracking", "Basic certificates", "Email support", "500 AI credits / month", "Course notes & summaries", "Basic quiz access"],
+        description: "1–3 free courses, limited daily AI credits, community access.",
+        features: ["1–3 free courses", "Limited daily AI credits", "Community access", "Basic progress tracking", "Basic certificates", "Email support", "500 AI credits / month", "Course notes & summaries", "Basic quiz access"],
         cta_label: "Get Started Free",
         cta_to: "/signup",
         highlighted: false,
@@ -1269,8 +1269,8 @@ function PricingManager() {
         interval: "month",
         ai_credits_monthly: 10000,
         max_courses: -1,
-        description: "For casual learners who want unlimited access to courses and AI tools.",
-        features: ["Unlimited courses", "Advanced AI tutor", "All certificates", "Course notes & flashcards", "Download resources", "Community challenges", "Priority support", "10,000 AI credits / month"],
+        description: "Casual learners — full course library, higher AI credit cap, notes & flashcards.",
+        features: ["Full course library", "Higher AI credit cap", "Notes & flashcards", "Unlimited courses", "Advanced AI tutor", "All certificates", "Download resources", "Community challenges", "Priority support", "10,000 AI credits / month"],
         cta_label: "Start Pro",
         cta_to: "/signup?plan=pro",
         highlighted: true,
@@ -1288,8 +1288,8 @@ function PricingManager() {
         interval: "month",
         ai_credits_monthly: 25000,
         max_courses: -1,
-        description: "Complete career toolkit for job seekers and professionals.",
-        features: ["Everything in Pro", "Custom certificate templates", "Portfolio Builder", "LinkedIn Optimizer", "Internship Tracker", "Career Analytics", "Interview recording & playback", "Advanced ATS optimization", "Skill gap analysis", "Project recommendations", "Lifetime certificate access", "Priority support", "25,000 AI credits / month"],
+        description: "Job-seekers — everything in Pro + Resume / ATS / Interview Prep / Career Roadmap, verified certificates included.",
+        features: ["Everything in Pro", "Resume Builder", "ATS Checker", "Interview Prep", "Career Roadmap", "Verified certificates included", "Custom certificate templates", "Portfolio Builder", "LinkedIn Optimizer", "Internship Tracker", "Career Analytics", "Interview recording & playback", "Advanced ATS optimization", "Skill gap analysis", "Project recommendations", "Lifetime certificate access", "Priority support", "25,000 AI credits / month"],
         cta_label: "Become Job Ready",
         cta_to: "/signup?plan=career-pro",
         highlighted: false,
@@ -1307,8 +1307,8 @@ function PricingManager() {
         interval: null,
         ai_credits_monthly: 0,
         max_courses: -1,
-        description: "For colleges, companies, and organizations scaling learning.",
-        features: ["Everything in Career Pro", "Admin dashboard", "Team management", "Bulk enrollment", "Attendance tracking", "Batch management", "SSO + RBAC", "White label", "Custom domain", "Department analytics", "Certificate automation", "API access", "Dedicated support"],
+        description: "Colleges & companies — seats, SSO, admin reporting, custom branding.",
+        features: ["Everything in Career Pro", "Seats", "SSO + RBAC", "Admin reporting", "Custom branding", "Admin dashboard", "Team management", "Bulk enrollment", "Attendance tracking", "Batch management", "White label", "Custom domain", "Department analytics", "Certificate automation", "API access", "Dedicated support"],
         cta_label: "Book Demo",
         cta_to: "/contact",
         highlighted: false,
@@ -3029,7 +3029,7 @@ function FaqsManager() {
     const defaults: { question: string; answer: string; category: string; order_index: number; published: boolean }[] = [
       // Plans & Pricing
       { question: "Can I switch plans anytime?", answer: "Yes, you can upgrade or downgrade at any time. Changes take effect immediately and your billing will be prorated.", category: "Plans & Pricing", order_index: 10, published: true },
-      { question: "Is there a free trial?", answer: "The Starter plan is free forever with basic features. All premium plans come with a 7-day money-back guarantee so you can try risk-free.", category: "Plans & Pricing", order_index: 20, published: true },
+      { question: "Is there a free trial?", answer: "The Free plan is free forever with basic features. All premium plans come with a 7-day money-back guarantee so you can try risk-free.", category: "Plans & Pricing", order_index: 20, published: true },
       { question: "What happens when I run out of AI credits?", answer: "You can purchase additional AI credit top-ups at any time, or upgrade to a higher plan for more monthly credits.", category: "Plans & Pricing", order_index: 30, published: true },
       { question: "Do you offer student discounts?", answer: "Yes! We offer a 50% discount for verified students. Contact support with your student ID to apply the discount.", category: "Plans & Pricing", order_index: 40, published: true },
       { question: "Can I cancel my subscription anytime?", answer: "Yes, you can cancel anytime. Your access continues until the end of the current billing period.", category: "Plans & Pricing", order_index: 50, published: true },
@@ -3376,7 +3376,7 @@ function SectionsManager() {
             },
             {
               q: "Is there a free trial?",
-              a: "The Starter plan is free forever with basic features. Premium plans have a 7-day money-back guarantee.",
+              a: "The Free plan is free forever with basic features. Premium plans have a 7-day money-back guarantee.",
               category: "Plans",
             },
             {

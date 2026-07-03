@@ -119,7 +119,7 @@ const DEFAULT_BLOCK_CONTENT: Record<string, BlockContent> = {
   list: { items: ["Item 1", "Item 2", "Item 3"], style: "bullet" },
   faq: { items: [{ question: "Question 1?", answer: "Answer 1" }] },
   pricing: {
-    plans: [{ name: "Starter", price: "Free", features: ["Feature 1"], cta_text: "Get Started" }],
+    plans: [{ name: "Free", price: "₹0", features: ["1–3 courses", "Community access"], cta_text: "Get Started" }],
   },
   testimonial: {
     quote: "Amazing platform!",

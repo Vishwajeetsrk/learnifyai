@@ -362,7 +362,7 @@ function BillingPage() {
                 <CreditCard className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold">{plan?.name || "Starter"} Plan</h2>
+                <h2 className="text-lg font-semibold">{plan?.name || "Free"} Plan</h2>
                 <p className="text-sm text-muted-foreground">
                   {plan?.price_inr > 0
                     ? `${inr(plan.price_inr)}/${plan.interval?.startsWith("month") ? "mo" : plan.interval}`
@@ -866,7 +866,7 @@ function BillingPage() {
             <DialogTitle>Cancel Subscription</DialogTitle>
             <DialogDescription>
               Your subscription will remain active until the end of the current billing period.
-              After that, you'll be downgraded to the Starter plan.
+              After that, you'll be downgraded to the Free plan.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 text-sm">

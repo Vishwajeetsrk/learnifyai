@@ -104,14 +104,14 @@ const PLAN_ICONS = [Zap, Rocket, Briefcase, Users];
 const DEFAULT_TIERS: Plan[] = [
   {
     id: "default-free",
-    name: "Starter",
+    name: "Free",
     price_label: "Free",
-    description: "Everything you need to start your learning journey.",
+    description: "1–3 free courses, limited daily AI credits, community access.",
     features: [
-      "3 free courses",
-      "Basic AI tutor",
+      "1–3 free courses",
+      "Limited daily AI credits",
       "Community access",
-      "Progress tracking",
+      "Basic progress tracking",
       "Basic certificates",
       "Email support",
       "500 AI credits / month",
@@ -133,12 +133,14 @@ const DEFAULT_TIERS: Plan[] = [
     id: "default-pro",
     name: "Pro",
     price_label: "₹199",
-    description: "For casual learners who want unlimited access to courses and AI tools.",
+    description: "Casual learners — full course library, higher AI credit cap, notes & flashcards.",
     features: [
+      "Full course library",
+      "Higher AI credit cap",
+      "Notes & flashcards",
       "Unlimited courses",
       "Advanced AI tutor",
       "All certificates",
-      "Course notes & flashcards",
       "Download resources",
       "Community challenges",
       "Priority support",
@@ -160,9 +162,14 @@ const DEFAULT_TIERS: Plan[] = [
     id: "default-career-pro",
     name: "Career Pro",
     price_label: "₹499",
-    description: "Complete career toolkit for job seekers and growth-minded professionals.",
+    description: "Job-seekers — everything in Pro + Resume / ATS / Interview Prep / Career Roadmap, verified certificates included.",
     features: [
       "Everything in Pro",
+      "Resume Builder",
+      "ATS Checker",
+      "Interview Prep",
+      "Career Roadmap",
+      "Verified certificates included",
       "Custom certificate templates",
       "Portfolio Builder",
       "LinkedIn Optimizer",
@@ -192,15 +199,18 @@ const DEFAULT_TIERS: Plan[] = [
     id: "default-team",
     name: "Enterprise",
     price_label: "Custom",
-    description: "For colleges, companies, and organizations scaling learning.",
+    description: "Colleges & companies — seats, SSO, admin reporting, custom branding.",
     features: [
       "Everything in Career Pro",
+      "Seats",
+      "SSO + RBAC",
+      "Admin reporting",
+      "Custom branding",
       "Admin dashboard",
       "Team management",
       "Bulk enrollment",
       "Attendance tracking",
       "Batch management",
-      "SSO + RBAC",
       "White label",
       "Custom domain",
       "Department analytics",
@@ -322,7 +332,7 @@ const FAQ_ITEMS: { q: string; a: string; category: string }[] = [
   },
   {
     q: "Is there a free trial?",
-    a: "Yes! All paid plans come with a 7-day free trial. No credit card required for the Starter plan — ever.",
+    a: "Yes! All paid plans come with a 7-day free trial. No credit card required for the Free plan — ever.",
     category: "Billing",
   },
   {
@@ -1528,7 +1538,7 @@ function PricingPage() {
               <span className="text-sm font-semibold">Secure payments powered by Cashfree</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              All plans include a 7-day trial. No credit card required for Starter.{" "}
+              All plans include a 7-day trial. No credit card required for Free.{" "}
               <a
                 href="mailto:hello@learnify.ai"
                 className="text-primary underline underline-offset-2 hover:opacity-80 transition"

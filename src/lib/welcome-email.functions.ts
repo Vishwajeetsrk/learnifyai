@@ -278,8 +278,8 @@ export const adminSendTestEmail = createServerFn({ method: "POST" })
       course_title: "Introduction to AI",
       course_url: "https://learnifyaitool.vercel.app/courses/intro-ai",
       certificate_url: "https://learnifyaitool.vercel.app/certificates/demo",
-      plan_name: "Pro Plan",
-      plan_price: "₹999/month",
+      plan_name: "Pro",
+      plan_price: "₹199/month",
       next_billing_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString(
         "en-IN",
       ),

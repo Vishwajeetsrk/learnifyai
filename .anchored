@@ -21,7 +21,7 @@
 - **WCMS Sections delete fixed**: `SectionsManager` uses `adminContentAction` for delete
 - **Coupon input on pricing page**: Coupon code input field passes to `createSubscription`
 - **Billing settings JSONB fix**: `getBillingSettings` flattens nested JSONB
-- **Pricing data synced**: Pro=₹199, Career Pro=₹399, Team=₹4999
+- **Pricing data synced**: Free=₹0 (Acquisition), Pro=₹199 (Casual learners), Career Pro=₹499 (Job-seekers), Enterprise=Custom
 - **Test events cleanup**: `cleanupTestEvents` server function + admin UI button
 - **v3.8.0**: DiceBear param fixes (22 wrong names), PDF extraction fix, enrollment emails, admin subscription management, admin coupon CRUD, invoice email CTAs
 - **v3.9.0 — Career Roadmap redesign**: Structured JSON, timeline visualization, recharts skill gap chart

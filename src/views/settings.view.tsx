@@ -3205,7 +3205,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              {(subQ.data as any)?.pricing_plans?.name === "Team" && (
+              {(subQ.data as any)?.pricing_plans?.name === "Enterprise" && (
                 <div className="rounded-2xl border bg-card p-5 sm:p-6 shadow-sm space-y-6">
                   <h2 className="font-display font-semibold flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-primary" /> Invoice Customization

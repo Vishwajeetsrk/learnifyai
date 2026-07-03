@@ -9,7 +9,7 @@ export function ComparisonSection() {
     { name: "Verified QR Certificates & 1-Click LinkedIn", learnify: true, coursera: true, udemy: false, bootcamps: true },
     { name: "80/20 Creator & Coach Payout Share", learnify: true, coursera: false, udemy: false, bootcamps: false },
     { name: "100+ Skill Tracks (Tech, Design, Marketing, Academic)", learnify: true, coursera: true, udemy: true, bootcamps: false },
-    { name: "Affordable Pricing (Free / ₹499/mo)", learnify: true, coursera: false, udemy: false, bootcamps: false },
+    { name: "Affordable Pricing (Free / ₹199/mo)", learnify: true, coursera: false, udemy: false, bootcamps: false },
   ];
 
   return (

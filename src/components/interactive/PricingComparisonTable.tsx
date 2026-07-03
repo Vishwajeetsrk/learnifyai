@@ -204,7 +204,7 @@ const DEFAULT_SECTIONS: Section[] = [
   },
 ];
 
-const DEFAULT_PLAN_NAMES = ["Starter", "Pro", "Career Pro", "Enterprise"];
+const DEFAULT_PLAN_NAMES = ["Free", "Pro", "Career Pro", "Enterprise"];
 
 export function PricingComparisonTable({
   sections = DEFAULT_SECTIONS,

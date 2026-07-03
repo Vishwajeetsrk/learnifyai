@@ -6,7 +6,7 @@ CREATE TABLE feature_flags (
   description text,
   enabled boolean DEFAULT true,
   roles text[] DEFAULT ARRAY['super_admin', 'admin', 'creator', 'student']::text[],
-  subscription_tiers text[] DEFAULT ARRAY['free', 'starter', 'pro', 'team']::text[],
+  subscription_tiers text[] DEFAULT ARRAY['free', 'pro', 'career_pro', 'enterprise']::text[],
   maintenance_mode boolean DEFAULT false,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()

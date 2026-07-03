@@ -271,7 +271,7 @@ function DocsPage() {
                 <FeatureCard
                   icon={<SparkIcon />}
                   title="AI Tutor & Credits System"
-                  description="Learnify AI provides context-aware AI tutoring for all courses. Starter tier accounts receive 500 free AI credits every month. Pro tier accounts receive 10,000 AI credits/mo."
+                  description="Learnify AI provides context-aware AI tutoring for all courses. Free tier accounts receive 500 free AI credits every month. Pro tier accounts receive 10,000 AI credits/mo."
                   points={[
                     "1 AI Tutor Question = 5 Credits",
                     "1 Resume Generation = 50 Credits",

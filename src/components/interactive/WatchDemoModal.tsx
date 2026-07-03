@@ -79,7 +79,7 @@ export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
             <TabsContent value="usage" className="space-y-4">
               <div className="space-y-3">
                 {[
-                  { step: "Step 1", title: "Create Your Free Account", desc: "Sign up in 10 seconds. Starter plan includes 500 free AI credits every month." },
+                  { step: "Step 1", title: "Create Your Free Account", desc: "Sign up in 10 seconds. Free plan includes 500 free AI credits every month." },
                   { step: "Step 2", title: "Enroll in Courses & AI Labs", desc: "Choose from 12 Launch Categories spanning Full Stack, Python, Data Science, Cyber Security, UI/UX, and Marketing." },
                   { step: "Step 3", title: "Interact with AI Tutor", desc: "Ask questions anytime during video lessons. Get instant code explanations, quiz practice, and career roadmap guidance." },
                   { step: "Step 4", title: "Complete Assessment & Claim Certificate", desc: "Pass the course assessment to generate a shareable certificate for your resume and LinkedIn." }

@@ -205,7 +205,7 @@ function BillingDemo() {
           </span>
           <h4 className="font-semibold text-lg mt-1.5">Learnify Pro Plan</h4>
           <p className="text-xs text-muted-foreground">
-            ₹499 billed monthly · Next renewal July 15, 2026
+            ₹199 billed monthly · Next renewal July 15, 2026
           </p>
         </div>
         <div className="flex flex-col items-start sm:items-end gap-1">
@@ -228,7 +228,7 @@ function BillingDemo() {
               <p className="text-[10px] text-muted-foreground">June 21, 2026</p>
             </div>
             <div className="flex items-center gap-4">
-              <span className="font-semibold">₹499.00</span>
+              <span className="font-semibold">₹199.00</span>
               <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/15">
                 Paid
               </span>

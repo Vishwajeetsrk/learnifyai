@@ -73,9 +73,10 @@ This phase executes a major expansion of **Learnify AI** by introducing 12 launc
 ```mermaid
 graph TD
     User([Learner / User]) --> Plans{Pricing Plan}
-    Plans -->|Starter ₹0| FreeAccess[500 Credits/mo + Free Courses]
-    Plans -->|Pro ₹499/mo| ProAccess[10K Credits/mo + All Paid Courses + Career Studio]
-    Plans -->|Team ₹4,999/mo| TeamAccess[50K Credits/mo + Team Management + API]
+    Plans -->|Free ₹0| FreeAccess[500 Credits/mo + Free Courses]
+    Plans -->|Pro ₹199/mo| ProAccess[10K Credits/mo + Full Course Library + Notes & Flashcards]
+    Plans -->|Career Pro ₹499/mo| CareerProAccess[25K Credits/mo + Resume/ATS/Interview/Career Tools]
+    Plans -->|Enterprise Custom| EnterpriseAccess[Seats + SSO + Admin Reporting + Custom Branding]
 
     User --> Wallet[Wallet Engine]
     Wallet -->|Topup ₹99 - ₹1,999| AICredits[AI Credits Top-up]

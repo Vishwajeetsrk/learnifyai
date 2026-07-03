@@ -68,20 +68,20 @@
     "perMonth": "/Monat",
     "perYear": "/Jahr",
     "plans": {
-      "starter": {
-        "name": "Starter",
-        "description": "Perfekt für den Einstieg ins KI-gestützte Lernen.",
+      "free": {
+        "name": "Free",
+        "description": "1–3 kostenlose Kurse, begrenzte tägliche KI-Credits, Community-Zugang.",
         "cta": "Kostenlos starten"
       },
       "pro": {
         "name": "Pro",
-        "description": "Für ernsthafte Lernende und Ersteller mit unbegrenztem Zugang.",
+        "description": "Gelegenheitslerner — volle Kursbibliothek, höheres KI-Credit-Limit, Notizen & Karteikarten.",
         "cta": "Pro Starten",
         "badge": "Beliebteste"
       },
       "careerPro": {
         "name": "Career Pro",
-        "description": "Komplettes Karriere-Toolkit für Jobsucher und Fachleute.",
+        "description": "Arbeitssuchende — alles in Pro + Lebenslauf / ATS / Vorstellungsgesprächsvorbereitung / Karriere-Roadmap, verifizierte Zertifikate inklusive.",
         "cta": "Job-bereit Werden",
         "badge": "Bester Wert"
       }
