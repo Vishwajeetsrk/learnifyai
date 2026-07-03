@@ -1193,6 +1193,7 @@ function PricingManager() {
   const doDeletePlan = useServerFn(deletePlan);
   const doSyncPlan = useServerFn(syncPlanToCashfree);
   const doQuery = useServerFn(adminContentQuery);
+  const doAdminAction = useServerFn(adminContentAction);
 
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ["admin-plans"],
@@ -1325,10 +1326,22 @@ function PricingManager() {
     ];
     setSaving(true);
     try {
+      // Upsert: update by name, insert if not found
+      const existing = (await doQuery({
+        data: { table: "pricing_plans", orderBy: "order_index", ascending: true },
+      })) as any[] | null;
+      const existingPlans = existing ?? [];
       for (const plan of defaults) {
-        await doSavePlan({
-          data: plan,
-        });
+        const match = existingPlans.find(
+          (p: any) => p.name?.toLowerCase() === plan.name?.toLowerCase(),
+        );
+        if (match) {
+          await doAdminAction({
+            data: { table: "pricing_plans", action: "update", id: match.id, data: plan },
+          });
+        } else {
+          await doSavePlan({ data: plan });
+        }
       }
       toast.success("Default plans seeded!");
       qc.invalidateQueries({ queryKey: ["admin-plans"] });
