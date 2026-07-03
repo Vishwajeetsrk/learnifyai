@@ -115,23 +115,23 @@ const DEFAULT_SECTIONS: Section[] = [
       },
       {
         name: "Resume Builder",
-        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "ATS Checker",
-        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "Mock Interviews",
-        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "Career Coach",
-        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "Learning Roadmaps",
-        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "Portfolio Builder",

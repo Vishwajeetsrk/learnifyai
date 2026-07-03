@@ -13,7 +13,7 @@ const TOOLS = [
 ];
 
 const totalCost = TOOLS.reduce((s, t) => s + t.cost, 0);
-const learnifyCost = 399;
+const learnifyCost = 499;
 const savings = totalCost - learnifyCost;
 
 export function ROISavingsSection() {
