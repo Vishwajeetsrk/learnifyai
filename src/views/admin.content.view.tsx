@@ -1326,7 +1326,6 @@ function PricingManager() {
     ];
     setSaving(true);
     try {
-      // Upsert: update by name, insert if not found
       const existing = (await doQuery({
         data: { table: "pricing_plans", orderBy: "order_index", ascending: true },
       })) as any[] | null;
