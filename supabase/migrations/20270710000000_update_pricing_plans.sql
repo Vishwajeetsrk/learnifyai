@@ -1,7 +1,7 @@
--- Update pricing_plans: sync with correct pricing structure
+-- Update pricing_plans: sync with monetization architecture
 -- Pro = ₹199/mo, ₹1,990/yr | Career Pro = ₹499/mo, ₹4,990/yr | Team → Enterprise (Custom)
 
--- Update Pro to ₹199/mo, basic features
+-- Update Pro to ₹199/mo, casual learner features
 UPDATE pricing_plans SET
   price_label = '₹199',
   price_inr = 199,
