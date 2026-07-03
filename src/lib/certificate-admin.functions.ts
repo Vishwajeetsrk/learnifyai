@@ -24,8 +24,8 @@ export const saveTemplate = createServerFn({ method: "POST" })
       .object({
         id: z.string().uuid().optional(),
         name: z.string(),
-        type: z.string(),
-        layout: z.string(),
+        type: z.string().optional().default("Certificate"),
+        layout: z.string().optional().default("classic"),
         bg_image_url: z.string().optional().nullable(),
         config_json: z.any(),
       })
@@ -34,15 +34,17 @@ export const saveTemplate = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { userId } = context;
+    const templateType = data.type ?? "Certificate";
+    const templateLayout = data.layout ?? "classic";
 
     if (data.id) {
       const { error } = await (supabaseAdmin as any)
         .from("certificate_templates")
         .update({
           name: data.name,
-          type: data.type,
-          layout: data.layout,
-          bg_image_url: data.bg_image_url,
+          type: templateType,
+          layout: templateLayout,
+          bg_image_url: data.bg_image_url ?? null,
           config_json: data.config_json,
           updated_at: new Date().toISOString(),
         })
@@ -54,8 +56,8 @@ export const saveTemplate = createServerFn({ method: "POST" })
         .from("certificate_templates")
         .insert({
           name: data.name,
-          type: data.type,
-          layout: data.layout,
+          type: templateType,
+          layout: templateLayout,
           bg_image_url: data.bg_image_url,
           config_json: data.config_json,
           created_by: userId,

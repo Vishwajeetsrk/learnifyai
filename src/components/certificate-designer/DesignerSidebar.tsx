@@ -27,10 +27,12 @@ import { CertElement, CertDesign, FONTS, BORDER_OPTIONS, PATTERN_OPTIONS, THEMES
 type SidebarProps = {
   elements: CertElement[];
   design: CertDesign;
+  bgImageUrl: string;
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   onUpdateElement: (id: string, updates: Partial<CertElement>) => void;
   onUpdateDesign: (updates: Partial<CertDesign>) => void;
+  onUpdateBgImageUrl: (url: string) => void;
   onDeleteElement: (id: string) => void;
   onDuplicateElement: (id: string) => void;
 };
@@ -38,10 +40,12 @@ type SidebarProps = {
 export function DesignerSidebar({
   elements,
   design,
+  bgImageUrl,
   selectedId,
   onSelect,
   onUpdateElement,
   onUpdateDesign,
+  onUpdateBgImageUrl,
   onDeleteElement,
   onDuplicateElement,
 }: SidebarProps) {
@@ -165,6 +169,28 @@ export function DesignerSidebar({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className="space-y-3 border-t pt-4">
+              <h3 className="font-semibold text-sm">Background Image</h3>
+              <div className="space-y-2">
+                <Input
+                  value={bgImageUrl}
+                  onChange={(e) => onUpdateBgImageUrl(e.target.value)}
+                  placeholder="https://example.com/image.png"
+                  className="text-xs"
+                />
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant={bgImageUrl ? "secondary" : "outline"}
+                    onClick={() => onUpdateBgImageUrl("")}
+                    className="h-8"
+                  >
+                    Clear background
+                  </Button>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-3 border-t pt-4">

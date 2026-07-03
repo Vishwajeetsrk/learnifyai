@@ -841,6 +841,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      canva_templates: {
+        Row: {
+          id: string;
+          name: string;
+          category: string;
+          bg_image_url: string;
+          thumbnail_url: string | null;
+          fields_json: Json;
+          theme_colors: Json;
+          created_at: string;
+          updated_at: string;
+          created_by: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          category?: string;
+          bg_image_url: string;
+          thumbnail_url?: string | null;
+          fields_json?: Json;
+          theme_colors?: Json;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          category?: string;
+          bg_image_url?: string;
+          thumbnail_url?: string | null;
+          fields_json?: Json;
+          theme_colors?: Json;
+          created_at?: string;
+          updated_at?: string;
+          created_by?: string | null;
+        };
+        Relationships: [];
+      };
       certificates: {
         Row: {
           code: string;

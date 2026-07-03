@@ -40,6 +40,8 @@ import { listTemplates, saveTemplate, deleteTemplate } from "@/lib/certificate-a
 import { getCertificateAnalytics } from "@/lib/cert.functions";
 import { useAuth } from "@/hooks/use-auth";
 import { DesignerWorkspace } from "@/components/certificate-designer/DesignerWorkspace";
+import { CertDesignerAdmin } from "@/components/certificate-designer/CertDesignerAdmin";
+import { CertificateDesigner } from "@/components/studio/CertificateDesigner";
 import { motion, AnimatePresence } from "framer-motion";
 
 export const Route = createFileRoute("/_authenticated/admin/certificates")({
@@ -89,8 +91,9 @@ type CertTemplate = {
   id: string;
   name: string;
   type: string;
+  layout?: string;
   category?: string;
-  bg_image_url?: string;
+  bg_image_url?: string | null;
   config_json: { elements: CertElement[]; design: CertDesign };
 };
 
@@ -216,6 +219,7 @@ function makeDefaultTemplate(): CertTemplate {
     id: crypto.randomUUID(),
     name: "New Template",
     type: t.name,
+    layout: "classic",
     config_json: { elements: [...DEFAULT_ELEMENTS], design: applyTheme(t) },
   };
 }
@@ -420,15 +424,24 @@ function AdminCertificatesPage() {
     c.name.toLowerCase().includes(categorySearch.toLowerCase()),
   );
 
-  const handleCreate = () => setActive(makeDefaultTemplate());
+  const handleCreate = () => {
+    setSelectedEl(null);
+    setActive(makeDefaultTemplate());
+  };
 
   const handleSaveTemplate = async (template: CertTemplate) => {
     setSaving(true);
     try {
-      await saveTemp({ data: template });
+      const payload = {
+        ...template,
+        type: template.type || "Certificate",
+        layout: template.layout || template.config_json.design.layout || "classic",
+      };
+      await saveTemp({ data: payload });
       toast.success("Template saved!");
       qc.invalidateQueries({ queryKey: ["admin-cert-templates"] });
       setActive(null);
+      setSelectedEl(null);
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -663,7 +676,11 @@ function AdminCertificatesPage() {
                 e.stopPropagation();
                 setActive({
                   ...t,
-                  config_json: { elements: [...DEFAULT_ELEMENTS], design: applyTheme(THEMES[0]) },
+                  config_json: {
+                    elements: t.config_json?.elements || [...DEFAULT_ELEMENTS],
+                    design: t.config_json?.design || applyTheme(THEMES[0]),
+                  },
+                  bg_image_url: t.bg_image_url,
                 });
               }}
             >
@@ -724,6 +741,7 @@ function AdminCertificatesPage() {
         <div className="flex items-center gap-0.5 mb-8 border-b border-border overflow-x-auto pb-0">
           {[
             { id: "all", label: "All Templates", icon: LayoutGrid },
+            { id: "designer", label: "Certificate Designer", icon: Palette },
             { id: "canva", label: "Canva Templates", icon: LayoutTemplate },
             { id: "bulk", label: "Bulk Issue", icon: Upload },
             { id: "analytics", label: "Analytics", icon: BarChart3 },
@@ -870,6 +888,13 @@ function AdminCertificatesPage() {
               />
             )}
           </>
+        )}
+
+        {/* ===== CERTIFICATE DESIGNER ===== */}
+        {activeSubTab === "designer" && (
+          <div className="space-y-6">
+            <CertificateDesigner />
+          </div>
         )}
 
         {/* ===== CANVA TEMPLATES ===== */}
@@ -1419,9 +1444,10 @@ function AdminCertificatesPage() {
                     setActive({
                       ...viewTemplate,
                       config_json: {
-                        elements: [...DEFAULT_ELEMENTS],
-                        design: applyTheme(THEMES[0]),
+                        elements: viewTemplate.config_json?.elements || [...DEFAULT_ELEMENTS],
+                        design: viewTemplate.config_json?.design || applyTheme(THEMES[0]),
                       },
+                      bg_image_url: viewTemplate.bg_image_url,
                     });
                   }}
                 >

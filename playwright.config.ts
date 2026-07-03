@@ -9,9 +9,16 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    // Test against the live Vercel deployment if provided, otherwise fallback to local dev server
-    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || "https://learnifyaitool.vercel.app",
+    // Test against the live URL if provided, otherwise use the local Vite dev server.
+    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || "http://127.0.0.1:4173",
     trace: "on-first-retry",
+  },
+
+  webServer: {
+    command: "pnpm exec vite dev --host 127.0.0.1 --port 4173",
+    url: "http://127.0.0.1:4173",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000,
   },
 
   projects: [

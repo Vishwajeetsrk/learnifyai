@@ -275,7 +275,7 @@ export const createSubscription = createServerFn({ method: "POST" })
               customer_id: uid,
               customer_name: realName,
               customer_email: realEmail,
-              customer_phone: "9999999999",
+          customer_phone: "9999999999", // Required by Cashfree API; TODO: add phone field to profiles table
             },
             plan_details: {
               plan_id: newCfPlanId,

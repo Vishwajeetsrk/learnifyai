@@ -115,7 +115,7 @@ const DEFAULT_SECTIONS: Section[] = [
       },
       {
         name: "Resume Builder",
-        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "ATS Checker",
@@ -127,6 +127,10 @@ const DEFAULT_SECTIONS: Section[] = [
       },
       {
         name: "Career Coach",
+        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+      },
+      {
+        name: "Learning Roadmaps",
         columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
       },
       {
@@ -200,7 +204,7 @@ const DEFAULT_SECTIONS: Section[] = [
   },
 ];
 
-const DEFAULT_PLAN_NAMES = ["Starter", "Pro", "Career Pro", "Team"];
+const DEFAULT_PLAN_NAMES = ["Starter", "Pro", "Career Pro", "Enterprise"];
 
 export function PricingComparisonTable({
   sections = DEFAULT_SECTIONS,

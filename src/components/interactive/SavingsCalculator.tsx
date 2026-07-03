@@ -111,7 +111,7 @@ export function SavingsCalculator({ className }: SavingsCalculatorProps) {
     [selectedData, userCount],
   );
 
-  const learnifyCost = 499 * userCount * 12;
+  const learnifyCost = 499 * userCount * 12; // Career Pro ₹499/mo
   const savings = individualTotal - learnifyCost;
 
   return (

@@ -10,6 +10,7 @@
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Vishwajeetsrk/learnifyai)
 [![License](https://img.shields.io/badge/License-MIT-6366f1?style=for-the-badge)](LICENSE)
 
 [🚀 Live Demo](https://learnifyaitool.vercel.app/) · [🐛 Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues) · [✨ Request Feature](https://github.com/Vishwajeetsrk/learnifyai/issues/new?template=feature_request.md)
@@ -59,6 +60,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🏗️ **Creator Studio**         | Build courses, add lessons, manage quizzes and assignments       |
 | 🪄 **AI Course Builder**      | Auto-generate course outlines, lessons, and thumbnails           |
 | 🎓 **Certificate Templates**  | Assign certificate templates to courses from course detail page  |
+| 🎨 **Certificate Designer Studio** | Konva.js canvas editor — drag/drop/resize/rotate text on Canva backgrounds, dynamic variables, PDF/PNG export, bulk CSV generation |
 | 🧑‍💼 **Coaching Hub**           | Book 1-on-1 sessions, schedule slots, chat, AI roadmap generator |
 | 🗺️ **Manual Roadmap Builder** | Create custom learning roadmaps with phases, skills, milestones  |
 | 👥 **Cohorts**                | Live group learning with community spaces                        |
@@ -70,7 +72,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 💬 **Community Feed**         | Social learning with posts, comments, likes, edit/delete, rich text editor                                                                                                                |
 | 📥 **Inbox**                  | Direct messaging between coaches and students                                                                                                                                             |
-| ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates (templates/canva/bulk/analytics/categories), email templates, content management, subscription management, coupon CRUD, student verification |
+| ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates (templates/canva/designer/bulk/analytics/categories), email templates, content management, subscription management, coupon CRUD, student verification |
 | 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                                                                                                                               |
 | 📧 **Email System**           | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback                                                                                 |
 | 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                                                                                                         |
@@ -78,6 +80,65 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                                                                                                  |
 | 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager, blog system                                                                                                         |
 | 🎯 **Interactive Tours**      | Role-specific product tours with spotlight cutout and auto-skip for missing targets                                                                                                       |
+
+---
+
+## 🎨 Certificate Designer Studio
+
+Full Canva-style certificate editor with **5 built-in templates** (Navy Gold, Navy Blue, Royal Purple, Forest Green, Crimson Gold). Interactive canvas with click-to-select elements, properties panel, and content manager.
+
+### How It Works
+
+1. **Select Template** — Choose from 5 professionally designed templates with unique color schemes and decorations
+2. **Edit Content** — Use the Content Manager to update student name, course name, certificate ID, dates, and instructor details
+3. **Click to Select** — Click any element on the canvas to see its properties (font, color, alignment)
+4. **Dynamic Variables** — Use `{{student_name}}`, `{{course_name}}`, `{{cert_id}}`, `{{completion_date}}`, `{{verification_link}}`
+5. **Export** — Download as high-res PNG (2x) or PDF (A4 landscape) via html2canvas
+6. **Bulk Generate** — Upload CSV with student data for batch certificate issuance
+
+### Editor Features
+
+| Feature | Description |
+|---------|-------------|
+| **5 Templates** | Navy Gold, Navy Blue, Royal Purple, Forest Green, Crimson Gold |
+| **Interactive Canvas** | Click-to-select elements with visual selection handles |
+| **Left Panel** | Templates, Elements (badges/seals/dividers), Text presets, Uploads |
+| **Right Panel** | Properties (font/color/position) + Content Manager (form fields) |
+| **Background Decorations** | Per-template SVG sweeps, triangles, ribbons, gold borders |
+| **Badge & Ribbon** | Gold scallop seal with crown/trophy/code icons |
+| **Center Seal** | Laurel wreath with Learnify AI logo |
+| **QR Code** | Auto-generated verification QR with live URL |
+| **Bottom Features Bar** | AI-Powered, Industry Relevant, Career Focused, Lifetime Access |
+| **PNG Export** | 2x resolution via html2canvas |
+| **PDF Export** | A4 landscape via browser print dialog |
+
+### Uploading Your 30+ Canva Templates
+
+To make all your Canva designs editable:
+
+1. **Export from Canva** — For each template, remove all text elements and export as PNG (background only)
+2. **Go to Admin → Certificates → Certificate Designer**
+3. **Click "Upload Template"** and select your background image
+4. **Position fields** — Add text elements and drag them to match your design
+5. **Save** — The template is stored in the `canva_templates` DB table
+6. **Repeat** for all 30+ templates
+
+### Database Schema
+
+```sql
+CREATE TABLE canva_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  category TEXT DEFAULT 'Professional',
+  bg_image_url TEXT NOT NULL,
+  thumbnail_url TEXT,
+  fields_json JSONB DEFAULT '{}',    -- field positions, fonts, colors
+  theme_colors JSONB DEFAULT '{}',   -- color scheme
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  created_by UUID REFERENCES auth.users(id)
+);
+```
 
 ---
 
@@ -136,6 +197,9 @@ Learnify AI's playground features **multi-language compilation** powered by Wand
 | **Embeddings** | Gemini text-embedding-004 + pgvector                                            |
 | **Email**      | Resend (primary) ←→ Gmail SMTP ←→ Brevo (fallback chain, per-provider timeouts) |
 | **Code Exec**  | Wandbox / Piston / Judge0 (multi-executor fallback)                             |
+| **Canvas**     | html2canvas (certificate capture with selection handles)                         |
+| **PDF Export** | html2canvas + browser print (high-res A4 landscape certificate generation)       |
+| **Bulk Gen**   | JSZip (CSV → ZIP of PDFs for batch certificate issuance)                       |
 | **Testing**    | Playwright (E2E)                                                                |
 | **Deployment** | Vercel (Edge Network + Serverless Functions)                                    |
 
@@ -195,7 +259,7 @@ node scripts/sync-migrations.cjs
 Once migrations have finished, seed the essential starting records (pricing plans, courses, events, jobs):
 
 ```bash
-# Seed pricing plans (Starter, Pro, Team)
+# Seed pricing plans (Starter, Pro, Career Pro, Enterprise)
 node seed_pricing_plans.cjs
 
 # Seed launch event and job openings
@@ -614,7 +678,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 ### v3.3.1 (June 2026) - Subscription Self-Healing, Video Restrictions, Policy Updates & Revenue Charts
 
 - ✅ **Self-Healing Subscription Creation**: Intercepts `plan_not_found` responses from Cashfree, resets db identifiers, creates the plan programmatically on Cashfree, and retries subscription checkout automatically without interrupting client mandate redirection.
-- ✅ **Pricing Plan DB Clean-up**: Pruned duplicate/obsolete database pricing configurations and correctly seeded Starter (Free), Pro (₹499/mo), and Team (₹4,999/mo) active configurations with their respective Cashfree API IDs.
+- ✅ **Pricing Plan DB Clean-up**: Pruned duplicate/obsolete database pricing configurations and correctly seeded Starter (Free), Pro (₹199/mo), and Career Pro (₹499/mo) active configurations with their respective Cashfree API IDs.
 - ✅ **New Subscription Analytics Graphs**: Integrated Area and Bar charts into the Admin Subscription Analytics dashboard (`/admin/subscriptions`) showing 30-day paid revenue curves and daily subscriber growth.
 - ✅ **Interactive Subscription Live Demo**: Embedded a mock billing panel into the homepage's Interactive Sandbox Demo, enabling learners to try credit quota systems and sample invoice downloads.
 - ✅ **Copy Protection & Playback restrictions**: Passed `restrictDownload` and `restrictSpeed` properties to `CustomVideoPlayer`, disabling right-clicks, picture-in-picture mode, downloading options, and locking speeds above 1.25x.
@@ -639,10 +703,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ### v3.2.0 (June 2026) - Cashfree Subscriptions + Playground Upgrade
 
-- ✅ **Cashfree Recurring Subscriptions**: Complete subscription billing system with 3 plans:
+- ✅ **Cashfree Recurring Subscriptions**: Complete subscription billing system with 4 plans:
   - **Starter** (₹0/month): 500 AI credits, 3 free courses, basic AI tutor
-  - **Pro** (₹499/month): Unlimited courses, 10,000 AI credits, certificates, creator tools
-  - **Team** (₹4,999/month): 50,000 AI credits, team dashboard, SSO, RBAC, custom branding
+  - **Pro** (₹199/month): Unlimited courses, 10,000 AI credits, notes & flashcards
+  - **Career Pro** (₹499/month): Everything in Pro + Resume/ATS/Interview/Career tools, verified certificates
+  - **Enterprise** (Custom): Admin dashboard, SSO, RBAC, white label, API access
 - ✅ **Subscription Management**: Resume, upgrade, downgrade subscriptions via Cashfree API
 - ✅ **Coupon Codes**: Discount system with percent/amount off, date ranges, plan restrictions
 - ✅ **Grace Period**: Configurable grace period for failed payments before downgrade

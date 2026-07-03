@@ -270,6 +270,7 @@ export default function SettingsPage() {
       params += `&clothesColor=${s.clothingColor}`;
       if (mappedAcc && mappedAcc !== "none") {
         params += `&accessoriesVariant=${mappedAcc}`;
+        params += `&accessoriesProbability=100`;
       } else {
         params += `&accessoriesProbability=0`;
       }
@@ -460,11 +461,12 @@ export default function SettingsPage() {
         shirtCrewNeck: "variant01",
         shirtVNeck: "variant02",
         shirtOpen: "variant03",
-        hoodie: "variant03",
-        collarAndSweater: "variant04",
-        blazerAndShirt: "variant05",
-        overall: "variant06",
-        graphicShirt: "variant07",
+        dress: "variant04",
+        hoodie: "variant05",
+        collarAndSweater: "variant06",
+        blazerAndShirt: "variant07",
+        overall: "variant08",
+        graphicShirt: "variant09",
       };
       params += `&clothesVariant=${clothingMap[s.clothingStyle as string] || "variant01"}`;
       if (s.accessoriesStyle && s.accessoriesStyle !== "none") {
@@ -1816,93 +1818,103 @@ export default function SettingsPage() {
                                 <Label className="text-xs font-semibold text-muted-foreground">
                                   {selectedStyle === "bottts" ? "Robot Head Style" : "Hair Style"}
                                 </Label>
-                                <div className="flex bg-muted rounded-lg p-0.5 text-[10px] font-medium border">
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setHairGender("male");
-                                      setHairStyle(
-                                        selectedStyle === "adventurer" ? "short01" : "shortFlat",
-                                      );
-                                    }}
-                                    className={`px-2 py-0.5 rounded transition ${
-                                      hairGender === "male"
-                                        ? "bg-background text-foreground shadow-sm"
-                                        : "text-muted-foreground"
-                                    }`}
-                                  >
-                                    {selectedStyle === "bottts" ? "Antenna / Bulb" : "Male / Short"}
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      setHairGender("female");
-                                      setHairStyle(
-                                        selectedStyle === "adventurer" ? "long01" : "straight01",
-                                      );
-                                    }}
-                                    className={`px-2 py-0.5 rounded transition ${
-                                      hairGender === "female"
-                                        ? "bg-background text-foreground shadow-sm"
-                                        : "text-muted-foreground"
-                                    }`}
-                                  >
-                                    {selectedStyle === "bottts" ? "Radar / Horn" : "Female / Long"}
-                                  </button>
-                                </div>
+                                {selectedStyle !== "lorelei" ? (
+                                  <div className="flex bg-muted rounded-lg p-0.5 text-[10px] font-medium border">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setHairGender("male");
+                                        setHairStyle(
+                                          selectedStyle === "adventurer" ? "short01" : "shortFlat",
+                                        );
+                                      }}
+                                      className={`px-2 py-0.5 rounded transition ${
+                                        hairGender === "male"
+                                          ? "bg-background text-foreground shadow-sm"
+                                          : "text-muted-foreground"
+                                      }`}
+                                    >
+                                      {selectedStyle === "bottts" ? "Antenna / Bulb" : "Male / Short"}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setHairGender("female");
+                                        setHairStyle(
+                                          selectedStyle === "adventurer" ? "long01" : "straight01",
+                                        );
+                                      }}
+                                      className={`px-2 py-0.5 rounded transition ${
+                                        hairGender === "female"
+                                          ? "bg-background text-foreground shadow-sm"
+                                          : "text-muted-foreground"
+                                      }`}
+                                    >
+                                      {selectedStyle === "bottts" ? "Radar / Horn" : "Female / Long"}
+                                    </button>
+                                  </div>
+                                ) : null}
                               </div>
                               <div className="grid grid-cols-3 gap-1.5 max-h-32 overflow-y-auto pr-1">
-                                {(hairGender === "male"
-                                  ? selectedStyle === "bottts"
-                                    ? [
-                                        { id: "shortFlat", label: "Antenna" },
-                                        { id: "shortRound", label: "Bulb" },
-                                        { id: "shortCurly", label: "Horn" },
-                                        { id: "shortWaved", label: "Radar" },
-                                        { id: "theCaesar", label: "Pyramid" },
-                                      ]
-                                    : [
-                                        { id: "theCaesar", label: "Caesar Cut" },
-                                        { id: "shortFlat", label: "Short Flat" },
-                                        { id: "shortRound", label: "Short Round" },
-                                        { id: "shortWaved", label: "Short Wavy" },
-                                        { id: "shortCurly", label: "Short Curly" },
-                                        { id: "shaggyMullet", label: "Mullet" },
-                                        { id: "noHair", label: "Bald" },
-                                      ]
-                                  : selectedStyle === "bottts"
-                                    ? [
-                                        { id: "shortFlat", label: "Antenna" },
-                                        { id: "shortRound", label: "Bulb" },
-                                        { id: "shortCurly", label: "Horn" },
-                                        { id: "shortWaved", label: "Radar" },
-                                        { id: "theCaesar", label: "Pyramid" },
-                                      ]
-                                    : [
-                                        { id: "straight01", label: "Long Straight" },
-                                        { id: "straight02", label: "Straight Parted" },
-                                        { id: "curly", label: "Long Curly" },
-                                        { id: "curvy", label: "Long Curvy" },
-                                        { id: "bob", label: "Bob Cut" },
-                                        { id: "miaWallace", label: "Mia Cut" },
-                                        { id: "bun", label: "Hair Bun" },
-                                        { id: "dreads", label: "Dreads" },
-                                        { id: "bigHair", label: "Big Hair" },
-                                      ]
-                                ).map((hair) => (
-                                  <button
-                                    key={hair.id}
-                                    type="button"
-                                    onClick={() => setHairStyle(hair.id)}
-                                    className={`rounded-md border p-1 text-center text-[10px] font-medium transition leading-snug truncate ${
-                                      hairStyle === hair.id
-                                        ? "border-primary bg-primary/5 text-primary"
-                                        : "border-border hover:bg-muted"
-                                    }`}
-                                  >
-                                    {hair.label}
-                                  </button>
-                                ))}
+                                {(() => {
+                                  const hairOptions =
+                                    selectedStyle === "bottts"
+                                      ? [
+                                          { id: "shortFlat", label: "Antenna" },
+                                          { id: "shortRound", label: "Bulb" },
+                                          { id: "shortCurly", label: "Horn" },
+                                          { id: "shortWaved", label: "Radar" },
+                                          { id: "theCaesar", label: "Pyramid" },
+                                        ]
+                                      : selectedStyle === "lorelei"
+                                      ? [
+                                          { id: "straight01", label: "Long Straight" },
+                                          { id: "straight02", label: "Straight Parted" },
+                                          { id: "curly", label: "Long Curly" },
+                                          { id: "curvy", label: "Long Curvy" },
+                                          { id: "bob", label: "Bob Cut" },
+                                          { id: "miaWallace", label: "Mia Cut" },
+                                          { id: "bun", label: "Hair Bun" },
+                                          { id: "dreads", label: "Dreads" },
+                                          { id: "bigHair", label: "Big Hair" },
+                                        ]
+                                      : hairGender === "male"
+                                      ? [
+                                          { id: "theCaesar", label: "Caesar Cut" },
+                                          { id: "shortFlat", label: "Short Flat" },
+                                          { id: "shortRound", label: "Short Round" },
+                                          { id: "shortWaved", label: "Short Wavy" },
+                                          { id: "shortCurly", label: "Short Curly" },
+                                          { id: "shaggyMullet", label: "Mullet" },
+                                          { id: "noHair", label: "Bald" },
+                                        ]
+                                      : [
+                                          { id: "straight01", label: "Long Straight" },
+                                          { id: "straight02", label: "Straight Parted" },
+                                          { id: "curly", label: "Long Curly" },
+                                          { id: "curvy", label: "Long Curvy" },
+                                          { id: "bob", label: "Bob Cut" },
+                                          { id: "miaWallace", label: "Mia Cut" },
+                                          { id: "bun", label: "Hair Bun" },
+                                          { id: "dreads", label: "Dreads" },
+                                          { id: "bigHair", label: "Big Hair" },
+                                        ];
+
+                                  return hairOptions.map((hair) => (
+                                    <button
+                                      key={hair.id}
+                                      type="button"
+                                      onClick={() => setHairStyle(hair.id)}
+                                      className={`rounded-md border p-1 text-center text-[10px] font-medium transition leading-snug truncate ${
+                                        hairStyle === hair.id
+                                          ? "border-primary bg-primary/5 text-primary"
+                                          : "border-border hover:bg-muted"
+                                      }`}
+                                    >
+                                      {hair.label}
+                                    </button>
+                                  ));
+                                })()}
                               </div>
                             </div>
                           )}

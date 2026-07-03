@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
@@ -15,7 +15,7 @@ type DesignerWorkspaceProps = {
 
 export function DesignerWorkspace({ initialTemplate, onSave, onClose }: DesignerWorkspaceProps) {
   const [templateName, setTemplateName] = useState(initialTemplate.name);
-  const [bgImageUrl, setBgImageUrl] = useState(initialTemplate.bg_image_url);
+  const [bgImageUrl, setBgImageUrl] = useState(initialTemplate.bg_image_url ?? "");
   const [elements, setElements] = useState<CertElement[]>(
     initialTemplate.config_json?.elements ?? [],
   );
@@ -26,6 +26,13 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    setTemplateName(initialTemplate.name);
+    setBgImageUrl(initialTemplate.bg_image_url ?? "");
+    setElements(initialTemplate.config_json?.elements ?? []);
+    setDesign(initialTemplate.config_json?.design ?? DEFAULT_DESIGN);
+  }, [initialTemplate]);
 
   // Simple History Stack
   const [history, setHistory] = useState<{ elements: CertElement[]; design: CertDesign }[]>([]);
@@ -125,7 +132,7 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       const finalTemplate: CertTemplate = {
         ...initialTemplate,
         name: templateName,
-        bg_image_url: bgImageUrl,
+        bg_image_url: bgImageUrl || null,
         config_json: { elements, design },
       };
       await onSave(finalTemplate);
@@ -270,10 +277,12 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
         <DesignerSidebar
           elements={elements}
           design={design}
+          bgImageUrl={bgImageUrl}
           selectedId={selectedId}
           onSelect={setSelectedId}
           onUpdateElement={onUpdateElement}
           onUpdateDesign={onUpdateDesign}
+          onUpdateBgImageUrl={setBgImageUrl}
           onDeleteElement={onDeleteElement}
           onDuplicateElement={onDuplicateElement}
         />

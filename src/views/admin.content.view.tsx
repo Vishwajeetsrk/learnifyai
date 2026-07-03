@@ -1263,9 +1263,9 @@ function PricingManager() {
       },
       {
         name: "Pro",
-        price_label: "₹199/mo",
-        price_inr: 199,
-        yearly_price: 1999,
+        price_label: "₹499/mo",
+        price_inr: 499,
+        yearly_price: 4990,
         interval: "month",
         ai_credits_monthly: 10000,
         max_courses: -1,

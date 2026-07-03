@@ -42,7 +42,7 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
         customer_details: {
           customer_id: context.userId,
           customer_email: email || `${context.userId.slice(0, 8)}@learnify.app`,
-          customer_phone: "9999999999",
+          customer_phone: "9999999999", // Required by Cashfree API; TODO: add phone field to profiles table
         },
       }),
     });

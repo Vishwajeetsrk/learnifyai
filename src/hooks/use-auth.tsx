@@ -22,20 +22,27 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [roles, setRoles] = useState<AppRole[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [sessionLoading, setSessionLoading] = useState(true);
+  const [rolesLoading, setRolesLoading] = useState(true);
 
   const fetchRoles = async (userId: string) => {
+    setRolesLoading(true);
     try {
       const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
       setRoles((data ?? []).map((r) => r.role) as AppRole[]);
     } catch (error) {
       console.error("Failed to load user roles", error);
       setRoles([]);
+    } finally {
+      setRolesLoading(false);
     }
   };
 
   useEffect(() => {
-    const safetyTimer = setTimeout(() => setLoading(false), 5000);
+    const safetyTimer = setTimeout(() => {
+      setSessionLoading(false);
+      setRolesLoading(false);
+    }, 5000);
 
     const {
       data: { subscription },
@@ -56,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fetchRoles(newSession.user.id);
       } else {
         setRoles([]);
+        setRolesLoading(false);
       }
     });
 
@@ -69,6 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         if (data.session?.user) {
           await fetchRoles(data.session.user.id);
+        } else {
+          setRoles([]);
+          setRolesLoading(false);
         }
       })
       .catch((error) => {
@@ -77,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       .finally(() => {
         clearTimeout(safetyTimer);
-        setLoading(false);
+        setSessionLoading(false);
       });
 
     return () => {
@@ -85,6 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearTimeout(safetyTimer);
     };
   }, []);
+
+  const loading = sessionLoading || rolesLoading;
 
   const value: AuthContextValue = {
     user: session?.user ?? null,
