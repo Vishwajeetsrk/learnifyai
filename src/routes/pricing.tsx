@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState, useMemo } from "react";
-import { motion, useInView, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useMemo } from "react";
 import { InteractiveFolder } from "@/components/interactive/InteractiveFolder";
 import rishabhAvatar from "@/assets/avatars/Rishabh-Sharma.png";
 import anjaliAvatar from "@/assets/avatars/Anjali-Verma.png";
@@ -58,8 +57,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { createSubscription, cancelSubscription } from "@/lib/subscription.functions";
 
 export const Route = createFileRoute("/pricing")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (s: Record<string, unknown>): { subscribe?: string; coupon?: string } => ({
     subscribe: s.subscribe as string | undefined,
+    coupon: s.coupon as string | undefined,
   }),
   head: () => ({
     meta: [
@@ -133,26 +133,28 @@ const DEFAULT_TIERS: Plan[] = [
     id: "default-pro",
     name: "Pro",
     price_label: "₹199",
-    description: "Casual learners — full course library, higher AI credit cap, notes & flashcards.",
+    description: "For serious learners and creators who want unlimited access.",
     features: [
-      "Full course library",
-      "Higher AI credit cap",
-      "Notes & flashcards",
       "Unlimited courses",
       "Advanced AI tutor",
+      "10,000 AI credits/month",
       "All certificates",
+      "Resume Builder",
+      "ATS Checker",
+      "AI Career Coach",
+      "Mock Interviews",
+      "Learning Roadmaps",
       "Download resources",
       "Community challenges",
       "Priority support",
-      "10,000 AI credits / month",
     ],
     cta_label: "Start Pro",
-    cta_to: "/signup",
+    cta_to: "/signup?plan=pro",
     highlighted: true,
     price_inr: 199,
     yearly_price: 1990,
     interval: "month",
-    badge: "Most Popular",
+    badge: "Popular",
     color: "#6366F1",
     ai_credits_monthly: 10000,
     max_courses: -1,
@@ -327,7 +329,7 @@ const FAQ_ITEMS: { q: string; a: string; category: string }[] = [
   },
   {
     q: "Can colleges use Learnify?",
-    a: "Yes! Our Team plan is designed for coaching institutes, colleges, and companies. It includes admin dashboards, team management, bulk certificates, and SSO.",
+    a: "Yes! Our Enterprise plan is designed for coaching institutes, colleges, and companies. It includes admin dashboards, team management, bulk certificates, and SSO.",
     category: "Plans",
   },
   {
@@ -375,7 +377,7 @@ function PricingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const { subscribe } = useSearch({ from: "/pricing" });
+  const { subscribe, coupon } = useSearch({ from: "/pricing" });
   const { data: cmsHero } = usePublicSection("pricing-hero");
   const { data: cmsFaq } = usePublicSection("pricing-faq");
   const { data: cmsTestimonials } = usePublicSection("pricing-testimonials");
@@ -388,6 +390,12 @@ function PricingPage() {
   const [faqSearch, setFaqSearch] = useState("");
   const [faqCategory, setFaqCategory] = useState<string | null>(null);
   const [couponCode, setCouponCode] = useState("");
+
+  useEffect(() => {
+    if (coupon) {
+      setCouponCode(coupon.toUpperCase());
+    }
+  }, [coupon]);
 
   const AVATAR_MAP: Record<string, string> = {
     "Rishabh Sharma": rishabhAvatar,
@@ -419,9 +427,6 @@ function PricingPage() {
   }, [cmsFaqItems]);
   const doSubscribe = useServerFn(createSubscription);
   const doCancel = useServerFn(cancelSubscription);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const heroInView = useInView(heroRef, { once: true, margin: "-50px" });
-
   useEffect(() => {
     setOrigin(window.location.origin);
   }, []);
@@ -574,25 +579,17 @@ function PricingPage() {
                   "radial-gradient(70% 50% at 50% 0%, color-mix(in oklab, var(--primary) 15%, transparent), transparent 70%)",
               }}
             />
-            <motion.div
+            <div
               className="absolute top-20 left-[10%] w-72 h-72 rounded-full bg-blue-500/5 blur-3xl"
-              animate={{ x: [0, 30, 0], y: [0, -15, 0] }}
-              transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
             />
-            <motion.div
+            <div
               className="absolute bottom-10 right-[10%] w-80 h-80 rounded-full bg-purple-500/5 blur-3xl"
-              animate={{ x: [0, -25, 0], y: [0, 20, 0] }}
-              transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
             />
-            <motion.div
+            <div
               className="absolute top-1/3 right-[5%] w-48 h-48 rounded-full bg-indigo-500/5 blur-3xl"
-              animate={{ x: [0, -20, 0], y: [0, 25, 0] }}
-              transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
             />
-            <motion.div
+            <div
               className="absolute bottom-1/4 left-[5%] w-56 h-56 rounded-full bg-emerald-500/5 blur-3xl"
-              animate={{ x: [0, 15, 0], y: [0, -20, 0] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
             />
           </div>
 
@@ -634,27 +631,19 @@ function PricingPage() {
                 delay: 2.5,
               },
             ].map((item) => (
-              <motion.div
+              <div
                 key={item.label}
-                className="absolute flex items-center gap-1.5 bg-background/80 backdrop-blur-md border border-border/40 rounded-full px-3 py-1.5 shadow-sm"
+                className="absolute flex items-center gap-1.5 bg-background/80 backdrop-blur-md border border-border/40 rounded-full px-3 py-1.5 shadow-sm transition-transform duration-200 hover:scale-105"
                 style={{ left: item.x, top: item.y }}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: item.delay }}
-                whileHover={{ scale: 1.05 }}
               >
                 <item.icon className="w-3 h-3" style={{ color: item.color }} />
                 <span className="text-[10px] font-semibold whitespace-nowrap">{item.label}</span>
-              </motion.div>
+              </div>
             ))}
           </div>
 
           <div className="container mx-auto px-6 pt-20 pb-16 md:pt-28 md:pb-20 max-w-5xl text-center">
-            <motion.div
-              ref={heroRef}
-              initial={{ opacity: 0, y: 30 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.7 }}
+            <div
             >
               <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 backdrop-blur px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-6">
                 {cmsHeroContent?.badge || "Pricing"}
@@ -670,14 +659,11 @@ function PricingPage() {
                 {cmsHeroContent?.subheadline ||
                   "AI Tutor, Resume Builder, ATS Checker, Mock Interviews, Certificates and Career Coaching — Everything You Need To Learn, Build Skills and Get Hired."}
               </p>
-            </motion.div>
+            </div>
 
             {/* Trust indicators */}
-            <motion.div
+            <div
               className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
             >
               {[
                 { icon: Star, label: "4.9 Rating", sub: "10,000+ Learners" },
@@ -685,12 +671,9 @@ function PricingPage() {
                 { icon: Briefcase, label: "Career Focused", sub: "Learning that leads to jobs" },
                 { icon: Users, label: `${learnerCount} Active`, sub: "Learners Online Now" },
               ].map(({ icon: Icon, label, sub }, i) => (
-                <motion.div
+                <div
                   key={label}
                   className="flex items-center gap-3 text-left"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={heroInView ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.4, delay: 0.4 + i * 0.1 }}
                 >
                   <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 relative">
                     <Icon className="h-5 w-5 text-primary" />
@@ -702,18 +685,15 @@ function PricingPage() {
                     <div className="text-sm font-semibold">{label}</div>
                     <div className="text-xs text-muted-foreground">{sub}</div>
                   </div>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
 
             {/* CTAs */}
-            <motion.div
+            <div
               className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10"
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: 0.6 }}
             >
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <div className="transition-transform duration-200 hover:scale-105 active:scale-95">
                 <Button
                   asChild
                   size="lg"
@@ -724,8 +704,8 @@ function PricingPage() {
                     <ArrowRight className="h-5 w-5 ml-2" />
                   </Link>
                 </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              </div>
+              <div className="transition-transform duration-200 hover:scale-105 active:scale-95">
                 <Button
                   variant="outline"
                   size="lg"
@@ -739,8 +719,8 @@ function PricingPage() {
                   <Play className="h-5 w-5 mr-2" />
                   Watch Interactive Demo
                 </Button>
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
             <p className="mt-4 text-xs text-muted-foreground">
               No credit card required · Cancel anytime · 7-day guarantee
             </p>
@@ -760,28 +740,19 @@ function PricingPage() {
 
         {/* ========== WHY LEARNERS UPGRADE ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-5xl">
-          <motion.div
+          <div
             className="text-center mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Why Learners Upgrade</h2>
             <p className="mt-3 text-muted-foreground">
               Join thousands who&apos;ve accelerated their learning and career growth.
             </p>
-          </motion.div>
+          </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {WHY_UPGRADE.map((item, i) => (
-              <motion.div
+              <div
                 key={item.title}
-                className="relative rounded-2xl border bg-card p-6 text-center hover:shadow-lg transition-shadow duration-300 overflow-hidden"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-                whileHover={{ y: -3 }}
+                className="relative rounded-2xl border bg-card p-6 text-center hover:shadow-lg transition-all duration-300 overflow-hidden hover:-translate-y-0.5"
               >
                 <div
                   className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
@@ -791,19 +762,15 @@ function PricingPage() {
                 </div>
                 <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
                 <p className="text-sm text-muted-foreground">{item.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>
 
         {/* ========== FREE TRIAL ========== */}
         <section className="container mx-auto px-6 py-12 max-w-4xl">
-          <motion.div
+          <div
             className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary/5 via-primary/10 to-purple-500/5 border border-primary/10"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
           >
             <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-primary/5 blur-3xl" />
             <div className="absolute bottom-0 left-0 w-36 h-36 rounded-full bg-purple-500/5 blur-3xl" />
@@ -847,17 +814,13 @@ function PricingPage() {
                 </Link>
               </Button>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ========== BILLING TOGGLE ========== */}
         <section className="container mx-auto px-6 pt-8 pb-4 max-w-5xl">
-          <motion.div
+          <div
             className="flex justify-center"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
           >
             <div className="inline-flex items-center gap-1 bg-muted/50 rounded-full p-1.5">
               <button
@@ -884,17 +847,13 @@ function PricingPage() {
                 </span>
               </button>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ========== COUPON INPUT ========== */}
         <section className="container mx-auto px-6 pb-4 max-w-lg">
-          <motion.div
+          <div
             className="flex items-center gap-2"
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.1 }}
           >
             <div className="relative flex-1">
               <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -916,7 +875,7 @@ function PricingPage() {
                 Clear
               </Button>
             )}
-          </motion.div>
+          </div>
         </section>
 
         {/* ========== PRICING CARDS ========== */}
@@ -978,12 +937,8 @@ function PricingPage() {
 
         {/* ========== STUDENT DISCOUNT ========== */}
         <section className="container mx-auto px-6 pb-4 max-w-4xl">
-          <motion.div
+          <div
             className="rounded-2xl border-2 border-violet-500/20 bg-gradient-to-r from-violet-50 via-background to-violet-50 dark:from-violet-950/20 dark:to-violet-950/20 p-6 md:p-8 flex flex-col md:flex-row items-center gap-6"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.5 }}
           >
             <div className="w-16 h-16 rounded-2xl bg-violet-500/10 flex items-center justify-center shrink-0">
               <GraduationCap className="w-8 h-8 text-violet-600" />
@@ -1005,29 +960,20 @@ function PricingPage() {
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
-          </motion.div>
+          </div>
         </section>
 
         {/* ========== FEATURE COMPARISON ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-6xl">
-          <motion.div
+          <div
             className="text-center mb-10"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Compare Plans</h2>
             <p className="mt-3 text-muted-foreground">See what&apos;s included in each plan.</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.7 }}
-          >
+          </div>
+          <div>
             <PricingComparisonTable />
-          </motion.div>
+          </div>
         </section>
 
         {/* ========== STUDENT JOURNEY ========== */}
@@ -1040,12 +986,8 @@ function PricingPage() {
 
         {/* ========== FOUNDER MESSAGE ========== */}
         <section className="container mx-auto px-6 py-12 max-w-4xl">
-          <motion.div
+          <div
             className="relative rounded-3xl overflow-hidden"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-indigo-600/5 to-purple-700/5" />
             <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl" />
@@ -1082,33 +1024,24 @@ function PricingPage() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ========== TESTIMONIALS ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-6xl">
-          <motion.div
+          <div
             className="text-center mb-12"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Loved by Learners</h2>
             <p className="mt-3 text-muted-foreground">
               Real stories from students who transformed their careers.
             </p>
-          </motion.div>
+          </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {cmsTestimonialItems.map((t: any, i: number) => (
-              <motion.div
+              <div
                 key={t.name}
-                className="rounded-2xl border bg-card p-6 relative group cursor-pointer"
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                whileHover={{ y: -3 }}
+                className="rounded-2xl border bg-card p-6 relative group cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
                 onClick={() => setSelectedTestimonial(t)}
               >
                 <Quote className="h-8 w-8 text-primary/10 absolute top-4 right-4" />
@@ -1145,81 +1078,68 @@ function PricingPage() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </section>
 
         {/* Testimonial Dialog */}
-        <AnimatePresence>
-          {selectedTestimonial && (
-            <motion.div
-              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedTestimonial(null)}
+        {selectedTestimonial && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            onClick={() => setSelectedTestimonial(null)}
+          >
+            <div
+              className="relative bg-background rounded-2xl border shadow-2xl max-w-lg w-full p-8"
+              onClick={(e) => e.stopPropagation()}
             >
-              <motion.div
-                className="relative bg-background rounded-2xl border shadow-2xl max-w-lg w-full p-8"
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                transition={{ duration: 0.2 }}
-                onClick={(e) => e.stopPropagation()}
+              <button
+                onClick={() => setSelectedTestimonial(null)}
+                className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
               >
-                <button
-                  onClick={() => setSelectedTestimonial(null)}
-                  className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center hover:bg-muted transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                <X className="w-4 h-4" />
+              </button>
 
-                <div className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold px-3 py-1 mb-4 border border-emerald-500/20">
-                  <Award className="w-3.5 h-3.5" />
-                  {selectedTestimonial.achievement}
-                </div>
+              <div className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold px-3 py-1 mb-4 border border-emerald-500/20">
+                <Award className="w-3.5 h-3.5" />
+                {selectedTestimonial.achievement}
+              </div>
 
-                <div className="flex gap-1 mb-4">
-                  {Array.from({ length: selectedTestimonial.rating }).map((_, si) => (
-                    <Star key={si} className="h-4 w-4 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
+              <div className="flex gap-1 mb-4">
+                {Array.from({ length: selectedTestimonial.rating }).map((_, si) => (
+                  <Star key={si} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
 
-                <p className="text-base text-foreground/90 leading-relaxed mb-6">
-                  &ldquo;{selectedTestimonial.review}&rdquo;
-                </p>
+              <p className="text-base text-foreground/90 leading-relaxed mb-6">
+                &ldquo;{selectedTestimonial.review}&rdquo;
+              </p>
 
-                <div className="flex items-center gap-3 pt-4 border-t">
-                  <img
-                    src={selectedTestimonial.avatar}
-                    alt={selectedTestimonial.name}
-                    className="h-12 w-12 rounded-full object-cover shrink-0 border border-primary/20 shadow-sm"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(selectedTestimonial.name || "Student")}`;
-                    }}
-                  />
-                  <div>
-                    <div className="text-base font-semibold">{selectedTestimonial.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {selectedTestimonial.role} · {selectedTestimonial.college}
-                    </div>
+              <div className="flex items-center gap-3 pt-4 border-t">
+                <img
+                  src={selectedTestimonial.avatar}
+                  alt={selectedTestimonial.name}
+                  className="h-12 w-12 rounded-full object-cover shrink-0 border border-primary/20 shadow-sm"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(selectedTestimonial.name || "Student")}`;
+                  }}
+                />
+                <div>
+                  <div className="text-base font-semibold">{selectedTestimonial.name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {selectedTestimonial.role} · {selectedTestimonial.college}
                   </div>
                 </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ========== CERTIFICATES (InteractiveFolder) ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-3xl">
-          <motion.div
+          <div
             className="rounded-2xl border bg-card p-10 md:p-12 text-center"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
           >
             <div className="flex flex-col items-center gap-6">
               <InteractiveFolder
@@ -1261,28 +1181,19 @@ function PricingPage() {
                 </Link>
               </Button>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ========== TRUST SECTION ========== */}
         <section className="container mx-auto px-6 py-12 max-w-5xl">
-          <motion.div
+          <div
             className="rounded-2xl border bg-card shadow-sm overflow-hidden"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
           >
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-border/40">
               {TRUST_ITEMS.map((item, i) => (
-                <motion.div
+                <div
                   key={item.label}
-                  className="flex flex-col items-center text-center gap-2 p-5 bg-card"
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.3, delay: i * 0.05 }}
-                  whileHover={{ y: -2 }}
+                  className="flex flex-col items-center text-center gap-2 p-5 bg-card transition-all duration-300 hover:-translate-y-0.5"
                 >
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center"
@@ -1291,10 +1202,10 @@ function PricingPage() {
                     <item.icon className="h-5 w-5" style={{ color: item.color }} />
                   </div>
                   <span className="text-xs font-semibold">{item.label}</span>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ========== MAGNIFICATION DOCK ========== */}
@@ -1350,17 +1261,13 @@ function PricingPage() {
 
         {/* ========== FAQ ========== */}
         <section id="faq-section" className="container mx-auto px-6 py-16 md:py-20 max-w-3xl">
-          <motion.div
+          <div
             className="text-center mb-8"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
               Frequently Asked Questions
             </h2>
-          </motion.div>
+          </div>
 
           {/* Search */}
           <div className="relative mb-6">
@@ -1425,43 +1332,29 @@ function PricingPage() {
                 .map((item: any, i: number) => {
                   const realIdx = cmsFaqItems.indexOf(item);
                   return (
-                    <motion.div
+                    <div
                       key={realIdx}
                       className="border rounded-xl overflow-hidden bg-card"
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.3, delay: i * 0.04 }}
                     >
                       <button
                         onClick={() => setOpenFaq(openFaq === realIdx ? null : realIdx)}
                         className="w-full flex items-center justify-between p-5 text-left font-medium hover:bg-muted/30 transition-colors"
                       >
                         <span>{item.q}</span>
-                        <motion.div
-                          animate={{ rotate: openFaq === realIdx ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="shrink-0 ml-4"
+                        <div
+                          className={`shrink-0 ml-4 transition-transform duration-200 ${openFaq === realIdx ? "rotate-180" : ""}`}
                         >
                           <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                        </motion.div>
+                        </div>
                       </button>
-                      <AnimatePresence>
-                        {openFaq === realIdx && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
-                            className="overflow-hidden"
-                          >
-                            <p className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
-                              {item.a}
-                            </p>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${openFaq === realIdx ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}
+                      >
+                        <p className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed">
+                          {item.a}
+                        </p>
+                      </div>
+                    </div>
                   );
                 })
             )}
@@ -1470,12 +1363,8 @@ function PricingPage() {
 
         {/* ========== FINAL CTA ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-4xl">
-          <motion.div
+          <div
             className="relative rounded-3xl overflow-hidden"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7 }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700" />
             <div className="absolute inset-0 opacity-10">
@@ -1490,7 +1379,7 @@ function PricingPage() {
                 Join thousands of learners building skills with AI.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <div className="transition-transform duration-200 hover:scale-105 active:scale-95">
                   <Button
                     asChild
                     size="lg"
@@ -1501,8 +1390,8 @@ function PricingPage() {
                       <ArrowRight className="h-5 w-5 ml-2" />
                     </Link>
                   </Button>
-                </motion.div>
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                </div>
+                <div className="transition-transform duration-200 hover:scale-105 active:scale-95">
                   <Button
                     size="lg"
                     className="h-13 px-8 text-base font-semibold rounded-xl bg-white/10 text-white border-2 border-white/30 hover:bg-white/20 hover:border-white/50 shadow-lg backdrop-blur-sm"
@@ -1515,23 +1404,19 @@ function PricingPage() {
                     <Play className="h-5 w-5 mr-2" />
                     Watch Demo
                   </Button>
-                </motion.div>
+                </div>
               </div>
               <p className="mt-6 text-sm text-white/60">
                 No Credit Card Required · Cancel Anytime · 7-Day Guarantee
               </p>
             </div>
-          </motion.div>
+          </div>
         </section>
 
         {/* ========== SECURE PAYMENTS ========== */}
         <section className="container mx-auto px-6 pb-16 max-w-3xl">
-          <motion.div
+          <div
             className="text-center space-y-2"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
           >
             <div className="flex items-center justify-center gap-2">
               <CreditCard className="h-5 w-5 text-primary" />
@@ -1547,7 +1432,7 @@ function PricingPage() {
               </a>{" "}
               anytime.
             </p>
-          </motion.div>
+          </div>
         </section>
 
         {/* ========== MOBILE STICKY CTA ========== */}
@@ -1605,102 +1490,46 @@ function PricingCard({
   onSubscribe: (id: string) => void;
   onCancel: () => void;
 }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [rotate, setRotate] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setRotate({
-      x: -(y - rect.height / 2) / 25,
-      y: (x - rect.width / 2) / 25,
-    });
-  };
-
-  const handleMouseLeave = () => {
-    setRotate({ x: 0, y: 0 });
-    setIsHovered(false);
-  };
-
   const yearlyPrice = plan.yearly_price || Math.round(plan.price_inr * 12 * 0.8);
+  const monthlyEquiv = hasPrice && yearlyPrice > 0 ? Math.round(yearlyPrice / 12) : 0;
+  const annualSaving = hasPrice ? Math.round(plan.price_inr * 12 - yearlyPrice) : 0;
   const monthlySavings = hasPrice ? Math.round((plan.price_inr * 12 - yearlyPrice) / 12) : 0;
   const displayPrice =
     billingCycle === "yearly" && hasPrice
-      ? `₹${yearlyPrice.toLocaleString("en-IN")}`
+      ? `₹${monthlyEquiv.toLocaleString("en-IN")}`
       : plan.price_label;
 
   return (
-    <motion.div
-      ref={cardRef}
+    <div
       className="relative flex flex-col snap-start shrink-0 w-[80vw] sm:w-auto"
-      style={{ transformStyle: "preserve-3d" }}
-      initial={{ opacity: 0, y: 50, rotateX: 8 }}
-      whileInView={{ opacity: 1, y: 0, rotateX: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, delay: idx * 0.1, ease: "easeOut" }}
-      animate={{
-        rotateX: rotate.x,
-        rotateY: rotate.y,
-        scale: isHovered ? 1.02 : 1,
-      }}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={handleMouseLeave}
     >
-      {/* Glow */}
-      <motion.div
-        className="absolute -inset-1 rounded-3xl opacity-0 blur-xl transition-opacity duration-500 pointer-events-none"
-        style={{ background: `linear-gradient(135deg, ${accentColor}25, ${accentColor}08)` }}
-        animate={{ opacity: isHovered ? 1 : 0 }}
-      />
-
       <div
-        className={`relative rounded-3xl flex flex-col overflow-hidden transition-shadow duration-300 ${
+        className={`relative rounded-2xl flex flex-col overflow-hidden transition-all duration-300 ${
           isPopular
-            ? "shadow-2xl shadow-violet-500/15 border-2"
-            : "border hover:shadow-xl hover:shadow-black/5"
+            ? "shadow-xl border-2 hover:shadow-2xl"
+            : "border hover:shadow-lg"
         }`}
         style={{
           borderColor: isPopular ? accentColor : undefined,
           background: "hsl(var(--card))",
-          transform: "translateZ(15px)",
         }}
       >
         {/* Top bar */}
-        <div className="relative h-1 w-full overflow-hidden">
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(90deg, ${accentColor}, ${accentColor}cc, ${accentColor})`,
-            }}
-          />
-          {isPopular && (
-            <motion.div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
-              }}
-              animate={{ x: ["-100%", "200%"] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 3 }}
-            />
-          )}
-        </div>
+        <div
+          className="h-1 w-full"
+          style={{
+            background: `linear-gradient(90deg, ${accentColor}, ${accentColor}cc, ${accentColor})`,
+          }}
+        />
 
         {/* Badge */}
         {(plan.badge || isCurrent) && (
-          <motion.div
+          <div
             className="absolute top-4 right-4 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full text-white shadow-lg z-10"
             style={{ background: accentColor }}
-            initial={{ scale: 0, rotate: -12 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 500, damping: 15, delay: 0.3 }}
           >
             {isCurrent ? "Your plan" : plan.badge}
-          </motion.div>
+          </div>
         )}
 
         <div className="flex flex-col flex-1 p-6">
@@ -1713,38 +1542,29 @@ function PricingCard({
 
           {/* Price */}
           <div className="mt-5 mb-1 flex items-baseline gap-1">
-            <motion.span
-              className="text-4xl font-extrabold tracking-tight"
-              key={displayPrice}
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
+            <span className="text-4xl font-extrabold tracking-tight">
               {displayPrice}
-            </motion.span>
+            </span>
             {hasPrice && plan.interval && (
               <span className="text-sm text-muted-foreground">
-                /
-                {billingCycle === "yearly"
-                  ? "year"
-                  : plan.interval?.startsWith("month")
-                    ? "month"
-                    : plan.interval}
+                /month
               </span>
             )}
           </div>
 
-          {/* Monthly price reference + savings */}
+          {/* Price reference + savings */}
           {hasPrice && (
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex flex-wrap items-center gap-2 mt-1">
               {billingCycle === "yearly" ? (
                 <>
-                  <span className="text-xs text-muted-foreground line-through">
-                    ₹{plan.price_label.replace("₹", "")}/mo
+                  <span className="text-xs text-muted-foreground">
+                    ₹{yearlyPrice.toLocaleString("en-IN")}/year &middot; billed yearly
                   </span>
-                  <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
-                    Save ₹{(plan.price_inr * 12 - yearlyPrice).toLocaleString("en-IN")}/yr
-                  </span>
+                  {annualSaving > 0 && (
+                    <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full">
+                      Save ₹{annualSaving.toLocaleString("en-IN")}/yr
+                    </span>
+                  )}
                 </>
               ) : (
                 <span className="text-xs text-muted-foreground">
@@ -1815,7 +1635,7 @@ function PricingCard({
                 </Button>
               </div>
             ) : !hasPrice ? (
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <div className="transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]">
                 <Button
                   asChild
                   className="w-full h-11 text-sm font-semibold rounded-xl"
@@ -1831,9 +1651,9 @@ function PricingCard({
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
                 </Button>
-              </motion.div>
+              </div>
             ) : (
-              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <div className="transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98]">
                 <Button
                   className="w-full h-11 text-sm font-semibold rounded-xl"
                   onClick={() => onSubscribe(plan.id)}
@@ -1853,19 +1673,19 @@ function PricingCard({
                     ? "Processing..."
                     : plan.cta_label || `Subscribe ${displayPrice}`}
                 </Button>
-              </motion.div>
+              </div>
             )}
           </div>
 
           {hasPrice && (
             <div className="mt-3 text-center">
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider flex items-center justify-center gap-1.5">
-                <Check className="h-3 w-3 text-emerald-500" /> Securely processed by Cashfree
+                <Check className="h-3 h-3 text-emerald-500" /> Securely processed by Cashfree
               </span>
             </div>
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

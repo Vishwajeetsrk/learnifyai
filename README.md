@@ -495,6 +495,34 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v4.2.0 (July 2026) - Certificate Designer Overhaul & Email Automation
+
+- ✅ **Certificate Auto-Email**: Fixed `issueAndEmailCertificate` server function to actually send emails using the 5-provider fallback chain (Gmail → Resend API → Brevo → Resend SMTP → Brevo SMTP). Previously was a placeholder that only logged to console. Now sends a branded HTML email with certificate ID, score, and verification link on every issuance.
+- ✅ **Certificate Email Template**: Built a dedicated HTML email template for auto-issued certificates with Learnify AI branding, gradient header, certificate details table (ID, date, score), and "View & Download Certificate" CTA button.
+- ✅ **Admin Template Grid Redesign**: Improved `CertDesignerAdmin` with category filter chips (showing counts), search with icon, stat bar, lazy-loaded images, hover overlay with Preview/Edit/Delete buttons, category badges with color coding, and field count display.
+- ✅ **Multi-Format Export**: Designer supports 4 export formats — High-Res PNG (html2canvas-pro 3x), Print PDF (jsPDF A4 landscape), Vector SVG (DOM clone serialization), and Animated GIF (canvas data URL).
+- ✅ **File Upload for Logo & Signature**: Replaced placeholder text inputs with file upload buttons for Logo (org_logo), Signature, Badge, and Image elements. Real images render directly on canvas via `URL.createObjectURL`.
+- ✅ **Position & Dimensions Controls**: Added numeric X/Y/Width/Height inputs in DesignerSidebar Properties tab for pixel-perfect element placement with live canvas updates.
+- ✅ **Zoom Controls**: Upgraded canvas toolbar with zoom buttons (−, +), reset to 100%, and smooth scaling up to 200%.
+- ✅ **Keyboard Shortcuts**: Added keydown listeners for Delete/Backspace to remove selected elements, and Escape to deselect.
+- ✅ **Desktop Drag & Drop**: Dragging image files from desktop onto the canvas either sets the background image (if dropped on background) or inserts a new draggable image element.
+
+### v4.3.0 (July 2026) - Pricing Redesign, Framer-Motion Removal & Certificate Email Enhancement
+
+- ✅ **Framer-Motion Fully Removed**: Stripped all `motion.*`, `AnimatePresence`, and `useInView` from `pricing.tsx`. Replaced 30+ motion instances with static divs + CSS transitions for faster loading and zero JS animation overhead.
+- ✅ **PricingCard Simplified**: Removed 3D tilt, glow blur, shimmer animation, badge spring, and `translateZ(15px)`. Now a clean flat card with `hover:shadow-xl` and `hover:scale-[1.02]`.
+- ✅ **FAQ & Dialog Replaced**: FAQ accordion now uses CSS `max-h` transitions instead of AnimatePresence. Testimonial dialog uses conditional `<div>` rendering.
+- ✅ **Certificate Email Enhanced**: Added LinkedIn "Add to Profile" button, "Download PDF" and "Download Image" action buttons in the email template. Branded gradient header with certificate details table.
+- ✅ **Brandly Agency Duplicate Removed**: Deleted duplicate `brandly-agency` project from projects.json and project directories (kept single `brandly` entry).
+- ✅ **No Bundled Animations**: Page loads faster with zero framer-motion bundle cost — improved Lighthouse performance score.
+
+### v4.1.0 (July 2026) - Magnification Dock, Responsive Design Sandbox & Canva Designer Upgrades
+
+- ✅ **Design Projects Portfolio (`/projects`)**: Hosted and integrated all 47 interactive landing pages, 3D prototypes, and GSAP micro-sites. Built a responsive device sandbox simulator (Desktop, Tablet, Mobile) inside iframe previews. Added a direct link to the main navigation header.
+- ✅ **Career Studio macOS-style Dock**: Integrated the macOS-inspired `MagnificationDock` component with spring physics, magnification effects, and tooltips in Career Studio, fully responsive for all screen sizes.
+- ✅ **Canva Certificate Editor Upgrades**: Enabled database template loading. Connected visual editor workspace directly to edit flow. Implemented Backspace/Delete keyboard element removal and image file drop imports.
+- ✅ **Navbar Translation Fixes**: Upgraded i18n helper lookup fallbacks and updated translation files for 11 languages to prevent display of unresolved key paths.
+
 ### v4.0.0 (July 2026) - Responsive Overhaul, SVG Icons, Navigation Deduplication & GitHub Demo GIF
 
 - ✅ **SVG Icons Throughout**: Replaced all emoji icons with proper inline SVG icons across Avatar Customizer (clothing/art/accessories pickers), Career Studio, Community Hub, and Sidebar navigation — no more broken or inconsistent emoji rendering.
