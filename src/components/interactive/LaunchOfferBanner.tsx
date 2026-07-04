@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
+import { usePublicSection } from "@/hooks/use-wcms-public";
 
-const TARGET_DATE_KEY = "learnify_launch_offer_date";
 const DISMISSED_KEY = "learnify_promo_banner_dismissed";
 
 interface PromoBannerContent {
@@ -16,7 +14,7 @@ interface PromoBannerContent {
   subtitle?: string;
   cta?: string;
   ctaLink?: string;
-  timerDays?: number;
+  timerEndDate?: string;
   bgGradient?: string;
   dismissible?: boolean;
 }
@@ -28,7 +26,7 @@ const DEFAULT_CONTENT: PromoBannerContent = {
   subtitle: "Limited Time",
   cta: "Claim Now",
   ctaLink: "/pricing?coupon=LAUNCH20",
-  timerDays: 7,
+  timerEndDate: "",
   bgGradient: "from-blue-600 via-indigo-600 to-purple-700",
   dismissible: true,
 };
@@ -38,50 +36,27 @@ interface LaunchOfferBannerProps {
 }
 
 export function LaunchOfferBanner({ className }: LaunchOfferBannerProps) {
-  const [content, setContent] = useState<PromoBannerContent>(DEFAULT_CONTENT);
-  const [loaded, setLoaded] = useState(false);
+  const { data: cms } = usePublicSection("promo-banner");
+  const content: PromoBannerContent = cms?.content
+    ? { ...DEFAULT_CONTENT, ...(cms.content as PromoBannerContent) }
+    : DEFAULT_CONTENT;
+
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISSED_KEY) === "true");
-  const [targetDate, setTargetDate] = useState<Date | null>(null);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await supabase
-          .from("wcms_sections")
-          .select("content")
-          .eq("key", "promo-banner")
-          .maybeSingle();
-        if (data?.content) {
-          setContent({ ...DEFAULT_CONTENT, ...(data.content as PromoBannerContent) });
-        }
-      } catch {
-        // use defaults
-      }
-      setLoaded(true);
-    })();
-  }, []);
-
-  useEffect(() => {
-    let date: Date;
-    const stored = localStorage.getItem(TARGET_DATE_KEY);
-    if (stored) {
-      date = new Date(stored);
-      if (isNaN(date.getTime())) {
-        date = new Date(Date.now() + (content.timerDays || 7) * 24 * 60 * 60 * 1000);
-        localStorage.setItem(TARGET_DATE_KEY, date.toISOString());
-      }
-    } else {
-      date = new Date(Date.now() + (content.timerDays || 7) * 24 * 60 * 60 * 1000);
-      localStorage.setItem(TARGET_DATE_KEY, date.toISOString());
+    const targetStr = content.timerEndDate;
+    let target: Date | null = null;
+    if (targetStr) {
+      target = new Date(targetStr);
+      if (isNaN(target.getTime())) target = null;
     }
-    setTargetDate(date);
-  }, [content.timerDays]);
+    if (!target) {
+      target = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    }
 
-  useEffect(() => {
-    if (!targetDate) return;
     const tick = () => {
-      const diff = targetDate.getTime() - Date.now();
+      const diff = target!.getTime() - Date.now();
       if (diff <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
         return;
@@ -96,25 +71,15 @@ export function LaunchOfferBanner({ className }: LaunchOfferBannerProps) {
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [targetDate]);
+  }, [content.timerEndDate]);
 
-  if (!loaded) return null;
   if (!content.enabled) return null;
   if (content.dismissible && dismissed) return null;
 
   const linkTo = content.ctaLink || "/signup";
 
   return (
-    <motion.div
-      className={cn(
-        "relative bg-gradient-to-r text-white overflow-hidden",
-        content.bgGradient || "from-blue-600 via-indigo-600 to-purple-700",
-        className,
-      )}
-      initial={{ height: 0, opacity: 0 }}
-      animate={{ height: "auto", opacity: 1 }}
-      exit={{ height: 0, opacity: 0 }}
-    >
+    <div className={cn("relative bg-gradient-to-r text-white overflow-hidden", content.bgGradient || "from-blue-600 via-indigo-600 to-purple-700", className)}>
       <div className="absolute inset-0 opacity-[0.03]">
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white blur-3xl" />
         <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white blur-3xl" />
@@ -178,6 +143,6 @@ export function LaunchOfferBanner({ className }: LaunchOfferBannerProps) {
           </button>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -270,6 +270,7 @@ const TAB_LABELS: Record<string, string> = {
   "wcms-features": "Features Catalog",
   "wcms-menus": "Menus",
   "wcms-sections": "Sections",
+  "promo-banner": "Promo Banner",
 };
 
 export default function AdminContentPage() {
@@ -310,7 +311,9 @@ export default function AdminContentPage() {
     "wcms-media",
     "wcms-features",
     "wcms-menus",
-    "wcms-blocks",
+    "blog",
+    "wcms-sections",
+    "promo-banner",
   ].includes(tabAlias)
     ? tabAlias
     : "events";
@@ -433,6 +436,10 @@ export default function AdminContentPage() {
               <Menu className="h-4 w-4 mr-2" />
               Menus
             </TabsTrigger>
+            <TabsTrigger value="promo-banner">
+              <Percent className="h-4 w-4 mr-2" />
+              Promo Banner
+            </TabsTrigger>
             <TabsTrigger value="wcms-sections">
               <Layers className="h-4 w-4 mr-2" />
               Sections
@@ -498,6 +505,9 @@ export default function AdminContentPage() {
           </TabsContent>
           <TabsContent value="wcms-menus" className="mt-6">
             <MenuManager />
+          </TabsContent>
+          <TabsContent value="promo-banner" className="mt-6">
+            <PromoBannerManager />
           </TabsContent>
           <TabsContent value="wcms-sections" className="mt-6">
             <SectionsManager />
@@ -1331,15 +1341,16 @@ function PricingManager() {
       })) as any[] | null;
       const existingPlans = existing ?? [];
       for (const plan of defaults) {
+        const { yearly_price: _yp, ...planData } = plan as any;
         const match = existingPlans.find(
           (p: any) => p.name?.toLowerCase() === plan.name?.toLowerCase(),
         );
         if (match) {
           await doAdminAction({
-            data: { table: "pricing_plans", action: "update", id: match.id, data: plan },
+            data: { table: "pricing_plans", action: "update", id: match.id, data: planData },
           });
         } else {
-          await doSavePlan({ data: plan });
+          await doSavePlan({ data: { plan: planData } });
         }
       }
       toast.success("Default plans seeded!");
@@ -3079,7 +3090,7 @@ function FaqsManager() {
       { question: "How do certificates work?", answer: "Complete a course and pass the assessment to earn a verified certificate with a unique QR code and ID. Certificates can be shared on LinkedIn.", category: "Features", order_index: 120, published: true },
       { question: "Is there a mobile app?", answer: "Learnify AI is fully responsive and works on all devices. A dedicated mobile app is coming soon.", category: "Features", order_index: 130, published: true },
       { question: "Can I download course materials?", answer: "Yes, you can download video transcripts, notes, and code samples for offline reference.", category: "Features", order_index: 140, published: true },
-      { question: "Do you offer placement assistance?", answer: "Pro and Team plans include resume review, mock interviews, and career guidance. Team plans also include direct company referrals.", category: "Features", order_index: 150, published: true },
+      { question: "Do you offer placement assistance?", answer: "Pro and Enterprise plans include resume review, mock interviews, and career guidance. Enterprise plans also include direct company referrals.", category: "Features", order_index: 150, published: true },
       // Technical
       { question: "Is my data secure?", answer: "Yes, we use SSL encryption, secure payment processing, and follow industry best practices for data protection. Your data is stored securely on Cloudflare.", category: "Technical", order_index: 160, published: true },
       { question: "Can I access courses offline?", answer: "Currently, courses are available online only. However, you can save video transcripts and notes for offline reading.", category: "Technical", order_index: 170, published: true },
@@ -4610,5 +4621,198 @@ function CohortDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  PROMO BANNER MANAGER                                                */
+/* ------------------------------------------------------------------ */
+function PromoBannerManager() {
+  const qc = useQueryClient();
+  const doUpsert = useServerFn(adminContentUpsert);
+  const [saving, setSaving] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  const [form, setForm] = useState({
+    enabled: true,
+    headline: "Launch Offer",
+    discount: "20% Off",
+    subtitle: "Limited Time",
+    cta: "Claim Now",
+    ctaLink: "/pricing?coupon=LAUNCH20",
+    timerEndDate: "",
+    bgGradient: "from-blue-600 via-indigo-600 to-purple-700",
+    dismissible: true,
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await supabase
+          .from("wcms_sections")
+          .select("content")
+          .eq("key", "promo-banner")
+          .maybeSingle();
+        if (data?.content) {
+          const c = data.content as any;
+          setForm({
+            enabled: c.enabled ?? true,
+            headline: c.headline ?? "Launch Offer",
+            discount: c.discount ?? "20% Off",
+            subtitle: c.subtitle ?? "Limited Time",
+            cta: c.cta ?? "Claim Now",
+            ctaLink: c.ctaLink ?? "/pricing?coupon=LAUNCH20",
+            timerEndDate: c.timerEndDate ?? "",
+            bgGradient: c.bgGradient ?? "from-blue-600 via-indigo-600 to-purple-700",
+            dismissible: c.dismissible ?? true,
+          });
+        }
+      } catch {}
+      setLoaded(true);
+    })();
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await doUpsert({
+        data: {
+          table: "wcms_sections" as any,
+          data: {
+            key: "promo-banner",
+            name: "Promotional Banner",
+            description: "Launch offer banner shown across the site",
+            block_type: "custom",
+            content: {
+              enabled: form.enabled,
+              headline: form.headline,
+              discount: form.discount,
+              subtitle: form.subtitle,
+              cta: form.cta,
+              ctaLink: form.ctaLink,
+              timerEndDate: form.timerEndDate,
+              bgGradient: form.bgGradient,
+              dismissible: form.dismissible,
+            },
+          },
+          onConflict: "key",
+        },
+      });
+      toast.success("Promo banner saved!");
+      qc.invalidateQueries({ queryKey: ["admin-sections"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const resetDismissed = () => {
+    localStorage.removeItem("learnify_promo_banner_dismissed");
+    toast.success("Dismiss state cleared for all users (local only)");
+  };
+
+  if (!loaded) {
+    return (
+      <div className="flex justify-center py-10">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    );
+  }
+
+  const GRADIENTS = [
+    { value: "from-blue-600 via-indigo-600 to-purple-700", label: "Indigo" },
+    { value: "from-emerald-600 via-teal-600 to-cyan-700", label: "Emerald" },
+    { value: "from-orange-500 via-red-600 to-pink-700", label: "Fire" },
+    { value: "from-gray-900 via-slate-800 to-gray-700", label: "Dark" },
+    { value: "from-violet-600 via-purple-600 to-pink-600", label: "Violet" },
+  ];
+
+  return (
+    <div className="max-w-2xl space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Promo Banner Settings</h3>
+          <p className="text-sm text-muted-foreground">
+            Configure the launch offer banner shown at the top of the pricing page.
+          </p>
+        </div>
+      </div>
+
+      <div className="rounded-xl border bg-card p-6 space-y-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <Label>Enable Banner</Label>
+            <p className="text-xs text-muted-foreground">Show or hide the banner site-wide</p>
+          </div>
+          <Switch checked={form.enabled} onCheckedChange={(v) => setForm({ ...form, enabled: v })} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label>Headline</Label>
+            <Input value={form.headline} onChange={(e) => setForm({ ...form, headline: e.target.value })} placeholder="Launch Offer" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Discount Text</Label>
+            <Input value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} placeholder="20% Off" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Subtitle</Label>
+            <Input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} placeholder="Limited Time" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>CTA Text</Label>
+            <Input value={form.cta} onChange={(e) => setForm({ ...form, cta: e.target.value })} placeholder="Claim Now" />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>CTA Link</Label>
+          <Input value={form.ctaLink} onChange={(e) => setForm({ ...form, ctaLink: e.target.value })} placeholder="/pricing?coupon=LAUNCH20" />
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>Timer End Date</Label>
+          <Input type="datetime-local" value={form.timerEndDate} onChange={(e) => setForm({ ...form, timerEndDate: e.target.value })} />
+          <p className="text-xs text-muted-foreground">Leave empty to use timerDays (default 7 days from now)</p>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label>Background Gradient</Label>
+          <Select value={form.bgGradient} onValueChange={(v) => setForm({ ...form, bgGradient: v })}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {GRADIENTS.map((g) => (
+                <SelectItem key={g.value} value={g.value}>
+                  {g.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className={`mt-2 h-8 rounded-lg bg-gradient-to-r ${form.bgGradient}`} />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <Label>Dismissible</Label>
+            <p className="text-xs text-muted-foreground">Allow users to close the banner</p>
+          </div>
+          <Switch checked={form.dismissible} onCheckedChange={(v) => setForm({ ...form, dismissible: v })} />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <Button onClick={save} disabled={saving}>
+          {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          Save Changes
+        </Button>
+        <Button variant="outline" size="sm" onClick={resetDismissed}>
+          Reset Dismiss State
+        </Button>
+      </div>
+    </div>
   );
 }
