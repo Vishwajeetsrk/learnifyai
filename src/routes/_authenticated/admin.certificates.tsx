@@ -38,11 +38,12 @@ import { Badge } from "@/components/ui/badge";
 import { AppShell } from "@/components/AppShell";
 import { listTemplates, saveTemplate, deleteTemplate } from "@/lib/certificate-admin.functions";
 import { getCertificateAnalytics } from "@/lib/cert.functions";
+import { fieldsToElements, themeToDesign } from "@/lib/canva-cert.functions";
 import { useAuth } from "@/hooks/use-auth";
 import { DesignerWorkspace } from "@/components/certificate-designer/DesignerWorkspace";
 import { CertDesignerAdmin } from "@/components/certificate-designer/CertDesignerAdmin";
 import { CertificateDesigner } from "@/components/studio/CertificateDesigner";
-import { motion, AnimatePresence } from "framer-motion";
+// framer-motion removed — replaced with CSS animations
 
 export const Route = createFileRoute("/_authenticated/admin/certificates")({
   head: () => ({
@@ -620,12 +621,10 @@ function AdminCertificatesPage() {
   const renderTemplateCard = (t: any, idx: number) => {
     const theme = t.theme || { primary: "#0A1F44", secondary: "#D4AF37", background: "#FFFFFF" };
     return (
-      <motion.div
+      <div
         key={t.id || idx}
-        className="rounded-xl border bg-card overflow-hidden group hover:shadow-lg transition-all"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: idx * 0.03 }}
+        className="rounded-xl border bg-card overflow-hidden group hover:shadow-lg transition-all animate-in fade-in-0"
+        style={{ animationDelay: `${idx * 0.03}s` }}
       >
         <div
           className="aspect-[1.414] relative overflow-hidden cursor-pointer"
@@ -674,11 +673,19 @@ function AdminCertificatesPage() {
               variant="secondary"
               onClick={(e) => {
                 e.stopPropagation();
+                const hasElems = t.config_json?.elements?.length > 0;
+                let elements = t.config_json?.elements;
+                let design = t.config_json?.design;
+                if (!hasElems && t.fields_json && Object.keys(t.fields_json).length > 0) {
+                  const conv = fieldsToElements(t.fields_json);
+                  elements = conv.elements;
+                  design = themeToDesign(t.theme_colors);
+                }
                 setActive({
                   ...t,
                   config_json: {
-                    elements: t.config_json?.elements || [...DEFAULT_ELEMENTS],
-                    design: t.config_json?.design || applyTheme(THEMES[0]),
+                    elements: elements || [...DEFAULT_ELEMENTS],
+                    design: design || applyTheme(THEMES[0]),
                   },
                   bg_image_url: t.bg_image_url,
                 });
@@ -719,13 +726,20 @@ function AdminCertificatesPage() {
           </div>
           {t.style && <p className="text-[10px] text-muted-foreground mt-0.5">{t.style}</p>}
         </div>
-      </motion.div>
+      </div>
     );
   };
 
   return (
     <AppShell>
-      <div className="px-4 md:px-10 py-8 max-w-[1600px] mx-auto">
+      {active ? (
+        <DesignerWorkspace
+          initialTemplate={active as any}
+          onSave={handleSaveTemplate as any}
+          onClose={() => setActive(null)}
+        />
+      ) : (
+        <div className="px-4 md:px-10 py-8 max-w-[1600px] mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-display font-bold flex items-center gap-2">
@@ -775,14 +789,8 @@ function AdminCertificatesPage() {
         </div>
 
         {/* Tour Popup */}
-        <AnimatePresence>
-          {showTour && TAB_TOUR_INFO[showTour] && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-6 overflow-hidden"
-            >
+        {showTour && TAB_TOUR_INFO[showTour] && (
+          <div className="mb-6 overflow-hidden animate-in fade-in-0">
               <div className="rounded-xl border bg-gradient-to-br from-primary/5 via-background to-primary/10 p-6 relative">
                 <button
                   onClick={() => setShowTour(null)}
@@ -830,9 +838,8 @@ function AdminCertificatesPage() {
                   </div>
                 </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          </div>
+        )}
 
         {/* ===== ALL TEMPLATES ===== */}
         {activeSubTab === "all" && (
@@ -871,7 +878,6 @@ function AdminCertificatesPage() {
                 </div>
               )}
             </div>
-            {!active ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
                 {filteredTemplates.map((t: any, i: number) => renderTemplateCard(t, i))}
                 {filteredTemplates.length === 0 && !q.isLoading && (
@@ -880,20 +886,13 @@ function AdminCertificatesPage() {
                   </div>
                 )}
               </div>
-            ) : (
-              <DesignerWorkspace
-                initialTemplate={active as any}
-                onSave={handleSaveTemplate as any}
-                onClose={() => setActive(null)}
-              />
-            )}
           </>
         )}
 
         {/* ===== CERTIFICATE DESIGNER ===== */}
         {activeSubTab === "designer" && (
           <div className="space-y-6">
-            <CertificateDesigner />
+            <CertDesignerAdmin onEditTemplate={(tpl) => setActive(tpl as any)} />
           </div>
         )}
 
@@ -1376,11 +1375,9 @@ function AdminCertificatesPage() {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             onClick={() => setViewTemplate(null)}
           >
-            <motion.div
-              className="bg-background rounded-2xl border shadow-2xl max-w-2xl w-full p-6"
+            <div
+              className="bg-background rounded-2xl border shadow-2xl max-w-2xl w-full p-6 animate-in fade-in-0"
               onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
             >
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -1460,7 +1457,7 @@ function AdminCertificatesPage() {
                   <ExternalLink className="h-4 w-4 mr-2" /> Open in Canva
                 </Button>
               </div>
-            </motion.div>
+            </div>
           </div>
         )}
 
@@ -1470,11 +1467,9 @@ function AdminCertificatesPage() {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             onClick={() => setViewCanvaTemplate(null)}
           >
-            <motion.div
-              className="bg-background rounded-2xl border shadow-2xl max-w-2xl w-full p-6"
+            <div
+              className="bg-background rounded-2xl border shadow-2xl max-w-2xl w-full p-6 animate-in fade-in-0"
               onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">{viewCanvaTemplate.name}</h3>
@@ -1495,7 +1490,7 @@ function AdminCertificatesPage() {
                   {viewCanvaTemplate.type?.toUpperCase()}
                 </span>
               </div>
-            </motion.div>
+            </div>
           </div>
         )}
 
@@ -1505,11 +1500,9 @@ function AdminCertificatesPage() {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             onClick={() => setEditCanvaTemplate(null)}
           >
-            <motion.div
-              className="bg-background rounded-2xl border shadow-2xl max-w-md w-full p-6"
+            <div
+              className="bg-background rounded-2xl border shadow-2xl max-w-md w-full p-6 animate-in fade-in-0"
               onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">Edit Template</h3>
@@ -1553,7 +1546,7 @@ function AdminCertificatesPage() {
                   <Save className="h-4 w-4 mr-2" /> Save
                 </Button>
               </div>
-            </motion.div>
+            </div>
           </div>
         )}
 
@@ -1563,11 +1556,9 @@ function AdminCertificatesPage() {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
             onClick={() => setDeleteConfirm(null)}
           >
-            <motion.div
-              className="bg-background rounded-2xl border shadow-2xl max-w-md w-full p-6"
+            <div
+              className="bg-background rounded-2xl border shadow-2xl max-w-md w-full p-6 animate-in fade-in-0"
               onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
@@ -1589,10 +1580,11 @@ function AdminCertificatesPage() {
                   <Trash2 className="h-4 w-4 mr-2" /> Delete
                 </Button>
               </div>
-            </motion.div>
+            </div>
           </div>
         )}
       </div>
-    </AppShell>
+    )}
+  </AppShell>
   );
 }

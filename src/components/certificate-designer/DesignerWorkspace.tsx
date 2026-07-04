@@ -3,6 +3,8 @@ import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
 import { CertTemplate, CertElement, CertDesign, DEFAULT_DESIGN } from "./types";
+import { useServerFn } from "@tanstack/react-start";
+import { aiOptimizeDesign } from "@/lib/canva-cert.functions";
 import { DesignerToolbar } from "./DesignerToolbar";
 import { DesignerSidebar } from "./DesignerSidebar";
 import { DesignerCanvas } from "./DesignerCanvas";
@@ -15,6 +17,7 @@ type DesignerWorkspaceProps = {
 
 export function DesignerWorkspace({ initialTemplate, onSave, onClose }: DesignerWorkspaceProps) {
   const [templateName, setTemplateName] = useState(initialTemplate.name);
+  const doAiOptimize = useServerFn(aiOptimizeDesign);
   const [bgImageUrl, setBgImageUrl] = useState(initialTemplate.bg_image_url ?? "");
   const [elements, setElements] = useState<CertElement[]>(
     initialTemplate.config_json?.elements ?? [],
@@ -34,6 +37,8 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     setDesign(initialTemplate.config_json?.design ?? DEFAULT_DESIGN);
   }, [initialTemplate]);
 
+
+
   // Simple History Stack
   const [history, setHistory] = useState<{ elements: CertElement[]; design: CertDesign }[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -51,6 +56,33 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     },
     [history, historyIndex],
   );
+
+  // Keyboard shortcut listener for deleting selected element
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedId) return;
+
+      const targetTag = document.activeElement?.tagName;
+      if (
+        targetTag === "INPUT" ||
+        targetTag === "TEXTAREA" ||
+        document.activeElement?.getAttribute("contenteditable") === "true"
+      ) {
+        return;
+      }
+
+      if (e.key === "Delete" || e.key === "Backspace") {
+        const nextElements = elements.filter((el) => el.id !== selectedId);
+        setElements(nextElements);
+        setSelectedId(null);
+        saveHistory(nextElements, design);
+        toast.success("Element deleted");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedId, elements, design, saveHistory]);
 
   const onUpdateElement = useCallback((id: string, updates: Partial<CertElement>) => {
     setElements((prev) => {
@@ -193,26 +225,120 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     }
   };
 
-  const onAiOptimize = () => {
-    // Stub for AI Optimization
-    toast.success("✨ AI Optimization Applied!");
-    onUpdateDesign({
-      font_family: "Playfair Display",
-      border_style: "ornate",
-      text_color: "#1a1a1a",
-    });
-    setElements((prev) =>
-      prev.map((el) => {
-        if (el.type === "text") {
-          return { ...el, fontFamily: "Playfair Display", color: "#1a1a1a" };
-        }
-        return el;
-      }),
-    );
+  const onExportSVG = async () => {
+    try {
+      toast.info("Generating Vector SVG...");
+      setSelectedId(null);
+      await new Promise((r) => setTimeout(r, 100));
+
+      const el = document.getElementById("certificate-canvas-export");
+      if (!el) throw new Error("Canvas element not found");
+
+      const clone = el.cloneNode(true) as HTMLElement;
+      clone.style.transform = "scale(1)";
+      clone.style.margin = "0";
+
+      const svgContent = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="842" height="595" viewBox="0 0 842 595">
+          <foreignObject width="100%" height="100%">
+            <div xmlns="http://www.w3.org/1999/xhtml" style="width: 842px; height: 595px;">
+              ${clone.outerHTML}
+            </div>
+          </foreignObject>
+        </svg>
+      `;
+
+      const blob = new Blob([svgContent], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = `${templateName || "certificate"}.svg`;
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success("Downloaded Vector SVG!");
+    } catch (e: any) {
+      toast.error("SVG export failed: " + e.message);
+    }
+  };
+
+  const onExportGIF = async () => {
+    try {
+      toast.info("Generating High-Res Image...");
+      const canvas = await exportCanvas();
+      const link = document.createElement("a");
+      link.download = `${templateName || "certificate"}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      toast.success("Downloaded!");
+    } catch (e: any) {
+      toast.error("Export failed: " + e.message);
+    }
+  };
+
+  const onAiOptimize = async () => {
+    toast.info("AI analyzing your design...");
+    try {
+      const result = await doAiOptimize({ data: { elements, design } }) as any;
+      const updates = result.design_updates;
+      if (!updates) {
+        toast.error(result.reasoning || "AI could not generate suggestions");
+        return;
+      }
+      onUpdateDesign({
+        font_family: updates.font_family || design.font_family,
+        border_style: updates.border_style || design.border_style,
+        corner_style: updates.corner_style || design.corner_style,
+        background_pattern: updates.background_pattern || design.background_pattern,
+        accent_color: updates.accent_color || design.accent_color,
+        bg_color: updates.bg_color || design.bg_color,
+        text_color: updates.text_color || design.text_color,
+      });
+      toast.success("✨ AI Optimization applied!");
+    } catch (e: any) {
+      toast.error("AI Optimization failed: " + e.message);
+    }
   };
 
   // Setup canvas scaling to fit screen
   const workspaceRef = useRef<HTMLDivElement>(null);
+
+  const handleFileDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (!files?.length) return;
+    const file = files[0];
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please drop an image file (PNG, JPG, SVG)");
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    const targetEl = e.target as HTMLElement;
+    
+    // If dropped on the canvas background, set it as the background image
+    const isBg = targetEl === workspaceRef.current || targetEl.id === "certificate-canvas-export";
+    if (isBg) {
+      setBgImageUrl(url);
+      saveHistory(elements, { ...design });
+      toast.success("Background image set successfully!");
+    } else {
+      // Add as draggable image element
+      const newEl: CertElement = {
+        id: Date.now().toString(),
+        type: "image",
+        url: url,
+        x: 150,
+        y: 150,
+        width: 200,
+        height: 150,
+      };
+      const nextElements = [...elements, newEl];
+      setElements(nextElements);
+      setSelectedId(newEl.id);
+      saveHistory(nextElements, design);
+      toast.success("Image element added successfully!");
+    }
+  }, [elements, design, saveHistory]);
 
   return (
     <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden">
@@ -222,6 +348,8 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
         onSave={handleSave}
         onExportPNG={onExportPNG}
         onExportPDF={onExportPDF}
+        onExportSVG={onExportSVG}
+        onExportGIF={onExportGIF}
         onUndo={undo}
         onRedo={redo}
         onAddElement={onAddElement}
@@ -237,29 +365,40 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
           ref={workspaceRef}
           className="flex-1 bg-muted/30 overflow-auto relative flex items-center justify-center"
           onClick={() => setSelectedId(null)}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleFileDrop}
         >
-          <div className="absolute top-4 left-4 flex gap-2">
+          <div className="absolute top-4 left-4 flex items-center gap-1 bg-card/90 backdrop-blur border border-border p-1 rounded-lg shadow-sm z-20">
             <button
-              className="px-2 py-1 bg-white border rounded text-xs shadow-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                setScale((s) => Math.min(s + 0.1, 2));
-              }}
-            >
-              Zoom In
-            </button>
-            <button
-              className="px-2 py-1 bg-white border rounded text-xs shadow-sm"
+              className="px-2 py-1 hover:bg-accent rounded text-xs font-semibold"
               onClick={(e) => {
                 e.stopPropagation();
                 setScale((s) => Math.max(s - 0.1, 0.3));
               }}
+              title="Zoom Out"
             >
-              Zoom Out
+              −
             </button>
-            <span className="px-2 py-1 bg-white border rounded text-xs shadow-sm">
+            <button
+              className="px-2.5 py-1 text-xs font-mono font-medium hover:bg-accent rounded"
+              onClick={(e) => {
+                e.stopPropagation();
+                setScale(1);
+              }}
+              title="Reset Zoom (100%)"
+            >
               {Math.round(scale * 100)}%
-            </span>
+            </button>
+            <button
+              className="px-2 py-1 hover:bg-accent rounded text-xs font-semibold"
+              onClick={(e) => {
+                e.stopPropagation();
+                setScale((s) => Math.min(s + 0.1, 2));
+              }}
+              title="Zoom In"
+            >
+              +
+            </button>
           </div>
 
           <DesignerCanvas

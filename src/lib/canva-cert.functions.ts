@@ -261,3 +261,127 @@ export const updateAllTemplateFields = createServerFn({ method: "POST" })
 
     return results;
   });
+
+// Convert field-based template data to element-based data for DesignerWorkspace
+const CANVAS_W = 842;
+const CANVAS_H = 595;
+
+export function fieldsToElements(fieldsJson: Record<string, any>): { elements: Record<string, any>[]; design: Record<string, any> } {
+  let idx = 0;
+  const elements: Record<string, any>[] = [];
+
+  for (const [name, f] of Object.entries(fieldsJson)) {
+    idx++;
+    const id = String(idx);
+
+    if (f.type === "image" || name === "learnifyLogo" || name === "centerLogo") {
+      let elType = "image";
+      if (name === "learnifyLogo" || name === "centerLogo") elType = "org_logo";
+      if (name === "signatureImage") elType = "signature";
+      if (name === "qrCode") elType = "qr";
+      if (name.startsWith("badge")) elType = "badge";
+
+      elements.push({
+        id,
+        type: elType,
+        content: f.text || f.variable || "",
+        url: f.src || null,
+        x: Math.round((f.x / 100) * CANVAS_W),
+        y: Math.round((f.y / 100) * CANVAS_H),
+        width: f.width || 100,
+        height: f.height || 40,
+        align: f.align || "center",
+      });
+    } else {
+      elements.push({
+        id,
+        type: "text",
+        content: f.text || f.variable || name,
+        x: Math.round((f.x / 100) * CANVAS_W),
+        y: Math.round((f.y / 100) * CANVAS_H),
+        fontSize: f.fontSize || 16,
+        fontFamily: f.fontFamily?.split(",")[0]?.trim() || "Inter",
+        color: f.color || "#000000",
+        align: f.align || "center",
+        fontWeight: f.fontWeight || "normal",
+        fontStyle: f.fontStyle || "normal",
+        textDecoration: f.textDecoration || "none",
+      });
+    }
+  }
+
+  return { elements, design: {} };
+}
+
+export const aiOptimizeDesign = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => z.object({
+    elements: z.any(),
+    design: z.any(),
+  }).parse(d))
+  .handler(async ({ data }) => {
+    const { callUserAiChat } = await import("./user-ai");
+
+    const elementsSummary = (data.elements || []).map((el: any) =>
+      `${el.type} at (${el.x},${el.y}) font=${el.fontFamily || "inherit"} size=${el.fontSize || "auto"} color=${el.color || "inherit"}`
+    ).join("\n");
+
+    const prompt = `You are a professional certificate designer. Given the following certificate elements and design, suggest specific improvements to make it look more premium and professional.
+
+Current design:
+- Border style: ${data.design?.border_style || "none"}
+- Background pattern: ${data.design?.background_pattern || "none"}
+- Corner style: ${data.design?.corner_style || "none"}
+- Font family: ${data.design?.font_family || "Playfair Display"}
+- Accent color: ${data.design?.accent_color || "#c9a84c"}
+- Background color: ${data.design?.bg_color || "#ffffff"}
+- Text color: ${data.design?.text_color || "#000000"}
+
+Elements:
+${elementsSummary}
+
+Respond with a JSON object only (no markdown, no code fences):
+{
+  "design_updates": {
+    "border_style": "one of none, solid, double, dashed, ornate, luxury",
+    "corner_style": "one of none, diagonal, ribbon",
+    "background_pattern": "one of none, dots, grid, gradient, mesh, noise, glass",
+    "accent_color": "a hex color",
+    "bg_color": "a hex color",
+    "text_color": "a hex color",
+    "font_family": "a Google font name"
+  },
+  "reasoning": "brief explanation of changes"
+}`;
+
+    const response = await callUserAiChat({
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.7,
+    }, "fast");
+
+    try {
+      const cleaned = response.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      return JSON.parse(cleaned);
+    } catch {
+      return { design_updates: null, reasoning: "AI returned unparseable response" };
+    }
+  });
+
+export function themeToDesign(themeColors: Record<string, any>): Record<string, any> {
+  const bg = themeColors?.background || "#f5f0e8";
+  const accent = themeColors?.accent || "#c9a84c";
+  const text = themeColors?.text || "#0a1628";
+  const primary = themeColors?.primary || "#0a1628";
+  return {
+    accent_color: accent,
+    bg_color: bg,
+    text_color: text,
+    accent_color_2: primary,
+    font_family: "Playfair Display",
+    border_style: "double",
+    border_width: 8,
+    corner_style: "diagonal",
+    background_pattern: "none",
+    layout: "classic",
+  };
+}
