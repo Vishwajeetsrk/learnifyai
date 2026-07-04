@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Save, Palette } from "lucide-react";
+import { Loader2, Save, Palette, Image, Type, QrCode } from "lucide-react";
 
 const CATEGORIES = ["Professional", "Achievement", "Academic", "Technology", "Executive", "Certification"];
 const PRESET_THEMES = [
@@ -17,16 +17,47 @@ const PRESET_THEMES = [
   { name: "Rose", primary: "#881337", accent: "#c9a84c", background: "#fff1f2", text: "#881337" },
 ];
 
-const FIELD_LABELS: Record<string, string> = {
-  studentName: "Student Name",
-  courseName: "Course Name",
-  description: "Description",
-  date: "Date",
-  signatureName: "Signature Name",
-  signatureTitle: "Signature Title",
-  certId: "Certificate ID",
-  badgeText: "Badge Text",
-};
+const FIELD_GROUPS: { label: string; icon: React.ReactNode; fields: { key: string; label: string; type: string }[] }[] = [
+  { label: "Top", icon: <Type className="h-3 w-3" />, fields: [
+    { key: "learnifyLogo", label: "Logo", type: "image" },
+    { key: "certIdLabel", label: "Cert ID Label", type: "text" },
+    { key: "certId", label: "Cert ID", type: "text" },
+  ]},
+  { label: "Title", icon: <Type className="h-3 w-3" />, fields: [
+    { key: "title", label: "Title", type: "text" },
+    { key: "subtitle", label: "Subtitle", type: "text" },
+  ]},
+  { label: "Student", icon: <Type className="h-3 w-3" />, fields: [
+    { key: "certifyText", label: "Certify Text", type: "text" },
+    { key: "studentName", label: "Student Name", type: "text" },
+  ]},
+  { label: "Course", icon: <Type className="h-3 w-3" />, fields: [
+    { key: "completeText", label: "Complete Text", type: "text" },
+    { key: "courseName", label: "Course Name", type: "text" },
+    { key: "description", label: "Description", type: "text" },
+  ]},
+  { label: "Signature", icon: <Type className="h-3 w-3" />, fields: [
+    { key: "signatureImage", label: "Signature Image", type: "image" },
+    { key: "signatureName", label: "Signature Name", type: "text" },
+    { key: "signatureTitle", label: "Signature Title", type: "text" },
+    { key: "signatureRole", label: "Signature Role", type: "text" },
+  ]},
+  { label: "Bottom", icon: <Type className="h-3 w-3" />, fields: [
+    { key: "centerLogo", label: "Center Logo", type: "image" },
+    { key: "date", label: "Date", type: "text" },
+    { key: "dateLabel", label: "Date Label", type: "text" },
+  ]},
+  { label: "QR", icon: <QrCode className="h-3 w-3" />, fields: [
+    { key: "qrCode", label: "QR Code", type: "qr" },
+    { key: "verifyLabel", label: "Verify Label", type: "text" },
+  ]},
+  { label: "Badges", icon: <Type className="h-3 w-3" />, fields: [
+    { key: "badgeAi", label: "Badge: AI-Powered", type: "text" },
+    { key: "badgeIndustry", label: "Badge: Industry", type: "text" },
+    { key: "badgeCareer", label: "Badge: Career", type: "text" },
+    { key: "badgeAccess", label: "Badge: Access", type: "text" },
+  ]},
+];
 
 type CanvaTemplate = {
   id: string;
@@ -52,6 +83,7 @@ export function CertDesignerEditor({ template, onSave, onClose }: Props) {
   const [category, setCategory] = useState(template.category);
   const [fieldsJson, setFieldsJson] = useState<Record<string, any>>({ ...template.fields_json });
   const [themeColors, setThemeColors] = useState<Record<string, string>>({ ...template.theme_colors });
+  const [activeGroup, setActiveGroup] = useState("Top");
   const [activeTab, setActiveTab] = useState("fields");
   const [saving, setSaving] = useState(false);
 
@@ -83,6 +115,126 @@ export function CertDesignerEditor({ template, onSave, onClose }: Props) {
     } finally {
       setSaving(false);
     }
+  };
+
+  const renderFieldEditor = (key: string, label: string, fieldType: string) => {
+    const field = fieldsJson[key] || {};
+    const isText = fieldType === "text";
+    const isImage = fieldType === "image" || fieldType === "qr";
+
+    return (
+      <div key={key} className="border rounded-lg p-3 space-y-2 mb-2">
+        <div className="flex items-center gap-2">
+          {fieldType === "image" ? <Image className="h-3 w-3 text-muted-foreground" /> : fieldType === "qr" ? <QrCode className="h-3 w-3 text-muted-foreground" /> : <Type className="h-3 w-3 text-muted-foreground" />}
+          <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
+          {field.type && <span className="text-[10px] text-muted-foreground ml-auto">type: {field.type}</span>}
+        </div>
+
+        <div className="grid grid-cols-4 gap-2">
+          <div>
+            <Label className="text-[10px] text-muted-foreground">X%</Label>
+            <Input type="number" value={field.x ?? 50} onChange={(e) => updateField(key, "x", Number(e.target.value))} className="h-7 text-xs" min={0} max={100} />
+          </div>
+          <div>
+            <Label className="text-[10px] text-muted-foreground">Y%</Label>
+            <Input type="number" value={field.y ?? 50} onChange={(e) => updateField(key, "y", Number(e.target.value))} className="h-7 text-xs" min={0} max={100} />
+          </div>
+          {field.width != null !== undefined && (
+            <div>
+              <Label className="text-[10px] text-muted-foreground">W</Label>
+              <Input type="number" value={field.width ?? 100} onChange={(e) => updateField(key, "width", Number(e.target.value))} className="h-7 text-xs" min={10} max={500} />
+            </div>
+          )}
+          {field.height != null !== undefined && (
+            <div>
+              <Label className="text-[10px] text-muted-foreground">H</Label>
+              <Input type="number" value={field.height ?? 100} onChange={(e) => updateField(key, "height", Number(e.target.value))} className="h-7 text-xs" min={10} max={500} />
+            </div>
+          )}
+          {field.width == null && field.height == null && <div />}
+          {field.width == null && field.height == null && <div />}
+        </div>
+
+        {(isImage || fieldType === "qr") && (field.width == null || field.height == null) && (
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-[10px] text-muted-foreground">Width</Label>
+              <Input type="number" value={field.width ?? 100} onChange={(e) => updateField(key, "width", Number(e.target.value))} className="h-7 text-xs" min={10} max={500} />
+            </div>
+            <div>
+              <Label className="text-[10px] text-muted-foreground">Height</Label>
+              <Input type="number" value={field.height ?? 100} onChange={(e) => updateField(key, "height", Number(e.target.value))} className="h-7 text-xs" min={10} max={500} />
+            </div>
+          </div>
+        )}
+
+        {isText && (
+          <>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-[10px] text-muted-foreground">Font Size</Label>
+                <Input type="number" value={field.fontSize ?? 14} onChange={(e) => updateField(key, "fontSize", Number(e.target.value))} className="h-7 text-xs" min={6} max={72} />
+              </div>
+              <div className="flex items-center gap-2">
+                <div>
+                  <Label className="text-[10px] text-muted-foreground">Color</Label>
+                  <Input type="color" value={field.color ?? "#000000"} onChange={(e) => updateField(key, "color", e.target.value)} className="h-7 w-10 p-0.5" />
+                </div>
+                <div className="flex-1">
+                  <Label className="text-[10px] text-muted-foreground">Weight</Label>
+                  <Select value={field.fontWeight ?? "normal"} onValueChange={(v) => updateField(key, "fontWeight", v)}>
+                    <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="500">Medium</SelectItem>
+                      <SelectItem value="600">Semi Bold</SelectItem>
+                      <SelectItem value="bold">Bold</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-[10px] text-muted-foreground">Font</Label>
+                <Select value={field.fontFamily ?? "Georgia"} onValueChange={(v) => updateField(key, "fontFamily", v)}>
+                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Georgia">Georgia</SelectItem>
+                    <SelectItem value="Great Vibes, cursive">Great Vibes</SelectItem>
+                    <SelectItem value="Playfair Display, Georgia, serif">Playfair Display</SelectItem>
+                    <SelectItem value="Inter, sans-serif">Inter</SelectItem>
+                    <SelectItem value="monospace">Monospace</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-[10px] text-muted-foreground">Align</Label>
+                <Select value={field.align ?? "center"} onValueChange={(v) => updateField(key, "align", v)}>
+                  <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="left">Left</SelectItem>
+                    <SelectItem value="center">Center</SelectItem>
+                    <SelectItem value="right">Right</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label className="text-[10px] text-muted-foreground">Content</Label>
+              <Input value={field.text ?? field.variable ?? ""} onChange={(e) => updateField(key, field.variable ? "variable" : "text", e.target.value)} className="h-7 text-xs" placeholder={field.variable ? "{{variable}}" : "Static text"} />
+            </div>
+          </>
+        )}
+
+        {isImage && fieldType === "image" && (
+          <div>
+            <Label className="text-[10px] text-muted-foreground">Image URL</Label>
+            <Input value={field.src ?? ""} onChange={(e) => updateField(key, "src", e.target.value)} className="h-7 text-xs" placeholder="/path/to/image.png" />
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -117,72 +269,21 @@ export function CertDesignerEditor({ template, onSave, onClose }: Props) {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Field Positions (%)</Label>
-              <p className="text-xs text-muted-foreground">
-                Position fields as percentage of certificate width/height. 
-                X=50 means center, Y=0 means top.
-              </p>
-              {Object.entries(FIELD_LABELS).map(([key, label]) => {
-                const field = fieldsJson[key] || {};
-                return (
-                  <div key={key} className="grid grid-cols-6 gap-2 items-center text-xs">
-                    <span className="col-span-1 font-medium truncate" title={label}>{label}</span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground w-3">X</span>
-                      <Input
-                        type="number"
-                        value={field.x ?? 50}
-                        onChange={(e) => updateField(key, "x", Number(e.target.value))}
-                        className="h-7 text-xs"
-                        min={0}
-                        max={100}
-                      />
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground w-3">Y</span>
-                      <Input
-                        type="number"
-                        value={field.y ?? 50}
-                        onChange={(e) => updateField(key, "y", Number(e.target.value))}
-                        className="h-7 text-xs"
-                        min={0}
-                        max={100}
-                      />
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground w-6">Size</span>
-                      <Input
-                        type="number"
-                        value={field.fontSize ?? 14}
-                        onChange={(e) => updateField(key, "fontSize", Number(e.target.value))}
-                        className="h-7 text-xs"
-                        min={6}
-                        max={72}
-                      />
-                    </div>
-                    <Input
-                      type="color"
-                      value={field.color ?? "#000000"}
-                      onChange={(e) => updateField(key, "color", e.target.value)}
-                      className="h-7 w-10 p-0.5"
-                    />
-                    <Select
-                      value={field.fontFamily ?? "Georgia"}
-                      onValueChange={(v) => updateField(key, "fontFamily", v)}
-                    >
-                      <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Georgia">Georgia</SelectItem>
-                        <SelectItem value="Great Vibes">Great Vibes</SelectItem>
-                        <SelectItem value="Playfair Display">Playfair Display</SelectItem>
-                        <SelectItem value="Inter">Inter</SelectItem>
-                        <SelectItem value="monospace">Monospace</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                );
-              })}
+            <div className="flex gap-2 border-b pb-2 overflow-x-auto">
+              {FIELD_GROUPS.map((g) => (
+                <button
+                  key={g.label}
+                  onClick={() => setActiveGroup(g.label)}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${activeGroup === g.label ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"}`}
+                >
+                  {g.icon}
+                  {g.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="space-y-2">
+              {FIELD_GROUPS.find((g) => g.label === activeGroup)?.fields.map((f) => renderFieldEditor(f.key, f.label, f.type))}
             </div>
           </TabsContent>
 

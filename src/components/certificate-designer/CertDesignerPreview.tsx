@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Download, Printer, X } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Download, Printer, X, Image, Type, QrCode } from "lucide-react";
 
 type CanvaTemplate = {
   id: string;
@@ -15,37 +16,68 @@ type CanvaTemplate = {
   theme_colors: Record<string, string>;
 };
 
-type PreviewData = {
-  studentName: string;
-  courseName: string;
-  description: string;
-  date: string;
-  signatureName: string;
-  signatureTitle: string;
-  certId: string;
-  badgeText: string;
-};
+type PreviewData = Record<string, string>;
 
 type Props = {
   template: CanvaTemplate;
   onClose: () => void;
 };
 
+const ALL_FIELDS = [
+  { key: "learnifyLogo", label: "Logo URL" },
+  { key: "certIdLabel", label: "Cert ID Label" },
+  { key: "certId", label: "Cert ID" },
+  { key: "title", label: "Title" },
+  { key: "subtitle", label: "Subtitle" },
+  { key: "certifyText", label: "Certify Text" },
+  { key: "studentName", label: "Student Name" },
+  { key: "completeText", label: "Complete Text" },
+  { key: "courseName", label: "Course Name" },
+  { key: "description", label: "Description" },
+  { key: "signatureImage", label: "Signature Image URL" },
+  { key: "signatureName", label: "Signature Name" },
+  { key: "signatureTitle", label: "Signature Title" },
+  { key: "signatureRole", label: "Signature Role" },
+  { key: "centerLogo", label: "Center Logo URL" },
+  { key: "date", label: "Date" },
+  { key: "dateLabel", label: "Date Label" },
+  { key: "verifyLabel", label: "Verify Label" },
+  { key: "badgeAi", label: "Badge: AI" },
+  { key: "badgeIndustry", label: "Badge: Industry" },
+  { key: "badgeCareer", label: "Badge: Career" },
+  { key: "badgeAccess", label: "Badge: Access" },
+];
+
 const DEFAULT_PREVIEW: PreviewData = {
   studentName: "Vishwajeet",
   courseName: "AI Fundamentals for Beginners",
-  description: "covering the basics of Artificial Intelligence, Machine Learning, Neural Networks and Real-world Applications.",
+  description: "and has demonstrated the knowledge and skills\nrequired to complete the course.",
   date: "May 25, 2026",
   signatureName: "Vishwajeet S.",
-  signatureTitle: "Founder & CEO, Learnify AI",
+  signatureTitle: "Founder & CEO",
+  signatureRole: "Founder & CEO, Learnify AI",
   certId: "LAI-2026-05-00125",
-  badgeText: "AI-Powered Learning  |  Industry Relevant  |  Career Focused  |  Lifetime Access",
+  certIdLabel: "Certificate ID",
+  title: "CERTIFICATE",
+  subtitle: "OF COMPLETION",
+  certifyText: "This is to certify that",
+  completeText: "has successfully completed the course",
+  dateLabel: "Date of Completion",
+  verifyLabel: "Verify Certificate",
+  badgeAi: "AI-Powered Learning",
+  badgeIndustry: "Industry Relevant",
+  badgeCareer: "Career Focused",
+  badgeAccess: "Lifetime Access",
+  learnifyLogo: "/Logo Learnify AI.png",
+  signatureImage: "",
+  centerLogo: "/Logo Learnify AI.png",
 };
 
 export function CertDesignerPreview({ template, onClose }: Props) {
   const [data, setData] = useState<PreviewData>(DEFAULT_PREVIEW);
   const [zoom, setZoom] = useState(0.6);
   const [exporting, setExporting] = useState(false);
+  const [activeFieldTab, setActiveFieldTab] = useState("all");
   const certRef = useRef<HTMLDivElement>(null);
 
   const fields = template.fields_json;
@@ -71,7 +103,7 @@ export function CertDesignerPreview({ template, onClose }: Props) {
       const pdfW = pdf.internal.pageSize.getWidth();
       const pdfH = pdf.internal.pageSize.getHeight();
       pdf.addImage(imgData, "PNG", 0, 0, pdfW, pdfH);
-      pdf.save(`certificate-${data.studentName.replace(/\s+/g, "_")}-${Date.now()}.pdf`);
+      pdf.save(`certificate-${(data.studentName || "certificate").replace(/\s+/g, "_")}-${Date.now()}.pdf`);
     } catch (err) {
       console.error("PDF export failed:", err);
     } finally {
@@ -94,7 +126,7 @@ export function CertDesignerPreview({ template, onClose }: Props) {
       });
 
       const link = document.createElement("a");
-      link.download = `certificate-${data.studentName.replace(/\s+/g, "_")}-${Date.now()}.png`;
+      link.download = `certificate-${(data.studentName || "certificate").replace(/\s+/g, "_")}-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch (err) {
@@ -104,9 +136,73 @@ export function CertDesignerPreview({ template, onClose }: Props) {
     }
   }, [data.studentName]);
 
-  const renderField = (key: string, value: string) => {
+  const getFieldContent = (key: string): string => {
+    const field = fields[key];
+    if (!field) return "";
+    if (field.type === "image" || field.type === "qr") return "";
+    const userValue = data[key];
+    if (userValue) return userValue;
+    if (field.variable) return data[key] || key;
+    return field.text || "";
+  };
+
+  const renderField = (key: string) => {
     const field = fields[key];
     if (!field) return null;
+
+    const type = field.type || "text";
+
+    if (type === "image") {
+      const src = data[key] || field.src;
+      if (!src) return null;
+      return (
+        <div
+          key={key}
+          style={{
+            position: "absolute",
+            left: `${field.x}%`,
+            top: `${field.y}%`,
+            transform: "translate(-50%, -50%)",
+            width: `${field.width || 100}px`,
+            height: `${field.height || 50}px`,
+            textAlign: field.align || "center",
+          }}
+        >
+          <img src={src} alt={key} style={{ width: "100%", height: "100%", objectFit: "contain" }} crossOrigin="anonymous" />
+        </div>
+      );
+    }
+
+    if (type === "qr") {
+      return (
+        <div
+          key={key}
+          style={{
+            position: "absolute",
+            left: `${field.x}%`,
+            top: `${field.y}%`,
+            transform: "translate(-50%, -50%)",
+            width: `${field.width || 80}px`,
+            height: `${field.height || 80}px`,
+            background: "#ffffff",
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+            padding: "4px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "8px",
+            color: "#999",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: "9px", color: "#0a6e8a", fontWeight: 600 }}>
+            QR Code
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div
         key={key}
@@ -115,21 +211,29 @@ export function CertDesignerPreview({ template, onClose }: Props) {
           left: `${field.x}%`,
           top: `${field.y}%`,
           transform: "translate(-50%, -50%)",
-          fontSize: `${field.fontSize}px`,
-          fontFamily: field.fontFamily || "Georgia",
+          fontSize: `${field.fontSize || 14}px`,
+          fontFamily: field.fontFamily || "Georgia, serif",
           color: field.color || "#000",
           fontWeight: field.fontWeight || "normal",
-          fontStyle: field.fontStyle || "normal",
-          textAlign: "center",
+          textAlign: field.align || "center",
+          letterSpacing: field.letterSpacing || "normal",
           whiteSpace: "pre-line",
           maxWidth: "80%",
           lineHeight: 1.2,
         }}
       >
-        {value}
+        {getFieldContent(key)}
       </div>
     );
   };
+
+  const fieldGroups = [
+    { label: "All", fields: ALL_FIELDS },
+    { label: "Text", fields: ALL_FIELDS.filter((f) => f.label.includes("URL") ? false : true).filter((f) => !f.key.includes("Image") && !f.key.includes("Logo")) },
+    { label: "Images", fields: ALL_FIELDS.filter((f) => f.key.includes("Image") || f.key.includes("Logo")) },
+  ];
+
+  const filteredFields = activeFieldTab === "all" ? ALL_FIELDS : activeFieldTab === "images" ? ALL_FIELDS.filter((f) => f.key.includes("Image") || f.key.includes("Logo")) : ALL_FIELDS.filter((f) => !f.key.includes("Image") && !f.key.includes("Logo"));
 
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
@@ -164,38 +268,36 @@ export function CertDesignerPreview({ template, onClose }: Props) {
                 }}
                 crossOrigin="anonymous"
               />
-              {renderField("studentName", data.studentName)}
-              {renderField("courseName", data.courseName)}
-              {renderField("description", data.description)}
-              {renderField("date", data.date)}
-              {renderField("signatureName", data.signatureName)}
-              {renderField("signatureTitle", data.signatureTitle)}
-              {renderField("certId", data.certId)}
-              {renderField("badgeText", data.badgeText)}
+              {Object.keys(fields).map(renderField)}
             </div>
           </div>
 
-          <div className="w-72 space-y-3 shrink-0 pr-4">
-            <Label className="text-sm font-medium">Preview Data</Label>
-            {Object.entries({
-              studentName: "Student Name",
-              courseName: "Course Name",
-              description: "Description",
-              date: "Date",
-              signatureName: "Signature Name",
-              signatureTitle: "Signature Title",
-              certId: "Certificate ID",
-              badgeText: "Badge Text",
-            }).map(([key, label]) => (
-              <div key={key}>
-                <Label className="text-xs text-muted-foreground">{label}</Label>
-                <Input
-                  value={(data as any)[key]}
-                  onChange={(e) => setData((prev) => ({ ...prev, [key]: e.target.value }))}
-                  className="h-8 text-xs"
-                />
-              </div>
-            ))}
+          <div className="w-72 space-y-3 shrink-0 pr-4 overflow-y-auto max-h-[60vh]">
+            <div className="flex gap-1 mb-2">
+              <button onClick={() => setActiveFieldTab("all")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "all" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>All</button>
+              <button onClick={() => setActiveFieldTab("text")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "text" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>Text</button>
+              <button onClick={() => setActiveFieldTab("images")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "images" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>Images</button>
+            </div>
+
+            {filteredFields.map(({ key, label }) => {
+              const field = fields[key];
+              if (!field) return null;
+              const isImageOrQr = field.type === "image" || field.type === "qr";
+              return (
+                <div key={key}>
+                  <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                    {field.type === "image" || field.type === "qr" ? <Image className="h-3 w-3" /> : <Type className="h-3 w-3" />}
+                    {label}
+                  </Label>
+                  <Input
+                    value={data[key] ?? ""}
+                    onChange={(e) => setData((prev) => ({ ...prev, [key]: e.target.value }))}
+                    className="h-7 text-xs"
+                    placeholder={field.variable || field.text || "Value..."}
+                  />
+                </div>
+              );
+            })}
 
             <div>
               <Label className="text-xs text-muted-foreground">Zoom</Label>

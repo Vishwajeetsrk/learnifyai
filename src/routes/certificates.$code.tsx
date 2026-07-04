@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import QRCode from "qrcode";
 import { Loader2, Award, Printer, Share2, Download, Mail } from "lucide-react";
 import { format } from "date-fns";

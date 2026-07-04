@@ -507,6 +507,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Keyboard Shortcuts**: Added keydown listeners for Delete/Backspace to remove selected elements, and Escape to deselect.
 - ✅ **Desktop Drag & Drop**: Dragging image files from desktop onto the canvas either sets the background image (if dropped on background) or inserts a new draggable image element.
 
+### v4.4.0 (July 2026) - Certificate Template Overhaul & Career Studio Upgrade
+
+- ✅ **Certificate Templates Expanded (8→22 fields)**: Redesigned all 30 certificate templates with accurate field positions. Added 14 new editable fields: learnifyLogo, certIdLabel, title, subtitle, certifyText, completeText, signatureImage, signatureRole, centerLogo, dateLabel, qrCode, verifyLabel, badgeAi/Industry/Career/Access. Editor now supports grouped field tabs (Top/Title/Student/Course/Signature/Bottom/QR/Badges) with type-specific controls for text, image, and QR fields.
+- ✅ **Per-Template Position Adjustments**: Each color scheme group (Teal, Navy, Royal Blue, Orange, Purple, Burgundy, Pink, Emerald) has unique field offsets to match its decorative layout. Migration function (`updateAllTemplateFields`) upgrades all existing DB templates to 22 fields.
+- ✅ **Career Studio Visual Upgrade**: Redesigned with DreamSync-inspired visual language — gradient header with Learnify AI logo, soft rounded cards, score rings, color-coded stat cards, progress bars with gradient fills, pipeline kanban, and 11-tab dock navigation.
+- ✅ **New Tabs Added**: "Career Finder (Ikigai)" — 4-step wizard for career discovery with passion/skills/market/income inputs and AI-generated career matches. "Guides & Docs" — skill roadmaps (Generative AI, Full-Stack, DevOps, etc.) + government document guides (PAN, Aadhaar, Passport) with portal links.
+- ✅ **All 30 Template Images Included**: Background images shipped to `public/templates/` for immediate use with the new field system.
+- ✅ **TypeScript Clean**: Zero compilation errors across all certificate designer and Career Studio files.
+
 ### v4.3.0 (July 2026) - Pricing Redesign, Framer-Motion Removal & Certificate Email Enhancement
 
 - ✅ **Framer-Motion Fully Removed**: Stripped all `motion.*`, `AnimatePresence`, and `useInView` from `pricing.tsx`. Replaced 30+ motion instances with static divs + CSS transitions for faster loading and zero JS animation overhead.

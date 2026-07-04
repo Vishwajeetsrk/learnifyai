@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listCanvaTemplates, saveCanvaTemplate, deleteCanvaTemplate, seedAllTemplates } from "@/lib/canva-cert.functions";
+import { listCanvaTemplates, saveCanvaTemplate, deleteCanvaTemplate, seedAllTemplates, updateAllTemplateFields, DEFAULT_FIELDS } from "@/lib/canva-cert.functions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -9,11 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus, Upload, Trash2, Pencil, Eye, Download, Palette, GripVertical } from "lucide-react";
+import { Loader2, Plus, Upload, Trash2, Pencil, Eye, Download, Palette, GripVertical, Image as ImageIcon, FileImage, Search, RefreshCw } from "lucide-react";
 import { CertDesignerPreview } from "./CertDesignerPreview";
 import { CertDesignerEditor } from "./CertDesignerEditor";
 
-const CATEGORIES = ["Professional", "Achievement", "Academic", "Technology", "Executive", "Certification", "Executive"];
+const CATEGORIES = ["Professional", "Achievement", "Academic", "Technology", "Executive", "Certification"];
 const PRESET_THEMES = [
   { name: "Navy & Gold", primary: "#0a1628", accent: "#c9a84c", background: "#f5f0e8", text: "#1a2744" },
   { name: "Purple & Gold", primary: "#2d1b69", accent: "#c9a84c", background: "#f5f0e8", text: "#2d1b69" },
@@ -36,6 +36,15 @@ type CanvaTemplate = {
   created_by: string | null;
 };
 
+const CATEGORY_COLORS: Record<string, string> = {
+  Professional: "bg-blue-100 text-blue-700",
+  Achievement: "bg-amber-100 text-amber-700",
+  Academic: "bg-purple-100 text-purple-700",
+  Technology: "bg-emerald-100 text-emerald-700",
+  Executive: "bg-rose-100 text-rose-700",
+  Certification: "bg-cyan-100 text-cyan-700",
+};
+
 export function CertDesignerAdmin({ onEditTemplate }: { onEditTemplate?: (template: CanvaTemplate) => void } = {}) {
   const qc = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
@@ -51,6 +60,8 @@ export function CertDesignerAdmin({ onEditTemplate }: { onEditTemplate?: (templa
   const doDelete = useServerFn(deleteCanvaTemplate);
   const doSeed = useServerFn(seedAllTemplates);
   const [seeding, setSeeding] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const doUpdate = useServerFn(updateAllTemplateFields);
 
   const { data: templates = [], isLoading } = useQuery({
     queryKey: ["canva-cert-templates"],
@@ -65,6 +76,14 @@ export function CertDesignerAdmin({ onEditTemplate }: { onEditTemplate?: (templa
     const matchCat = filterCategory === "all" || t.category === filterCategory;
     return matchSearch && matchCat;
   });
+
+  const categoryCounts = templates.reduce(
+    (acc, t) => {
+      acc[t.category] = (acc[t.category] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const handleUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -83,16 +102,7 @@ export function CertDesignerAdmin({ onEditTemplate }: { onEditTemplate?: (templa
       category: "Professional",
       bg_image_url: url,
       thumbnail_url: url,
-      fields_json: {
-        studentName: { x: 50, y: 42, fontSize: 48, fontFamily: "Great Vibes", color: "#1a2744" },
-        courseName: { x: 50, y: 55, fontSize: 28, fontFamily: "Georgia", color: "#0a6e8a", fontWeight: "bold" },
-        description: { x: 50, y: 62, fontSize: 14, fontFamily: "Georgia", color: "#555" },
-        date: { x: 72, y: 78, fontSize: 14, fontFamily: "Georgia", color: "#333" },
-        signatureName: { x: 20, y: 78, fontSize: 24, fontFamily: "Great Vibes", color: "#1a2744" },
-        signatureTitle: { x: 20, y: 82, fontSize: 11, fontFamily: "Georgia", color: "#666" },
-        certId: { x: 85, y: 8, fontSize: 10, fontFamily: "monospace", color: "#999" },
-        badgeText: { x: 50, y: 90, fontSize: 9, fontFamily: "Georgia", color: "#888" },
-      },
+      fields_json: JSON.parse(JSON.stringify(DEFAULT_FIELDS)),
       theme_colors: PRESET_THEMES[0],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -149,96 +159,173 @@ export function CertDesignerAdmin({ onEditTemplate }: { onEditTemplate?: (templa
     setSeeding(false);
   };
 
+  const handleUpdateFields = async () => {
+    setUpdating(true);
+    try {
+      const result = await doUpdate() as any;
+      toast.success(`Updated ${result?.updated || 0} templates, ${result?.skipped || 0} skipped`);
+      if (result?.errors?.length) toast.warning(`${result.errors.length} errors`);
+      qc.invalidateQueries({ queryKey: ["canva-cert-templates"] });
+    } catch (err: any) {
+      toast.error(err?.message || "Update failed");
+    }
+    setUpdating(false);
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
 
+      {/* Stats Bar */}
+      <div className="flex items-center gap-3 flex-wrap">
+        {Object.entries(categoryCounts).map(([cat, count]) => (
+          <button
+            key={cat}
+            onClick={() => setFilterCategory(filterCategory === cat ? "all" : cat)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
+              filterCategory === cat
+                ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                : "bg-card text-muted-foreground border-border hover:border-primary/40"
+            }`}
+          >
+            {cat}
+            <span className={`ml-0.5 text-[10px] px-1.5 py-0.5 rounded-full ${
+              filterCategory === cat ? "bg-white/20" : "bg-muted"
+            }`}>{count}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Search & Actions */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search templates..."
+            placeholder="Search templates by name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-64"
+            className="pl-9 h-10"
           />
-          <Select value={filterCategory} onValueChange={setFilterCategory}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Categories" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
-              {CATEGORIES.map((c) => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleSeedAll} disabled={seeding}>
-            {seeding ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Palette className="h-4 w-4 mr-2" />}
+          <Button variant="outline" onClick={handleUpdateFields} disabled={updating} size="sm">
+            {updating ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-1.5" />}
+            Update Fields
+          </Button>
+          <Button variant="outline" onClick={handleSeedAll} disabled={seeding} size="sm">
+            {seeding ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Palette className="h-4 w-4 mr-1.5" />}
             Seed 30 Templates
           </Button>
-          <Button onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4 mr-2" /> Upload Template
+          <Button onClick={() => fileInputRef.current?.click()} size="sm">
+            <Upload className="h-4 w-4 mr-1.5" /> Upload Template
           </Button>
         </div>
       </div>
 
+      {/* Template Grid */}
       {isLoading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading templates...</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-20">
-          <p className="text-muted-foreground mb-4">No templates yet. Upload your first Canva design!</p>
-          <Button onClick={() => fileInputRef.current?.click()}>
-            <Upload className="h-4 w-4 mr-2" /> Upload Template
-          </Button>
+        <div className="text-center py-24 border border-dashed border-border rounded-2xl bg-card/30">
+          <FileImage className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+          <p className="font-medium text-foreground mb-1">
+            {search || filterCategory !== "all" ? "No matching templates" : "No templates yet"}
+          </p>
+          <p className="text-sm text-muted-foreground mb-4">
+            {search || filterCategory !== "all"
+              ? "Try adjusting your search or filters"
+              : "Upload your first Canva design or seed the built-in collection"}
+          </p>
+          {!search && filterCategory === "all" && (
+            <div className="flex items-center justify-center gap-2">
+              <Button onClick={handleSeedAll} variant="outline" size="sm" disabled={seeding}>
+                {seeding ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Palette className="h-4 w-4 mr-1.5" />}
+                Seed 30 Templates
+              </Button>
+              <Button onClick={() => fileInputRef.current?.click()} size="sm">
+                <Upload className="h-4 w-4 mr-1.5" /> Upload
+              </Button>
+            </div>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filtered.map((tpl) => (
-            <Card key={tpl.id} className="group overflow-hidden hover:shadow-md transition-shadow">
+            <Card key={tpl.id} className="group overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-200">
+              {/* Template Preview */}
               <div className="aspect-[1.414/1] relative overflow-hidden bg-muted">
                 <img
                   src={tpl.thumbnail_url || tpl.bg_image_url}
                   alt={tpl.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                  loading="lazy"
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 gap-2">
-                  <Button size="sm" variant="secondary" onClick={() => { setSelected(tpl); setPreviewOpen(true); }}>
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="secondary" onClick={() => {
-                    if (onEditTemplate) {
-                      onEditTemplate(tpl);
-                    } else {
-                      setSelected(tpl); setEditOpen(true);
-                    }
-                  }}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button size="sm" variant="destructive" onClick={() => setDeleteId(tpl.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                {/* Hover overlay with actions */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-200 flex flex-col items-center justify-end p-3 gap-2">
+                  <div className="flex items-center gap-1.5 w-full">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="flex-1 h-8 text-xs bg-white/90 hover:bg-white"
+                      onClick={(e) => { e.stopPropagation(); setSelected(tpl); setPreviewOpen(true); }}
+                    >
+                      <Eye className="h-3.5 w-3.5 mr-1" /> Preview
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="flex-1 h-8 text-xs bg-white/90 hover:bg-white"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (onEditTemplate) onEditTemplate(tpl);
+                        else { setSelected(tpl); setEditOpen(true); }
+                      }}
+                    >
+                      <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="h-8 w-8 p-0"
+                      onClick={(e) => { e.stopPropagation(); setDeleteId(tpl.id); }}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
                 </div>
+                {/* Category badge */}
                 <div className="absolute top-2 right-2">
-                  <span className="bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full">
+                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full backdrop-blur-sm ${
+                    CATEGORY_COLORS[tpl.category] || "bg-gray-100 text-gray-700"
+                  }`}>
                     {tpl.category}
                   </span>
                 </div>
               </div>
-              <CardContent className="p-3">
-                <h3 className="font-medium text-sm truncate">{tpl.name}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {new Date(tpl.updated_at).toLocaleDateString()}
-                </p>
+
+              {/* Card Footer */}
+              <CardContent className="p-3 space-y-1">
+                <h3 className="font-medium text-sm leading-snug text-foreground line-clamp-1">{tpl.name}</h3>
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] text-muted-foreground">
+                    {new Date(tpl.updated_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                  </p>
+                  {tpl.fields_json && (
+                    <span className="text-[10px] text-muted-foreground">
+                      {Object.keys(tpl.fields_json).length} fields
+                    </span>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
       )}
 
+      {/* Dialogs */}
       {editOpen && selected && (
         <CertDesignerEditor
           template={selected}
@@ -259,7 +346,9 @@ export function CertDesignerAdmin({ onEditTemplate }: { onEditTemplate?: (templa
           <DialogHeader>
             <DialogTitle>Delete Template?</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">This action cannot be undone.</p>
+          <p className="text-sm text-muted-foreground">
+            This template will be permanently removed. This action cannot be undone.
+          </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
             <Button variant="destructive" onClick={handleDelete}>Delete</Button>
