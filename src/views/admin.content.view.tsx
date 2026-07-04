@@ -3542,7 +3542,7 @@ function SectionsManager() {
           subtitle: "Limited Time",
           cta: "Claim Now",
           ctaLink: "/signup",
-          timerDays: 7,
+          timerEndDate: "",
           bgGradient: "from-blue-600 via-indigo-600 to-purple-700",
           dismissible: true,
         },
