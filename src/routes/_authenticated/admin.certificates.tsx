@@ -48,10 +48,10 @@ import { CertificateDesigner } from "@/components/studio/CertificateDesigner";
 export const Route = createFileRoute("/_authenticated/admin/certificates")({
   head: () => ({
     meta: [
-      { title: "Certificate Management — Learnify AI" },
+      { title: "Learnify Credential OS 3.0 — Admin" },
       {
         name: "description",
-        content: "Manage certificate templates, bulk issue, analytics, and categories.",
+        content: "Enterprise Credential Operating System: Templates, Designer, Wallet, Verification, and Analytics.",
       },
     ],
   }),
