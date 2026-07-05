@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, Printer, X, Image, Type, QrCode } from "lucide-react";
+import { Download, Printer, X, Image, Type, QrCode, Linkedin, Award, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
+import { generateOpenBadgeV3 } from "@/lib/open-badges.functions";
+import { LinkedInShareModal } from "./LinkedInShareModal";
 
 type CanvaTemplate = {
   id: string;
@@ -78,10 +81,31 @@ export function CertDesignerPreview({ template, onClose }: Props) {
   const [zoom, setZoom] = useState(0.6);
   const [exporting, setExporting] = useState(false);
   const [activeFieldTab, setActiveFieldTab] = useState("all");
+  const [showLinkedInModal, setShowLinkedInModal] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
 
   const fields = template.fields_json;
   const theme = template.theme_colors;
+  const verificationUrl = typeof window !== "undefined" ? `${window.location.origin}/verified-certificates?id=${data.certId}` : `https://learnifyaitool.vercel.app/verified-certificates?id=${data.certId}`;
+
+  const handleExportOpenBadge = () => {
+    const badge = generateOpenBadgeV3({
+      certificateId: data.certId,
+      studentName: data.studentName,
+      courseName: data.courseName,
+      description: data.description,
+      issueDate: data.date,
+      skills: ["AI", "React", "TypeScript", "Prompt Engineering"],
+      verificationUrl,
+    });
+
+    const blob = new Blob([JSON.stringify(badge, null, 2)], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `open-badge-v3-${data.certId}.json`;
+    link.click();
+    toast.success("Open Badges 3.0 W3C Verifiable Credential exported!");
+  };
 
   const handleExportPdf = useCallback(async () => {
     setExporting(true);
@@ -227,106 +251,119 @@ export function CertDesignerPreview({ template, onClose }: Props) {
     );
   };
 
-  const fieldGroups = [
-    { label: "All", fields: ALL_FIELDS },
-    { label: "Text", fields: ALL_FIELDS.filter((f) => f.label.includes("URL") ? false : true).filter((f) => !f.key.includes("Image") && !f.key.includes("Logo")) },
-    { label: "Images", fields: ALL_FIELDS.filter((f) => f.key.includes("Image") || f.key.includes("Logo")) },
-  ];
-
   const filteredFields = activeFieldTab === "all" ? ALL_FIELDS : activeFieldTab === "images" ? ALL_FIELDS.filter((f) => f.key.includes("Image") || f.key.includes("Logo")) : ALL_FIELDS.filter((f) => !f.key.includes("Image") && !f.key.includes("Logo"));
 
   return (
-    <Dialog open onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden p-0">
-        <DialogHeader className="px-6 pt-6 pb-4">
-          <DialogTitle>Preview: {template.name}</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open onOpenChange={(v) => !v && onClose()}>
+        <DialogContent className="max-w-5xl max-h-[95vh] overflow-hidden p-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              Certificate Preview: {template.name}
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="flex gap-4 px-6">
-          <div className="flex-1 overflow-auto max-h-[60vh] bg-gray-100 rounded-lg p-4">
-            <div
-              ref={certRef}
-              style={{
-                width: "1000px",
-                height: "707px",
-                position: "relative",
-                overflow: "hidden",
-                background: theme?.background || "#f5f0e8",
-                transform: `scale(${zoom})`,
-                transformOrigin: "top left",
-              }}
-            >
-              <img
-                src={template.bg_image_url}
-                alt="Certificate Background"
+          <div className="flex gap-4 px-6">
+            <div className="flex-1 overflow-auto max-h-[60vh] bg-gray-100 rounded-lg p-4">
+              <div
+                ref={certRef}
                 style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
+                  width: "1000px",
+                  height: "707px",
+                  position: "relative",
+                  overflow: "hidden",
+                  background: theme?.background || "#f5f0e8",
+                  transform: `scale(${zoom})`,
+                  transformOrigin: "top left",
                 }}
-                crossOrigin="anonymous"
-              />
-              {Object.keys(fields).map(renderField)}
+              >
+                <img
+                  src={template.bg_image_url}
+                  alt="Certificate Background"
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                  crossOrigin="anonymous"
+                />
+                {Object.keys(fields).map(renderField)}
+              </div>
+            </div>
+
+            <div className="w-72 space-y-3 shrink-0 pr-4 overflow-y-auto max-h-[60vh]">
+              <div className="flex gap-1 mb-2">
+                <button onClick={() => setActiveFieldTab("all")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "all" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>All</button>
+                <button onClick={() => setActiveFieldTab("text")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "text" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>Text</button>
+                <button onClick={() => setActiveFieldTab("images")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "images" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>Images</button>
+              </div>
+
+              {filteredFields.map(({ key, label }) => {
+                const field = fields[key];
+                if (!field) return null;
+                return (
+                  <div key={key}>
+                    <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      {field.type === "image" || field.type === "qr" ? <Image className="h-3 w-3" /> : <Type className="h-3 w-3" />}
+                      {label}
+                    </Label>
+                    <Input
+                      value={data[key] ?? ""}
+                      onChange={(e) => setData((prev) => ({ ...prev, [key]: e.target.value }))}
+                      className="h-7 text-xs"
+                      placeholder={field.variable || field.text || "Value..."}
+                    />
+                  </div>
+                );
+              })}
+
+              <div>
+                <Label className="text-xs text-muted-foreground">Zoom</Label>
+                <input
+                  type="range"
+                  min={0.2}
+                  max={1.5}
+                  step={0.1}
+                  value={zoom}
+                  onChange={(e) => setZoom(Number(e.target.value))}
+                  className="w-full"
+                />
+                <span className="text-xs text-muted-foreground">{Math.round(zoom * 100)}%</span>
+              </div>
             </div>
           </div>
 
-          <div className="w-72 space-y-3 shrink-0 pr-4 overflow-y-auto max-h-[60vh]">
-            <div className="flex gap-1 mb-2">
-              <button onClick={() => setActiveFieldTab("all")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "all" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>All</button>
-              <button onClick={() => setActiveFieldTab("text")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "text" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>Text</button>
-              <button onClick={() => setActiveFieldTab("images")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "images" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>Images</button>
-            </div>
+          <DialogFooter className="px-6 pb-6 pt-4 flex-wrap gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowLinkedInModal(true)} className="text-[#0A66C2] border-[#0A66C2]/30 hover:bg-[#0A66C2]/10">
+              <Linkedin className="h-4 w-4 mr-1.5" /> Add to LinkedIn
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportOpenBadge}>
+              <Award className="h-4 w-4 mr-1.5 text-amber-500" /> Open Badges 3.0
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPng} disabled={exporting}>
+              <Download className="h-4 w-4 mr-1.5" /> PNG
+            </Button>
+            <Button size="sm" onClick={handleExportPdf} disabled={exporting}>
+              <Download className="h-4 w-4 mr-1.5" /> PDF
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-            {filteredFields.map(({ key, label }) => {
-              const field = fields[key];
-              if (!field) return null;
-              const isImageOrQr = field.type === "image" || field.type === "qr";
-              return (
-                <div key={key}>
-                  <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
-                    {field.type === "image" || field.type === "qr" ? <Image className="h-3 w-3" /> : <Type className="h-3 w-3" />}
-                    {label}
-                  </Label>
-                  <Input
-                    value={data[key] ?? ""}
-                    onChange={(e) => setData((prev) => ({ ...prev, [key]: e.target.value }))}
-                    className="h-7 text-xs"
-                    placeholder={field.variable || field.text || "Value..."}
-                  />
-                </div>
-              );
-            })}
-
-            <div>
-              <Label className="text-xs text-muted-foreground">Zoom</Label>
-              <input
-                type="range"
-                min={0.2}
-                max={1.5}
-                step={0.1}
-                value={zoom}
-                onChange={(e) => setZoom(Number(e.target.value))}
-                className="w-full"
-              />
-              <span className="text-xs text-muted-foreground">{Math.round(zoom * 100)}%</span>
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter className="px-6 pb-6 pt-4">
-          <Button variant="outline" onClick={onClose}>
-            <X className="h-4 w-4 mr-2" /> Close
-          </Button>
-          <Button variant="outline" onClick={handleExportPng} disabled={exporting}>
-            <Download className="h-4 w-4 mr-2" /> Export PNG
-          </Button>
-          <Button onClick={handleExportPdf} disabled={exporting}>
-            <Download className="h-4 w-4 mr-2" /> Export PDF
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      {showLinkedInModal && (
+        <LinkedInShareModal
+          open={showLinkedInModal}
+          onClose={() => setShowLinkedInModal(false)}
+          studentName={data.studentName}
+          courseName={data.courseName}
+          certificateId={data.certId}
+          issueDate={data.date}
+          verificationUrl={verificationUrl}
+        />
+      )}
+    </>
   );
 }
