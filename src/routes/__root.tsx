@@ -203,6 +203,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
+          "@type": "EducationalOrganization",
+          "@id": "https://learnifyaitool.vercel.app/#organization",
+          name: "Learnify AI",
+          url: "https://learnifyaitool.vercel.app",
+          logo: "https://learnifyaitool.vercel.app/logo.png",
+          description: "Learnify AI is the intelligent Career Operating System offering AI-driven learning, verified credentials, and career placement roadmaps.",
+          sameAs: [
+            "https://twitter.com/LearnifyAI",
+            "https://linkedin.com/company/learnify-ai",
+            "https://github.com/Vishwajeetsrk/learnifyai"
+          ]
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
           "@type": "Organization",
           name: "Learnify AI",
           url: "https://learnifyaitool.vercel.app",

@@ -1,24 +1,19 @@
 User-agent: *
 Allow: /
-Disallow: /api/
 Disallow: /admin/
-Disallow: /dashboard
-Disallow: /settings
-Disallow: /wallet
-Disallow: /inbox
-Disallow: /studio
-Disallow: /creator/
-Disallow: /playground
-Disallow: /ai
-Disallow: /ai-tools
-Disallow: /coaching
-Disallow: /cohorts
-Disallow: /community-feed
-Disallow: /leaderboard
-Disallow: /achievements
-Disallow: /certificates
-Disallow: /submissions
-Disallow: /workspace
-Disallow: /support
+Disallow: /api/
+
+# AI Search Engine Crawlers
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
 
 Sitemap: https://learnifyaitool.vercel.app/sitemap.xml
