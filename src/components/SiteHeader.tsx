@@ -5,8 +5,9 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useAuth } from "@/hooks/use-auth";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
-import { Loader2 } from "lucide-react";
+import { Loader2, Menu } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
 export function SiteHeader() {
   const { isAuthenticated, loading } = useAuth();
@@ -59,7 +60,7 @@ export function SiteHeader() {
             <Button
               asChild
               size="sm"
-              className="bg-foreground text-background hover:bg-foreground/90"
+              className="bg-foreground text-background hover:bg-foreground/90 hidden sm:inline-flex"
             >
               <Link to="/dashboard" preload="intent">
                 {tr("nav.dashboard", "Dashboard")}
@@ -67,7 +68,7 @@ export function SiteHeader() {
             </Button>
           ) : (
             <>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
                 <Link to="/login" preload="intent">
                   {tr("nav.signIn", "Sign in")}
                 </Link>
@@ -75,7 +76,7 @@ export function SiteHeader() {
               <Button
                 asChild
                 size="sm"
-                className="bg-foreground text-background hover:bg-foreground/90"
+                className="bg-foreground text-background hover:bg-foreground/90 hidden sm:inline-flex"
               >
                 <Link to="/signup" preload="intent">
                   {tr("nav.getStarted", "Get Started")}
@@ -83,6 +84,67 @@ export function SiteHeader() {
               </Button>
             </>
           )}
+
+          {/* Mobile Hamburger Navigation Sheet */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 text-foreground" aria-label="Open Menu">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-80 bg-background border-l border-border p-6 flex flex-col justify-between">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between border-b border-border/40 pb-4">
+                    <SheetTitle className="text-left font-display font-semibold text-lg text-foreground">
+                      Navigation Menu
+                    </SheetTitle>
+                  </div>
+                  <nav className="flex flex-col gap-4 text-base font-medium text-muted-foreground">
+                    {navItems.map((item: any) => (
+                      <SheetClose asChild key={item.id || item.label}>
+                        <Link
+                          to={item.url || "/"}
+                          preload="intent"
+                          className="hover:text-foreground py-2 transition border-b border-border/20 text-left"
+                        >
+                          {item.label}
+                        </Link>
+                      </SheetClose>
+                    ))}
+                  </nav>
+                </div>
+                <div className="border-t border-border/40 pt-4 flex flex-col gap-2">
+                  {isAuthenticated && !loading ? (
+                    <SheetClose asChild>
+                      <Button asChild className="w-full">
+                        <Link to="/dashboard" preload="intent">
+                          {tr("nav.dashboard", "Dashboard")}
+                        </Link>
+                      </Button>
+                    </SheetClose>
+                  ) : (
+                    <>
+                      <SheetClose asChild>
+                        <Button asChild variant="outline" className="w-full">
+                          <Link to="/login" preload="intent">
+                            {tr("nav.signIn", "Sign in")}
+                          </Link>
+                        </Button>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <Button asChild className="w-full bg-foreground text-background hover:bg-foreground/90">
+                          <Link to="/signup" preload="intent">
+                            {tr("nav.getStarted", "Get Started")}
+                          </Link>
+                        </Button>
+                      </SheetClose>
+                    </>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>
