@@ -19,6 +19,7 @@ export default defineConfig({
       {
         dir: "public",
         maxAge: 31536000,
+        ignore: ["**/preset-sites/**"],
       },
     ],
     serveStatic: true,
