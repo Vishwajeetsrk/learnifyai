@@ -486,6 +486,77 @@ export const processRefund = createServerFn({ method: "POST" })
       .eq("id", data.invoice_id);
     if (invErr) throw new Error(invErr.message);
 
+    // 1. Credit the refunded amount back to the student's wallet
+    const { error: wErr } = await supabaseAdmin.from("wallet_transactions").insert({
+      user_id: invoice.user_id,
+      amount_inr: data.amount_inr,
+      type: "credit",
+      status: "completed",
+      description: `Refund for invoice ${invoice.invoice_number} (Auto-approved)`,
+    });
+    if (wErr) throw new Error(wErr.message);
+
+    // 2. Delete enrollments & reverse creator earnings
+    for (const item of lineItems) {
+      if (item.type === "course") {
+        // Delete enrollment
+        await supabaseAdmin
+          .from("enrollments")
+          .delete()
+          .eq("user_id", invoice.user_id)
+          .eq("course_id", item.course_id);
+
+        // Fetch course details
+        const { data: course } = await supabaseAdmin
+          .from("courses")
+          .select("created_by, title")
+          .eq("id", item.course_id)
+          .maybeSingle();
+
+        if (course && course.created_by) {
+          // Look up creator's credit transaction for this course
+          const { data: creatorTx } = await supabaseAdmin
+            .from("wallet_transactions")
+            .select("amount_inr, description")
+            .eq("user_id", course.created_by)
+            .eq("type", "credit")
+            .eq("status", "completed")
+            .like("description", `%Creator earning%${course.title}%`)
+            .maybeSingle();
+
+          if (creatorTx) {
+            const amount = Number(creatorTx.amount_inr);
+            const isOldFormat = creatorTx.description?.includes("(75%)");
+            if (isOldFormat) {
+              await supabaseAdmin.from("wallet_transactions").insert({
+                user_id: course.created_by,
+                amount_inr: amount,
+                type: "debit",
+                status: "completed",
+                description: `Refund reversal (75%): ${course.title}`,
+              });
+            } else {
+              const commission = Math.round(amount * 0.25 * 100) / 100;
+              await supabaseAdmin.from("wallet_transactions").insert({
+                user_id: course.created_by,
+                amount_inr: amount,
+                type: "debit",
+                status: "completed",
+                description: `Refund reversal (100%): ${course.title}`,
+              });
+              await supabaseAdmin.from("wallet_transactions").insert({
+                user_id: course.created_by,
+                amount_inr: commission,
+                type: "credit",
+                status: "completed",
+                description: `Platform commission refund (25%): ${course.title}`,
+              });
+            }
+          }
+        }
+      }
+    }
+
     // Send refund processed email (non-blocking)
     import("@/lib/billing-email.functions").then((m) =>
       m

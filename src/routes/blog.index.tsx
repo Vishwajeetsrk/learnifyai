@@ -57,7 +57,7 @@ function BlogIndexPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("id, title, slug, excerpt, featured_image, published_at, created_at, content, tags")
+        .select("id, title, slug, excerpt, featured_image, published_at, created_at, content")
         .eq("published", true)
         .order("published_at", { ascending: false });
       if (error) {

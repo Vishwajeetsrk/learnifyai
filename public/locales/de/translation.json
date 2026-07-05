@@ -8,7 +8,8 @@
     "blog": "Blog",
     "dashboard": "App öffnen",
     "signIn": "Anmelden",
-    "getStarted": "Loslegen"
+    "getStarted": "Loslegen",
+    "projects": "Projekte"
   },
   "hero": {
     "badge": "KI-gestütztes Lernsystem",
@@ -84,6 +85,11 @@
         "description": "Arbeitssuchende — alles in Pro + Lebenslauf / ATS / Vorstellungsgesprächsvorbereitung / Karriere-Roadmap, verifizierte Zertifikate inklusive.",
         "cta": "Job-bereit Werden",
         "badge": "Bester Wert"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Hochschulen & Unternehmen — Sitze, SSO, Admin-Berichte, individuelles Branding.",
+        "cta": "Demo buchen"
       }
     },
     "faq": {

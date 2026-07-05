@@ -30,21 +30,21 @@ export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
 
         <div className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-3 mb-6">
-              <TabsTrigger value="overview" className="flex items-center gap-2 text-xs md:text-sm">
-                <Brain className="w-4 h-4 text-primary" /> What Is There?
+            <TabsList className="grid grid-cols-1 sm:grid-cols-3 h-auto p-1 bg-muted mb-6 gap-1 sm:gap-0">
+              <TabsTrigger value="overview" className="flex items-center justify-center gap-2 py-2 text-xs md:text-sm">
+                <Brain className="w-4 h-4 text-primary font-bold shrink-0" /> What Is There?
               </TabsTrigger>
-              <TabsTrigger value="usage" className="flex items-center gap-2 text-xs md:text-sm">
-                <BookOpen className="w-4 h-4 text-indigo-500" /> How To Use It?
+              <TabsTrigger value="usage" className="flex items-center justify-center gap-2 py-2 text-xs md:text-sm">
+                <BookOpen className="w-4 h-4 text-indigo-500 font-bold shrink-0" /> How To Use It?
               </TabsTrigger>
-              <TabsTrigger value="earnings" className="flex items-center gap-2 text-xs md:text-sm">
-                <DollarSign className="w-4 h-4 text-emerald-500" /> How To Earn?
+              <TabsTrigger value="earnings" className="flex items-center justify-center gap-2 py-2 text-xs md:text-sm">
+                <DollarSign className="w-4 h-4 text-emerald-500 font-bold shrink-0" /> How To Earn?
               </TabsTrigger>
             </TabsList>
 
             {/* TAB 1: WHAT IS THERE */}
             <TabsContent value="overview" className="space-y-4">
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-4 rounded-xl border bg-muted/30 hover:border-primary/40 transition">
                   <div className="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-600 flex items-center justify-center mb-3 font-bold">
                     01
@@ -84,7 +84,7 @@ export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
                   { step: "Step 3", title: "Interact with AI Tutor", desc: "Ask questions anytime during video lessons. Get instant code explanations, quiz practice, and career roadmap guidance." },
                   { step: "Step 4", title: "Complete Assessment & Claim Certificate", desc: "Pass the course assessment to generate a shareable certificate for your resume and LinkedIn." }
                 ].map((s) => (
-                  <div key={s.step} className="p-3.5 rounded-xl border bg-card flex items-center gap-4">
+                  <div key={s.step} className="p-3.5 rounded-xl border bg-card flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                     <span className="text-xs font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-md shrink-0">
                       {s.step}
                     </span>
@@ -99,7 +99,7 @@ export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
 
             {/* TAB 3: HOW TO EARN */}
             <TabsContent value="earnings" className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="p-5 rounded-xl border bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border-emerald-500/20">
                   <div className="flex items-center gap-2 text-emerald-600 font-bold text-sm mb-2">
                     <DollarSign className="w-4 h-4" /> Course Creators (80/20 Revenue Split)
@@ -137,11 +137,11 @@ export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
             </TabsContent>
           </Tabs>
 
-          <div className="mt-6 pt-4 border-t flex justify-between items-center">
-            <span className="text-xs text-muted-foreground">
+          <div className="mt-6 pt-4 border-t flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <span className="text-xs text-muted-foreground text-center sm:text-left">
               Ready to elevate your tech & career journey?
             </span>
-            <Button size="sm" onClick={() => onOpenChange(false)}>
+            <Button size="sm" onClick={() => onOpenChange(false)} className="w-full sm:w-auto">
               Close Tour <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
             </Button>
           </div>

@@ -1,8 +1,17 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import Backend from "i18next-http-backend";
 import en from "../public/locales/en/translation.json";
+import hi from "../public/locales/hi/translation.json";
+import bn from "../public/locales/bn/translation.json";
+import ta from "../public/locales/ta/translation.json";
+import te from "../public/locales/te/translation.json";
+import mr from "../public/locales/mr/translation.json";
+import gu from "../public/locales/gu/translation.json";
+import kn from "../public/locales/kn/translation.json";
+import es from "../public/locales/es/translation.json";
+import fr from "../public/locales/fr/translation.json";
+import de from "../public/locales/de/translation.json";
 
 export const SUPPORTED_LANGUAGES = [
   { code: "en", label: "English", nativeLabel: "English", dir: "ltr" },
@@ -57,7 +66,6 @@ export function getCurrentLanguage(): string {
 }
 
 i18n
-  .use(Backend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
@@ -69,9 +77,16 @@ i18n
     react: { useSuspense: false },
     resources: {
       en: { translation: en },
-    },
-    backend: {
-      loadPath: "/locales/{{lng}}/{{ns}}.json",
+      hi: { translation: hi },
+      bn: { translation: bn },
+      ta: { translation: ta },
+      te: { translation: te },
+      mr: { translation: mr },
+      gu: { translation: gu },
+      kn: { translation: kn },
+      es: { translation: es },
+      fr: { translation: fr },
+      de: { translation: de },
     },
     detection: {
       order: ["path", "localStorage", "navigator"],

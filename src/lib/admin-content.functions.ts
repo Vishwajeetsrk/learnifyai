@@ -73,8 +73,14 @@ export const adminContentAction = createServerFn({ method: "POST" })
     if (data.action === "update") {
       if (!data.id) throw new Error("id required for update");
       const tableName: string = data.table;
+      // Strip yearly_price for pricing_plans — column may not exist in schema yet
+      let updateData = data.data as any;
+      if (tableName === "pricing_plans" && updateData) {
+        const { yearly_price, ...rest } = updateData;
+        updateData = rest;
+      }
       const { error } = await (supabaseAdmin.from(tableName as any) as any)
-        .update(data.data)
+        .update(updateData)
         .eq(data.matchKey || "id", data.id);
       if (error) throw error;
       return { success: true };

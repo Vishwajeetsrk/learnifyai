@@ -6,3 +6,8 @@ ALTER TABLE public.creator_withdrawals
 
 -- Update existing pending withdrawals to batched
 UPDATE public.creator_withdrawals SET is_batched = true WHERE status = 'pending';
+
+-- Add phone column to profiles
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS phone text;
+

@@ -747,6 +747,30 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **DiceBear Avatar Mappings**: All 6 art styles verified.
 - ✅ **Bug Fixes**: TextPreview `useState` → `useEffect`, duplicate imports, duplicate declarations.
 
+### v3.3.0 (July 2026) - Certificate Designer Pro Canva Engine + Projects Showcase + Multilingual i18n + Career Studio Dock
+
+- ✅ **Certificate Designer Pro 5.0 (Canva Vector Engine)**:
+  - 30 High-Detail Seed Templates across 6 categories (*Academic: 6, Professional: 8, Executive: 4, Certification: 4, Achievement: 4, Technology: 4*).
+  - Multi-Format Exports: High-Res PNG (`html2canvas-pro`), Print PDF (`jsPDF` A4 landscape), Vector SVG XML export, and Motion Animated GIF export.
+  - Guilloche Rosette Watermarks, Security Wave backgrounds, Ornate Golden Hairline Borders, Luxury Frames, Gold Verified Seals, Star Medals, and Laurel Crests rendered natively via SVG.
+  - Pure Vector Canvas Mode: Added `Show PNG Image / Hide PNG Image` toggle in the Design sidebar tab, completely eliminating duplicate/overlapping text when editing pre-baked template PNGs.
+  - Canva-Style Layers Panel: Hide/unhide (`Eye`/`EyeOff`), lock position (`Lock`), layer re-ordering, duplicate (`Copy`), and delete (`Trash2`) for every canvas element.
+  - Precision Controls: Numeric inputs for X, Y position and Width, Height dimensions, dual accent color pickers (`accent_color`, `accent_color_2`), automatic horizontal & vertical canvas centering.
+  - Automated Course Email Delivery: Server function `issueAndEmailCertificate` generates unique certificate IDs (`LRN-CERT-XXXXXX`), logs issuance in Supabase, and emails certificates upon course completion (lessons + quizzes/projects ≥ 70%).
+- ✅ **Design Projects Portfolio Showcase (`/projects`)**:
+  - Integrated 47 highly polished design templates, 3D Spline prototypes, and GSAP micro-sites.
+  - Interactive Live Sandbox Simulator: Switch between Desktop, Tablet, and Mobile device frames inside real-time iframe previews.
+  - 1-Click "Copy Prompt" Button: Copy precise prompt instructions to replicate UI/UX design with AI platforms (Claude, Lovable, Antigravity).
+  - SVG Filter Chips: Replaced all legacy emoji categories with crisp SVG icons (*Zap, Video, Box, Gem, Moon, Minus, Lock*).
+- ✅ **Career Studio macOS Magnification Dock**:
+  - Integrated macOS-inspired `MagnificationDock` component with spring physics, dynamic magnification, and tooltips in Career Studio.
+  - 9-in-1 Career Toolsuite: Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder, LinkedIn Optimizer, Career Analytics, Internship Tracker, and Skill Gap Analysis.
+- ✅ **Multilingual i18n & Translation System**:
+  - Full internationalization support across 11 languages: English (en), Hindi (hi), Bengali (bn), German (de), Spanish (es), French (fr), Gujarati (gu), Kannada (kn), Marathi (mr), Tamil (ta), Telugu (te).
+- ✅ **Official Knowledge Base & Platform Audit**:
+  - Official platform documentation hub at `/docs` covering Student, Creator (Free/Paid), and Coach (Free/Paid) guides.
+  - Conducted a 20-Phase Product Audit, WCAG 2.1 Accessibility Audit, and $0 → $10K MRR Growth Strategy.
+
 ### v3.2.0 (June 2026) - Cashfree Subscriptions + Playground Upgrade
 
 - ✅ **Cashfree Recurring Subscriptions**: Complete subscription billing system with 4 plans:

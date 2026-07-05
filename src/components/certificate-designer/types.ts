@@ -1,6 +1,6 @@
 export type CertElement = {
   id: string;
-  type: "text" | "image" | "qr" | "org_logo" | "signature" | "badge";
+  type: "text" | "image" | "qr" | "org_logo" | "signature" | "badge" | "seal_icon" | "guilloche_watermark" | "divider_line";
   content?: string;
   url?: string;
   x: number;
@@ -8,6 +8,9 @@ export type CertElement = {
   width?: number;
   height?: number;
   rotation?: number;
+  hidden?: boolean;
+  locked?: boolean;
+  zIndex?: number;
 
   // Text Styling
   fontSize?: number;
@@ -15,7 +18,7 @@ export type CertElement = {
   color?: string;
   align?: "left" | "center" | "right" | "justify";
   fontWeight?:
-    "normal" | "bold" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900";
+    | "normal" | "bold" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900";
   fontStyle?: "normal" | "italic";
   textDecoration?: "none" | "underline" | "line-through";
   letterSpacing?: number;
@@ -45,6 +48,7 @@ export type CertDesign = {
 
   background_pattern: string;
   layout: string;
+  show_bg_image?: boolean;
 };
 
 export type CertTemplate = {
@@ -95,19 +99,21 @@ export const BORDER_OPTIONS = [
   { id: "dashed", label: "Dashed", icon: "╍" },
   { id: "dotted", label: "Dotted", icon: "⸬" },
   { id: "ornate", label: "Ornate", icon: "☰" },
-  { id: "luxury", label: "Luxury", icon: "❖" },
-  { id: "ribbon", label: "Ribbon", icon: "🎀" },
+  { id: "luxury", label: "Luxury Frame", icon: "❖" },
+  { id: "ribbon", label: "Ribbon Frame", icon: "🎀" },
 ];
 
 export const PATTERN_OPTIONS = [
-  { id: "none", label: "Solid", preview: null },
+  { id: "none", label: "Solid Color", preview: null },
+  { id: "guilloche", label: "Guilloche Rosette", preview: "guilloche" },
+  { id: "waves", label: "Security Waves", preview: "waves" },
   { id: "gradient", label: "Linear Gradient", preview: "gradient" },
   { id: "mesh", label: "Mesh Gradient", preview: "mesh" },
-  { id: "dots", label: "Dots", preview: "dots" },
-  { id: "grid", label: "Grid", preview: "grid" },
-  { id: "diagonal", label: "Stripes", preview: "diagonal" },
-  { id: "noise", label: "Noise", preview: "noise" },
-  { id: "glass", label: "Glass", preview: "glass" },
+  { id: "dots", label: "Micro Dots", preview: "dots" },
+  { id: "grid", label: "Security Grid", preview: "grid" },
+  { id: "diagonal", label: "Fine Stripes", preview: "diagonal" },
+  { id: "noise", label: "Parchment Texture", preview: "noise" },
+  { id: "glass", label: "Glassmorphism", preview: "glass" },
 ];
 
 export const THEMES = [

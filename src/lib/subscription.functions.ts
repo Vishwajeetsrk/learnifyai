@@ -171,7 +171,7 @@ export const createSubscription = createServerFn({ method: "POST" })
         .eq("id", uid)
         .single();
       if (profileCheck?.student_verified) {
-        data.couponCode = "STUDENT25";
+        data.couponCode = "STUDENT20";
       }
     }
 
@@ -583,11 +583,14 @@ export const savePlan = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const plan = data.plan;
-    if (plan.id) {
-      const { error } = await supabaseAdmin.from("pricing_plans").update(plan).eq("id", plan.id);
+    // Strip yearly_price — column may not exist in all DB versions.
+    // The frontend computes it via: plan.yearly_price || Math.round(price_inr * 12 * 0.8)
+    const { yearly_price, ...planData } = plan;
+    if (planData.id) {
+      const { error } = await supabaseAdmin.from("pricing_plans").update(planData).eq("id", planData.id);
       if (error) throw new Error(error.message);
     } else {
-      const { id: pid, ...rest } = plan;
+      const { id: pid, ...rest } = planData;
       const { error } = await supabaseAdmin.from("pricing_plans").insert(rest);
       if (error) throw new Error(error.message);
     }

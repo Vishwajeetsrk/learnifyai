@@ -145,6 +145,7 @@ export default function SettingsPage() {
   const [location, setLocation] = useState("");
   const [work, setWork] = useState("");
   const [education, setEducation] = useState("");
+  const [phone, setPhone] = useState("");
   const [website, setWebsite] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [customSkill, setCustomSkill] = useState<string>("");
@@ -992,7 +993,7 @@ export default function SettingsPage() {
 
   /* ── Hydrate state from profile ── */
   useEffect(() => {
-    const p = profileQ.data;
+    const p = profileQ.data as any;
     if (!p) return;
     setFullName(p.full_name ?? "");
     setUsername(p.username ?? "");
@@ -1000,6 +1001,7 @@ export default function SettingsPage() {
     setLocation(p.location ?? "");
     setWork(p.work ?? "");
     setEducation(p.education ?? "");
+    setPhone(p.phone ?? "");
     setWebsite(p.website ?? "");
     setSkills(p.skills ?? []);
     setLinks((p.social_links ?? {}) as SocialLinks);
@@ -1105,6 +1107,7 @@ export default function SettingsPage() {
         location: location.trim() || null,
         work: work.trim() || null,
         education: education.trim() || null,
+        phone: phone.trim() || null,
         website: website.trim() || null,
         skills: skills.length ? skills : [],
         social_links: links,
@@ -2489,6 +2492,13 @@ export default function SettingsPage() {
                     value={education}
                     onChange={(e) => setEducation(e.target.value)}
                     placeholder="BCA"
+                  />
+                </Field>
+                <Field label="Phone number">
+                  <Input
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+91-XXXXXXXXXX"
                   />
                 </Field>
               </div>

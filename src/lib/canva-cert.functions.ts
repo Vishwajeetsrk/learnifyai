@@ -168,40 +168,59 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const results = { created: 0, skipped: 0, errors: [] as string[] };
+    const results = { created: 0, updated: 0, errors: [] as string[] };
 
     for (let num = 1; num <= 30; num++) {
       const fileName = `${num} certification.png`;
       const scheme = COLOR_SCHEMES.find((s) => num >= s.min && num <= s.max) || COLOR_SCHEMES[0];
+      const templateName = `${scheme.name} - Template ${num}`;
+      const bgUrl = `/templates/${fileName}`;
+      const fields = getTemplateFields(num);
+      const themeColors = { primary: scheme.primary, accent: scheme.accent, background: scheme.background, text: scheme.text };
 
       // Check if template already exists by name
       const { data: existing } = await supabaseAdmin
         .from("canva_templates")
         .select("id")
-        .eq("name", `${scheme.name} - Template ${num}`)
+        .eq("name", templateName)
         .limit(1);
 
       if (existing && existing.length > 0) {
-        results.skipped++;
-        continue;
-      }
+        const { error } = await supabaseAdmin
+          .from("canva_templates")
+          .update({
+            category: scheme.category,
+            bg_image_url: bgUrl,
+            thumbnail_url: bgUrl,
+            fields_json: fields,
+            theme_colors: themeColors,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existing[0].id);
 
-      const bgUrl = `/templates/${fileName}`;
-
-      const { error } = await supabaseAdmin.from("canva_templates").insert({
-        name: `${scheme.name} - Template ${num}`,
-        category: scheme.category,
-        bg_image_url: bgUrl,
-        thumbnail_url: bgUrl,
-        fields_json: getTemplateFields(num),
-        theme_colors: { primary: scheme.primary, accent: scheme.accent, background: scheme.background, text: scheme.text },
-        created_by: context.userId!,
-      });
-
-      if (error) {
-        results.errors.push(`Template ${num}: ${error.message}`);
+        if (error) {
+          results.errors.push(`Template ${num}: ${error.message}`);
+        } else {
+          results.updated++;
+        }
       } else {
-        results.created++;
+        const { error } = await supabaseAdmin.from("canva_templates").insert({
+          name: templateName,
+          category: scheme.category,
+          bg_image_url: bgUrl,
+          thumbnail_url: bgUrl,
+          fields_json: fields,
+          theme_colors: themeColors,
+          created_by: context.userId!,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+
+        if (error) {
+          results.errors.push(`Template ${num}: ${error.message}`);
+        } else {
+          results.created++;
+        }
       }
     }
 
@@ -273,6 +292,7 @@ export function fieldsToElements(fieldsJson: Record<string, any>): { elements: R
   for (const [name, f] of Object.entries(fieldsJson)) {
     idx++;
     const id = String(idx);
+    const align = f.align || "center";
 
     if (f.type === "image" || name === "learnifyLogo" || name === "centerLogo") {
       let elType = "image";
@@ -281,28 +301,41 @@ export function fieldsToElements(fieldsJson: Record<string, any>): { elements: R
       if (name === "qrCode") elType = "qr";
       if (name.startsWith("badge")) elType = "badge";
 
+      const width = f.width || (elType === "org_logo" ? 120 : elType === "qr" ? 80 : 100);
+      const height = f.height || (elType === "org_logo" ? 50 : elType === "qr" ? 80 : 40);
+      const rawX = Math.round((f.x / 100) * CANVAS_W);
+      const rawY = Math.round((f.y / 100) * CANVAS_H);
+      const x = align === "center" ? Math.max(10, Math.round(rawX - width / 2)) : rawX;
+
       elements.push({
         id,
         type: elType,
         content: f.text || f.variable || "",
         url: f.src || null,
-        x: Math.round((f.x / 100) * CANVAS_W),
-        y: Math.round((f.y / 100) * CANVAS_H),
-        width: f.width || 100,
-        height: f.height || 40,
-        align: f.align || "center",
+        x,
+        y: rawY,
+        width,
+        height,
+        align,
       });
     } else {
+      const isFullWidthText = name === "title" || name === "subtitle" || name === "certifyText" || name === "studentName" || name === "completeText" || name === "courseName" || name === "description";
+      const boxWidth = isFullWidthText ? 640 : (f.width || 200);
+      const rawX = Math.round((f.x / 100) * CANVAS_W);
+      const rawY = Math.round((f.y / 100) * CANVAS_H);
+      const x = align === "center" ? Math.max(10, Math.round(rawX - boxWidth / 2)) : rawX;
+
       elements.push({
         id,
         type: "text",
         content: f.text || f.variable || name,
-        x: Math.round((f.x / 100) * CANVAS_W),
-        y: Math.round((f.y / 100) * CANVAS_H),
+        x,
+        y: rawY,
+        width: boxWidth,
         fontSize: f.fontSize || 16,
         fontFamily: f.fontFamily?.split(",")[0]?.trim() || "Inter",
         color: f.color || "#000000",
-        align: f.align || "center",
+        align,
         fontWeight: f.fontWeight || "normal",
         fontStyle: f.fontStyle || "normal",
         textDecoration: f.textDecoration || "none",
@@ -367,7 +400,7 @@ Respond with a JSON object only (no markdown, no code fences):
     }
   });
 
-export function themeToDesign(themeColors: Record<string, any>): Record<string, any> {
+export function themeToDesign(themeColors?: Record<string, any>): Record<string, any> {
   const bg = themeColors?.background || "#f5f0e8";
   const accent = themeColors?.accent || "#c9a84c";
   const text = themeColors?.text || "#0a1628";
@@ -378,9 +411,9 @@ export function themeToDesign(themeColors: Record<string, any>): Record<string, 
     text_color: text,
     accent_color_2: primary,
     font_family: "Playfair Display",
-    border_style: "double",
-    border_width: 8,
-    corner_style: "diagonal",
+    border_style: "none",
+    border_width: 0,
+    corner_style: "none",
     background_pattern: "none",
     layout: "classic",
   };

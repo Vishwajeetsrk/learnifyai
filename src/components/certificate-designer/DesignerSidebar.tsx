@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { useRef } from "react";
 import {
   Select,
   SelectContent,
@@ -21,6 +22,14 @@ import {
   Copy,
   Eye,
   EyeOff,
+  Upload,
+  Lock,
+  Unlock,
+  ArrowUp,
+  ArrowDown,
+  Layers,
+  Sparkles,
+  Image as ImageIcon,
 } from "lucide-react";
 import { CertElement, CertDesign, FONTS, BORDER_OPTIONS, PATTERN_OPTIONS, THEMES } from "./types";
 
@@ -149,11 +158,27 @@ export function DesignerSidebar({
                     />
                   </div>
                 </div>
+                <div>
+                  <Label className="text-xs">Accent 2</Label>
+                  <div className="flex gap-2 items-center mt-1">
+                    <input
+                      type="color"
+                      value={design.accent_color_2 || "#8a6d2b"}
+                      onChange={(e) => onUpdateDesign({ accent_color_2: e.target.value })}
+                      className="w-8 h-8 rounded cursor-pointer"
+                    />
+                    <Input
+                      value={design.accent_color_2 || "#8a6d2b"}
+                      onChange={(e) => onUpdateDesign({ accent_color_2: e.target.value })}
+                      className="h-8 text-xs font-mono"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
             <div className="space-y-3 border-t pt-4">
-              <h3 className="font-semibold text-sm">Background Texture</h3>
+              <h3 className="font-semibold text-sm">Background Texture / Watermark</h3>
               <Select
                 value={design.background_pattern}
                 onValueChange={(v) => onUpdateDesign({ background_pattern: v })}
@@ -172,7 +197,23 @@ export function DesignerSidebar({
             </div>
 
             <div className="space-y-3 border-t pt-4">
-              <h3 className="font-semibold text-sm">Background Image</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-sm flex items-center gap-1.5">
+                  <ImageIcon className="h-4 w-4 text-primary" /> Template Background
+                </h3>
+                <Button
+                  size="sm"
+                  variant={design.show_bg_image === false ? "outline" : "secondary"}
+                  onClick={() => onUpdateDesign({ show_bg_image: design.show_bg_image === false })}
+                  className="h-7 text-[11px]"
+                >
+                  {design.show_bg_image === false ? <Eye className="h-3 w-3 mr-1" /> : <EyeOff className="h-3 w-3 mr-1" />}
+                  {design.show_bg_image === false ? "Show PNG Image" : "Hide PNG Image"}
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Hide the static template image to edit on a pristine vector canvas with no duplicate text.
+              </p>
               <div className="space-y-2">
                 <Input
                   value={bgImageUrl}
@@ -180,16 +221,16 @@ export function DesignerSidebar({
                   placeholder="https://example.com/image.png"
                   className="text-xs"
                 />
-                <div className="flex items-center gap-2">
+                {bgImageUrl && (
                   <Button
                     size="sm"
-                    variant={bgImageUrl ? "secondary" : "outline"}
+                    variant="ghost"
                     onClick={() => onUpdateBgImageUrl("")}
-                    className="h-8"
+                    className="h-7 text-xs text-muted-foreground hover:text-destructive"
                   >
-                    Clear background
+                    Clear background image URL
                   </Button>
-                </div>
+                )}
               </div>
             </div>
 
@@ -228,17 +269,27 @@ export function DesignerSidebar({
 
           {/* LAYERS TAB */}
           <TabsContent value="layers" className="m-0 space-y-2">
+            <div className="text-xs font-medium text-muted-foreground mb-2 flex items-center justify-between">
+              <span>Canvas Layers ({elements.length})</span>
+              <span className="text-[10px]">Top to Bottom</span>
+            </div>
             {[...elements].reverse().map((el, i) => (
               <div
                 key={el.id}
-                className={`flex items-center justify-between p-2 rounded border cursor-pointer ${selectedId === el.id ? "bg-primary/10 border-primary/30" : "hover:bg-accent/50"}`}
+                className={`flex items-center justify-between p-2 rounded-lg border text-xs transition-colors cursor-pointer ${
+                  selectedId === el.id
+                    ? "bg-primary/10 border-primary/40 shadow-sm"
+                    : "bg-card hover:bg-accent/40 border-border"
+                }`}
                 onClick={() => onSelect(el.id)}
               >
                 <div className="flex items-center gap-2 truncate pr-2">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground w-8 shrink-0">
+                  <span className="text-[9px] uppercase font-bold px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">
                     {el.type}
                   </span>
-                  <span className="text-xs truncate">{el.content || el.id}</span>
+                  <span className="truncate font-medium">
+                    {el.content || el.type}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <Button
@@ -247,10 +298,50 @@ export function DesignerSidebar({
                     className="h-6 w-6"
                     onClick={(e) => {
                       e.stopPropagation();
+                      onUpdateElement(el.id, { hidden: !el.hidden });
+                    }}
+                    title={el.hidden ? "Unhide layer" : "Hide layer"}
+                  >
+                    {el.hidden ? <EyeOff className="h-3 w-3 text-muted-foreground" /> : <Eye className="h-3 w-3" />}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUpdateElement(el.id, { locked: !el.locked });
+                    }}
+                    title={el.locked ? "Unlock layer" : "Lock layer"}
+                  >
+                    {el.locked ? <Lock className="h-3 w-3 text-amber-600" /> : <Unlock className="h-3 w-3 text-muted-foreground" />}
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDuplicateElement(el.id);
+                    }}
+                    title="Duplicate layer"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-destructive hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
                       onDeleteElement(el.id);
                     }}
+                    title="Delete layer"
                   >
-                    <Trash2 className="h-3 w-3 text-destructive" />
+                    <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
               </div>
@@ -376,19 +467,94 @@ export function DesignerSidebar({
                   </div>
                 )}
 
-                {(selectedEl.type === "image" || selectedEl.type === "signature") && (
-                  <div className="space-y-4">
-                    <div>
-                      <Label className="text-xs">Image URL</Label>
+                {(selectedEl.type === "image" ||
+                  selectedEl.type === "org_logo" ||
+                  selectedEl.type === "signature" ||
+                  selectedEl.type === "badge") && (
+                  <div className="space-y-4 border-t pt-4">
+                    <Label className="text-xs font-semibold">Image / Asset Source</Label>
+                    <div className="flex gap-2">
                       <Input
                         value={selectedEl.url || ""}
                         onChange={(e) => onUpdateElement(selectedEl.id, { url: e.target.value })}
-                        placeholder="https://..."
-                        className="mt-1"
+                        placeholder="https://... or upload local file"
+                        className="text-xs flex-1"
                       />
+                      <label className="cursor-pointer inline-flex items-center justify-center h-9 px-3 bg-secondary hover:bg-secondary/80 rounded-md border text-xs font-medium shrink-0">
+                        <Upload className="h-3.5 w-3.5 mr-1" /> Upload
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const url = URL.createObjectURL(file);
+                              onUpdateElement(selectedEl.id, { url });
+                            }
+                          }}
+                        />
+                      </label>
                     </div>
                   </div>
                 )}
+
+                {/* Position & Size Controls for all elements */}
+                <div className="border-t pt-4 space-y-3">
+                  <Label className="text-xs font-semibold">Position & Dimensions</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-[10px] text-muted-foreground">X Position (px)</Label>
+                      <Input
+                        type="number"
+                        value={Math.round(selectedEl.x)}
+                        onChange={(e) =>
+                          onUpdateElement(selectedEl.id, { x: parseInt(e.target.value) || 0 })
+                        }
+                        className="h-7 text-xs font-mono mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[10px] text-muted-foreground">Y Position (px)</Label>
+                      <Input
+                        type="number"
+                        value={Math.round(selectedEl.y)}
+                        onChange={(e) =>
+                          onUpdateElement(selectedEl.id, { y: parseInt(e.target.value) || 0 })
+                        }
+                        className="h-7 text-xs font-mono mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[10px] text-muted-foreground">Width (px)</Label>
+                      <Input
+                        type="number"
+                        value={Math.round(selectedEl.width || 0)}
+                        onChange={(e) =>
+                          onUpdateElement(selectedEl.id, {
+                            width: parseInt(e.target.value) || undefined,
+                          })
+                        }
+                        placeholder="Auto"
+                        className="h-7 text-xs font-mono mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-[10px] text-muted-foreground">Height (px)</Label>
+                      <Input
+                        type="number"
+                        value={Math.round(selectedEl.height || 0)}
+                        onChange={(e) =>
+                          onUpdateElement(selectedEl.id, {
+                            height: parseInt(e.target.value) || undefined,
+                          })
+                        }
+                        placeholder="Auto"
+                        className="h-7 text-xs font-mono mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
 
                 <div className="border-t pt-4 space-y-4">
                   <Label className="text-xs flex justify-between mb-2">

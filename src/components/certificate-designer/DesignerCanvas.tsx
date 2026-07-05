@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 import { Rnd } from "react-rnd";
-import { Building2, Image as ImageIcon, ShieldCheck, PenTool } from "lucide-react";
+import { Building2, Image as ImageIcon, ShieldCheck, PenTool, Award, Star } from "lucide-react";
 import { CertElement, CertDesign } from "./types";
 
 type DesignerCanvasProps = {
@@ -23,9 +23,20 @@ export function DesignerCanvas({
   scale = 1,
 }: DesignerCanvasProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const activeBgImage = design.show_bg_image !== false ? bgImageUrl : null;
 
   const getPatternStyle = (pattern: string, bg: string, accent: string) => {
     switch (pattern) {
+      case "guilloche":
+        return {
+          backgroundColor: bg,
+          backgroundImage: `radial-gradient(circle at center, ${accent}15 0%, transparent 70%), repeating-radial-gradient(circle at center, ${accent}22 0, ${accent}22 2px, transparent 2px, transparent 12px)`,
+        };
+      case "waves":
+        return {
+          backgroundColor: bg,
+          backgroundImage: `repeating-linear-gradient(-45deg, ${accent}18, ${accent}18 2px, transparent 2px, transparent 10px), repeating-linear-gradient(45deg, ${accent}18, ${accent}18 2px, transparent 2px, transparent 10px)`,
+        };
       case "dots":
         return {
           backgroundImage: `radial-gradient(${accent}44 1.5px, transparent 1.5px)`,
@@ -68,7 +79,7 @@ export function DesignerCanvas({
   };
 
   const borderCss =
-    design.border_style === "none"
+    activeBgImage || design.border_style === "none"
       ? "none"
       : design.border_style === "ornate"
         ? `1px solid ${design.accent_color}55`
@@ -84,11 +95,12 @@ export function DesignerCanvas({
         height: 595,
         transform: `scale(${scale})`,
         ...getPatternStyle(design.background_pattern, design.bg_color, design.accent_color),
-        ...(bgImageUrl
+        ...(activeBgImage
           ? {
-              backgroundImage: `url(${bgImageUrl})`,
-              backgroundSize: "cover",
+              backgroundImage: `url("${activeBgImage}")`,
+              backgroundSize: "100% 100%",
               backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
             }
           : {}),
         border: borderCss,
@@ -99,8 +111,8 @@ export function DesignerCanvas({
         }
       }}
     >
-      {/* Corner Styles */}
-      {design.corner_style !== "none" && (
+      {/* Corner Styles (Only when no background image) */}
+      {!activeBgImage && design.corner_style !== "none" && (
         <>
           <div
             className="absolute top-0 left-0 pointer-events-none"
@@ -132,7 +144,7 @@ export function DesignerCanvas({
       )}
 
       {/* Ornate Border Extras */}
-      {design.border_style === "ornate" && (
+      {!activeBgImage && design.border_style === "ornate" && (
         <>
           <div
             className="absolute inset-2 pointer-events-none"
@@ -145,8 +157,10 @@ export function DesignerCanvas({
         </>
       )}
 
-      {elements.map((el) => {
+      {elements.map((el, i) => {
+        if (el.hidden) return null;
         const isSelected = selectedId === el.id;
+        const isLocked = el.locked === true;
 
         return (
           <Rnd
@@ -154,36 +168,38 @@ export function DesignerCanvas({
             position={{ x: el.x, y: el.y }}
             size={{ width: el.width || "auto", height: el.height || "auto" }}
             onDragStop={(e, d) => {
-              onUpdateElement(el.id, { x: d.x, y: d.y });
+              if (!isLocked) onUpdateElement(el.id, { x: d.x, y: d.y });
             }}
             onResizeStop={(e, direction, ref, delta, position) => {
-              onUpdateElement(el.id, {
-                width: parseInt(ref.style.width, 10),
-                height: parseInt(ref.style.height, 10),
-                x: position.x,
-                y: position.y,
-              });
+              if (!isLocked) {
+                onUpdateElement(el.id, {
+                  width: parseInt(ref.style.width, 10),
+                  height: parseInt(ref.style.height, 10),
+                  x: position.x,
+                  y: position.y,
+                });
+              }
             }}
             scale={scale}
             bounds="parent"
             enableResizing={{
-              top: isSelected,
-              right: isSelected,
-              bottom: isSelected,
-              left: isSelected,
-              topRight: isSelected,
-              bottomRight: isSelected,
-              bottomLeft: isSelected,
-              topLeft: isSelected,
+              top: isSelected && !isLocked,
+              right: isSelected && !isLocked,
+              bottom: isSelected && !isLocked,
+              left: isSelected && !isLocked,
+              topRight: isSelected && !isLocked,
+              bottomRight: isSelected && !isLocked,
+              bottomLeft: isSelected && !isLocked,
+              topLeft: isSelected && !isLocked,
             }}
-            disableDragging={!isSelected}
+            disableDragging={!isSelected || isLocked}
             onClick={(e: any) => {
               e.stopPropagation();
               onSelect(el.id);
             }}
             className={`absolute ${isSelected ? "ring-2 ring-primary ring-offset-2 z-50 cursor-move" : "hover:ring-1 hover:ring-primary/50 cursor-pointer"}`}
             style={{
-              zIndex: isSelected ? 50 : 10,
+              zIndex: isSelected ? 50 : (el.zIndex ?? (i + 10)),
             }}
           >
             <div
@@ -232,15 +248,82 @@ export function DesignerCanvas({
                   </div>
                 ))}
 
-              {el.type === "org_logo" && (
-                <div className="w-full h-full bg-muted/30 border-2 border-dashed flex flex-col items-center justify-center text-xs text-muted-foreground rounded-lg">
-                  <Building2 className="h-6 w-6 opacity-50 mb-1" /> Logo
+              {el.type === "org_logo" &&
+                (el.url ? (
+                  <img
+                    src={el.url}
+                    alt="Logo"
+                    className="w-full h-full object-contain pointer-events-none"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-muted/30 border-2 border-dashed flex flex-col items-center justify-center text-xs text-muted-foreground rounded-lg p-2">
+                    <Building2 className="h-6 w-6 opacity-60 mb-1 text-primary" />
+                    <span className="font-semibold text-[10px]">ORGANIZATION LOGO</span>
+                  </div>
+                ))}
+
+              {el.type === "qr" && (
+                <div className="w-full h-full bg-white border border-border/80 shadow-sm flex flex-col items-center justify-center text-xs text-muted-foreground rounded-md p-2">
+                  <ShieldCheck className="h-full w-full opacity-40 text-primary" />
                 </div>
               )}
 
-              {el.type === "qr" && (
-                <div className="w-full h-full bg-white border shadow-sm flex flex-col items-center justify-center text-xs text-muted-foreground rounded-md p-2">
-                  <ShieldCheck className="h-full w-full opacity-30 text-primary" />
+              {el.type === "badge" && (
+                <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center pointer-events-none">
+                  {el.url ? (
+                    <img src={el.url} alt="Badge" className="w-full h-full object-contain" />
+                  ) : (
+                    <div
+                      className="w-full h-full rounded-full flex flex-col items-center justify-center p-2 border-2 border-amber-400/80 shadow-md"
+                      style={{
+                        background: `radial-gradient(circle, ${design.accent_color}22 0%, ${design.accent_color}44 100%)`,
+                      }}
+                    >
+                      <Award className="h-7 w-7 text-amber-500 mb-0.5" />
+                      <span className="text-[9px] font-black tracking-widest uppercase text-amber-600 leading-none">
+                        {el.content || "VERIFIED"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {el.type === "seal_icon" && (
+                <div className="w-full h-full flex items-center justify-center pointer-events-none">
+                  <div
+                    className="w-full h-full rounded-full border-4 border-amber-500/80 flex flex-col items-center justify-center p-3 text-center shadow-lg"
+                    style={{
+                      background: `radial-gradient(circle, #fef3c7 0%, ${design.accent_color}55 100%)`,
+                      boxShadow: `0 0 15px ${design.accent_color}66`,
+                    }}
+                  >
+                    <Star className="h-10 w-10 text-amber-600 mb-1 animate-pulse" />
+                    <span className="text-[10px] font-black tracking-widest text-amber-900 uppercase">
+                      {el.content || "OFFICIAL SEAL"}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {el.type === "guilloche_watermark" && (
+                <div className="w-full h-full flex items-center justify-center pointer-events-none opacity-30">
+                  <svg className="w-full h-full text-amber-500" viewBox="0 0 100 100" fill="none" stroke="currentColor">
+                    <circle cx="50" cy="50" r="45" strokeWidth="1" strokeDasharray="2 2" />
+                    <circle cx="50" cy="50" r="35" strokeWidth="0.8" />
+                    <circle cx="50" cy="50" r="25" strokeWidth="1.2" strokeDasharray="4 2" />
+                    <path d="M 50 5 L 50 95 M 5 50 L 95 50 M 18 18 L 82 82 M 18 82 L 82 18" strokeWidth="0.5" />
+                  </svg>
+                </div>
+              )}
+
+              {el.type === "divider_line" && (
+                <div className="w-full h-full flex items-center justify-center pointer-events-none">
+                  <div
+                    className="w-full h-[2px]"
+                    style={{
+                      background: `linear-gradient(90deg, transparent 0%, ${el.color || design.accent_color} 50%, transparent 100%)`,
+                    }}
+                  />
                 </div>
               )}
 

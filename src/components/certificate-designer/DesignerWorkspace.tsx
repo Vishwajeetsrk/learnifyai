@@ -105,22 +105,46 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   );
 
   const onAddElement = (type: CertElement["type"]) => {
+    const width = type === "qr" ? 80 : type === "org_logo" ? 120 : type === "signature" ? 180 : type === "badge" ? 90 : type === "seal_icon" ? 100 : type === "guilloche_watermark" ? 250 : type === "divider_line" ? 400 : 300;
+    const height = type === "qr" ? 80 : type === "org_logo" ? 50 : type === "signature" ? 50 : type === "badge" ? 90 : type === "seal_icon" ? 100 : type === "guilloche_watermark" ? 250 : type === "divider_line" ? 4 : 40;
+    const x = Math.round((842 - width) / 2);
+    const y = Math.round((595 - height) / 2);
+
     const newEl: CertElement = {
       id: Date.now().toString(),
       type,
-      x: 100,
-      y: 100,
-      width: type === "qr" ? 100 : type === "org_logo" ? 120 : type === "image" ? 200 : undefined,
-      height: type === "qr" ? 100 : type === "org_logo" ? 120 : type === "image" ? 150 : undefined,
-      content: type === "text" ? "New Text" : undefined,
-      fontSize: type === "text" ? 24 : undefined,
+      x,
+      y,
+      width,
+      height,
+      content: type === "text" ? "Sample Text" : type === "badge" ? "VERIFIED" : type === "seal_icon" ? "OFFICIAL SEAL" : undefined,
+      fontSize: type === "text" ? 20 : undefined,
       color: type === "text" ? design.text_color : undefined,
       fontFamily: type === "text" ? design.font_family : undefined,
+      align: "center",
     };
     const nextElements = [...elements, newEl];
     setElements(nextElements);
     setSelectedId(newEl.id);
     saveHistory(nextElements, design);
+  };
+
+  const onCenterHorizontal = (id: string) => {
+    const target = elements.find((e) => e.id === id);
+    if (!target) return;
+    const w = target.width || 200;
+    const nextX = Math.round((842 - w) / 2);
+    onUpdateElement(id, { x: nextX });
+    toast.success("Centered horizontally");
+  };
+
+  const onCenterVertical = (id: string) => {
+    const target = elements.find((e) => e.id === id);
+    if (!target) return;
+    const h = target.height || 40;
+    const nextY = Math.round((595 - h) / 2);
+    onUpdateElement(id, { y: nextY });
+    toast.success("Centered vertically");
   };
 
   const onDeleteElement = (id: string) => {

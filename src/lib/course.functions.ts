@@ -175,13 +175,12 @@ export const checkoutCart = createServerFn({ method: "POST" })
           : 0;
       if (!creatorId || creatorId === userId || net <= 0) continue;
       const commission = Math.round(net * COMMISSION_RATE * 100) / 100;
-      const creatorNet = net - commission;
       earningRows.push({
         user_id: creatorId,
-        amount_inr: creatorNet,
+        amount_inr: net,
         type: "credit",
         status: "completed",
-        description: `Creator earning (75%): ${c.courses?.title ?? "Course sale"}`,
+        description: `Creator earning (100%): ${c.courses?.title ?? "Course sale"}`,
       });
       commissionRows.push({
         user_id: creatorId,

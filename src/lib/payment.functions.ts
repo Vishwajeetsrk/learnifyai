@@ -10,6 +10,20 @@ function getCashfreeApi() {
     : "https://api.cashfree.com/pg";
 }
 
+async function checkWalletTopupPermission(userId: string) {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: roles } = await supabaseAdmin
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+  const userRoles = (roles ?? []).map((r: any) => r.role);
+  const allowed = ["creator", "coach", "admin", "super_admin"];
+  const hasPermission = userRoles.some((r: any) => allowed.includes(r));
+  if (!hasPermission) {
+    throw new Error("Only creators, coaches, and admins can top up their wallet.");
+  }
+}
+
 export const createCashfreeOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: { amountInr: number; email?: string }) =>
@@ -17,6 +31,7 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
   )
   .handler(async ({ data: { amountInr, email }, context }) => {
     if (!context.userId) throw new Error("Unauthorized");
+    await checkWalletTopupPermission(context.userId);
 
     const appId = process.env.CASHFREE_APP_ID;
     const secretKey = process.env.CASHFREE_SECRET_KEY;
@@ -81,6 +96,7 @@ export const verifyCashfreePayment = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     if (!context.userId) throw new Error("Unauthorized");
+    await checkWalletTopupPermission(context.userId);
 
     const appId = process.env.CASHFREE_APP_ID;
     const secretKey = process.env.CASHFREE_SECRET_KEY;
@@ -233,7 +249,21 @@ export const processPendingPayouts = createServerFn({ method: "POST" })
             transfer_currency: "INR",
             transfer_mode: wd.method === "upi" ? "upi" : "banktransfer",
             transfer_details: {
-              ...(wd.method === "upi" ? { upi: { upi_id: dest?.details } } : {}),
+              ...(wd.method === "upi"
+                ? { upi: { upi_id: dest?.details } }
+                : (() => {
+                    const parts = (dest?.details || "").split(" · ");
+                    const name = parts[0] || "Recipient";
+                    const account_number = parts[1] || "";
+                    const ifsc = parts[2] || "";
+                    return {
+                      bank_account: {
+                        account_number,
+                        ifsc,
+                        name,
+                      },
+                    };
+                  })()),
             },
           }),
         });

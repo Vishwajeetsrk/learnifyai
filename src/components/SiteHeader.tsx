@@ -12,13 +12,18 @@ export function SiteHeader() {
   const { isAuthenticated, loading } = useAuth();
   const { data: menuItems = [], isLoading: menuLoading } = usePublicMenu("main");
   const { t, ready } = useTranslation();
-  const tr = (key: string, fallback: string) => (ready ? t(key) : fallback);
+  const tr = (key: string, fallback: string) => {
+    if (!ready) return fallback;
+    const val = t(key);
+    return val === key ? fallback : val;
+  };
 
   const fallbackNav = [
     { label: tr("nav.features", "Features"), url: "/features" },
     { label: tr("nav.aiTools", "AI Tools"), url: "/features#ai-tools" },
     { label: tr("nav.creators", "Creators"), url: "/creators" },
     { label: tr("nav.coaches", "Coaches"), url: "/coaches" },
+    { label: tr("nav.projects", "Projects"), url: "/projects" },
     { label: tr("nav.pricing", "Pricing"), url: "/pricing" },
     { label: tr("nav.blog", "Blog"), url: "/blog" },
   ];

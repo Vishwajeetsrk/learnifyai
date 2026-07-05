@@ -85,7 +85,7 @@ const DEFAULT_SECTIONS: Section[] = [
           { type: "text", value: "500" },
           { type: "text", value: "10,000" },
           { type: "text", value: "25,000" },
-          { type: "text", value: "50,000" },
+          { type: "text", value: "Custom" },
         ],
       },
       {
@@ -115,23 +115,23 @@ const DEFAULT_SECTIONS: Section[] = [
       },
       {
         name: "Resume Builder",
-        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "ATS Checker",
-        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "Mock Interviews",
-        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "Career Coach",
-        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "Learning Roadmaps",
-        columns: [{ type: "cross" }, { type: "cross" }, { type: "check" }, { type: "check" }],
+        columns: [{ type: "cross" }, { type: "check" }, { type: "check" }, { type: "check" }],
       },
       {
         name: "Portfolio Builder",
@@ -170,7 +170,7 @@ const DEFAULT_SECTIONS: Section[] = [
     ],
   },
   {
-    title: "Team & Enterprise",
+    title: "Enterprise Features",
     features: [
       {
         name: "Admin Dashboard",

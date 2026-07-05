@@ -8,7 +8,8 @@
     "blog": "Blog",
     "dashboard": "Abrir app",
     "signIn": "Iniciar sesión",
-    "getStarted": "Empezar"
+    "getStarted": "Empezar",
+    "projects": "Proyectos"
   },
   "hero": {
     "badge": "Sistema de Aprendizaje con IA",
@@ -84,6 +85,11 @@
         "description": "Buscadores de empleo — todo en Pro + Currículum / ATS / Preparación de entrevistas / Roadmap, certificados verificados incluidos.",
         "cta": "Preparado para el Empleo",
         "badge": "Mejor Valor"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Universidades y empresas — asientos, SSO, informes de administración, marca personalizada.",
+        "cta": "Reservar demo"
       }
     },
     "faq": {

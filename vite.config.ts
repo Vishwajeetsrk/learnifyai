@@ -61,7 +61,6 @@ export default defineConfig({
             if (id.includes("cmdk")) return "vendor-cmdk";
             if (id.includes("vaul")) return "vendor-vaul";
             if (id.includes("sonner")) return "vendor-sonner";
-            return false;
           },
         },
       },

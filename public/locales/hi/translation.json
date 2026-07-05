@@ -8,7 +8,8 @@
     "blog": "ब्लॉग",
     "dashboard": "ऐप खोलें",
     "signIn": "साइन इन",
-    "getStarted": "शुरू करें"
+    "getStarted": "शुरू करें",
+    "projects": "परियोजनाएं"
   },
   "hero": {
     "badge": "AI-संचालित लर्निंग OS",
@@ -380,87 +381,6 @@
     "browseCourses": "कोर्स देखें",
     "earnXP": "पाठ पूरे करके, परीक्षा पास करके, चुनौतियों को हल करके और स्ट्रीक बनाकर XP कमाएँ।",
     "streak": "स्ट्रीक"
-  },
-  "settings": {
-    "title": "सेटिंग्स",
-    "profile": "प्रोफ़ाइल",
-    "appearance": "दिखावट",
-    "notifications": "सूचनाएँ",
-    "account": "खाता",
-    "fullName": "पूरा नाम",
-    "email": "ईमेल",
-    "bio": "बायो",
-    "location": "स्थान",
-    "website": "वेबसाइट",
-    "socialLinks": "सोशल लिंक",
-    "save": "परिवर्तन सहेजें",
-    "saved": "सहेजा गया!",
-    "avatar": "अवतार",
-    "banner": "बैनर",
-    "skills": "कौशल",
-    "darkMode": "डार्क मोड",
-    "language": "भाषा",
-    "deleteAccount": "खाता हटाएँ",
-    "dangerZone": "खतरनाक क्षेत्र"
-  },
-  "interview": {
-    "title": "इंटरव्यू तैयारी",
-    "subtitle": "AI फीडबैक के साथ मॉक इंटरव्यू का अभ्यास करें",
-    "startInterview": "इंटरव्यू शुरू करें",
-    "selectRole": "जॉब रोल चुनें",
-    "selectMode": "मोड चुनें",
-    "voiceMode": "वॉइस",
-    "chatMode": "चैट",
-    "videoMode": "वीडियो",
-    "difficulty": "कठिनाई",
-    "easy": "आसान",
-    "medium": "मध्यम",
-    "hard": "कठिन",
-    "score": "स्कोर",
-    "feedback": "फीडबैक",
-    "nextQuestion": "अगला सवाल",
-    "endInterview": "इंटरव्यू समाप्त करें",
-    "interviewComplete": "इंटरव्यू पूरा",
-    "yourScore": "आपका स्कोर",
-    "detailedFeedback": "विस्तृत फीडबैक",
-    "tryAgain": "फिर से कोशिश करें",
-    "noInterviews": "अभी तक कोई इंटरव्यू नहीं",
-    "startPracticing": "अपने कौशल में सुधार के लिए अभ्यास शुरू करें",
-    "roles": {
-      "frontend": "फ्रंटएंड डेवलपर",
-      "backend": "बैकएंड डेवलपर",
-      "fullstack": "फुल-स्टैक डेवलपर",
-      "dataScience": "डेटा साइंटिस्ट",
-      "devops": "DevOps इंजीनियर",
-      "mobile": "मोबाइल डेवलपर",
-      "pm": "प्रोडक्ट मैनेजर",
-      "designer": "UI/UX डिज़ाइनर"
-    }
-  },
-  "challenges": {
-    "title": "कोडिंग चुनौतियाँ",
-    "subtitle": "अपने कौशल को तेज करने के लिए दैनिक कोडिंग चुनौतियाँ",
-    "dailyChallenge": "दैनिक चुनौती",
-    "allChallenges": "सभी चुनौतियाँ",
-    "easy": "आसान",
-    "medium": "मध्यम",
-    "hard": "कठिन",
-    "points": "अंक",
-    "solved": "हल किया",
-    "attempt": "प्रयास",
-    "solve": "हल करें",
-    "submissions": "सबमिशन",
-    "noChallenges": "अभी तक कोई चुनौती उपलब्ध नहीं",
-    "startSolving": "अंक कमाने के लिए हल करना शुरू करें",
-    "leaderboard": "चुनौती लीडरबोर्ड",
-    "categories": {
-      "algorithms": "एल्गोरिदम",
-      "dataStructures": "डेटा स्ट्रक्चर",
-      "javascript": "JavaScript",
-      "python": "Python",
-      "sql": "SQL",
-      "systemDesign": "सिस्टम डिज़ाइन"
-    }
   },
   "settings": {
     "page": {
@@ -945,6 +865,65 @@
       "branding": {
         "saved": "ब्रांडिंग सहेजी गई"
       }
+    }
+  },
+  "interview": {
+    "title": "इंटरव्यू तैयारी",
+    "subtitle": "AI फीडबैक के साथ मॉक इंटरव्यू का अभ्यास करें",
+    "startInterview": "इंटरव्यू शुरू करें",
+    "selectRole": "जॉब रोल चुनें",
+    "selectMode": "मोड चुनें",
+    "voiceMode": "वॉइस",
+    "chatMode": "चैट",
+    "videoMode": "वीडियो",
+    "difficulty": "कठिनाई",
+    "easy": "आसान",
+    "medium": "मध्यम",
+    "hard": "कठिन",
+    "score": "स्कोर",
+    "feedback": "फीडबैक",
+    "nextQuestion": "अगला सवाल",
+    "endInterview": "इंटरव्यू समाप्त करें",
+    "interviewComplete": "इंटरव्यू पूरा",
+    "yourScore": "आपका स्कोर",
+    "detailedFeedback": "विस्तृत फीडबैक",
+    "tryAgain": "फिर से कोशिश करें",
+    "noInterviews": "अभी तक कोई इंटरव्यू नहीं",
+    "startPracticing": "अपने कौशल में सुधार के लिए अभ्यास शुरू करें",
+    "roles": {
+      "frontend": "फ्रंटएंड डेवलपर",
+      "backend": "बैकएंड डेवलपर",
+      "fullstack": "फुल-स्टैक डेवलपर",
+      "dataScience": "डेटा साइंटिस्ट",
+      "devops": "DevOps इंजीनियर",
+      "mobile": "मोबाइल डेवलपर",
+      "pm": "प्रोडक्ट मैनेजर",
+      "designer": "UI/UX डिज़ाइनर"
+    }
+  },
+  "challenges": {
+    "title": "कोडिंग चुनौतियाँ",
+    "subtitle": "अपने कौशल को तेज करने के लिए दैनिक कोडिंग चुनौतियाँ",
+    "dailyChallenge": "दैनिक चुनौती",
+    "allChallenges": "सभी चुनौतियाँ",
+    "easy": "आसान",
+    "medium": "मध्यम",
+    "hard": "कठिन",
+    "points": "अंक",
+    "solved": "हल किया",
+    "attempt": "प्रयास",
+    "solve": "हल करें",
+    "submissions": "सबमिशन",
+    "noChallenges": "अभी तक कोई चुनौती उपलब्ध नहीं",
+    "startSolving": "अंक कमाने के लिए हल करना शुरू करें",
+    "leaderboard": "चुनौती लीडरबोर्ड",
+    "categories": {
+      "algorithms": "एल्गोरिदम",
+      "dataStructures": "डेटा स्ट्रक्चर",
+      "javascript": "JavaScript",
+      "python": "Python",
+      "sql": "SQL",
+      "systemDesign": "सिस्टम डिज़ाइन"
     }
   }
 }

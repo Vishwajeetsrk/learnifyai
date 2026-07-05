@@ -6,9 +6,12 @@ import {
   Grid3X3, Upload, Share2, ChevronDown, Download,
   Award, Briefcase, Infinity as InfinityIcon, Star, Shield, Code2,
   Trophy, Crown, Cloud, Target, Brain, BarChart2, LayoutGrid as GridIcon,
-  Wand2, CheckCircle2, ChevronRight, AlignCenter, AlignLeft, AlignRight, AlignJustify,
+  Wand2, CheckCircle2, ChevronRight, AlignCenter, AlignLeft, AlignRight, AlignJustify, Palette
 } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
+import jsPDF from 'jspdf';
+import QRCode from 'qrcode';
+import { toast } from 'sonner';
 
 /* ─────────────────────────────────────────────
    TYPES
@@ -433,11 +436,22 @@ const FeatureIcon = ({ icon, size=14 }: { icon: string; size?: number }) => {
    QR CODE component – uses free QR server API
 ─────────────────────────────────────────────── */
 const QRCodeDisplay = ({ url, size = 90 }: { url: string; size?: number }) => {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size*2}x${size*2}&data=${encodeURIComponent(url)}&color=000000&bgcolor=ffffff&format=png&qzone=1`;
+  const [qrSrc, setQrSrc] = useState<string>('');
+
+  useEffect(() => {
+    if (!url) return;
+    QRCode.toDataURL(url, { margin: 1, width: size * 2 })
+      .then(src => setQrSrc(src))
+      .catch(err => console.error('qrcode error:', err));
+  }, [url, size]);
+
   return (
-    <div className="bg-white p-1 border border-gray-200 rounded shadow-sm" style={{ width: size, height: size }}>
-      <img src={qrUrl} alt="QR Code" className="w-full h-full object-contain" crossOrigin="anonymous"
-        onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }}/>
+    <div className="bg-white p-1 border border-gray-200 rounded shadow-sm flex items-center justify-center" style={{ width: size, height: size }}>
+      {qrSrc ? (
+        <img src={qrSrc} alt="QR Code" className="w-full h-full object-contain" />
+      ) : (
+        <div className="text-[8px] text-gray-400">Loading...</div>
+      )}
     </div>
   );
 };
@@ -472,7 +486,29 @@ export function CertificateDesigner() {
   const [zoom, setZoom] = useState(78);
   const [selectedTemplate, setSelectedTemplate] = useState('navy');
   const [downloading, setDownloading] = useState(false);
+  const [mobileLeftOpen, setMobileLeftOpen] = useState(false);
+  const [mobileRightOpen, setMobileRightOpen] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-fit zoom based on viewport width
+  useEffect(() => {
+    const handleResize = () => {
+      if (!containerRef.current) return;
+      const width = containerRef.current.clientWidth;
+      const padding = 24; // padding on mobile
+      const availableWidth = width - padding * 2;
+      if (availableWidth < 860) {
+        const optimalZoom = Math.floor((availableWidth / 860) * 100);
+        setZoom(Math.max(30, Math.min(100, optimalZoom)));
+      } else {
+        setZoom(78); // default desktop zoom
+      }
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const t = templates[selectedTemplate];
 
@@ -504,7 +540,7 @@ export function CertificateDesigner() {
     let canvas: HTMLCanvasElement | null = null;
     try {
       canvas = await html2canvas(el, {
-        scale: 2, useCORS: true, allowTaint: false,
+        scale: 3, useCORS: true, allowTaint: false,
         backgroundColor: t.certBg, logging: false,
         width: 860, height: 610,
       });
@@ -524,33 +560,32 @@ export function CertificateDesigner() {
       link.download = `certificate-${contentData.student_name.replace(/\s+/g, '_')}-${contentData.cert_id}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
+      toast.success("Certificate exported successfully as PNG!");
+    } else {
+      toast.error("Failed to generate image download");
     }
     setDownloading(false);
   }, [captureCanvas, contentData]);
 
-  /* Download as PDF — renders cert to canvas image, then prints in new window */
+  /* Download as PDF — generates a PDF document and downloads directly */
   const handleDownloadPDF = useCallback(async () => {
     setDownloading(true);
     const canvas = await captureCanvas();
     if (canvas) {
       const imgData = canvas.toDataURL('image/png');
-      const win = window.open('', '_blank');
-      if (win) {
-        win.document.write(`<!DOCTYPE html><html><head>
-          <style>
-            @page { size: A4 landscape; margin: 0; }
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { background: white; }
-            img { width: 100vw; height: 100vh; object-fit: contain; display: block; }
-          </style>
-        </head><body>
-          <img src="${imgData}" onload="window.focus();window.print();"/>
-        </body></html>`);
-        win.document.close();
-      }
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [860, 610]
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, 860, 610);
+      pdf.save(`certificate-${contentData.student_name.replace(/\s+/g, '_')}-${contentData.cert_id}.pdf`);
+      toast.success("Certificate exported successfully as PDF!");
+    } else {
+      toast.error("Failed to generate PDF");
     }
     setDownloading(false);
-  }, [captureCanvas]);
+  }, [captureCanvas, contentData]);
 
   const selectedMeta = selectedElement ? elementMeta[selectedElement] : null;
 
@@ -574,33 +609,50 @@ export function CertificateDesigner() {
 
       {/* ── TOP MENU BAR ── */}
       <div className="h-12 bg-[#0B1929] border-b border-slate-800 flex items-center justify-between px-4 shrink-0 z-20">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div className="w-6 h-6 rounded bg-gradient-to-br from-teal-400 to-blue-600 flex items-center justify-center font-black text-white text-xs">L</div>
-          <span className="text-white font-bold text-sm">Learnify AI</span>
-          <div className="h-4 w-px bg-slate-700 mx-1"/>
-          <span className="text-slate-400 text-xs font-medium">Certificate Designer Pro</span>
+          <span className="text-white font-bold text-sm hidden md:block">Learnify AI</span>
+          <div className="h-4 w-px bg-slate-700 mx-1 hidden md:block"/>
+          <span className="text-slate-400 text-xs font-medium hidden sm:block">Certificate Designer Pro</span>
+
+          {/* Mobile Side Panel Toggles */}
+          <button 
+            onClick={() => { setMobileLeftOpen(!mobileLeftOpen); setMobileRightOpen(false); }}
+            className={`lg:hidden flex items-center gap-1 px-2 py-1 text-xs font-bold rounded transition-colors ${mobileLeftOpen ? 'bg-teal-900 text-yellow-400' : 'text-slate-300 border border-slate-700'}`}
+          >
+            <LayoutGrid size={13}/>
+            <span className="hidden xs:inline">Templates</span>
+          </button>
+          <button 
+            onClick={() => { setMobileRightOpen(!mobileRightOpen); setMobileLeftOpen(false); }}
+            className={`lg:hidden flex items-center gap-1 px-2 py-1 text-xs font-bold rounded transition-colors ${mobileRightOpen ? 'bg-teal-900 text-yellow-400' : 'text-slate-300 border border-slate-700'}`}
+          >
+            <Palette size={13}/>
+            <span className="hidden xs:inline">Properties</span>
+          </button>
         </div>
-        <div className="flex items-center gap-0.5">
+        <div className="flex items-center gap-0.5 hidden md:flex">
           {['File','Edit','View','Insert','Templates','Brand Kit','AI Tools','Resize'].map(m=>(
             <button key={m} className="px-2.5 py-1.5 text-[11px] font-medium text-slate-300 hover:text-white hover:bg-slate-800 rounded transition-colors">{m}</button>
           ))}
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 hidden sm:flex">
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.6)]"/>
             <span className="text-[10px] text-slate-400">Autosaved</span>
           </div>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white border border-slate-700 hover:bg-slate-800 rounded transition-colors">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white border border-slate-700 hover:bg-slate-800 rounded transition-colors hidden sm:flex">
             <Share2 size={13}/> Share
           </button>
           {/* Download dropdown */}
           <div className="flex items-center gap-1">
             <button onClick={handleDownloadPNG} disabled={downloading}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#0B1929] bg-[#D4A843] hover:bg-[#e8c06a] rounded-l transition-colors shadow-[0_0_12px_rgba(212,168,67,0.3)] disabled:opacity-60">
-              <Download size={13}/> {downloading ? 'Exporting...' : 'Export PNG'}
+              className="flex items-center gap-1 px-2 py-1.5 text-xs font-bold text-[#0B1929] bg-[#D4A843] hover:bg-[#e8c06a] rounded-l transition-colors shadow-[0_0_12px_rgba(212,168,67,0.3)] disabled:opacity-60">
+              <Download size={13}/> <span className="hidden sm:inline">{downloading ? 'Exporting...' : 'Export PNG'}</span>
+              <span className="sm:hidden">PNG</span>
             </button>
             <button onClick={handleDownloadPDF}
-              className="px-2 py-1.5 text-xs font-bold text-[#0B1929] bg-[#D4A843] hover:bg-[#e8c06a] rounded-r border-l border-[#b88e35] transition-colors">PDF</button>
+              className="px-2.5 py-1.5 text-xs font-bold text-[#0B1929] bg-[#D4A843] hover:bg-[#e8c06a] rounded-r border-l border-[#b88e35] transition-colors">PDF</button>
           </div>
         </div>
       </div>
@@ -628,7 +680,18 @@ export function CertificateDesigner() {
         </div>
 
         {/* ── LEFT CONTENT PANEL ── */}
-        <div className="w-[276px] bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 z-10">
+        <div className={`w-[276px] bg-slate-900 border-r border-slate-800 flex-col shrink-0 z-20 transition-all duration-200 ${
+          mobileLeftOpen 
+            ? 'fixed inset-y-0 left-14 top-12 bottom-0 shadow-2xl flex border-r border-slate-800' 
+            : 'hidden lg:flex'
+        }`}>
+          {mobileLeftOpen && (
+            <div className="p-2 border-b border-slate-800 flex justify-end lg:hidden shrink-0">
+              <button onClick={() => setMobileLeftOpen(false)} className="text-slate-400 hover:text-white text-xs font-semibold px-2 py-1 border border-slate-800 rounded">
+                Close ×
+              </button>
+            </div>
+          )}
           {/* Tabs */}
           <div className="flex bg-[#0B1929] px-1 pt-1.5 border-b border-slate-800 shrink-0">
             {[
@@ -781,7 +844,7 @@ export function CertificateDesigner() {
             <button onClick={()=>setZoom(78)} className="px-2 py-1 text-[10px] font-medium text-gray-600 hover:bg-gray-100 rounded">Fit</button>
           </div>
 
-          <div className="flex-1 overflow-auto flex items-center justify-center p-16"
+          <div ref={containerRef} className="flex-1 overflow-auto flex items-center justify-center p-4 sm:p-8 md:p-16"
             onClick={()=>setSelectedElement(null)}>
             {/* ─── THE CERTIFICATE ─── */}
             <div
@@ -940,7 +1003,18 @@ export function CertificateDesigner() {
         </div>
 
         {/* ── RIGHT PANEL ── */}
-        <div className="w-[290px] bg-slate-900 border-l border-slate-800 flex flex-col shrink-0">
+        <div className={`w-[290px] bg-slate-900 border-l border-slate-800 flex-col shrink-0 z-20 transition-all duration-200 ${
+          mobileRightOpen 
+            ? 'fixed inset-y-0 right-0 top-12 bottom-0 shadow-2xl flex border-l border-slate-800' 
+            : 'hidden lg:flex'
+        }`}>
+          {mobileRightOpen && (
+            <div className="p-2 border-b border-slate-800 flex justify-end lg:hidden shrink-0">
+              <button onClick={() => setMobileRightOpen(false)} className="text-slate-400 hover:text-white text-xs font-semibold px-2 py-1 border border-slate-800 rounded">
+                Close ×
+              </button>
+            </div>
+          )}
           {/* Tab header */}
           <div className="flex border-b border-slate-800 shrink-0">
             {['properties','content'].map(tab=>(

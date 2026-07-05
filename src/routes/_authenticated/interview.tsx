@@ -346,7 +346,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
               <h2 className="font-semibold mb-4 flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-primary" /> Select Mode
               </h2>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {MODES.map((m) => {
                   const Icon = m.icon;
                   return (
@@ -379,7 +379,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
               <h2 className="font-semibold mb-4 flex items-center gap-2">
                 <Target className="h-4 w-4 text-primary" /> Difficulty
               </h2>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 {DIFFICULTIES.map((d) => (
                   <button
                     key={d.id}
@@ -558,7 +558,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
 
                     <p className="text-sm text-muted-foreground">{evaluation.feedback}</p>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {evaluation.strengths.length > 0 && (
                         <div>
                           <p className="text-xs font-medium text-emerald-500 mb-1.5 flex items-center gap-1">
@@ -615,7 +615,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
               <h2 className="text-2xl font-bold mb-2">Interview Complete!</h2>
               <p className="text-muted-foreground mb-6">Here's how you performed</p>
 
-              <div className="grid grid-cols-3 gap-4 max-w-md mx-auto mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-md mx-auto mb-6">
                 <div className="p-4 rounded-xl bg-muted/50">
                   <p className="text-3xl font-bold text-primary">{avgScore}</p>
                   <p className="text-xs text-muted-foreground mt-1">Avg Score</p>

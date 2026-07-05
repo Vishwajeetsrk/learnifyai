@@ -216,6 +216,34 @@ export default function CoachingDashboard() {
 
       const priceInr = Number(slot?.price_inr ?? 0);
 
+      // Debit learner wallet
+      if (priceInr > 0 && selectedCoachId !== user.id) {
+        const { data: txs } = await supabase
+          .from("wallet_transactions")
+          .select("amount_inr, type, status")
+          .eq("user_id", user.id);
+
+        const balance = (txs ?? [])
+          .filter((t) => t.status === "completed")
+          .reduce(
+            (s, t) => s + (t.type === "credit" ? Number(t.amount_inr) : -Number(t.amount_inr)),
+            0,
+          );
+
+        if (priceInr > balance) {
+          throw new Error(`Insufficient wallet balance. Slot costs ₹${priceInr}, but you have ₹${balance}.`);
+        }
+
+        const { error: learnerDebitErr } = await supabase.from("wallet_transactions").insert({
+          user_id: user.id,
+          amount_inr: priceInr,
+          type: "debit",
+          status: "completed",
+          description: `Booked coaching session with coach: ${(coaches as any).find((c: any) => c.id === selectedCoachId)?.full_name || "Expert"}`,
+        });
+        if (learnerDebitErr) throw learnerDebitErr;
+      }
+
       const { error: slotError } = await supabase
         .from("coaching_slots" as any)
         .update({ is_booked: true })
@@ -229,21 +257,20 @@ export default function CoachingDashboard() {
       });
       if (bookingError) throw bookingError;
 
-      // Credit coach wallet with 20% commission deducted
+      // Credit coach wallet with 20% commission deducted (credited 100% and debited 20% platform commission)
       if (priceInr > 0 && selectedCoachId !== user.id) {
-        const coachShare = Math.round(priceInr * 0.8 * 100) / 100; // 80% to coach
-        const platformFee = priceInr - coachShare; // 20% platform
+        const platformFee = Math.round(priceInr * 0.2 * 100) / 100; // 20% platform
         await supabase.from("wallet_transactions").insert([
           {
             user_id: selectedCoachId,
-            amount_inr: coachShare,
+            amount_inr: priceInr, // Credit 100%
             type: "credit",
             status: "completed",
-            description: `Coaching session earnings (80%): ₹${coachShare}`,
+            description: `Coaching session earnings (100%): ₹${priceInr}`,
           },
           {
             user_id: selectedCoachId,
-            amount_inr: platformFee,
+            amount_inr: platformFee, // Debit 20%
             type: "debit",
             status: "completed",
             description: `Platform commission (20%): ₹${platformFee}`,

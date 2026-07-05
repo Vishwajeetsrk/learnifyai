@@ -145,6 +145,24 @@ export function DesignerToolbar({
           >
             <Award className="h-3.5 w-3.5 mr-1" /> Badge
           </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 text-xs"
+            onClick={() => onAddElement("seal_icon")}
+            title="Add official seal crest"
+          >
+            <ShieldCheck className="h-3.5 w-3.5 mr-1" /> Seal
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 px-2 text-xs"
+            onClick={() => onAddElement("guilloche_watermark")}
+            title="Add guilloche security watermark"
+          >
+            <Sparkles className="h-3.5 w-3.5 mr-1" /> Watermark
+          </Button>
         </div>
       </div>
 
@@ -168,7 +186,7 @@ export function DesignerToolbar({
             <DropdownMenuItem onClick={onExportPNG}>Download High-Res PNG</DropdownMenuItem>
             <DropdownMenuItem onClick={onExportPDF}>Download Print PDF</DropdownMenuItem>
             {onExportSVG && <DropdownMenuItem onClick={onExportSVG}>Download Vector SVG</DropdownMenuItem>}
-            {onExportGIF && <DropdownMenuItem onClick={onExportGIF}>Download High-Res PNG</DropdownMenuItem>}
+            {onExportGIF && <DropdownMenuItem onClick={onExportGIF}>Download Animated GIF</DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
 

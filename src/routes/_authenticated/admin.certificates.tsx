@@ -892,7 +892,22 @@ function AdminCertificatesPage() {
         {/* ===== CERTIFICATE DESIGNER ===== */}
         {activeSubTab === "designer" && (
           <div className="space-y-6">
-            <CertDesignerAdmin onEditTemplate={(tpl) => setActive(tpl as any)} />
+            <CertDesignerAdmin
+              onEditTemplate={(tpl) => {
+                const conv = fieldsToElements(tpl.fields_json || {});
+                setActive({
+                  id: tpl.id,
+                  name: tpl.name,
+                  type: tpl.category || "Certificate",
+                  layout: "classic",
+                  bg_image_url: tpl.bg_image_url,
+                  config_json: {
+                    elements: conv.elements,
+                    design: themeToDesign(tpl.theme_colors),
+                  },
+                });
+              }}
+            />
           </div>
         )}
 

@@ -145,13 +145,7 @@ function BlogPostPage() {
             <ArrowLeft className="h-4 w-4" /> Back to blog
           </Link>
 
-          {post.featured_image && (
-            <SafeImage
-              src={post.featured_image}
-              alt={post.title}
-              className="w-full aspect-video object-cover rounded-2xl mb-8"
-            />
-          )}
+
 
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{post.title}</h1>
 
