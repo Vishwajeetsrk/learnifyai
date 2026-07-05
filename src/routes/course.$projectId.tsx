@@ -55,7 +55,37 @@ function CourseDetailPage() {
   }
 
   // @ts-ignore - course_modules is loosely typed in projects.json for now
-  const modules = project.course_modules || [];
+  const modules = project.course_modules?.length > 0 ? project.course_modules : [
+    {
+      step: 1,
+      title: "Project Setup & Environment",
+      text: "Initialize a Vite + React + TypeScript workspace. Set up Tailwind CSS."
+    },
+    {
+      step: 2,
+      title: "UI Architecture & Layout",
+      text: "Structure the main components. Build the navigation and responsive grid layouts."
+    },
+    {
+      step: 3,
+      title: "Implementing Core Features",
+      text: `Develop the core functionality: ${project.description?.substring(0, 60) || project.title}...`
+    },
+    {
+      step: 4,
+      title: "Animations & Polish",
+      text: "Add smooth transitions, hover effects, and animations to bring the template to life."
+    }
+  ];
+
+  const descLower = (project.description || "").toLowerCase();
+  const techStack = project.tech_stack || [
+    { icon: Code2, title: "React + Vite", desc: "Frontend framework" },
+    { icon: Layout, title: "Tailwind CSS", desc: "Styling engine" },
+    ...(descLower.includes("gsap") ? [{ icon: Play, title: "GSAP", desc: "Animation library" }] : []),
+    ...(descLower.includes("3d") || descLower.includes("spline") ? [{ icon: BookOpen, title: "Spline / 3D", desc: "Interactive 3D" }] : []),
+    ...(descLower.includes("video") ? [{ icon: Play, title: "React Player", desc: "Video handling" }] : []),
+  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
@@ -158,20 +188,18 @@ function CourseDetailPage() {
 
                    {activeTab === "tech" && (
                      <div className="space-y-3">
-                        <div className="flex items-center gap-3 p-3 rounded-xl bg-accent/50 border border-border/50">
-                          <Code2 className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="text-sm font-medium">React + Vite</p>
-                            <p className="text-xs text-muted-foreground">Frontend framework</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3 p-3 rounded-xl bg-accent/50 border border-border/50">
-                          <Layout className="h-5 w-5 text-primary" />
-                          <div>
-                            <p className="text-sm font-medium">Tailwind CSS</p>
-                            <p className="text-xs text-muted-foreground">Styling engine</p>
-                          </div>
-                        </div>
+                       {techStack.map((tech: any, idx: number) => {
+                         const Icon = tech.icon;
+                         return (
+                           <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-accent/50 border border-border/50 group hover:border-primary/50 transition-colors">
+                             <Icon className="h-5 w-5 text-primary" />
+                             <div>
+                               <p className="text-sm font-medium">{tech.title}</p>
+                               <p className="text-xs text-muted-foreground">{tech.desc}</p>
+                             </div>
+                           </div>
+                         );
+                       })}
                      </div>
                    )}
                  </div>
