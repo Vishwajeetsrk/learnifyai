@@ -505,7 +505,7 @@ function ProjectsPage() {
                     src={selectedProject.path}
                     title={selectedProject.name}
                     className="w-full flex-1 bg-white border-0"
-                    sandbox="allow-scripts allow-same-origin allow-popups"
+                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"
                   />
                 </div>
               </div>
