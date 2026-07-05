@@ -417,8 +417,13 @@ function ProjectsPage() {
 
         {/* ── Filter Chips ─────────────────────────────────────── */}
         <section className="sticky top-[60px] z-30 bg-background/90 backdrop-blur-md border-b border-border/60 py-3 px-4 sm:px-6">
-          <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto pb-0.5">
-            <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+          <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-2 pb-0.5">
+            <div className="flex items-center gap-1.5 mr-1 text-muted-foreground shrink-0">
+              <Filter className="h-4 w-4" />
+              <span className="text-xs font-semibold">
+                ({filteredProjects.length})
+              </span>
+            </div>
             {FILTER_CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               return (
@@ -436,9 +441,6 @@ function ProjectsPage() {
                 </button>
               );
             })}
-            <span className="ml-auto shrink-0 text-xs text-muted-foreground font-medium">
-              {filteredProjects.length} design{filteredProjects.length !== 1 ? "s" : ""}
-            </span>
           </div>
         </section>
 

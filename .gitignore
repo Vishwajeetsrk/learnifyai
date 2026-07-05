@@ -60,3 +60,5 @@ supabase/.temp/
 /vite-server.log
 /dist/
 
+# Large Media
+public/videos/Learnify_AI.mp4

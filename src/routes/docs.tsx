@@ -246,19 +246,19 @@ function DocsPage() {
         {/* CONTENT */}
         <section className="container mx-auto px-4 md:px-6 py-10 max-w-5xl">
           {/* Tab bar */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-2 mb-8 border-b scrollbar-none">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:flex md:items-center gap-2 md:gap-1 pb-2 mb-8 border-b">
             {TABS.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-t-lg text-sm font-medium whitespace-nowrap transition-colors border-b-2 -mb-px",
+                  "flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl md:rounded-t-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border md:border-0 md:border-b-2 -mb-px justify-center md:justify-start",
                   activeTab === t.id
-                    ? "border-primary text-primary bg-primary/5"
-                    : "border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                    ? "border-primary text-primary bg-primary/5 md:bg-primary/5 md:border-b-2"
+                    : "border-border md:border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40"
                 )}
               >
-                <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full">{t.icon}</span>
+                <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full shrink-0">{t.icon}</span>
                 {t.label}
               </button>
             ))}
