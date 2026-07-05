@@ -128,31 +128,33 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {sections.map((section: any) => (
-          <div key={section.title}>
-            <h4 className="font-display font-semibold text-sm mb-4">{section.title}</h4>
-            <ul className="space-y-2.5 text-sm text-muted-foreground">
-              {section.links.map((link: any) => (
-                <li key={link.id || link.label}>
-                  {link.open_new_tab ? (
-                    <a
-                      href={link.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="hover:text-foreground transition"
-                    >
-                      {link.label}
-                    </a>
-                  ) : (
-                    <Link to={link.url || "/"} className="hover:text-foreground transition">
-                      {link.label}
-                    </Link>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 md:col-span-4">
+          {sections.map((section: any) => (
+            <div key={section.title}>
+              <h4 className="font-display font-semibold text-sm mb-4">{section.title}</h4>
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
+                {section.links.map((link: any) => (
+                  <li key={link.id || link.label}>
+                    {link.open_new_tab ? (
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:text-foreground transition-colors"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link to={link.url || "/"} className="hover:text-foreground transition-colors">
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
       <div className="border-t border-border/60 py-6 text-center text-xs text-muted-foreground">
         &copy; {new Date().getFullYear()} Learnify AI &middot; Learn Smarter. Grow Faster.
