@@ -507,6 +507,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Keyboard Shortcuts**: Added keydown listeners for Delete/Backspace to remove selected elements, and Escape to deselect.
 - ✅ **Desktop Drag & Drop**: Dragging image files from desktop onto the canvas either sets the background image (if dropped on background) or inserts a new draggable image element.
 
+### v4.4.1 (July 2026) - Animation Fixes, AI Optimize, Field-to-Element Conversion
+
+- ✅ **Animation Button Fixed**: Replaced framer-motion `motion.div` entrance animations in admin with Tailwind `animate-in fade-in-0` CSS. Removed framer-motion dependency from admin certificates page — no more broken animations.
+- ✅ **GIF Export Fixed**: "Download Animated GIF" (which produced a static image) replaced with "Download High-Res PNG" — actually exports as real PNG.
+- ✅ **AI Optimize Wired**: Button now calls `aiOptimizeDesign` via `callUserAiChat` (Groq→Gemini→OpenRouter fallback). Sends current design/elements to AI for real suggestions on border style, font family, colors, corner style, and background pattern.
+- ✅ **Fields→Elements Conversion**: Opening a field-based template (with `fields_json`) in DesignerWorkspace now converts its 22 percentage-based fields into real `CertElement[]` with pixel positions on the 842×595 canvas. Templates open as interactive/draggable text and image elements — not static images.
+- ✅ **Theme Migration Added**: `themeToDesign` converts `theme_colors` (primary/accent/background/text) to `CertDesign` format for seamless field-to-element editing.
+- ✅ **Zero TypeScript Errors**: No compilation errors across all changed files.
+
 ### v4.4.0 (July 2026) - Certificate Template Overhaul & Career Studio Upgrade
 
 - ✅ **Certificate Templates Expanded (8→22 fields)**: Redesigned all 30 certificate templates with accurate field positions. Added 14 new editable fields: learnifyLogo, certIdLabel, title, subtitle, certifyText, completeText, signatureImage, signatureRole, centerLogo, dateLabel, qrCode, verifyLabel, badgeAi/Industry/Career/Access. Editor now supports grouped field tabs (Top/Title/Student/Course/Signature/Bottom/QR/Badges) with type-specific controls for text, image, and QR fields.
