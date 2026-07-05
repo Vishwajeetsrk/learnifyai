@@ -1,17 +1,13 @@
-import { useState, useRef, useCallback, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useRef, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   listCanvaTemplates,
   saveCanvaTemplate,
   deleteCanvaTemplate,
   seedAllTemplates,
-  updateAllTemplateFields,
-  DEFAULT_FIELDS,
 } from "@/lib/canva-cert.functions";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +32,6 @@ import {
   HelpCircle,
   Plus,
   ChevronDown,
-  ArrowUpRight,
   Download,
   Share2,
   QrCode,
@@ -54,14 +49,26 @@ import {
   ChevronRight,
   Check,
   Crown,
-  BookOpen,
   FileText,
   Clock,
   Zap,
+  Type,
+  Image as ImageIcon,
+  Square,
+  Ribbon,
+  FileSpreadsheet,
+  Layers,
+  Sparkle,
+  Sliders,
+  Maximize2,
+  Undo,
+  Redo,
+  RotateCcw,
+  AlertCircle,
+  X,
+  Lock,
+  ChevronLeft,
 } from "lucide-react";
-import { CertDesignerPreview } from "./CertDesignerPreview";
-import { CertDesignerEditor } from "./CertDesignerEditor";
-import { LinkedInShareModal } from "./LinkedInShareModal";
 
 type CanvaTemplate = {
   id: string;
@@ -76,92 +83,89 @@ type CanvaTemplate = {
   created_by: string | null;
 };
 
-const CATEGORIES = [
-  "All Templates",
+const CATEGORY_PILLS = [
+  "All",
+  "Professional",
+  "Academic",
+  "Modern",
+  "Minimal",
+  "Luxury",
+  "Creative",
   "Corporate",
-  "University",
   "Technology",
-  "AI & ML",
+  "AI",
   "Workshop",
   "Bootcamp",
-  "Coaching",
   "Internship",
-  "Webinar",
-  "Premium",
 ];
 
-const MOCK_ACTIVITIES = [
+const RECENT_CERTIFICATES = [
   {
     id: "1",
-    type: "generated",
-    title: "React Development Course Certificate generated",
-    meta: "Certificate ID: LAI-2026-05-00248",
-    time: "2 min ago",
-    icon: CheckCircle2,
-    color: "text-emerald-500 bg-emerald-500/10",
+    course: "Full Stack Web Development",
+    recipient: "John Doe",
+    time: "2 minutes ago",
+    status: "Issued",
+    statusColor: "bg-emerald-50 text-emerald-600 border-emerald-200",
+    bg: "from-amber-900 to-slate-900",
   },
   {
     id: "2",
-    type: "verified",
-    title: "Python Programming Certificate verified",
-    meta: "Verified by: John D. from New Delhi, India",
-    time: "15 min ago",
-    icon: ShieldCheck,
-    color: "text-purple-500 bg-purple-500/10",
+    course: "Python Programming Masterclass",
+    recipient: "Sarah Wilson",
+    time: "15 minutes ago",
+    status: "Verified",
+    statusColor: "bg-blue-50 text-blue-600 border-blue-200",
+    bg: "from-blue-900 to-indigo-950",
   },
   {
     id: "3",
-    type: "bulk",
-    title: "25 Certificates issued in bulk",
-    meta: "Course: Web Development Bootcamp",
+    course: "AI & ML Fundamentals",
+    recipient: "Michael Brown",
     time: "1 hour ago",
-    icon: Users,
-    color: "text-blue-500 bg-blue-500/10",
+    status: "Issued",
+    statusColor: "bg-emerald-50 text-emerald-600 border-emerald-200",
+    bg: "from-purple-950 to-slate-900",
   },
   {
     id: "4",
-    type: "linkedin",
-    title: "12 learners shared certificates on LinkedIn",
-    meta: "Great job! Your certificates are being recognized",
+    course: "UI/UX Design Principles",
+    recipient: "Emily Johnson",
     time: "2 hours ago",
-    icon: Linkedin,
-    color: "text-[#0A66C2] bg-[#0A66C2]/10",
+    status: "Downloaded",
+    statusColor: "bg-amber-50 text-amber-600 border-amber-200",
+    bg: "from-slate-900 to-purple-950",
   },
   {
     id: "5",
-    type: "download",
-    title: "50 Certificates downloaded",
-    meta: "Across 8 different courses",
+    course: "Data Science with Python",
+    recipient: "David Lee",
     time: "3 hours ago",
-    icon: Download,
-    color: "text-rose-500 bg-rose-500/10",
+    status: "Added to Wallet",
+    statusColor: "bg-purple-50 text-purple-600 border-purple-200",
+    bg: "from-[#0a1628] to-[#1e293b]",
   },
 ];
 
-const MOCK_TOP_COURSES = [
-  { name: "Web Development Bootcamp", count: 1248, percent: 25, color: "bg-indigo-600" },
-  { name: "Python Programming Masterclass", count: 1105, percent: 22, color: "bg-blue-500" },
-  { name: "AI & ML Fundamentals", count: 982, percent: 19, color: "bg-emerald-500" },
-  { name: "UI/UX Design Principles", count: 756, percent: 15, color: "bg-purple-500" },
-  { name: "Data Science with Python", count: 623, percent: 12, color: "bg-amber-500" },
-];
-
-const MOCK_EXPIRIES = [
-  { name: "AWS Cloud Practitioner", expires: "Expires in 15 days", count: 25 },
-  { name: "Google Analytics Certification", expires: "Expires in 30 days", count: 18 },
-  { name: "Microsoft Azure Fundamentals", expires: "Expires in 45 days", count: 32 },
+const RECENT_VERIFICATIONS = [
+  { id: "LAI-2026-000124", status: "Verified successfully", time: "2 min ago" },
+  { id: "LAI-2026-000123", status: "Verified successfully", time: "6 min ago" },
+  { id: "LAI-2026-000122", status: "Verified successfully", time: "12 min ago" },
+  { id: "LAI-2026-000121", status: "Verified successfully", time: "18 min ago" },
 ];
 
 export function CertDesignerAdmin() {
   const qc = useQueryClient();
-  const [activeNav, setActiveNav] = useState("dashboard"); // dashboard, templates, designer, etc.
+  const [activeTab, setActiveTab] = useState("overview"); // overview, templates, designer, bulk, etc.
   const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("All Templates");
-  const [selectedTemplate, setSelectedTemplate] = useState<CanvaTemplate | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [editorOpen, setEditorOpen] = useState(false);
-  const [aiPrompt, setAiPrompt] = useState("");
-  const [aiGenerating, setAiGenerating] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [bulkStep, setBulkStep] = useState(1);
+  const [designerStudentName, setDesignerStudentName] = useState("Vishwajeet Sharma");
+  const [designerCourse, setDesignerCourse] = useState("Full Stack Web Development");
+  const [designerFont, setDesignerFont] = useState("Playfair Display");
+  const [designerFontSize, setDesignerFontSize] = useState("72");
+  const [designerColor, setDesignerColor] = useState("#0F172A");
+  const [activeElement, setActiveElement] = useState<string | null>("Student Name");
 
   const doList = useServerFn(listCanvaTemplates);
   const doSave = useServerFn(saveCanvaTemplate);
@@ -180,618 +184,850 @@ export function CertDesignerAdmin() {
     return templates.filter((t) => {
       const matchSearch = !search || t.name.toLowerCase().includes(search.toLowerCase());
       const matchCat =
-        selectedCategory === "All Templates" ||
-        (selectedCategory === "Premium" && t.name.toLowerCase().includes("gold")) ||
+        selectedCategory === "All" ||
+        (selectedCategory === "Luxury" && t.name.toLowerCase().includes("gold")) ||
         t.category.toLowerCase().includes(selectedCategory.toLowerCase());
       return matchSearch && matchCat;
     });
   }, [templates, search, selectedCategory]);
 
-  const handleAiGenerate = () => {
-    if (!aiPrompt.trim()) {
-      toast.error("Please enter a description for your certificate!");
-      return;
-    }
-    setAiGenerating(true);
-    setTimeout(() => {
-      setAiGenerating(false);
-      toast.success("AI Certificate generated successfully!");
-      setActiveNav("templates");
-    }, 1500);
-  };
-
   return (
-    <div className="flex min-h-screen bg-[#090d16] text-foreground font-sans antialiased overflow-x-hidden">
-      {/* 1. LEFT SIDEBAR NAVIGATION */}
-      <aside className="w-64 bg-[#0c101d] border-r border-white/10 flex flex-col shrink-0 select-none z-30">
+    <div className="flex min-h-screen bg-[#F8FAFC] text-slate-900 font-sans antialiased">
+      {/* 1. LEFT SIDEBAR NAVIGATION (Matching Image 1 & Image 4 Light Design) */}
+      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 select-none z-30">
         {/* Brand Header */}
-        <div className="h-16 px-6 flex items-center gap-3 border-b border-white/10">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-            <Award className="h-5 w-5 text-white" />
+        <div className="h-16 px-6 flex items-center gap-3 border-b border-slate-100">
+          <div className="h-9 w-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+            <Award className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="font-bold text-sm text-white tracking-tight flex items-center gap-1.5">
-              Learnify AI
-              <span className="text-[10px] font-semibold bg-indigo-500/20 text-indigo-400 px-1.5 py-0.2 rounded border border-indigo-500/30">
-                3.0
-              </span>
-            </h1>
-            <p className="text-[11px] text-white/50 font-medium">Credential OS</p>
+            <h1 className="font-bold text-sm text-slate-900 tracking-tight">Learnify AI</h1>
+            <p className="text-[11px] text-slate-500 font-medium">Credential OS</p>
           </div>
         </div>
 
-        {/* Navigation Items */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-          {/* CREDENTIALS Group */}
+        {/* Sidebar Nav List */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
           <div className="space-y-1">
-            <span className="px-3 text-[10px] font-bold text-white/40 tracking-wider uppercase">Credentials</span>
             <button
-              onClick={() => setActiveNav("dashboard")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "dashboard"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
+              onClick={() => setActiveTab("overview")}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                activeTab === "overview"
+                  ? "bg-slate-100 text-slate-900 font-semibold"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
               }`}
             >
-              <LayoutDashboard className="h-4 w-4" />
-              Dashboard
+              <LayoutDashboard className="h-4 w-4" /> Dashboard
             </button>
             <button
-              onClick={() => setActiveNav("certificates")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "certificates"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
+              onClick={() => setActiveTab("overview")}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             >
-              <Award className="h-4 w-4" />
-              Certificates
+              <Award className="h-4 w-4" /> Courses
             </button>
             <button
-              onClick={() => setActiveNav("templates")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "templates"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
+              onClick={() => setActiveTab("overview")}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             >
-              <LayoutTemplate className="h-4 w-4" />
-              Templates
+              <Sparkles className="h-4 w-4" /> AI Tutor
             </button>
             <button
-              onClick={() => setActiveNav("designer")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "designer"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
+              onClick={() => setActiveTab("overview")}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             >
-              <Palette className="h-4 w-4" />
-              Designer
+              <FileText className="h-4 w-4" /> Career Studio
             </button>
             <button
-              onClick={() => setActiveNav("skills")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "skills"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
+              onClick={() => setActiveTab("overview")}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             >
-              <ShieldCheck className="h-4 w-4" />
-              Skills & Badges
+              <Users className="h-4 w-4" /> Community
             </button>
             <button
-              onClick={() => setActiveNav("verification")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "verification"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
+              onClick={() => setActiveTab("overview")}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             >
-              <CheckCircle2 className="h-4 w-4" />
-              Verification
+              <Clock className="h-4 w-4" /> Coaching
             </button>
             <button
-              onClick={() => setActiveNav("wallet")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "wallet"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
+              onClick={() => setActiveTab("overview")}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             >
-              <Wallet className="h-4 w-4" />
-              Wallet
+              <Zap className="h-4 w-4" /> AI Tools
             </button>
-          </div>
 
-          {/* AUTOMATION Group */}
-          <div className="space-y-1">
-            <span className="px-3 text-[10px] font-bold text-white/40 tracking-wider uppercase">Automation</span>
-            <button
-              onClick={() => setActiveNav("bulk")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "bulk"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <Users className="h-4 w-4" />
-              Bulk Issue
-            </button>
-            <button
-              onClick={() => setActiveNav("email")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "email"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <Mail className="h-4 w-4" />
-              Email Center
-            </button>
-          </div>
+            {/* Certificates Active Group */}
+            <div className="pt-2">
+              <button
+                onClick={() => setActiveTab("overview")}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100"
+              >
+                <div className="flex items-center gap-3">
+                  <CheckCircle2 className="h-4 w-4" /> Certificates
+                </div>
+                <ChevronDown className="h-3.5 w-3.5" />
+              </button>
 
-          {/* INSIGHTS Group */}
-          <div className="space-y-1">
-            <span className="px-3 text-[10px] font-bold text-white/40 tracking-wider uppercase">Insights</span>
-            <button
-              onClick={() => setActiveNav("analytics")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "analytics"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <BarChart3 className="h-4 w-4" />
-              Analytics
-            </button>
-          </div>
+              <div className="ml-7 mt-1 space-y-1 border-l-2 border-slate-100 pl-3">
+                <button
+                  onClick={() => setActiveTab("overview")}
+                  className={`w-full text-left py-1.5 text-xs ${
+                    activeTab === "overview" ? "font-bold text-blue-600" : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  Overview
+                </button>
+                <button
+                  onClick={() => setActiveTab("overview")}
+                  className="w-full text-left py-1.5 text-xs text-slate-500 hover:text-slate-900"
+                >
+                  All Certificates
+                </button>
+                <button
+                  onClick={() => setActiveTab("templates")}
+                  className={`w-full text-left py-1.5 text-xs ${
+                    activeTab === "templates" ? "font-bold text-blue-600" : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  Templates
+                </button>
+                <button
+                  onClick={() => setActiveTab("designer")}
+                  className={`w-full text-left py-1.5 text-xs ${
+                    activeTab === "designer" ? "font-bold text-blue-600" : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  Designer
+                </button>
+                <button
+                  onClick={() => setActiveTab("bulk")}
+                  className={`w-full text-left py-1.5 text-xs ${
+                    activeTab === "bulk" ? "font-bold text-blue-600" : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  Bulk Issue
+                </button>
+                <button
+                  onClick={() => setActiveTab("overview")}
+                  className="w-full text-left py-1.5 text-xs text-slate-500 hover:text-slate-900"
+                >
+                  Verification
+                </button>
+                <button
+                  onClick={() => setActiveTab("overview")}
+                  className="w-full text-left py-1.5 text-xs text-slate-500 hover:text-slate-900"
+                >
+                  Analytics
+                </button>
+                <button
+                  onClick={() => setActiveTab("overview")}
+                  className="w-full text-left py-1.5 text-xs text-slate-500 hover:text-slate-900"
+                >
+                  Categories
+                </button>
+              </div>
+            </div>
 
-          {/* TOOLS Group */}
-          <div className="space-y-1">
-            <span className="px-3 text-[10px] font-bold text-white/40 tracking-wider uppercase">Tools</span>
             <button
-              onClick={() => setActiveNav("ai-designer")}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "ai-designer"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
+              onClick={() => setActiveTab("overview")}
+              className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 mt-4"
             >
               <div className="flex items-center gap-3">
-                <Sparkles className="h-4 w-4 text-purple-400" />
-                AI Designer
+                <ShoppingBag className="h-4 w-4" /> Cart
               </div>
-              <span className="text-[9px] font-bold bg-purple-500 text-white px-1.5 py-0.5 rounded-full uppercase">
-                New
+              <span className="h-5 w-5 rounded-full bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center">
+                1
               </span>
             </button>
             <button
-              onClick={() => setActiveNav("marketplace")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "marketplace"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
+              onClick={() => setActiveTab("overview")}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
             >
-              <ShoppingBag className="h-4 w-4" />
-              Marketplace
+              <Wallet className="h-4 w-4" /> Wallet
             </button>
           </div>
 
-          {/* SETTINGS Group */}
-          <div className="space-y-1">
-            <span className="px-3 text-[10px] font-bold text-white/40 tracking-wider uppercase">Settings</span>
-            <button
-              onClick={() => setActiveNav("settings")}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeNav === "settings"
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <Settings className="h-4 w-4" />
-              Settings
-            </button>
+          {/* Support Pill */}
+          <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-2.5">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="text-left text-xs">
+              <p className="font-bold text-slate-900">Learnify Support</p>
+              <p className="text-[10px] text-slate-500">Online Assistant</p>
+            </div>
           </div>
         </div>
 
-        {/* User Profile Footer */}
-        <div className="p-4 border-t border-white/10 space-y-3">
-          <div className="flex items-center justify-between p-2 rounded-xl bg-white/5 border border-white/10">
+        {/* User Footer Profile */}
+        <div className="p-4 border-t border-slate-100">
+          <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
             <div className="flex items-center gap-2.5">
               <img
                 src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop"
-                alt="Avatar"
-                className="h-8 w-8 rounded-full object-cover ring-2 ring-indigo-500"
+                alt="Vishwajeet"
+                className="h-8 w-8 rounded-full object-cover ring-2 ring-blue-500"
               />
               <div className="text-left">
-                <p className="text-xs font-bold text-white line-clamp-1">Vishwajeet S.</p>
-                <p className="text-[10px] text-white/50">Administrator</p>
+                <p className="text-xs font-bold text-slate-900">Vishwajeet S.</p>
+                <p className="text-[10px] text-slate-500">Administrator</p>
               </div>
             </div>
-            <ChevronDown className="h-4 w-4 text-white/50" />
-          </div>
-
-          {/* Pro Plan Meter */}
-          <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-900/50 to-purple-900/50 border border-indigo-500/20 text-xs space-y-1.5">
-            <div className="flex justify-between items-center text-[10px] font-semibold text-white/80">
-              <span>Pro Plan</span>
-              <span className="text-indigo-400">Valid till May 2027</span>
-            </div>
-            <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 w-[95%]" />
-            </div>
-            <p className="text-[10px] text-white/60 text-right">AI Credits: 19,996 / 20,000</p>
+            <ChevronDown className="h-4 w-4 text-slate-400" />
           </div>
         </div>
       </aside>
 
       {/* 2. MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[#090d16] overflow-y-auto">
-        {/* Top Header Bar */}
-        <header className="h-16 px-8 border-b border-white/10 flex items-center justify-between gap-4 shrink-0 bg-[#0c101d]/80 backdrop-blur-md sticky top-0 z-20">
-          <div className="flex items-center gap-4 flex-1 max-w-md">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
-              <input
-                type="text"
-                placeholder="Search anything... (⌘ K)"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-9 pl-9 pr-4 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-indigo-500 transition-all"
-              />
+      <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC] overflow-y-auto">
+        {/* Top Navigation Bar & Action Bar */}
+        <header className="h-16 px-8 border-b border-slate-200 flex items-center justify-between bg-white sticky top-0 z-20">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Award className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="font-bold text-base text-slate-900 tracking-tight">
+                {activeTab === "overview" && "Certificate System"}
+                {activeTab === "bulk" && "Bulk Issue Certificates"}
+                {activeTab === "designer" && "Certificate Designer"}
+                {activeTab === "templates" && "Certificate Templates"}
+              </h2>
+              <p className="text-xs text-slate-500">
+                {activeTab === "overview" && "Create, manage and issue professional certificates with ease."}
+                {activeTab === "bulk" && "Upload a list of recipients and issue certificates in bulk."}
+                {activeTab === "designer" && "Design beautiful, verifiable certificates with ease."}
+                {activeTab === "templates" && "Choose a template or create your own beautiful certificate."}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/70 transition-all">
-              <HelpCircle className="h-4 w-4" />
-            </button>
-            <button className="h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-white/70 relative transition-all">
-              <Bell className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
+            <button className="text-xs font-semibold text-slate-600 hover:text-slate-900 border border-slate-200 px-3.5 py-2 rounded-xl flex items-center gap-1.5 bg-white shadow-sm">
+              View Public Gallery <ExternalLink className="h-3.5 w-3.5" />
             </button>
 
-            <Button
-              onClick={() => setActiveNav("designer")}
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs px-4 h-9 rounded-xl shadow-lg shadow-indigo-600/30 flex items-center gap-1.5"
-            >
-              <Plus className="h-4 w-4" />
-              Create Certificate
-              <ChevronDown className="h-3.5 w-3.5 opacity-70" />
-            </Button>
+            <button className="h-9 w-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-600 relative bg-white shadow-sm">
+              <Bell className="h-4 w-4" />
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-600" />
+            </button>
+
+            <div className="flex items-center gap-2 pl-2">
+              <img
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop"
+                alt="Avatar"
+                className="h-8 w-8 rounded-full object-cover ring-2 ring-blue-500"
+              />
+              <div className="text-left text-xs hidden sm:block">
+                <p className="font-bold text-slate-900 leading-none">Vishwajeet S.</p>
+                <p className="text-[10px] text-slate-500">Administrator</p>
+              </div>
+            </div>
           </div>
         </header>
 
-        {/* 3. DYNAMIC CONTENT CONTAINER */}
-        <main className="p-8 space-y-8 flex-1">
-          {/* PAGE 1: CREDENTIAL DASHBOARD (Match Screenshot 1 1:1) */}
-          {activeNav === "dashboard" && (
-            <div className="space-y-8 animate-in fade-in duration-300">
-              {/* Hero Greeting */}
-              <div>
-                <h2 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-                  Welcome back, Vishwajeet! 👋
-                </h2>
-                <p className="text-xs text-white/60 mt-1">Here's what's happening with your credentials today.</p>
-              </div>
+        {/* Secondary Navigation Sub-Tabs Bar (Matching Image 1 & 4) */}
+        <div className="bg-white border-b border-slate-200 px-8 py-3 flex items-center justify-between gap-4 overflow-x-auto">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setActiveTab("overview")}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                activeTab === "overview"
+                  ? "bg-blue-50 text-blue-600 border border-blue-200 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <LayoutDashboard className="h-3.5 w-3.5" /> Overview
+            </button>
+            <button
+              onClick={() => setActiveTab("overview")}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
+            >
+              <Award className="h-3.5 w-3.5" /> All Certificates
+            </button>
+            <button
+              onClick={() => setActiveTab("templates")}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                activeTab === "templates"
+                  ? "bg-blue-50 text-blue-600 border border-blue-200 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <LayoutTemplate className="h-3.5 w-3.5" /> Templates
+            </button>
+            <button
+              onClick={() => setActiveTab("designer")}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                activeTab === "designer"
+                  ? "bg-blue-50 text-blue-600 border border-blue-200 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <Palette className="h-3.5 w-3.5" /> Designer
+            </button>
+            <button
+              onClick={() => setActiveTab("bulk")}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                activeTab === "bulk"
+                  ? "bg-blue-50 text-blue-600 border border-blue-200 shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              <Users className="h-3.5 w-3.5" /> Bulk Issue
+            </button>
+            <button
+              onClick={() => setActiveTab("overview")}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
+            >
+              <ShieldCheck className="h-3.5 w-3.5" /> Verification
+            </button>
+            <button
+              onClick={() => setActiveTab("overview")}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
+            >
+              <BarChart3 className="h-3.5 w-3.5" /> Analytics
+            </button>
+            <button
+              onClick={() => setActiveTab("overview")}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
+            >
+              <Layers className="h-3.5 w-3.5" /> Categories
+            </button>
+            <button
+              onClick={() => setActiveTab("overview")}
+              className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1.5"
+            >
+              <Settings className="h-3.5 w-3.5" /> Settings
+            </button>
+          </div>
+        </div>
 
-              {/* 6 Top Stat Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+        {/* 3. TAB CONTENT VIEWS */}
+        <main className="p-8 space-y-8 flex-1">
+          {/* TAB 1: OVERVIEW DASHBOARD (Match Image 1 1:1) */}
+          {activeTab === "overview" && (
+            <div className="space-y-8 animate-in fade-in duration-300">
+              {/* 5 Top Stat Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 {/* Card 1 */}
-                <div className="p-5 rounded-2xl bg-[#0c101d] border border-white/10 space-y-2 relative overflow-hidden">
-                  <div className="flex items-center justify-between text-white/60">
-                    <span className="text-[11px] font-medium">Certificates Issued</span>
-                    <Award className="h-4 w-4 text-purple-400" />
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between text-slate-500">
+                    <span className="text-xs font-medium">Certificates Issued</span>
+                    <div className="h-8 w-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                      <FileText className="h-4 w-4" />
+                    </div>
                   </div>
-                  <p className="text-2xl font-extrabold text-white">12,420</p>
-                  <p className="text-[10px] font-semibold text-emerald-400 flex items-center gap-1">
-                    ↑ 24.5% <span className="text-white/40">this month</span>
+                  <p className="text-2xl font-extrabold text-slate-900">12,420</p>
+                  <p className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    ↑ 24.5% <span className="text-slate-400 font-normal">This Month</span>
                   </p>
                 </div>
 
                 {/* Card 2 */}
-                <div className="p-5 rounded-2xl bg-[#0c101d] border border-white/10 space-y-2 relative overflow-hidden">
-                  <div className="flex items-center justify-between text-white/60">
-                    <span className="text-[11px] font-medium">Verification Rate</span>
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between text-slate-500">
+                    <span className="text-xs font-medium">Verifications</span>
+                    <div className="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                      <ShieldCheck className="h-4 w-4" />
+                    </div>
                   </div>
-                  <p className="text-2xl font-extrabold text-white">96.7%</p>
-                  <p className="text-[10px] font-semibold text-emerald-400 flex items-center gap-1">
-                    ↑ 18.7% <span className="text-white/40">this month</span>
+                  <p className="text-2xl font-extrabold text-slate-900">8,752</p>
+                  <p className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    ↑ 18.7% <span className="text-slate-400 font-normal">This Month</span>
                   </p>
                 </div>
 
                 {/* Card 3 */}
-                <div className="p-5 rounded-2xl bg-[#0c101d] border border-white/10 space-y-2 relative overflow-hidden">
-                  <div className="flex items-center justify-between text-white/60">
-                    <span className="text-[11px] font-medium">QR Scans</span>
-                    <QrCode className="h-4 w-4 text-blue-400" />
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between text-slate-500">
+                    <span className="text-xs font-medium">Downloads</span>
+                    <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                      <Download className="h-4 w-4" />
+                    </div>
                   </div>
-                  <p className="text-2xl font-extrabold text-white">15,891</p>
-                  <p className="text-[10px] font-semibold text-emerald-400 flex items-center gap-1">
-                    ↑ 28.4% <span className="text-white/40">this month</span>
+                  <p className="text-2xl font-extrabold text-slate-900">6,423</p>
+                  <p className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    ↑ 16.2% <span className="text-slate-400 font-normal">This Month</span>
                   </p>
                 </div>
 
                 {/* Card 4 */}
-                <div className="p-5 rounded-2xl bg-[#0c101d] border border-white/10 space-y-2 relative overflow-hidden">
-                  <div className="flex items-center justify-between text-white/60">
-                    <span className="text-[11px] font-medium">LinkedIn Shares</span>
-                    <Linkedin className="h-4 w-4 text-[#0A66C2]" />
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between text-slate-500">
+                    <span className="text-xs font-medium">LinkedIn Shares</span>
+                    <div className="h-8 w-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                      <Linkedin className="h-4 w-4" />
+                    </div>
                   </div>
-                  <p className="text-2xl font-extrabold text-white">4,522</p>
-                  <p className="text-[10px] font-semibold text-emerald-400 flex items-center gap-1">
-                    ↑ 32.1% <span className="text-white/40">this month</span>
+                  <p className="text-2xl font-extrabold text-slate-900">3,251</p>
+                  <p className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    ↑ 20.2% <span className="text-slate-400 font-normal">This Month</span>
                   </p>
                 </div>
 
                 {/* Card 5 */}
-                <div className="p-5 rounded-2xl bg-[#0c101d] border border-white/10 space-y-2 relative overflow-hidden">
-                  <div className="flex items-center justify-between text-white/60">
-                    <span className="text-[11px] font-medium">Wallet Credentials</span>
-                    <Wallet className="h-4 w-4 text-amber-400" />
+                <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-2">
+                  <div className="flex items-center justify-between text-slate-500">
+                    <span className="text-xs font-medium">Wallet Added</span>
+                    <div className="h-8 w-8 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center">
+                      <Wallet className="h-4 w-4" />
+                    </div>
                   </div>
-                  <p className="text-2xl font-extrabold text-white">12,420</p>
-                  <p className="text-[10px] font-semibold text-emerald-400 flex items-center gap-1">
-                    ↑ 20.8% <span className="text-white/40">this month</span>
-                  </p>
-                </div>
-
-                {/* Card 6 */}
-                <div className="p-5 rounded-2xl bg-[#0c101d] border border-white/10 space-y-2 relative overflow-hidden">
-                  <div className="flex items-center justify-between text-white/60">
-                    <span className="text-[11px] font-medium">Active Templates</span>
-                    <LayoutTemplate className="h-4 w-4 text-pink-400" />
-                  </div>
-                  <p className="text-2xl font-extrabold text-white">38</p>
-                  <p className="text-[10px] font-semibold text-emerald-400 flex items-center gap-1">
-                    ↑ 12 <span className="text-white/40">this month</span>
+                  <p className="text-2xl font-extrabold text-slate-900">7,983</p>
+                  <p className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
+                    ↑ 21.4% <span className="text-slate-400 font-normal">This Month</span>
                   </p>
                 </div>
               </div>
 
-              {/* Middle Section: Recent Activity & Quick Actions */}
+              {/* Middle Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Recent Activity (6 cols) */}
-                <div className="lg:col-span-6 p-6 rounded-2xl bg-[#0c101d] border border-white/10 space-y-4">
+                {/* Recent Certificates (4 cols) */}
+                <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-sm text-white">Recent Activity</h3>
-                    <button className="text-xs text-indigo-400 hover:text-indigo-300 font-semibold">View all</button>
+                    <h3 className="font-bold text-sm text-slate-900">Recent Certificates</h3>
+                    <button className="text-xs text-blue-600 hover:underline font-semibold">View All</button>
                   </div>
                   <div className="space-y-3">
-                    {MOCK_ACTIVITIES.map((act) => {
-                      const Icon = act.icon;
-                      return (
-                        <div key={act.id} className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                          <div className={`p-2 rounded-xl ${act.color} shrink-0`}>
-                            <Icon className="h-4 w-4" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-white line-clamp-1">{act.title}</p>
-                            <p className="text-[10px] text-white/50 line-clamp-1 mt-0.5">{act.meta}</p>
-                          </div>
-                          <span className="text-[10px] text-white/40 shrink-0 font-medium">{act.time}</span>
+                    {RECENT_CERTIFICATES.map((cert) => (
+                      <div key={cert.id} className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-center gap-3">
+                        <div className={`w-14 h-10 rounded-lg bg-gradient-to-br ${cert.bg} p-1 text-[7px] text-white font-serif flex flex-col justify-center text-center shrink-0`}>
+                          <p className="font-bold">Certificate</p>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Quick Actions Grid (6 cols) */}
-                <div className="lg:col-span-6 p-6 rounded-2xl bg-[#0c101d] border border-white/10 space-y-4">
-                  <h3 className="font-bold text-sm text-white">Quick Actions</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    <button
-                      onClick={() => setActiveNav("designer")}
-                      className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 hover:border-indigo-500/50 text-left space-y-2 transition-all hover:scale-[1.02]"
-                    >
-                      <div className="h-8 w-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center">
-                        <Plus className="h-4 w-4" />
-                      </div>
-                      <p className="text-xs font-bold text-white">Create Certificate</p>
-                      <p className="text-[10px] text-white/50">Create single certificate</p>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveNav("ai-designer")}
-                      className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:border-purple-500/50 text-left space-y-2 transition-all hover:scale-[1.02] relative"
-                    >
-                      <span className="absolute top-2 right-2 text-[9px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded-full">New</span>
-                      <div className="h-8 w-8 rounded-lg bg-purple-500 text-white flex items-center justify-center">
-                        <Sparkles className="h-4 w-4" />
-                      </div>
-                      <p className="text-xs font-bold text-white">AI Designer</p>
-                      <p className="text-[10px] text-white/50">Generate with AI</p>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveNav("bulk")}
-                      className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:border-blue-500/50 text-left space-y-2 transition-all hover:scale-[1.02]"
-                    >
-                      <div className="h-8 w-8 rounded-lg bg-blue-500 text-white flex items-center justify-center">
-                        <Users className="h-4 w-4" />
-                      </div>
-                      <p className="text-xs font-bold text-white">Bulk Generate</p>
-                      <p className="text-[10px] text-white/50">Upload CSV / Excel</p>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveNav("templates")}
-                      className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/50 text-left space-y-2 transition-all hover:scale-[1.02]"
-                    >
-                      <div className="h-8 w-8 rounded-lg bg-amber-500 text-white flex items-center justify-center">
-                        <LayoutTemplate className="h-4 w-4" />
-                      </div>
-                      <p className="text-xs font-bold text-white">Template Library</p>
-                      <p className="text-[10px] text-white/50">Browse 30+ templates</p>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveNav("verification")}
-                      className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/50 text-left space-y-2 transition-all hover:scale-[1.02]"
-                    >
-                      <div className="h-8 w-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
-                        <ShieldCheck className="h-4 w-4" />
-                      </div>
-                      <p className="text-xs font-bold text-white">Verification Center</p>
-                      <p className="text-[10px] text-white/50">Verify credentials</p>
-                    </button>
-
-                    <button
-                      onClick={() => setActiveNav("wallet")}
-                      className="p-4 rounded-xl bg-pink-500/10 border border-pink-500/20 hover:border-pink-500/50 text-left space-y-2 transition-all hover:scale-[1.02]"
-                    >
-                      <div className="h-8 w-8 rounded-lg bg-pink-500 text-white flex items-center justify-center">
-                        <Wallet className="h-4 w-4" />
-                      </div>
-                      <p className="text-xs font-bold text-white">Credential Wallet</p>
-                      <p className="text-[10px] text-white/50">View all credentials</p>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Section: Top Courses & Status Charts */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                {/* Top Courses Progress (7 cols) */}
-                <div className="lg:col-span-7 p-6 rounded-2xl bg-[#0c101d] border border-white/10 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-sm text-white">Top Performing Courses</h3>
-                    <span className="text-xs text-white/50">Share of Total Certificates</span>
-                  </div>
-                  <div className="space-y-4">
-                    {MOCK_TOP_COURSES.map((course, idx) => (
-                      <div key={course.name} className="space-y-1.5">
-                        <div className="flex justify-between text-xs">
-                          <span className="font-semibold text-white">
-                            {idx + 1}. {course.name}
-                          </span>
-                          <span className="text-white/60 font-mono">
-                            {course.count.toLocaleString()} ({course.percent}%)
-                          </span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-slate-900 line-clamp-1">{cert.course}</p>
+                          <p className="text-[10px] text-slate-500">Issued to {cert.recipient} • {cert.time}</p>
                         </div>
-                        <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                          <div className={`h-full ${course.color}`} style={{ width: `${course.percent * 3.5}%` }} />
-                        </div>
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border ${cert.statusColor}`}>
+                          {cert.status}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* Status & Expiries (5 cols) */}
-                <div className="lg:col-span-5 p-6 rounded-2xl bg-[#0c101d] border border-white/10 space-y-6">
-                  <div>
-                    <h3 className="font-bold text-sm text-white mb-3">Certificate Status Breakdown</h3>
-                    <div className="grid grid-cols-2 gap-3 text-xs">
-                      <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
-                        <span className="text-emerald-400 font-semibold">Active</span>
-                        <span className="text-white font-bold">11,230 (90.4%)</span>
+                {/* Quick Actions (4 cols) */}
+                <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-bold text-sm text-slate-900">Quick Actions</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setActiveTab("designer")}
+                      className="p-4 rounded-xl bg-purple-50/50 border border-purple-100 hover:border-purple-300 text-left space-y-2 transition-all hover:shadow-sm"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-purple-600 text-white flex items-center justify-center">
+                        <FileText className="h-4 w-4" />
                       </div>
-                      <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
-                        <span className="text-amber-400 font-semibold">Expired</span>
-                        <span className="text-white font-bold">856 (6.9%)</span>
+                      <p className="text-xs font-bold text-slate-900">Create Certificate</p>
+                      <p className="text-[10px] text-slate-500">Create a new certificate manually</p>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("designer")}
+                      className="p-4 rounded-xl bg-blue-50/50 border border-blue-100 hover:border-blue-300 text-left space-y-2 transition-all hover:shadow-sm"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
+                        <Sparkles className="h-4 w-4" />
                       </div>
-                      <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
-                        <span className="text-rose-400 font-semibold">Revoked</span>
-                        <span className="text-white font-bold">214 (1.7%)</span>
+                      <p className="text-xs font-bold text-slate-900">AI Designer</p>
+                      <p className="text-[10px] text-slate-500">Generate certificates with AI</p>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("bulk")}
+                      className="p-4 rounded-xl bg-emerald-50/50 border border-emerald-100 hover:border-emerald-300 text-left space-y-2 transition-all hover:shadow-sm"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center">
+                        <Upload className="h-4 w-4" />
                       </div>
-                      <div className="p-3 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
-                        <span className="text-blue-400 font-semibold">Draft</span>
-                        <span className="text-white font-bold">120 (1.0%)</span>
+                      <p className="text-xs font-bold text-slate-900">Bulk Issue</p>
+                      <p className="text-[10px] text-slate-500">Upload CSV and issue in bulk</p>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("templates")}
+                      className="p-4 rounded-xl bg-amber-50/50 border border-amber-100 hover:border-amber-300 text-left space-y-2 transition-all hover:shadow-sm"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-amber-600 text-white flex items-center justify-center">
+                        <LayoutTemplate className="h-4 w-4" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-900">Template Library</p>
+                      <p className="text-[10px] text-slate-500">Browse 50+ professional templates</p>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("overview")}
+                      className="p-4 rounded-xl bg-slate-50 border border-slate-200 hover:border-slate-300 text-left space-y-2 transition-all hover:shadow-sm"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-slate-800 text-white flex items-center justify-center">
+                        <ShieldCheck className="h-4 w-4" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-900">Verification Center</p>
+                      <p className="text-[10px] text-slate-500">Verify any certificate</p>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab("overview")}
+                      className="p-4 rounded-xl bg-pink-50/50 border border-pink-100 hover:border-pink-300 text-left space-y-2 transition-all hover:shadow-sm"
+                    >
+                      <div className="h-8 w-8 rounded-lg bg-pink-600 text-white flex items-center justify-center">
+                        <BarChart3 className="h-4 w-4" />
+                      </div>
+                      <p className="text-xs font-bold text-slate-900">Analytics Dashboard</p>
+                      <p className="text-[10px] text-slate-500">View detailed reports</p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Certificate Statistics & Activity (4 cols) */}
+                <div className="lg:col-span-4 space-y-6">
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-sm text-slate-900">Certificate Statistics</h3>
+                      <span className="text-xs text-slate-500">This Month</span>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <div className="relative w-28 h-28 flex items-center justify-center">
+                        <div className="w-full h-full rounded-full border-8 border-purple-600 border-t-emerald-500 border-r-blue-500 border-b-amber-500 flex flex-col items-center justify-center">
+                          <p className="text-sm font-extrabold text-slate-900">12,420</p>
+                          <p className="text-[9px] text-slate-500">Total</p>
+                        </div>
+                      </div>
+                      <div className="space-y-1.5 text-xs">
+                        <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-purple-600" /> Issued: 12,420 (50.2%)</div>
+                        <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Verified: 8,752 (35.4%)</div>
+                        <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-blue-500" /> Downloaded: 6,423 (25.9%)</div>
+                        <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-amber-500" /> Shared: 3,251 (13.1%)</div>
+                        <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-pink-500" /> Wallet Added: 7,983 (32.2%)</div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-bold text-white">Upcoming Expiries</h4>
-                    {MOCK_EXPIRIES.map((exp) => (
-                      <div key={exp.name} className="flex justify-between items-center text-xs p-2.5 rounded-xl bg-white/5 border border-white/5">
-                        <div>
-                          <p className="font-semibold text-white">{exp.name}</p>
-                          <p className="text-[10px] text-amber-400">{exp.expires}</p>
+                  <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-bold text-sm text-slate-900">Recent Verification Activity</h3>
+                      <button className="text-xs text-blue-600 hover:underline font-semibold">View All</button>
+                    </div>
+                    <div className="space-y-2.5">
+                      {RECENT_VERIFICATIONS.map((ver) => (
+                        <div key={ver.id} className="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-50">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                            <div>
+                              <p className="font-bold text-slate-900">Certificate ID: {ver.id}</p>
+                              <p className="text-[10px] text-slate-500">{ver.status}</p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] text-slate-400">{ver.time}</span>
                         </div>
-                        <span className="font-bold text-white bg-white/10 px-2 py-0.5 rounded-md">{exp.count}</span>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Upgrade Banner */}
-              <div className="p-6 rounded-2xl bg-gradient-to-r from-indigo-900 via-purple-900 to-pink-900 border border-indigo-500/30 flex items-center justify-between gap-6 flex-wrap shadow-2xl">
-                <div className="space-y-1">
-                  <h3 className="font-bold text-lg text-white flex items-center gap-2">
-                    <Crown className="h-5 w-5 text-amber-400" />
-                    Upgrade to Enterprise Plan
-                  </h3>
-                  <p className="text-xs text-white/70">
-                    Unlock advanced custom branding, API access, SSO integration, and unlimited bulk issuance.
-                  </p>
+              {/* Bottom Pro Plan Upgrade Banner (Matching Image 1) */}
+              <div className="p-6 rounded-2xl bg-blue-600 text-white flex items-center justify-between gap-6 flex-wrap shadow-xl">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center text-amber-300">
+                    <Crown className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base text-white">Upgrade to Pro Plan</h3>
+                    <p className="text-xs text-blue-100">
+                      Unlock premium templates, advanced analytics, bulk issue and more powerful features.
+                    </p>
+                  </div>
                 </div>
-                <Button className="bg-white hover:bg-white/90 text-indigo-950 font-bold text-xs px-6 h-10 rounded-xl shadow-lg">
+
+                <div className="flex items-center gap-6 text-xs text-blue-100 flex-wrap">
+                  <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-white" /> Unlimited Certificates</span>
+                  <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-white" /> Custom Branding</span>
+                  <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-white" /> Advanced Analytics</span>
+                  <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-white" /> Priority Support</span>
+                  <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-white" /> Bulk Issue (No Limit)</span>
+                </div>
+
+                <Button className="bg-white text-blue-600 hover:bg-blue-50 font-bold text-xs px-6 h-10 rounded-xl shadow-lg">
                   Upgrade Now →
                 </Button>
               </div>
             </div>
           )}
 
-          {/* PAGE 2: TEMPLATE LIBRARY (Match Screenshot 2 1:1) */}
-          {activeNav === "templates" && (
-            <div className="space-y-6 animate-in fade-in duration-300">
-              <div className="flex items-center justify-between gap-4 flex-wrap">
-                <div>
-                  <h2 className="text-2xl font-bold text-white tracking-tight">Template Library</h2>
-                  <p className="text-xs text-white/60 mt-1">
-                    Choose a template to create beautiful certificates in seconds.
-                  </p>
+          {/* TAB 2: BULK ISSUE (Match Image 2 1:1) */}
+          {activeTab === "bulk" && (
+            <div className="space-y-8 animate-in fade-in duration-300">
+              {/* Stepper Bar */}
+              <div className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-8 text-xs font-semibold">
+                  <div className="flex items-center gap-2 text-blue-600">
+                    <span className="h-6 w-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">1</span>
+                    Upload Recipients
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-400">
+                    <span className="h-6 w-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs">2</span>
+                    Map Fields
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-400">
+                    <span className="h-6 w-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs">3</span>
+                    Customize
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-400">
+                    <span className="h-6 w-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs">4</span>
+                    Review & Send
+                  </div>
                 </div>
-                <Button
-                  onClick={() => setActiveNav("designer")}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 h-9 rounded-xl shadow-md"
-                >
-                  <Plus className="h-4 w-4 mr-1.5" /> Create Template
+
+                <Button className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-5 h-9 rounded-xl">
+                  Issue Certificates
                 </Button>
               </div>
 
-              {/* Category Pills Bar */}
+              {/* Grid for Steps 1 & 2 */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Step 1: Upload Recipients */}
+                <div className="lg:col-span-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <h3 className="font-bold text-sm text-slate-900">1. Upload Recipients</h3>
+                  <div className="flex gap-2">
+                    <button className="px-4 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-bold border border-blue-200">
+                      Upload CSV File
+                    </button>
+                    <button className="px-4 py-1.5 rounded-xl text-slate-600 text-xs font-semibold hover:bg-slate-50">
+                      Enter Manually
+                    </button>
+                  </div>
+
+                  <div className="border-2 border-dashed border-blue-200 rounded-2xl p-8 text-center space-y-3 bg-blue-50/20">
+                    <div className="h-10 w-10 mx-auto rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <Upload className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-xs text-slate-900">Drag & drop your CSV file here</p>
+                      <p className="text-[10px] text-slate-500">or</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="text-xs font-semibold">Choose File</Button>
+                    <p className="text-[10px] text-slate-400">Supports CSV, XLSX (Max size: 10MB)</p>
+                  </div>
+
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+                      <div>
+                        <p className="font-bold text-slate-900">recipients_list.csv</p>
+                        <p className="text-[10px] text-slate-400">2.45 KB</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      120 Records ✓
+                    </span>
+                  </div>
+                </div>
+
+                {/* Step 2: Map Fields */}
+                <div className="lg:col-span-6 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-sm text-slate-900">2. Map Fields</h3>
+                    <button className="text-xs text-slate-600 hover:text-slate-900 border border-slate-200 px-3 py-1 rounded-lg">
+                      Preview Data
+                    </button>
+                  </div>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between items-center p-2 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="font-bold text-slate-700">Student Name *</span>
+                      <span className="font-mono text-slate-500">student_name → Vishwajeet Sharma ✓</span>
+                    </div>
+                    <div className="flex justify-between items-center p-2 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="font-bold text-slate-700">Email Address *</span>
+                      <span className="font-mono text-slate-500">email → vishwajeet@example.com ✓</span>
+                    </div>
+                    <div className="flex justify-between items-center p-2 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="font-bold text-slate-700">Course Name *</span>
+                      <span className="font-mono text-slate-500">course_name → Full Stack Web Dev ✓</span>
+                    </div>
+                    <div className="flex justify-between items-center p-2 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="font-bold text-slate-700">Issue Date</span>
+                      <span className="font-mono text-slate-500">issue_date → May 25, 2026 ✓</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: CERTIFICATE DESIGNER (Match Image 3 1:1) */}
+          {activeTab === "designer" && (
+            <div className="h-[calc(100vh-140px)] flex flex-col bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm animate-in fade-in duration-300">
+              {/* Designer Top Control Bar */}
+              <div className="h-12 border-b border-slate-200 px-4 flex items-center justify-between bg-slate-50/50 text-xs">
+                <div className="flex items-center gap-2">
+                  <button className="p-1.5 rounded-lg hover:bg-slate-200"><Undo className="h-4 w-4 text-slate-600" /></button>
+                  <button className="p-1.5 rounded-lg hover:bg-slate-200"><Redo className="h-4 w-4 text-slate-600" /></button>
+                  <div className="h-4 w-px bg-slate-300 mx-1" />
+                  <span className="font-semibold text-slate-700">100%</span>
+                  <div className="h-4 w-px bg-slate-300 mx-1" />
+                  <button className="p-1.5 rounded-lg hover:bg-slate-200"><Grid className="h-4 w-4 text-slate-600" /> Show Grid</button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" className="text-xs font-semibold">Save as Template</Button>
+                  <Button size="sm" className="bg-blue-600 text-white text-xs font-bold">Download</Button>
+                </div>
+              </div>
+
+              {/* 3-Column Designer Studio Body */}
+              <div className="flex-1 flex overflow-hidden">
+                {/* Left Add Elements Sidebar */}
+                <div className="w-56 border-r border-slate-200 p-4 bg-slate-50/30 overflow-y-auto space-y-4">
+                  <p className="text-xs font-bold text-slate-900 uppercase tracking-wider">Add Elements</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <button className="p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-400 flex flex-col items-center gap-1.5">
+                      <Type className="h-5 w-5 text-blue-600" /> Text
+                    </button>
+                    <button className="p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-400 flex flex-col items-center gap-1.5">
+                      <ImageIcon className="h-5 w-5 text-purple-600" /> Image
+                    </button>
+                    <button className="p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-400 flex flex-col items-center gap-1.5">
+                      <Square className="h-5 w-5 text-emerald-600" /> Shapes
+                    </button>
+                    <button className="p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-400 flex flex-col items-center gap-1.5">
+                      <Ribbon className="h-5 w-5 text-amber-600" /> Badges
+                    </button>
+                    <button className="p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-400 flex flex-col items-center gap-1.5">
+                      <QrCode className="h-5 w-5 text-slate-800" /> QR Code
+                    </button>
+                    <button className="p-3 rounded-xl border border-slate-200 bg-white hover:border-blue-400 flex flex-col items-center gap-1.5">
+                      <Upload className="h-5 w-5 text-pink-600" /> Upload
+                    </button>
+                  </div>
+                </div>
+
+                {/* Center Canvas */}
+                <div className="flex-1 bg-slate-100 p-8 flex flex-col items-center justify-center relative overflow-auto">
+                  <div className="w-[800px] h-[565px] bg-white rounded-xl border-8 border-double border-[#0F172A] p-10 flex flex-col justify-between relative shadow-2xl">
+                    <div className="text-center space-y-2">
+                      <div className="h-10 w-10 mx-auto rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg">
+                        L
+                      </div>
+                      <h1 className="font-serif text-3xl font-bold tracking-widest text-[#0F172A] uppercase">
+                        Certificate of Completion
+                      </h1>
+                      <p className="text-xs text-slate-500 italic">This is to certify that</p>
+                    </div>
+
+                    <div className="text-center my-auto space-y-4">
+                      <h2 className="font-cursive text-5xl font-bold text-[#0F172A]">{designerStudentName}</h2>
+                      <p className="text-xs text-slate-500">has successfully completed the course</p>
+                      <h3 className="font-serif text-xl font-bold text-blue-900">{designerCourse}</h3>
+                    </div>
+
+                    <div className="flex justify-between items-end text-xs text-slate-700 pt-6 border-t border-slate-200">
+                      <div>
+                        <p className="font-bold">May 25, 2026</p>
+                        <p className="text-[10px] text-slate-400">Date of Completion</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="font-cursive text-xl text-slate-900">Vishwajeet S.</p>
+                        <p className="text-[10px] text-slate-400 font-bold">Founder & CEO, Learnify AI</p>
+                      </div>
+                      <div className="text-right">
+                        <QrCode className="h-10 w-10 ml-auto text-slate-900" />
+                        <p className="text-[9px] font-mono text-slate-400 mt-1">Verify Certificate</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Properties Inspector */}
+                <div className="w-64 border-l border-slate-200 p-4 bg-slate-50/30 overflow-y-auto space-y-4 text-xs">
+                  <p className="font-bold text-slate-900 uppercase tracking-wider">Text Properties</p>
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-[11px] text-slate-500">Font Family</Label>
+                      <Select value={designerFont} onValueChange={setDesignerFont}>
+                        <SelectTrigger className="h-8 text-xs bg-white"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Playfair Display">Playfair Display</SelectItem>
+                          <SelectItem value="Inter">Inter</SelectItem>
+                          <SelectItem value="Great Vibes">Great Vibes</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label className="text-[11px] text-slate-500">Font Size</Label>
+                      <Input
+                        value={designerFontSize}
+                        onChange={(e) => setDesignerFontSize(e.target.value)}
+                        className="h-8 text-xs bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-[11px] text-slate-500">Student Name</Label>
+                      <Input
+                        value={designerStudentName}
+                        onChange={(e) => setDesignerStudentName(e.target.value)}
+                        className="h-8 text-xs bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <Label className="text-[11px] text-slate-500">Course Name</Label>
+                      <Input
+                        value={designerCourse}
+                        onChange={(e) => setDesignerCourse(e.target.value)}
+                        className="h-8 text-xs bg-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 4: TEMPLATE LIBRARY (Match Image 4 1:1) */}
+          {activeTab === "templates" && (
+            <div className="space-y-6 animate-in fade-in duration-300">
+              <div className="flex items-center justify-between gap-4 flex-wrap">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 tracking-tight">Certificate Templates</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Choose a template or create your own beautiful certificate.
+                  </p>
+                </div>
+                <Button onClick={() => setActiveTab("designer")} className="bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-4 h-9 rounded-xl shadow-md">
+                  <Plus className="h-4 w-4 mr-1.5" /> New Template
+                </Button>
+              </div>
+
+              {/* Category Pills Bar (Matching Image 4) */}
               <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-                {CATEGORIES.map((cat) => (
+                {CATEGORY_PILLS.map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
                     className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                       selectedCategory === cat
-                        ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                        : "bg-[#0c101d] text-white/70 border border-white/10 hover:border-white/20 hover:text-white"
+                        ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                        : "bg-white text-slate-600 border border-slate-200 hover:border-slate-300 hover:text-slate-900"
                     }`}
                   >
-                    {cat === "Premium" ? "👑 Premium" : cat}
+                    {cat}
                   </button>
                 ))}
               </div>
 
-              {/* Template Cards Grid */}
+              {/* Template Cards Grid (Matching Image 4) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {filteredTemplates.map((t) => (
                   <div
                     key={t.id}
-                    className="group rounded-2xl bg-[#0c101d] border border-white/10 overflow-hidden hover:border-indigo-500/50 hover:shadow-2xl transition-all duration-300 flex flex-col relative"
+                    className="group rounded-2xl bg-white border border-slate-200 overflow-hidden hover:border-blue-400 hover:shadow-xl transition-all duration-300 flex flex-col relative"
                   >
-                    <div className="aspect-[1.414] relative bg-gradient-to-br from-indigo-950 to-slate-900 overflow-hidden p-4 flex flex-col justify-between">
+                    <div className="aspect-[1.414] relative bg-gradient-to-br from-slate-900 to-indigo-950 p-4 flex flex-col justify-between overflow-hidden">
                       <div className="flex items-center justify-between z-10">
                         <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/60 text-amber-400 border border-amber-400/20 backdrop-blur-md">
                           {t.category || "Professional"}
                         </span>
                         <div className="flex gap-1">
-                          <button
-                            onClick={() => {
-                              setSelectedTemplate(t);
-                              setPreviewOpen(true);
-                            }}
-                            className="p-1.5 rounded-lg bg-black/50 hover:bg-black/80 text-white/80 transition-all"
-                          >
+                          <button className="p-1.5 rounded-lg bg-black/50 hover:bg-black/80 text-white/80 transition-all">
                             <Eye className="h-3.5 w-3.5" />
                           </button>
                           <button className="p-1.5 rounded-lg bg-black/50 hover:bg-black/80 text-white/80 transition-all">
@@ -800,29 +1036,26 @@ export function CertDesignerAdmin() {
                         </div>
                       </div>
 
-                      <div className="my-auto text-center z-10">
-                        <h4 className="font-bold text-sm text-white line-clamp-1">{t.name}</h4>
-                        <p className="text-[10px] text-white/60 line-clamp-1">Certificate of Completion</p>
+                      <div className="my-auto text-center z-10 text-white">
+                        <h4 className="font-serif font-bold text-sm line-clamp-1">{t.name}</h4>
+                        <p className="text-[10px] text-slate-300 line-clamp-1">Certificate of Completion</p>
                       </div>
 
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2 p-4 z-20">
                         <Button
                           size="sm"
-                          onClick={() => {
-                            setSelectedTemplate(t);
-                            setActiveNav("designer");
-                          }}
-                          className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 rounded-xl"
+                          onClick={() => setActiveTab("designer")}
+                          className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-4 rounded-xl"
                         >
                           Use Template
                         </Button>
                       </div>
                     </div>
 
-                    <div className="p-3 bg-[#0c101d] flex items-center justify-between text-xs border-t border-white/5">
-                      <span className="font-medium text-white line-clamp-1">{t.name}</span>
-                      <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                    <div className="p-3 bg-white flex items-center justify-between text-xs border-t border-slate-100">
+                      <span className="font-medium text-slate-900 line-clamp-1">{t.name}</span>
+                      <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
                         Free
                       </span>
                     </div>
@@ -831,64 +1064,8 @@ export function CertDesignerAdmin() {
               </div>
             </div>
           )}
-
-          {/* PAGE 3: AI CERTIFICATE DESIGNER */}
-          {activeNav === "ai-designer" && (
-            <div className="max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
-              <div>
-                <h2 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-                  <Sparkles className="h-6 w-6 text-purple-400" />
-                  AI Certificate Designer
-                </h2>
-                <p className="text-xs text-white/60 mt-1">
-                  Describe the certificate you want to build, and AI will generate custom layout, typography, borders, and color themes.
-                </p>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-[#0c101d] border border-white/10 space-y-4">
-                <Label className="text-xs font-semibold text-white">Certificate Description / Prompt</Label>
-                <textarea
-                  value={aiPrompt}
-                  onChange={(e) => setAiPrompt(e.target.value)}
-                  placeholder="e.g. Create a luxury navy gold certificate for AI Robotics Masterclass with ornate borders and gold seal..."
-                  className="w-full h-32 p-4 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder:text-white/40 focus:outline-none focus:border-indigo-500 resize-none"
-                />
-
-                <div className="flex items-center justify-between gap-4 flex-wrap">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setAiPrompt("Luxury navy and gold AI certification with gold seal")}
-                      className="text-[10px] bg-white/5 hover:bg-white/10 text-white/80 px-2.5 py-1 rounded-lg border border-white/10"
-                    >
-                      Navy & Gold AI
-                    </button>
-                    <button
-                      onClick={() => setAiPrompt("Minimalist dark tech bootcamp diploma with emerald accents")}
-                      className="text-[10px] bg-white/5 hover:bg-white/10 text-white/80 px-2.5 py-1 rounded-lg border border-white/10"
-                    >
-                      Minimal Tech
-                    </button>
-                  </div>
-
-                  <Button
-                    onClick={handleAiGenerate}
-                    disabled={aiGenerating}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold px-6 h-10 rounded-xl"
-                  >
-                    {aiGenerating ? <RefreshCw className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                    {aiGenerating ? "Generating Layout..." : "Generate Certificate"}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
         </main>
       </div>
-
-      {/* Preview Modal */}
-      {previewOpen && selectedTemplate && (
-        <CertDesignerPreview template={selectedTemplate} onClose={() => setPreviewOpen(false)} />
-      )}
     </div>
   );
 }
