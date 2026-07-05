@@ -12,9 +12,39 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 
 export const Route = createFileRoute("/blog/$slug")({
-  head: ({ loaderData }) => ({
-    meta: [{ title: `${(loaderData as any)?.post?.title || "Post"} — Learnify AI Blog` }],
-  }),
+  head: ({ loaderData }) => {
+    const post = (loaderData as any)?.post;
+    if (!post) return { meta: [{ title: "Blog Post — Learnify AI" }] };
+
+    return {
+      meta: [
+        { title: `${post.title} — Learnify AI Blog` },
+        { name: "description", content: post.excerpt || "Read our latest article on Learnify AI." },
+        { property: "og:title", content: `${post.title} — Learnify AI Blog` },
+        { property: "og:description", content: post.excerpt || "Read our latest article on Learnify AI." },
+        { property: "og:image", content: post.featured_image || "https://learnifyaitool.vercel.app/logo.png" },
+        { property: "og:type", content: "article" },
+      ],
+      scripts: [
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": post.title,
+            "image": post.featured_image ? [post.featured_image] : ["https://learnifyaitool.vercel.app/logo.png"],
+            "datePublished": post.published_at || post.created_at,
+            "dateModified": post.published_at || post.created_at,
+            "description": post.excerpt || "",
+            "author": [{
+              "@type": "Person",
+              "name": post.profiles?.full_name || "Learnify AI Author",
+            }]
+          })
+        }
+      ]
+    };
+  },
   loader: async ({ params }) => {
     const { data } = await supabase
       .from("blog_posts")

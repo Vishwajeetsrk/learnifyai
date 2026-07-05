@@ -28,6 +28,17 @@ export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
           </p>
         </div>
 
+        {/* 30-Second Product Walkthrough Video (CRO Quick Win) */}
+        <div className="aspect-video w-full bg-slate-950 relative border-b border-border/60">
+          <iframe
+            src="https://www.youtube.com/embed/P-2f-U4-yF4?autoplay=0&rel=0&modestbranding=1"
+            title="Learnify AI Product Walkthrough"
+            className="w-full h-full border-0 absolute inset-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        </div>
+
         <div className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-1 sm:grid-cols-3 h-auto p-1 bg-muted mb-6 gap-1 sm:gap-0">

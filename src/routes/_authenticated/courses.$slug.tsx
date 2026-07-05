@@ -596,6 +596,24 @@ function CourseDetail() {
 
   return (
     <AppShell>
+      {course && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Course",
+              "name": course.title,
+              "description": course.description || "Intelligent tech certification course.",
+              "provider": {
+                "@type": "Organization",
+                "name": "Learnify AI",
+                "sameAs": "https://learnifyaitool.vercel.app"
+              }
+            })
+          }}
+        />
+      )}
       <CelebrationOverlay
         show={enrollCelebration}
         title="You’re enrolled!"

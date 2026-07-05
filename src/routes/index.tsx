@@ -30,7 +30,7 @@ import { getPlatformStats } from "@/lib/stats.functions";
 import { ComparisonSection } from "@/components/interactive/ComparisonSection";
 import { MobileAppBanner } from "@/components/interactive/MobileAppBanner";
 import { WatchDemoModal } from "@/components/interactive/WatchDemoModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const AiToolsShowcase = lazy(() =>
   import("@/components/AiToolsShowcase").then((m) => ({ default: m.AiToolsShowcase })),
@@ -65,6 +65,19 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { t } = useTranslation();
   const [showWatchDemo, setShowWatchDemo] = useState(false);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 400) {
+        setShowStickyBar(true);
+      } else {
+        setShowStickyBar(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const features = useMemo(
     () => [
@@ -352,6 +365,21 @@ function Index() {
 
       {/* WATCH DEMO MODAL */}
       <WatchDemoModal open={showWatchDemo} onOpenChange={setShowWatchDemo} />
+
+      {/* Sticky Mobile Conversion Bar (CRO Quick Win) */}
+      {showStickyBar && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-background/80 backdrop-blur-lg border-t border-border/60 shadow-lg flex items-center justify-between animate-in slide-in-from-bottom duration-300 md:hidden">
+          <div className="flex flex-col text-left">
+            <span className="text-xs font-bold text-foreground">Learnify AI</span>
+            <span className="text-[10px] text-muted-foreground">The AI-native learning OS</span>
+          </div>
+          <Button asChild size="sm" className="bg-foreground text-background hover:bg-foreground/90 font-bold px-4 py-2 rounded-xl">
+            <Link to="/signup">
+              Start Free Trial
+            </Link>
+          </Button>
+        </div>
+      )}
 
       <SiteFooter />
     </div>
