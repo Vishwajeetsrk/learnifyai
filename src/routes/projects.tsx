@@ -149,16 +149,16 @@ function ProjectCard({
   const [iframeError, setIframeError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
-  const iframeTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const iframeLoadedRef = useRef(false);
 
   useEffect(() => {
-    if (isVisible) {
-      iframeTimeoutRef.current = setTimeout(() => {
-        if (!iframeLoaded) setIframeError(true);
-      }, 6000);
-    }
-    return () => { if (iframeTimeoutRef.current) clearTimeout(iframeTimeoutRef.current); };
-  }, [isVisible, iframeLoaded]);
+    if (!isVisible) return;
+    iframeLoadedRef.current = false;
+    const timer = setTimeout(() => {
+      if (!iframeLoadedRef.current) setIframeError(true);
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [isVisible]);
 
   const hash = hashProject(p.id);
   const bg = GRADIENT_PALETTES[hash % GRADIENT_PALETTES.length];
@@ -236,7 +236,7 @@ function ProjectCard({
               }}
               loading="lazy"
               sandbox="allow-scripts allow-same-origin allow-popups"
-              onLoad={() => { setIframeLoaded(true); setIframeError(false); }}
+              onLoad={() => { iframeLoadedRef.current = true; setIframeLoaded(true); setIframeError(false); }}
             />
           </div>
         )}
