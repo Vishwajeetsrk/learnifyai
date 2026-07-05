@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { ArrowLeft, Play, Layout, Code2, BookOpen, Volume2, Lock } from "lucide-react";
+import { ArrowLeft, Play, Layout, Code2, BookOpen, Volume2, Lock, X } from "lucide-react";
 import projectsData from "@/data/projects.json";
 
 export const Route = createFileRoute("/course/$projectId")({
@@ -33,6 +33,7 @@ function CourseDetailPage() {
 
   const project = dbProject;
   const [activeTab, setActiveTab] = useState<"curriculum" | "tech" | "preview">("curriculum");
+  const [isPlayingTeaser, setIsPlayingTeaser] = useState(false);
 
   if (isLoading) {
     return (
@@ -104,23 +105,43 @@ function CourseDetailPage() {
             {/* Left Column: Video / Hero Preview */}
             <div className="lg:col-span-8 space-y-6">
               
-              <div className="aspect-video w-full bg-black rounded-2xl border border-border shadow-2xl overflow-hidden relative group">
-                <iframe
-                  src={project.path}
-                  title={project.title}
-                  className="w-full h-full pointer-events-none opacity-60 mix-blend-screen"
-                />
-                
-                {/* Overlay Play Button */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all group-hover:bg-black/20">
-                   <div className="flex flex-col items-center gap-3">
-                     <button className="h-16 w-16 bg-primary/90 text-primary-foreground rounded-full flex items-center justify-center hover:scale-110 hover:bg-primary transition-all shadow-glow">
-                        <Play className="h-6 w-6 ml-1" />
-                     </button>
-                     <span className="text-sm font-medium text-white/90">Watch Course Teaser</span>
-                   </div>
+              {isPlayingTeaser ? (
+                <div className="aspect-video w-full bg-black rounded-2xl shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-300">
+                  <iframe 
+                    className="w-full h-full" 
+                    src={project.teaser_video_url || "https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1"} 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen 
+                  />
+                  <button 
+                    onClick={() => setIsPlayingTeaser(false)}
+                    className="absolute top-4 right-4 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full transition-colors backdrop-blur-md"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
                 </div>
-              </div>
+              ) : (
+                <div 
+                  className="aspect-video w-full bg-black rounded-2xl border border-border shadow-2xl overflow-hidden relative group cursor-pointer"
+                  onClick={() => setIsPlayingTeaser(true)}
+                >
+                  <iframe
+                    src={project.path}
+                    title={project.title}
+                    className="w-full h-full pointer-events-none opacity-60 mix-blend-screen"
+                  />
+                  
+                  {/* Overlay Play Button */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all group-hover:bg-black/20">
+                     <div className="flex flex-col items-center gap-3">
+                       <button className="h-16 w-16 bg-primary/90 text-primary-foreground rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-primary transition-all shadow-glow pointer-events-none">
+                          <Play className="h-6 w-6 ml-1" />
+                       </button>
+                       <span className="text-sm font-medium text-white/90 drop-shadow-md">Watch Course Teaser</span>
+                     </div>
+                  </div>
+                </div>
+              )}
 
               <div className="space-y-4">
                 <h1 className="text-3xl md:text-4xl font-display font-semibold text-foreground tracking-tight">
