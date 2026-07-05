@@ -61,7 +61,7 @@ const nav: NavItem[] = [
   { to: "/coaching", label: "Coaching", icon: Compass, featureKey: "coaching" },
   { to: "/ai-tools", label: "AI Tools", icon: Wand2, featureKey: "ai_tools" },
   { to: "/certificates", label: "Certificates", icon: Award, featureKey: "certificates" },
-  { to: "/projects", label: "Template Mastery", icon: FolderOpen, careerProOnly: true },
+  { to: "/projects", label: "Template Mastery", icon: FolderOpen },
   { to: "/cart", label: "Cart", icon: ShoppingCart },
   { to: "/wallet", label: "Wallet", icon: WalletIcon, featureKey: "wallet" },
   { to: "/settings", label: "Account", icon: SettingsIcon },

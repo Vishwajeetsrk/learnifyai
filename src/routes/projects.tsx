@@ -271,9 +271,9 @@ function ProjectCard({
               className="flex items-center gap-1.5 text-xs font-semibold text-primary-foreground bg-primary hover:bg-primary/90 px-3.5 py-2 rounded-xl shadow-lg transition-all hover:scale-105"
             >
               <Maximize2 className="h-3.5 w-3.5" />
-              Live Preview
+              View Live Template
             </button>
-            {hasCareerPro && (
+            {hasCareerPro ? (
               <Link
                 to="/course/$projectId"
                 params={{ projectId: p.id }}
@@ -281,7 +281,16 @@ function ProjectCard({
                 className="flex items-center gap-1.5 text-xs font-semibold text-foreground bg-secondary/90 hover:bg-secondary px-3.5 py-2 rounded-xl transition-all border border-white/20 hover:scale-105"
               >
                 <GraduationCap className="h-3.5 w-3.5" />
-                Learn to Build
+                Start Building Now
+              </Link>
+            ) : (
+              <Link
+                to="/pricing"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1.5 text-xs font-semibold text-primary-foreground bg-primary/90 hover:bg-primary px-3.5 py-2 rounded-xl transition-all border border-white/20 hover:scale-105 shadow-glow"
+              >
+                <Lock className="h-3.5 w-3.5" />
+                Career Pro
               </Link>
             )}
           </div>
@@ -348,7 +357,7 @@ function ProjectsPage() {
     },
   });
 
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   
   const currentSub = useQuery({
     enabled: !!user,
@@ -364,7 +373,7 @@ function ProjectsPage() {
     },
   });
   const activePlanName = currentSub.data?.plan?.name?.toLowerCase() || "free";
-  const hasCareerPro = activePlanName === "career pro" || activePlanName === "enterprise";
+  const hasCareerPro = isAdmin || activePlanName === "career pro" || activePlanName === "enterprise";
 
   // Escape key closes modal
   useEffect(() => {
@@ -578,14 +587,22 @@ function ProjectsPage() {
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  {hasCareerPro && (
+                  {hasCareerPro ? (
                     <Link
                       to="/course/$projectId"
                       params={{ projectId: selectedProject.id }}
                       className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 px-3 py-1.5 rounded-lg transition-all border border-primary"
                     >
                       <GraduationCap className="h-3.5 w-3.5" />
-                      Take Course
+                      Start Building Now
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/pricing"
+                      className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 px-3 py-1.5 rounded-lg transition-all border border-primary shadow-glow"
+                    >
+                      <Lock className="h-3.5 w-3.5" />
+                      Career Pro
                     </Link>
                   )}
                   <a

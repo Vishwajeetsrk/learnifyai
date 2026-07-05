@@ -25,6 +25,7 @@ CREATE INDEX IF NOT EXISTS idx_canva_templates_created_by ON public.canva_templa
 ALTER TABLE public.canva_templates ENABLE ROW LEVEL SECURITY;
 
 -- 4. Admin policy — full access
+DROP POLICY IF EXISTS "Admins can manage canva_templates" ON public.canva_templates;
 CREATE POLICY "Admins can manage canva_templates"
   ON public.canva_templates
   FOR ALL
@@ -44,6 +45,7 @@ CREATE POLICY "Admins can manage canva_templates"
   );
 
 -- 5. Creator policy — read access for creators
+DROP POLICY IF EXISTS "Creators can read canva_templates" ON public.canva_templates;
 CREATE POLICY "Creators can read canva_templates"
   ON public.canva_templates
   FOR SELECT
@@ -67,6 +69,7 @@ VALUES (
 ON CONFLICT (id) DO NOTHING;
 
 -- 7. Storage policy — admin upload
+DROP POLICY IF EXISTS "Admins can upload canva templates" ON storage.objects;
 CREATE POLICY "Admins can upload canva templates"
   ON storage.objects
   FOR INSERT
@@ -80,12 +83,14 @@ CREATE POLICY "Admins can upload canva templates"
   );
 
 -- 8. Storage policy — public read
+DROP POLICY IF EXISTS "Public can view canva templates" ON storage.objects;
 CREATE POLICY "Public can view canva templates"
   ON storage.objects
   FOR SELECT
   USING (bucket_id = 'canva-templates');
 
 -- 9. Storage policy — admin delete
+DROP POLICY IF EXISTS "Admins can delete canva templates" ON storage.objects;
 CREATE POLICY "Admins can delete canva templates"
   ON storage.objects
   FOR DELETE
