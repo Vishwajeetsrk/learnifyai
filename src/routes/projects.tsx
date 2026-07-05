@@ -136,20 +136,32 @@ function matchesFilter(p: Project, filterKey: string): boolean {
   }
 }
 
-// Project card — iframe always visible from mount + Copy Prompt button
-function ProjectCard({ p, onClick }: { p: Project; onClick: () => void }) {
-  const tags = getTags(p.description);
-  const { bg } = getProjectTheme(p);
-  const [iframeLoaded, setIframeLoaded] = useState(false);
+function ProjectCard({
+  p,
+  onClick,
+}: {
+  p: Project;
+  onClick: () => void;
+}) {
   const [copied, setCopied] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const hash = hashProject(p.id);
+  const bg = GRADIENT_PALETTES[hash % GRADIENT_PALETTES.length];
+  const accent = ACCENT_COLORS[hash % ACCENT_COLORS.length];
+  const tags = getTags(p);
 
   const handleCopyPrompt = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const prompt = `${p.title}\n\n${p.description}`;
+    const prompt = `Create a modern, responsive website inspired by ${p.title}.\nDescription: ${p.description}\nKey Tech & Tags: ${tags.join(", ")}\nFeatures: Dark mode, glassmorphic UI, smooth scroll animations, hero section, responsive grid layout, clean typography.`;
     navigator.clipboard.writeText(prompt).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleLaunchDirect = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(p.path, "_blank");
   };
 
   return (
@@ -157,66 +169,66 @@ function ProjectCard({ p, onClick }: { p: Project; onClick: () => void }) {
       layout
       key={p.id}
       onClick={onClick}
-      className="group rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-card transition-all duration-300 overflow-hidden cursor-pointer flex flex-col"
-      whileHover={{ y: -5 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="group rounded-2xl border border-border bg-card hover:border-primary/50 hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer flex flex-col relative"
+      whileHover={{ y: -6 }}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
     >
-      {/* Thumbnail — iframe always mounted */}
-      <div className={`aspect-video bg-gradient-to-br ${bg} relative overflow-hidden flex-shrink-0`}>
-        {/* Skeleton shimmer while loading */}
-        {!iframeLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-full h-full animate-pulse bg-gradient-to-br from-white/5 to-white/10" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
-              <div className="w-8 h-8 rounded-full bg-white/20 animate-pulse" />
-              <div className="w-24 h-2 rounded bg-white/15 animate-pulse" />
-              <div className="w-16 h-2 rounded bg-white/10 animate-pulse" />
-            </div>
-          </div>
-        )}
+      {/* Thumbnail Header Card */}
+      <div className={`aspect-video bg-gradient-to-br ${bg} relative overflow-hidden flex-shrink-0 p-4 flex flex-col justify-between`}>
+        {/* Glow backdrop effect */}
+        <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
-        {/* Always-visible iframe preview */}
-        <div
-          className={`absolute inset-0 transition-opacity duration-500 ${
-            iframeLoaded ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <iframe
-            src={p.path}
-            title={p.name}
-            className="border-0 pointer-events-none select-none"
-            style={{
-              width: "200%",
-              height: "200%",
-              transform: "scale(0.5)",
-              transformOrigin: "top left",
-            }}
-            loading="lazy"
-            sandbox="allow-scripts allow-same-origin"
-            onLoad={() => setIframeLoaded(true)}
-          />
-        </div>
-
-        {/* Hover overlay — click to open */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-between px-3 pb-3">
-          <span className="flex items-center gap-1.5 text-[11px] font-semibold text-white bg-primary/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-lg">
-            <Maximize2 className="h-3 w-3" />
-            Live Preview
+        {/* Top Header Row inside Card */}
+        <div className="flex items-center justify-between z-10">
+          <span className="text-[10px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full bg-black/40 text-white/90 backdrop-blur-md border border-white/10 flex items-center gap-1">
+            <Sparkles className="h-3 w-3 text-primary animate-pulse" />
+            Interactive Design
           </span>
           <button
             onClick={handleCopyPrompt}
-            title="Copy prompt"
-            className="flex items-center gap-1 text-[10px] font-medium text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm px-2.5 py-1 rounded-full transition-all"
+            title="Copy prompt for AI tools"
+            className="flex items-center gap-1 text-[10px] font-medium text-white bg-black/50 hover:bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 transition-all hover:scale-105"
           >
-            {copied ? <CheckCheck className="h-3 w-3 text-emerald-300" /> : <ClipboardCopy className="h-3 w-3" />}
+            {copied ? <CheckCheck className="h-3 w-3 text-emerald-400" /> : <ClipboardCopy className="h-3 w-3" />}
             {copied ? "Copied!" : "Copy Prompt"}
+          </button>
+        </div>
+
+        {/* Center Title Graphic */}
+        <div className="z-10 my-auto text-center px-2">
+          <h4 className={`font-display text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r ${accent} line-clamp-1`}>
+            {p.name}
+          </h4>
+          <p className="text-[11px] text-white/70 line-clamp-1 mt-0.5">
+            {p.title}
+          </p>
+        </div>
+
+        {/* Hover overlay with Dual Action Buttons */}
+        <div className="absolute inset-0 bg-black/85 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2 p-4 z-20">
+          <button
+            onClick={onClick}
+            className="flex items-center gap-1.5 text-xs font-semibold text-primary-foreground bg-primary hover:bg-primary/90 px-3.5 py-2 rounded-xl shadow-lg transition-all hover:scale-105"
+          >
+            <Maximize2 className="h-3.5 w-3.5" />
+            Live Preview
+          </button>
+          <button
+            onClick={handleLaunchDirect}
+            className="flex items-center gap-1.5 text-xs font-semibold text-foreground bg-secondary hover:bg-secondary/80 px-3.5 py-2 rounded-xl transition-all border border-border hover:scale-105"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Launch Site
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col flex-1 p-4 gap-3">
+      {/* Card Content Footer */}
+      <div className="flex flex-col flex-1 p-4 gap-3 bg-card">
         <div className="space-y-1">
           <h3 className="font-display font-semibold text-sm leading-snug text-foreground group-hover:text-primary transition-colors line-clamp-1">
             {p.title}
@@ -226,7 +238,7 @@ function ProjectCard({ p, onClick }: { p: Project; onClick: () => void }) {
           </p>
         </div>
 
-        <div className="flex items-center justify-between mt-auto pt-2 border-t border-border/60">
+        <div className="flex items-center justify-between mt-auto pt-2.5 border-t border-border/60">
           <div className="flex gap-1 flex-wrap">
             {tags.map((tag) => (
               <span
