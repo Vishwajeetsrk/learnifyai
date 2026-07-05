@@ -107,9 +107,10 @@ function getProjectTheme(p: Project) {
   return { bg: GRADIENT_PALETTES[h], accent: ACCENT_COLORS[h] };
 }
 
-function getTags(desc: string): string[] {
+function getTags(descInput: string | Project): string[] {
+  const desc = typeof descInput === "string" ? descInput : (descInput?.description || descInput?.title || "");
   const tags: string[] = [];
-  const lower = desc.toLowerCase();
+  const lower = (desc || "").toLowerCase();
   if (lower.includes("gsap")) tags.push("GSAP");
   if (lower.includes("3d") || lower.includes("spline")) tags.push("3D");
   if (lower.includes("video") || lower.includes("loop")) tags.push("Video");
@@ -123,7 +124,7 @@ function getTags(desc: string): string[] {
 
 function matchesFilter(p: Project, filterKey: string): boolean {
   if (filterKey === "all") return true;
-  const lower = p.description.toLowerCase();
+  const lower = (p.description || "").toLowerCase();
   switch (filterKey) {
     case "gsap": return lower.includes("gsap");
     case "video": return lower.includes("video") || lower.includes("loop");
@@ -148,7 +149,7 @@ function ProjectCard({
   const hash = hashProject(p.id);
   const bg = GRADIENT_PALETTES[hash % GRADIENT_PALETTES.length];
   const accent = ACCENT_COLORS[hash % ACCENT_COLORS.length];
-  const tags = getTags(p);
+  const tags = getTags(p.description);
 
   const handleCopyPrompt = (e: React.MouseEvent) => {
     e.stopPropagation();
