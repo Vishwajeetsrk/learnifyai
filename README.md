@@ -507,9 +507,20 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Keyboard Shortcuts**: Added keydown listeners for Delete/Backspace to remove selected elements, and Escape to deselect.
 - ✅ **Desktop Drag & Drop**: Dragging image files from desktop onto the canvas either sets the background image (if dropped on background) or inserts a new draggable image element.
 
+### v4.5.0 (July 2026) - Credential OS 3.0 & Career OS 3.0
+
+- ✅ **Credential OS 3.0 Admin Overhaul**: Replaced all legacy header wrappers, tab bars, and dialog chrome in `admin.certificates.tsx` with a clean Credential OS 3.0 interface — dark sidebar navigation, credential cards with status badges, search/filter bar, and invitation system.
+- ✅ **5 Certificate Design Systems Added**: Launched 5 new production certificate design systems (Deep Teal, Royal Crimson, Charcoal Slate, Midnight Blue, Obsidian) with distinct field positions matching each decorative layout.
+- ✅ **MobileBottomNav Dock**: Added persistent bottom navigation dock for mobile users with quick-access icons across all major sections.
+- ✅ **Mobile Responsive Footer**: Fixed footer to use 2-column grid layout on mobile screens, eliminating horizontal overflow.
+- ✅ **SEO & AI-Search Master Plan**: Added `robots.txt`, `sitemap.xml`, and `EducationalOrganization` JSON-LD schema for improved search engine visibility and AI search readiness.
+- ✅ **Build Stability Fixes**: Excluded `preset-sites/` from Nitro `publicAssets` config to prevent ENOENT build crashes. Added build step to copy `public/preset-sites` to `dist/public`. Replaced invalid `X-Frame-Options: ALLOWALL` with valid `SAMEORIGIN` in `vercel.json`.
+- ✅ **Zero TypeScript Errors**: All new files compile without TypeScript errors.
+
 ### v4.4.2 (July 2026) - Project Live Preview Iframe Fix
 
 - ✅ **Project Live Preview Fixed**: Project page iframes now detect when `X-Frame-Options: DENY` blocks embedding (6s timeout). Shows a fallback UI with lock icon and "Open in new tab" button instead of a broken blank frame. Works in both card preview and full modal sandbox.
+- ✅ **Iframe Timeout Bug Fixed**: Replaced `useEffect` dependency on `iframeLoaded` with a `useRef` so the 6-second fallback timer isn't reset by component re-renders.
 
 ### v4.4.1 (July 2026) - Animation Fixes, AI Optimize, Field-to-Element Conversion
 
