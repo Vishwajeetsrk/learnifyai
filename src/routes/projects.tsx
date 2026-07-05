@@ -146,8 +146,19 @@ function ProjectCard({
 }) {
   const [copied, setCopied] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
+  const [iframeError, setIframeError] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const iframeTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => {
+    if (isVisible) {
+      iframeTimeoutRef.current = setTimeout(() => {
+        if (!iframeLoaded) setIframeError(true);
+      }, 6000);
+    }
+    return () => { if (iframeTimeoutRef.current) clearTimeout(iframeTimeoutRef.current); };
+  }, [isVisible, iframeLoaded]);
 
   const hash = hashProject(p.id);
   const bg = GRADIENT_PALETTES[hash % GRADIENT_PALETTES.length];
@@ -207,7 +218,7 @@ function ProjectCard({
         )}
 
         {/* Lazy-mounted Live Iframe Cover */}
-        {isVisible && (
+        {isVisible && !iframeError && (
           <div
             className={`absolute inset-0 transition-opacity duration-700 ${
               iframeLoaded ? "opacity-100" : "opacity-0"
@@ -225,8 +236,24 @@ function ProjectCard({
               }}
               loading="lazy"
               sandbox="allow-scripts allow-same-origin allow-popups"
-              onLoad={() => setIframeLoaded(true)}
+              onLoad={() => { setIframeLoaded(true); setIframeError(false); }}
             />
+          </div>
+        )}
+
+        {/* Fallback when iframe cannot load (X-Frame-Options deny, etc.) */}
+        {isVisible && iframeError && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black/70 to-black/90">
+            <div className="flex flex-col items-center gap-2 text-center px-4">
+              <Lock className="h-6 w-6 text-amber-400" />
+              <span className="text-xs text-white/80">Preview blocked by site</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); window.open(p.path, "_blank"); }}
+                className="flex items-center gap-1 text-[10px] font-semibold text-white bg-primary/80 hover:bg-primary px-3 py-1.5 rounded-lg transition-all"
+              >
+                <ExternalLink className="h-3 w-3" /> Open in new tab
+              </button>
+            </div>
           </div>
         )}
 
@@ -551,7 +578,17 @@ function ProjectsPage() {
                     title={selectedProject.name}
                     className="w-full flex-1 bg-white border-0"
                     sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"
+                    onLoad={(e) => { (e.target as HTMLIFrameElement).style.display = "block"; }}
+                    onError={() => { /* fallback handles timeout */ }}
                   />
+                  <div id="modal-iframe-fallback" className="hidden flex-col items-center justify-center w-full h-full bg-muted/30">
+                    <Lock className="h-8 w-8 text-amber-400 mb-2" />
+                    <p className="text-sm text-muted-foreground mb-3">Preview blocked by the site</p>
+                    <a href={selectedProject.path} target="_blank" rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 px-4 py-2 rounded-xl transition-all">
+                      <ExternalLink className="h-4 w-4" /> Open in new tab
+                    </a>
+                  </div>
                 </div>
               </div>
             </motion.div>
