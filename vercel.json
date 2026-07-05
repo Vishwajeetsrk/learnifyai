@@ -13,6 +13,12 @@
       "schedule": "0 0 * * *"
     }
   ],
+  "rewrites": [
+    {
+      "source": "/preset-sites/:path*",
+      "destination": "/preset-sites/:path*"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

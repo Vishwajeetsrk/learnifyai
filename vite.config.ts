@@ -15,6 +15,13 @@ export default defineConfig({
   nitro: {
     preset: process.env.VERCEL ? "vercel" : "node-server",
     output: process.env.VERCEL ? undefined : { dir: "dist", serverDir: "dist/server" },
+    publicAssets: [
+      {
+        dir: "public",
+        maxAge: 31536000,
+      },
+    ],
+    serveStatic: true,
   },
   vite: {
     envPrefix: ["VITE_", "NEXT_PUBLIC_"],
