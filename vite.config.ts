@@ -15,6 +15,7 @@ export default defineConfig({
   nitro: {
     preset: process.env.VERCEL ? "vercel" : "node-server",
     output: process.env.VERCEL ? undefined : { dir: "dist", serverDir: "dist/server" },
+    // @ts-ignore
     publicAssets: [
       {
         dir: "public",

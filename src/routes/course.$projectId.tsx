@@ -16,9 +16,9 @@ function CourseDetailPage() {
   const { projectId } = Route.useParams();
   const { data: dbProject, isLoading } = useQuery({
     queryKey: ["design-project", projectId],
-    queryFn: async () => {
+    queryFn: async (): Promise<any> => {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("design_projects")
           .select("*")
           .eq("id", projectId)
