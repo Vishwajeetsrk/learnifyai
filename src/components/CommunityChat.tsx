@@ -34,6 +34,7 @@ export function CommunityChat() {
       const { data: msgs } = await db
         .from("community_messages")
         .select("id, user_id, content, created_at")
+        .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
         .order("created_at", { ascending: true })
         .limit(200);
 
@@ -132,15 +133,20 @@ export function CommunityChat() {
   return (
     <div className="flex flex-col h-[600px] border rounded-xl bg-card">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">Community Chat</h3>
+      <div className="flex flex-col border-b">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-primary" />
+            <h3 className="font-semibold">Community Chat</h3>
+          </div>
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <Users className="h-4 w-4" />
+            <span>{onlineCount} online</span>
+            <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          </div>
         </div>
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Users className="h-4 w-4" />
-          <span>{onlineCount} online</span>
-          <span className="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+        <div className="bg-primary/10 text-primary text-xs py-1.5 px-4 text-center font-medium border-t border-primary/10">
+          This history will delete automatically after 24 hours.
         </div>
       </div>
 
