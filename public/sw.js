@@ -53,7 +53,7 @@ self.addEventListener("fetch", (event) => {
       const fetchAndCache = () =>
         fetch(request)
           .then((response) => {
-            if (response.ok && url.protocol === "https:") {
+            if (response.ok && url.protocol === "https:" && response.status !== 206) {
               const clone = response.clone();
               caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
             }

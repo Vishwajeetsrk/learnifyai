@@ -8,6 +8,7 @@ import { MarketingPage } from "@/components/MarketingPage";
 import { supabase } from "@/integrations/supabase/client";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { getCleanBannerUrl } from "@/lib/utils";
+import { downloadICS } from "@/lib/calendar";
 
 export const Route = createFileRoute("/events")({
   head: () => ({
@@ -142,20 +143,31 @@ function EventsPage() {
                     )}
                   </div>
                 </div>
-                {e.rsvp_url ? (
-                  <a
-                    href={e.rsvp_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:opacity-90 transition self-start md:self-center shrink-0"
+                <div className="flex flex-col sm:flex-row gap-2 shrink-0 md:self-center self-start">
+                  <button
+                    onClick={() => {
+                      const endDate = new Date(d.getTime() + 60 * 60 * 1000); // 1 hour duration
+                      downloadICS(e.title, e.description || "Join us for an exciting Learnify event!", d, endDate, e.location || "Online");
+                    }}
+                    className="flex items-center gap-1.5 rounded-full border border-border bg-card hover:bg-accent px-4 py-2 text-sm font-medium transition"
                   >
-                    RSVP
-                  </a>
-                ) : (
-                  <span className="rounded-full bg-muted text-muted-foreground px-5 py-2 text-sm font-medium self-start md:self-center shrink-0">
-                    Details soon
-                  </span>
-                )}
+                    <Calendar className="h-4 w-4" /> Sync
+                  </button>
+                  {e.rsvp_url ? (
+                    <a
+                      href={e.rsvp_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-full bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:opacity-90 transition"
+                    >
+                      RSVP
+                    </a>
+                  ) : (
+                    <button disabled className="rounded-full bg-muted text-muted-foreground px-5 py-2 text-sm font-medium opacity-50 cursor-not-allowed">
+                      Past Event
+                    </button>
+                  )}
+                </div>
               </div>
             );
           })}

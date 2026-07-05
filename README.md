@@ -46,7 +46,8 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🎥 **Interactive Course Player** | Video lessons, markdown notes, AI summaries, and practice exercises                      |
 | 💻 **Code Playground**           | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant  |
 | 📝 **Smart Notes**               | Auto-generated flashcards, summaries, and quizzes from any lesson                        |
-| 🏆 **Gamification**              | XP, streaks, badges, leaderboards, and achievements                                      |
+| 🏆 **Gamification Engine**     | XP, streaks, badges, leaderboards, interactive AI quizzes, and confetti celebrations     |
+| 📅 **Calendar Sync**             | Browser-based `.ics` generator to sync events to Google, Apple, and Outlook calendars    |
 | 💰 **Wallet & AI Credits**       | Starter 500 AI credits/mo, creator earnings & withdrawals, Cashfree gateway integration     |
 | 📋 **Billing Dashboard**         | Plan management, Cashfree invoices, coupons (`WELCOME20`, `STUDENT50`, `LAUNCH20`)       |
 | 🎯 **Onboarding Wizard**         | 8-step guided setup with AI coach, daily habits tracking, and project creation           |

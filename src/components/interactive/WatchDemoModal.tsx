@@ -4,6 +4,7 @@ import { X, Play, Sparkles, Brain, DollarSign, BookOpen, GraduationCap, ArrowRig
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { CustomVideoPlayer } from "@/components/ui/CustomVideoPlayer";
 
 interface WatchDemoModalProps {
   open: boolean;
@@ -28,16 +29,11 @@ export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
           </p>
         </div>
 
-        {/* 30-Second Product Walkthrough Video (Local MP4) */}
+        {/* 30-Second Product Walkthrough Video */}
         <div className="aspect-video w-full bg-slate-950 relative border-b border-border/60">
-          <video
-            src="/videos/Learnify_AI.mp4"
-            className="w-full h-full object-cover"
-            controls
-            autoPlay
-            muted
-            playsInline
-            loop
+          <CustomVideoPlayer 
+            src="https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-4174-large.mp4" 
+            autoPlay 
           />
         </div>
 

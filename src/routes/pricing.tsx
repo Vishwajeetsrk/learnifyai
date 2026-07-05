@@ -133,9 +133,9 @@ const DEFAULT_TIERS: Plan[] = [
     id: "default-pro",
     name: "Pro",
     price_label: "₹199",
-    description: "For serious learners and creators who want unlimited access.",
+    description: "For serious learners who want to master standard designs and basic career tools.",
     features: [
-      "Unlimited courses",
+      "Access to standard design templates",
       "Advanced AI tutor",
       "10,000 AI credits/month",
       "All certificates",
@@ -167,6 +167,9 @@ const DEFAULT_TIERS: Plan[] = [
     description: "Job-seekers — everything in Pro + Resume / ATS / Interview Prep / Career Roadmap, verified certificates included.",
     features: [
       "Everything in Pro",
+      "All Premium Design Templates",
+      "Template Mastery Studio (New)",
+      "Interactive DOM Blueprints",
       "Resume Builder",
       "ATS Checker",
       "Interview Prep",
@@ -481,7 +484,7 @@ function PricingPage() {
                 price_inr: typeof match.price_inr === "number" ? match.price_inr : def.price_inr,
                 yearly_price: typeof match.yearly_price === "number" ? match.yearly_price : def.yearly_price,
                 interval: match.interval || def.interval,
-                features: match.features.length > 0 ? match.features : def.features,
+                features: def.features,
               }
             : def;
         });

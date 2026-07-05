@@ -48,6 +48,7 @@ interface NavItem {
   icon: typeof Sparkles;
   adminOnly?: boolean;
   creatorOnly?: boolean;
+  careerProOnly?: boolean;
   featureKey?: string;
 }
 const nav: NavItem[] = [
@@ -60,6 +61,7 @@ const nav: NavItem[] = [
   { to: "/coaching", label: "Coaching", icon: Compass, featureKey: "coaching" },
   { to: "/ai-tools", label: "AI Tools", icon: Wand2, featureKey: "ai_tools" },
   { to: "/certificates", label: "Certificates", icon: Award, featureKey: "certificates" },
+  { to: "/projects", label: "Template Mastery", icon: FolderOpen, careerProOnly: true },
   { to: "/cart", label: "Cart", icon: ShoppingCart },
   { to: "/wallet", label: "Wallet", icon: WalletIcon, featureKey: "wallet" },
   { to: "/settings", label: "Account", icon: SettingsIcon },
@@ -80,9 +82,26 @@ export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const currentSub = useQuery({
+    enabled: !!user,
+    queryKey: ["my-subscription", user?.id],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("user_subscriptions")
+        .select("*, plan:pricing_plans(*)")
+        .eq("user_id", user!.id)
+        .eq("status", "active")
+        .maybeSingle();
+      return data || null;
+    },
+  });
+  const activePlanName = currentSub.data?.plan?.name?.toLowerCase() || "free";
+  const hasCareerPro = activePlanName === "career pro" || activePlanName === "enterprise";
+
   const navItems = nav.filter((n) => {
     if (n.adminOnly && !isAdmin) return false;
     if (n.creatorOnly && !isCreator) return false;
+    if (n.careerProOnly && !hasCareerPro) return false;
     if (n.featureKey) {
       const flag = flags?.find((f: any) => f.key === n.featureKey);
       if (flag && (!flag.enabled || flag.maintenance_mode)) return false;

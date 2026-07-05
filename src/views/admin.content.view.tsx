@@ -98,6 +98,8 @@ import MediaLibrary from "@/components/admin/MediaLibrary";
 import FeaturesCatalog from "@/components/admin/FeaturesCatalog";
 import MenuManager from "@/components/admin/MenuManager";
 import BlogManager from "@/components/admin/BlogManager";
+const DesignProjectsManager = lazy(() => import("@/components/admin/DesignProjectsManager"));
+const CouponManager = lazy(() => import("@/components/admin/CouponManager"));
 
 const AVATAR_URLS = {
   rishabh: "/avatars/Rishabh-Sharma.png",
@@ -154,6 +156,11 @@ const SECTION_TOURS: Record<string, { what: string; how: string; where: string }
     how: "Click 'Add Job' and fill in title, team, location, and apply URL. Toggle active/inactive to control visibility.",
     where:
       "Jobs appear on the Careers page and the Dashboard in the Latest Jobs section. Active jobs are visible to all logged-in users.",
+  },
+  "design-projects": {
+    what: "Manage design templates and projects for the Template Mastery Studio.",
+    how: "Add or edit projects, providing course modules and architecture node JSON structures.",
+    where: "Projects appear in the Template Mastery section, gated by the Career Pro subscription.",
   },
   pricing: {
     what: "Manage subscription plans (Free, Pro, Career Pro, Enterprise), pricing tiers, and plan features for the platform.",
@@ -254,6 +261,7 @@ const SECTION_TOURS: Record<string, { what: string; how: string; where: string }
 const TAB_LABELS: Record<string, string> = {
   events: "Events",
   jobs: "Jobs",
+  "design-projects": "Design Projects",
   pricing: "Pricing",
   site: "Site",
   "cert-templates": "Certificates",
@@ -297,6 +305,7 @@ export default function AdminContentPage() {
   const tabFromUrl = [
     "events",
     "jobs",
+    "design-projects",
     "pricing",
     "site",
     "cert-templates",
@@ -376,6 +385,10 @@ export default function AdminContentPage() {
               <Briefcase className="h-4 w-4 mr-2" />
               Jobs
             </TabsTrigger>
+            <TabsTrigger value="design-projects">
+              <FolderTree className="h-4 w-4 mr-2" />
+              Design Projects
+            </TabsTrigger>
             <TabsTrigger value="pricing">
               <Tag className="h-4 w-4 mr-2" />
               Pricing
@@ -451,6 +464,11 @@ export default function AdminContentPage() {
           <TabsContent value="jobs" className="mt-6">
             <JobsManager />
           </TabsContent>
+          <TabsContent value="design-projects" className="mt-6">
+            <Suspense fallback={<LazyFallback />}>
+              <DesignProjectsManager />
+            </Suspense>
+          </TabsContent>
           <TabsContent value="pricing" className="mt-6">
             <PricingManager />
           </TabsContent>
@@ -476,7 +494,9 @@ export default function AdminContentPage() {
             <RoadmapManager />
           </TabsContent>
           <TabsContent value="coupons" className="mt-6">
-            <CouponManager />
+            <Suspense fallback={<LazyFallback />}>
+              <CouponManager />
+            </Suspense>
           </TabsContent>
           <TabsContent value="community" className="mt-6">
             <CohortsManager />
@@ -4112,198 +4132,6 @@ function RoadmapManager() {
   );
 }
 
-const COUPON_KEY = "coupons";
-const DEFAULT_COUPONS = [
-  { code: "WELCOME10", type: "percent", value: 10, label: "10% off", active: true },
-  { code: "LEARN20", type: "percent", value: 20, label: "20% off", active: true },
-  { code: "STUDENT25", type: "percent", value: 25, label: "25% student discount", active: true },
-];
-
-function CouponManager() {
-  const qc = useQueryClient();
-  const [items, setItems] = useState<any[]>([]);
-  const [saving, setSaving] = useState(false);
-  const [deleteTargetIdx, setDeleteTargetIdx] = useState<number | null>(null);
-  const doQuery = useServerFn(adminContentQuery);
-  const doUpsert = useServerFn(adminContentUpsert);
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["admin-coupons"],
-    queryFn: async () => {
-      const result: any = await doQuery({
-        data: {
-          table: "site_settings",
-          columns: "value",
-          eqFilter: { column: "key", value: COUPON_KEY },
-          maybeSingle: true,
-        },
-      });
-      if (result?.value) {
-        try {
-          return JSON.parse(result.value as string);
-        } catch {
-          return DEFAULT_COUPONS;
-        }
-      }
-      return DEFAULT_COUPONS;
-    },
-  });
-
-  useEffect(() => {
-    if (data) setItems(data);
-  }, [data]);
-
-  const save = async () => {
-    setSaving(true);
-    try {
-      await doUpsert({
-        data: {
-          table: "site_settings",
-          data: {
-            key: COUPON_KEY,
-            value: JSON.stringify(items),
-            updated_at: new Date().toISOString(),
-          },
-          onConflict: "key",
-        },
-      });
-    } catch (e: any) {
-      setSaving(false);
-      return toast.error(e?.message || "Save failed");
-    }
-    setSaving(false);
-    toast.success("Coupons saved");
-    qc.invalidateQueries({ queryKey: ["admin-coupons"] });
-  };
-
-  const addItem = () => {
-    setItems([...items, { code: "", type: "percent", value: 10, label: "", active: true }]);
-  };
-
-  const deleteItem = (i: number) => {
-    setDeleteTargetIdx(i);
-  };
-
-  const confirmDeleteCoupon = () => {
-    if (deleteTargetIdx == null) return;
-    setItems(items.filter((_, idx) => idx !== deleteTargetIdx));
-    setDeleteTargetIdx(null);
-  };
-
-  const updateItem = (i: number, updates: any) => {
-    setItems(items.map((item, idx) => (idx === i ? { ...item, ...updates } : item)));
-  };
-
-  if (isLoading)
-    return (
-      <div className="flex justify-center py-10">
-        <Loader2 className="h-5 w-5 animate-spin" />
-      </div>
-    );
-
-  return (
-    <div className="space-y-5 max-w-3xl">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          Manage coupon codes. Users can apply these at checkout for discounts.
-        </p>
-        <Button onClick={addItem}>
-          <Plus className="h-4 w-4 mr-2" /> Add coupon
-        </Button>
-      </div>
-
-      <div className="space-y-3">
-        {items.map((item, i) => (
-          <div key={i} className="rounded-xl border border-border/60 bg-card p-4 space-y-3">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 flex-1">
-                <Input
-                  value={item.code}
-                  onChange={(e) => updateItem(i, { code: e.target.value.toUpperCase() })}
-                  placeholder="COUPON_CODE"
-                  className="w-36 font-mono text-xs uppercase"
-                />
-                <select
-                  value={item.type}
-                  onChange={(e) => updateItem(i, { type: e.target.value })}
-                  className="text-xs border rounded px-1.5 py-0.5 bg-background"
-                >
-                  <option value="percent">%</option>
-                  <option value="flat">₹</option>
-                </select>
-                <Input
-                  type="number"
-                  value={item.value}
-                  onChange={(e) => updateItem(i, { value: Number(e.target.value) })}
-                  className="w-20 text-xs"
-                />
-                <Input
-                  value={item.label}
-                  onChange={(e) => updateItem(i, { label: e.target.value })}
-                  placeholder="Label (e.g. 10% off)"
-                  className="flex-1 text-xs"
-                />
-                <label className="flex items-center gap-1 text-xs">
-                  <input
-                    type="checkbox"
-                    checked={item.active !== false}
-                    onChange={(e) => updateItem(i, { active: e.target.checked })}
-                  />
-                  Active
-                </label>
-              </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="text-destructive"
-                onClick={() => deleteItem(i)}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </div>
-        ))}
-        {items.length === 0 && (
-          <div className="text-center text-muted-foreground py-8">
-            No coupons yet. Click "Add coupon" to start.
-          </div>
-        )}
-      </div>
-
-      <div className="pt-2 sticky bottom-0 bg-background/95 backdrop-blur py-3">
-        <Button onClick={save} disabled={saving}>
-          {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          Save coupons
-        </Button>
-      </div>
-
-      <AlertDialog
-        open={deleteTargetIdx != null}
-        onOpenChange={(v) => !v && setDeleteTargetIdx(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete this coupon?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will remove "
-              {deleteTargetIdx != null ? items[deleteTargetIdx]?.code || "Untitled" : ""}"
-              permanently.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteCoupon}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-}
 
 // ─────────────────────────── Community Groups (Cohorts) ───────────────────────────
 

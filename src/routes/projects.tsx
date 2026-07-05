@@ -1,6 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo, useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Search,
   Globe,
@@ -23,6 +26,7 @@ import {
   Lock,
   ClipboardCopy,
   CheckCheck,
+  GraduationCap,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -140,9 +144,11 @@ function matchesFilter(p: Project, filterKey: string): boolean {
 function ProjectCard({
   p,
   onClick,
+  hasCareerPro,
 }: {
   p: Project;
   onClick: () => void;
+  hasCareerPro: boolean;
 }) {
   const [copied, setCopied] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
@@ -267,13 +273,17 @@ function ProjectCard({
               <Maximize2 className="h-3.5 w-3.5" />
               Live Preview
             </button>
-            <button
-              onClick={handleLaunchDirect}
-              className="flex items-center gap-1.5 text-xs font-semibold text-foreground bg-secondary/90 hover:bg-secondary px-3.5 py-2 rounded-xl transition-all border border-white/20 hover:scale-105"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Direct
-            </button>
+            {hasCareerPro && (
+              <Link
+                to="/course/$projectId"
+                params={{ projectId: p.id }}
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center gap-1.5 text-xs font-semibold text-foreground bg-secondary/90 hover:bg-secondary px-3.5 py-2 rounded-xl transition-all border border-white/20 hover:scale-105"
+              >
+                <GraduationCap className="h-3.5 w-3.5" />
+                Learn to Build
+              </Link>
+            )}
           </div>
 
           <button
@@ -322,6 +332,40 @@ function ProjectsPage() {
   const [viewport, setViewport] = useState<ViewportType>("desktop");
   const [filter, setFilter] = useState("all");
 
+  const { data: dbProjects = [] } = useQuery({
+    queryKey: ["design-projects-public"],
+    queryFn: async () => {
+      try {
+        const { data, error } = await supabase
+          .from("design_projects")
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (error || !data || data.length === 0) return projectsData as Project[];
+        return data as Project[];
+      } catch {
+        return projectsData as Project[];
+      }
+    },
+  });
+
+  const { user } = useAuth();
+  
+  const currentSub = useQuery({
+    enabled: !!user,
+    queryKey: ["my-subscription", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_subscriptions")
+        .select("*, plan:pricing_plans(*)")
+        .eq("user_id", user!.id)
+        .eq("status", "active")
+        .maybeSingle();
+      return data || null;
+    },
+  });
+  const activePlanName = currentSub.data?.plan?.name?.toLowerCase() || "free";
+  const hasCareerPro = activePlanName === "career pro" || activePlanName === "enterprise";
+
   // Escape key closes modal
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setSelectedProject(null); };
@@ -330,15 +374,16 @@ function ProjectsPage() {
   }, []);
 
   const filteredProjects = useMemo(() => {
-    return (projectsData as Project[]).filter((p) => {
+    return dbProjects.filter((p) => {
       const query = search.toLowerCase();
+      const name = p.name || p.title || "";
       const matchesSearch =
-        p.name.toLowerCase().includes(query) ||
-        p.title.toLowerCase().includes(query) ||
-        p.description.toLowerCase().includes(query);
+        name.toLowerCase().includes(query) ||
+        (p.title || "").toLowerCase().includes(query) ||
+        (p.description || "").toLowerCase().includes(query);
       return matchesSearch && matchesFilter(p, filter);
     });
-  }, [search, filter]);
+  }, [search, filter, dbProjects]);
 
   const getViewportWidth = () => {
     switch (viewport) {
@@ -457,7 +502,7 @@ function ProjectsPage() {
           {filteredProjects.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredProjects.map((p) => (
-                <ProjectCard key={p.id} p={p} onClick={() => setSelectedProject(p)} />
+                <ProjectCard key={p.id} p={p} onClick={() => setSelectedProject(p)} hasCareerPro={hasCareerPro} />
               ))}
             </div>
           ) : (
@@ -532,8 +577,17 @@ function ProjectsPage() {
                   })}
                 </div>
 
-                {/* Right controls */}
                 <div className="flex items-center gap-1.5">
+                  {hasCareerPro && (
+                    <Link
+                      to="/course/$projectId"
+                      params={{ projectId: selectedProject.id }}
+                      className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 px-3 py-1.5 rounded-lg transition-all border border-primary"
+                    >
+                      <GraduationCap className="h-3.5 w-3.5" />
+                      Take Course
+                    </Link>
+                  )}
                   <a
                     href={selectedProject.path}
                     target="_blank"

@@ -38,8 +38,10 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as VerifyIdRouteImport } from './routes/verify.$id'
 import { Route as UAtusernameRouteImport } from './routes/u/@$username'
 import { Route as UIdRouteImport } from './routes/u.$id'
+import { Route as StudioProjectIdRouteImport } from './routes/studio.$projectId'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
+import { Route as CourseProjectIdRouteImport } from './routes/course.$projectId'
 import { Route as CertificatesCodeRouteImport } from './routes/certificates.$code'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -246,6 +248,11 @@ const UIdRoute = UIdRouteImport.update({
   path: '/u/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudioProjectIdRoute = StudioProjectIdRouteImport.update({
+  id: '/studio/$projectId',
+  path: '/studio/$projectId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapXmlRoute = SitemapXmlRouteImport.update({
   id: '/sitemap/xml',
   path: '/sitemap/xml',
@@ -254,6 +261,11 @@ const SitemapXmlRoute = SitemapXmlRouteImport.update({
 const PSlugRoute = PSlugRouteImport.update({
   id: '/p/$slug',
   path: '/p/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CourseProjectIdRoute = CourseProjectIdRouteImport.update({
+  id: '/course/$projectId',
+  path: '/course/$projectId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CertificatesCodeRoute = CertificatesCodeRouteImport.update({
@@ -654,8 +666,10 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/certificates/$code': typeof CertificatesCodeRoute
+  '/course/$projectId': typeof CourseProjectIdRoute
   '/p/$slug': typeof PSlugRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/studio/$projectId': typeof StudioProjectIdRoute
   '/u/$id': typeof UIdRoute
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
@@ -747,8 +761,10 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/certificates/$code': typeof CertificatesCodeRoute
+  '/course/$projectId': typeof CourseProjectIdRoute
   '/p/$slug': typeof PSlugRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/studio/$projectId': typeof StudioProjectIdRoute
   '/u/$id': typeof UIdRoute
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
@@ -842,8 +858,10 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/certificates/$code': typeof CertificatesCodeRoute
+  '/course/$projectId': typeof CourseProjectIdRoute
   '/p/$slug': typeof PSlugRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/studio/$projectId': typeof StudioProjectIdRoute
   '/u/$id': typeof UIdRoute
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
@@ -937,8 +955,10 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/blog/$slug'
     | '/certificates/$code'
+    | '/course/$projectId'
     | '/p/$slug'
     | '/sitemap/xml'
+    | '/studio/$projectId'
     | '/u/$id'
     | '/u/@$username'
     | '/verify/$id'
@@ -1030,8 +1050,10 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/blog/$slug'
     | '/certificates/$code'
+    | '/course/$projectId'
     | '/p/$slug'
     | '/sitemap/xml'
+    | '/studio/$projectId'
     | '/u/$id'
     | '/u/@$username'
     | '/verify/$id'
@@ -1124,8 +1146,10 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/blog/$slug'
     | '/certificates/$code'
+    | '/course/$projectId'
     | '/p/$slug'
     | '/sitemap/xml'
+    | '/studio/$projectId'
     | '/u/$id'
     | '/u/@$username'
     | '/verify/$id'
@@ -1187,8 +1211,10 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CertificatesCodeRoute: typeof CertificatesCodeRoute
+  CourseProjectIdRoute: typeof CourseProjectIdRoute
   PSlugRoute: typeof PSlugRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
+  StudioProjectIdRoute: typeof StudioProjectIdRoute
   UIdRoute: typeof UIdRoute
   UAtusernameRoute: typeof UAtusernameRoute
   VerifyIdRoute: typeof VerifyIdRoute
@@ -1406,6 +1432,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/studio/$projectId': {
+      id: '/studio/$projectId'
+      path: '/studio/$projectId'
+      fullPath: '/studio/$projectId'
+      preLoaderRoute: typeof StudioProjectIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap/xml': {
       id: '/sitemap/xml'
       path: '/sitemap/xml'
@@ -1418,6 +1451,13 @@ declare module '@tanstack/react-router' {
       path: '/p/$slug'
       fullPath: '/p/$slug'
       preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/course/$projectId': {
+      id: '/course/$projectId'
+      path: '/course/$projectId'
+      fullPath: '/course/$projectId'
+      preLoaderRoute: typeof CourseProjectIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/certificates/$code': {
@@ -2035,8 +2075,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   BlogSlugRoute: BlogSlugRoute,
   CertificatesCodeRoute: CertificatesCodeRoute,
+  CourseProjectIdRoute: CourseProjectIdRoute,
   PSlugRoute: PSlugRoute,
   SitemapXmlRoute: SitemapXmlRoute,
+  StudioProjectIdRoute: StudioProjectIdRoute,
   UIdRoute: UIdRoute,
   UAtusernameRoute: UAtusernameRoute,
   VerifyIdRoute: VerifyIdRoute,

@@ -4,7 +4,57 @@
     "name": "Acreage Nike",
     "title": "Acreage × Nike — Next-Gen Footwear",
     "description": "Dual sticky fullscreen sections with GSAP pill BubbleMenu, mouse-trail SpotlightReveal over react-player video, glass 78% stat card, and Nike swoosh…",
-    "path": "/preset-sites/acreage-nike/index.html"
+    "path": "/preset-sites/acreage-nike/index.html",
+    "course_modules": [
+      {
+        "step": 1,
+        "title": "Building the Video Backdrop",
+        "text": "We start with a full-viewport React Player to set the cinematic tone.",
+        "voice_script": "Welcome to step one. First, let's lay down the canvas using a full-screen video background...",
+        "code_snippet": "<video className='w-full h-screen object-cover' autoPlay loop muted>\n  <source src='/videos/nike-bg.mp4' type='video/mp4' />\n</video>"
+      },
+      {
+        "step": 2,
+        "title": "GSAP Bubble Menu",
+        "text": "Implement the fluid pill navigation using GSAP FLIP.",
+        "voice_script": "Next, we add the iconic pill navigation. We use GSAP to animate the active state smoothly...",
+        "code_snippet": "gsap.to('.bubble', {\n  x: activeIndex * 100,\n  duration: 0.6,\n  ease: 'power3.out'\n});"
+      }
+    ],
+    "architecture_nodes": [
+      {
+        "id": "root",
+        "label": "<main className='relative overflow-hidden'>",
+        "type": "container",
+        "children": [
+          {
+            "id": "hero-bg",
+            "label": "<video className='absolute inset-0' />",
+            "type": "media",
+            "children": []
+          },
+          {
+            "id": "gsap-nav",
+            "label": "<nav className='fixed bottom-10'>",
+            "type": "component",
+            "children": [
+              {
+                "id": "bubble",
+                "label": "<div className='gsap-bubble absolute' />",
+                "type": "animation",
+                "children": []
+              }
+            ]
+          },
+          {
+            "id": "glass-card",
+            "label": "<div className='glass-panel backdrop-blur'>",
+            "type": "component",
+            "children": []
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "asme",
