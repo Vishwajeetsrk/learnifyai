@@ -110,6 +110,7 @@ export function CodeEditor({
           renderLineHighlight: "all",
           fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
           fontLigatures: true,
+          scrollbar: { alwaysConsumeMouseWheel: false },
         }}
       />
       <button

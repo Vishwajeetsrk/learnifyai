@@ -62,6 +62,7 @@ const nav: NavItem[] = [
   { to: "/ai-tools", label: "AI Tools", icon: Wand2, featureKey: "ai_tools" },
   { to: "/certificates", label: "Certificates", icon: Award, featureKey: "certificates" },
   { to: "/projects", label: "Template Mastery", icon: FolderOpen },
+  { to: "/store", label: "XP Store", icon: ShoppingCart },
   { to: "/cart", label: "Cart", icon: ShoppingCart },
   { to: "/wallet", label: "Wallet", icon: WalletIcon, featureKey: "wallet" },
   { to: "/settings", label: "Account", icon: SettingsIcon },

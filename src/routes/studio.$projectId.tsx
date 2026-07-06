@@ -7,6 +7,8 @@ import { ArrowLeft, Play, Pause, ChevronRight, ChevronLeft, Code2, Layout, Maxim
 import Editor from "@monaco-editor/react";
 import confetti from "canvas-confetti";
 import projectsData from "@/data/projects.json";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/studio/$projectId")({
   component: StudioClassroomPage,
@@ -106,6 +108,7 @@ function StudioClassroomPage() {
   ];
 
   const [activeStep, setActiveStep] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -249,10 +252,34 @@ function StudioClassroomPage() {
       </header>
 
       {/* Main Studio Layout */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative">
+        
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-black/60 z-30 lg:hidden backdrop-blur-sm" 
+            onClick={() => setIsMobileMenuOpen(false)} 
+          />
+        )}
+
+        {/* Mobile FAB to open curriculum */}
+        <div className="lg:hidden absolute bottom-4 right-4 z-20">
+          <Button onClick={() => setIsMobileMenuOpen(true)} className="rounded-full shadow-2xl h-14 w-14 p-0">
+            <BookOpen className="h-6 w-6" />
+          </Button>
+        </div>
         
         {/* Left Sidebar: Curriculum & Instructions */}
-        <aside className="w-80 border-r border-border bg-card flex flex-col shrink-0">
+        <aside className={cn(
+          "bg-card flex flex-col shrink-0 border-border z-40 transition-transform duration-300",
+          "fixed inset-x-0 bottom-0 h-[85vh] rounded-t-3xl border-t shadow-[0_-10px_40px_rgba(0,0,0,0.5)] lg:static lg:h-auto lg:w-80 lg:rounded-none lg:border-r lg:border-t-0 lg:shadow-none lg:translate-y-0",
+          isMobileMenuOpen ? "translate-y-0" : "translate-y-full"
+        )}>
+          {/* Mobile Drag Handle */}
+          <div className="flex lg:hidden justify-center pt-3 pb-2 w-full cursor-pointer" onClick={() => setIsMobileMenuOpen(false)}>
+             <div className="w-12 h-1.5 bg-muted rounded-full" />
+          </div>
+          
           
           {/* Sidebar Toggle Header */}
           <div className="flex items-center p-2 border-b border-border bg-muted/20">
@@ -430,7 +457,9 @@ function StudioClassroomPage() {
                    scrollBeyondLastLine: false,
                    smoothScrolling: true,
                    cursorBlinking: "smooth",
-                   renderLineHighlight: "all"
+                   renderLineHighlight: "all",
+                   wordWrap: "on",
+                   scrollbar: { alwaysConsumeMouseWheel: false }
                  }}
                />
              </div>
