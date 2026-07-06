@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { SkillBadge } from "@/components/SkillBadge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/career-studio")({
   head: () => ({ meta: [{ title: "Career Studio — Learnify AI" }] }),
@@ -747,7 +748,238 @@ function CareerFinderView() {
   );
 }
 
+const DETAILED_ROADMAPS: Record<string, {
+  targetRole: string;
+  level: string;
+  summary: string;
+  timeline: string;
+  salary: string;
+  prerequisites: string[];
+  phases: Array<{
+    phaseTitle: string;
+    duration: string;
+    skills: string[];
+    description: string;
+    milestones: string[];
+  }>;
+  projects: Array<{ title: string; tech: string[]; desc: string }>;
+}> = {
+  "Generative AI": {
+    targetRole: "Generative AI Engineer",
+    level: "2026 Core Demand",
+    summary: "Master LLM APIs, Prompt Engineering, Retrieval-Augmented Generation (RAG), Vector Databases, and Fine-tuning models for production.",
+    timeline: "2-3 Months",
+    salary: "₹8L - ₹25L / yr",
+    prerequisites: ["Python", "API Basics", "Git"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: Python Core & LLM API Fundamentals",
+        duration: "Weeks 1-3",
+        skills: ["Python", "OpenAI", "Prompt Engineering", "JSON"],
+        description: "Learn Python async programming, HTTP clients, OpenAI & Anthropic API integration, structured outputs, and prompt formatting techniques.",
+        milestones: ["Build a CLI AI Assistant", "Implement Structured JSON Data Extraction from Unstructured Text"]
+      },
+      {
+        phaseTitle: "Phase 2: RAG & Vector Search Architecture",
+        duration: "Weeks 4-7",
+        skills: ["LangChain", "Vector DBs", "Pinecone", "Python", "OpenAI"],
+        description: "Master document chunking, embeddings, vector database similarity search, hybrid search, and context augmentation.",
+        milestones: ["Build a Full RAG Knowledge Base for PDF Search", "Implement Conversational Memory & Context Truncation"]
+      },
+      {
+        phaseTitle: "Phase 3: Production LLM Evaluation & Guardrails",
+        duration: "Weeks 8-12",
+        skills: ["FastAPI", "Python", "Docker", "Vercel", "OpenAI"],
+        description: "Deploy AI microservices with FastAPI, implement rate limiting, hallucination guardrails, response caching, and evaluation metrics.",
+        milestones: ["Deploy Production AI Microservice to Cloud", "Benchmark RAG Accuracy & Latency"]
+      }
+    ],
+    projects: [
+      { title: "Enterprise Knowledge Base RAG", tech: ["Python", "LangChain", "OpenAI", "Pinecone", "FastAPI"], desc: "Full RAG system querying thousands of company documents with citation links." },
+      { title: "AI Code Review Assistant", tech: ["Python", "OpenAI", "GitHub API", "Docker"], desc: "Automated PR reviewer analyzing code quality, security vulnerabilities, and unit test coverage." }
+    ]
+  },
+  "Agentic AI": {
+    targetRole: "Agentic AI Developer",
+    level: "Cutting Edge",
+    summary: "Build stateful, multi-agent autonomous workflows using LangGraph, Tool Calling, ReAct Agent loops, and human-in-the-loop validation.",
+    timeline: "3-4 Months",
+    salary: "₹12L - ₹35L+ / yr",
+    prerequisites: ["Python", "TypeScript", "LangChain"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: Agentic Patterns & Tool Calling",
+        duration: "Weeks 1-4",
+        skills: ["Python", "TypeScript", "LangChain", "OpenAI"],
+        description: "Understand ReAct architecture, function calling, tool execution loops, error recovery, and structured planning.",
+        milestones: ["Build a Web Research Agent with Google & Tavily Tools", "Implement Automatic Tool Error Retries"]
+      },
+      {
+        phaseTitle: "Phase 2: Stateful Multi-Agent Orchestration",
+        duration: "Weeks 5-9",
+        skills: ["LangChain", "Python", "TypeScript", "FastAPI"],
+        description: "Orchestrate multi-agent teams (Coder, Tester, Reviewer) using state graphs, conditional routing, and persistent memory.",
+        milestones: ["Create an Autonomous Software Engineering Agent Team", "Implement Human-in-the-Loop Approval Nodes"]
+      },
+      {
+        phaseTitle: "Phase 3: Production Deployment & Agent Observability",
+        duration: "Weeks 10-14",
+        skills: ["Python", "Docker", "FastAPI", "PostgreSQL", "Redis"],
+        description: "Monitor agent execution traces, cost optimization, rate limits, and asynchronous background worker queues.",
+        milestones: ["Deploy Multi-Agent Pipeline to Production Kubernetes / Cloud", "Trace Agent Steps with Observability Tools"]
+      }
+    ],
+    projects: [
+      { title: "Autonomous Market Research Agent", tech: ["Python", "LangChain", "Tavily", "FastAPI"], desc: "Scrapes competitor websites, generates market intelligence reports, and emails summaries." },
+      { title: "AI Customer Support Squad", tech: ["TypeScript", "LangChain", "Node.js", "Supabase"], desc: "Multi-agent squad handling ticket classification, DB lookup, resolution, and escalation." }
+    ]
+  },
+  "UI/UX Design": {
+    targetRole: "UI/UX & Product Designer",
+    level: "Creative Focus",
+    summary: "Master user research, wireframing, interactive prototyping in Figma, design systems, accessibility (WCAG), and developer handoff.",
+    timeline: "3-4 Months",
+    salary: "₹4L - ₹20L / yr",
+    prerequisites: ["Design Fundamentals", "Figma Basics"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: UX Research & Information Architecture",
+        duration: "Weeks 1-4",
+        skills: ["Figma", "UI/UX", "User Research", "Wireframing"],
+        description: "Conduct user interviews, map user journeys, create personas, sitemaps, and low-fidelity wireframes.",
+        milestones: ["Complete UX Case Study for a Mobile App", "Build User Flow & Wireframe Specs"]
+      },
+      {
+        phaseTitle: "Phase 2: UI Mastery & Design Systems",
+        duration: "Weeks 5-9",
+        skills: ["Figma", "UI/UX", "Tailwind CSS", "Canva"],
+        description: "Master typography, color theory, spacing tokens, auto-layout, component variants, and full design system creation.",
+        milestones: ["Create Complete Mobile & Desktop Design System", "Design High-Fidelity Responsive Prototypes"]
+      },
+      {
+        phaseTitle: "Phase 3: Interactive Micro-Animations & Developer Handoff",
+        duration: "Weeks 10-14",
+        skills: ["Figma", "UI/UX", "Tailwind CSS"],
+        description: "Add smooth component micro-interactions, smart-animate prototypes, prepare design tokens, and conduct dev handoff.",
+        milestones: ["Build Fully Interactive Clickable Prototype", "Export Token Documentation for Engineering Team"]
+      }
+    ],
+    projects: [
+      { title: "Fintech Mobile App Redesign", tech: ["Figma", "UI/UX", "Design Systems"], desc: "End-to-end design case study from user research to interactive high-fidelity Figma prototype." },
+      { title: "SaaS Dashboard Design System", tech: ["Figma", "UI/UX", "Tailwind CSS"], desc: "Comprehensive component library with dark/light mode tokens, typography specs, and accessibility guidelines." }
+    ]
+  },
+  "Full-Stack (Next.js)": {
+    targetRole: "Full-Stack Software Engineer",
+    level: "High Demand",
+    summary: "Build modern, high-performance web applications using React 19, Next.js App Router, TypeScript, Tailwind CSS, PostgreSQL, and Server Components.",
+    timeline: "4-6 Months",
+    salary: "₹3L - ₹15L / yr",
+    prerequisites: ["HTML/CSS", "JavaScript Basics"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: Modern JavaScript & TypeScript Mastery",
+        duration: "Weeks 1-4",
+        skills: ["JavaScript", "TypeScript", "HTML5", "CSS3"],
+        description: "Master ES2026 async/await, closures, promises, DOM manipulation, and strong static typing with TypeScript interfaces.",
+        milestones: ["Build TypeScript Data Processing Utility", "Master Async Promises & Fetch APIs"]
+      },
+      {
+        phaseTitle: "Phase 2: React 19 & Next.js App Router",
+        duration: "Weeks 5-12",
+        skills: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
+        description: "Learn Server Components, Server Actions, Client State, Routing, Layouts, Forms, and Tailwind CSS responsive styling.",
+        milestones: ["Build Full-Featured Next.js E-Commerce Catalog", "Implement Dynamic Server Component Data Fetching"]
+      },
+      {
+        phaseTitle: "Phase 3: Database, Auth & Backend Integration",
+        duration: "Weeks 13-18",
+        skills: ["Node.js", "PostgreSQL", "Supabase", "Express", "Vercel"],
+        description: "Connect PostgreSQL databases, design relational schemas, implement Supabase OAuth authentication, and deploy to Vercel.",
+        milestones: ["Build Full-Stack SaaS Application with Payments & Auth", "Deploy Live Next.js Web App with CI/CD Pipeline"]
+      }
+    ],
+    projects: [
+      { title: "AI-Powered Course Creator Platform", tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "PostgreSQL", "Supabase"], desc: "Full-stack LMS platform with course builder, quiz engine, video streaming, and certificates." },
+      { title: "Real-Time Collaborative Workspace", tech: ["React", "Node.js", "TypeScript", "PostgreSQL", "Tailwind CSS"], desc: "Notion-style workspace with real-time editing, drag-and-drop, and team permissions." }
+    ]
+  },
+  "Cloud & DevSecOps": {
+    targetRole: "DevOps & Cloud Engineer",
+    level: "Infrastructure Focus",
+    summary: "Master cloud infrastructure on AWS, containerization with Docker, Kubernetes orchestration, CI/CD automation, and Terraform IaC.",
+    timeline: "6-8 Months",
+    salary: "₹6L - ₹22L / yr",
+    prerequisites: ["Linux Basics", "Networking Fundamentals"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: Linux Administration & Shell Scripting",
+        duration: "Weeks 1-6",
+        skills: ["Linux", "Bash", "Git", "Command Line"],
+        description: "Master Linux terminal navigation, file permissions, process management, systemd services, SSH, and Bash scripting.",
+        milestones: ["Automate System Health Check Script", "Configure Linux Nginx Reverse Proxy with SSL"]
+      },
+      {
+        phaseTitle: "Phase 2: Docker Containerization & CI/CD",
+        duration: "Weeks 7-14",
+        skills: ["Docker", "Git", "GitHub", "Linux"],
+        description: "Build multi-stage Dockerfiles, Docker Compose stacks, GitHub Actions workflows, and automated testing pipelines.",
+        milestones: ["Dockerize Microservice Stack with Postgres & Redis", "Set up Automated GitHub Actions CI/CD Pipeline"]
+      },
+      {
+        phaseTitle: "Phase 3: Cloud AWS & Infrastructure as Code (IaC)",
+        duration: "Weeks 15-24",
+        skills: ["AWS", "Kubernetes", "Terraform", "Linux"],
+        description: "Provision AWS EC2, S3, RDS, IAM, VPC using Terraform scripts. Deploy production applications to Amazon EKS (Kubernetes).",
+        milestones: ["Provision AWS Multi-Tier Cloud Infrastructure via Terraform", "Deploy Scalable Kubernetes Cluster with Auto-Scaling"]
+      }
+    ],
+    projects: [
+      { title: "Zero-Downtime AWS Kubernetes Deployment", tech: ["AWS", "Kubernetes", "Docker", "Terraform", "GitHub"], desc: "Complete Terraform infrastructure code deploying an EKS cluster with zero-downtime rolling updates." },
+      { title: "Automated DevSecOps Pipeline", tech: ["Docker", "Git", "Linux", "AWS"], desc: "CI/CD security pipeline scanning vulnerabilities, running automated tests, and deploying to AWS." }
+    ]
+  },
+  "Data Intelligence": {
+    targetRole: "Data Scientist & Analytics Engineer",
+    level: "Enterprise",
+    summary: "Master Python data analysis, SQL queries, Data Cleaning, Data Visualization, Machine Learning algorithms, and Predictive Analytics.",
+    timeline: "5-7 Months",
+    salary: "₹5L - ₹18L / yr",
+    prerequisites: ["Python Basics", "Math & Statistics"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: Advanced SQL & Python Data Analysis",
+        duration: "Weeks 1-6",
+        skills: ["Python", "SQL", "Pandas", "NumPy"],
+        description: "Master complex SQL window functions, joins, CTEs, DataFrames in Pandas, NumPy array operations, and data cleaning.",
+        milestones: ["Perform EDA (Exploratory Data Analysis) on 100k+ Record Dataset", "Write Complex SQL Data Warehouse Queries"]
+      },
+      {
+        phaseTitle: "Phase 2: Data Visualization & Business Dashboards",
+        duration: "Weeks 7-12",
+        skills: ["Python", "Pandas", "NumPy", "SQL"],
+        description: "Build interactive visual reports, chart dashboards, key performance metrics, and automated executive summary reports.",
+        milestones: ["Build Interactive Business Analytics Dashboard", "Create Executive Data Storytelling Presentation"]
+      },
+      {
+        phaseTitle: "Phase 3: Machine Learning & Predictive Modeling",
+        duration: "Weeks 13-20",
+        skills: ["Python", "TensorFlow", "Pandas", "NumPy"],
+        description: "Train classification, regression, and clustering models using Scikit-Learn and TensorFlow to solve real business problems.",
+        milestones: ["Train Customer Churn Prediction Model", "Deploy ML Inference API for Real-time Predictions"]
+      }
+    ],
+    projects: [
+      { title: "E-Commerce Customer Behavior & Churn Predictor", tech: ["Python", "Pandas", "TensorFlow", "SQL", "NumPy"], desc: "Exploratory data analysis and ML model predicting customer retention and lifetime value." },
+      { title: "Automated Financial Intelligence Dashboard", tech: ["Python", "SQL", "Pandas", "NumPy"], desc: "Pipeline parsing financial transactions, calculating metrics, and rendering interactive dashboards." }
+    ]
+  }
+};
+
 function GuidesDocsView() {
+  const navigate = useNavigate();
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+
   const skillGuides = [
     { title: "Generative AI", icon: Sparkles, color: "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400", level: "2026 Core", duration: "2-3 months", skills: ["Prompt Engineering", "Generative AI", "Python", "OpenAI", "LangChain"], salary: "₹8L - ₹25L" },
     { title: "Agentic AI", icon: Brain, color: "bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400", level: "Cutting Edge", duration: "3-4 months", skills: ["Agentic AI", "Python", "TypeScript", "LangChain", "FastAPI"], salary: "₹12L - ₹35L+" },
@@ -757,26 +989,32 @@ function GuidesDocsView() {
     { title: "Data Intelligence", icon: Database, color: "bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400", level: "Enterprise", duration: "5-7 months", skills: ["Python", "Pandas", "SQL", "NumPy", "TensorFlow"], salary: "₹5L - ₹18L" },
   ];
 
+  const activeRoadmap = selectedKey ? DETAILED_ROADMAPS[selectedKey] : null;
+
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
       <div className="flex items-center gap-4">
         <div className="p-3 bg-card rounded-2xl border shadow-sm"><BookOpen className="h-6 w-6 text-primary" /></div>
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Skill Roadmaps & Guides</h2>
-          <p className="text-sm text-muted-foreground">Career skill roadmaps and tech learning pathways.</p>
+          <p className="text-sm text-muted-foreground">Click any card to view the full 2026 industry roadmap breakdown & tech stack.</p>
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {skillGuides.map((guide, i) => (
-          <Card key={i} className="rounded-2xl border shadow-sm p-6 space-y-4 hover:shadow-md transition-all">
+          <Card
+            key={i}
+            onClick={() => setSelectedKey(guide.title)}
+            className="rounded-2xl border shadow-sm p-6 space-y-4 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
+          >
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl ${guide.color} flex items-center justify-center`}>
+              <div className={`w-10 h-10 rounded-xl ${guide.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
                 {React.createElement(guide.icon as any, { className: "w-5 h-5" })}
               </div>
               <div>
                 <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{guide.level}</p>
-                <h3 className="font-bold text-base">{guide.title}</h3>
+                <h3 className="font-bold text-base group-hover:text-primary transition-colors">{guide.title}</h3>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -794,9 +1032,140 @@ function GuidesDocsView() {
                 <SkillBadge key={s} skill={s} variant="secondary" size="sm" />
               ))}
             </div>
+            <div className="pt-2 text-xs font-bold text-primary flex items-center justify-end gap-1 group-hover:translate-x-1 transition-transform">
+              View Full Roadmap <ArrowRight className="h-3.5 w-3.5" />
+            </div>
           </Card>
         ))}
       </div>
+
+      {activeRoadmap && (
+        <Dialog open={!!selectedKey} onOpenChange={(v) => !v && setSelectedKey(null)}>
+          <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto p-6 bg-card border-border rounded-2xl shadow-2xl">
+            <DialogHeader>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-primary border-primary/30 text-[10px]">
+                  {activeRoadmap.level}
+                </Badge>
+                <span className="text-xs font-semibold text-muted-foreground">2026 Industry Spec</span>
+              </div>
+              <DialogTitle className="text-2xl font-bold font-display mt-1">
+                {activeRoadmap.targetRole} Roadmap
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-6 pt-3">
+              <p className="text-sm text-muted-foreground leading-relaxed">{activeRoadmap.summary}</p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="p-3 bg-muted/50 rounded-xl border">
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground">Estimated Time</span>
+                  <p className="font-bold text-sm text-foreground mt-0.5">{activeRoadmap.timeline}</p>
+                </div>
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-xl border border-emerald-500/20">
+                  <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400">Market Salary</span>
+                  <p className="font-bold text-sm text-emerald-600 dark:text-emerald-400 mt-0.5">{activeRoadmap.salary}</p>
+                </div>
+                <div className="p-3 bg-indigo-50 dark:bg-indigo-950/20 rounded-xl border border-indigo-500/20 col-span-2 sm:col-span-1">
+                  <span className="text-[10px] uppercase font-bold text-indigo-600 dark:text-indigo-400">Prerequisites</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {activeRoadmap.prerequisites.map((p) => (
+                      <span key={p} className="text-[10px] font-semibold bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 px-1.5 py-0.5 rounded">
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h4 className="font-bold text-base flex items-center gap-2 border-b pb-2">
+                  <Map className="h-4 w-4 text-primary" /> Phase-by-Phase Learning Path
+                </h4>
+                <div className="space-y-4">
+                  {activeRoadmap.phases.map((phase, idx) => (
+                    <div key={idx} className="p-4 rounded-xl bg-muted/40 border space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                        <h5 className="font-bold text-sm text-foreground flex items-center gap-2">
+                          <span className="h-6 w-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">
+                            {idx + 1}
+                          </span>
+                          {phase.phaseTitle}
+                        </h5>
+                        <Badge variant="secondary" className="text-[10px] w-fit">
+                          {phase.duration}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{phase.description}</p>
+                      
+                      <div className="space-y-1.5 pt-1">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Required Tech Stack</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {phase.skills.map((skill) => (
+                            <SkillBadge key={skill} skill={skill} variant="default" size="sm" />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 pt-1 border-t border-border/60">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Phase Milestones</span>
+                        <ul className="space-y-1">
+                          {phase.milestones.map((m, mIdx) => (
+                            <li key={mIdx} className="text-xs text-foreground flex items-start gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                              {m}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {activeRoadmap.projects.length > 0 && (
+                <div className="space-y-3 pt-2">
+                  <h4 className="font-bold text-base flex items-center gap-2 border-b pb-2">
+                    <FolderOpen className="h-4 w-4 text-primary" /> Key Portfolio Projects
+                  </h4>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {activeRoadmap.projects.map((proj, pIdx) => (
+                      <div key={pIdx} className="p-3.5 rounded-xl border bg-card space-y-2">
+                        <h5 className="font-bold text-xs text-foreground">{proj.title}</h5>
+                        <p className="text-[11px] text-muted-foreground">{proj.desc}</p>
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {proj.tech.map((t) => (
+                            <SkillBadge key={t} skill={t} variant="outline" size="sm" />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-4 border-t flex items-center justify-between gap-3">
+                <Button variant="outline" onClick={() => setSelectedKey(null)} className="text-xs">
+                  Close
+                </Button>
+                <Button
+                  onClick={() => {
+                    setSelectedKey(null);
+                    navigate({
+                      to: "/career-studio" as any,
+                      search: { tab: "roadmap" } as any,
+                      replace: true,
+                    });
+                  }}
+                  className="text-xs font-bold gap-1.5 bg-primary text-primary-foreground"
+                >
+                  <Sparkles className="h-3.5 w-3.5" /> Generate Custom AI Plan
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
