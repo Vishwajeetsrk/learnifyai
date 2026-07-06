@@ -8,6 +8,7 @@ import { Download, Printer, X, Image, Type, QrCode, Linkedin, Award, ShieldCheck
 import { toast } from "sonner";
 import { generateOpenBadgeV3 } from "@/lib/open-badges.functions";
 import { LinkedInShareModal } from "./LinkedInShareModal";
+import { OpenBadges3Modal } from "./OpenBadges3Modal";
 
 type CanvaTemplate = {
   id: string;
@@ -82,6 +83,7 @@ export function CertDesignerPreview({ template, onClose }: Props) {
   const [exporting, setExporting] = useState(false);
   const [activeFieldTab, setActiveFieldTab] = useState("all");
   const [showLinkedInModal, setShowLinkedInModal] = useState(false);
+  const [showOpenBadgesModal, setShowOpenBadgesModal] = useState(false);
   const certRef = useRef<HTMLDivElement>(null);
 
   const fields = template.fields_json;
@@ -340,7 +342,7 @@ export function CertDesignerPreview({ template, onClose }: Props) {
             <Button variant="outline" size="sm" onClick={() => setShowLinkedInModal(true)} className="text-[#0A66C2] border-[#0A66C2]/30 hover:bg-[#0A66C2]/10">
               <Linkedin className="h-4 w-4 mr-1.5" /> Add to LinkedIn
             </Button>
-            <Button variant="outline" size="sm" onClick={handleExportOpenBadge}>
+            <Button variant="outline" size="sm" onClick={() => setShowOpenBadgesModal(true)}>
               <Award className="h-4 w-4 mr-1.5 text-amber-500" /> Open Badges 3.0
             </Button>
             <Button variant="outline" size="sm" onClick={handleExportPng} disabled={exporting}>
@@ -361,6 +363,19 @@ export function CertDesignerPreview({ template, onClose }: Props) {
           courseName={data.courseName}
           certificateId={data.certId}
           issueDate={data.date}
+          verificationUrl={verificationUrl}
+        />
+      )}
+
+      {showOpenBadgesModal && (
+        <OpenBadges3Modal
+          open={showOpenBadgesModal}
+          onClose={() => setShowOpenBadgesModal(false)}
+          studentName={data.studentName}
+          courseName={data.courseName}
+          certificateId={data.certId}
+          issueDate={data.date}
+          description={data.description}
           verificationUrl={verificationUrl}
         />
       )}

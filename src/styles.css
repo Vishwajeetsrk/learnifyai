@@ -46,7 +46,81 @@
 :root {
   --radius: 0.875rem;
 
-  /* Brand Core (Stripe/Linear HSL System) */
+  /* Inspired by Learnify logo: deep navy + electric blue */
+  --background: oklch(0.99 0.005 250);
+  --foreground: oklch(0.16 0.06 265);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.16 0.06 265);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.16 0.06 265);
+
+  --primary: oklch(0.55 0.22 260); /* electric blue */
+  --primary-foreground: oklch(0.99 0.005 250);
+  --primary-glow: oklch(0.72 0.18 245);
+
+  --secondary: oklch(0.96 0.015 250);
+  --secondary-foreground: oklch(0.2 0.06 265);
+
+  --muted: oklch(0.96 0.012 250);
+  --muted-foreground: oklch(0.5 0.03 260);
+
+  --accent: oklch(0.93 0.04 250);
+  --accent-foreground: oklch(0.2 0.06 265);
+
+  --destructive: oklch(0.6 0.22 27);
+  --destructive-foreground: oklch(0.99 0 0);
+
+  --border: oklch(0.92 0.015 250);
+  --input: oklch(0.92 0.015 250);
+  --ring: oklch(0.55 0.22 260);
+
+  --gradient-hero:
+    radial-gradient(ellipse at top, oklch(0.55 0.22 260 / 0.18), transparent 60%),
+    linear-gradient(180deg, oklch(0.99 0.005 250), oklch(0.96 0.02 255));
+  --gradient-brand: linear-gradient(
+    135deg,
+    oklch(0.2 0.08 265),
+    oklch(0.55 0.22 260) 60%,
+    oklch(0.72 0.18 245)
+  );
+  --gradient-glow: radial-gradient(circle, oklch(0.72 0.18 245 / 0.35), transparent 70%);
+  --shadow-glow: 0 20px 60px -20px oklch(0.55 0.22 260 / 0.45);
+  --shadow-card: 0 10px 30px -12px oklch(0.2 0.08 265 / 0.15);
+}
+
+.dark {
+  --background: oklch(0.13 0.04 265);
+  --foreground: oklch(0.98 0.005 250);
+  --card: oklch(0.18 0.05 265);
+  --card-foreground: oklch(0.98 0.005 250);
+  --popover: oklch(0.18 0.05 265);
+  --popover-foreground: oklch(0.98 0.005 250);
+  --primary: oklch(0.72 0.18 245);
+  --primary-foreground: oklch(0.13 0.04 265);
+  --primary-glow: oklch(0.78 0.15 240);
+  --secondary: oklch(0.22 0.05 265);
+  --secondary-foreground: oklch(0.98 0.005 250);
+  --muted: oklch(0.22 0.05 265);
+  --muted-foreground: oklch(0.7 0.03 255);
+  --accent: oklch(0.28 0.07 260);
+  --accent-foreground: oklch(0.98 0.005 250);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.72 0.18 245);
+  --gradient-hero:
+    radial-gradient(ellipse at top, oklch(0.72 0.18 245 / 0.15), transparent 60%),
+    linear-gradient(180deg, oklch(0.13 0.04 265), oklch(0.10 0.03 260));
+  --gradient-brand: linear-gradient(
+    135deg,
+    oklch(0.72 0.18 245),
+    oklch(0.55 0.22 260) 60%,
+    oklch(0.85 0.12 240)
+  );
+}
+
+/* Color Theme Overrides */
+html[data-theme="stripe"] {
   --background: hsl(210, 40%, 98%);
   --foreground: hsl(222.2, 47.4%, 11.2%);
 
@@ -92,7 +166,7 @@
   --shadow-card: 0 10px 30px -12px hsla(222.2, 47.4%, 11.2%, 0.15);
 }
 
-.dark {
+html.dark[data-theme="stripe"] {
   --background: hsl(224, 71%, 4%); /* Deep Dark Slate */
   --foreground: hsl(210, 40%, 98%);
   
