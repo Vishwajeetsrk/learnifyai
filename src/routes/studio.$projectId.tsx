@@ -20,17 +20,72 @@ function StudioClassroomPage() {
     queryKey: ["design-project", projectId],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase
+        // 1. Check design_projects
+        const { data: dp } = await supabase
           .from("design_projects")
           .select("*")
           .eq("id", projectId)
           .maybeSingle();
-        if (error || !data) return projectsData.find((p) => p.id === projectId) || null;
-        return data;
+        if (dp) return dp;
+
+        // 2. Check courses by ID
+        const { data: courseData } = await supabase
+          .from("courses")
+          .select("*")
+          .eq("id", projectId)
+          .maybeSingle();
+        if (courseData) {
+          return {
+            id: courseData.id,
+            title: courseData.title,
+            description: courseData.description || "Interactive AI Course Workspace",
+            category: courseData.category || "Full-Stack Development",
+            course_modules: [],
+            architecture_nodes: [],
+          };
+        }
+
+        // 3. Check courses by slug
+        const { data: courseBySlug } = await supabase
+          .from("courses")
+          .select("*")
+          .eq("slug", projectId)
+          .maybeSingle();
+        if (courseBySlug) {
+          return {
+            id: courseBySlug.id,
+            title: courseBySlug.title,
+            description: courseBySlug.description || "Interactive AI Course Workspace",
+            category: courseBySlug.category || "Full-Stack Development",
+            course_modules: [],
+            architecture_nodes: [],
+          };
+        }
+
+        // 4. Fallback to static JSON or default project object
+        return (
+          projectsData.find((p) => p.id === projectId || (p as any).slug === projectId) || {
+            id: projectId,
+            title: "Interactive Course Studio",
+            description: "Master project concepts in this interactive classroom.",
+            category: "Full-Stack Development",
+            course_modules: [],
+            architecture_nodes: [],
+          }
+        );
       } catch {
-        return projectsData.find((p) => p.id === projectId) || null;
+        return (
+          projectsData.find((p) => p.id === projectId) || {
+            id: projectId,
+            title: "Interactive Course Studio",
+            description: "Master project concepts in this interactive classroom.",
+            category: "Full-Stack Development",
+            course_modules: [],
+            architecture_nodes: [],
+          }
+        );
       }
-    }
+    },
   });
 
   const project = dbProject;

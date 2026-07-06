@@ -124,41 +124,41 @@ function DashboardPage() {
       <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-6xl">
         <div className="flex flex-col lg:flex-row gap-6 mb-8">
           {/* Resume Learning Hero */}
-          <div className="flex-1 bg-gradient-brand text-primary-foreground rounded-3xl p-6 sm:p-8 shadow-glow relative overflow-hidden group">
-            <div className="absolute inset-0 bg-black/5 transition-opacity group-hover:bg-black/0" />
+          <div className="flex-1 bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-indigo-500/20 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 transition-opacity group-hover:opacity-100 opacity-60" />
             <div className="relative z-10 flex flex-col h-full justify-between gap-6">
               <div>
-                <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-2">
+                <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-2 text-white">
                   Welcome back, {name}!
                 </h1>
-                <p className="text-primary-foreground/80 font-medium">Ready to crush your goals today?</p>
+                <p className="text-slate-300 font-medium">Ready to crush your goals today?</p>
               </div>
               
               {latestCourse ? (
-                <div className="bg-background/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 mt-4 sm:mt-8">
-                  <div className="text-[11px] font-bold uppercase tracking-widest mb-3 text-primary-foreground/90 flex items-center gap-2">
-                    <Sparkles className="h-3.5 w-3.5" /> Resume Learning
+                <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/15 mt-4 sm:mt-8">
+                  <div className="text-[11px] font-bold uppercase tracking-widest mb-3 text-indigo-300 flex items-center gap-2">
+                    <Sparkles className="h-3.5 w-3.5 text-amber-400" /> Resume Learning
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg line-clamp-1">{latestCourse.courses?.title}</h3>
+                      <h3 className="font-semibold text-lg line-clamp-1 text-white">{latestCourse.courses?.title}</h3>
                       <div className="flex items-center gap-3 mt-2">
-                        <Progress value={latestCourse.progress_pct} className="h-2 w-32 bg-white/20" indicatorClassName="bg-white" />
-                        <span className="text-sm font-medium">{latestCourse.progress_pct}%</span>
+                        <Progress value={latestCourse.progress_pct} className="h-2 w-32 bg-white/20" indicatorClassName="bg-indigo-400" />
+                        <span className="text-sm font-medium text-slate-200">{latestCourse.progress_pct}%</span>
                       </div>
                     </div>
-                    <Link to="/studio/$projectId" params={{ projectId: latestCourse.courses?.id }}>
-                      <Button variant="secondary" className="rounded-full shadow-lg gap-2 text-primary font-bold hover:bg-white w-full sm:w-auto">
-                        <PlayCircle className="h-4 w-4" /> Continue
+                    <Link to="/courses/$slug" params={{ slug: latestCourse.courses?.slug || latestCourse.courses?.id }}>
+                      <Button variant="secondary" className="rounded-full shadow-lg gap-2 text-slate-950 font-bold bg-white hover:bg-slate-100 w-full sm:w-auto">
+                        <PlayCircle className="h-4 w-4 text-indigo-600" /> Continue
                       </Button>
                     </Link>
                   </div>
                 </div>
               ) : (
-                <div className="bg-background/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 mt-4 sm:mt-8">
-                  <p className="mb-3 font-medium">You aren't enrolled in any courses yet.</p>
+                <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/15 mt-4 sm:mt-8">
+                  <p className="mb-3 font-medium text-slate-200">You aren't enrolled in any courses yet.</p>
                   <Link to="/courses">
-                    <Button variant="secondary" className="rounded-full shadow-lg text-primary font-bold hover:bg-white">Browse Courses</Button>
+                    <Button variant="secondary" className="rounded-full shadow-lg text-slate-950 font-bold bg-white hover:bg-slate-100">Browse Courses</Button>
                   </Link>
                 </div>
               )}
