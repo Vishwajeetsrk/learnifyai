@@ -950,15 +950,78 @@ function SynthTool() {
 }
 
 /* ---------------- Flashcards ---------------- */
-type Card = { front: string; back: string };
+type Card = { 
+  front: string; 
+  back: string;
+  interval?: number;
+  repetition?: number;
+  efactor?: number;
+  dueDate?: number;
+};
+
+// Simple SM-2 Algorithm Implementation
+function calculateSM2(quality: number, repetition: number, efactor: number, interval: number) {
+  let nextRepetition = repetition;
+  let nextInterval = interval;
+  let nextEfactor = efactor;
+
+  if (quality >= 3) {
+    if (repetition === 0) {
+      nextInterval = 1;
+    } else if (repetition === 1) {
+      nextInterval = 6;
+    } else {
+      nextInterval = Math.round(interval * efactor);
+    }
+    nextRepetition += 1;
+  } else {
+    nextRepetition = 0;
+    nextInterval = 1;
+  }
+
+  nextEfactor = efactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+  if (nextEfactor < 1.3) nextEfactor = 1.3;
+
+  return { nextRepetition, nextEfactor, nextInterval };
+}
 
 function FlashcardsTool() {
   const [topic, setTopic] = useState("");
   const [count, setCount] = useState(10);
-  const [cards, setCards] = useState<Card[] | null>(null);
+  const [cards, setCards] = useState<Card[]>([]);
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const { loading, run } = useTool();
+
+  // Load saved decks from local storage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("learnify_sm2_deck");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Filter cards that are due today or earlier
+        const now = Date.now();
+        const dueCards = parsed.filter((c: Card) => !c.dueDate || c.dueDate <= now);
+        if (dueCards.length > 0) {
+          setCards(dueCards);
+          toast("You have " + dueCards.length + " flashcards due for review today!");
+        }
+      } catch (e) {}
+    }
+  }, []);
+
+  const saveToDeck = (updatedCards: Card[]) => {
+    const saved = localStorage.getItem("learnify_sm2_deck");
+    let allCards = [];
+    if (saved) {
+      try { allCards = JSON.parse(saved); } catch (e) {}
+    }
+    // Merge updated cards by replacing them or appending them
+    // For simplicity in this demo, we'll just save all current generated cards to the SM-2 deck.
+    const merged = [...allCards, ...updatedCards.filter(c => !allCards.find(ac => ac.front === c.front))];
+    localStorage.setItem("learnify_sm2_deck", JSON.stringify(merged));
+  };
+
   const generate = async () => {
     if (!topic.trim()) return toast.error("Enter a topic");
     setIdx(0);
@@ -966,8 +1029,58 @@ function FlashcardsTool() {
     const res = await run<{ cards: Card[] }>({ action: "flashcards", topic, count }, (r) =>
       JSON.parse(r.json),
     );
-    if (res?.cards) setCards(res.cards);
+    if (res?.cards) {
+      const initialized = res.cards.map(c => ({
+        ...c,
+        interval: 0,
+        repetition: 0,
+        efactor: 2.5,
+        dueDate: Date.now(),
+      }));
+      setCards(initialized);
+      saveToDeck(initialized);
+    }
   };
+
+  const rateCard = (quality: number) => {
+    const currentCard = cards[idx];
+    const { nextRepetition, nextEfactor, nextInterval } = calculateSM2(
+      quality,
+      currentCard.repetition || 0,
+      currentCard.efactor || 2.5,
+      currentCard.interval || 0
+    );
+
+    const updatedCard = {
+      ...currentCard,
+      repetition: nextRepetition,
+      efactor: nextEfactor,
+      interval: nextInterval,
+      dueDate: Date.now() + nextInterval * 24 * 60 * 60 * 1000,
+    };
+
+    const newCards = [...cards];
+    newCards[idx] = updatedCard;
+    setCards(newCards);
+    
+    // Update local storage master deck
+    const saved = localStorage.getItem("learnify_sm2_deck");
+    if (saved) {
+      try {
+        const allCards = JSON.parse(saved);
+        const mapped = allCards.map((c: Card) => c.front === updatedCard.front ? updatedCard : c);
+        localStorage.setItem("learnify_sm2_deck", JSON.stringify(mapped));
+      } catch (e) {}
+    }
+
+    if (idx < cards.length - 1) {
+      setIdx((i) => i + 1);
+      setFlipped(false);
+    } else {
+      toast.success("Deck finished for today!");
+    }
+  };
+
   const current = cards?.[idx];
   return (
     <div className="space-y-3">
@@ -985,49 +1098,37 @@ function FlashcardsTool() {
           onChange={(e) => setCount(Number(e.target.value) || 10)}
         />
       </div>
-      <Button onClick={generate} disabled={loading}>
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Layers className="h-4 w-4" />}{" "}
-        Generate flashcards
+      <Button onClick={generate} disabled={loading} className="w-full">
+        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Layers className="h-4 w-4 mr-2" />}
+        Generate New Flashcards
       </Button>
       {current && (
         <div className="space-y-3">
-          <div className="text-xs text-muted-foreground">
-            Card {idx + 1} / {cards!.length}
+          <div className="text-xs text-muted-foreground flex justify-between">
+            <span>Card {idx + 1} / {cards!.length}</span>
+            <Badge variant="secondary" className="text-[9px]">SM-2 Active</Badge>
           </div>
           <button
             onClick={() => setFlipped((f) => !f)}
-            className="w-full min-h-[180px] rounded-2xl border bg-card p-6 flex items-center justify-center text-center hover:bg-accent transition"
+            className="w-full min-h-[180px] rounded-2xl border bg-card p-6 flex items-center justify-center text-center hover:bg-accent transition relative"
           >
             <div className="space-y-2">
-              <Badge variant="outline" className="text-[10px]">
+              <Badge variant="outline" className="text-[10px] absolute top-3 left-3">
                 {flipped ? "Back" : "Front"} · click to flip
               </Badge>
               <p className="text-base font-medium">{flipped ? current.back : current.front}</p>
             </div>
           </button>
-          <div className="flex justify-between gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                setIdx((i) => Math.max(0, i - 1));
-                setFlipped(false);
-              }}
-              disabled={idx === 0}
-            >
-              Previous
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => {
-                setIdx((i) => Math.min(cards!.length - 1, i + 1));
-                setFlipped(false);
-              }}
-              disabled={idx >= cards!.length - 1}
-            >
-              Next
-            </Button>
-          </div>
+          
+          {flipped ? (
+            <div className="grid grid-cols-3 gap-2">
+              <Button size="sm" variant="destructive" className="bg-red-500/20 text-red-600 hover:bg-red-500/30" onClick={() => rateCard(2)}>Hard</Button>
+              <Button size="sm" variant="outline" className="border-blue-500/30 text-blue-600 hover:bg-blue-500/10" onClick={() => rateCard(4)}>Good</Button>
+              <Button size="sm" variant="outline" className="border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10" onClick={() => rateCard(5)}>Easy</Button>
+            </div>
+          ) : (
+            <Button className="w-full" variant="secondary" onClick={() => setFlipped(true)}>Show Answer</Button>
+          )}
         </div>
       )}
     </div>

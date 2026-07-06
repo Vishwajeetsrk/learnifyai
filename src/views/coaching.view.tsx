@@ -14,6 +14,7 @@ import {
   ChevronRight,
   TrendingUp,
   Trash2,
+  CalendarPlus,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
@@ -121,6 +122,19 @@ export default function CoachingDashboard() {
       return data || [];
     },
   });
+
+  const getGoogleCalendarUrl = (b: any) => {
+    if (!b?.slot?.start_time || !b?.slot?.end_time) return "#";
+    const start = new Date(b.slot.start_time).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    const end = new Date(b.slot.end_time).toISOString().replace(/-|:|\.\d\d\d/g, "");
+    const title = encodeURIComponent(
+      `Coaching with ${isCreator ? b.learner?.full_name || "Client" : b.coach?.full_name || "Coach"}`
+    );
+    const details = encodeURIComponent(
+      `Meeting Link: ${b.slot?.meeting_link || "TBD"}`
+    );
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}`;
+  };
 
   const contacts = Array.from(
     new Map(
@@ -397,7 +411,12 @@ export default function CoachingDashboard() {
                           </div>
                         )}
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <a href={getGoogleCalendarUrl(b)} target="_blank" rel="noreferrer">
+                          <Button size="sm" variant="outline" className="w-full sm:w-auto gap-2 border-primary/20 text-primary hover:bg-primary/10">
+                            <CalendarPlus className="h-3.5 w-3.5" /> G-Cal Sync
+                          </Button>
+                        </a>
                         {b.slot?.meeting_link ? (
                           <a href={b.slot.meeting_link} target="_blank" rel="noreferrer">
                             <Button size="sm" className="w-full sm:w-auto gap-2">
