@@ -18,6 +18,9 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { SkillBadge } from "@/components/SkillBadge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAuth } from "@/hooks/use-auth";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/career-studio")({
   head: () => ({ meta: [{ title: "Career Studio — Learnify AI" }] }),
