@@ -16,6 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { SkillBadge } from "@/components/SkillBadge";
 
 export const Route = createFileRoute("/_authenticated/career-studio")({
   head: () => ({ meta: [{ title: "Career Studio — Learnify AI" }] }),
@@ -33,7 +35,7 @@ const TABS = [
   { id: "internships", label: "Internship Tracker", icon: BriefcaseIcon },
   { id: "skillgap", label: "Skill Gap Analysis", icon: Target },
   { id: "ikigai", label: "Career Finder", icon: Compass },
-  { id: "guides", label: "Guides & Docs", icon: BookOpen },
+  { id: "guides", label: "Skill Roadmaps", icon: BookOpen },
 ];
 
 function CareerStudioHub() {
@@ -65,7 +67,7 @@ function CareerStudioHub() {
   return (
     <AppShell>
       <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-4 md:px-10 py-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shadow-lg">
               <img src="/mockup/images/learnify-logo.png" alt="Learnify AI" className="h-7 w-7 object-contain" />
@@ -73,12 +75,52 @@ function CareerStudioHub() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-bold text-xl text-white tracking-tight">Career Studio</h1>
-                <Badge className="bg-white/20 text-white border-white/30 text-[10px] px-2 py-0">
-                  <Sparkles className="h-3 w-3 mr-1" /> 11 Tools
-                </Badge>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="bg-white/20 hover:bg-white/30 text-white border border-white/30 text-[10px] px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1 transition-all cursor-pointer">
+                      <Sparkles className="h-3 w-3 text-yellow-300" /> 11 Tools <ChevronDown className="h-3 w-3 ml-0.5 opacity-80" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56 p-1 bg-card border-border rounded-xl shadow-xl">
+                    {TABS.map((t) => {
+                      const Icon = t.icon;
+                      return (
+                        <DropdownMenuItem
+                          key={t.id}
+                          onClick={() => navigate({ to: "/career-studio" as any, search: { tab: t.id } as any, replace: true })}
+                          className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg cursor-pointer ${activeTab === t.id ? "bg-primary text-primary-foreground" : ""}`}
+                        >
+                          <Icon className="h-4 w-4" />
+                          {t.label}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <p className="text-xs text-blue-200 font-medium">AI-powered career development suite</p>
             </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 sm:pb-0">
+            {TABS.slice(0, 5).map((t) => {
+              const Icon = t.icon;
+              const isActive = activeTab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => navigate({ to: "/career-studio" as any, search: { tab: t.id } as any, replace: true })}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer ${
+                    isActive
+                      ? "bg-white text-blue-700 shadow-md font-bold"
+                      : "bg-white/10 hover:bg-white/20 text-white"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {t.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -747,99 +789,55 @@ function CareerFinderView() {
 }
 
 function GuidesDocsView() {
-  const [tab, setTab] = useState<"skills" | "docs">("skills");
-
   const skillGuides = [
-    { title: "Generative AI", icon: Sparkles, color: "bg-blue-50 text-blue-600", level: "2026 Core", duration: "2-3 months", skills: ["Prompt Engineering", "Fine-tuning LLMs", "RAG Systems", "Vector DBs"], salary: "₹8L - ₹25L" },
-    { title: "Agentic AI", icon: Brain, color: "bg-violet-50 text-violet-600", level: "Cutting Edge", duration: "3-4 months", skills: ["LangGraph", "Multi-Agent", "Stateful Agents", "Orchestration"], salary: "₹12L - ₹35L+" },
-    { title: "UI/UX Design", icon: Layers, color: "bg-pink-50 text-pink-600", level: "Creative Focus", duration: "3-4 months", skills: ["Figma", "User Research", "Design Systems", "Prototyping"], salary: "₹4L - ₹20L" },
-    { title: "Full-Stack (Next.js)", icon: Globe, color: "bg-emerald-50 text-emerald-600", level: "High Demand", duration: "4-6 months", skills: ["TypeScript", "Next.js", "Server Components", "Tailwind"], salary: "₹3L - ₹15L" },
-    { title: "Cloud & DevSecOps", icon: Shield, color: "bg-rose-50 text-rose-600", level: "Infrastructure", duration: "6-8 months", skills: ["AWS/Azure", "Docker & K8s", "CI/CD", "Terraform"], salary: "₹6L - ₹22L" },
-    { title: "Data Intelligence", icon: Database, color: "bg-amber-50 text-amber-600", level: "Enterprise", duration: "5-7 months", skills: ["Python", "Pandas", "SQL", "PowerBI/Tableau"], salary: "₹5L - ₹18L" },
-  ];
-
-  const govDocs = [
-    { title: "PAN Card", fee: "₹107", time: "15-20 days", link: "https://www.protean-tinpan.com/", desc: "Essential for salary, bank accounts, and tax compliance." },
-    { title: "Aadhaar Update", fee: "₹50", time: "5-15 days", link: "https://myaadhaar.uidai.gov.in/", desc: "Link mobile number for seamless online verification." },
-    { title: "UAN / EPF", fee: "Free", time: "Instant", link: "https://unifiedportal-mem.epfindia.gov.in/", desc: "Your Employee Provident Fund savings protocol." },
-    { title: "Passport", fee: "₹1,500", time: "30-45 days", link: "https://www.passportindia.gov.in/", desc: "Gold standard identity for global career growth." },
-    { title: "Savings Account", fee: "Free", time: "Instant", link: "https://www.jansamarth.in/", desc: "Foundation of financial independence." },
-    { title: "ITR Filing", fee: "Free", time: "Annual", link: "https://www.incometax.gov.in/", desc: "Build legal financial record for loans and visas." },
+    { title: "Generative AI", icon: Sparkles, color: "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400", level: "2026 Core", duration: "2-3 months", skills: ["Prompt Engineering", "Generative AI", "Python", "OpenAI", "LangChain"], salary: "₹8L - ₹25L" },
+    { title: "Agentic AI", icon: Brain, color: "bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400", level: "Cutting Edge", duration: "3-4 months", skills: ["Agentic AI", "Python", "TypeScript", "LangChain", "FastAPI"], salary: "₹12L - ₹35L+" },
+    { title: "UI/UX Design", icon: Layers, color: "bg-pink-50 text-pink-600 dark:bg-pink-950/40 dark:text-pink-400", level: "Creative Focus", duration: "3-4 months", skills: ["Figma", "UI/UX", "Tailwind CSS", "Canva"], salary: "₹4L - ₹20L" },
+    { title: "Full-Stack (Next.js)", icon: Globe, color: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400", level: "High Demand", duration: "4-6 months", skills: ["TypeScript", "Next.js", "React", "Tailwind CSS", "Node.js", "PostgreSQL"], salary: "₹3L - ₹15L" },
+    { title: "Cloud & DevSecOps", icon: Shield, color: "bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400", level: "Infrastructure", duration: "6-8 months", skills: ["AWS", "Docker", "Kubernetes", "Linux", "Terraform", "Git"], salary: "₹6L - ₹22L" },
+    { title: "Data Intelligence", icon: Database, color: "bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400", level: "Enterprise", duration: "5-7 months", skills: ["Python", "Pandas", "SQL", "NumPy", "TensorFlow"], salary: "₹5L - ₹18L" },
   ];
 
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
       <div className="flex items-center gap-4">
-        <div className="p-3 bg-stone-50 rounded-2xl border border-stone-100"><BookOpen className="h-6 w-6 text-stone-600" /></div>
+        <div className="p-3 bg-card rounded-2xl border shadow-sm"><BookOpen className="h-6 w-6 text-primary" /></div>
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Guides & Documents</h2>
-          <p className="text-sm text-muted-foreground">Career skill roadmaps and essential government document guides.</p>
+          <h2 className="text-2xl font-bold tracking-tight">Skill Roadmaps & Guides</h2>
+          <p className="text-sm text-muted-foreground">Career skill roadmaps and tech learning pathways.</p>
         </div>
       </div>
 
-      <div className="flex bg-card p-1 border rounded-xl w-fit shadow-sm">
-        <button onClick={() => setTab("skills")} className={`px-6 py-3 rounded-lg font-bold text-xs transition-all flex items-center gap-2 ${tab === "skills" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted"}`}>
-          <GraduationCap className="h-4 w-4" /> Skill Roadmaps
-        </button>
-        <button onClick={() => setTab("docs")} className={`px-6 py-3 rounded-lg font-bold text-xs transition-all flex items-center gap-2 ${tab === "docs" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted"}`}>
-          <Landmark className="h-4 w-4" /> Government Docs
-        </button>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {skillGuides.map((guide, i) => (
+          <Card key={i} className="rounded-2xl border shadow-sm p-6 space-y-4 hover:shadow-md transition-all">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl ${guide.color} flex items-center justify-center`}>
+                {React.createElement(guide.icon as any, { className: "w-5 h-5" })}
+              </div>
+              <div>
+                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{guide.level}</p>
+                <h3 className="font-bold text-base">{guide.title}</h3>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2 bg-muted/60 rounded-lg text-center">
+                <p className="text-[8px] font-bold text-muted-foreground uppercase">Timeline</p>
+                <p className="text-xs font-bold">{guide.duration}</p>
+              </div>
+              <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg text-center">
+                <p className="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">Salary</p>
+                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{guide.salary}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {guide.skills.map((s) => (
+                <SkillBadge key={s} skill={s} variant="secondary" size="sm" />
+              ))}
+            </div>
+          </Card>
+        ))}
       </div>
-
-      {tab === "skills" ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {skillGuides.map((guide, i) => (
-            <Card key={i} className="rounded-2xl border shadow-sm p-6 space-y-4 hover:shadow-md transition-shadow">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl ${guide.color} flex items-center justify-center`}>
-                  {React.createElement(guide.icon as any, { className: "w-5 h-5" })}
-                </div>
-                <div>
-                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">{guide.level}</p>
-                  <h3 className="font-bold">{guide.title}</h3>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2 bg-muted rounded-lg text-center">
-                  <p className="text-[8px] font-bold text-muted-foreground uppercase">Timeline</p>
-                  <p className="text-xs font-bold">{guide.duration}</p>
-                </div>
-                <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg text-center">
-                  <p className="text-[8px] font-bold text-emerald-600 uppercase">Salary</p>
-                  <p className="text-xs font-bold text-emerald-600">{guide.salary}</p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {guide.skills.map((s) => (
-                  <span key={s} className="px-2 py-0.5 bg-muted rounded-md text-[10px] font-medium">{s}</span>
-                ))}
-              </div>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {govDocs.map((doc, i) => (
-            <Card key={i} className="rounded-2xl border shadow-sm p-6 space-y-4 hover:shadow-md transition-shadow">
-              <h3 className="font-bold text-sm">{doc.title}</h3>
-              <p className="text-xs text-muted-foreground">{doc.desc}</p>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2 bg-muted rounded-lg text-center">
-                  <p className="text-[8px] font-bold text-muted-foreground uppercase">Time</p>
-                  <p className="text-xs font-bold">{doc.time}</p>
-                </div>
-                <div className="p-2 bg-blue-50 dark:bg-blue-950/30 rounded-lg text-center">
-                  <p className="text-[8px] font-bold text-blue-600 uppercase">Fee</p>
-                  <p className="text-xs font-bold text-blue-600">{doc.fee}</p>
-                </div>
-              </div>
-              <a href={doc.link} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-2.5 bg-muted rounded-xl text-xs font-bold hover:bg-primary hover:text-primary-foreground transition-colors">
-                Visit Portal <ExternalLink className="h-3 w-3" />
-              </a>
-            </Card>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

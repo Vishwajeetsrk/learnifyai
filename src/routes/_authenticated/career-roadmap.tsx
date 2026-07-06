@@ -495,17 +495,12 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                             <Code className="h-3.5 w-3.5" /> Skills
                           </h5>
                           {phase.skills.map((s) => (
-                            <div key={s.name}>
-                              <SkillBadge skill={s.name} size="md" />
+                            <div key={s.name} className="space-y-1">
+                              <SkillBadge skill={s.name} size="md" variant="default" />
                               {s.topics.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-1">
+                                <div className="flex flex-wrap gap-1 mt-1 pl-1">
                                   {s.topics.map((t) => (
-                                    <span
-                                      key={t}
-                                      className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded"
-                                    >
-                                      {t}
-                                    </span>
+                                    <SkillBadge key={t} skill={t} variant="outline" size="sm" />
                                   ))}
                                 </div>
                               )}
