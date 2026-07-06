@@ -496,70 +496,250 @@ function InternshipTrackerView() {
 }
 
 function SkillGapView() {
-  const skills = [
-    { skill: "React / Next.js", match: 90, status: "Mastered", color: "bg-emerald-500" },
-    { skill: "TypeScript & REST APIs", match: 85, status: "Proficient", color: "bg-blue-500" },
-    { skill: "LangChain & RAG", match: 40, status: "Needs Practice", color: "bg-amber-500" },
-    { skill: "Docker & Kubernetes", match: 25, status: "Recommended", color: "bg-rose-500" },
-    { skill: "System Design", match: 55, status: "Developing", color: "bg-violet-500" },
-    { skill: "Python / ML Basics", match: 60, status: "Building", color: "bg-indigo-500" },
-  ];
+  const { user } = useAuth();
+  const [selectedRole, setSelectedRole] = useState("Full Stack AI Engineer");
 
-  const overall = Math.round(skills.reduce((a, s) => a + s.match, 0) / skills.length);
+  const ROLE_REQUIREMENTS: Record<string, Array<{ skill: string; weight: number; desc: string }>> = {
+    "Full Stack AI Engineer": [
+      { skill: "React", weight: 20, desc: "Frontend component architecture & state" },
+      { skill: "Next.js", weight: 20, desc: "Server Components & App Router" },
+      { skill: "TypeScript", weight: 15, desc: "Type safety & async APIs" },
+      { skill: "Python", weight: 15, desc: "Backend AI script & API logic" },
+      { skill: "OpenAI", weight: 15, desc: "LLM APIs & Prompt Engineering" },
+      { skill: "PostgreSQL", weight: 15, desc: "Relational database schema & queries" },
+    ],
+    "Frontend Developer": [
+      { skill: "React", weight: 25, desc: "Hooks, Fiber & Component Lifecycle" },
+      { skill: "TypeScript", weight: 25, desc: "Interfaces, Generics & Strict Typing" },
+      { skill: "Tailwind CSS", weight: 20, desc: "Utility-first responsive design" },
+      { skill: "Next.js", weight: 15, desc: "SSR, SSG & Routing" },
+      { skill: "Figma", weight: 15, desc: "UI design translation & handoff" },
+    ],
+    "DevOps Specialist": [
+      { skill: "Docker", weight: 25, desc: "Containerization & Multi-stage builds" },
+      { skill: "Kubernetes", weight: 20, desc: "Cluster orchestration & pods" },
+      { skill: "AWS", weight: 20, desc: "EC2, S3, RDS & Cloud VPC" },
+      { skill: "Linux", weight: 18, desc: "Bash scripting & system admin" },
+      { skill: "Git", weight: 17, desc: "CI/CD pipeline integration" },
+    ],
+    "Data Scientist": [
+      { skill: "Python", weight: 30, desc: "Data processing & statistical modeling" },
+      { skill: "Pandas", weight: 20, desc: "DataFrames & data cleaning" },
+      { skill: "SQL", weight: 20, desc: "Complex joins & data aggregation" },
+      { skill: "NumPy", weight: 15, desc: "Array operations & math matrix" },
+      { skill: "TensorFlow", weight: 15, desc: "Machine learning model training" },
+    ],
+  };
+
+  const currentReqs = ROLE_REQUIREMENTS[selectedRole] || ROLE_REQUIREMENTS["Full Stack AI Engineer"];
+
+  const { data: userEnrollments } = useQuery({
+    queryKey: ["user-skills-gap", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await supabase
+        .from("enrollments")
+        .select("courses:course_id(title, category)")
+        .eq("user_id", user.id);
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
+  const [masteredSkills, setMasteredSkills] = useState<string[]>(["React", "TypeScript", "Tailwind CSS"]);
+
+  const toggleSkill = (skill: string) => {
+    setMasteredSkills((prev) =>
+      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
+    );
+  };
+
+  const matchedWeight = currentReqs
+    .filter((r) => masteredSkills.includes(r.skill))
+    .reduce((acc, r) => acc + r.weight, 0);
+
+  const overallScore = Math.min(Math.round(matchedWeight), 100);
 
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
-      <div className="flex items-center gap-4">
-        <div className="p-3 bg-rose-50 rounded-2xl border border-rose-100"><Target className="h-6 w-6 text-rose-600" /></div>
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Skill Gap Analysis</h2>
-          <p className="text-sm text-muted-foreground">Compare your skills against industry requirements for your target role.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-rose-50 dark:bg-rose-950/40 rounded-2xl border border-rose-100 dark:border-rose-900/40">
+            <Target className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Skill Gap Analysis</h2>
+            <p className="text-sm text-muted-foreground">Select your target role and toggle skills to test real-time readiness.</p>
+          </div>
+        </div>
+
+        <div className="w-full sm:w-64">
+          <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Target Role</Label>
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="w-full text-xs font-bold h-9 px-3 rounded-xl border border-input bg-card shadow-sm focus:ring-2 focus:ring-primary"
+          >
+            {Object.keys(ROLE_REQUIREMENTS).map((role) => (
+              <option key={role} value={role}>{role}</option>
+            ))}
+          </select>
         </div>
       </div>
 
-      <Card className="p-6 rounded-2xl border shadow-sm">
-        <div className="flex items-center justify-between mb-6">
+      <Card className="p-6 rounded-2xl border shadow-sm space-y-6">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 rounded-xl"><TargetIcon className="h-5 w-5 text-blue-600" /></div>
+            <div className="p-2 bg-blue-50 dark:bg-blue-950/40 rounded-xl"><TargetIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" /></div>
             <div>
-              <h3 className="font-bold text-sm">Role Match: Full Stack AI Engineer</h3>
-              <p className="text-[10px] text-muted-foreground">Overall readiness score</p>
+              <h3 className="font-bold text-base">{selectedRole} Readiness</h3>
+              <p className="text-xs text-muted-foreground">Calculated matching ratio from requirement weights</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <ScoreRing score={overall} label="Readiness" size={56} />
-          </div>
+          <ScoreRing score={overallScore} label="Readiness" size={64} />
         </div>
 
-        <div className="space-y-4">
-          {skills.map((item) => (
-            <div key={item.skill} className="space-y-1.5">
-              <div className="flex justify-between text-xs">
-                <span className="font-medium">{item.skill}</span>
-                <span className={`font-bold ${item.match >= 70 ? "text-emerald-600" : item.match >= 50 ? "text-amber-600" : "text-rose-600"}`}>
-                  {item.match}% — {item.status}
-                </span>
-              </div>
-              <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden">
-                <div className={`h-full rounded-full transition-all ${item.color}`} style={{ width: `${item.match}%` }} />
-              </div>
-            </div>
-          ))}
+        <div className="space-y-3">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Required Core Skills (Click to toggle mastery)</h4>
+          <div className="grid gap-2.5">
+            {currentReqs.map((item) => {
+              const isMastered = masteredSkills.includes(item.skill);
+              return (
+                <div
+                  key={item.skill}
+                  onClick={() => toggleSkill(item.skill)}
+                  className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                    isMastered
+                      ? "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-500/30"
+                      : "bg-card hover:bg-muted/50 border-border"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <SkillBadge skill={item.skill} size="md" variant={isMastered ? "default" : "outline"} />
+                    <div>
+                      <p className="text-xs text-muted-foreground">{item.desc}</p>
+                    </div>
+                  </div>
+                  <Badge variant={isMastered ? "default" : "outline"} className={`text-[10px] ${isMastered ? "bg-emerald-600 text-white" : ""}`}>
+                    {isMastered ? "Mastered" : "Gap (+ " + item.weight + "%)"}
+                  </Badge>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </Card>
+    </div>
+  );
+}
 
-      <Card className="p-6 rounded-2xl border shadow-sm">
-        <h3 className="text-sm font-bold mb-4 flex items-center gap-2"><Lightbulb className="h-4 w-4 text-amber-500" /> Recommended Learning Path</h3>
-        <div className="grid sm:grid-cols-2 gap-3">
-          {[
-            { course: "LangChain & RAG Masterclass", provider: "DeepLearning.AI", duration: "4 weeks" },
-            { course: "Docker + Kubernetes Bootcamp", provider: "Udemy", duration: "6 weeks" },
-            { course: "System Design Interview Prep", provider: "Grokking Coding", duration: "8 weeks" },
-            { course: "Advanced TypeScript Patterns", provider: "Frontend Masters", duration: "3 weeks" },
-          ].map((item, i) => (
-            <div key={i} className="p-4 rounded-xl border bg-card/50 hover:bg-card transition-colors">
-              <p className="font-bold text-sm">{item.course}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">{item.provider} • {item.duration}</p>
+function CareerAnalyticsView() {
+  const [selectedCity, setSelectedCity] = useState("Bengaluru");
+  const [experienceYears, setExperienceYears] = useState(2);
+
+  const CITY_BENCHMARKS: Record<string, Array<{ role: string; avgSalary: string; demand: string; growth: string }>> = {
+    Bengaluru: [
+      { role: "Full-Stack AI Engineer", avgSalary: "₹14L - ₹28L", demand: "High", growth: "+38%" },
+      { role: "Frontend Engineer (React/Next)", avgSalary: "₹10L - ₹22L", demand: "Very High", growth: "+24%" },
+      { role: "DevOps & Cloud Architect", avgSalary: "₹16L - ₹32L", demand: "High", growth: "+30%" },
+      { role: "Data Scientist", avgSalary: "₹12L - ₹26L", demand: "Moderate", growth: "+18%" },
+    ],
+    Mumbai: [
+      { role: "Full-Stack AI Engineer", avgSalary: "₹12L - ₹26L", demand: "High", growth: "+32%" },
+      { role: "Frontend Engineer (React/Next)", avgSalary: "₹9L - ₹18L", demand: "High", growth: "+20%" },
+      { role: "DevOps & Cloud Architect", avgSalary: "₹14L - ₹28L", demand: "High", growth: "+26%" },
+      { role: "Data Scientist", avgSalary: "₹11L - ₹24L", demand: "High", growth: "+22%" },
+    ],
+    "Delhi-NCR": [
+      { role: "Full-Stack AI Engineer", avgSalary: "₹13L - ₹27L", demand: "High", growth: "+35%" },
+      { role: "Frontend Engineer (React/Next)", avgSalary: "₹9.5L - ₹20L", demand: "High", growth: "+22%" },
+      { role: "DevOps & Cloud Architect", avgSalary: "₹15L - ₹30L", demand: "High", growth: "+28%" },
+      { role: "Data Scientist", avgSalary: "₹12L - ₹25L", demand: "High", growth: "+25%" },
+    ],
+    Remote: [
+      { role: "Full-Stack AI Engineer", avgSalary: "$35,000 - $85,000", demand: "Very High", growth: "+45%" },
+      { role: "Frontend Engineer (React/Next)", avgSalary: "$25,000 - $65,000", demand: "High", growth: "+30%" },
+      { role: "DevOps & Cloud Architect", avgSalary: "$40,000 - $95,000", demand: "High", growth: "+36%" },
+      { role: "Data Scientist", avgSalary: "$30,000 - $75,000", demand: "Moderate", growth: "+20%" },
+    ],
+  };
+
+  const currentCityData = CITY_BENCHMARKS[selectedCity] || CITY_BENCHMARKS["Bengaluru"];
+
+  // Estimated compensation calculation
+  const baseSalaryLakhs = Math.round((6 + experienceYears * 3.5) * (selectedCity === "Remote" ? 4.5 : 1));
+
+  return (
+    <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 rounded-2xl border border-indigo-100 dark:border-indigo-900/40">
+            <TrendingUp className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Career & Salary Analytics</h2>
+            <p className="text-sm text-muted-foreground">Real-time compensation benchmarks and hiring demand across India & Remote tech hubs.</p>
+          </div>
+        </div>
+
+        <div className="w-full sm:w-56">
+          <Label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Tech Hub</Label>
+          <select
+            value={selectedCity}
+            onChange={(e) => setSelectedCity(e.target.value)}
+            className="w-full text-xs font-bold h-9 px-3 rounded-xl border border-input bg-card shadow-sm"
+          >
+            {Object.keys(CITY_BENCHMARKS).map((city) => (
+              <option key={city} value={city}>{city}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-4">
+        <Card className="p-5 rounded-2xl border shadow-sm space-y-2">
+          <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Estimated Base Pay</span>
+          <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+            {selectedCity === "Remote" ? `$${baseSalaryLakhs * 1000} USD/yr` : `₹${baseSalaryLakhs} LPA`}
+          </p>
+          <p className="text-[11px] text-muted-foreground">Based on {experienceYears} yrs experience in {selectedCity}</p>
+        </Card>
+
+        <Card className="p-5 rounded-2xl border shadow-sm space-y-2">
+          <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Market Hiring Growth</span>
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">+34% YoY</p>
+          <p className="text-[11px] text-muted-foreground">Active openings in AI & Full-Stack engineering</p>
+        </Card>
+
+        <Card className="p-5 rounded-2xl border shadow-sm space-y-2">
+          <span className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">Top Required Skill</span>
+          <div className="pt-1">
+            <SkillBadge skill="Next.js" size="md" variant="default" />
+          </div>
+          <p className="text-[11px] text-muted-foreground">Present in 82% of tech job descriptions</p>
+        </Card>
+      </div>
+
+      <Card className="p-6 rounded-2xl border shadow-sm space-y-4">
+        <h3 className="text-base font-bold flex items-center gap-2">
+          <Building className="h-4 w-4 text-primary" /> Role Salary Benchmarks ({selectedCity})
+        </h3>
+        <div className="grid gap-3">
+          {currentCityData.map((row, i) => (
+            <div key={i} className="p-4 rounded-xl border bg-card/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h4 className="font-bold text-sm text-foreground">{row.role}</h4>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="outline" className="text-[10px] text-emerald-600 border-emerald-500/30 bg-emerald-500/10">
+                    Growth: {row.growth}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">Demand: {row.demand}</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase">Average Package</span>
+                <p className="text-base font-bold text-primary">{row.avgSalary}</p>
+              </div>
             </div>
           ))}
         </div>

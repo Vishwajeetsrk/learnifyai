@@ -139,6 +139,17 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
   const [loading, setLoading] = useState(false);
   const [roadmapData, setRoadmapData] = useState<RoadmapData | null>(null);
   const [rawContent, setRawContent] = useState<string | null>(null);
+  const [savedRoadmaps, setSavedRoadmaps] = useState<Array<{ id: string; role: string; date: string; data: RoadmapData }>>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("saved_career_roadmaps");
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
 
   const [form, setForm] = useState({
     currentRole: "",
@@ -151,6 +162,29 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
   });
 
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
+
+  const handleSaveRoadmap = () => {
+    if (!roadmapData) return;
+    const newEntry = {
+      id: `rm-${Date.now()}`,
+      role: roadmapData.title || form.targetRole || "Career Roadmap",
+      date: new Date().toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" }),
+      data: roadmapData,
+    };
+    const updated = [newEntry, ...savedRoadmaps.filter((r) => r.role !== newEntry.role)];
+    setSavedRoadmaps(updated);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("saved_career_roadmaps", JSON.stringify(updated));
+    }
+    toast.success("Roadmap saved to your profile!");
+  };
+
+  const handleLoadSaved = (saved: { id: string; role: string; date: string; data: RoadmapData }) => {
+    setRoadmapData(saved.data);
+    setRawContent(null);
+    setTab("roadmap");
+    toast.info(`Loaded saved roadmap: ${saved.role}`);
+  };
 
   const handleGenerate = async () => {
     if (!form.targetRole.trim()) return toast.error("Enter your target role");
@@ -216,13 +250,18 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
         </div>
 
         <Tabs value={tab} onValueChange={setTab} className="mt-2">
-          <TabsList>
+          <TabsList className="flex flex-wrap h-auto gap-1">
             <TabsTrigger value="form">
               <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Your Profile
             </TabsTrigger>
             <TabsTrigger value="roadmap" disabled={!roadmapData && !rawContent}>
               <Map className="h-3.5 w-3.5 mr-1.5" /> Your Roadmap
             </TabsTrigger>
+            {savedRoadmaps.length > 0 && (
+              <TabsTrigger value="saved">
+                <Bookmark className="h-3.5 w-3.5 mr-1.5 text-amber-500" /> Saved ({savedRoadmaps.length})
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="form" className="pt-4 space-y-6 max-w-2xl">
@@ -327,7 +366,10 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
             {(roadmapData || rawContent) && (
               <div className="space-y-6">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Button onClick={handleDownload} size="sm">
+                  <Button onClick={handleSaveRoadmap} size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+                    <Bookmark className="h-4 w-4 mr-1.5" /> Save to Profile
+                  </Button>
+                  <Button onClick={handleDownload} variant="outline" size="sm">
                     <Download className="h-4 w-4 mr-1.5" /> Download
                   </Button>
                   <Button
@@ -356,6 +398,39 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
                 )}
               </div>
             )}
+          </TabsContent>
+          <TabsContent value="saved" className="pt-4">
+            <div className="space-y-4 max-w-3xl">
+              <h3 className="text-lg font-bold">Saved Roadmaps</h3>
+              <div className="grid gap-3">
+                {savedRoadmaps.map((item) => (
+                  <Card key={item.id} className="p-4 flex items-center justify-between border shadow-sm hover:shadow-md transition-shadow">
+                    <div>
+                      <h4 className="font-bold text-base">{item.role}</h4>
+                      <p className="text-xs text-muted-foreground">Saved on {item.date} • {item.data.phases?.length || 0} Phases</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button onClick={() => handleLoadSaved(item)} size="sm" className="text-xs font-bold">
+                        View Roadmap
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          const filtered = savedRoadmaps.filter((r) => r.id !== item.id);
+                          setSavedRoadmaps(filtered);
+                          localStorage.setItem("saved_career_roadmaps", JSON.stringify(filtered));
+                          toast.success("Removed saved roadmap");
+                        }}
+                        className="text-xs text-destructive"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
