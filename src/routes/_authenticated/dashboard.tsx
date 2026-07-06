@@ -116,42 +116,94 @@ function DashboardPage() {
   const enrolled = Array.isArray(enrollQ.data) ? enrollQ.data : [];
   const totalCompleted = enrolled.filter((e: any) => e.status === "completed").length;
   const totalCerts = Array.isArray(certsQ.data) ? certsQ.data.length : 0;
+  
+  const latestCourse = enrolled?.[0];
 
   return (
     <AppShell>
       <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-6xl">
-        <h1 className="text-2xl sm:text-3xl font-display font-semibold tracking-tight">
-          {t("dashboard.welcome", { name })}
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">{t("dashboard.subtitle")}</p>
+        <div className="flex flex-col lg:flex-row gap-6 mb-8">
+          {/* Resume Learning Hero */}
+          <div className="flex-1 bg-gradient-brand text-primary-foreground rounded-3xl p-6 sm:p-8 shadow-glow relative overflow-hidden group">
+            <div className="absolute inset-0 bg-black/5 transition-opacity group-hover:bg-black/0" />
+            <div className="relative z-10 flex flex-col h-full justify-between gap-6">
+              <div>
+                <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-2">
+                  Welcome back, {name}!
+                </h1>
+                <p className="text-primary-foreground/80 font-medium">Ready to crush your goals today?</p>
+              </div>
+              
+              {latestCourse ? (
+                <div className="bg-background/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 mt-4 sm:mt-8">
+                  <div className="text-[11px] font-bold uppercase tracking-widest mb-3 text-primary-foreground/90 flex items-center gap-2">
+                    <Sparkles className="h-3.5 w-3.5" /> Resume Learning
+                  </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-lg line-clamp-1">{latestCourse.courses?.title}</h3>
+                      <div className="flex items-center gap-3 mt-2">
+                        <Progress value={latestCourse.progress_pct} className="h-2 w-32 bg-white/20" indicatorClassName="bg-white" />
+                        <span className="text-sm font-medium">{latestCourse.progress_pct}%</span>
+                      </div>
+                    </div>
+                    <Link to="/studio/$projectId" params={{ projectId: latestCourse.courses?.id }}>
+                      <Button variant="secondary" className="rounded-full shadow-lg gap-2 text-primary font-bold hover:bg-white w-full sm:w-auto">
+                        <PlayCircle className="h-4 w-4" /> Continue
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-background/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 mt-4 sm:mt-8">
+                  <p className="mb-3 font-medium">You aren't enrolled in any courses yet.</p>
+                  <Link to="/courses">
+                    <Button variant="secondary" className="rounded-full shadow-lg text-primary font-bold hover:bg-white">Browse Courses</Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6">
-          {enrollQ.isLoading ? (
-            Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
-          ) : (
-            <>
-              <StatCard
-                label={t("dashboard.enrolled")}
-                value={String(enrolled.length)}
-                icon={BookOpen}
-              />
-              <StatCard
-                label={t("dashboard.completed")}
-                value={String(totalCompleted)}
-                icon={GraduationCap}
-              />
-              <StatCard
-                label={t("dashboard.certificates")}
-                value={String(totalCerts)}
-                icon={Award}
-              />
-              <StatCard
-                label={t("dashboard.testAttempts")}
-                value={String((attemptsQ.data ?? []).length)}
-                icon={Trophy}
-              />
-            </>
-          )}
+          {/* Weekly Streak & Stats */}
+          <div className="w-full lg:w-80 flex flex-col gap-4 shrink-0">
+             <div className="bg-card border rounded-3xl p-6 shadow-card h-full flex flex-col justify-between">
+               <div>
+                 <div className="flex items-center justify-between mb-4">
+                   <h3 className="font-semibold text-sm text-muted-foreground">Weekly Activity</h3>
+                   <Badge variant="outline" className="text-emerald-500 border-emerald-500/30 bg-emerald-500/10 gap-1.5">
+                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                     3 Day Streak
+                   </Badge>
+                 </div>
+                 <div className="flex items-end justify-between gap-1 h-20 mb-2">
+                   {/* Mock Github-style heatmap columns */}
+                   {[40, 70, 20, 100, 60, 0, 80].map((val, i) => (
+                     <div key={i} className="w-full max-w-[2rem] bg-muted/50 rounded-t-md relative group flex flex-col justify-end h-full">
+                       <div 
+                         className="w-full bg-primary rounded-t-md transition-all duration-500" 
+                         style={{ height: `${val}%` }} 
+                       />
+                       <span className="text-[10px] text-muted-foreground absolute -bottom-5 left-1/2 -translate-x-1/2 font-medium">
+                         {['M','T','W','T','F','S','S'][i]}
+                       </span>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+               
+               <div className="mt-10 grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
+                  <div>
+                    <div className="text-2xl font-bold font-display">{enrolled.length}</div>
+                    <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Active</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold font-display">{totalCerts}</div>
+                    <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Certificates</div>
+                  </div>
+               </div>
+             </div>
+          </div>
         </div>
 
         {/* Available Product Tours */}

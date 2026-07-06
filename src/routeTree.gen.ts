@@ -50,6 +50,7 @@ import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
+import { Route as AuthenticatedStoreRouteImport } from './routes/_authenticated/store'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedResumeBuilderRouteImport } from './routes/_authenticated/resume-builder'
 import { Route as AuthenticatedPortfolioBuilderRouteImport } from './routes/_authenticated/portfolio-builder'
@@ -307,6 +308,11 @@ const AuthenticatedSubmissionsRoute =
 const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
   id: '/studio',
   path: '/studio',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedStoreRoute = AuthenticatedStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
@@ -658,6 +664,7 @@ export interface FileRoutesByFullPath {
   '/portfolio-builder': typeof AuthenticatedPortfolioBuilderRoute
   '/resume-builder': typeof AuthenticatedResumeBuilderRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/store': typeof AuthenticatedStoreRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
@@ -753,6 +760,7 @@ export interface FileRoutesByTo {
   '/portfolio-builder': typeof AuthenticatedPortfolioBuilderRoute
   '/resume-builder': typeof AuthenticatedResumeBuilderRoute
   '/settings': typeof AuthenticatedSettingsRoute
+  '/store': typeof AuthenticatedStoreRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
@@ -850,6 +858,7 @@ export interface FileRoutesById {
   '/_authenticated/portfolio-builder': typeof AuthenticatedPortfolioBuilderRoute
   '/_authenticated/resume-builder': typeof AuthenticatedResumeBuilderRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/store': typeof AuthenticatedStoreRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
@@ -947,6 +956,7 @@ export interface FileRouteTypes {
     | '/portfolio-builder'
     | '/resume-builder'
     | '/settings'
+    | '/store'
     | '/studio'
     | '/submissions'
     | '/support'
@@ -1042,6 +1052,7 @@ export interface FileRouteTypes {
     | '/portfolio-builder'
     | '/resume-builder'
     | '/settings'
+    | '/store'
     | '/studio'
     | '/submissions'
     | '/support'
@@ -1138,6 +1149,7 @@ export interface FileRouteTypes {
     | '/_authenticated/portfolio-builder'
     | '/_authenticated/resume-builder'
     | '/_authenticated/settings'
+    | '/_authenticated/store'
     | '/_authenticated/studio'
     | '/_authenticated/submissions'
     | '/_authenticated/support'
@@ -1514,6 +1526,13 @@ declare module '@tanstack/react-router' {
       path: '/studio'
       fullPath: '/studio'
       preLoaderRoute: typeof AuthenticatedStudioRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/store': {
+      id: '/_authenticated/store'
+      path: '/store'
+      fullPath: '/store'
+      preLoaderRoute: typeof AuthenticatedStoreRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/settings': {
@@ -1994,6 +2013,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPortfolioBuilderRoute: typeof AuthenticatedPortfolioBuilderRoute
   AuthenticatedResumeBuilderRoute: typeof AuthenticatedResumeBuilderRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedStoreRoute: typeof AuthenticatedStoreRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
@@ -2032,6 +2052,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPortfolioBuilderRoute: AuthenticatedPortfolioBuilderRoute,
   AuthenticatedResumeBuilderRoute: AuthenticatedResumeBuilderRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedStoreRoute: AuthenticatedStoreRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
