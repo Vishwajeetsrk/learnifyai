@@ -16,7 +16,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SkillBadge } from "@/components/SkillBadge";
 
 export const Route = createFileRoute("/_authenticated/career-studio")({
@@ -67,7 +66,7 @@ function CareerStudioHub() {
   return (
     <AppShell>
       <div className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-4 md:px-10 py-6">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shadow-lg">
               <img src="/mockup/images/learnify-logo.png" alt="Learnify AI" className="h-7 w-7 object-contain" />
@@ -75,52 +74,12 @@ function CareerStudioHub() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-bold text-xl text-white tracking-tight">Career Studio</h1>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="bg-white/20 hover:bg-white/30 text-white border border-white/30 text-[10px] px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1 transition-all cursor-pointer">
-                      <Sparkles className="h-3 w-3 text-yellow-300" /> 11 Tools <ChevronDown className="h-3 w-3 ml-0.5 opacity-80" />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56 p-1 bg-card border-border rounded-xl shadow-xl">
-                    {TABS.map((t) => {
-                      const Icon = t.icon;
-                      return (
-                        <DropdownMenuItem
-                          key={t.id}
-                          onClick={() => navigate({ to: "/career-studio" as any, search: { tab: t.id } as any, replace: true })}
-                          className={`flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded-lg cursor-pointer ${activeTab === t.id ? "bg-primary text-primary-foreground" : ""}`}
-                        >
-                          <Icon className="h-4 w-4" />
-                          {t.label}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Badge className="bg-white/20 text-white border-white/30 text-[10px] px-2 py-0">
+                  <Sparkles className="h-3 w-3 mr-1 text-yellow-300" /> 11 Tools
+                </Badge>
               </div>
               <p className="text-xs text-blue-200 font-medium">AI-powered career development suite</p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 sm:pb-0">
-            {TABS.slice(0, 5).map((t) => {
-              const Icon = t.icon;
-              const isActive = activeTab === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => navigate({ to: "/career-studio" as any, search: { tab: t.id } as any, replace: true })}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 cursor-pointer ${
-                    isActive
-                      ? "bg-white text-blue-700 shadow-md font-bold"
-                      : "bg-white/10 hover:bg-white/20 text-white"
-                  }`}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {t.label}
-                </button>
-              );
-            })}
           </div>
         </div>
       </div>
