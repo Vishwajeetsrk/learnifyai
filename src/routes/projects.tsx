@@ -345,7 +345,7 @@ function ProjectsPage() {
     queryKey: ["design-projects-public"],
     queryFn: async () => {
       try {
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from("design_projects")
           .select("*")
           .order("created_at", { ascending: false });

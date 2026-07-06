@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Play, Layout, Code2, BookOpen, Volume2, Lock, X } from "lucide-react";
 import projectsData from "@/data/projects.json";
 
@@ -16,9 +17,9 @@ function CourseDetailPage() {
   const { projectId } = Route.useParams();
   const { data: dbProject, isLoading } = useQuery({
     queryKey: ["design-project", projectId],
-    queryFn: async (): Promise<any> => {
+    queryFn: async () => {
       try {
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from("design_projects")
           .select("*")
           .eq("id", projectId)
@@ -90,6 +91,13 @@ function CourseDetailPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
+      <Helmet>
+        <title>{project.title} — Learnify AI Template</title>
+        <meta name="description" content={project.description || "Learn and master this interactive UI template on Learnify AI."} />
+        <meta property="og:title" content={`${project.title} — Learnify AI Template`} />
+        <meta property="og:description" content={project.description || "Learn and master this interactive UI template on Learnify AI."} />
+      </Helmet>
+      
       <SiteHeader />
 
       <main className="flex-1 pt-24 pb-16">

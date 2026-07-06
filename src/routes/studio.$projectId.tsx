@@ -16,9 +16,9 @@ function StudioClassroomPage() {
   const { projectId } = Route.useParams();
   const { data: dbProject, isLoading } = useQuery({
     queryKey: ["design-project", projectId],
-    queryFn: async (): Promise<any> => {
+    queryFn: async () => {
       try {
-        const { data, error } = await (supabase as any)
+        const { data, error } = await supabase
           .from("design_projects")
           .select("*")
           .eq("id", projectId)

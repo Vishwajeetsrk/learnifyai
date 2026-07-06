@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Loader2, Calendar, ArrowLeft, User, Heart, MessageCircle, Trash2 } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import { AppShell } from "@/components/AppShell";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { supabase } from "@/integrations/supabase/client";
@@ -166,6 +167,14 @@ function BlogPostPage() {
 
   return (
     <AppShell>
+      <Helmet>
+        <title>{post.title} — Learnify AI Blog</title>
+        <meta name="description" content={post.excerpt} />
+        <meta property="og:title" content={`${post.title} — Learnify AI Blog`} />
+        <meta property="og:description" content={post.excerpt} />
+        <meta property="og:image" content={post.featured_image} />
+        <meta property="og:type" content="article" />
+      </Helmet>
       <div className="min-h-screen bg-background">
         <div className="max-w-3xl mx-auto px-4 py-16">
           <Link

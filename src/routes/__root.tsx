@@ -283,13 +283,15 @@ import { PageTransition } from "../components/PageTransition";
 import { InteractiveCursor } from "../components/ui/InteractiveCursor";
 import { CookieConsent } from "../components/CookieConsent";
 import { TourProvider, TourTrigger } from "../components/ProductTour";
+import { HelmetProvider } from "react-helmet-async";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
         <MotionPrefProvider>
           <CursorProvider>
             <AuthProvider>
@@ -312,5 +314,6 @@ function RootComponent() {
         </MotionPrefProvider>
       </ThemeProvider>
     </QueryClientProvider>
+    </HelmetProvider>
   );
 }

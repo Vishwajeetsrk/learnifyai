@@ -57,6 +57,22 @@ export type Database = {
         };
         Relationships: [];
       };
+      design_projects: {
+        Row: {
+          id: string;
+          name: string;
+          title: string;
+          description: string;
+          path: string;
+          course_modules: Json | null;
+          architecture_nodes: Json | null;
+          tech_stack: Json | null;
+          created_at: string;
+        };
+        Insert: any;
+        Update: any;
+        Relationships: [];
+      };
       ai_credits: {
         Row: {
           credits_remaining: number;
