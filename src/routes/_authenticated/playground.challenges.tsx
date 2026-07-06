@@ -9,13 +9,15 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
+import { DEFAULT_CHALLENGES } from "@/lib/playground/challenges";
+
 export const Route = createFileRoute("/_authenticated/playground/challenges")({
   head: () => ({ meta: [{ title: "Challenges — Learnify AI" }] }),
   component: ChallengesPage,
 });
 
 const DIFFICULTIES = ["all", "easy", "medium", "hard"] as const;
-const CATEGORIES = ["all", "algorithms", "data-structures", "javascript", "python"];
+const CATEGORIES = ["all", "algorithms", "data-structures", "javascript", "python", "sql", "system-design"];
 
 function ChallengesPage() {
   const { user } = useAuth();
@@ -25,14 +27,31 @@ function ChallengesPage() {
   const { data: challenges, isLoading } = useQuery({
     queryKey: ["playground-challenges", difficulty, category],
     queryFn: async () => {
-      let query = (supabase as any)
-        .from("playground_challenges")
-        .select("id, title, slug, difficulty, category, language, points, hints, created_at")
-        .eq("is_published", true);
-      if (difficulty !== "all") query = query.eq("difficulty", difficulty);
-      if (category !== "all") query = query.eq("category", category);
-      const { data } = await query.order("points");
-      return data ?? [];
+      let dbData = [];
+      try {
+        let query = (supabase as any)
+          .from("playground_challenges")
+          .select("id, title, slug, difficulty, category, language, points, hints, created_at")
+          .eq("is_published", true);
+        if (difficulty !== "all") query = query.eq("difficulty", difficulty);
+        if (category !== "all") query = query.eq("category", category);
+        const { data } = await query.order("points");
+        dbData = data ?? [];
+      } catch {
+        dbData = [];
+      }
+
+      let merged = [...dbData];
+      const existingSlugs = new Set(dbData.map((c: any) => c.slug));
+
+      for (const def of DEFAULT_CHALLENGES) {
+        if (!existingSlugs.has(def.slug)) {
+          if (difficulty !== "all" && def.difficulty !== difficulty) continue;
+          if (category !== "all" && def.category !== category) continue;
+          merged.push(def);
+        }
+      }
+      return merged;
     },
   });
 
