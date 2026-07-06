@@ -163,6 +163,49 @@ export const awardXP = createServerFn({ method: "POST" })
     return { success: true, xp: newXp, streak: currentStreak, level: xpToLevel(newXp) };
   });
 
+/* ── Deduct XP ─────────────────────────────────────────────────── */
+
+export const deductXP = createServerFn({ method: "POST" })
+  .validator((input: { userId: string; amount: number; item?: string }) =>
+    z
+      .object({
+        userId: z.string().uuid(),
+        amount: z.number().positive(),
+        item: z.string().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    let { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("xp")
+      .eq("id", data.userId)
+      .maybeSingle();
+
+    if (!profile || (profile.xp ?? 0) < data.amount) {
+      throw new Error("Insufficient XP balance");
+    }
+
+    const newXp = (profile.xp ?? 0) - data.amount;
+
+    await Promise.all([
+      supabaseAdmin
+        .from("profiles")
+        .update({ xp: newXp })
+        .eq("id", data.userId),
+
+      supabaseAdmin.from("xp_log").insert({
+        user_id: data.userId,
+        amount: -data.amount,
+        source: `store_purchase:${data.item ?? "item"}`,
+      }),
+    ]);
+
+    return { success: true, xp: newXp };
+  });
+
 /* ── Leaderboard (weekly or all-time) ──────────────────────────── */
 
 export const getLeaderboard = createServerFn({ method: "GET" })
