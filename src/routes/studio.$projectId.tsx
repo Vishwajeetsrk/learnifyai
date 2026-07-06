@@ -33,10 +33,77 @@ function StudioClassroomPage() {
 
   const project = dbProject;
   
-  // @ts-ignore
-  const modules = project?.course_modules || [];
-  // @ts-ignore
-  const architectureNodes = project?.architecture_nodes || [];
+  const rawModules = project?.course_modules || [];
+  const modules = rawModules.length > 0 ? rawModules : [
+    {
+      step: 1,
+      title: "Project Setup & Environment",
+      text: "Initialize a Vite + React + TypeScript workspace. Set up Tailwind CSS.",
+      voice_script: "Welcome! Let's start by setting up our project environment and installing dependencies.",
+      code_snippet: "// Project initialization complete\n// Run npm install to proceed",
+      quiz: { question: "Which bundler are we using?", options: ["Webpack", "Vite", "Rollup", "Parcel"], correct: 1 }
+    },
+    {
+      step: 2,
+      title: "UI Architecture & Layout",
+      text: "Structure the main components. Build the navigation and responsive grid layouts.",
+      voice_script: "Now, let's architect the layout. We will use Tailwind CSS grid classes to structure the UI.",
+      code_snippet: "export default function Layout() {\n  return (\n    <div className=\"grid grid-cols-12\">\n      {/* Main layout */}\n    </div>\n  );\n}",
+      quiz: { question: "Which CSS framework is used?", options: ["Bootstrap", "Material UI", "Tailwind CSS", "Chakra UI"], correct: 2 }
+    },
+    {
+      step: 3,
+      title: "Implementing Core Features",
+      text: `Develop the core functionality: ${project?.description?.substring(0, 60) || project?.title}...`,
+      voice_script: "Time to build the main functionality. Follow the steps in the editor to integrate the components.",
+      code_snippet: "// Core functionality integration\nfunction CoreFeature() {\n  // Implementation here\n}",
+      quiz: { question: "What is the primary goal of this step?", options: ["Styling", "Core Logic", "Deployment", "Testing"], correct: 1 }
+    },
+    {
+      step: 4,
+      title: "Animations & Polish",
+      text: "Add smooth transitions, hover effects, and animations to bring the template to life.",
+      voice_script: "Finally, let's polish the UI with animations and transitions to make it look cinematic.",
+      code_snippet: "// Animation configuration\nconst spring = {\n  type: \"spring\",\n  stiffness: 700,\n  damping: 30\n};",
+      quiz: { question: "Why do we add animations?", options: ["To slow down the app", "To improve UX and polish", "To save data", "To fix bugs"], correct: 1 }
+    }
+  ];
+
+  const rawNodes = project?.architecture_nodes || [];
+  const architectureNodes = rawNodes.length > 0 ? rawNodes : [
+    {
+      id: "root",
+      label: "<main className='relative overflow-hidden'>",
+      type: "container",
+      children: [
+        {
+          id: "hero-bg",
+          label: "<HeroBackground />",
+          type: "media",
+          children: []
+        },
+        {
+          id: "navbar",
+          label: "<Navigation />",
+          type: "component",
+          children: []
+        },
+        {
+          id: "content-grid",
+          label: "<ContentGrid />",
+          type: "component",
+          children: [
+            {
+              id: "feature-card",
+              label: "<FeatureCard />",
+              type: "component",
+              children: []
+            }
+          ]
+        }
+      ]
+    }
+  ];
 
   const [activeStep, setActiveStep] = useState(0);
 
