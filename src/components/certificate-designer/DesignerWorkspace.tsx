@@ -27,8 +27,12 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
 
   // UI state
   const [isSaving, setIsSaving] = useState(false);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(0.75);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Canvas dimensions (A4 landscape)
+  const CANVAS_WIDTH = 842;
+  const CANVAS_HEIGHT = 595;
 
   // History (50 steps)
   const [history, setHistory] = useState<{ elements: CertElement[]; design: CertDesign }[]>([]);
@@ -255,7 +259,7 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   const selectedEl = elements.find((e) => e.id === selectedId);
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col md:flex-row overflow-hidden">
       {/* Top Bar */}
       <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-10">
         <div className="flex items-center gap-3">
@@ -281,7 +285,17 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-slate-100 rounded-lg px-2 py-1">
+          {/* Mobile hide/show properties panel */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="md:hidden text-xs h-7 px-2"
+            onClick={() => setSelectedId(selectedId ? null : elements[0]?.id || null)}
+          >
+            {selectedId ? "Hide Properties" : "Show Elements"}
+          </Button>
+
+          <div className="hidden md:flex items-center gap-1 bg-slate-100 rounded-lg px-2 py-1">
             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setScale((s) => Math.max(s - 0.1, 0.3))}>
               <ZoomOut className="h-3 w-3" />
             </Button>
@@ -311,21 +325,23 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
         </div>
       </header>
 
-      {/* Split View */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left: Certificate Preview */}
-        <div className="flex-1 bg-slate-100 overflow-auto flex items-center justify-center p-8" onClick={() => setSelectedId(null)}>
-          <div className="origin-top-left" style={{ transform: `scale(${scale})` }}>
-            <CertificatePreview
-              elements={elements}
-              design={design}
-              bgImageUrl={bgImageUrl}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              onUpdateElement={onUpdateElement}
-            />
+        {/* Split View */}
+      <div className="flex-1 md:flex-none md:w-[400px] bg-slate-100 border-r border-slate-200 overflow-auto">
+        <div className="w-400px">
+          <div className="flex justify-center p-8">
+            <div className="origin-top-left " style={{ transform: `scale(${scale})` }}>
+              <CertificatePreview
+                elements={elements}
+                design={design}
+                bgImageUrl={bgImageUrl}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                onUpdateElement={onUpdateElement}
+              />
+            </div>
           </div>
         </div>
+      </div>
 
         {/* Right: Properties Panel */}
         <PropertiesPanel
