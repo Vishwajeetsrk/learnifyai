@@ -7,6 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { CustomVideoPlayer } from "@/components/ui/CustomVideoPlayer";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WatchDemoModalProps {
   open: boolean;
@@ -90,16 +91,26 @@ const TOUR_STEPS = [
   },
 ];
 
-const VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+const DEFAULT_VIDEO_URL = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
 
 export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [videoUrl, setVideoUrl] = useState(DEFAULT_VIDEO_URL);
 
   useEffect(() => {
     if (open) {
       setActiveStep(0);
       setDirection(0);
+      supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "tour_video_url")
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.value) setVideoUrl(data.value as string);
+        })
+        .catch(() => {});
     }
   }, [open]);
 
@@ -127,7 +138,7 @@ export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] sm:w-[calc(100vw-3rem)] max-h-[90vh] sm:max-h-[85vh] p-0 overflow-hidden rounded-2xl bg-card border shadow-2xl">
+      <DialogContent className="max-w-4xl w-[calc(100vw-2rem)] sm:w-[calc(100vw-3rem)] max-h-[90vh] sm:max-h-[85vh] p-0 rounded-2xl bg-card border shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 p-4 sm:p-5 md:p-6 text-white relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjAzIj48cGF0aCBkPSJNMzYgMzRoLTJ2LTRoMnYtMmgtNnY2aDJ2Mmgydi0yem0wLThoLTJ2LTJoMnYyek0yNCAyNGgtMnYtMmgydjJ6bTAtNGgtMnYtMmgydjJ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
@@ -155,12 +166,12 @@ export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
         </div>
 
         {/* Video */}
-        <div className="aspect-video w-full bg-slate-950 relative">
-          <CustomVideoPlayer src={VIDEO_URL} autoPlay />
+        <div className="aspect-video w-full bg-slate-950 relative shrink-0">
+          <CustomVideoPlayer src={videoUrl} autoPlay />
         </div>
 
-        {/* Tour Content */}
-        <div className="p-3 sm:p-4 md:p-6">
+        {/* Tour Content - scrollable */}
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 min-h-0">
           {/* Step Indicators (Clickable) */}
           <div className="flex items-center gap-1 sm:gap-2 mb-4 sm:mb-6">
             {TOUR_STEPS.map((step, i) => {
