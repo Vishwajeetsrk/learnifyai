@@ -1,24 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Download,
-  Save,
-  Undo,
-  Redo,
-  Sparkles,
-  Type,
-  Image as ImageIcon,
-  QrCode,
-  ShieldCheck,
-  PenTool,
-  Building2,
-  Award,
+  Download, Save, Undo, Redo, Sparkles, Type, Image as ImageIcon,
+  QrCode, ShieldCheck, PenTool, Building2, Award, Palette, Shapes,
+  Calendar, Table2, Minus, Droplets, Grid3X3, ZoomIn, ZoomOut,
+  Maximize2, Copy, Trash2, ArrowUp, ArrowDown, Lock, Unlock,
 } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { CertElement } from "./types";
 
@@ -37,161 +27,172 @@ type ToolbarProps = {
   canRedo: boolean;
   isSaving: boolean;
   onAiOptimize: () => void;
+  scale: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onZoomFit: () => void;
+  showGrid: boolean;
+  onToggleGrid: () => void;
+  snapToGrid: boolean;
+  onToggleSnap: () => void;
+  selectedId: string | null;
+  onDeleteSelected: () => void;
+  onDuplicateSelected: () => void;
+  onBringForward: () => void;
+  onSendBackward: () => void;
+  onLockToggle: () => void;
+  isLocked: boolean;
 };
 
 export function DesignerToolbar({
-  templateName,
-  setTemplateName,
-  onSave,
-  onExportPNG,
-  onExportPDF,
-  onExportSVG,
-  onExportGIF,
-  onUndo,
-  onRedo,
-  onAddElement,
-  canUndo,
-  canRedo,
-  isSaving,
-  onAiOptimize,
+  templateName, setTemplateName, onSave, onExportPNG, onExportPDF,
+  onExportSVG, onExportGIF, onUndo, onRedo, onAddElement,
+  canUndo, canRedo, isSaving, onAiOptimize, scale, onZoomIn,
+  onZoomOut, onZoomFit, showGrid, onToggleGrid, snapToGrid,
+  onToggleSnap, selectedId, onDeleteSelected, onDuplicateSelected,
+  onBringForward, onSendBackward, onLockToggle, isLocked,
 }: ToolbarProps) {
   return (
-    <div className="h-14 border-b bg-card flex items-center justify-between px-4 shrink-0 shadow-sm z-10">
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 border-r pr-3">
-          <Input
-            value={templateName}
-            onChange={(e) => setTemplateName(e.target.value)}
-            className="w-44 h-8 font-medium bg-transparent border-transparent hover:border-input focus:border-input focus-visible:ring-1 text-xs"
-            placeholder="Template Name"
-          />
-        </div>
+    <div className="h-12 border-b bg-card flex items-center justify-between px-3 shrink-0 shadow-sm z-10 gap-2">
+      <div className="flex items-center gap-2 min-w-0">
+        <Input
+          value={templateName}
+          onChange={(e) => setTemplateName(e.target.value)}
+          className="w-36 h-7 font-medium bg-transparent border-transparent hover:border-input focus:border-input focus-visible:ring-1 text-xs shrink-0"
+          placeholder="Template Name"
+        />
 
-        <div className="flex items-center gap-1 border-r pr-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={onUndo}
-            disabled={!canUndo}
-            title="Undo (Ctrl+Z)"
-          >
-            <Undo className="h-4 w-4" />
+        <div className="h-5 w-px bg-border shrink-0" />
+
+        <div className="flex items-center gap-0.5 shrink-0">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)">
+            <Undo className="h-3.5 w-3.5" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={onRedo}
-            disabled={!canRedo}
-            title="Redo (Ctrl+Y)"
-          >
-            <Redo className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)">
+            <Redo className="h-3.5 w-3.5" />
           </Button>
         </div>
 
-        <div className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 text-xs"
-            onClick={() => onAddElement("text")}
-            title="Add text element"
-          >
-            <Type className="h-3.5 w-3.5 mr-1" /> Text
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 text-xs"
-            onClick={() => onAddElement("image")}
-            title="Add image element"
-          >
-            <ImageIcon className="h-3.5 w-3.5 mr-1" /> Image
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 text-xs"
-            onClick={() => onAddElement("org_logo")}
-            title="Add organization logo"
-          >
-            <Building2 className="h-3.5 w-3.5 mr-1" /> Logo
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 text-xs"
-            onClick={() => onAddElement("signature")}
-            title="Add signature line"
-          >
-            <PenTool className="h-3.5 w-3.5 mr-1" /> Signature
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 text-xs"
-            onClick={() => onAddElement("qr")}
-            title="Add QR code badge"
-          >
-            <QrCode className="h-3.5 w-3.5 mr-1" /> QR
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 text-xs"
-            onClick={() => onAddElement("badge")}
-            title="Add verification seal / badge"
-          >
-            <Award className="h-3.5 w-3.5 mr-1" /> Badge
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 text-xs"
-            onClick={() => onAddElement("seal_icon")}
-            title="Add official seal crest"
-          >
-            <ShieldCheck className="h-3.5 w-3.5 mr-1" /> Seal
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 text-xs"
-            onClick={() => onAddElement("guilloche_watermark")}
-            title="Add guilloche security watermark"
-          >
-            <Sparkles className="h-3.5 w-3.5 mr-1" /> Watermark
-          </Button>
-        </div>
+        <div className="h-5 w-px bg-border shrink-0" />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+              <Type className="h-3.5 w-3.5 mr-1" /> Add
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuItem onClick={() => onAddElement("text")}>
+              <Type className="h-3.5 w-3.5 mr-2" /> Text
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("image")}>
+              <ImageIcon className="h-3.5 w-3.5 mr-2" /> Image
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("svg")}>
+              <Palette className="h-3.5 w-3.5 mr-2" /> SVG Icon
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("org_logo")}>
+              <Building2 className="h-3.5 w-3.5 mr-2" /> Logo
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onAddElement("badge")}>
+              <Award className="h-3.5 w-3.5 mr-2" /> Badge
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("seal_icon")}>
+              <ShieldCheck className="h-3.5 w-3.5 mr-2" /> Seal
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("qr")}>
+              <QrCode className="h-3.5 w-3.5 mr-2" /> QR Code
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onAddElement("signature")}>
+              <PenTool className="h-3.5 w-3.5 mr-2" /> Signature
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("date")}>
+              <Calendar className="h-3.5 w-3.5 mr-2" /> Date Field
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("table")}>
+              <Table2 className="h-3.5 w-3.5 mr-2" /> Table
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => onAddElement("divider_line")}>
+              <Minus className="h-3.5 w-3.5 mr-2" /> Divider
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("guilloche_watermark")}>
+              <Sparkles className="h-3.5 w-3.5 mr-2" /> Watermark
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {selectedId && (
+          <>
+            <div className="h-5 w-px bg-border shrink-0" />
+            <div className="flex items-center gap-0.5 shrink-0">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onDuplicateSelected} title="Duplicate (Ctrl+D)">
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onDeleteSelected} title="Delete">
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onBringForward} title="Bring Forward">
+                <ArrowUp className="h-3.5 w-3.5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onSendBackward} title="Send Backward">
+                <ArrowDown className="h-3.5 w-3.5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onLockToggle} title={isLocked ? "Unlock" : "Lock"}>
+                {isLocked ? <Lock className="h-3.5 w-3.5 text-amber-600" /> : <Unlock className="h-3.5 w-3.5" />}
+              </Button>
+            </div>
+          </>
+        )}
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={onAiOptimize}
-          className="h-8 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200 text-xs"
-        >
-          <Sparkles className="h-3.5 w-3.5 mr-1" /> AI Optimize
+      <div className="flex items-center gap-1.5 shrink-0">
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onToggleGrid} title="Toggle Grid" style={showGrid ? { backgroundColor: "hsl(var(--primary) / 0.1)" } : {}}>
+          <Grid3X3 className="h-3.5 w-3.5" />
+        </Button>
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onToggleSnap} title="Snap to Grid" style={snapToGrid ? { backgroundColor: "hsl(var(--primary) / 0.1)" } : {}}>
+          <Droplets className="h-3.5 w-3.5" />
+        </Button>
+
+        <div className="h-5 w-px bg-border shrink-0" />
+
+        <div className="flex items-center gap-0.5 shrink-0">
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onZoomOut} title="Zoom Out">
+            <ZoomOut className="h-3.5 w-3.5" />
+          </Button>
+          <span className="text-[10px] font-mono font-medium w-10 text-center">{Math.round(scale * 100)}%</span>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onZoomIn} title="Zoom In">
+            <ZoomIn className="h-3.5 w-3.5" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onZoomFit} title="Zoom to Fit">
+            <Maximize2 className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+
+        <div className="h-5 w-px bg-border shrink-0" />
+
+        <Button variant="secondary" size="sm" onClick={onAiOptimize} className="h-7 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200 text-xs">
+          <Sparkles className="h-3.5 w-3.5 mr-1" /> AI
         </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 text-xs">
+            <Button variant="outline" size="sm" className="h-7 text-xs">
               <Download className="h-3.5 w-3.5 mr-1" /> Export
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onExportPNG}>Download High-Res PNG</DropdownMenuItem>
-            <DropdownMenuItem onClick={onExportPDF}>Download Print PDF</DropdownMenuItem>
-            {onExportSVG && <DropdownMenuItem onClick={onExportSVG}>Download Vector SVG</DropdownMenuItem>}
-            {onExportGIF && <DropdownMenuItem onClick={onExportGIF}>Download Animated GIF</DropdownMenuItem>}
+            <DropdownMenuItem onClick={onExportPNG}>High-Res PNG</DropdownMenuItem>
+            <DropdownMenuItem onClick={onExportPDF}>Print PDF</DropdownMenuItem>
+            {onExportSVG && <DropdownMenuItem onClick={onExportSVG}>Vector SVG</DropdownMenuItem>}
+            {onExportGIF && <DropdownMenuItem onClick={onExportGIF}>Animated GIF</DropdownMenuItem>}
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button size="sm" onClick={onSave} disabled={isSaving} className="h-8 text-xs">
-          <Save className="h-3.5 w-3.5 mr-1" /> {isSaving ? "Saving..." : "Save Template"}
+        <Button size="sm" onClick={onSave} disabled={isSaving} className="h-7 text-xs">
+          <Save className="h-3.5 w-3.5 mr-1" /> {isSaving ? "Saving..." : "Save"}
         </Button>
       </div>
     </div>

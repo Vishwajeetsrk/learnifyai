@@ -1,6 +1,24 @@
+export type CertElementType =
+  | "text"
+  | "image"
+  | "qr"
+  | "org_logo"
+  | "signature"
+  | "badge"
+  | "seal_icon"
+  | "guilloche_watermark"
+  | "divider_line"
+  | "svg"
+  | "shape"
+  | "date"
+  | "table"
+  | "watermark";
+
+export type ShapeType = "rect" | "circle" | "triangle" | "diamond" | "line" | "hexagon" | "star" | "heart";
+
 export type CertElement = {
   id: string;
-  type: "text" | "image" | "qr" | "org_logo" | "signature" | "badge" | "seal_icon" | "guilloche_watermark" | "divider_line";
+  type: CertElementType;
   content?: string;
   url?: string;
   x: number;
@@ -17,8 +35,7 @@ export type CertElement = {
   fontFamily?: string;
   color?: string;
   align?: "left" | "center" | "right" | "justify";
-  fontWeight?:
-    | "normal" | "bold" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900";
+  fontWeight?: "normal" | "bold" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900";
   fontStyle?: "normal" | "italic";
   textDecoration?: "none" | "underline" | "line-through";
   letterSpacing?: number;
@@ -31,6 +48,30 @@ export type CertElement = {
   shadowBlur?: number;
   shadowOffsetX?: number;
   shadowOffsetY?: number;
+
+  // SVG specific
+  svgContent?: string;
+  svgColor?: string;
+
+  // Shape specific
+  shapeType?: ShapeType;
+  fillColor?: string;
+  strokeColor?: string;
+  strokeWidth?: number;
+  borderRadius?: number;
+
+  // Table specific
+  rows?: number;
+  cols?: number;
+  cellPadding?: number;
+  borderColor?: string;
+  headerBg?: string;
+
+  // Date specific
+  dateFormat?: string;
+
+  // Label for layers panel
+  label?: string;
 };
 
 export type CertDesign = {
@@ -60,6 +101,34 @@ export type CertTemplate = {
   config_json: { elements: CertElement[]; design: CertDesign };
 };
 
+export type Certificate = {
+  id: string;
+  title: string;
+  courseTitle?: string;
+  status: "active" | "draft" | "revoked";
+  recipientName?: string;
+  code?: string;
+  issuedAt?: string;
+  expiresAt?: string;
+  [key: string]: any;
+};
+
+export type Verification = {
+  id: string;
+  code: string;
+  recipientName: string;
+  courseTitle: string;
+  status: "verified" | "invalid" | "expired";
+  verifiedAt: string;
+  ip?: string;
+  [key: string]: any;
+};
+
+export type EditorHistory = {
+  past: { elements: CertElement[]; design: CertDesign }[];
+  future: { elements: CertElement[]; design: CertDesign }[];
+};
+
 export const DEFAULT_DESIGN: CertDesign = {
   accent_color: "#c9a84c",
   bg_color: "#fdfbf5",
@@ -73,6 +142,7 @@ export const DEFAULT_DESIGN: CertDesign = {
 };
 
 export const FONTS = [
+  // Sans-serif
   { value: "Inter", label: "Inter", category: "sans" },
   { value: "Poppins", label: "Poppins", category: "sans" },
   { value: "Manrope", label: "Manrope", category: "sans" },
@@ -80,16 +150,67 @@ export const FONTS = [
   { value: "Montserrat", label: "Montserrat", category: "sans" },
   { value: "Outfit", label: "Outfit", category: "sans" },
   { value: "Sora", label: "Sora", category: "sans" },
+  { value: "Oswald", label: "Oswald", category: "sans" },
+  { value: "Raleway", label: "Raleway", category: "sans" },
+  { value: "Nunito", label: "Nunito", category: "sans" },
+  { value: "Work Sans", label: "Work Sans", category: "sans" },
+  { value: "Source Sans 3", label: "Source Sans 3", category: "sans" },
+  { value: "Barlow", label: "Barlow", category: "sans" },
+  { value: "Rubik", label: "Rubik", category: "sans" },
+  { value: "Space Grotesk", label: "Space Grotesk", category: "sans" },
+  { value: "Archivo", label: "Archivo", category: "sans" },
+  { value: "Plus Jakarta Sans", label: "Plus Jakarta Sans", category: "sans" },
+  { value: "Figtree", label: "Figtree", category: "sans" },
+  { value: "Lexend", label: "Lexend", category: "sans" },
+  { value: "Urbanist", label: "Urbanist", category: "sans" },
+  // Serif
   { value: "Playfair Display", label: "Playfair Display", category: "serif" },
   { value: "Merriweather", label: "Merriweather", category: "serif" },
   { value: "Lora", label: "Lora", category: "serif" },
   { value: "Cormorant Garamond", label: "Cormorant Garamond", category: "serif" },
   { value: "Cinzel", label: "Cinzel", category: "serif" },
   { value: "Libre Baskerville", label: "Libre Baskerville", category: "serif" },
+  { value: "EB Garamond", label: "EB Garamond", category: "serif" },
+  { value: "Crimson Text", label: "Crimson Text", category: "serif" },
+  { value: "Bitter", label: "Bitter", category: "serif" },
+  { value: "Cardo", label: "Cardo", category: "serif" },
+  { value: "Spectral", label: "Spectral", category: "serif" },
+  { value: "Vollkorn", label: "Vollkorn", category: "serif" },
+  // Script / Handwriting
   { value: "Great Vibes", label: "Great Vibes", category: "script" },
   { value: "Dancing Script", label: "Dancing Script", category: "script" },
-  { value: "Oswald", label: "Oswald", category: "sans" },
+  { value: "Pacifico", label: "Pacifico", category: "script" },
+  { value: "Satisfy", label: "Satisfy", category: "script" },
+  { value: "Sacramento", label: "Sacramento", category: "script" },
+  { value: "Alex Brush", label: "Alex Brush", category: "script" },
+  { value: "Allura", label: "Allura", category: "script" },
+  { value: "Lobster", label: "Lobster", category: "script" },
+  { value: "Cookie", label: "Cookie", category: "script" },
+  { value: "Caveat", label: "Caveat", category: "script" },
+  // Display / Decorative
+  { value: "Cinzel Decorative", label: "Cinzel Decorative", category: "display" },
+  { value: "Uncial Antiqua", label: "Uncial Antiqua", category: "display" },
+  { value: "Megrim", label: "Megrim", category: "display" },
+  { value: "Orbitron", label: "Orbitron", category: "display" },
+  { value: "Abril Fatface", label: "Abril Fatface", category: "display" },
+  { value: "Righteous", label: "Righteous", category: "display" },
+  { value: "Bungee", label: "Bungee", category: "display" },
+  { value: "Black Ops One", label: "Black Ops One", category: "display" },
+  // Monospace
   { value: "Roboto Mono", label: "Roboto Mono", category: "mono" },
+  { value: "JetBrains Mono", label: "JetBrains Mono", category: "mono" },
+  { value: "Fira Code", label: "Fira Code", category: "mono" },
+  { value: "Source Code Pro", label: "Source Code Pro", category: "mono" },
+  { value: "IBM Plex Mono", label: "IBM Plex Mono", category: "mono" },
+];
+
+export const FONT_CATEGORIES = [
+  { id: "all", label: "All" },
+  { id: "sans", label: "Sans" },
+  { id: "serif", label: "Serif" },
+  { id: "script", label: "Script" },
+  { id: "display", label: "Display" },
+  { id: "mono", label: "Mono" },
 ];
 
 export const BORDER_OPTIONS = [
@@ -114,6 +235,63 @@ export const PATTERN_OPTIONS = [
   { id: "diagonal", label: "Fine Stripes", preview: "diagonal" },
   { id: "noise", label: "Parchment Texture", preview: "noise" },
   { id: "glass", label: "Glassmorphism", preview: "glass" },
+];
+
+export const SHAPE_OPTIONS: { type: ShapeType; label: string; icon: string }[] = [
+  { type: "rect", label: "Rectangle", icon: "□" },
+  { type: "circle", label: "Circle", icon: "○" },
+  { type: "triangle", label: "Triangle", icon: "△" },
+  { type: "diamond", label: "Diamond", icon: "◇" },
+  { type: "hexagon", label: "Hexagon", icon: "⬡" },
+  { type: "star", label: "Star", icon: "☆" },
+  { type: "heart", label: "Heart", icon: "♡" },
+  { type: "line", label: "Line", icon: "─" },
+];
+
+export const SVG_ICONS: { id: string; name: string; category: string; svg: string }[] = [
+  // Education
+  { id: "graduation", name: "Graduation Cap", category: "education", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>' },
+  { id: "book", name: "Book", category: "education", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
+  { id: "award", name: "Award", category: "education", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>' },
+  { id: "certificate", name: "Certificate", category: "education", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M7 8h10"/><path d="M7 12h6"/><circle cx="17" cy="19" r="3"/><path d="M17 16v6l-2-1-2 1v-6"/></svg>' },
+  { id: "pencil", name: "Pencil", category: "education", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>' },
+  // Achievements
+  { id: "trophy", name: "Trophy", category: "achievements", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>' },
+  { id: "medal", name: "Medal", category: "achievements", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><path d="M11 12 5.12 2.2"/><path d="M13 12 18.88 2.2"/><circle cx="12" cy="17" r="5"/></svg>' },
+  { id: "star", name: "Star", category: "achievements", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>' },
+  { id: "crown", name: "Crown", category: "achievements", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/><path d="M3 20h18"/></svg>' },
+  { id: "ribbon", name: "Ribbon", category: "achievements", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 7h7l-5.5 4.5 2 7L12 16l-6.5 4.5 2-7L2 9h7z"/></svg>' },
+  // Technology
+  { id: "code", name: "Code", category: "technology", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>' },
+  { id: "gear", name: "Gear", category: "technology", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' },
+  { id: "cloud", name: "Cloud", category: "technology", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>' },
+  { id: "database", name: "Database", category: "technology", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>' },
+  { id: "cpu", name: "CPU", category: "technology", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>' },
+  // Business
+  { id: "briefcase", name: "Briefcase", category: "business", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>' },
+  { id: "chart", name: "Chart", category: "business", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>' },
+  { id: "globe", name: "Globe", category: "business", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>' },
+  { id: "users", name: "Users", category: "business", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' },
+  // Nature
+  { id: "leaf", name: "Leaf", category: "nature", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.9C15.5 4.9 17 3.5 19 1c1 2 2 4.5 2 8 0 5.5-4.78 11-10 11z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>' },
+  { id: "sun", name: "Sun", category: "nature", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>' },
+  { id: "mountain", name: "Mountain", category: "nature", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3l4 8 5-5 5 15H2z"/></svg>' },
+  // Decorative
+  { id: "diamond", name: "Diamond", category: "decorative", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20"/></svg>' },
+  { id: "shield", name: "Shield", category: "decorative", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>' },
+  { id: "heart", name: "Heart", category: "decorative", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' },
+  { id: "sparkle", name: "Sparkle", category: "decorative", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5z"/><path d="M19 15l.67 2.33L22 18l-2.33.67L19 21l-.67-2.33L16 18l2.33-.67z"/></svg>' },
+  { id: "floral", name: "Floral", category: "decorative", svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2a4 4 0 0 0-4 4c0 1.5.8 2.8 2 3.5L12 12l2-2.5c1.2-.7 2-2 2-3.5a4 4 0 0 0-4-4z"/><path d="M19.07 4.93a4 4 0 0 0-5.66 0c-1.56 1.56-1.56 4.09 0 5.66L12 12l4.93-4.93a4 4 0 0 0 0-5.14z" transform="rotate(45 12 12)"/><path d="M4.93 4.93a4 4 0 0 0 0 5.66L12 12l-7.07-7.07a4 4 0 0 0 0-5.14z" transform="rotate(45 12 12)"/></svg>' },
+];
+
+export const SVG_CATEGORIES = [
+  { id: "all", label: "All" },
+  { id: "education", label: "Education" },
+  { id: "achievements", label: "Achievements" },
+  { id: "technology", label: "Technology" },
+  { id: "business", label: "Business" },
+  { id: "nature", label: "Nature" },
+  { id: "decorative", label: "Decorative" },
 ];
 
 export const THEMES = [
