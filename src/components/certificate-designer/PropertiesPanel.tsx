@@ -8,10 +8,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CertElement, CertDesign, FONTS, FONT_CATEGORIES, BORDER_OPTIONS, PATTERN_OPTIONS, COLOR_PALETTES, SHAPE_OPTIONS, ShapeType, SVG_ICONS, SVG_CATEGORIES } from "./types";
+import { ImageEditor } from "./ImageEditor";
 import {
   AlignLeft, AlignCenter, AlignRight, Type, Palette, Layout, Trash2, Copy,
   Eye, EyeOff, Lock, Unlock, ChevronDown, ChevronRight, Upload, Plus,
-  Image as ImageIcon, Sparkles, QrCode, PenTool, Award, ShieldCheck, Minus, Shapes,
+  Image as ImageIcon, Sparkles, QrCode, PenTool, Award, ShieldCheck, Minus, Shapes, Scissors,
 } from "lucide-react";
 
 type PropertiesPanelProps = {
@@ -44,6 +45,15 @@ export function PropertiesPanel({
   });
   const [svgSearch, setSvgSearch] = useState("");
   const [svgCategory, setSvgCategory] = useState("all");
+  const [imageEditor, setImageEditor] = useState<{
+    open: boolean;
+    title: string;
+    initialUrl: string;
+    aspectRatio: number;
+    outputWidth: number;
+    outputHeight: number;
+    onApply: (dataUrl: string) => void;
+  }>({ open: false, title: "", initialUrl: "", aspectRatio: 1, outputWidth: 400, outputHeight: 400, onApply: () => {} });
 
   const toggle = (s: string) => setExpandedSections(p => ({ ...p, [s]: !p[s] }));
 
@@ -454,26 +464,131 @@ export function PropertiesPanel({
               <ImageIcon className="h-4 w-4 text-[#6B5BFB]" /> Assets
             </button>
             {expandedSections.assets && (
-              <div className="space-y-3">
+              <div className="space-y-4">
+                {/* Logo */}
                 <div>
-                  <Label className="text-xs text-slate-500">Logo URL</Label>
+                  <Label className="text-xs text-slate-500">Logo</Label>
                   <div className="flex gap-2 mt-1">
                     <Input value={bgImageUrl}
                       onChange={(e) => onUpdateBgImageUrl(e.target.value)}
                       placeholder="https://... or /favicon.ico" className="text-xs flex-1" />
+                    <Button variant="outline" size="sm" className="h-8 text-xs shrink-0"
+                      onClick={() => setImageEditor({
+                        open: true, title: "Edit Logo", initialUrl: bgImageUrl,
+                        aspectRatio: 1, outputWidth: 200, outputHeight: 200,
+                        onApply: (dataUrl) => onUpdateBgImageUrl(dataUrl),
+                      })}>
+                      <Scissors className="h-3 w-3 mr-1" /> Edit
+                    </Button>
                     <label className="cursor-pointer inline-flex items-center justify-center h-8 px-3 bg-slate-100 hover:bg-slate-200 rounded-lg border text-xs font-medium shrink-0">
                       <Upload className="h-3 w-3 mr-1" /> Upload
                       <input type="file" accept="image/*" className="hidden"
-                        onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpdateBgImageUrl(URL.createObjectURL(f)); }} />
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) {
+                          setImageEditor({
+                            open: true, title: "Edit Logo", initialUrl: URL.createObjectURL(f),
+                            aspectRatio: 1, outputWidth: 200, outputHeight: 200,
+                            onApply: (dataUrl) => onUpdateBgImageUrl(dataUrl),
+                          });
+                        }}} />
                     </label>
                   </div>
                   {bgImageUrl && (
                     <div className="mt-2 flex items-center gap-2">
-                      <img src={bgImageUrl} alt="Logo preview" className="h-8 w-8 object-contain rounded border border-slate-200" />
+                      <img src={bgImageUrl} alt="Logo preview" className="h-10 w-10 object-contain rounded border border-slate-200 bg-white" />
                       <span className="text-[10px] text-slate-400">Logo preview</span>
                     </div>
                   )}
                 </div>
+
+                {/* Signature */}
+                <div>
+                  <Label className="text-xs text-slate-500">Signature</Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      value={elements.find((e) => e.type === "signature")?.url || ""}
+                      onChange={(e) => {
+                        const sig = elements.find((e) => e.type === "signature");
+                        if (sig) onUpdateElement(sig.id, { url: e.target.value });
+                      }}
+                      placeholder="https://...signature.png" className="text-xs flex-1" />
+                    <Button variant="outline" size="sm" className="h-8 text-xs shrink-0"
+                      onClick={() => {
+                        const sig = elements.find((e) => e.type === "signature");
+                        setImageEditor({
+                          open: true, title: "Edit Signature", initialUrl: sig?.url || "",
+                          aspectRatio: 2, outputWidth: 300, outputHeight: 150,
+                          onApply: (dataUrl) => {
+                            if (sig) onUpdateElement(sig.id, { url: dataUrl });
+                          },
+                        });
+                      }}>
+                      <Scissors className="h-3 w-3 mr-1" /> Edit
+                    </Button>
+                    <label className="cursor-pointer inline-flex items-center justify-center h-8 px-3 bg-slate-100 hover:bg-slate-200 rounded-lg border text-xs font-medium shrink-0">
+                      <Upload className="h-3 w-3 mr-1" /> Upload
+                      <input type="file" accept="image/*" className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (!f) return;
+                          const sig = elements.find((el) => el.type === "signature");
+                          setImageEditor({
+                            open: true, title: "Edit Signature", initialUrl: URL.createObjectURL(f),
+                            aspectRatio: 2, outputWidth: 300, outputHeight: 150,
+                            onApply: (dataUrl) => {
+                              if (sig?.id) onUpdateElement(sig.id, { url: dataUrl });
+                            },
+                          });
+                        }} />
+                    </label>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">Upload signature — background will be removed for transparent overlay</p>
+                </div>
+
+                {/* Stamp */}
+                <div>
+                  <Label className="text-xs text-slate-500">Stamp / Seal</Label>
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      value={elements.find((e) => e.type === "seal_icon")?.url || ""}
+                      onChange={(e) => {
+                        const seal = elements.find((e) => e.type === "seal_icon");
+                        if (seal) onUpdateElement(seal.id, { url: e.target.value });
+                      }}
+                      placeholder="https://...stamp.png" className="text-xs flex-1" />
+                    <Button variant="outline" size="sm" className="h-8 text-xs shrink-0"
+                      onClick={() => {
+                        const seal = elements.find((e) => e.type === "seal_icon");
+                        setImageEditor({
+                          open: true, title: "Edit Stamp", initialUrl: seal?.url || "",
+                          aspectRatio: 1, outputWidth: 200, outputHeight: 200,
+                          onApply: (dataUrl) => {
+                            if (seal) onUpdateElement(seal.id, { url: dataUrl });
+                          },
+                        });
+                      }}>
+                      <Scissors className="h-3 w-3 mr-1" /> Edit
+                    </Button>
+                    <label className="cursor-pointer inline-flex items-center justify-center h-8 px-3 bg-slate-100 hover:bg-slate-200 rounded-lg border text-xs font-medium shrink-0">
+                      <Upload className="h-3 w-3 mr-1" /> Upload
+                      <input type="file" accept="image/*" className="hidden"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (!f) return;
+                          const seal = elements.find((e) => e.type === "seal_icon");
+                          if (seal) {
+                            setImageEditor({
+                              open: true, title: "Edit Stamp", initialUrl: URL.createObjectURL(f),
+                              aspectRatio: 1, outputWidth: 200, outputHeight: 200,
+                              onApply: (dataUrl) => onUpdateElement(seal.id, { url: dataUrl }),
+                            });
+                          }
+                        }} />
+                    </label>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">Upload official stamp or seal image</p>
+                </div>
+
+                {/* Background Toggle */}
                 <div>
                   <Label className="text-xs text-slate-500">Template Background</Label>
                   <div className="flex items-center justify-between mt-1">
@@ -485,6 +600,18 @@ export function PropertiesPanel({
               </div>
             )}
           </div>
+
+          {/* Image Editor Modal */}
+          <ImageEditor
+            open={imageEditor.open}
+            onClose={() => setImageEditor((prev) => ({ ...prev, open: false }))}
+            onApply={imageEditor.onApply}
+            initialUrl={imageEditor.initialUrl}
+            title={imageEditor.title}
+            aspectRatio={imageEditor.aspectRatio}
+            outputWidth={imageEditor.outputWidth}
+            outputHeight={imageEditor.outputHeight}
+          />
 
           {/* SVG ICON LIBRARY */}
           <div className="border-t border-slate-100 pt-4">
