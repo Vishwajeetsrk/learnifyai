@@ -294,6 +294,21 @@ export const SVG_CATEGORIES = [
   { id: "decorative", label: "Decorative" },
 ];
 
+export const COLOR_PALETTES = [
+  { id: "navy-gold", name: "Navy & Gold", accent: "#c9a84c", bg: "#0f1b3d", text: "#fdfbf5", accent2: "#8a6d2b" },
+  { id: "black-gold", name: "Black & Gold", accent: "#d4af37", bg: "#0a0a0a", text: "#f5f5f5", accent2: "#b8860b" },
+  { id: "indigo-modern", name: "Indigo Modern", accent: "#6366f1", bg: "#ffffff", text: "#1e293b", accent2: "#818cf8" },
+  { id: "emerald-prestige", name: "Emerald Prestige", accent: "#10b981", bg: "#f0fdf4", text: "#052e16", accent2: "#34d399" },
+  { id: "burgundy-classic", name: "Burgundy Classic", accent: "#991b1b", bg: "#fef2f2", text: "#1a1a1a", accent2: "#dc2626" },
+  { id: "slate-minimal", name: "Slate Minimal", accent: "#475569", bg: "#f8fafc", text: "#0f172a", accent2: "#94a3b8" },
+  { id: "rose-charcoal", name: "Rose & Charcoal", accent: "#e11d48", bg: "#1c1917", text: "#fafaf9", accent2: "#fb7185" },
+  { id: "teal-editorial", name: "Teal Editorial", accent: "#0d9488", bg: "#f0fdfa", text: "#134e4a", accent2: "#2dd4bf" },
+  { id: "royal-purple", name: "Royal Purple", accent: "#7c3aed", bg: "#f5f3ff", text: "#1e1b4b", accent2: "#a78bfa" },
+  { id: "sunset-amber", name: "Sunset Amber", accent: "#f59e0b", bg: "#fffbeb", text: "#451a03", accent2: "#fbbf24" },
+  { id: "forest-cream", name: "Forest & Cream", accent: "#166534", bg: "#fefce8", text: "#14532d", accent2: "#22c55e" },
+  { id: "steel-blue", name: "Steel Blue", accent: "#2563eb", bg: "#eff6ff", text: "#1e3a5f", accent2: "#60a5fa" },
+];
+
 export const THEMES = [
   {
     id: "executive-gold",

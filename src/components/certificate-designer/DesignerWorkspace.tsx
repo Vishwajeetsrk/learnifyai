@@ -2,12 +2,13 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
-import { CertTemplate, CertElement, CertDesign, DEFAULT_DESIGN, ShapeType } from "./types";
+import { CertTemplate, CertElement, CertDesign, DEFAULT_DESIGN, ShapeType, COLOR_PALETTES } from "./types";
 import { useServerFn } from "@tanstack/react-start";
 import { aiOptimizeDesign } from "@/lib/canva-cert.functions";
-import { DesignerToolbar } from "./DesignerToolbar";
-import { DesignerSidebar } from "./DesignerSidebar";
-import { DesignerCanvas } from "./DesignerCanvas";
+import { CertificatePreview } from "./CertificatePreview";
+import { PropertiesPanel } from "./PropertiesPanel";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Save, Download, Sparkles, Undo, Redo, ZoomIn, ZoomOut, Maximize2 } from "lucide-react";
 
 type DesignerWorkspaceProps = {
   initialTemplate: CertTemplate;
@@ -16,28 +17,20 @@ type DesignerWorkspaceProps = {
 };
 
 export function DesignerWorkspace({ initialTemplate, onSave, onClose }: DesignerWorkspaceProps) {
-  const [templateName, setTemplateName] = useState(initialTemplate.name);
   const doAiOptimize = useServerFn(aiOptimizeDesign);
+
+  // Template state
+  const [templateName, setTemplateName] = useState(initialTemplate.name);
   const [bgImageUrl, setBgImageUrl] = useState(initialTemplate.bg_image_url ?? "");
   const [elements, setElements] = useState<CertElement[]>(initialTemplate.config_json?.elements ?? []);
   const [design, setDesign] = useState<CertDesign>(initialTemplate.config_json?.design ?? DEFAULT_DESIGN);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // UI state
   const [isSaving, setIsSaving] = useState(false);
   const [scale, setScale] = useState(1);
-  const [showGrid, setShowGrid] = useState(false);
-  const [snapToGrid, setSnapToGrid] = useState(false);
-  const [gridSize] = useState(10);
-  const [clipboard, setClipboard] = useState<CertElement | null>(null);
-  const workspaceRef = useRef<HTMLDivElement>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  useEffect(() => {
-    setTemplateName(initialTemplate.name);
-    setBgImageUrl(initialTemplate.bg_image_url ?? "");
-    setElements(initialTemplate.config_json?.elements ?? []);
-    setDesign(initialTemplate.config_json?.design ?? DEFAULT_DESIGN);
-  }, [initialTemplate]);
-
-  // History Stack (50 steps)
+  // History (50 steps)
   const [history, setHistory] = useState<{ elements: CertElement[]; design: CertDesign }[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
@@ -72,64 +65,23 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const tag = document.activeElement?.tagName;
-      const isInput = tag === "INPUT" || tag === "TEXTAREA" || document.activeElement?.getAttribute("contenteditable") === "true";
       const ctrl = e.ctrlKey || e.metaKey;
-
-      // Ctrl+Z / Ctrl+Y
-      if (ctrl && e.key === "z" && !e.shiftKey) { e.preventDefault(); undo(); return; }
-      if (ctrl && (e.key === "y" || (e.key === "z" && e.shiftKey))) { e.preventDefault(); redo(); return; }
-      // Ctrl+S
-      if (ctrl && e.key === "s") { e.preventDefault(); handleSave(); return; }
-
-      if (isInput) return;
-
-      // Delete
+      if (ctrl && e.key === "z" && !e.shiftKey) { e.preventDefault(); undo(); }
+      if (ctrl && (e.key === "y" || (e.key === "z" && e.shiftKey))) { e.preventDefault(); redo(); }
+      if (ctrl && e.key === "s") { e.preventDefault(); handleSave(); }
       if ((e.key === "Delete" || e.key === "Backspace") && selectedId) {
-        e.preventDefault();
-        onDeleteElement(selectedId);
-        return;
-      }
-      // Ctrl+C
-      if (ctrl && e.key === "c" && selectedId) {
-        const el = elements.find((el) => el.id === selectedId);
-        if (el) setClipboard(JSON.parse(JSON.stringify(el)));
-        return;
-      }
-      // Ctrl+V
-      if (ctrl && e.key === "v" && clipboard) {
-        e.preventDefault();
-        const newEl = { ...clipboard, id: Date.now().toString(), x: clipboard.x + 20, y: clipboard.y + 20 };
-        const next = [...elements, newEl];
-        setElements(next);
-        setSelectedId(newEl.id);
-        saveHistory(next, design);
-        return;
-      }
-      // Ctrl+D
-      if (ctrl && e.key === "d" && selectedId) {
-        e.preventDefault();
-        onDuplicateElement(selectedId);
-        return;
-      }
-      // Arrow keys
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key) && selectedId) {
-        e.preventDefault();
-        const step = e.shiftKey ? 10 : 1;
-        const el = elements.find((el) => el.id === selectedId);
-        if (!el) return;
-        const updates: Partial<CertElement> = {};
-        if (e.key === "ArrowUp") updates.y = el.y - step;
-        if (e.key === "ArrowDown") updates.y = el.y + step;
-        if (e.key === "ArrowLeft") updates.x = el.x - step;
-        if (e.key === "ArrowRight") updates.x = el.x + step;
-        onUpdateElement(el.id, updates);
+        const tag = document.activeElement?.tagName;
+        if (tag !== "INPUT" && tag !== "TEXTAREA") {
+          e.preventDefault();
+          onDeleteElement(selectedId);
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedId, elements, design, clipboard, historyIndex, undo, redo]);
+  }, [selectedId, historyIndex, undo, redo]);
 
+  // Element operations
   const onUpdateElement = useCallback((id: string, updates: Partial<CertElement>) => {
     setElements((prev) => prev.map((el) => (el.id === id ? { ...el, ...updates } : el)));
   }, []);
@@ -162,14 +114,13 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     const newEl: CertElement = {
       id: Date.now().toString(), type,
       x: Math.round((842 - d.w) / 2), y: Math.round((595 - d.h) / 2),
-      width: d.w, height: d.h,
-      content: d.content,
+      width: d.w, height: d.h, content: d.content,
       fontSize: type === "text" ? 20 : undefined,
       color: type === "text" ? design.text_color : undefined,
       fontFamily: type === "text" ? design.font_family : undefined,
       align: "center",
       ...(type === "svg" ? { svgContent: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>', svgColor: design.accent_color } : {}),
-      ...(type === "shape" ? { shapeType: "rectangle" as ShapeType, fillColor: "transparent", strokeColor: design.accent_color, strokeWidth: 2 } : {}),
+      ...(type === "shape" ? { shapeType: "rect" as ShapeType, fillColor: "transparent", strokeColor: design.accent_color, strokeWidth: 2 } : {}),
       ...(type === "date" ? { dateFormat: "MMMM D, YYYY", label: "Date" } : {}),
       ...(type === "table" ? { rows: 3, cols: 2, cellPadding: 4, borderColor: design.accent_color } : {}),
     };
@@ -196,47 +147,23 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     saveHistory(next, design);
   };
 
-  const onBringForward = (id: string) => {
-    const idx = elements.findIndex((e) => e.id === id);
-    if (idx < elements.length - 1) {
-      const next = [...elements];
-      [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
-      setElements(next);
-    }
-  };
-
-  const onSendBackward = (id: string) => {
-    const idx = elements.findIndex((e) => e.id === id);
-    if (idx > 0) {
-      const next = [...elements];
-      [next[idx], next[idx - 1]] = [next[idx - 1], next[idx]];
-      setElements(next);
-    }
-  };
-
-  const onLockToggle = () => {
-    if (!selectedId) return;
-    const el = elements.find((e) => e.id === selectedId);
-    if (el) onUpdateElement(selectedId, { locked: !el.locked });
+  // Save
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await onSave({ ...initialTemplate, name: templateName, bg_image_url: bgImageUrl || null, config_json: { elements, design } });
+    } finally { setIsSaving(false); }
   };
 
   // Export
-  const exportCanvas = async () => {
-    setSelectedId(null);
-    await new Promise((r) => setTimeout(r, 100));
-    const el = document.getElementById("certificate-canvas-export");
-    if (!el) throw new Error("Canvas not found");
-    const oldScale = el.style.transform;
-    el.style.transform = "scale(1)";
-    const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: null });
-    el.style.transform = oldScale;
-    return canvas;
-  };
-
   const onExportPNG = async () => {
     try {
       toast.info("Generating PNG...");
-      const canvas = await exportCanvas();
+      setSelectedId(null);
+      await new Promise((r) => setTimeout(r, 100));
+      const el = document.getElementById("certificate-preview-export");
+      if (!el) throw new Error("Canvas not found");
+      const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: null });
       const link = document.createElement("a");
       link.download = `${templateName || "certificate"}.png`;
       link.href = canvas.toDataURL("image/png");
@@ -248,36 +175,17 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   const onExportPDF = async () => {
     try {
       toast.info("Generating PDF...");
-      const canvas = await exportCanvas();
+      setSelectedId(null);
+      await new Promise((r) => setTimeout(r, 100));
+      const el = document.getElementById("certificate-preview-export");
+      if (!el) throw new Error("Canvas not found");
+      const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: null });
       const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
       pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 297, 210);
       pdf.save(`${templateName || "certificate"}.pdf`);
       toast.success("Downloaded PDF!");
     } catch (e: any) { toast.error("Export failed: " + e.message); }
   };
-
-  const onExportSVG = async () => {
-    try {
-      toast.info("Generating SVG...");
-      setSelectedId(null);
-      await new Promise((r) => setTimeout(r, 100));
-      const el = document.getElementById("certificate-canvas-export");
-      if (!el) throw new Error("Canvas not found");
-      const clone = el.cloneNode(true) as HTMLElement;
-      clone.style.transform = "scale(1)";
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="842" height="595" viewBox="0 0 842 595"><foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml" style="width:842px;height:595px">${clone.outerHTML}</div></foreignObject></svg>`;
-      const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.download = `${templateName || "certificate"}.svg`;
-      link.href = url;
-      link.click();
-      URL.revokeObjectURL(url);
-      toast.success("Downloaded SVG!");
-    } catch (e: any) { toast.error("SVG export failed: " + e.message); }
-  };
-
-  const onExportGIF = onExportPNG;
 
   const onAiOptimize = async () => {
     toast.info("AI analyzing design...");
@@ -294,13 +202,7 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     } catch (e: any) { toast.error("AI failed: " + e.message); }
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      await onSave({ ...initialTemplate, name: templateName, bg_image_url: bgImageUrl || null, config_json: { elements, design } });
-    } finally { setIsSaving(false); }
-  };
-
+  // Asset operations
   const onAddShape = (shapeType: ShapeType) => {
     const newEl: CertElement = {
       id: Date.now().toString(), type: "shape", shapeType,
@@ -350,72 +252,99 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     saveHistory(next, design);
   };
 
-  const handleFileDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (!files?.length) return;
-    const file = files[0];
-    if (!file.type.startsWith("image/")) { toast.error("Drop an image file"); return; }
-    const url = URL.createObjectURL(file);
-    const targetEl = e.target as HTMLElement;
-    const isBg = targetEl === workspaceRef.current || targetEl.id === "certificate-canvas-export";
-    if (isBg) {
-      setBgImageUrl(url);
-      saveHistory(elements, design);
-      toast.success("Background set!");
-    } else {
-      const newEl: CertElement = { id: Date.now().toString(), type: "image", url, x: 150, y: 150, width: 200, height: 150 };
-      const next = [...elements, newEl];
-      setElements(next);
-      setSelectedId(newEl.id);
-      saveHistory(next, design);
-    }
-  }, [elements, design, saveHistory]);
-
   const selectedEl = elements.find((e) => e.id === selectedId);
 
   return (
-    <div className="fixed inset-0 z-50 bg-background flex flex-col overflow-hidden">
-      <DesignerToolbar
-        templateName={templateName} setTemplateName={setTemplateName}
-        onSave={handleSave} onExportPNG={onExportPNG} onExportPDF={onExportPDF}
-        onExportSVG={onExportSVG} onExportGIF={onExportGIF}
-        onUndo={undo} onRedo={redo} onAddElement={onAddElement}
-        canUndo={historyIndex > 0} canRedo={historyIndex < history.length - 1}
-        isSaving={isSaving} onAiOptimize={onAiOptimize}
-        scale={scale} onZoomIn={() => setScale((s) => Math.min(s + 0.1, 2))}
-        onZoomOut={() => setScale((s) => Math.max(s - 0.1, 0.3))}
-        onZoomFit={() => setScale(1)}
-        showGrid={showGrid} onToggleGrid={() => setShowGrid(!showGrid)}
-        snapToGrid={snapToGrid} onToggleSnap={() => setSnapToGrid(!snapToGrid)}
-        selectedId={selectedId} onDeleteSelected={() => selectedId && onDeleteElement(selectedId)}
-        onDuplicateSelected={() => selectedId && onDuplicateElement(selectedId)}
-        onBringForward={() => selectedId && onBringForward(selectedId)}
-        onSendBackward={() => selectedId && onSendBackward(selectedId)}
-        onLockToggle={onLockToggle}
-        isLocked={selectedEl?.locked ?? false}
-      />
-
-      <div className="flex-1 flex overflow-hidden">
-        <div ref={workspaceRef} className="flex-1 bg-muted/30 overflow-auto relative flex items-center justify-center"
-          onClick={() => setSelectedId(null)} onDragOver={(e) => e.preventDefault()} onDrop={handleFileDrop}>
-          <DesignerCanvas elements={elements} design={design} bgImageUrl={bgImageUrl}
-            selectedId={selectedId} onSelect={setSelectedId} onUpdateElement={onUpdateElement}
-            scale={scale} showGrid={showGrid} snapToGrid={snapToGrid} gridSize={gridSize} />
+    <div className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col overflow-hidden">
+      {/* Top Bar */}
+      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-10">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div className="h-6 w-px bg-slate-200" />
+          <input
+            value={templateName}
+            onChange={(e) => setTemplateName(e.target.value)}
+            className="font-semibold text-sm text-slate-900 bg-transparent border-transparent hover:border-input focus:border-input focus-visible:ring-1 px-2 py-1 rounded-md w-48"
+            placeholder="Template Name"
+          />
+          <div className="h-6 w-px bg-slate-200" />
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={undo} disabled={historyIndex <= 0} title="Undo (Ctrl+Z)">
+              <Undo className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={redo} disabled={historyIndex >= history.length - 1} title="Redo (Ctrl+Y)">
+              <Redo className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
 
-        <DesignerSidebar elements={elements} design={design} bgImageUrl={bgImageUrl}
-          selectedId={selectedId} onSelect={setSelectedId} onUpdateElement={onUpdateElement}
-          onUpdateDesign={onUpdateDesign} onUpdateBgImageUrl={setBgImageUrl}
-          onDeleteElement={onDeleteElement} onDuplicateElement={onDuplicateElement}
-          onAddShape={onAddShape} onAddSvg={onAddSvg} onAddDivider={onAddDivider}
-          onUploadImage={onUploadImage} />
-      </div>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 bg-slate-100 rounded-lg px-2 py-1">
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setScale((s) => Math.max(s - 0.1, 0.3))}>
+              <ZoomOut className="h-3 w-3" />
+            </Button>
+            <span className="text-[10px] font-mono w-10 text-center">{Math.round(scale * 100)}%</span>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setScale((s) => Math.min(s + 0.1, 2))}>
+              <ZoomIn className="h-3 w-3" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setScale(1)}>
+              <Maximize2 className="h-3 w-3" />
+            </Button>
+          </div>
 
-      <div className="absolute top-4 left-4 z-[60]">
-        <button onClick={onClose} className="px-3 py-1.5 bg-background border rounded-md shadow-sm hover:bg-muted text-sm font-medium">
-          ← Back to Admin
-        </button>
+          <Button variant="secondary" size="sm" onClick={onAiOptimize} className="h-8 text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200">
+            <Sparkles className="h-3.5 w-3.5 mr-1" /> AI Upgrade
+          </Button>
+
+          <Button variant="outline" size="sm" onClick={onExportPNG} className="h-8 text-xs">
+            <Download className="h-3.5 w-3.5 mr-1" /> PNG
+          </Button>
+          <Button variant="outline" size="sm" onClick={onExportPDF} className="h-8 text-xs">
+            <Download className="h-3.5 w-3.5 mr-1" /> PDF
+          </Button>
+
+          <Button size="sm" onClick={handleSave} disabled={isSaving} className="h-8 text-xs bg-[#6B5BFB] hover:bg-[#5a4be0] text-white">
+            <Save className="h-3.5 w-3.5 mr-1" /> {isSaving ? "Saving..." : "Save Template"}
+          </Button>
+        </div>
+      </header>
+
+      {/* Split View */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left: Certificate Preview */}
+        <div className="flex-1 bg-slate-100 overflow-auto flex items-center justify-center p-8" onClick={() => setSelectedId(null)}>
+          <div className="origin-top-left" style={{ transform: `scale(${scale})` }}>
+            <CertificatePreview
+              elements={elements}
+              design={design}
+              bgImageUrl={bgImageUrl}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              onUpdateElement={onUpdateElement}
+            />
+          </div>
+        </div>
+
+        {/* Right: Properties Panel */}
+        <PropertiesPanel
+          elements={elements}
+          design={design}
+          bgImageUrl={bgImageUrl}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
+          onUpdateElement={onUpdateElement}
+          onUpdateDesign={onUpdateDesign}
+          onUpdateBgImageUrl={setBgImageUrl}
+          onDeleteElement={onDeleteElement}
+          onDuplicateElement={onDuplicateElement}
+          onAddElement={onAddElement}
+          onAddShape={onAddShape}
+          onAddSvg={onAddSvg}
+          onAddDivider={onAddDivider}
+          onUploadImage={onUploadImage}
+        />
       </div>
     </div>
   );
