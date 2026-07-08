@@ -393,10 +393,19 @@ Respond with a JSON object only (no markdown, no code fences):
     }, "fast");
 
     try {
-      const cleaned = response.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      let cleaned = response.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+      // Try to extract JSON from surrounding text
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (jsonMatch) cleaned = jsonMatch[0];
       return JSON.parse(cleaned);
     } catch {
-      return { design_updates: null, reasoning: "AI returned unparseable response" };
+      // Retry with stricter extraction
+      try {
+        const fallback = response.replace(/^[^{]*/, "").replace(/[^}]*$/, "");
+        const parsed = JSON.parse(fallback);
+        if (parsed.design_updates) return parsed;
+      } catch { /* ignore */ }
+      return { design_updates: null, reasoning: "AI returned unparseable response. Please try again." };
     }
   });
 

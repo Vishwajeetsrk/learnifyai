@@ -27,5 +27,9 @@ function AdminCertificatesPage() {
     );
   }
 
-  return <CertDesignerAdmin />;
+  return (
+    <AppShell>
+      <CertDesignerAdmin />
+    </AppShell>
+  );
 }

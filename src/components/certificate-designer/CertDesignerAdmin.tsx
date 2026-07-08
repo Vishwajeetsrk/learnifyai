@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { DesignerWorkspace } from "./DesignerWorkspace";
+import { TourChecklist } from "@/components/ProductTour";
 import {
   Award, Plus, Search, LayoutTemplate, Trash2, Edit3, Eye, Copy,
   Palette, Sparkles, RefreshCw, MoreVertical, Download, ExternalLink,
@@ -210,6 +211,10 @@ export function CertDesignerAdmin() {
             </div>
           </div>
         )}
+        {/* Available Product Tours */}
+        <div className="mt-6">
+          <TourChecklist />
+        </div>
       </main>
 
       {/* Delete Confirmation Dialog */}
