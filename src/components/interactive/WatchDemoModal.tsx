@@ -90,7 +90,7 @@ const TOUR_STEPS = [
   },
 ];
 
-const VIDEO_URL = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+const VIDEO_URL = "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
 
 export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
   const [activeStep, setActiveStep] = useState(0);

@@ -81,7 +81,7 @@ interface Evaluation {
   pointsMissed: string[];
 }
 
-export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
+function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const generateQuestion = useServerFn(generateInterviewQuestion);
   const evaluateAnswer = useServerFn(evaluateInterviewAnswer);
 

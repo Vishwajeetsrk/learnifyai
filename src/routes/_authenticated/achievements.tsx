@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/achievements")({
   component: AchievementsPage,
 });
 
-export function AchievementsPage() {
+function AchievementsPage() {
   const { user } = useAuth();
   const fetchAchievements = useServerFn(getUserAchievements);
   const fetchRank = useServerFn(getUserRank);
