@@ -21,7 +21,7 @@ type CanvaTemplate = {
   created_at: string; updated_at: string; created_by: string | null;
 };
 
-const CATEGORIES = ["All", "Professional", "Academic", "Modern", "Minimal", "Luxury", "Creative", "Corporate", "Technology", "AI", "Workshop", "Bootcamp", "Internship"];
+const CATEGORIES = ["All", "UI/UX Design", "Python Programming", "Web Development", "Excel Data Analysis", "Data Structures & Algorithms", "Digital Marketing", "AI Fundamentals", "Data Structures Advanced"];
 
 export function CertDesignerAdmin() {
   const qc = useQueryClient();
@@ -48,7 +48,7 @@ export function CertDesignerAdmin() {
   }), [templates, search, selectedCategory]);
 
   const handleSeed = async () => {
-    try { const res = await doSeed(); toast.success(`Seeded: ${res.created} created`); qc.invalidateQueries({ queryKey: ["canva-cert-templates"] }); }
+    try { const res = await doSeed(); toast.success(`Seeded: ${res.created} SVG templates created${res.errors?.length ? `, ${res.errors.length} errors` : ""}`); qc.invalidateQueries({ queryKey: ["canva-cert-templates"] }); }
     catch (e: any) { toast.error(e.message); }
   };
 
@@ -117,7 +117,7 @@ export function CertDesignerAdmin() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleSeed} className="text-xs">
-              <RefreshCw className="h-3.5 w-3.5 mr-1" /> Seed Templates
+              <RefreshCw className="h-3.5 w-3.5 mr-1" /> Seed 155 SVG Templates
             </Button>
             <Button size="sm" onClick={handleNew} className="text-xs bg-[#6B5BFB] hover:bg-[#5a4be0] text-white">
               <Plus className="h-3.5 w-3.5 mr-1" /> New Certificate
@@ -165,14 +165,17 @@ export function CertDesignerAdmin() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filtered.map((t) => (
               <Card key={t.id} className="group overflow-hidden border border-slate-200 hover:border-[#6B5BFB]/40 hover:shadow-xl transition-all duration-300">
-                <div className="aspect-[1.414] relative bg-gradient-to-br from-slate-900 to-indigo-950 overflow-hidden">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-amber-400 border border-amber-400/20 mb-2">
-                      {t.category || "Professional"}
-                    </span>
-                    <h3 className="font-serif font-bold text-sm text-white line-clamp-1">{t.name}</h3>
-                    <p className="text-[10px] text-slate-300 mt-1">Certificate of Completion</p>
-                  </div>
+                <div className="aspect-[1.414] relative bg-white overflow-hidden">
+                  {t.bg_image_url ? (
+                    <img src={t.bg_image_url} alt={t.name} className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-gradient-to-br from-slate-900 to-indigo-950">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/10 text-amber-400 border border-amber-400/20 mb-2">
+                        {t.category || "Professional"}
+                      </span>
+                      <h3 className="font-serif font-bold text-sm text-white line-clamp-1">{t.name}</h3>
+                    </div>
+                  )}
                   {/* Hover Overlay */}
                   <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-2 p-4">
                     <Button size="sm" onClick={() => handleEdit(t)}
@@ -200,10 +203,10 @@ export function CertDesignerAdmin() {
           <div className="text-center py-24 bg-white rounded-2xl border border-slate-200">
             <Palette className="h-16 w-16 mx-auto mb-4 text-slate-300" />
             <h3 className="font-bold text-lg text-slate-900">No templates found</h3>
-            <p className="text-sm text-slate-500 mt-1 mb-6">Create your first certificate or seed preset templates</p>
+            <p className="text-sm text-slate-500 mt-1 mb-6">Seed 155 SVG templates from 8 categories or create your own</p>
             <div className="flex items-center justify-center gap-3">
               <Button onClick={handleSeed} variant="outline" className="text-xs">
-                <RefreshCw className="h-3.5 w-3.5 mr-1" /> Seed Templates
+                <RefreshCw className="h-3.5 w-3.5 mr-1" /> Seed 155 SVG Templates
               </Button>
               <Button onClick={handleNew} className="text-xs bg-[#6B5BFB] hover:bg-[#5a4be0] text-white">
                 <Plus className="h-3.5 w-3.5 mr-1" /> New Certificate

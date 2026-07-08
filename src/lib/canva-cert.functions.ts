@@ -2,6 +2,58 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+// SVG Template manifest categories
+const SVG_CATEGORIES = [
+  { id: "01-uiux-design", name: "UI/UX Design", folder: "01-UIUX-Design", count: 17, color: "#6366f1" },
+  { id: "02-python-programming", name: "Python Programming", folder: "02-Python-Programming", count: 17, color: "#3b82f6" },
+  { id: "03-web-development", name: "Web Development", folder: "03-Web-Development", count: 18, color: "#10b981" },
+  { id: "04-excel-data-analysis", name: "Excel Data Analysis", folder: "04-Excel-Data-Analysis", count: 23, color: "#f59e0b" },
+  { id: "05-data-structures", name: "Data Structures & Algorithms", folder: "05-Data-Structures", count: 20, color: "#ef4444" },
+  { id: "06-digital-marketing", name: "Digital Marketing", folder: "06-Digital-Marketing", count: 25, color: "#ec4899" },
+  { id: "07-ai-fundamentals", name: "AI Fundamentals", folder: "07-AI-Fundamentals", count: 14, color: "#8b5cf6" },
+  { id: "08-data-structures-2", name: "Data Structures Advanced", folder: "08-Data-Structures-2", count: 20, color: "#06b6d4" },
+];
+
+// Default editable fields for SVG-based templates (percentage-based positions)
+const SVG_DEFAULT_FIELDS = {
+  title: { x: 50, y: 12, fontSize: 48, fontFamily: "Playfair Display, serif", color: "#1a1a2e", fontWeight: "bold", text: "CERTIFICATE", align: "center" },
+  subtitle: { x: 50, y: 18, fontSize: 14, fontFamily: "Inter, sans-serif", color: "#666666", fontWeight: "600", letterSpacing: "0.25em", text: "OF COMPLETION", align: "center" },
+  certifyText: { x: 50, y: 24, fontSize: 12, fontFamily: "Inter, sans-serif", color: "#888888", fontWeight: "normal", text: "This is to certify that", align: "center" },
+  studentName: { x: 50, y: 32, fontSize: 42, fontFamily: "Great Vibes, cursive", color: "#1a1a2e", fontWeight: "normal", variable: "{{student_name}}", align: "center" },
+  completeText: { x: 50, y: 40, fontSize: 12, fontFamily: "Inter, sans-serif", color: "#888888", fontWeight: "normal", text: "has successfully completed the course", align: "center" },
+  courseName: { x: 50, y: 46, fontSize: 22, fontFamily: "Inter, sans-serif", color: "#1a1a2e", fontWeight: "bold", variable: "{{course_name}}", align: "center" },
+  description: { x: 50, y: 52, fontSize: 11, fontFamily: "Inter, sans-serif", color: "#666666", fontWeight: "normal", text: "and has demonstrated the knowledge and skills required", align: "center" },
+  signatureName: { x: 22, y: 68, fontSize: 20, fontFamily: "Great Vibes, cursive", color: "#1a1a2e", fontWeight: "normal", variable: "{{signature_name}}", align: "center" },
+  signatureTitle: { x: 22, y: 72, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#666666", fontWeight: "600", variable: "{{signature_title}}", align: "center" },
+  date: { x: 78, y: 68, fontSize: 13, fontFamily: "Inter, sans-serif", color: "#333333", fontWeight: "600", variable: "{{issue_date}}", align: "center" },
+  dateLabel: { x: 78, y: 72, fontSize: 9, fontFamily: "Inter, sans-serif", color: "#888888", fontWeight: "normal", text: "Date of Completion", align: "center" },
+  certId: { x: 50, y: 92, fontSize: 9, fontFamily: "monospace", color: "#999999", fontWeight: "normal", variable: "{{certificate_id}}", align: "center" },
+};
+
+// List all available SVG templates from the manifest
+export const listSvgTemplates = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const templates: any[] = [];
+    for (const cat of SVG_CATEGORIES) {
+      for (let i = 1; i <= cat.count; i++) {
+        templates.push({
+          id: `${cat.folder}-${i}`,
+          name: `${cat.name} Template ${i}`,
+          category: cat.name,
+          categoryId: cat.id,
+          bg_image_url: `/templates/${cat.folder}/${i}.svg`,
+          thumbnail_url: `/templates/${cat.folder}/${i}.svg`,
+          color: cat.color,
+        });
+      }
+    }
+    return templates;
+  });
+
+// List SVG categories
+export const listSvgCategories = createServerFn({ method: "GET" })
+  .handler(async () => SVG_CATEGORIES);
+
 export const listCanvaTemplates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async () => {
@@ -74,93 +126,14 @@ export const deleteCanvaTemplate = createServerFn({ method: "POST" })
     return { success: true };
   });
 
-const COLOR_SCHEMES = [
-  { min: 1, max: 4, name: "Teal & Gold", primary: "#0d5c5c", accent: "#c9a84c", background: "#f5f0e8", text: "#0d5c5c", category: "Technology" },
-  { min: 5, max: 8, name: "Navy & Gold", primary: "#0a1628", accent: "#c9a84c", background: "#f5f0e8", text: "#0a1628", category: "Professional" },
-  { min: 9, max: 12, name: "Royal Blue & Gold", primary: "#1a3a6b", accent: "#c9a84c", background: "#f5f0e8", text: "#1a3a6b", category: "Academic" },
-  { min: 13, max: 16, name: "Orange & Navy", primary: "#e67e22", accent: "#c9a84c", background: "#f5f0e8", text: "#0a1628", category: "Achievement" },
-  { min: 17, max: 20, name: "Purple & Gold", primary: "#2d1b69", accent: "#c9a84c", background: "#f5f0e8", text: "#2d1b69", category: "Certification" },
-  { min: 21, max: 24, name: "Burgundy & Gold", primary: "#6b1d3a", accent: "#c9a84c", background: "#f5f0e8", text: "#6b1d3a", category: "Executive" },
-  { min: 25, max: 28, name: "Pink & Gold", primary: "#8b1a6b", accent: "#c9a84c", background: "#f5f0e8", text: "#8b1a6b", category: "Professional" },
-  { min: 29, max: 30, name: "Emerald & Gold", primary: "#065f46", accent: "#c9a84c", background: "#f5f0e8", text: "#065f46", category: "Academic" },
-];
+// SVG Template categories (replaces old COLOR_SCHEMES)
 
-// All 22 field definitions with accurate positions matching the 30 template images
-export const DEFAULT_FIELDS = {
-  // Top section - Logo and Certificate ID
-  learnifyLogo: { x: 38, y: 8, width: 150, height: 50, type: "image", src: "/Logo Learnify AI.png", align: "center" },
-  certIdLabel: { x: 82, y: 5.5, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#666666", fontWeight: "normal", text: "Certificate ID", align: "center" },
-  certId: { x: 82, y: 7.5, fontSize: 13, fontFamily: "monospace", color: "#0a1628", fontWeight: "bold", variable: "{{certificate_id}}", align: "center" },
+// Default editable fields for SVG-based templates (percentage-based positions)
+export const DEFAULT_FIELDS = SVG_DEFAULT_FIELDS;
 
-  // Title section
-  title: { x: 50, y: 17, fontSize: 52, fontFamily: "Playfair Display, Georgia, serif", color: "#0a1628", fontWeight: "bold", text: "CERTIFICATE", align: "center" },
-  subtitle: { x: 50, y: 22.5, fontSize: 16, fontFamily: "Inter, sans-serif", color: "#c9a84c", fontWeight: "600", letterSpacing: "0.2em", text: "OF COMPLETION", align: "center" },
-
-  // Certify text and student name
-  certifyText: { x: 50, y: 27, fontSize: 13, fontFamily: "Inter, sans-serif", color: "#555555", fontWeight: "normal", text: "This is to certify that", align: "center" },
-  studentName: { x: 50, y: 34, fontSize: 52, fontFamily: "Great Vibes, cursive", color: "#0a1628", fontWeight: "normal", variable: "{{student_name}}", align: "center" },
-
-  // Course completion text
-  completeText: { x: 50, y: 42, fontSize: 13, fontFamily: "Inter, sans-serif", color: "#555555", fontWeight: "normal", text: "has successfully completed the course", align: "center" },
-  courseName: { x: 50, y: 47, fontSize: 24, fontFamily: "Inter, sans-serif", color: "#0a6e8a", fontWeight: "bold", variable: "{{course_name}}", align: "center" },
-  description: { x: 50, y: 52, fontSize: 12, fontFamily: "Inter, sans-serif", color: "#666666", fontWeight: "normal", text: "and has demonstrated the knowledge and skills\nrequired to complete the course.", align: "center" },
-
-  // Signature section (bottom left)
-  signatureImage: { x: 22, y: 66, width: 100, height: 40, type: "image", src: null, align: "center" },
-  signatureName: { x: 22, y: 70, fontSize: 24, fontFamily: "Great Vibes, cursive", color: "#0a1628", fontWeight: "normal", variable: "{{signature_name}}", align: "center" },
-  signatureTitle: { x: 22, y: 73.5, fontSize: 11, fontFamily: "Inter, sans-serif", color: "#333333", fontWeight: "600", variable: "{{signature_title}}", align: "center" },
-  signatureRole: { x: 22, y: 76, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#666666", fontWeight: "normal", text: "Founder & CEO, Learnify AI", align: "center" },
-
-  // Center logo (bottom center)
-  centerLogo: { x: 50, y: 68, width: 80, height: 80, type: "image", src: "/Logo Learnify AI.png", align: "center" },
-
-  // Date section (bottom right)
-  date: { x: 72, y: 68, fontSize: 14, fontFamily: "Inter, sans-serif", color: "#333333", fontWeight: "600", variable: "{{issue_date}}", align: "center" },
-  dateLabel: { x: 72, y: 71.5, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#888888", fontWeight: "normal", text: "Date of Completion", align: "center" },
-
-  // QR Code section (bottom right)
-  qrCode: { x: 87, y: 65, width: 80, height: 80, type: "qr", align: "center" },
-  verifyLabel: { x: 87, y: 74, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#0a6e8a", fontWeight: "600", text: "Verify Certificate", align: "center" },
-
-  // Bottom badge bar
-  badgeAi: { x: 15, y: 88, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#555555", fontWeight: "500", text: "AI-Powered Learning", align: "center" },
-  badgeIndustry: { x: 37, y: 88, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#555555", fontWeight: "500", text: "Industry Relevant", align: "center" },
-  badgeCareer: { x: 60, y: 88, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#555555", fontWeight: "500", text: "Career Focused", align: "center" },
-  badgeAccess: { x: 82, y: 88, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#555555", fontWeight: "500", text: "Lifetime Access", align: "center" },
-};
-
-// Per-template position adjustments based on color scheme group
-export function getTemplateFields(templateNum: number): Record<string, any> {
-  const fields = JSON.parse(JSON.stringify(DEFAULT_FIELDS)) as Record<string, any>;
-
-  if (templateNum >= 1 && templateNum <= 4) {
-    fields.learnifyLogo.y = 9.5; fields.certIdLabel.y = 4.5; fields.certId.y = 6.5;
-    fields.title.y = 19; fields.subtitle.y = 24;
-    fields.studentName.y = 36; fields.courseName.y = 49;
-  }
-  else if (templateNum >= 5 && templateNum <= 8) { /* default */ }
-  else if (templateNum >= 9 && templateNum <= 12) {
-    fields.title.y = 16; fields.subtitle.y = 21.5;
-    fields.studentName.y = 33; fields.courseName.y = 46;
-    fields.signatureName.x = 24; fields.signatureTitle.x = 24; fields.signatureRole.x = 24;
-  }
-  else if (templateNum >= 13 && templateNum <= 16) {
-    fields.learnifyLogo.y = 10; fields.title.y = 20; fields.subtitle.y = 25.5;
-    fields.studentName.y = 37; fields.date.y = 70; fields.dateLabel.y = 73.5;
-  }
-  else if (templateNum >= 17 && templateNum <= 20) { /* default */ }
-  else if (templateNum >= 21 && templateNum <= 24) {
-    fields.learnifyLogo.x = 36; fields.learnifyLogo.y = 9;
-    fields.title.y = 19; fields.subtitle.y = 24.5;
-    fields.date.x = 70; fields.qrCode.x = 85;
-  }
-  else if (templateNum >= 25 && templateNum <= 28) { /* default */ }
-  else if (templateNum >= 29 && templateNum <= 30) {
-    fields.studentName.y = 35; fields.courseName.y = 48;
-    fields.signatureName.x = 24;
-  }
-
-  return fields;
+// Get default fields for SVG templates
+export function getTemplateFields(_templateNum?: number): Record<string, any> {
+  return JSON.parse(JSON.stringify(SVG_DEFAULT_FIELDS)) as Record<string, any>;
 }
 
 export const seedAllTemplates = createServerFn({ method: "POST" })
@@ -168,45 +141,29 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const results = { created: 0, updated: 0, errors: [] as string[] };
+    const results = { created: 0, updated: 0, skipped: 0, errors: [] as string[] };
 
-    for (let num = 1; num <= 30; num++) {
-      const fileName = `${num} certification.png`;
-      const scheme = COLOR_SCHEMES.find((s) => num >= s.min && num <= s.max) || COLOR_SCHEMES[0];
-      const templateName = `${scheme.name} - Template ${num}`;
-      const bgUrl = `/templates/${fileName}`;
-      const fields = getTemplateFields(num);
-      const themeColors = { primary: scheme.primary, accent: scheme.accent, background: scheme.background, text: scheme.text };
+    // First, delete ALL old templates to start fresh
+    const { error: deleteError } = await supabaseAdmin
+      .from("canva_templates")
+      .delete()
+      .neq("id", "00000000-0000-0000-0000-000000000000");
 
-      // Check if template already exists by name
-      const { data: existing } = await supabaseAdmin
-        .from("canva_templates")
-        .select("id")
-        .eq("name", templateName)
-        .limit(1);
+    if (deleteError) {
+      results.errors.push(`Clear old templates: ${deleteError.message}`);
+    }
 
-      if (existing && existing.length > 0) {
-        const { error } = await supabaseAdmin
-          .from("canva_templates")
-          .update({
-            category: scheme.category,
-            bg_image_url: bgUrl,
-            thumbnail_url: bgUrl,
-            fields_json: fields,
-            theme_colors: themeColors,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", existing[0].id);
+    // Seed all 155 SVG templates from the 8 categories
+    for (const cat of SVG_CATEGORIES) {
+      for (let i = 1; i <= cat.count; i++) {
+        const templateName = `${cat.name} Template ${i}`;
+        const bgUrl = `/templates/${cat.folder}/${i}.svg`;
+        const fields = getTemplateFields(i);
+        const themeColors = { primary: cat.color, accent: cat.color, background: "#ffffff", text: "#1a1a2e" };
 
-        if (error) {
-          results.errors.push(`Template ${num}: ${error.message}`);
-        } else {
-          results.updated++;
-        }
-      } else {
         const { error } = await supabaseAdmin.from("canva_templates").insert({
           name: templateName,
-          category: scheme.category,
+          category: cat.name,
           bg_image_url: bgUrl,
           thumbnail_url: bgUrl,
           fields_json: fields,
@@ -217,7 +174,7 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
         });
 
         if (error) {
-          results.errors.push(`Template ${num}: ${error.message}`);
+          results.errors.push(`${templateName}: ${error.message}`);
         } else {
           results.created++;
         }
@@ -229,7 +186,7 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
 
 export const updateAllTemplateFields = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async () => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const results = { updated: 0, skipped: 0, errors: [] as string[] };
@@ -243,29 +200,13 @@ export const updateAllTemplateFields = createServerFn({ method: "POST" })
     }
 
     for (const tpl of all) {
-      const numMatch = tpl.name.match(/Template (\d+)/);
-      const num = numMatch ? parseInt(numMatch[1]) : 0;
-
-      if (num < 1 || num > 30) {
-        const existingKeys = Object.keys(tpl.fields_json || {});
-        if (existingKeys.length >= 22) {
-          results.skipped++;
-          continue;
-        }
-        const newFields = { ...DEFAULT_FIELDS, ...tpl.fields_json };
-        const { error } = await supabaseAdmin
-          .from("canva_templates")
-          .update({ fields_json: newFields })
-          .eq("id", tpl.id);
-        if (error) {
-          results.errors.push(`${tpl.name}: ${error.message}`);
-        } else {
-          results.updated++;
-        }
+      const existingKeys = Object.keys(tpl.fields_json || {});
+      if (existingKeys.length >= 12) {
+        results.skipped++;
         continue;
       }
 
-      const newFields = getTemplateFields(num);
+      const newFields = { ...DEFAULT_FIELDS, ...(tpl.fields_json || {}) };
       const { error } = await supabaseAdmin
         .from("canva_templates")
         .update({ fields_json: newFields })

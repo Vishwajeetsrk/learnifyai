@@ -1,0 +1,60 @@
+{
+  "categories": [
+    {
+      "id": "01-uiux-design",
+      "name": "UI/UX Design",
+      "folder": "01-UIUX-Design",
+      "count": 17,
+      "color": "#6366f1"
+    },
+    {
+      "id": "02-python-programming",
+      "name": "Python Programming",
+      "folder": "02-Python-Programming",
+      "count": 17,
+      "color": "#3b82f6"
+    },
+    {
+      "id": "03-web-development",
+      "name": "Web Development",
+      "folder": "03-Web-Development",
+      "count": 18,
+      "color": "#10b981"
+    },
+    {
+      "id": "04-excel-data-analysis",
+      "name": "Excel Data Analysis",
+      "folder": "04-Excel-Data-Analysis",
+      "count": 23,
+      "color": "#f59e0b"
+    },
+    {
+      "id": "05-data-structures",
+      "name": "Data Structures & Algorithms",
+      "folder": "05-Data-Structures",
+      "count": 20,
+      "color": "#ef4444"
+    },
+    {
+      "id": "06-digital-marketing",
+      "name": "Digital Marketing",
+      "folder": "06-Digital-Marketing",
+      "count": 25,
+      "color": "#ec4899"
+    },
+    {
+      "id": "07-ai-fundamentals",
+      "name": "AI Fundamentals",
+      "folder": "07-AI-Fundamentals",
+      "count": 14,
+      "color": "#8b5cf6"
+    },
+    {
+      "id": "08-data-structures-2",
+      "name": "Data Structures Advanced",
+      "folder": "08-Data-Structures-2",
+      "count": 20,
+      "color": "#06b6d4"
+    }
+  ]
+}
