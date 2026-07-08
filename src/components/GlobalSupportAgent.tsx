@@ -166,7 +166,7 @@ export function GlobalSupportAgent() {
     }
   };
 
-  if (!user) return null;
+  if (!user || !user.email) return null;
 
   return (
     <motion.div

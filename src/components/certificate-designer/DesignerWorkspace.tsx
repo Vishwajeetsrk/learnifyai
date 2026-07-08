@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+﻿import { useState, useCallback, useEffect, useRef } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
@@ -329,7 +329,7 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       <div className="flex-1 md:flex-none md:w-[400px] bg-slate-100 border-r border-slate-200 overflow-auto">
         <div className="w-400px">
           <div className="flex justify-center p-8">
-            <div className="origin-top-left " style={{ transform: `scale(${scale})` }}>
+            <div className="origin-top-left" style={{ transform: `scale(${scale})` }}>
               <CertificatePreview
                 elements={elements}
                 design={design}
@@ -361,7 +361,6 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
           onAddDivider={onAddDivider}
           onUploadImage={onUploadImage}
         />
-      </div>
     </div>
   );
 }
