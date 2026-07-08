@@ -326,41 +326,44 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       </header>
 
         {/* Split View */}
-      <div className="flex-1 md:flex-none md:w-[400px] bg-slate-100 border-r border-slate-200 overflow-auto">
-        <div className="w-400px">
-          <div className="flex justify-center p-8">
-            <div className="origin-top-left" style={{ transform: `scale(${scale})` }}>
-              <CertificatePreview
-                elements={elements}
-                design={design}
-                bgImageUrl={bgImageUrl}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-                onUpdateElement={onUpdateElement}
-              />
+        <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+          {/* Left: Preview */}
+          <div className="flex-1 md:flex-none md:w-[400px] bg-slate-100 border-r border-slate-200 overflow-auto">
+            <div className="flex justify-center p-8">
+              <div className="origin-top-left" style={{ transform: `scale(${scale})` }}>
+                <CertificatePreview
+                  elements={elements}
+                  design={design}
+                  bgImageUrl={bgImageUrl}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  onUpdateElement={onUpdateElement}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </div>
 
-        {/* Right: Properties Panel */}
-        <PropertiesPanel
-          elements={elements}
-          design={design}
-          bgImageUrl={bgImageUrl}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          onUpdateElement={onUpdateElement}
-          onUpdateDesign={onUpdateDesign}
-          onUpdateBgImageUrl={setBgImageUrl}
-          onDeleteElement={onDeleteElement}
-          onDuplicateElement={onDuplicateElement}
-          onAddElement={onAddElement}
-          onAddShape={onAddShape}
-          onAddSvg={onAddSvg}
-          onAddDivider={onAddDivider}
-          onUploadImage={onUploadImage}
-        />
+          {/* Right: Properties Panel */}
+          <div className="flex-1 overflow-auto">
+            <PropertiesPanel
+              elements={elements}
+              design={design}
+              bgImageUrl={bgImageUrl}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              onUpdateElement={onUpdateElement}
+              onUpdateDesign={onUpdateDesign}
+              onUpdateBgImageUrl={setBgImageUrl}
+              onDeleteElement={onDeleteElement}
+              onDuplicateElement={onDuplicateElement}
+              onAddElement={onAddElement}
+              onAddShape={onAddShape}
+              onAddSvg={onAddSvg}
+              onAddDivider={onAddDivider}
+              onUploadImage={onUploadImage}
+            />
+          </div>
+        </div>
     </div>
   );
 }
