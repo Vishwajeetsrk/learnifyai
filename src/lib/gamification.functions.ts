@@ -345,6 +345,97 @@ export const getCourseLearners = createServerFn({ method: "GET" })
     };
   });
 
+/* ── XP Store Purchases ────────────────────────────────────────── */
+
+export const recordPurchase = createServerFn({ method: "POST" })
+  .validator((input: { userId: string; perkId: string; perkName: string; cost: number }) =>
+    z.object({ userId: z.string().uuid(), perkId: z.string(), perkName: z.string(), cost: z.number().positive() }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { error } = await supabaseAdmin.from("xp_purchases").insert({
+      user_id: data.userId,
+      perk_id: data.perkId,
+      perk_name: data.perkName,
+      cost: data.cost,
+      status: "active",
+    });
+
+    if (error) {
+      console.error("[recordPurchase] insert failed:", error);
+      throw new Error("Failed to record purchase");
+    }
+
+    return { success: true };
+  });
+
+export const getUserPurchases = createServerFn({ method: "GET" })
+  .validator((input: { userId: string }) =>
+    z.object({ userId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: purchases, error } = await supabaseAdmin
+      .from("xp_purchases")
+      .select("*")
+      .eq("user_id", data.userId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("[getUserPurchases] failed:", error);
+      return [];
+    }
+
+    return purchases.map((p: any) => ({
+      id: p.id,
+      perkId: p.perk_id,
+      perkName: p.perk_name,
+      cost: p.cost,
+      status: p.status,
+      purchasedAt: p.created_at,
+    }));
+  });
+
+export const getAllPurchases = createServerFn({ method: "GET" })
+  .validator((input: { page?: number; limit?: number } | undefined) =>
+    z.object({ page: z.number().optional(), limit: z.number().optional() }).parse(input ?? {}),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const page = data.page ?? 1;
+    const limit = data.limit ?? 50;
+    const offset = (page - 1) * limit;
+
+    const { data: purchases, error, count } = await supabaseAdmin
+      .from("xp_purchases")
+      .select("*, profiles!inner(full_name, email, avatar_url)", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      console.error("[getAllPurchases] failed:", error);
+      return { purchases: [], total: 0 };
+    }
+
+    return {
+      purchases: (purchases ?? []).map((p: any) => ({
+        id: p.id,
+        userId: p.user_id,
+        perkId: p.perk_id,
+        perkName: p.perk_name,
+        cost: p.cost,
+        status: p.status,
+        purchasedAt: p.created_at,
+        user: p.profiles
+          ? { fullName: p.profiles.full_name, email: p.profiles.email, avatarUrl: p.profiles.avatar_url }
+          : null,
+      })),
+      total: count ?? 0,
+    };
+  });
+
 /* ── Current user rank ─────────────────────────────────────────── */
 
 export const getUserRank = createServerFn({ method: "GET" })

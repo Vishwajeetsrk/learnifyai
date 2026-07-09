@@ -28,6 +28,7 @@ import {
   Send,
   Eye,
   Save,
+  ShoppingCart,
 } from "lucide-react";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -867,6 +868,9 @@ function AdminOverview() {
               onClick={() => navigate({ to: "/admin/certificates" })}
             >
               <Award className="h-4 w-4" /> Certificates
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/store" })}>
+              <ShoppingCart className="h-4 w-4" /> XP Store
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowEmailTemplates(true)}>
               <Mail className="h-4 w-4" /> Email Templates

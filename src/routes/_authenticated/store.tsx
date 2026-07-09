@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import {
@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { deductXP } from "@/lib/gamification.functions";
+import { deductXP, recordPurchase, getUserPurchases } from "@/lib/gamification.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -91,25 +91,15 @@ const PERKS = [
   },
 ];
 
-const PURCHASED_KEY = "learnify_purchased_perks";
-
-function getStoredPerks(): Record<string, number> {
-  try {
-    const raw = localStorage.getItem(PURCHASED_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
-
-function storePerk(perkId: string) {
-  const perks = getStoredPerks();
-  perks[perkId] = Date.now();
-  localStorage.setItem(PURCHASED_KEY, JSON.stringify(perks));
-}
+const CATEGORY_LABELS: Record<string, string> = {
+  tools: "Tools & Premium",
+  cosmetic: "Cosmetics & Themes",
+  discount: "Discounts & Deals",
+  credits: "AI Credits",
+  badge: "Badges & Perks",
+};
 
 export function isPerkActive(perkId: string): boolean {
-  if (typeof window === "undefined") return false;
   return !!getStoredPerks()[perkId];
 }
 
@@ -121,24 +111,22 @@ export function getDiscountPercent(): number {
   return hasDiscount() ? 10 : 0;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  tools: "Tools & Premium",
-  cosmetic: "Cosmetics & Themes",
-  discount: "Discounts & Deals",
-  credits: "AI Credits",
-  badge: "Badges & Perks",
-};
+// Backward-compatible localStorage fallback for non-user contexts
+const PURCHASED_KEY = "learnify_purchased_perks";
+function getStoredPerks(): Record<string, number> {
+  try {
+    const raw = localStorage.getItem(PURCHASED_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
 
 function StorePage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const deductFn = useServerFn(deductXP);
+  const recordFn = useServerFn(recordPurchase);
+  const fetchPurchases = useServerFn(getUserPurchases);
   const [purchasing, setPurchasing] = useState<string | null>(null);
-  const [purchasedPerks, setPurchasedPerks] = useState<Record<string, number>>({});
-
-  useEffect(() => {
-    setPurchasedPerks(getStoredPerks());
-  }, []);
 
   const { data: profile } = useQuery({
     queryKey: ["my-profile", user?.id],
@@ -153,6 +141,16 @@ function StorePage() {
     enabled: !!user,
   });
 
+  const { data: serverPurchases = [] } = useQuery({
+    queryKey: ["my-purchases", user?.id],
+    queryFn: () => fetchPurchases({ data: { userId: user!.id } }),
+    enabled: !!user,
+  });
+
+  const purchasedPerks = serverPurchases.reduce<Record<string, number>>((acc, p) => {
+    acc[p.perkId] = new Date(p.purchasedAt).getTime();
+    return acc;
+  }, {});
   const xp = profile?.xp || 0;
 
   const handlePurchase = async (perkId: string, cost: number, name: string) => {
@@ -169,9 +167,7 @@ function StorePage() {
     setPurchasing(perkId);
     try {
       await deductFn({ data: { userId: user.id, amount: cost, item: name } });
-
-      storePerk(perkId);
-      setPurchasedPerks(getStoredPerks());
+      await recordFn({ data: { userId: user.id, perkId, perkName: name, cost } });
 
       confetti({
         particleCount: 100,
@@ -185,6 +181,7 @@ function StorePage() {
         `Purchased ${name}!${perk?.autoApply ? " Auto-applied." : " Check your profile to activate."}`
       );
       qc.invalidateQueries({ queryKey: ["my-profile", user.id] });
+      qc.invalidateQueries({ queryKey: ["my-purchases", user.id] });
     } catch (err: any) {
       toast.error(err.message || "Failed to purchase item");
     } finally {

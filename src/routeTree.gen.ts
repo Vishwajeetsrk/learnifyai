@@ -101,6 +101,7 @@ import { Route as AuthenticatedCreatorCommentsRouteImport } from './routes/_auth
 import { Route as AuthenticatedCoursesSlugRouteImport } from './routes/_authenticated/courses.$slug'
 import { Route as AuthenticatedCohortsIdRouteImport } from './routes/_authenticated/cohorts.$id'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin/subscriptions'
+import { Route as AuthenticatedAdminStoreRouteImport } from './routes/_authenticated/admin.store'
 import { Route as AuthenticatedAdminMissingVideosRouteImport } from './routes/_authenticated/admin.missing-videos'
 import { Route as AuthenticatedAdminEnrichmentRunsRouteImport } from './routes/_authenticated/admin.enrichment-runs'
 import { Route as AuthenticatedAdminCoursesRouteImport } from './routes/_authenticated/admin.courses'
@@ -597,6 +598,11 @@ const AuthenticatedAdminSubscriptionsRoute =
     path: '/subscriptions',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminStoreRoute = AuthenticatedAdminStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminMissingVideosRoute =
   AuthenticatedAdminMissingVideosRouteImport.update({
     id: '/missing-videos',
@@ -716,6 +722,7 @@ export interface FileRoutesByFullPath {
   '/admin/courses': typeof AuthenticatedAdminCoursesRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
+  '/admin/store': typeof AuthenticatedAdminStoreRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
@@ -815,6 +822,7 @@ export interface FileRoutesByTo {
   '/admin/courses': typeof AuthenticatedAdminCoursesRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
+  '/admin/store': typeof AuthenticatedAdminStoreRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
@@ -917,6 +925,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/courses': typeof AuthenticatedAdminCoursesRoute
   '/_authenticated/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/_authenticated/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
+  '/_authenticated/admin/store': typeof AuthenticatedAdminStoreRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/_authenticated/courses/$slug': typeof AuthenticatedCoursesSlugRoute
@@ -1019,6 +1028,7 @@ export interface FileRouteTypes {
     | '/admin/courses'
     | '/admin/enrichment-runs'
     | '/admin/missing-videos'
+    | '/admin/store'
     | '/admin/subscriptions'
     | '/cohorts/$id'
     | '/courses/$slug'
@@ -1118,6 +1128,7 @@ export interface FileRouteTypes {
     | '/admin/courses'
     | '/admin/enrichment-runs'
     | '/admin/missing-videos'
+    | '/admin/store'
     | '/admin/subscriptions'
     | '/cohorts/$id'
     | '/courses/$slug'
@@ -1219,6 +1230,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/courses'
     | '/_authenticated/admin/enrichment-runs'
     | '/_authenticated/admin/missing-videos'
+    | '/_authenticated/admin/store'
     | '/_authenticated/admin/subscriptions'
     | '/_authenticated/cohorts/$id'
     | '/_authenticated/courses/$slug'
@@ -1935,6 +1947,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSubscriptionsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/store': {
+      id: '/_authenticated/admin/store'
+      path: '/store'
+      fullPath: '/admin/store'
+      preLoaderRoute: typeof AuthenticatedAdminStoreRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/missing-videos': {
       id: '/_authenticated/admin/missing-videos'
       path: '/missing-videos'
@@ -1994,6 +2013,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCoursesRoute: typeof AuthenticatedAdminCoursesRoute
   AuthenticatedAdminEnrichmentRunsRoute: typeof AuthenticatedAdminEnrichmentRunsRoute
   AuthenticatedAdminMissingVideosRoute: typeof AuthenticatedAdminMissingVideosRoute
+  AuthenticatedAdminStoreRoute: typeof AuthenticatedAdminStoreRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
 }
 
@@ -2004,6 +2024,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCoursesRoute: AuthenticatedAdminCoursesRoute,
   AuthenticatedAdminEnrichmentRunsRoute: AuthenticatedAdminEnrichmentRunsRoute,
   AuthenticatedAdminMissingVideosRoute: AuthenticatedAdminMissingVideosRoute,
+  AuthenticatedAdminStoreRoute: AuthenticatedAdminStoreRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
 }
 
