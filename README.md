@@ -39,6 +39,8 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🤖 **AI Tutor**                  | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)         |
 | 💼 **Career Studio (11-in-1)**   | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder, **LinkedIn Optimizer**, **Career & Salary Analytics**, **Internship Tracker**, **Skill Gap Analysis**, **Career Finder (Ikigai)**, and **Skill Roadmaps** |
 | 🎓 **System Design Academy**    | 10 topics (Netflix, Uber, WhatsApp, YouTube, Twitter, Amazon, Google, Instagram, Slack, Zoom) with animated architecture diagrams, knowledge graph, voice narration, quiz |
+| 🧠 **Visual Learning**           | Concept Graph (force-directed knowledge map), Explain Like I'm 12, Dynamic Learning Map, built into every lesson |
+| 🏆 **Gamification Dashboard**    | XP progress, streak calendar, badge showcase, leaderboard rank, upcoming rewards — accessible from course player |
 | 🗺️ **Career Path Course Catalog**| 9 career path filters (Frontend, Backend, Full Stack, etc.), level filters, sort, Trending/Recommended rails |
 | 🪄 **Cheat Sheet Generator**     | 6-section toggleable cheat sheets with PDF export and browser print for every lesson |
 | 🎓 **12 Launch Course Categories**| Full Stack, Python, AI & Prompting, Data Science, Cyber Security, UI/UX, Resume, Interview, Roadmaps, Marketing, Freelancing, Personal Branding |
@@ -56,6 +58,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 📋 **Billing Dashboard**         | Plan management, Cashfree invoices, coupons (`WELCOME20`, `STUDENT50`, `LAUNCH20`)       |
 | 🎯 **Onboarding Wizard**         | 8-step guided setup with AI coach, daily habits tracking, and project creation           |
 | 🗺️ **Interactive Product Tours** | Role-specific guided tours (Student, Creator, Admin, AI Tools) with spotlight tooltips   |
+| 🌐 **Multi-Language (11 langs)** | Full UI i18n with English, Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Spanish, French, German |
 | 📝 **Blog**                      | Read articles, like posts, and comment with community                                    |
 
 ### 🎓 For Creators
@@ -512,6 +515,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Zoom Controls**: Upgraded canvas toolbar with zoom buttons (−, +), reset to 100%, and smooth scaling up to 200%.
 - ✅ **Keyboard Shortcuts**: Added keydown listeners for Delete/Backspace to remove selected elements, and Escape to deselect.
 - ✅ **Desktop Drag & Drop**: Dragging image files from desktop onto the canvas either sets the background image (if dropped on background) or inserts a new draggable image element.
+
+### v4.8.0 (July 2026) — Visual Learning Integration, Owner Video Player Fix, Multi-Language Polish
+
+- ✅ **Visual Learning Tab in Course Player**: New "Visual" tab in `LessonAiTabs` rendered via `VisualLearningPanel` — two sub-tabs: Concept Map (force-directed knowledge graph with `@xyflow/react`) and Explain Like I'm 12 (AI-generated simplified explanations). Props wired: `lessonId`, `courseId`, `lessonTitle`, `lessonContent`.
+- ✅ **Owner Video Player Control Fixed**: `CoursePlayer` `key` prop now includes `isAdmin` and `user?.id` so the player properly re-mounts when admin/owner status loads after initial render. Previously, if roles loaded asynchronously, `restrictDownload`/`restrictSpeed` would remain locked for admins/course owners.
+- ✅ **YouTube Error 153 Fixed**: Added `origin: window.location.origin` to `playerVars` in `CustomVideoPlayer` and appended `origin=` param to iframe `src` in `AdvancedVideoPlayer` to prevent embed domain mismatch errors. Custom error handler added for code 153.
 
 ### v4.7.0 (July 2026) — Community Hub Responsive, Portfolio Builder SVG Logos, Admin Billing & Subscriptions OS
 

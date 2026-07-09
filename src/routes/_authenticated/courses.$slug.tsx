@@ -33,6 +33,7 @@ import {
   BellOff,
   Users,
   Bot,
+  Brain,
   Database,
   Terminal,
   Globe,
@@ -87,9 +88,10 @@ import {
   chooseResumeLessonId,
   buildCourseVideoEmbedUrl,
 } from "@/lib/course-player";
+import { VisualLearningPanel } from "@/components/visual-learning/VisualLearningPanel";
 
-type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "ai-agent";
-const VALID_TABS: CourseTab[] = ["notes", "summary", "doubt", "exercise", "playground", "ai-agent"];
+type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "ai-agent" | "visual";
+const VALID_TABS: CourseTab[] = ["notes", "summary", "doubt", "exercise", "playground", "ai-agent", "visual"];
 
 export const Route = createFileRoute("/_authenticated/courses/$slug")({
   head: () => ({ meta: [{ title: "Course — Learnify AI" }] }),
@@ -783,7 +785,7 @@ function CourseDetail() {
             <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
               {activeVideo?.ok && !playerLoadFailed ? (
                 <CoursePlayer
-                  key={`${active?.id}-${playerRetry}`}
+                  key={`${active?.id}-${playerRetry}-${isAdmin}-${user?.id}`}
                   mode="advanced"
                   url={activeVideo.src}
                   thumbnailUrl={
@@ -1260,6 +1262,9 @@ function LessonAiTabs({
             <TabsTrigger value="playground" className="gap-1.5">
               <Code2 className="h-3.5 w-3.5" /> Playground
             </TabsTrigger>
+            <TabsTrigger value="visual" className="gap-1.5">
+              <Brain className="h-3.5 w-3.5" /> Visual
+            </TabsTrigger>
           </>
         )}
       </TabsList>
@@ -1365,6 +1370,17 @@ function LessonAiTabs({
           <CodePlayground
             course={{ id: courseId, title: courseTitle, slug: courseSlug }}
             exerciseText={exercise}
+          />
+        </TabsContent>
+      )}
+
+      {hasToolAccess && (
+        <TabsContent value="visual" className="pt-4">
+          <VisualLearningPanel
+            lessonId={lesson.id}
+            courseId={courseId}
+            lessonTitle={lesson.title}
+            lessonContent={lesson.description ?? ""}
           />
         </TabsContent>
       )}
