@@ -37,16 +37,20 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | Feature                          | Description                                                                              |
 | -------------------------------- | ---------------------------------------------------------------------------------------- |
 | 🤖 **AI Tutor**                  | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)         |
-| 💼 **Career Studio (9-in-1)**    | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder, **LinkedIn Optimizer**, **Career Analytics**, **Internship Tracker**, and **Skill Gap Analysis** |
+| 💼 **Career Studio (11-in-1)**   | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder, **LinkedIn Optimizer**, **Career & Salary Analytics**, **Internship Tracker**, **Skill Gap Analysis**, **Career Finder (Ikigai)**, and **Skill Roadmaps** |
+| 🎓 **System Design Academy**    | 10 topics (Netflix, Uber, WhatsApp, YouTube, Twitter, Amazon, Google, Instagram, Slack, Zoom) with animated architecture diagrams, knowledge graph, voice narration, quiz |
+| 🗺️ **Career Path Course Catalog**| 9 career path filters (Frontend, Backend, Full Stack, etc.), level filters, sort, Trending/Recommended rails |
+| 🪄 **Cheat Sheet Generator**     | 6-section toggleable cheat sheets with PDF export and browser print for every lesson |
 | 🎓 **12 Launch Course Categories**| Full Stack, Python, AI & Prompting, Data Science, Cyber Security, UI/UX, Resume, Interview, Roadmaps, Marketing, Freelancing, Personal Branding |
 | 📚 **Documentation Hub (`/docs`)** | Comprehensive platform guides for Students, Creators (Free/Paid), and Coaches (Free/Paid) |
 | 🎥 **Interactive Watch Demo**    | Guided modal tour covering platform features, credit usage, and creator earning model |
 | 📱 **Mobile App (Android & iOS)**| Mobile app showcase with VIP early access registration |
 | 📜 **Certificate Accreditation** | Cryptographic QR verification with MSME Udyam, NSDC Skill India, and ISO 9001 accreditation guide |
-| 🎥 **Interactive Course Player** | Video lessons, markdown notes, AI summaries, and practice exercises                      |
+| 🎥 **Advanced Video Player**     | Captions (VTT/SRT), searchable transcript, PiP, keyboard shortcuts, screenshots, bookmarking, focus/theater mode, auto-next lesson |
 | 💻 **Code Playground**           | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant  |
 | 📝 **Smart Notes**               | Auto-generated flashcards, summaries, and quizzes from any lesson                        |
-| 🏆 **Gamification Engine**     | XP, streaks, badges, leaderboards, interactive AI quizzes, and confetti celebrations     |
+| 🏆 **Gamification Engine**     | XP, streaks, badges, leaderboards, XP Store with server-side purchase tracking, interactive AI quizzes, confetti celebrations |
+| 🛍️ **XP Store**                 | Spend XP on premium perks (themes, discounts, credits, badges) — server-side purchase history with admin panel at `/admin/store` |
 | 📅 **Calendar Sync**             | Browser-based `.ics` generator to sync events to Google, Apple, and Outlook calendars    |
 | 💰 **Wallet & AI Credits**       | Starter 500 AI credits/mo, creator earnings & withdrawals, Cashfree gateway integration     |
 | 📋 **Billing Dashboard**         | Plan management, Cashfree invoices, coupons (`WELCOME20`, `STUDENT50`, `LAUNCH20`)       |
@@ -508,6 +512,30 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Zoom Controls**: Upgraded canvas toolbar with zoom buttons (−, +), reset to 100%, and smooth scaling up to 200%.
 - ✅ **Keyboard Shortcuts**: Added keydown listeners for Delete/Backspace to remove selected elements, and Escape to deselect.
 - ✅ **Desktop Drag & Drop**: Dragging image files from desktop onto the canvas either sets the background image (if dropped on background) or inserts a new draggable image element.
+
+### v4.6.1 (July 2026) - Bug Fixes: XP Store, Player, YouTube Live Filter & Build Cleanup
+
+- ✅ **XP Store Server-Side Purchase Fix**: `xp_purchases` table properly typed via `as any` casts in `gamification.functions.ts`. Better error message when table is missing ("run migrations"). Store page now fetches purchases from server, falls back to localStorage.
+- ✅ **YouTube Live Stream Filter**: `ytSearchTopVideo` now filters `liveBroadcastContent !== "none"` to prevent picking live/upcoming broadcasts whose recordings become unavailable. Same filter applied in `course-builder.functions.ts` chapter-level search.
+- ✅ **YouTube Player Error Messages**: `CustomVideoPlayer` now shows specific messages per error code (100: removed/private, 101/150: live stream ended or restricted, 5: browser issue) instead of generic "Video failed to load."
+- ✅ **Career Roadmap Bookmark Import Fixed**: Added missing `Bookmark` import from `lucide-react` in `career-roadmap.tsx`.
+- ✅ **AI Tools useEffect Import Fixed**: Added missing `useEffect` import from React in `ai-tools.tsx`.
+- ✅ **WatchDemoModal Promise Type Fix**: Replaced `.catch()` on Supabase `PromiseLike` with async/await.
+- ✅ **CustomVideoPlayer useRef Initial Value**: Fixed `useRef<ReturnType<typeof setTimeout>>()` with `(undefined)` initializer.
+- ✅ **KnowledgeGraph useRef Initial Value**: Same fix for `useRef<number>()` → `useRef<number | undefined>(undefined)`.
+- ✅ **Dashboard Progress Component**: Replaced non-existent `indicatorClassName` prop with plain Tailwind div.
+- ✅ **Course Player Duration Fix**: Changed `l.duration` to `l.duration_minutes` to match DB column name.
+- ✅ **RevenueDashboard Invoice Data Fix**: Fixed `doInvoices()` result usage to match returned shape `{ invoices, total }`.
+- ✅ **Build Error Cleanup**: Reduced TS errors from 48→29 (remaining are pre-existing `Json` type-narrowing in `course.$projectId.tsx`, `studio.$projectId.tsx`, `canva-cert.functions.ts`).
+
+### v4.6.0 (July 2026) - XP Store, System Design Academy, Course Catalog & Video Player Overhaul
+
+- ✅ **XP Store Server-Side (`/store`)**: Purchase history stored in `xp_purchases` DB table with RLS. Admin panel at `/admin/store` shows all purchases with search, pagination, stats. Server functions: `recordPurchase`, `getUserPurchases`, `getAllPurchases`. Backward-compatible `isPerkActive()` with localStorage fallback.
+- ✅ **System Design Academy (10 Topics)**: `/system-design` route with full visualizer, force-directed knowledge graph, animated SVG architecture diagrams, Web Speech API voice narration (4 styles, multi-language), interactive quiz with explanations, comparison views, progress tracking. Topics: Netflix, Uber, WhatsApp, YouTube, Twitter/X, Amazon, Google Search, Instagram, Slack, Zoom.
+- ✅ **Cheat Sheet Generator**: 6 toggleable sections (summary/keyPoints/architecture/comparisons/quiz/companies). PDF export via html2canvas+jsPDF, browser print. Integrated into every System Design topic page via Dialog.
+- ✅ **Course Catalog Enhancement**: Career path filter (9 paths), level filter (all/beginner/intermediate/advanced), sort dropdown (newest/popular/price low-high/high-low). Trending Now rail (Hot badge), Recommended for You rail, MiniCourseCard component.
+- ✅ **Advanced Video Player**: `AdvancedVideoPlayer` with TranscriptPanel (search, click-to-seek), CaptionPanel (VTT/SRT upload), AdvancedSettingsPanel (caption style, focus/theater mode), KeyboardShortcutsOverlay (23 shortcuts), screenshots, PiP, accessibility, auto-next lesson. `CoursePlayer` wrapper.
+- ✅ **YouTube Auto-Enrichment Fixed**: `ytSearchTopVideo` in `youtube.functions.ts` now filters `liveBroadcastContent === "none"` to avoid picking livestreams.
 
 ### v4.5.0 (July 2026) - Credential OS 3.0 & Career OS 3.0
 

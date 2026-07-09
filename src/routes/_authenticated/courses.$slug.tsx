@@ -812,7 +812,7 @@ function CourseDetail() {
                   lessons={lessons.map((l) => ({
                     id: l.id,
                     title: l.title,
-                    duration: l.duration ? `${Math.floor(l.duration / 60)}:${(l.duration % 60).toString().padStart(2, "0")}` : "0:00",
+                    duration: l.duration_minutes ? `${Math.floor(l.duration_minutes / 60)}:${(l.duration_minutes % 60).toString().padStart(2, "0")}` : "0:00",
                     completed: completed.has(l.id),
                   }))}
                   currentLessonId={active?.id || ""}

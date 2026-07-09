@@ -32,7 +32,7 @@ export function KnowledgeGraph({ onTopicClick, onClose, compact = false }: Knowl
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [zoom, setZoom] = useState(1);
-  const animRef = useRef<number>();
+  const animRef = useRef<number | undefined>(undefined);
 
   const w = compact ? 500 : 700;
   const h = compact ? 350 : 500;

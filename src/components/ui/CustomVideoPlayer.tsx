@@ -22,7 +22,7 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
   const [hasError, setHasError] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const hideTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -167,6 +167,7 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
         playsInline
         preload="metadata"
         muted={isMuted}
+        onError={undefined as any}
       />
 
       {/* Error State */}

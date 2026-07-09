@@ -58,15 +58,14 @@ export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
     if (open) {
       setActiveStep(0);
       setDirection(0);
-      supabase
-        .from("site_settings")
-        .select("value")
-        .eq("key", "tour_video_url")
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data?.value) setVideoUrl(data.value as string);
-        })
-        .catch(() => {});
+      (async () => {
+        const { data } = await supabase
+          .from("site_settings")
+          .select("value")
+          .eq("key", "tour_video_url")
+          .maybeSingle();
+        if ((data as any)?.value) setVideoUrl((data as any).value as string);
+      })();
     }
   }, [open]);
 

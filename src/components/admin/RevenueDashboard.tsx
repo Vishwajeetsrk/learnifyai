@@ -25,10 +25,11 @@ export function RevenueDashboard() {
     queryFn: async () => { const r = await doOverview(); return r as any; },
   });
 
-  const { data: invoices = [], isLoading: loadingInvoices } = useQuery({
+  const { data: invoicesData, isLoading: loadingInvoices } = useQuery({
     queryKey: ["admin-revenue-invoices"],
-    queryFn: async () => { const r = await doInvoices(); return (r ?? []) as any[]; },
+    queryFn: doInvoices,
   });
+  const invoices: any[] = (invoicesData as any)?.invoices ?? [];
 
   if (loadingOverview) {
     return (

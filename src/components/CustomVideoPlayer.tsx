@@ -96,6 +96,7 @@ export function CustomVideoPlayer({
   const [buffered, setBuffered] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [youTubeErrorMsg, setYouTubeErrorMsg] = useState<string | null>(null);
   const [showControls, setShowControls] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [captionsOn, setCaptionsOn] = useState(false);
@@ -160,6 +161,7 @@ export function CustomVideoPlayer({
     setPlaying(false);
     setLoading(true);
     setError(false);
+    setYouTubeErrorMsg(null);
     setCurrentTime(0);
     setBuffered(0);
     wantsPlayRef.current = false;
@@ -252,8 +254,18 @@ export function CustomVideoPlayer({
               }
             } catch {}
           },
-          onError: () => {
+          onError: (e: any) => {
             if (!mountedRef.current) return;
+            const code = e?.data;
+            const msg =
+              code === 100
+                ? "This video was removed or set to private by the uploader."
+                : code === 101 || code === 150
+                  ? "This video cannot be played here — it may be a live stream that ended, or embedding is restricted."
+                : code === 5
+                  ? "The video player encountered an error. Try a different browser."
+                : "Video failed to load.";
+            setYouTubeErrorMsg(msg);
             setError(true);
             setLoading(false);
             if (onError) onError(null);
@@ -619,9 +631,12 @@ export function CustomVideoPlayer({
 
       {error && (
         <div className="absolute inset-0 z-25 flex flex-col items-center justify-center bg-black/90 text-white gap-3 p-6">
-          <p className="text-sm text-center text-muted-foreground">Video failed to load.</p>
+          <p className="text-sm text-center text-muted-foreground">
+            {youTubeErrorMsg || "Video failed to load."}
+          </p>
           <button
             onClick={() => {
+              setYouTubeErrorMsg(null);
               setError(false);
               setLoading(true);
               // Trigger reload by slightly updating state or just calling load

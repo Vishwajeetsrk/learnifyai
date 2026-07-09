@@ -147,10 +147,10 @@ function StorePage() {
     enabled: !!user,
   });
 
-  const purchasedPerks = serverPurchases.reduce<Record<string, number>>((acc, p) => {
+  const purchasedPerks = (serverPurchases as any[]).reduce((acc: Record<string, number>, p: any) => {
     acc[p.perkId] = new Date(p.purchasedAt).getTime();
     return acc;
-  }, {});
+  }, {} as Record<string, number>);
   const xp = profile?.xp || 0;
 
   const handlePurchase = async (perkId: string, cost: number, name: string) => {

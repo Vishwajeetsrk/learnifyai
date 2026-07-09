@@ -33,15 +33,15 @@ function AdminStorePage() {
   const totalPages = Math.ceil(total / PER_PAGE);
 
   const filtered = search
-    ? purchases.filter(
-        (p) =>
+    ? (purchases as any[]).filter(
+        (p: any) =>
           p.perkName.toLowerCase().includes(search.toLowerCase()) ||
           p.user?.fullName?.toLowerCase().includes(search.toLowerCase()) ||
           p.user?.email?.toLowerCase().includes(search.toLowerCase())
       )
     : purchases;
 
-  const totalRevenue = purchases.reduce((sum, p) => sum + p.cost, 0);
+  const totalRevenue = (purchases as any[]).reduce((sum: number, p: any) => sum + p.cost, 0);
 
   return (
     <AppShell>
@@ -83,7 +83,7 @@ function AdminStorePage() {
         {/* Stats row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard label="Total Items" value={String(purchases.length)} color="text-blue-500" />
-          <StatCard label="Unique Users" value={String(new Set(purchases.map((p) => p.userId)).size)} color="text-purple-500" />
+          <StatCard label="Unique Users" value={String(new Set((purchases as any[]).map((p: any) => p.userId)).size)} color="text-purple-500" />
           <StatCard label="Avg Cost" value={purchases.length > 0 ? `${Math.round(totalRevenue / purchases.length)} XP` : "—"} color="text-emerald-500" />
           <StatCard label="Page" value={`${page}/${totalPages}`} color="text-amber-500" />
         </div>
@@ -111,7 +111,7 @@ function AdminStorePage() {
                     <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">No purchases found</td>
                   </tr>
                 ) : (
-                  filtered.map((p) => (
+                  filtered.map((p: any) => (
                     <tr key={p.id} className="border-b border-border/50 hover:bg-muted/20 transition">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

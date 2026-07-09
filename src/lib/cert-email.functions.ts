@@ -160,7 +160,7 @@ export const issueAndEmailCertificate = createServerFn({ method: "POST" })
       console.error("Certificate insert failed:", insertError.message);
       // Fallback: still record in issued_certificates
       try {
-        await supabaseAdmin.from("issued_certificates").insert({
+        await (supabaseAdmin as any).from("issued_certificates").insert({
           cert_id: certId,
           user_id: context.userId,
           user_email: data.userEmail,

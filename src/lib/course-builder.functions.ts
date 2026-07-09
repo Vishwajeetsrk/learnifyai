@@ -115,9 +115,13 @@ ${schemaHint(data.modules)}`;
               }
               continue;
             }
-            // Filter out music/meme videos from results
+            // Filter out live/upcoming broadcasts and music/meme videos
+            const eligibleOnly = (j.items ?? []).filter(
+              (item: any) => item.snippet?.liveBroadcastContent === "none",
+            );
+            if (!eligibleOnly.length) continue;
             const pick =
-              (j.items ?? []).find((item: any) => {
+              eligibleOnly.find((item: any) => {
                 const t = (item.snippet?.title ?? "").toLowerCase();
                 if (
                   t.includes("never gonna give") ||
@@ -132,7 +136,7 @@ ${schemaHint(data.modules)}`;
                 const ch = (item.snippet?.channelTitle ?? "").toLowerCase();
                 if (ch.includes("vevo") || ch.includes("music")) return false;
                 return true;
-              }) ?? j.items?.[0];
+              }) ?? eligibleOnly[0];
             const vid = pick?.id?.videoId;
             if (vid) {
               foundVideoIds.push(vid);

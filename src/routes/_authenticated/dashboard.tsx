@@ -190,7 +190,7 @@ function DashboardPage() {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-lg line-clamp-1 text-white">{latestCourse.courses?.title}</h3>
                       <div className="flex items-center gap-3 mt-2">
-                        <Progress value={latestCourse.progress_pct} className="h-2 w-32 bg-white/20" indicatorClassName="bg-indigo-400" />
+                        <div className="h-2 w-32 bg-white/20 rounded-full overflow-hidden"><div className="h-full bg-indigo-400 rounded-full" style={{width: `${latestCourse.progress_pct}%`}} /></div>
                         <span className="text-sm font-medium text-slate-200">{latestCourse.progress_pct}%</span>
                       </div>
                     </div>

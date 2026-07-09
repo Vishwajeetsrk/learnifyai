@@ -180,7 +180,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Mobile drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-72 p-0 max-h-dvh" hideClose>
+        <SheetContent side="left" className="w-72 p-0 max-h-dvh" aria-describedby={undefined}>
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           <div className="flex items-center justify-between px-5 h-16 border-b">
             <Link to="/" aria-label="Learnify AI" onClick={() => setMobileOpen(false)}>

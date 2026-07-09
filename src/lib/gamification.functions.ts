@@ -354,7 +354,7 @@ export const recordPurchase = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { error } = await supabaseAdmin.from("xp_purchases").insert({
+    const { error } = await (supabaseAdmin as any).from("xp_purchases").insert({
       user_id: data.userId,
       perk_id: data.perkId,
       perk_name: data.perkName,
@@ -364,6 +364,9 @@ export const recordPurchase = createServerFn({ method: "POST" })
 
     if (error) {
       console.error("[recordPurchase] insert failed:", error);
+      if (error.message?.includes("does not exist")) {
+        throw new Error("XP Store table missing — ask admin to run `node scripts/sync-migrations.cjs`");
+      }
       throw new Error("Failed to record purchase");
     }
 
@@ -377,7 +380,7 @@ export const getUserPurchases = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: purchases, error } = await supabaseAdmin
+    const { data: purchases, error } = await (supabaseAdmin as any)
       .from("xp_purchases")
       .select("*")
       .eq("user_id", data.userId)
@@ -408,7 +411,7 @@ export const getAllPurchases = createServerFn({ method: "GET" })
     const limit = data.limit ?? 50;
     const offset = (page - 1) * limit;
 
-    const { data: purchases, error, count } = await supabaseAdmin
+    const { data: purchases, error, count } = await (supabaseAdmin as any)
       .from("xp_purchases")
       .select("*, profiles!inner(full_name, email, avatar_url)", { count: "exact" })
       .order("created_at", { ascending: false })

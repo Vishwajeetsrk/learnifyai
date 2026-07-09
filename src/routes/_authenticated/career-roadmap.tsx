@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Code,
   BarChart3,
+  Bookmark,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";

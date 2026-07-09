@@ -104,9 +104,16 @@ export async function ytSearchTopVideo(query: string, apiKey: string) {
   const body: any = await r.json().catch(() => ({}));
   if (!r.ok) throw new Error(explainYoutubeError(r.status, body));
   if (!body.items?.length) return null;
+
+  // Filter out live/upcoming broadcasts — their recordings often become unavailable
+  const eligible = body.items.filter(
+    (item: any) => item.snippet?.liveBroadcastContent === "none",
+  );
+  if (!eligible.length) return null;
+
   // Pick the first result whose title doesn't look like music/gaming/meme
   const pick =
-    body.items.find((item: any) => {
+    eligible.find((item: any) => {
       const t = (item.snippet?.title ?? "").toLowerCase();
       if (
         t.includes("never gonna give") ||
@@ -121,7 +128,7 @@ export async function ytSearchTopVideo(query: string, apiKey: string) {
       const ch = (item.snippet?.channelTitle ?? "").toLowerCase();
       if (ch.includes("vevo") || ch.includes("music")) return false;
       return true;
-    }) ?? body.items[0];
+    }) ?? eligible[0];
   if (!pick?.id?.videoId) return null;
   return {
     videoId: pick.id.videoId as string,
