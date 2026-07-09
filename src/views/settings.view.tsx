@@ -2275,7 +2275,7 @@ export default function SettingsPage() {
                                             ? { hairStyle: "noHair" }
                                             : {}),
                                         })}
-                                        className="w-full h-full object-cover scale-[2.2] translate-y-3"
+                                        className="w-full h-full object-contain scale-[1.1]"
                                         alt={c.label}
                                         loading="lazy"
                                         decoding="async"

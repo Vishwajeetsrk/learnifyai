@@ -46,7 +46,7 @@ import {
   type CertDesign,
 } from "@/components/CertificateDesign";
 import { CertificateFullPreviewDialog } from "@/components/CertificateFullPreviewDialog";
-import { Maximize2, GripVertical } from "lucide-react";
+import { Maximize2, GripVertical, PlayCircle } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
@@ -1845,7 +1845,7 @@ function DemoVideoManager() {
       const result = await doQuery({
         data: { table: "site_settings", columns: "value", eqFilter: { column: "key", value: "tour_video_url" }, single: true },
       });
-      return (result?.value as string) || "";
+      return ((result as any)?.value as string) || "";
     },
   });
 

@@ -116,8 +116,10 @@ export function buildCourseVideoEmbedUrl(
 
   const videoId = extractYouTubeVideoId(raw);
   if (videoId) {
-    const url = new URL(`https://www.youtube.com/watch`);
-    url.searchParams.set("v", videoId);
+    const url = new URL(`https://www.youtube.com/embed/${videoId}`);
+    url.searchParams.set("autoplay", "1");
+    url.searchParams.set("rel", "0");
+    url.searchParams.set("modestbranding", "1");
     return { ok: true, src: url.toString(), isYoutube: true };
   }
 
