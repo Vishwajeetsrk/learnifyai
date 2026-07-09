@@ -10,6 +10,9 @@ import {
   ShoppingCart,
   Check,
   Sparkles,
+  TrendingUp,
+  Flame,
+  Layers,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
@@ -25,6 +28,7 @@ import { getCourseLearners } from "@/lib/gamification.functions";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { getCleanBannerUrl } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/courses/")({
   head: () => ({ meta: [{ title: "Courses — Learnify AI" }] }),
@@ -89,13 +93,30 @@ const FIXED_CATEGORIES = [
   "Business & Startups",
   "Finance & Investing",
 ] as const;
+
+const CAREER_PATHS = [
+  { id: "all", label: "All Paths", icon: "🎯" },
+  { id: "frontend", label: "Frontend Developer", icon: "🌐" },
+  { id: "backend", label: "Backend Developer", icon: "⚙️" },
+  { id: "fullstack", label: "Full Stack", icon: "🔄" },
+  { id: "data-science", label: "Data Scientist", icon: "📊" },
+  { id: "ai-ml", label: "AI/ML Engineer", icon: "🤖" },
+  { id: "cybersecurity", label: "Security Engineer", icon: "🔒" },
+  { id: "devops", label: "DevOps/SRE", icon: "🚀" },
+  { id: "mobile", label: "Mobile Developer", icon: "📱" },
+] as const;
+
 type PriceFilter = "all" | "free" | "paid";
 type LevelFilter = "all" | "beginner" | "intermediate" | "advanced";
+type SortFilter = "newest" | "popular" | "price-low" | "price-high";
 
 function CoursesPage() {
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<string>("All");
   const [price, setPrice] = useState<PriceFilter>("all");
+  const [level, setLevel] = useState<LevelFilter>("all");
+  const [careerPath, setCareerPath] = useState("all");
+  const [sort, setSort] = useState<SortFilter>("newest");
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -204,14 +225,36 @@ function CoursesPage() {
         price === "all" ||
         (price === "free" && Number(c.price_inr) === 0) ||
         (price === "paid" && Number(c.price_inr) > 0);
+      const matchLevel = level === "all" || c.level === level;
+      const matchCareer =
+        careerPath === "all" ||
+        (c as any).career_path?.includes(careerPath);
       const matchQ =
         !needle ||
         c.title.toLowerCase().includes(needle) ||
         (c.description ?? "").toLowerCase().includes(needle) ||
         c.instructor.toLowerCase().includes(needle);
-      return matchCat && matchPrice && matchQ;
+      return matchCat && matchPrice && matchQ && matchLevel && matchCareer;
     });
-  }, [coursesQuery.data, q, cat, price]);
+  }, [coursesQuery.data, q, cat, price, level, careerPath]);
+
+  const trending = useMemo(() => {
+    return (coursesQuery.data ?? []).filter((c) => (c as any).enrollment_count > 5).slice(0, 4);
+  }, [coursesQuery.data]);
+
+  const recommended = useMemo(() => {
+    return (coursesQuery.data ?? []).filter((c) => c.level === "beginner").slice(0, 4);
+  }, [coursesQuery.data]);
+
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    switch (sort) {
+      case "popular": return arr.sort((a, b) => ((b as any).enrollment_count ?? 0) - ((a as any).enrollment_count ?? 0));
+      case "price-low": return arr.sort((a, b) => Number(a.price_inr) - Number(b.price_inr));
+      case "price-high": return arr.sort((a, b) => Number(b.price_inr) - Number(a.price_inr));
+      default: return arr;
+    }
+  }, [filtered, sort]);
 
   return (
     <AppShell>
@@ -256,7 +299,31 @@ function CoursesPage() {
           </div>
         </div>
 
-        <div className="mt-6 space-y-3">
+        <div className="mt-6 space-y-4">
+          {/* Top filters row */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium shrink-0">
+              Career Path
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {CAREER_PATHS.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => setCareerPath(p.id)}
+                  className={cn(
+                    "px-2.5 py-1 rounded-full text-[10px] font-medium border transition",
+                    careerPath === p.id
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border text-muted-foreground hover:border-foreground/30"
+                  )}
+                  aria-pressed={careerPath === p.id}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">
               Categories
@@ -276,32 +343,104 @@ function CoursesPage() {
               ))}
             </div>
           </div>
-          <div>
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">
-              Price
+
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Level</span>
+              <div className="flex gap-1.5" role="group" aria-label="Filter by level">
+                {(["all", "beginner", "intermediate", "advanced"] as const).map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => setLevel(l)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-full text-[10px] font-medium border capitalize transition",
+                      level === l
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border text-muted-foreground hover:border-foreground/30"
+                    )}
+                    aria-pressed={level === l}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by price">
-              {(
-                [
-                  { id: "all", label: "All" },
-                  { id: "free", label: "Free" },
-                  { id: "paid", label: "Paid" },
-                ] as { id: PriceFilter; label: string }[]
-              ).map((p) => (
-                <Button
-                  key={p.id}
-                  size="sm"
-                  variant={price === p.id ? "default" : "outline"}
-                  onClick={() => setPrice(p.id)}
-                  className="rounded-full"
-                  aria-pressed={price === p.id}
-                >
-                  {p.label}
-                </Button>
-              ))}
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Price</span>
+              <div className="flex gap-1.5" role="group" aria-label="Filter by price">
+                {(
+                  [
+                    { id: "all", label: "All" },
+                    { id: "free", label: "Free" },
+                    { id: "paid", label: "Paid" },
+                  ] as { id: PriceFilter; label: string }[]
+                ).map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setPrice(p.id)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-full text-[10px] font-medium border transition",
+                      price === p.id
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border text-muted-foreground hover:border-foreground/30"
+                    )}
+                    aria-pressed={price === p.id}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 ml-auto">
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Sort</span>
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortFilter)}
+                className="h-7 px-2 rounded-lg text-[10px] border border-border bg-background text-muted-foreground"
+                aria-label="Sort courses"
+              >
+                <option value="newest">Newest</option>
+                <option value="popular">Most Popular</option>
+                <option value="price-low">Price: Low–High</option>
+                <option value="price-high">Price: High–Low</option>
+              </select>
             </div>
           </div>
         </div>
+
+        {/* Trending rail */}
+        {trending.length > 0 && !q && cat === "All" && price === "all" && level === "all" && careerPath === "all" && (
+          <div className="mt-8">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <h2 className="text-sm font-semibold">Trending Now</h2>
+              <Badge variant="outline" className="text-[10px] bg-red-500/10 text-red-500 border-red-500/30">
+                <Flame className="h-3 w-3 mr-0.5" /> Hot
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {trending.map((c) => (
+                <MiniCourseCard key={c.id} course={c} enrollments={enrollmentsQuery.data} cart={cartQuery.data} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recommended rail */}
+        {recommended.length > 0 && !q && cat === "All" && price === "all" && level === "all" && careerPath === "all" && (
+          <div className="mt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <Sparkles className="h-4 w-4 text-yellow-500" />
+              <h2 className="text-sm font-semibold">Recommended for You</h2>
+              <span className="text-[10px] text-muted-foreground">Beginner-friendly picks</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {recommended.map((c) => (
+                <MiniCourseCard key={c.id} course={c} enrollments={enrollmentsQuery.data} cart={cartQuery.data} />
+              ))}
+            </div>
+          </div>
+        )}
 
         {coursesQuery.isLoading ? (
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
@@ -334,7 +473,7 @@ function CoursesPage() {
           </div>
         ) : (
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
-            {filtered.map((c) => (
+            {sorted.map((c) => (
               <Link
                 key={c.id}
                 to="/courses/$slug"
@@ -421,5 +560,45 @@ function CoursesPage() {
         )}
       </div>
     </AppShell>
+  );
+}
+
+function MiniCourseCard({
+  course,
+  enrollments,
+  cart,
+}: {
+  course: any;
+  enrollments?: Record<string, boolean>;
+  cart?: Record<string, boolean>;
+}) {
+  return (
+    <Link
+      to="/courses/$slug"
+      params={{ slug: course.slug }}
+      className="group rounded-xl border border-border bg-card overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5"
+    >
+      <div className="aspect-video w-full overflow-hidden bg-muted relative">
+        {course.cover_url ? (
+          <SafeImage
+            src={getCleanBannerUrl(course.cover_url) ?? course.cover_url}
+            alt={course.title}
+            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-primary/10 to-violet-500/10 flex items-center justify-center text-primary/30">
+            <GraduationCap className="h-8 w-8" />
+          </div>
+        )}
+      </div>
+      <div className="p-2.5">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider truncate">{course.category}</p>
+        <h3 className="text-xs font-semibold mt-0.5 truncate group-hover:text-primary transition-colors">{course.title}</h3>
+        <div className="flex items-center justify-between mt-1.5">
+          <span className="text-[10px] text-muted-foreground">{course.level}</span>
+          <span className="text-[10px] font-semibold">{inr(Number(course.price_inr))}</span>
+        </div>
+      </div>
+    </Link>
   );
 }
