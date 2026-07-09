@@ -26,6 +26,9 @@ import {
   PanelBottom,
   Search,
   Cpu,
+  Gamepad2,
+  Cog,
+  Rocket,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -48,7 +51,7 @@ export const Route = createFileRoute("/showcase")({
 
 const FEATURES = [
   {
-    category: "🎮 Playground & Code Tools",
+    category: <><Gamepad2 className="h-6 w-6" /> Playground & Code Tools</>,
     items: [
       {
         icon: Code2,
@@ -103,7 +106,7 @@ const FEATURES = [
     ],
   },
   {
-    category: "🤖 AI & Learning Tools",
+    category: <><Cog className="h-6 w-6" /> AI & Learning Tools</>,
     items: [
       {
         icon: Brain,
@@ -133,7 +136,7 @@ const FEATURES = [
     ],
   },
   {
-    category: "📚 Learning & Courses",
+    category: <><BookOpen className="h-6 w-6" /> Learning & Courses</>,
     items: [
       {
         icon: PlayCircle,
@@ -168,7 +171,7 @@ const FEATURES = [
     ],
   },
   {
-    category: "🚀 Creator & Admin",
+    category: <><Rocket className="h-6 w-6" /> Creator & Admin</>,
     items: [
       {
         icon: Wrench,
@@ -252,7 +255,7 @@ function ShowcasePage() {
         {FEATURES.map((section, si) => (
           <section key={si} className="border-b border-border/40 py-16 md:py-20">
             <div className="container mx-auto px-6 max-w-6xl">
-              <h2 className="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-2">
+              <h2 className="font-display text-2xl md:text-3xl font-semibold tracking-tight mb-2 flex items-center gap-2">
                 {section.category}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">

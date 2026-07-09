@@ -21,7 +21,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DefaultAvatar } from "@/components/DefaultAvatar";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -375,16 +375,11 @@ export default function CoachingDashboard() {
                     >
                       <div>
                         <div className="font-medium text-sm text-foreground flex items-center gap-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage
-                              src={isCreator ? b.learner?.avatar_url : b.coach?.avatar_url}
-                            />
-                            <AvatarFallback className="text-[10px]">
-                              {isCreator
-                                ? b.learner?.full_name?.charAt(0)
-                                : b.coach?.full_name?.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
+                          <DefaultAvatar
+                            src={isCreator ? b.learner?.avatar_url : b.coach?.avatar_url}
+                            name={isCreator ? b.learner?.full_name : b.coach?.full_name}
+                            className="h-6 w-6"
+                          />
                           {isCreator
                             ? `Client: ${b.learner?.full_name}`
                             : `Coach: ${b.coach?.full_name}`}
@@ -449,10 +444,11 @@ export default function CoachingDashboard() {
                         className="p-3 border rounded-xl flex items-center gap-4 hover:border-primary/50 hover:bg-accent/30 cursor-pointer transition-all"
                         onClick={() => setSelectedCoachId(coach.id)}
                       >
-                        <Avatar className="h-12 w-12 border">
-                          <AvatarImage src={coach.avatar_url} />
-                          <AvatarFallback>{coach.full_name?.charAt(0)}</AvatarFallback>
-                        </Avatar>
+                        <DefaultAvatar
+                          src={coach.avatar_url}
+                          name={coach.full_name}
+                          className="h-12 w-12 border"
+                        />
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium truncate">{coach.full_name}</h4>
                           <p className="text-xs text-muted-foreground truncate">
@@ -741,10 +737,7 @@ export default function CoachingDashboard() {
                       onClick={() => setActiveChatUser(c)}
                       className={`p-4 border-b cursor-pointer flex gap-3 items-center transition-colors ${activeChatUser?.id === c.id ? "bg-accent" : "hover:bg-accent/50"}`}
                     >
-                      <Avatar>
-                        <AvatarImage src={c.avatar_url} />
-                        <AvatarFallback>{c.full_name?.charAt(0)}</AvatarFallback>
-                      </Avatar>
+                      <DefaultAvatar src={c.avatar_url} name={c.full_name} />
                       <div className="font-medium text-sm">{c.full_name}</div>
                     </div>
                   ))
@@ -757,10 +750,11 @@ export default function CoachingDashboard() {
               {activeChatUser ? (
                 <>
                   <div className="p-4 border-b font-medium flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={activeChatUser.avatar_url} />
-                      <AvatarFallback>{activeChatUser.full_name?.charAt(0)}</AvatarFallback>
-                    </Avatar>
+                    <DefaultAvatar
+                      src={activeChatUser.avatar_url}
+                      name={activeChatUser.full_name}
+                      className="h-8 w-8"
+                    />
                     {activeChatUser.full_name}
                   </div>
                   <div className="flex-1 overflow-y-auto p-4 space-y-4">

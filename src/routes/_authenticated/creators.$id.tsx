@@ -33,7 +33,7 @@ import {
 } from "recharts";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DefaultAvatar } from "@/components/DefaultAvatar";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -189,12 +189,12 @@ function CreatorProfile() {
           </div>
 
           <div className="px-6 pb-6 sm:px-8 sm:pb-8 flex flex-col sm:flex-row items-start gap-5 relative">
-            <Avatar className="h-28 w-28 sm:h-32 sm:w-32 border-4 border-card rounded-full -mt-14 sm:-mt-16 shadow-xl bg-card shrink-0 ring-2 ring-primary/20">
-              {p?.profile?.avatar_url && <AvatarImage src={p.profile.avatar_url} alt="" />}
-              <AvatarFallback className="text-3xl sm:text-4xl font-display font-bold bg-gradient-to-br from-primary to-primary/60 text-white">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+            <DefaultAvatar
+              src={p?.profile?.avatar_url}
+              name={name}
+              className="h-28 w-28 sm:h-32 sm:w-32 border-4 border-card rounded-full -mt-14 sm:-mt-16 shadow-xl bg-card shrink-0 ring-2 ring-primary/20"
+              fallbackClassName="text-3xl sm:text-4xl font-display font-bold bg-gradient-to-br from-primary to-primary/60 text-white"
+            />
 
             <div className="flex-1 min-w-0 pt-1 sm:pt-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

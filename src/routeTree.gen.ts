@@ -100,6 +100,7 @@ import { Route as AuthenticatedCohortsIdRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin/subscriptions'
 import { Route as AuthenticatedAdminMissingVideosRouteImport } from './routes/_authenticated/admin.missing-videos'
 import { Route as AuthenticatedAdminEnrichmentRunsRouteImport } from './routes/_authenticated/admin.enrichment-runs'
+import { Route as AuthenticatedAdminCoursesRouteImport } from './routes/_authenticated/admin.courses'
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
 import { Route as AuthenticatedAdminCertificatesRouteImport } from './routes/_authenticated/admin.certificates'
 import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin/billing'
@@ -587,6 +588,12 @@ const AuthenticatedAdminEnrichmentRunsRoute =
     path: '/enrichment-runs',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCoursesRoute =
+  AuthenticatedAdminCoursesRouteImport.update({
+    id: '/courses',
+    path: '/courses',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminContentRoute =
   AuthenticatedAdminContentRouteImport.update({
     id: '/content',
@@ -684,6 +691,7 @@ export interface FileRoutesByFullPath {
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
+  '/admin/courses': typeof AuthenticatedAdminCoursesRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -780,6 +788,7 @@ export interface FileRoutesByTo {
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
+  '/admin/courses': typeof AuthenticatedAdminCoursesRoute
   '/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -878,6 +887,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
+  '/_authenticated/admin/courses': typeof AuthenticatedAdminCoursesRoute
   '/_authenticated/admin/enrichment-runs': typeof AuthenticatedAdminEnrichmentRunsRoute
   '/_authenticated/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
@@ -976,6 +986,7 @@ export interface FileRouteTypes {
     | '/admin/billing'
     | '/admin/certificates'
     | '/admin/content'
+    | '/admin/courses'
     | '/admin/enrichment-runs'
     | '/admin/missing-videos'
     | '/admin/subscriptions'
@@ -1072,6 +1083,7 @@ export interface FileRouteTypes {
     | '/admin/billing'
     | '/admin/certificates'
     | '/admin/content'
+    | '/admin/courses'
     | '/admin/enrichment-runs'
     | '/admin/missing-videos'
     | '/admin/subscriptions'
@@ -1169,6 +1181,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/billing'
     | '/_authenticated/admin/certificates'
     | '/_authenticated/admin/content'
+    | '/_authenticated/admin/courses'
     | '/_authenticated/admin/enrichment-runs'
     | '/_authenticated/admin/missing-videos'
     | '/_authenticated/admin/subscriptions'
@@ -1878,6 +1891,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEnrichmentRunsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/courses': {
+      id: '/_authenticated/admin/courses'
+      path: '/courses'
+      fullPath: '/admin/courses'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/content': {
       id: '/_authenticated/admin/content'
       path: '/content'
@@ -1913,6 +1933,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminBillingRoute: typeof AuthenticatedAdminBillingRoute
   AuthenticatedAdminCertificatesRoute: typeof AuthenticatedAdminCertificatesRoute
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
+  AuthenticatedAdminCoursesRoute: typeof AuthenticatedAdminCoursesRoute
   AuthenticatedAdminEnrichmentRunsRoute: typeof AuthenticatedAdminEnrichmentRunsRoute
   AuthenticatedAdminMissingVideosRoute: typeof AuthenticatedAdminMissingVideosRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
@@ -1922,6 +1943,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminBillingRoute: AuthenticatedAdminBillingRoute,
   AuthenticatedAdminCertificatesRoute: AuthenticatedAdminCertificatesRoute,
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
+  AuthenticatedAdminCoursesRoute: AuthenticatedAdminCoursesRoute,
   AuthenticatedAdminEnrichmentRunsRoute: AuthenticatedAdminEnrichmentRunsRoute,
   AuthenticatedAdminMissingVideosRoute: AuthenticatedAdminMissingVideosRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,

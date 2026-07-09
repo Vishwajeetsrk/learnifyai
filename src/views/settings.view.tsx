@@ -1637,7 +1637,11 @@ export default function SettingsPage() {
 
               {/* Cartoon Character Customization Dialog */}
               <Dialog open={cartoonOpen} onOpenChange={setCartoonOpen}>
-                <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+                <DialogContent
+                  className="sm:max-w-3xl max-h-[90vh] overflow-y-auto"
+                  onPointerDownOutside={(e) => e.preventDefault()}
+                  onInteractOutside={(e) => e.preventDefault()}
+                >
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                       <Sparkles className="h-5 w-5 text-yellow-500 fill-yellow-500" /> Customize

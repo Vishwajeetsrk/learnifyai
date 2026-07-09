@@ -397,6 +397,10 @@ export default function AdminContentPage() {
               <Settings className="h-4 w-4 mr-2" />
               Site
             </TabsTrigger>
+            <TabsTrigger value="demo-video">
+              <PlayCircle className="h-4 w-4 mr-2" />
+              Demo Video
+            </TabsTrigger>
             <TabsTrigger value="cert-templates">
               <Award className="h-4 w-4 mr-2" />
               Certificates
@@ -474,6 +478,9 @@ export default function AdminContentPage() {
           </TabsContent>
           <TabsContent value="site" className="mt-6">
             <SiteSettingsManager />
+          </TabsContent>
+          <TabsContent value="demo-video" className="mt-6">
+            <DemoVideoManager />
           </TabsContent>
           <TabsContent value="cert-templates" className="mt-6">
             <CertTemplatesManager />
@@ -1814,7 +1821,169 @@ const SETTING_FIELDS: { key: string; label: string; placeholder: string }[] = [
     label: "Invoice contact (email/phone)",
     placeholder: "hello@learnify.ai · +91 98765 43210",
   },
+  {
+    key: "tour_video_url",
+    label: "Tour / Demo video URL",
+    placeholder: "https://youtube.com/watch?v=... or .mp4 URL",
+  },
+  { key: "hero_title", label: "Hero title", placeholder: "The intelligent Career OS" },
+  { key: "hero_subtitle", label: "Hero subtitle", placeholder: "AI-powered learning..." },
 ];
+
+function DemoVideoManager() {
+  const qc = useQueryClient();
+  const [videoUrl, setVideoUrl] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const doQuery = useServerFn(adminContentQuery);
+  const doUpsert = useServerFn(adminContentUpsert);
+  const doAdminAction = useServerFn(adminContentAction);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-demo-video"],
+    queryFn: async () => {
+      const result = await doQuery({
+        data: { table: "site_settings", columns: "value", eqFilter: { column: "key", value: "tour_video_url" }, single: true },
+      });
+      return (result?.value as string) || "";
+    },
+  });
+
+  useEffect(() => {
+    if (data !== undefined) setVideoUrl(data);
+  }, [data]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await doUpsert({
+        data: { table: "site_settings", data: { key: "tour_video_url", value: videoUrl }, onConflict: "key" },
+      });
+      toast.success("Demo video saved");
+      qc.invalidateQueries({ queryKey: ["admin-demo-video"] });
+      qc.invalidateQueries({ queryKey: ["admin-site-settings"] });
+      qc.invalidateQueries({ queryKey: ["site-settings"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async () => {
+    if (!window.confirm("Remove the demo video?")) return;
+    setSaving(true);
+    try {
+      await doAdminAction({
+        data: { table: "site_settings", action: "delete", id: "tour_video_url", matchKey: "key" },
+      });
+      setVideoUrl("");
+      toast.success("Demo video removed");
+      qc.invalidateQueries({ queryKey: ["admin-demo-video"] });
+      qc.invalidateQueries({ queryKey: ["admin-site-settings"] });
+      qc.invalidateQueries({ queryKey: ["site-settings"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Delete failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("video/")) return toast.error("Please select a video file");
+    if (file.size > 50 * 1024 * 1024) return toast.error("Video too large. Max 50MB.");
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "mp4";
+      const path = `demo-videos/tour-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("media").upload(path, file, { contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
+      setVideoUrl(urlData.publicUrl);
+      toast.success("Video uploaded! Click Save to apply.");
+    } catch (e: any) {
+      toast.error(e?.message || "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (isLoading) return <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+
+  const isYouTube = videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be");
+  const isMP4 = videoUrl.endsWith(".mp4") || videoUrl.includes("media/storage");
+
+  return (
+    <div className="space-y-5 max-w-2xl">
+      <div className="rounded-xl border border-border/60 bg-card p-5 space-y-4">
+        <div>
+          <h3 className="font-semibold text-lg">Demo / Tour Video</h3>
+          <p className="text-sm text-muted-foreground">
+            This video plays in the "Watch Demo" modal on the homepage. Supports YouTube embeds or direct MP4 URLs.
+          </p>
+        </div>
+
+        {/* Current video preview */}
+        {videoUrl && (
+          <div className="rounded-lg overflow-hidden border bg-black aspect-video">
+            {isYouTube ? (
+              <iframe
+                src={videoUrl.replace("watch?v=", "embed/")}
+                className="w-full h-full"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+              />
+            ) : (
+              <video src={videoUrl} controls className="w-full h-full object-contain" />
+            )}
+          </div>
+        )}
+
+        {/* URL input */}
+        <div className="space-y-2">
+          <Label>Video URL</Label>
+          <div className="flex gap-2">
+            <Input
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://youtube.com/watch?v=... or https://example.com/video.mp4"
+              className="flex-1"
+            />
+          </div>
+        </div>
+
+        {/* File upload */}
+        <div className="space-y-2">
+          <Label>Or upload a video file</Label>
+          <div className="flex items-center gap-2">
+            <input type="file" accept="video/*" onChange={handleFileUpload} className="hidden" id="demo-video-upload" />
+            <Button variant="outline" size="sm" onClick={() => document.getElementById("demo-video-upload")?.click()} disabled={uploading}>
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+              {uploading ? "Uploading..." : "Choose Video"}
+            </Button>
+            <span className="text-xs text-muted-foreground">Max 50MB · MP4, WebM</span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2 pt-2">
+          <Button onClick={save} disabled={saving || !videoUrl.trim()}>
+            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            Save Video
+          </Button>
+          {videoUrl && (
+            <Button variant="outline" onClick={remove} disabled={saving}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              Remove
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function SiteSettingsManager() {
   const qc = useQueryClient();
@@ -3894,7 +4063,12 @@ const DEFAULT_ROADMAP: RoadmapItem[] = [
     title: "Creator Payouts",
     desc: "Automatic monthly creator settlements.",
   },
-  { id: "7", status: "planned", title: "Mobile App", desc: "iOS + Android with offline lessons." },
+  {
+    id: "7",
+    status: "planned",
+    title: "Mobile App",
+    desc: "iOS + Android with offline lessons.",
+  },
   {
     id: "8",
     status: "planned",

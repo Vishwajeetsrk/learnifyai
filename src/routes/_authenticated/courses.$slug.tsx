@@ -44,7 +44,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { LessonSocial } from "@/components/LessonSocial";
 
-import { CustomVideoPlayer } from "@/components/CustomVideoPlayer";
+import { CoursePlayer } from "@/components/CoursePlayer";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -782,8 +782,9 @@ function CourseDetail() {
             )}
             <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
               {activeVideo?.ok && !playerLoadFailed ? (
-                <CustomVideoPlayer
+                <CoursePlayer
                   key={`${active?.id}-${playerRetry}`}
+                  mode="advanced"
                   url={activeVideo.src}
                   thumbnailUrl={
                     getCleanBannerUrl(course?.cover_url ?? null) ?? course?.cover_url ?? undefined
@@ -805,6 +806,20 @@ function CourseDetail() {
                       if (next && unlocked.has(next.id)) {
                         setTimeout(() => setActiveLessonId(next.id), 800);
                       }
+                    }
+                  }}
+                  title={course?.title || ""}
+                  lessons={lessons.map((l) => ({
+                    id: l.id,
+                    title: l.title,
+                    duration: l.duration ? `${Math.floor(l.duration / 60)}:${(l.duration % 60).toString().padStart(2, "0")}` : "0:00",
+                    completed: completed.has(l.id),
+                  }))}
+                  currentLessonId={active?.id || ""}
+                  onLessonClick={(id) => setActiveLessonId(id)}
+                  onComplete={(lessonId) => {
+                    if (user && !completed.has(lessonId)) {
+                      toggleComplete(lessonId);
                     }
                   }}
                 />
