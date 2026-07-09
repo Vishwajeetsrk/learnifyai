@@ -47,6 +47,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedWorkspaceRouteImport } from './routes/_authenticated/workspace'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
+import { Route as AuthenticatedSystemDesignRouteImport } from './routes/_authenticated/system-design'
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
@@ -78,12 +79,14 @@ import { Route as AuthenticatedAiToolsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAchievementsRouteImport } from './routes/_authenticated/achievements'
+import { Route as AuthenticatedSystemDesignIndexRouteImport } from './routes/_authenticated/system-design.index'
 import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
 import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/api/webhooks/cashfree-subscription'
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
 import { Route as ApiCronRetryCertEmailsRouteImport } from './routes/api/cron/retry-cert-emails'
 import { Route as ApiCronCheckSubscriptionsRouteImport } from './routes/api/cron/check-subscriptions'
 import { Route as ApiCronAutoMaintenanceRouteImport } from './routes/api/cron/auto-maintenance'
+import { Route as AuthenticatedSystemDesignTopicRouteImport } from './routes/_authenticated/system-design.$topic'
 import { Route as AuthenticatedPlaygroundWebRouteImport } from './routes/_authenticated/playground.web'
 import { Route as AuthenticatedPlaygroundReactRouteImport } from './routes/_authenticated/playground.react'
 import { Route as AuthenticatedPlaygroundProjectsRouteImport } from './routes/_authenticated/playground.projects'
@@ -295,6 +298,12 @@ const AuthenticatedWalletRoute = AuthenticatedWalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSystemDesignRoute =
+  AuthenticatedSystemDesignRouteImport.update({
+    id: '/system-design',
+    path: '/system-design',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
   id: '/support',
   path: '/support',
@@ -461,6 +470,12 @@ const AuthenticatedAchievementsRoute =
     path: '/achievements',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedSystemDesignIndexRoute =
+  AuthenticatedSystemDesignIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedSystemDesignRoute,
+  } as any)
 const AuthenticatedCoursesIndexRoute =
   AuthenticatedCoursesIndexRouteImport.update({
     id: '/courses/',
@@ -494,6 +509,12 @@ const ApiCronAutoMaintenanceRoute = ApiCronAutoMaintenanceRouteImport.update({
   path: '/api/cron/auto-maintenance',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSystemDesignTopicRoute =
+  AuthenticatedSystemDesignTopicRouteImport.update({
+    id: '/$topic',
+    path: '/$topic',
+    getParentRoute: () => AuthenticatedSystemDesignRoute,
+  } as any)
 const AuthenticatedPlaygroundWebRoute =
   AuthenticatedPlaygroundWebRouteImport.update({
     id: '/web',
@@ -675,6 +696,7 @@ export interface FileRoutesByFullPath {
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
   '/support': typeof AuthenticatedSupportRoute
+  '/system-design': typeof AuthenticatedSystemDesignRouteWithChildren
   '/wallet': typeof AuthenticatedWalletRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
@@ -708,12 +730,14 @@ export interface FileRoutesByFullPath {
   '/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
   '/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/playground/web': typeof AuthenticatedPlaygroundWebRoute
+  '/system-design/$topic': typeof AuthenticatedSystemDesignTopicRoute
   '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/courses/': typeof AuthenticatedCoursesIndexRoute
+  '/system-design/': typeof AuthenticatedSystemDesignIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
 export interface FileRoutesByTo {
@@ -805,12 +829,14 @@ export interface FileRoutesByTo {
   '/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
   '/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/playground/web': typeof AuthenticatedPlaygroundWebRoute
+  '/system-design/$topic': typeof AuthenticatedSystemDesignTopicRoute
   '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/courses': typeof AuthenticatedCoursesIndexRoute
+  '/system-design': typeof AuthenticatedSystemDesignIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
 export interface FileRoutesById {
@@ -871,6 +897,7 @@ export interface FileRoutesById {
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
+  '/_authenticated/system-design': typeof AuthenticatedSystemDesignRouteWithChildren
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
@@ -904,12 +931,14 @@ export interface FileRoutesById {
   '/_authenticated/playground/projects': typeof AuthenticatedPlaygroundProjectsRoute
   '/_authenticated/playground/react': typeof AuthenticatedPlaygroundReactRoute
   '/_authenticated/playground/web': typeof AuthenticatedPlaygroundWebRoute
+  '/_authenticated/system-design/$topic': typeof AuthenticatedSystemDesignTopicRoute
   '/api/cron/auto-maintenance': typeof ApiCronAutoMaintenanceRoute
   '/api/cron/check-subscriptions': typeof ApiCronCheckSubscriptionsRoute
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
   '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
+  '/_authenticated/system-design/': typeof AuthenticatedSystemDesignIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
 export interface FileRouteTypes {
@@ -970,6 +999,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/submissions'
     | '/support'
+    | '/system-design'
     | '/wallet'
     | '/workspace'
     | '/api/chat'
@@ -1003,12 +1033,14 @@ export interface FileRouteTypes {
     | '/playground/projects'
     | '/playground/react'
     | '/playground/web'
+    | '/system-design/$topic'
     | '/api/cron/auto-maintenance'
     | '/api/cron/check-subscriptions'
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/courses/'
+    | '/system-design/'
     | '/api/public/hooks/run-reminders'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -1100,12 +1132,14 @@ export interface FileRouteTypes {
     | '/playground/projects'
     | '/playground/react'
     | '/playground/web'
+    | '/system-design/$topic'
     | '/api/cron/auto-maintenance'
     | '/api/cron/check-subscriptions'
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/courses'
+    | '/system-design'
     | '/api/public/hooks/run-reminders'
   id:
     | '__root__'
@@ -1165,6 +1199,7 @@ export interface FileRouteTypes {
     | '/_authenticated/studio'
     | '/_authenticated/submissions'
     | '/_authenticated/support'
+    | '/_authenticated/system-design'
     | '/_authenticated/wallet'
     | '/_authenticated/workspace'
     | '/api/chat'
@@ -1198,12 +1233,14 @@ export interface FileRouteTypes {
     | '/_authenticated/playground/projects'
     | '/_authenticated/playground/react'
     | '/_authenticated/playground/web'
+    | '/_authenticated/system-design/$topic'
     | '/api/cron/auto-maintenance'
     | '/api/cron/check-subscriptions'
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
     | '/_authenticated/courses/'
+    | '/_authenticated/system-design/'
     | '/api/public/hooks/run-reminders'
   fileRoutesById: FileRoutesById
 }
@@ -1520,6 +1557,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedWalletRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/system-design': {
+      id: '/_authenticated/system-design'
+      path: '/system-design'
+      fullPath: '/system-design'
+      preLoaderRoute: typeof AuthenticatedSystemDesignRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/support': {
       id: '/_authenticated/support'
       path: '/support'
@@ -1737,6 +1781,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAchievementsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/system-design/': {
+      id: '/_authenticated/system-design/'
+      path: '/'
+      fullPath: '/system-design/'
+      preLoaderRoute: typeof AuthenticatedSystemDesignIndexRouteImport
+      parentRoute: typeof AuthenticatedSystemDesignRoute
+    }
     '/_authenticated/courses/': {
       id: '/_authenticated/courses/'
       path: '/courses'
@@ -1778,6 +1829,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/cron/auto-maintenance'
       preLoaderRoute: typeof ApiCronAutoMaintenanceRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/system-design/$topic': {
+      id: '/_authenticated/system-design/$topic'
+      path: '/$topic'
+      fullPath: '/system-design/$topic'
+      preLoaderRoute: typeof AuthenticatedSystemDesignTopicRouteImport
+      parentRoute: typeof AuthenticatedSystemDesignRoute
     }
     '/_authenticated/playground/web': {
       id: '/_authenticated/playground/web'
@@ -2007,6 +2065,22 @@ const AuthenticatedPlaygroundRouteWithChildren =
     AuthenticatedPlaygroundRouteChildren,
   )
 
+interface AuthenticatedSystemDesignRouteChildren {
+  AuthenticatedSystemDesignTopicRoute: typeof AuthenticatedSystemDesignTopicRoute
+  AuthenticatedSystemDesignIndexRoute: typeof AuthenticatedSystemDesignIndexRoute
+}
+
+const AuthenticatedSystemDesignRouteChildren: AuthenticatedSystemDesignRouteChildren =
+  {
+    AuthenticatedSystemDesignTopicRoute: AuthenticatedSystemDesignTopicRoute,
+    AuthenticatedSystemDesignIndexRoute: AuthenticatedSystemDesignIndexRoute,
+  }
+
+const AuthenticatedSystemDesignRouteWithChildren =
+  AuthenticatedSystemDesignRoute._addFileChildren(
+    AuthenticatedSystemDesignRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedAchievementsRoute: typeof AuthenticatedAchievementsRoute
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
@@ -2039,6 +2113,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
+  AuthenticatedSystemDesignRoute: typeof AuthenticatedSystemDesignRouteWithChildren
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWorkspaceRoute: typeof AuthenticatedWorkspaceRoute
   AuthenticatedCoursesSlugRoute: typeof AuthenticatedCoursesSlugRoute
@@ -2078,6 +2153,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
+  AuthenticatedSystemDesignRoute: AuthenticatedSystemDesignRouteWithChildren,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWorkspaceRoute: AuthenticatedWorkspaceRoute,
   AuthenticatedCoursesSlugRoute: AuthenticatedCoursesSlugRoute,

@@ -33,7 +33,7 @@ const TEMPLATES = [
   { value: "executive", label: "Executive" },
 ];
 
-function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) {
+export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) {
   const generateFn = useServerFn(generateResume);
   const extractFn = useServerFn(extractResumeFields);
   const [tab, setTab] = useState("form");

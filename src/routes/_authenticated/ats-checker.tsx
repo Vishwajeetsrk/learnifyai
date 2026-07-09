@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/ats-checker")({
   component: AtsCheckerPage,
 });
 
-function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
+export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
   const checkFn = useServerFn(checkAtsScore);
   const extractFn = useServerFn(extractResumeFields);
   const [tab, setTab] = useState("input");

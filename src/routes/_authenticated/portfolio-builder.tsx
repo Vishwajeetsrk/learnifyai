@@ -56,7 +56,7 @@ type ProjectEntry = {
   githubUrl: string;
 };
 
-function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean }) {
+export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean }) {
   const generateFn = useServerFn(generatePortfolio);
   const extractFn = useServerFn(extractResumeFields);
   const [tab, setTab] = useState("form");

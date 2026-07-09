@@ -133,7 +133,7 @@ interface RoadmapData {
   };
 }
 
-function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) {
+export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) {
   const generateFn = useServerFn(generateCareerRoadmap);
   const [tab, setTab] = useState("form");
   const [loading, setLoading] = useState(false);
