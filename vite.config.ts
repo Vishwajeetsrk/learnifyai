@@ -26,6 +26,9 @@ export default defineConfig({
     serveStatic: true,
   },
   vite: {
+    css: {
+      transformer: "lightningcss",
+    },
     envPrefix: ["VITE_", "NEXT_PUBLIC_"],
     // Exclude nodemailer from client-side pre-bundling (dev server)
     optimizeDeps: {

@@ -385,13 +385,13 @@ function AIPage() {
                             onClick={() => selectConversation(c.id)}
                             className={cn(
                               "w-full text-left p-2.5 rounded-lg text-xs transition-colors hover:bg-muted/50 flex items-start gap-2",
-                              conversationId === c.id ? "bg-primary/10 text-primary font-medium" : ""
+                              activeId === c.id ? "bg-primary/10 text-primary font-medium" : ""
                             )}
                           >
                             <MessageSquare className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                             <div className="min-w-0 flex-1">
                               <div className="truncate">{c.title || `Chat ${c.id.slice(0, 6)}`}</div>
-                              <div className="text-[10px] text-muted-foreground mt-0.5">{new Date(c.created_at).toLocaleDateString()}</div>
+                              <div className="text-[10px] text-muted-foreground mt-0.5">{new Date(c.updated_at).toLocaleDateString()}</div>
                             </div>
                           </button>
                         </SheetClose>

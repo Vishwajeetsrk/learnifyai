@@ -516,11 +516,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Keyboard Shortcuts**: Added keydown listeners for Delete/Backspace to remove selected elements, and Escape to deselect.
 - ✅ **Desktop Drag & Drop**: Dragging image files from desktop onto the canvas either sets the background image (if dropped on background) or inserts a new draggable image element.
 
-### v4.8.0 (July 2026) — Visual Learning Integration, Owner Video Player Fix, Multi-Language Polish
+### v4.8.0 (July 2026) — Visual Learning Integration, Owner Video Player Fix, Build & AI Tutor Fixes
 
 - ✅ **Visual Learning Tab in Course Player**: New "Visual" tab in `LessonAiTabs` rendered via `VisualLearningPanel` — two sub-tabs: Concept Map (force-directed knowledge graph with `@xyflow/react`) and Explain Like I'm 12 (AI-generated simplified explanations). Props wired: `lessonId`, `courseId`, `lessonTitle`, `lessonContent`.
 - ✅ **Owner Video Player Control Fixed**: `CoursePlayer` `key` prop now includes `isAdmin` and `user?.id` so the player properly re-mounts when admin/owner status loads after initial render. Previously, if roles loaded asynchronously, `restrictDownload`/`restrictSpeed` would remain locked for admins/course owners.
 - ✅ **YouTube Error 153 Fixed**: Added `origin: window.location.origin` to `playerVars` in `CustomVideoPlayer` and appended `origin=` param to iframe `src` in `AdvancedVideoPlayer` to prevent embed domain mismatch errors. Custom error handler added for code 153.
+- ✅ **Build Error Fixed**: Changed `css.transformer` from `"postcss"` to `"lightningcss"` in Vite config — PostCSS could not parse Tailwind v4's `@property`/`@utility` CSS output. LightningCSS handles modern CSS syntax correctly. Build now succeeds.
+- ✅ **AI Tutor Bug Fixes** (`ai.tsx`): Fixed `conversationId` → `activeId` (undefined variable in mobile sidebar highlight). Fixed `c.created_at` → `c.updated_at` (property doesn't exist on Conversation type — was showing "Invalid Date").
 
 ### v4.7.0 (July 2026) — Community Hub Responsive, Portfolio Builder SVG Logos, Admin Billing & Subscriptions OS
 
