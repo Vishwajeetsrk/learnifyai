@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { ArrowLeft, Clock, BookOpen, Users, Trophy, ChevronRight, Sparkles, Play, CheckCircle, BarChart3 } from "lucide-react";
+import { ArrowLeft, Clock, BookOpen, Users, Trophy, ChevronRight, Sparkles, Play, CheckCircle, BarChart3, FileText } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogHeader } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { getTopic, DIFFICULTY_COLORS, TOPICS } from "@/components/system-design/content";
 import { LearningCard } from "@/components/system-design/LearningCard";
@@ -13,6 +14,7 @@ import { InteractiveQuiz } from "@/components/system-design/InteractiveQuiz";
 import { ComparisonView } from "@/components/system-design/ComparisonView";
 import { markTopicCompleted, markTopicAccessed, useLearningProgress } from "@/components/system-design/LearningProgress";
 import { KnowledgeGraph } from "@/components/system-design/KnowledgeGraph";
+import { CheatSheetGenerator } from "@/components/cheat-sheet/CheatSheetGenerator";
 
 export const Route = createFileRoute("/_authenticated/system-design/$topic")({
   head: ({ params }) => ({
@@ -31,6 +33,7 @@ function SystemDesignTopicPage() {
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [completedLesson, setCompletedLesson] = useState(false);
+  const [showCheatSheet, setShowCheatSheet] = useState(false);
 
   // Mark as accessed on mount
   useMemo(() => {
@@ -103,6 +106,9 @@ function SystemDesignTopicPage() {
                   <CheckCircle className="h-4 w-4" /> Completed
                 </div>
               )}
+              <Button variant="outline" size="sm" className="shrink-0 text-xs" onClick={() => setShowCheatSheet(true)}>
+                <FileText className="h-3.5 w-3.5 mr-1.5" /> Cheat Sheet
+              </Button>
             </div>
 
             <p className="text-sm leading-relaxed">{topic.description}</p>
@@ -246,6 +252,18 @@ function SystemDesignTopicPage() {
           ) : <div />}
         </div>
       </div>
+
+      {/* Cheat Sheet Dialog */}
+      <Dialog open={showCheatSheet} onOpenChange={setShowCheatSheet}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-4 w-4" /> {topic.title} — Cheat Sheet
+            </DialogTitle>
+          </DialogHeader>
+          <CheatSheetGenerator topic={topic} onClose={() => setShowCheatSheet(false)} />
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
