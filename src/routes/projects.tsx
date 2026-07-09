@@ -27,6 +27,7 @@ import {
   ClipboardCopy,
   CheckCheck,
   GraduationCap,
+  Eye,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -263,8 +264,26 @@ function ProjectCard({
           </div>
         )}
 
-        {/* Hover overlay — Always visible on mobile, hover-only on desktop */}
-        <div className="absolute inset-0 bg-black/75 backdrop-blur-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 flex flex-col md:flex-row items-center justify-center md:justify-between gap-3 p-4 z-20">
+        {/* Mobile tap button to show overlay */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            const el = document.getElementById(`overlay-${p.id}`);
+            if (el) {
+              const isOpen = el.classList.contains("opacity-100");
+              el.classList.toggle("opacity-100", !isOpen);
+              el.classList.toggle("opacity-0", isOpen);
+            }
+          }}
+          className="md:hidden absolute top-2 left-2 z-30 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2.5 py-1.5 rounded-lg border border-white/20 hover:bg-black/80 transition-all flex items-center gap-1"
+          aria-label="Show template options"
+        >
+          <Eye className="h-3 w-3" />
+          Options
+        </button>
+
+        {/* Hover overlay — Hidden on mobile by default, tap eye button to show; hover on desktop */}
+        <div className={`absolute inset-0 bg-black/75 backdrop-blur-sm transition-all duration-300 flex flex-col md:flex-row items-center justify-center md:justify-between gap-3 p-4 z-20 mobile-overlay ${isVisible ? 'opacity-0 md:opacity-0 md:group-hover:opacity-100' : 'opacity-0'}`} id={`overlay-${p.id}`}>
           <div className="flex flex-col sm:flex-row items-center gap-2">
             <button
               onClick={onClick}

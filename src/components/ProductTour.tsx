@@ -981,11 +981,30 @@ function TooltipPopup({ tooltip }: { tooltip: Tooltip }) {
 export function TourTrigger() {
   const { isActive, startTour, completedTours, isTourCompleted } = useTour();
   const [open, setOpen] = useState(false);
+  const [showButton, setShowButton] = useState(false);
   const { isCreator, isAdmin } = useAuth();
   const pathname = typeof window !== "undefined" ? window.location.pathname : "";
 
+  // Show the tour button when user clicks "?" help or when explicitly triggered via window event
+  useEffect(() => {
+    const handler = () => setShowButton(true);
+    window.addEventListener("show-tour-trigger", handler);
+    // Auto-show on first visit if tours are incomplete
+    const timer = setTimeout(() => {
+      const hasCompletedAny = completedTours.length > 0;
+      if (!hasCompletedAny && !isActive) {
+        setShowButton(true);
+      }
+    }, 10000);
+    return () => {
+      window.removeEventListener("show-tour-trigger", handler);
+      clearTimeout(timer);
+    };
+  }, [completedTours, isActive]);
+
   if (isActive) return null;
   if (pathname === "/onboarding" || pathname.endsWith("/onboarding")) return null;
+  if (!showButton) return null;
 
   const availableTours = ALL_TOURS.filter((t) => {
     if (t.role === "admin" && !isAdmin) return false;
@@ -1036,13 +1055,24 @@ export function TourTrigger() {
           </div>
         </div>
       )}
-      <Button
-        size="icon"
-        className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-shadow"
-        onClick={() => setOpen(!open)}
-      >
-        <HelpCircle className="h-5 w-5" />
-      </Button>
+      <div className="flex gap-2 items-end">
+        <Button
+          size="icon"
+          variant="outline"
+          className="h-8 w-8 rounded-full shadow-md hover:shadow-lg transition-shadow bg-background/80 backdrop-blur"
+          onClick={() => setShowButton(false)}
+          title="Dismiss tour button"
+        >
+          <X className="h-3.5 w-3.5" />
+        </Button>
+        <Button
+          size="icon"
+          className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-shadow"
+          onClick={() => setOpen(!open)}
+        >
+          <HelpCircle className="h-5 w-5" />
+        </Button>
+      </div>
     </div>
   );
 }

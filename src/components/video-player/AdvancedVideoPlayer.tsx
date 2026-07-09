@@ -343,7 +343,7 @@ export function AdvancedVideoPlayer({
       {isYouTube ? (
         <div className="relative w-full aspect-video">
           <iframe
-            src={videoUrl}
+            src={`${videoUrl}${videoUrl.includes("?") ? "&" : "?"}origin=${typeof window !== "undefined" ? encodeURIComponent(window.location.origin) : ""}`}
             className="absolute inset-0 w-full h-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen

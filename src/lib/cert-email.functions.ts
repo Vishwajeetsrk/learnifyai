@@ -142,8 +142,8 @@ export const issueAndEmailCertificate = createServerFn({ method: "POST" })
     });
 
     // 1. Insert into certificates table
-    const { data: certRecord, error: insertError } = await supabaseAdmin
-      .from("certificates")
+    const { data: certRecord, error: insertError } = await (supabaseAdmin
+      .from("certificates") as any)
       .insert({
         user_id: context.userId,
         course_id: data.courseId ?? null,
@@ -176,7 +176,7 @@ export const issueAndEmailCertificate = createServerFn({ method: "POST" })
 
     // 2. Log audit entry
     if (certRecord?.id) {
-      await supabaseAdmin.from("certificate_audit_log").insert({
+      await (supabaseAdmin.from("certificate_audit_log") as any).insert({
         certificate_id: certRecord.id,
         user_id: context.userId,
         action: "issued",

@@ -1018,7 +1018,7 @@ function FlashcardsTool() {
     }
     // Merge updated cards by replacing them or appending them
     // For simplicity in this demo, we'll just save all current generated cards to the SM-2 deck.
-    const merged = [...allCards, ...updatedCards.filter(c => !allCards.find(ac => ac.front === c.front))];
+    const merged = [...allCards, ...updatedCards.filter(c => !allCards.find((ac: Card) => ac.front === c.front))];
     localStorage.setItem("learnify_sm2_deck", JSON.stringify(merged));
   };
 

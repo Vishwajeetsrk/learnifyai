@@ -513,6 +513,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Keyboard Shortcuts**: Added keydown listeners for Delete/Backspace to remove selected elements, and Escape to deselect.
 - ✅ **Desktop Drag & Drop**: Dragging image files from desktop onto the canvas either sets the background image (if dropped on background) or inserts a new draggable image element.
 
+### v4.7.0 (July 2026) — Community Hub Responsive, Portfolio Builder SVG Logos, Admin Billing & Subscriptions OS
+
+- ✅ **Community Hub Mobile-Responsive**: Tab bar compact with horizontal scroll on mobile (`community-hub.tsx`). Post composer actions full-width on small screens (`community-feed.view.tsx`). Leaderboard podium fixed to `w-20 sm:w-28`, rank cards with text truncation, list XP compact (`leaderboard.view.tsx`). Challenge cards `p-3 sm:p-4`, icons shrink on mobile, buttons `h-8` (`challenges.tsx`). Inbox notification actions `flex-row sm:flex-col`, tabs `flex-1`, text truncated (`inbox.tsx`).
+- ✅ **Portfolio Builder SVG Skill Logos**: Added `SKILL_BRANDS` map with 25+ brand-colored SVG icons (Python, SQL, Excel, Power BI, JavaScript, HTML, CSS, GitHub, VS Code, Figma, Docker, etc.). `SkillLogo` component renders inline SVGs with brand-colored rounded squares + white letter labels. `whileHover` (`scale: 1.05, y: -2`) + `whileTap` (`scale: 0.95`) framer-motion animations on every skill/soft-skill/tool badge. HTML export now includes inline SVG logos in exported `.html` files.
+- ✅ **Admin Billing Upgrades** (`admin/billing.tsx`): Manual Invoice — user search dropdown from `profiles` table with invoice preview + send email button. Process Refund — user + invoice search dropdowns with refund reason picklist (deficiency, technical, billing, other) + send email confirmation. Coupon editor — delete button added. Cashfree Razorpay note added to payment info section. Payments table — User column added showing full name/email/mobile.
+- ✅ **Admin Subscriptions Upgrades** (`admin/subscriptions.tsx`): "Last Month" date preset added to date range picker. "Admin Only" badge removed from plan display. Mobile phone number field added to export CSV.
+- ✅ **Billing Functions** (`billing.functions.ts`): `exportBillingData` and `getPaymentLogs` now LEFT JOIN `profiles` table to include `full_name`, `email`, `mobile` in billing exports and payment logs.
+- ✅ **New Migrations Added**: `20270721000000_admin_audit_logs.sql` (audit logging infrastructure), `20270722000000_cron_jobs.sql` (scheduled tasks), `20270723000000_store_items.sql` (XP Store items table).
+
 ### v4.6.1 (July 2026) - Bug Fixes: XP Store, Player, YouTube Live Filter & Build Cleanup
 
 - ✅ **XP Store Server-Side Purchase Fix**: `xp_purchases` table properly typed via `as any` casts in `gamification.functions.ts`. Better error message when table is missing ("run migrations"). Store page now fetches purchases from server, falls back to localStorage.

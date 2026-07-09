@@ -100,6 +100,7 @@ import { Route as AuthenticatedCreatorEarningsRouteImport } from './routes/_auth
 import { Route as AuthenticatedCreatorCommentsRouteImport } from './routes/_authenticated/creator.comments'
 import { Route as AuthenticatedCoursesSlugRouteImport } from './routes/_authenticated/courses.$slug'
 import { Route as AuthenticatedCohortsIdRouteImport } from './routes/_authenticated/cohorts.$id'
+import { Route as AuthenticatedAdminSystemHealthRouteImport } from './routes/_authenticated/admin.system-health'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin/subscriptions'
 import { Route as AuthenticatedAdminStoreRouteImport } from './routes/_authenticated/admin.store'
 import { Route as AuthenticatedAdminMissingVideosRouteImport } from './routes/_authenticated/admin.missing-videos'
@@ -108,6 +109,8 @@ import { Route as AuthenticatedAdminCoursesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
 import { Route as AuthenticatedAdminCertificatesRouteImport } from './routes/_authenticated/admin.certificates'
 import { Route as AuthenticatedAdminBillingRouteImport } from './routes/_authenticated/admin/billing'
+import { Route as AuthenticatedAdminAuditLogsRouteImport } from './routes/_authenticated/admin.audit-logs'
+import { Route as AuthenticatedAdminAnnouncementsRouteImport } from './routes/_authenticated/admin.announcements'
 import { Route as ApiPublicHooksRunRemindersRouteImport } from './routes/api/public/hooks/run-reminders'
 
 const VerifyStudentRoute = VerifyStudentRouteImport.update({
@@ -592,6 +595,12 @@ const AuthenticatedCohortsIdRoute = AuthenticatedCohortsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedCohortsRoute,
 } as any)
+const AuthenticatedAdminSystemHealthRoute =
+  AuthenticatedAdminSystemHealthRouteImport.update({
+    id: '/system-health',
+    path: '/system-health',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSubscriptionsRoute =
   AuthenticatedAdminSubscriptionsRouteImport.update({
     id: '/subscriptions',
@@ -637,6 +646,18 @@ const AuthenticatedAdminBillingRoute =
   AuthenticatedAdminBillingRouteImport.update({
     id: '/billing',
     path: '/billing',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAuditLogsRoute =
+  AuthenticatedAdminAuditLogsRouteImport.update({
+    id: '/audit-logs',
+    path: '/audit-logs',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAnnouncementsRoute =
+  AuthenticatedAdminAnnouncementsRouteImport.update({
+    id: '/announcements',
+    path: '/announcements',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const ApiPublicHooksRunRemindersRoute =
@@ -716,6 +737,8 @@ export interface FileRoutesByFullPath {
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
   '/blog/': typeof BlogIndexRoute
+  '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
+  '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
@@ -724,6 +747,7 @@ export interface FileRoutesByFullPath {
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
   '/admin/store': typeof AuthenticatedAdminStoreRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/system-health': typeof AuthenticatedAdminSystemHealthRoute
   '/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/creator/comments': typeof AuthenticatedCreatorCommentsRoute
@@ -816,6 +840,8 @@ export interface FileRoutesByTo {
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
   '/blog': typeof BlogIndexRoute
+  '/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
+  '/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
@@ -824,6 +850,7 @@ export interface FileRoutesByTo {
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
   '/admin/store': typeof AuthenticatedAdminStoreRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/system-health': typeof AuthenticatedAdminSystemHealthRoute
   '/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/creator/comments': typeof AuthenticatedCreatorCommentsRoute
@@ -919,6 +946,8 @@ export interface FileRoutesById {
   '/u/@$username': typeof UAtusernameRoute
   '/verify/$id': typeof VerifyIdRoute
   '/blog/': typeof BlogIndexRoute
+  '/_authenticated/admin/announcements': typeof AuthenticatedAdminAnnouncementsRoute
+  '/_authenticated/admin/audit-logs': typeof AuthenticatedAdminAuditLogsRoute
   '/_authenticated/admin/billing': typeof AuthenticatedAdminBillingRoute
   '/_authenticated/admin/certificates': typeof AuthenticatedAdminCertificatesRoute
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
@@ -927,6 +956,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
   '/_authenticated/admin/store': typeof AuthenticatedAdminStoreRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/_authenticated/admin/system-health': typeof AuthenticatedAdminSystemHealthRoute
   '/_authenticated/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/_authenticated/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/_authenticated/creator/comments': typeof AuthenticatedCreatorCommentsRoute
@@ -1022,6 +1052,8 @@ export interface FileRouteTypes {
     | '/u/@$username'
     | '/verify/$id'
     | '/blog/'
+    | '/admin/announcements'
+    | '/admin/audit-logs'
     | '/admin/billing'
     | '/admin/certificates'
     | '/admin/content'
@@ -1030,6 +1062,7 @@ export interface FileRouteTypes {
     | '/admin/missing-videos'
     | '/admin/store'
     | '/admin/subscriptions'
+    | '/admin/system-health'
     | '/cohorts/$id'
     | '/courses/$slug'
     | '/creator/comments'
@@ -1122,6 +1155,8 @@ export interface FileRouteTypes {
     | '/u/@$username'
     | '/verify/$id'
     | '/blog'
+    | '/admin/announcements'
+    | '/admin/audit-logs'
     | '/admin/billing'
     | '/admin/certificates'
     | '/admin/content'
@@ -1130,6 +1165,7 @@ export interface FileRouteTypes {
     | '/admin/missing-videos'
     | '/admin/store'
     | '/admin/subscriptions'
+    | '/admin/system-health'
     | '/cohorts/$id'
     | '/courses/$slug'
     | '/creator/comments'
@@ -1224,6 +1260,8 @@ export interface FileRouteTypes {
     | '/u/@$username'
     | '/verify/$id'
     | '/blog/'
+    | '/_authenticated/admin/announcements'
+    | '/_authenticated/admin/audit-logs'
     | '/_authenticated/admin/billing'
     | '/_authenticated/admin/certificates'
     | '/_authenticated/admin/content'
@@ -1232,6 +1270,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/missing-videos'
     | '/_authenticated/admin/store'
     | '/_authenticated/admin/subscriptions'
+    | '/_authenticated/admin/system-health'
     | '/_authenticated/cohorts/$id'
     | '/_authenticated/courses/$slug'
     | '/_authenticated/creator/comments'
@@ -1940,6 +1979,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCohortsIdRouteImport
       parentRoute: typeof AuthenticatedCohortsRoute
     }
+    '/_authenticated/admin/system-health': {
+      id: '/_authenticated/admin/system-health'
+      path: '/system-health'
+      fullPath: '/admin/system-health'
+      preLoaderRoute: typeof AuthenticatedAdminSystemHealthRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/subscriptions': {
       id: '/_authenticated/admin/subscriptions'
       path: '/subscriptions'
@@ -1996,6 +2042,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminBillingRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/audit-logs': {
+      id: '/_authenticated/admin/audit-logs'
+      path: '/audit-logs'
+      fullPath: '/admin/audit-logs'
+      preLoaderRoute: typeof AuthenticatedAdminAuditLogsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/announcements': {
+      id: '/_authenticated/admin/announcements'
+      path: '/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AuthenticatedAdminAnnouncementsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/api/public/hooks/run-reminders': {
       id: '/api/public/hooks/run-reminders'
       path: '/api/public/hooks/run-reminders'
@@ -2007,6 +2067,8 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAnnouncementsRoute: typeof AuthenticatedAdminAnnouncementsRoute
+  AuthenticatedAdminAuditLogsRoute: typeof AuthenticatedAdminAuditLogsRoute
   AuthenticatedAdminBillingRoute: typeof AuthenticatedAdminBillingRoute
   AuthenticatedAdminCertificatesRoute: typeof AuthenticatedAdminCertificatesRoute
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
@@ -2015,9 +2077,12 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminMissingVideosRoute: typeof AuthenticatedAdminMissingVideosRoute
   AuthenticatedAdminStoreRoute: typeof AuthenticatedAdminStoreRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
+  AuthenticatedAdminSystemHealthRoute: typeof AuthenticatedAdminSystemHealthRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAnnouncementsRoute: AuthenticatedAdminAnnouncementsRoute,
+  AuthenticatedAdminAuditLogsRoute: AuthenticatedAdminAuditLogsRoute,
   AuthenticatedAdminBillingRoute: AuthenticatedAdminBillingRoute,
   AuthenticatedAdminCertificatesRoute: AuthenticatedAdminCertificatesRoute,
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
@@ -2026,6 +2091,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminMissingVideosRoute: AuthenticatedAdminMissingVideosRoute,
   AuthenticatedAdminStoreRoute: AuthenticatedAdminStoreRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
+  AuthenticatedAdminSystemHealthRoute: AuthenticatedAdminSystemHealthRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =

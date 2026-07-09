@@ -13,6 +13,7 @@ import {
   Users,
   Video,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { MarketingPage } from "@/components/MarketingPage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -301,30 +302,47 @@ function CoachesPage() {
 
               <div className="space-y-2">
                 {roadmapPhases.map((phase) => (
-                  <div
+                  <motion.div
                     key={phase.id}
+                    layout
                     onClick={() => togglePhase(phase.id)}
-                    className="flex items-center gap-3 p-2.5 rounded-lg border bg-muted/20 border-border/60 hover:bg-muted/50 cursor-pointer transition-colors"
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
+                      phase.completed
+                        ? "bg-emerald-500/5 border-emerald-500/20"
+                        : "bg-muted/20 border-border/60 hover:bg-muted/50",
+                    )}
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
                   >
                     <div
-                      className={`h-4.5 w-4.5 rounded border flex items-center justify-center shrink-0 transition-all ${
+                      className={cn(
+                        "h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all",
                         phase.completed
-                          ? "bg-primary border-transparent text-primary-foreground"
-                          : "border-muted-foreground/30 bg-transparent"
-                      }`}
+                          ? "bg-emerald-500 border-emerald-500 text-white"
+                          : "border-muted-foreground/30 bg-transparent",
+                      )}
                     >
-                      {phase.completed && <Check className="h-3 w-3" />}
+                      {phase.completed && <Check className="h-3 w-3" strokeWidth={3} />}
                     </div>
-                    <span
-                      className={`text-xs text-left ${
-                        phase.completed
-                          ? "line-through text-muted-foreground"
-                          : "text-foreground font-medium"
-                      }`}
-                    >
-                      {phase.title}
-                    </span>
-                  </div>
+                    <div className="flex-1 min-w-0">
+                      <span
+                        className={cn(
+                          "text-xs text-left block",
+                          phase.completed
+                            ? "line-through text-muted-foreground"
+                            : "text-foreground font-medium",
+                        )}
+                      >
+                        {phase.title}
+                      </span>
+                    </div>
+                    {phase.completed && (
+                      <span className="text-[9px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/40 px-1.5 py-0.5 rounded-full shrink-0">
+                        Done
+                      </span>
+                    )}
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -387,16 +405,31 @@ function CoachesPage() {
 
               {runAudit === "done" && (
                 <div className="space-y-3.5">
-                  <div className="p-3 bg-primary/5 border border-primary/20 rounded-xl space-y-2">
-                    <div className="flex items-center gap-1.5 text-primary text-xs font-semibold">
-                      <Sparkles className="h-3.5 w-3.5" /> AI ANALYSIS REPORT
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-gradient-to-br from-primary/5 to-purple-500/5 border border-primary/20 rounded-xl space-y-3"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Sparkles className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-foreground">AI Analysis Report</p>
+                        <p className="text-[9px] text-muted-foreground">Skills & Outcomes Audit</p>
+                      </div>
                     </div>
-                    <p className="text-xs text-foreground leading-relaxed">
-                      Client is extremely proficient with asynchronous patterns. Highlighted
-                      recommendation: Focus on **database indexing** and query profiling
-                      optimizations.
-                    </p>
-                  </div>
+                    <div className="space-y-2 text-xs text-foreground leading-relaxed bg-white/50 dark:bg-black/20 p-3 rounded-lg border border-border/30">
+                      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold text-[10px]">
+                        <Check className="h-3 w-3" />
+                        Proficiency: Async Patterns — <strong>Advanced</strong>
+                      </div>
+                      <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold text-[10px]">
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                        Recommendation: Focus on <strong>database indexing</strong> & query profiling
+                      </div>
+                    </div>
+                  </motion.div>
                 </div>
               )}
             </div>
@@ -451,17 +484,22 @@ function CoachesPage() {
                 )}
 
                 {cohortStatus === "live" && (
-                  <div className="flex items-center justify-center gap-2 py-2 text-red-500 font-semibold text-xs animate-pulse">
-                    <div className="h-2 w-2 rounded-full bg-red-500" />
+                  <motion.div
+                    initial={{ scale: 0.95 }}
+                    animate={{ scale: 1 }}
+                    className="flex items-center justify-center gap-2.5 py-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 font-bold text-xs"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-sm shadow-red-500/50" />
                     SESSION IS LIVE
-                  </div>
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-sm shadow-red-500/50" />
+                  </motion.div>
                 )}
               </div>
             </div>
 
             {cohortStatus === "live" && (
               <Button
-                variant="outline"
+                variant="destructive"
                 size="sm"
                 onClick={() => setCohortStatus("idle")}
                 className="w-full text-xs"

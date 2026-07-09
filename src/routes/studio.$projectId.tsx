@@ -88,7 +88,7 @@ function StudioClassroomPage() {
     },
   });
 
-  const project = dbProject;
+  const project = dbProject as any;
   
   const rawModules = project?.course_modules || [];
   const modules = rawModules.length > 0 ? rawModules : [

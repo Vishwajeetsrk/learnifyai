@@ -343,7 +343,7 @@ export const getPaymentLogs = createServerFn({ method: "GET" })
     const to = from + data.per_page - 1;
     const { data: logs, count } = await supabaseAdmin
       .from("payment_logs")
-      .select("*", { count: "exact" })
+      .select("*, user:profiles!user_id(full_name, email, mobile)", { count: "exact" })
       .order("created_at", { ascending: false })
       .range(from, to);
     return { logs: logs || [], total: count || 0 };
@@ -688,7 +688,9 @@ export const exportBillingData = createServerFn({ method: "GET" })
         query = supabaseAdmin.from("invoices").select("*, user:profiles!user_id(full_name, email)");
         break;
       case "payments":
-        query = supabaseAdmin.from("payment_logs").select("*");
+        query = supabaseAdmin
+          .from("payment_logs")
+          .select("*, user:profiles!user_id(full_name, email, mobile)");
         break;
       case "subscriptions":
         query = supabaseAdmin

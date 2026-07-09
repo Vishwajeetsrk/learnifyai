@@ -169,18 +169,18 @@ function CommunityHubPage() {
   return (
     <AppShell>
       {/* Sticky tab bar */}
-      <div className="border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-20 px-4 md:px-6 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
+      <div className="border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-20 px-3 sm:px-6 py-2 sm:py-3">
+        <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => navigate({ to: "/community-hub" as any, search: {} as any, replace: true })}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3.5">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
-            Hub
+            <span className="hidden sm:inline">Hub</span>
           </button>
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+          <div className="flex items-center gap-1 overflow-x-auto scrollbar-none flex-1">
             {TABS.map((t) => {
               const isActive = activeTab === t.id;
               return (
@@ -188,14 +188,14 @@ function CommunityHubPage() {
                   key={t.id}
                   onClick={() => goToTab(t.id)}
                   className={cn(
-                    "flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap",
+                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )}
                 >
-                  <span className="[&>svg]:h-3.5 [&>svg]:w-3.5">{t.icon}</span>
-                  <span>{t.label}</span>
+                  <span className="[&>svg]:h-3.5 [&>svg]:w-3.5 shrink-0">{t.icon}</span>
+                  <span className="hidden xs:inline">{t.label}</span>
                 </button>
               );
             })}

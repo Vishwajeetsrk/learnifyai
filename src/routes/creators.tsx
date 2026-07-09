@@ -147,14 +147,22 @@ function CreatorsPage() {
                 <div className="space-y-3">
                   <div className="p-3 border border-primary/20 bg-primary/5 rounded-xl space-y-3">
                     <div className="flex items-center gap-1.5 text-primary text-xs font-semibold">
-                      <Check className="h-3.5 w-3.5" /> COURSE GENERATED
+                      <Sparkles className="h-3.5 w-3.5" /> COURSE GENERATED
                     </div>
                     <div className="space-y-2 text-xs text-foreground">
-                      <p className="font-semibold">Module 1: The Fundamentals</p>
-                      <p className="text-muted-foreground ml-3">• Lesson 1: Introduction</p>
-                      <p className="text-muted-foreground ml-3">• Lesson 2: Getting Started</p>
-                      <p className="font-semibold mt-2">Module 2: Advanced Topics</p>
-                      <p className="text-muted-foreground ml-3">• Lesson 1: Best Practices</p>
+                      <p className="font-semibold text-primary/80 uppercase tracking-wider text-[10px]">
+                        Module 1: The Fundamentals
+                      </p>
+                      <div className="space-y-1 ml-3 border-l-2 border-primary/20 pl-3">
+                        <p className="text-muted-foreground">Lesson 1: Introduction</p>
+                        <p className="text-muted-foreground">Lesson 2: Getting Started</p>
+                      </div>
+                      <p className="font-semibold text-primary/80 uppercase tracking-wider text-[10px] mt-3">
+                        Module 2: Advanced Topics
+                      </p>
+                      <div className="space-y-1 ml-3 border-l-2 border-primary/20 pl-3">
+                        <p className="text-muted-foreground">Lesson 1: Best Practices</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -284,20 +292,38 @@ function CreatorsPage() {
                   </Button>
                 </div>
               ) : (
-                <div className="p-4 bg-muted/30 border border-border rounded-xl space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 bg-primary/20 rounded-full flex items-center justify-center text-primary font-bold text-xs">
-                      YOU
+                <div className="p-4 bg-white dark:bg-zinc-900 border border-border/60 rounded-xl shadow-sm space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                      Y
                     </div>
                     <div>
-                      <p className="text-xs font-semibold text-foreground">Creator</p>
+                      <p className="text-xs font-bold text-foreground flex items-center gap-2">
+                        You
+                        <span className="text-[9px] font-semibold bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                          Creator
+                        </span>
+                      </p>
                       <p className="text-[10px] text-muted-foreground">Just now</p>
                     </div>
+                    <span className="ml-auto text-[9px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                      Public
+                    </span>
                   </div>
                   <p className="text-xs text-foreground leading-relaxed">{postContent}</p>
-                  <div className="flex gap-4 pt-2 border-t border-border/50 text-[10px] font-medium text-muted-foreground">
-                    <span>12 Likes</span>
-                    <span>0 Comments</span>
+                  <div className="flex items-center gap-4 pt-2.5 border-t border-border/40 text-[10px] font-medium text-muted-foreground">
+                    <span className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                      12 Likes
+                    </span>
+                    <span className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                      0 Comments
+                    </span>
+                    <span className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                      Share
+                    </span>
                   </div>
                 </div>
               )}
@@ -355,17 +381,22 @@ function CreatorsPage() {
                 )}
 
                 {cohortStatus === "live" && (
-                  <div className="flex items-center justify-center gap-2 py-2 text-red-500 font-semibold text-xs animate-pulse">
-                    <div className="h-2 w-2 rounded-full bg-red-500" />
+                  <motion.div
+                    initial={{ scale: 0.95 }}
+                    animate={{ scale: 1 }}
+                    className="flex items-center justify-center gap-2.5 py-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 font-bold text-xs"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-sm shadow-red-500/50" />
                     SESSION IS LIVE
-                  </div>
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-sm shadow-red-500/50" />
+                  </motion.div>
                 )}
               </div>
             </div>
 
             {cohortStatus === "live" && (
               <Button
-                variant="outline"
+                variant="destructive"
                 size="sm"
                 onClick={() => setCohortStatus("idle")}
                 className="w-full text-xs"

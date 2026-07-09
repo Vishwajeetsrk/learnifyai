@@ -86,10 +86,10 @@ export default function LeaderboardPage() {
         {my && (
           <div className="rounded-2xl border bg-gradient-to-r from-primary/[0.04] to-primary/[0.02] p-5 mb-6 shadow-sm">
             <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-14 w-14 border-2 border-background shadow-md">
+              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                <Avatar className="h-12 w-12 sm:h-14 sm:w-14 border-2 border-background shadow-md shrink-0">
                   {my.avatar_url ? <AvatarImage src={my.avatar_url} /> : null}
-                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary/60 text-white font-bold text-lg">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary/60 text-white font-bold text-lg text-sm sm:text-lg">
                     {my.full_name
                       ? my.full_name
                           .split(" ")
@@ -100,12 +100,12 @@ export default function LeaderboardPage() {
                       : "#"}
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <div className="flex items-center gap-2">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
                     <Link
                       to="/u/$id"
                       params={{ id: user?.id ?? "" }}
-                      className="font-semibold text-sm hover:underline"
+                      className="font-semibold text-xs sm:text-sm hover:underline truncate max-w-[140px] sm:max-w-none"
                     >
                       #{my.rank} · {my.full_name ?? "Your Rank"}
                     </Link>
@@ -147,17 +147,17 @@ export default function LeaderboardPage() {
             variant={period === "weekly" ? "default" : "ghost"}
             size="sm"
             onClick={() => setPeriod("weekly")}
-            className="rounded-lg text-xs gap-1.5"
+            className="rounded-lg text-xs gap-1 px-2 sm:px-3"
           >
-            <Flame className="h-3.5 w-3.5" /> {t("leaderboard.weekly")}
+            <Flame className="h-3 w-3.5 sm:h-3.5" /> <span className="hidden xs:inline">{t("leaderboard.weekly")}</span><span className="xs:hidden">7d</span>
           </Button>
           <Button
             variant={period === "all" ? "default" : "ghost"}
             size="sm"
             onClick={() => setPeriod("all")}
-            className="rounded-lg text-xs gap-1.5"
+            className="rounded-lg text-xs gap-1 px-2 sm:px-3"
           >
-            <Trophy className="h-3.5 w-3.5" /> {t("leaderboard.allTime")}
+            <Trophy className="h-3 w-3.5 sm:h-3.5" /> {t("leaderboard.allTime")}
           </Button>
         </div>
 
@@ -172,9 +172,9 @@ export default function LeaderboardPage() {
               const heights = ["h-36", "h-28", "h-24"];
               const badges = ["", "bg-yellow-400", "bg-slate-300", "bg-amber-600"];
               return (
-                <div key={u.id} className="flex flex-col items-center gap-2 w-28">
+                <div key={u.id} className="flex flex-col items-center gap-2 w-20 sm:w-28">
                   <div className="relative">
-                    <Avatar className="h-12 w-12 border-2 border-background shadow-md ring-2 ring-primary/20">
+                    <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-background shadow-md ring-2 ring-primary/20">
                       {u.avatar_url && <AvatarImage src={u.avatar_url} />}
                       <AvatarFallback className="text-xs bg-primary/10 text-primary">
                         {initials(u.full_name ?? null)}
@@ -269,19 +269,19 @@ export default function LeaderboardPage() {
                       <div className="hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground">
                         Lv.{level}
                       </div>
-                      <div className="flex items-center gap-1.5 text-yellow-500 font-semibold text-sm min-w-[70px] justify-end">
-                        <Star className="h-3.5 w-3.5" fill="currentColor" />
+                      <div className="flex items-center gap-1 sm:gap-1.5 text-yellow-500 font-semibold text-xs sm:text-sm min-w-[60px] sm:min-w-[70px] justify-end">
+                        <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="currentColor" />
                         {period === "weekly" ? (
                           <span>
-                            {u.weekly_xp?.toLocaleString() ?? 0}{" "}
-                            <span className="text-[10px] font-normal text-muted-foreground">
+                            {u.weekly_xp?.toLocaleString() ?? 0}
+                            <span className="text-[9px] sm:text-[10px] font-normal text-muted-foreground ml-0.5">
                               XP
                             </span>
                           </span>
                         ) : (
                           <span>
-                            {u.xp.toLocaleString()}{" "}
-                            <span className="text-[10px] font-normal text-muted-foreground">
+                            {u.xp.toLocaleString()}
+                            <span className="text-[9px] sm:text-[10px] font-normal text-muted-foreground ml-0.5">
                               XP
                             </span>
                           </span>

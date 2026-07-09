@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import {
@@ -271,6 +271,12 @@ function BillingOSPage() {
   const [manualAmount, setManualAmount] = useState("");
   const [manualDescription, setManualDescription] = useState("");
   const [creatingInvoice, setCreatingInvoice] = useState(false);
+  const [manualUserSearch, setManualUserSearch] = useState("");
+  const [manualUserResults, setManualUserResults] = useState<any[]>([]);
+  const [manualSelectedUser, setManualSelectedUser] = useState<any>(null);
+  const [manualUserOpen, setManualUserOpen] = useState(false);
+  const [sendInvoiceEmail, setSendInvoiceEmail] = useState(true);
+  const userSearchRef = useRef<HTMLDivElement>(null);
 
   async function handleCreateManualInvoice() {
     if (!manualUserId || !manualAmount) return;
@@ -282,13 +288,17 @@ function BillingOSPage() {
           user_id: manualUserId,
           total_inr: parseFloat(manualAmount),
           description: manualDescription,
+          send_email: sendInvoiceEmail,
         } as any,
       });
-      toast.success("Manual invoice created");
+      toast.success("Manual invoice created" + (sendInvoiceEmail ? " and sent" : ""));
       setManualInvoiceOpen(false);
       setManualUserId("");
       setManualAmount("");
       setManualDescription("");
+      setManualSelectedUser(null);
+      setManualUserSearch("");
+      setManualUserResults([]);
       queryClient.invalidateQueries({ queryKey: ["billing-invoices"] });
       queryClient.invalidateQueries({ queryKey: ["billing-overview"] });
     } catch (e: any) {
@@ -297,6 +307,32 @@ function BillingOSPage() {
       setCreatingInvoice(false);
     }
   }
+
+  useEffect(() => {
+    if (!manualUserSearch || manualUserSearch.length < 2) {
+      setManualUserResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      const { data } = await (supabase as any)
+        .from("profiles")
+        .select("id, full_name, email, mobile, avatar_url")
+        .or(`full_name.ilike.%${manualUserSearch}%,email.ilike.%${manualUserSearch}%`)
+        .limit(8);
+      setManualUserResults(data || []);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [manualUserSearch]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (userSearchRef.current && !userSearchRef.current.contains(e.target as Node)) {
+        setManualUserOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   async function handleDownloadInvoice(inv: any) {
     try {
@@ -354,6 +390,27 @@ function BillingOSPage() {
   const [refundAmount, setRefundAmount] = useState("");
   const [refundReason, setRefundReason] = useState("");
   const [processingRefund, setProcessingRefund] = useState(false);
+  const [refundUserSearch, setRefundUserSearch] = useState("");
+  const [refundUserResults, setRefundUserResults] = useState<any[]>([]);
+  const [refundSelectedUser, setRefundSelectedUser] = useState<any>(null);
+  const [refundUserOpen, setRefundUserOpen] = useState(false);
+  const [refundInvoiceSearch, setRefundInvoiceSearch] = useState("");
+  const [refundInvoiceResults, setRefundInvoiceResults] = useState<any[]>([]);
+  const [refundSelectedInvoice, setRefundSelectedInvoice] = useState<any>(null);
+  const [refundInvoiceOpen, setRefundInvoiceOpen] = useState(false);
+  const [sendRefundEmail, setSendRefundEmail] = useState(true);
+  const refundUserRef = useRef<HTMLDivElement>(null);
+  const refundInvoiceRef = useRef<HTMLDivElement>(null);
+
+  const REFUND_REASONS = [
+    "Customer requested",
+    "Duplicate charge",
+    "Service not delivered",
+    "Technical issue",
+    "Billing error",
+    "Cancellation",
+    "Other",
+  ];
 
   async function handleProcessRefund() {
     if (!refundInvoiceId || !refundAmount) return;
@@ -365,13 +422,20 @@ function BillingOSPage() {
           invoice_id: refundInvoiceId,
           amount_inr: parseFloat(refundAmount),
           reason: refundReason || undefined,
+          send_email: sendRefundEmail,
         } as any,
       });
-      toast.success("Refund processed");
+      toast.success("Refund processed" + (sendRefundEmail ? " and notified" : ""));
       setProcessRefundOpen(false);
       setRefundInvoiceId("");
       setRefundAmount("");
       setRefundReason("");
+      setRefundSelectedUser(null);
+      setRefundUserSearch("");
+      setRefundUserResults([]);
+      setRefundSelectedInvoice(null);
+      setRefundInvoiceSearch("");
+      setRefundInvoiceResults([]);
       queryClient.invalidateQueries({ queryKey: ["billing-refunds"] });
       queryClient.invalidateQueries({ queryKey: ["billing-overview"] });
     } catch (e: any) {
@@ -380,6 +444,54 @@ function BillingOSPage() {
       setProcessingRefund(false);
     }
   }
+
+  useEffect(() => {
+    if (!refundUserSearch || refundUserSearch.length < 2) {
+      setRefundUserResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      const { data } = await (supabase as any)
+        .from("profiles")
+        .select("id, full_name, email")
+        .or(`full_name.ilike.%${refundUserSearch}%,email.ilike.%${refundUserSearch}%`)
+        .limit(8);
+      setRefundUserResults(data || []);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [refundUserSearch]);
+
+  useEffect(() => {
+    if (!refundInvoiceSearch || refundInvoiceSearch.length < 1) {
+      setRefundInvoiceResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      const { data } = await (supabase as any)
+        .from("invoices")
+        .select("id, invoice_number, total_inr, status, created_at, user_id")
+        .or(
+          `invoice_number.ilike.%${refundInvoiceSearch}%,id.ilike.%${refundInvoiceSearch}%`,
+        )
+        .in("status", ["paid", "pending"])
+        .limit(8);
+      setRefundInvoiceResults(data || []);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [refundInvoiceSearch]);
+
+  useEffect(() => {
+    function handleRefundClicks(e: MouseEvent) {
+      if (refundUserRef.current && !refundUserRef.current.contains(e.target as Node)) {
+        setRefundUserOpen(false);
+      }
+      if (refundInvoiceRef.current && !refundInvoiceRef.current.contains(e.target as Node)) {
+        setRefundInvoiceOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleRefundClicks);
+    return () => document.removeEventListener("mousedown", handleRefundClicks);
+  }, []);
 
   const [savingSetting, setSavingSetting] = useState<string | null>(null);
 
@@ -538,9 +650,6 @@ function BillingOSPage() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-            <Badge variant="outline" className="text-xs">
-              Admin Only
-            </Badge>
           </div>
         </div>
 
@@ -618,19 +727,65 @@ function BillingOSPage() {
                     Create Manual Invoice
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="sm:max-w-lg">
                   <DialogHeader>
                     <DialogTitle>Create Manual Invoice</DialogTitle>
-                    <DialogDescription>Issue a new invoice to a user.</DialogDescription>
+                    <DialogDescription>Issue a new invoice to a user and optionally email it.</DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-2">
                     <div className="space-y-1">
-                      <Label>User ID</Label>
-                      <Input
-                        value={manualUserId}
-                        onChange={(e) => setManualUserId(e.target.value)}
-                        placeholder="user UUID"
-                      />
+                      <Label>Select User</Label>
+                      <div className="relative" ref={userSearchRef}>
+                        <Input
+                          value={manualUserSearch}
+                          onChange={(e) => {
+                            setManualUserSearch(e.target.value);
+                            setManualUserOpen(true);
+                            setManualSelectedUser(null);
+                            setManualUserId("");
+                          }}
+                          placeholder="Search by name or email..."
+                          className="pl-9"
+                        />
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        {manualUserOpen && manualUserResults.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
+                            {manualUserResults.map((u: any) => (
+                              <button
+                                key={u.id}
+                                type="button"
+                                className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-muted text-left"
+                                onClick={() => {
+                                  setManualSelectedUser(u);
+                                  setManualUserId(u.id);
+                                  setManualUserSearch(
+                                    `${u.full_name || u.email} (${u.email})`,
+                                  );
+                                  setManualUserOpen(false);
+                                }}
+                              >
+                                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold shrink-0">
+                                  {(u.full_name || u.email || "?").charAt(0).toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-medium truncate">{u.full_name || "Unknown"}</p>
+                                  <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                                </div>
+                                {u.mobile && (
+                                  <span className="text-xs text-muted-foreground shrink-0 ml-auto">
+                                    {u.mobile}
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {manualSelectedUser && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          User ID: <span className="font-mono">{manualSelectedUser.id}</span>
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-1">
                       <Label>Amount (INR)</Label>
@@ -649,6 +804,41 @@ function BillingOSPage() {
                         placeholder="Optional description"
                       />
                     </div>
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="checkbox"
+                        id="sendInvoiceEmail"
+                        checked={sendInvoiceEmail}
+                        onChange={(e) => setSendInvoiceEmail(e.target.checked)}
+                        className="rounded"
+                      />
+                      <Label htmlFor="sendInvoiceEmail" className="text-sm cursor-pointer">
+                        Send invoice to user via email
+                      </Label>
+                    </div>
+                    {manualSelectedUser && manualAmount && (
+                      <div className="rounded-lg border bg-muted/30 p-3 space-y-1.5 text-sm">
+                        <p className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Preview</p>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">To:</span>
+                          <span>{manualSelectedUser.full_name || manualSelectedUser.email}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Amount:</span>
+                          <span className="font-semibold">{inr(parseFloat(manualAmount) || 0)}</span>
+                        </div>
+                        {manualDescription && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Description:</span>
+                            <span>{manualDescription}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Send Email:</span>
+                          <span>{sendInvoiceEmail ? "Yes" : "No"}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <DialogFooter>
                     <DialogClose asChild>
@@ -766,6 +956,7 @@ function BillingOSPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>User</TableHead>
                       <TableHead>Event Type</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Amount</TableHead>
@@ -773,29 +964,37 @@ function BillingOSPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {payments.data.logs.map((log: any) => (
-                      <TableRow key={log.id}>
-                        <TableCell className="text-sm">{log.event_type || "—"}</TableCell>
-                        <TableCell>
-                          <Badge
-                            className={cn(
-                              "text-xs border",
-                              STATUS_BADGE[log.status] || "bg-zinc-500/10 text-zinc-500",
-                            )}
-                          >
-                            {log.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {log.amount ? inr(Number(log.amount)) : "—"}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                          {log.created_at
-                            ? format(new Date(log.created_at), "MMM d, yyyy HH:mm")
-                            : "—"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {payments.data.logs.map((log: any) => {
+                      const pu = log.user as any;
+                      return (
+                        <TableRow key={log.id}>
+                          <TableCell>
+                            <div className="text-sm">
+                              {pu?.full_name || pu?.email || log.user_id?.slice(0, 8) || "—"}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm">{log.event_type || "—"}</TableCell>
+                          <TableCell>
+                            <Badge
+                              className={cn(
+                                "text-xs border",
+                                STATUS_BADGE[log.status] || "bg-zinc-500/10 text-zinc-500",
+                              )}
+                            >
+                              {log.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {log.amount ? inr(Number(log.amount)) : "—"}
+                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {log.created_at
+                              ? format(new Date(log.created_at), "MMM d, yyyy HH:mm")
+                              : "—"}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               )}
@@ -1046,19 +1245,107 @@ function BillingOSPage() {
                     Process Refund
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="sm:max-w-lg">
                   <DialogHeader>
                     <DialogTitle>Process Refund</DialogTitle>
-                    <DialogDescription>Issue a refund for an invoice.</DialogDescription>
+                    <DialogDescription>Issue a refund for a user's invoice and optionally notify them.</DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-2">
                     <div className="space-y-1">
-                      <Label>Invoice ID</Label>
-                      <Input
-                        value={refundInvoiceId}
-                        onChange={(e) => setRefundInvoiceId(e.target.value)}
-                        placeholder="invoice UUID"
-                      />
+                      <Label>Select User</Label>
+                      <div className="relative" ref={refundUserRef}>
+                        <Input
+                          value={refundUserSearch}
+                          onChange={(e) => {
+                            setRefundUserSearch(e.target.value);
+                            setRefundUserOpen(true);
+                            setRefundSelectedUser(null);
+                          }}
+                          placeholder="Search by name or email..."
+                          className="pl-9"
+                        />
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        {refundUserOpen && refundUserResults.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
+                            {refundUserResults.map((u: any) => (
+                              <button
+                                key={u.id}
+                                type="button"
+                                className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-muted text-left"
+                                onClick={() => {
+                                  setRefundSelectedUser(u);
+                                  setRefundUserSearch(
+                                    `${u.full_name || u.email} (${u.email})`,
+                                  );
+                                  setRefundUserOpen(false);
+                                }}
+                              >
+                                <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold shrink-0">
+                                  {(u.full_name || u.email || "?").charAt(0).toUpperCase()}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-medium truncate">{u.full_name || "Unknown"}</p>
+                                  <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Invoice</Label>
+                      <div className="relative" ref={refundInvoiceRef}>
+                        <Input
+                          value={refundInvoiceSearch}
+                          onChange={(e) => {
+                            setRefundInvoiceSearch(e.target.value);
+                            setRefundInvoiceOpen(true);
+                            setRefundSelectedInvoice(null);
+                            setRefundInvoiceId("");
+                          }}
+                          placeholder="Search by invoice # or ID..."
+                          className="pl-9"
+                        />
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        {refundInvoiceOpen && refundInvoiceResults.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-card border rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
+                            {refundInvoiceResults.map((inv: any) => (
+                              <button
+                                key={inv.id}
+                                type="button"
+                                className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-muted text-left"
+                                onClick={() => {
+                                  setRefundSelectedInvoice(inv);
+                                  setRefundInvoiceId(inv.id);
+                                  setRefundInvoiceSearch(
+                                    `${inv.invoice_number || inv.id.slice(0, 8)} — ${inr(Number(inv.total_inr))}`,
+                                  );
+                                  setRefundAmount(String(inv.total_inr));
+                                  setRefundInvoiceOpen(false);
+                                }}
+                              >
+                                <div className="min-w-0">
+                                  <p className="font-medium font-mono text-xs">
+                                    {inv.invoice_number || inv.id.slice(0, 8)}
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {inv.status} · {inv.created_at ? format(new Date(inv.created_at), "MMM d") : ""}
+                                  </p>
+                                </div>
+                                <span className="font-medium shrink-0 ml-2">
+                                  {inr(Number(inv.total_inr))}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {refundSelectedInvoice && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Invoice ID: <span className="font-mono">{refundSelectedInvoice.id}</span>
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-1">
                       <Label>Amount (INR)</Label>
@@ -1071,11 +1358,42 @@ function BillingOSPage() {
                     </div>
                     <div className="space-y-1">
                       <Label>Reason</Label>
-                      <Input
-                        value={refundReason}
-                        onChange={(e) => setRefundReason(e.target.value)}
-                        placeholder="Optional reason"
+                      <div className="flex gap-2">
+                        <select
+                          value={REFUND_REASONS.includes(refundReason) ? refundReason : "Other"}
+                          onChange={(e) => {
+                            if (e.target.value === "Other") {
+                              setRefundReason("");
+                            } else {
+                              setRefundReason(e.target.value);
+                            }
+                          }}
+                          className="flex h-9 w-[180px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                        >
+                          <option value="">Select reason</option>
+                          {REFUND_REASONS.map((r) => (
+                            <option key={r} value={r}>{r}</option>
+                          ))}
+                        </select>
+                        <Input
+                          value={!REFUND_REASONS.includes(refundReason) ? refundReason : ""}
+                          onChange={(e) => setRefundReason(e.target.value)}
+                          placeholder="Custom reason"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 pt-1">
+                      <input
+                        type="checkbox"
+                        id="sendRefundEmail"
+                        checked={sendRefundEmail}
+                        onChange={(e) => setSendRefundEmail(e.target.checked)}
+                        className="rounded"
                       />
+                      <Label htmlFor="sendRefundEmail" className="text-sm cursor-pointer">
+                        Notify user via email
+                      </Label>
                     </div>
                   </div>
                   <DialogFooter>
@@ -1340,7 +1658,19 @@ function BillingOSPage() {
                   </div>
                 </div>
 
-                <div className="rounded-xl border bg-card p-5">
+                <div className="rounded-xl border bg-card p-5 space-y-4">
+                  <div>
+                    <h3 className="font-semibold mb-1">Future Payment Gateways</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Razorpay and international payment support coming soon.
+                    </p>
+                    <div className="flex gap-2 mt-2">
+                      <Badge variant="outline" className="text-xs">Razorpay</Badge>
+                      <Badge variant="outline" className="text-xs">Stripe</Badge>
+                      <Badge variant="outline" className="text-xs">PayPal</Badge>
+                      <Badge variant="outline" className="text-xs">International Cards</Badge>
+                    </div>
+                  </div>
                   <h3 className="font-semibold mb-2">Webhook Status</h3>
                   <p className="text-xs text-muted-foreground mb-3">
                     Cashfree webhook endpoint for payment callbacks.
@@ -1790,17 +2120,37 @@ function CouponsManager() {
                 <Label className="text-sm">Active</Label>
               </div>
             </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setOpen(false);
-                  setEditing(null);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button onClick={handleSave}>Save Coupon</Button>
+            <div className="flex justify-between gap-2 pt-2">
+              <div>
+                {editing?.id && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-destructive border-destructive/30"
+                    onClick={() => {
+                      const confirmed = window.confirm("Delete this coupon?");
+                      if (confirmed) {
+                        handleDelete(editing.id);
+                        setOpen(false);
+                      }
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 mr-1" /> Delete
+                  </Button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setOpen(false);
+                    setEditing(null);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleSave}>Save Coupon</Button>
+              </div>
             </div>
           </div>
         </div>

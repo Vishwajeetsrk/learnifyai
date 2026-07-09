@@ -195,12 +195,12 @@ export function InboxPage({ embedded = false }: { embedded?: boolean }) {
         <p className="text-muted-foreground text-sm mt-1">Notifications and upcoming reminders.</p>
 
         <Tabs defaultValue="notifs" className="mt-6">
-          <TabsList>
-            <TabsTrigger value="notifs">
-              <Bell className="h-3.5 w-3.5" /> Notifications
+          <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="notifs" className="flex-1 sm:flex-initial text-xs sm:text-sm px-2 sm:px-4">
+              <Bell className="h-3 w-3.5 sm:h-3.5" /> <span className="hidden xs:inline">Notifications</span><span className="xs:hidden">Notifs</span>
             </TabsTrigger>
-            <TabsTrigger value="reminders">
-              <CalendarClock className="h-3.5 w-3.5" /> Reminders
+            <TabsTrigger value="reminders" className="flex-1 sm:flex-initial text-xs sm:text-sm px-2 sm:px-4">
+              <CalendarClock className="h-3 w-3.5 sm:h-3.5" /> <span className="hidden xs:inline">Reminders</span><span className="xs:hidden">Tasks</span>
             </TabsTrigger>
           </TabsList>
 
@@ -216,62 +216,62 @@ export function InboxPage({ embedded = false }: { embedded?: boolean }) {
                 const action = getNotifAction(n.title, n.body);
                 const isFlashcard = isFlashcardBody(n.body);
                 return (
-                  <div
-                    key={n.id}
-                    className={cn(
-                      "border rounded-lg p-3 sm:p-4 flex gap-3 transition-colors",
-                      !n.read && "bg-primary/5 border-primary/30",
-                      action && "cursor-pointer hover:bg-accent/50",
-                    )}
-                    onClick={action ? () => navigate({ to: action.to as any }) : undefined}
-                  >
-                    <div className="h-9 w-9 rounded-lg bg-primary/10 grid place-items-center shrink-0 mt-0.5">
-                      {action?.icon ? (
-                        <action.icon className="h-4 w-4 text-primary" />
-                      ) : (
-                        <Bell className="h-4 w-4 text-primary" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="font-medium text-sm sm:text-base">{n.title}</h3>
-                        {!n.read && (
-                          <Badge variant="secondary" className="text-[10px] shrink-0">
-                            New
-                          </Badge>
-                        )}
-                      </div>
-                      {n.body && !isFlashcard && (
-                        <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-1">
-                          {n.body}
-                        </p>
-                      )}
-                      {n.body && isFlashcard && <FlashcardViewer body={n.body} />}
-                      <div className="flex items-center gap-3 mt-2">
-                        <p className="text-[11px] text-muted-foreground">
-                          {format(new Date(n.created_at), "dd MMM yyyy · HH:mm")}
-                        </p>
-                        {action && (
-                          <span className="text-[11px] text-primary font-medium flex items-center gap-0.5">
-                            {action.label} <ArrowRight className="h-3 w-3" />
-                          </span>
-                        )}
-                      </div>
-                    </div>
                     <div
-                      className="flex flex-col gap-1 shrink-0"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {!n.read && (
-                        <Button size="sm" variant="ghost" onClick={() => markRead(n.id)}>
-                          Mark read
-                        </Button>
+                      key={n.id}
+                      className={cn(
+                        "border rounded-lg p-3 sm:p-4 flex gap-2 sm:gap-3 transition-colors",
+                        !n.read && "bg-primary/5 border-primary/30",
+                        action && "cursor-pointer hover:bg-accent/50",
                       )}
-                      <Button size="icon" variant="ghost" onClick={() => del(n.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      onClick={action ? () => navigate({ to: action.to as any }) : undefined}
+                    >
+                      <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg bg-primary/10 grid place-items-center shrink-0 mt-0.5">
+                        {action?.icon ? (
+                          <action.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                        ) : (
+                          <Bell className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-1.5">
+                          <h3 className="font-medium text-xs sm:text-sm">{n.title}</h3>
+                          {!n.read && (
+                            <Badge variant="secondary" className="text-[9px] sm:text-[10px] shrink-0 h-5">
+                              New
+                            </Badge>
+                          )}
+                        </div>
+                        {n.body && !isFlashcard && (
+                          <p className="text-xs sm:text-sm text-muted-foreground whitespace-pre-wrap mt-0.5 sm:mt-1 line-clamp-3 sm:line-clamp-none">
+                            {n.body}
+                          </p>
+                        )}
+                        {n.body && isFlashcard && <FlashcardViewer body={n.body} />}
+                        <div className="flex items-center gap-2 sm:gap-3 mt-1.5 sm:mt-2 flex-wrap">
+                          <p className="text-[10px] sm:text-[11px] text-muted-foreground">
+                            {format(new Date(n.created_at), "dd MMM yyyy · HH:mm")}
+                          </p>
+                          {action && (
+                            <span className="text-[10px] sm:text-[11px] text-primary font-medium flex items-center gap-0.5">
+                              {action.label} <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        className="flex flex-row sm:flex-col gap-1 shrink-0 items-start"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {!n.read && (
+                          <Button size="sm" variant="ghost" onClick={() => markRead(n.id)} className="h-7 sm:h-8 text-[10px] sm:text-xs px-1.5 sm:px-2">
+                            Read
+                          </Button>
+                        )}
+                        <Button size="icon" variant="ghost" onClick={() => del(n.id)} className="h-7 w-7 sm:h-8 sm:w-8">
+                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 text-destructive" />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
                 );
               })
             )}
@@ -292,49 +292,38 @@ export function InboxPage({ embedded = false }: { embedded?: boolean }) {
               (reminders.data ?? []).map((r) => (
                 <div
                   key={r.id}
-                  className="border rounded-lg p-3 sm:p-4 flex gap-3 cursor-pointer hover:bg-accent/50 transition-colors"
+                  className="border rounded-lg p-3 sm:p-4 flex gap-2 sm:gap-3 cursor-pointer hover:bg-accent/50 transition-colors"
                   onClick={() => navigate({ to: "/ai-tools" })}
                 >
-                  <div className="h-9 w-9 rounded-lg bg-primary/10 grid place-items-center shrink-0">
-                    <Clock className="h-4 w-4 text-primary" />
+                  <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg bg-primary/10 grid place-items-center shrink-0">
+                    <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-sm sm:text-base">{r.title}</h3>
+                    <h3 className="font-medium text-xs sm:text-sm">{r.title}</h3>
                     {r.body && (
-                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{r.body}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mt-0.5 sm:mt-1">{r.body}</p>
                     )}
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-                      <Badge variant="outline" className="text-[10px]">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2">
+                      <Badge variant="outline" className="text-[9px] sm:text-[10px]">
                         {r.frequency}
                       </Badge>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[10px] sm:text-[11px] text-muted-foreground">
                         Next: {format(new Date(r.next_run_at), "dd MMM yyyy · HH:mm")}
                       </span>
                       {!r.active && (
-                        <Badge variant="secondary" className="text-[10px]">
+                        <Badge variant="secondary" className="text-[9px] sm:text-[10px]">
                           paused
                         </Badge>
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <div className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => toggleActive(r.id, r.active)}
-                      >
-                        <Power
-                          className={cn(
-                            "h-4 w-4",
-                            r.active ? "text-emerald-500" : "text-muted-foreground",
-                          )}
-                        />
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => delReminder(r.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
+                  <div className="flex flex-row sm:flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Button size="icon" variant="ghost" onClick={() => toggleActive(r.id, r.active)} className="h-7 w-7 sm:h-8 sm:w-8">
+                      <Power className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", r.active ? "text-emerald-500" : "text-muted-foreground")} />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => delReminder(r.id)} className="h-7 w-7 sm:h-8 sm:w-8">
+                      <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive" />
+                    </Button>
                   </div>
                 </div>
               ))

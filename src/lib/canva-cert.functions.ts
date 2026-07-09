@@ -206,7 +206,7 @@ export const updateAllTemplateFields = createServerFn({ method: "POST" })
         continue;
       }
 
-      const newFields = { ...DEFAULT_FIELDS, ...(tpl.fields_json || {}) };
+      const newFields = { ...DEFAULT_FIELDS, ...((tpl.fields_json as Record<string, any>) || {}) };
       const { error } = await supabaseAdmin
         .from("canva_templates")
         .update({ fields_json: newFields })
@@ -333,16 +333,15 @@ Respond with a JSON object only (no markdown, no code fences):
       temperature: 0.7,
     }, "fast");
 
+    const responseText = await response.text();
     try {
-      let cleaned = response.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
-      // Try to extract JSON from surrounding text
+      let cleaned = responseText.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
       const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
       if (jsonMatch) cleaned = jsonMatch[0];
       return JSON.parse(cleaned);
     } catch {
-      // Retry with stricter extraction
       try {
-        const fallback = response.replace(/^[^{]*/, "").replace(/[^}]*$/, "");
+        const fallback = responseText.replace(/^[^{]*/, "").replace(/[^}]*$/, "");
         const parsed = JSON.parse(fallback);
         if (parsed.design_updates) return parsed;
       } catch { /* ignore */ }

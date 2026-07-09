@@ -27,7 +27,7 @@ export function RevenueDashboard() {
 
   const { data: invoicesData, isLoading: loadingInvoices } = useQuery({
     queryKey: ["admin-revenue-invoices"],
-    queryFn: doInvoices,
+    queryFn: doInvoices as any,
   });
   const invoices: any[] = (invoicesData as any)?.invoices ?? [];
 

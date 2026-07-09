@@ -781,7 +781,7 @@ export default function CommunityPage() {
                       isUploading ||
                       (postType === "post" && !editor?.getText().trim() && !mediaFile)
                     }
-                    className="rounded-full px-8 self-start sm:self-end shadow-sm"
+                    className="rounded-full px-6 sm:px-8 w-full sm:w-auto self-stretch sm:self-end shadow-sm"
                   >
                     {isUploading ? (
                       <>

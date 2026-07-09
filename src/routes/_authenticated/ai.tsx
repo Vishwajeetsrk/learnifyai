@@ -32,6 +32,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 import { useAuth } from "@/hooks/use-auth";
 
@@ -328,7 +336,74 @@ function AIPage() {
 
   return (
     <AppShell>
-      <div className="flex h-screen">
+      <div className="flex h-[calc(100dvh-4rem)] lg:h-screen">
+        {/* Mobile conversation toggle */}
+        <div className="lg:hidden fixed bottom-20 left-4 z-50">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button size="icon" variant="outline" className="h-10 w-10 rounded-full shadow-lg bg-background/95 backdrop-blur border-primary/30">
+                <MessageSquare className="h-4 w-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 p-0">
+              <SheetHeader className="p-4 border-b">
+                <SheetTitle>Conversations</SheetTitle>
+              </SheetHeader>
+              <div className="p-3 space-y-2">
+                <Button onClick={() => { newChat(); document.querySelector('[data-state="open"]')?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })); }} className="w-full justify-start gap-2" variant="outline">
+                  <Plus className="h-4 w-4" /> New chat
+                </Button>
+                {conversations.length > 0 && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button className="w-full justify-start gap-2 text-destructive hover:text-destructive" variant="ghost" size="sm">
+                        <Trash2 className="h-3.5 w-3.5" /> Delete all history
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete all chat conversations?</AlertDialogTitle>
+                        <AlertDialogDescription>This will permanently remove all {conversations.length} conversations. This cannot be undone.</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => void deleteAllChats()} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Yes, delete everything</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
+              <ScrollArea className="flex-1 px-2 pb-4">
+                <div className="space-y-1">
+                  {conversations.length === 0 ? (
+                    <p className="text-xs text-muted-foreground px-2 py-4 text-center">No conversations yet.</p>
+                  ) : (
+                    conversations.map((c) => (
+                      <div key={c.id} className="px-2">
+                        <SheetClose asChild>
+                          <button
+                            onClick={() => selectConversation(c.id)}
+                            className={cn(
+                              "w-full text-left p-2.5 rounded-lg text-xs transition-colors hover:bg-muted/50 flex items-start gap-2",
+                              conversationId === c.id ? "bg-primary/10 text-primary font-medium" : ""
+                            )}
+                          >
+                            <MessageSquare className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate">{c.title || `Chat ${c.id.slice(0, 6)}`}</div>
+                              <div className="text-[10px] text-muted-foreground mt-0.5">{new Date(c.created_at).toLocaleDateString()}</div>
+                            </div>
+                          </button>
+                        </SheetClose>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </ScrollArea>
+            </SheetContent>
+          </Sheet>
+        </div>
+
         {/* Conversations sidebar */}
         <aside className="hidden lg:flex w-64 flex-col border-r bg-card/30">
           <div className="p-3 space-y-2">
@@ -391,7 +466,7 @@ function AIPage() {
                         e.stopPropagation();
                         void deleteConversation(c.id);
                       }}
-                      className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
+                      className="opacity-0 group-hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-muted-foreground hover:text-destructive"
                       aria-label="Delete conversation"
                     >
                       <Trash2 className="h-3.5 w-3.5" />

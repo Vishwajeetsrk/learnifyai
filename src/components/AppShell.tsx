@@ -186,9 +186,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link to="/" aria-label="Learnify AI" onClick={() => setMobileOpen(false)}>
               <Logo height="h-8" />
             </Link>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setMobileOpen(false)}>
-              <X className="h-4 w-4" />
-            </Button>
           </div>
           <nav className="flex-1 p-3 space-y-1 overflow-y-auto max-h-[calc(100dvh-8rem)]">
             <NavSection items={mainNav} onClick={() => setMobileOpen(false)} />

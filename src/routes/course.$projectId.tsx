@@ -32,7 +32,7 @@ function CourseDetailPage() {
     }
   });
 
-  const project = dbProject;
+  const project = dbProject as any;
   const [activeTab, setActiveTab] = useState<"curriculum" | "tech" | "preview">("curriculum");
   const [isPlayingTeaser, setIsPlayingTeaser] = useState(false);
 
@@ -56,7 +56,6 @@ function CourseDetailPage() {
     );
   }
 
-  // @ts-ignore - course_modules is loosely typed in projects.json for now
   const modules = project.course_modules?.length > 0 ? project.course_modules : [
     {
       step: 1,

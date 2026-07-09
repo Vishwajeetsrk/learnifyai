@@ -81,6 +81,7 @@ const DATE_RANGE_OPTIONS = [
   { value: "today", label: "Today" },
   { value: "yesterday", label: "Yesterday" },
   { value: "7d", label: "Last 7 Days" },
+  { value: "month", label: "Last Month" },
   { value: "30d", label: "Last 30 Days" },
   { value: "90d", label: "Last 90 Days" },
   { value: "180d", label: "Last 180 Days" },
@@ -289,6 +290,7 @@ function AdminSubscriptionsPage() {
     const exportData = data.recentSubscriptions.map((s: any) => ({
       Name: s.profiles?.full_name || s.profiles?.email || s.user_id,
       Email: s.profiles?.email || "",
+      Mobile: s.profiles?.mobile || s.profiles?.phone || "",
       Plan: s.plan?.name || "Unknown",
       Price: s.plan?.price_inr || 0,
       Status: s.status,
@@ -315,9 +317,6 @@ function AdminSubscriptionsPage() {
             <p className="text-muted-foreground mt-1">Real metrics from database records.</p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs">
-              Admin Only
-            </Badge>
             <div className="relative">
               <Button variant="outline" size="sm" onClick={() => setExportOpen(!exportOpen)}>
                 <Download className="h-4 w-4 mr-1.5" /> Export

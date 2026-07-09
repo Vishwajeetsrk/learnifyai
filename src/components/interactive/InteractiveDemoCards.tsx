@@ -449,7 +449,7 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
 
       {/* Trust row */}
       <motion.div
-        className="flex flex-wrap justify-center gap-4 sm:gap-6 mb-10"
+        className="flex overflow-x-auto scrollbar-none justify-start sm:justify-center gap-5 sm:gap-6 mb-10 px-2 pb-2"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
@@ -461,9 +461,9 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
           { icon: Award, label: "25,000+ Certificates" },
           { icon: Briefcase, label: "Career Focused" },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <div key={item.label} className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
             <item.icon className="w-3.5 h-3.5 text-primary" />
-            <span className="font-medium">{item.label}</span>
+            <span className="font-medium whitespace-nowrap">{item.label}</span>
           </div>
         ))}
       </motion.div>
@@ -511,28 +511,30 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                 >
                   {demo.time}
                 </div>
-                {/* Hover overlay */}
+                {/* Preview button - always visible on mobile, hover on desktop */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 flex items-center justify-center">
-                  <motion.div
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    initial={false}
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100"
+                    style={{ background: demo.color }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpen(isOpen ? null : demo.id);
+                    }}
                   >
-                    <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg cursor-pointer"
-                      style={{ background: demo.color }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpen(isOpen ? null : demo.id);
-                      }}
-                    >
-                      <Eye className="w-5 h-5 text-white" />
-                    </div>
-                  </motion.div>
+                    <Eye className="w-5 h-5 text-white" />
+                  </div>
                 </div>
               </div>
 
               {/* Content */}
-              <div className="p-5">
+              <div
+                className="p-5 md:cursor-auto cursor-pointer"
+                onClick={() => {
+                  if (window.innerWidth < 768) {
+                    setOpen(isOpen ? null : demo.id);
+                  }
+                }}
+              >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div>
                     <h3 className="font-bold text-sm">{demo.title}</h3>
@@ -679,25 +681,25 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
 
       {/* Live Activity Section */}
       <motion.div
-        className="mt-8 rounded-2xl border bg-card p-5 relative overflow-hidden"
+        className="mt-8 rounded-2xl border bg-card p-4 sm:p-5 relative overflow-hidden"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5 }}
       >
         <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.02] via-transparent to-primary/[0.02]" />
-        <div className="relative flex items-center justify-center gap-3">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+        <div className="relative flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
           <AnimatePresence mode="wait">
             <motion.div
               key={activityIdx}
-              className="flex items-center gap-2 text-sm"
+              className="flex items-center gap-2 text-xs sm:text-sm text-center sm:text-left"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              <currentActivity.icon className="w-4 h-4 text-primary" />
+              <currentActivity.icon className="w-4 h-4 text-primary shrink-0" />
               <span>
                 <strong>{currentActivity.name}</strong> {currentActivity.action}
               </span>

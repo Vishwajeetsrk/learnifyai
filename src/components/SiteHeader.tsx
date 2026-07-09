@@ -3,6 +3,7 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { useAuth } from "@/hooks/use-auth";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
 import { Loader2, Menu } from "lucide-react";
@@ -57,15 +58,14 @@ export function SiteHeader() {
           <ThemeToggle />
           <LanguageSwitcher />
           {isAuthenticated && !loading ? (
-            <Button
-              asChild
-              size="sm"
-              className="bg-foreground text-background hover:bg-foreground/90 hidden sm:inline-flex"
-            >
-              <Link to="/dashboard" preload="intent">
-                {tr("nav.dashboard", "Dashboard")}
-              </Link>
-            </Button>
+            <div className="hidden sm:flex items-center gap-2">
+              <Button asChild variant="ghost" size="sm" className="text-muted-foreground">
+                <Link to="/dashboard" preload="intent">
+                  Dashboard
+                </Link>
+              </Button>
+              <UserAvatarMenu size="sm" />
+            </div>
           ) : (
             <>
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
@@ -114,15 +114,21 @@ export function SiteHeader() {
                     ))}
                   </nav>
                 </div>
-                <div className="border-t border-border/40 pt-4 flex flex-col gap-2">
+                <div className="border-t border-border/40 pt-4 flex flex-col gap-3">
                   {isAuthenticated && !loading ? (
-                    <SheetClose asChild>
-                      <Button asChild className="w-full">
-                        <Link to="/dashboard" preload="intent">
-                          {tr("nav.dashboard", "Dashboard")}
-                        </Link>
-                      </Button>
-                    </SheetClose>
+                    <>
+                      <div className="flex items-center justify-between px-1">
+                        <span className="text-xs font-semibold text-muted-foreground">Account</span>
+                        <UserAvatarMenu size="sm" />
+                      </div>
+                      <SheetClose asChild>
+                        <Button asChild variant="outline" className="w-full">
+                          <Link to="/dashboard" preload="intent">
+                            Dashboard
+                          </Link>
+                        </Button>
+                      </SheetClose>
+                    </>
                   ) : (
                     <>
                       <SheetClose asChild>

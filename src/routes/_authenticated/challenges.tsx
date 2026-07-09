@@ -195,35 +195,32 @@ export function ChallengesPage({ embedded = false }: { embedded?: boolean }) {
                 <div
                   key={challenge.id}
                   className={cn(
-                    "rounded-xl border bg-card p-4 flex items-center justify-between hover:shadow-md transition-all",
+                    "rounded-xl border bg-card p-3 sm:p-4 flex items-center justify-between hover:shadow-md transition-all gap-2",
                     isSolved && "border-emerald-500/20 bg-emerald-500/[0.02]",
                   )}
                 >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="h-10 w-10 rounded-lg bg-muted/50 flex items-center justify-center text-lg shrink-0">
+                  <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+                    <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-muted/50 flex items-center justify-center text-base sm:text-lg shrink-0">
                       {CATEGORY_ICONS[challenge.category] || "💻"}
                     </div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-sm truncate">{challenge.title}</h3>
-                        {isSolved && <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="font-semibold text-xs sm:text-sm truncate">{challenge.title}</h3>
+                        {isSolved && <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500 shrink-0" />}
                       </div>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <Badge
-                          variant="outline"
-                          className={cn("text-[10px]", DIFFICULTY_COLORS[challenge.difficulty])}
-                        >
+                      <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 flex-wrap">
+                        <Badge variant="outline" className={cn("text-[9px] sm:text-[10px]", DIFFICULTY_COLORS[challenge.difficulty])}>
                           {challenge.difficulty}
                         </Badge>
-                        <span className="text-xs text-muted-foreground">{challenge.category}</span>
-                        <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                          <Star className="h-3 w-3" /> {challenge.points} pts
+                        <span className="text-[10px] sm:text-xs text-muted-foreground hidden xs:inline">{challenge.category}</span>
+                        <span className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-0.5">
+                          <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> {challenge.points}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <Link to="/playground/editor" search={{ challenge: challenge.slug } as any}>
-                    <Button variant={isSolved ? "ghost" : "default"} size="sm" className="shrink-0">
+                  <Link to="/playground/editor" search={{ challenge: challenge.slug } as any} className="shrink-0">
+                    <Button variant={isSolved ? "ghost" : "default"} size="sm" className="h-8 sm:h-9 text-xs px-2 sm:px-3">
                       {isSolved ? "Review" : "Solve"}
                     </Button>
                   </Link>
