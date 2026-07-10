@@ -2,7 +2,7 @@ AI Career OS Transformation - Official Project Plan
 ===================================================
 
 Status: IN PROGRESS
-Lead: Vishwajeet Singh (Principal Product Manager)
+Lead: Vishwajeet (Principal Product Manager)
 Team: 15 people across 3 squads
 Launch Target: 30 days MVP
 

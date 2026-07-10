@@ -31,7 +31,7 @@ export function AnnouncementBroadcast() {
     try {
       const res = await sendFn({ data: { title: title.trim(), body: body.trim(), type: type as any, targetRole: targetRole as any } });
       if (res.success) {
-        setResult({ notifiedCount: res.notifiedCount, totalTarget: res.totalTarget });
+        setResult({ notifiedCount: res.notifiedCount ?? 0, totalTarget: res.totalTarget ?? 0 });
         toast.success(`Announcement sent to ${res.notifiedCount} users!`);
       }
     } catch (err: any) {

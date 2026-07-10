@@ -50,6 +50,11 @@ const PROVIDERS = {
     keyEnv: "GEMINI_API_KEY",
     stripPrefix: false,
   },
+  nvidia: {
+    url: "https://integrate.api.nvidia.com/v1/chat/completions",
+    keyEnv: "NVIDIA_API_KEY",
+    stripPrefix: true,
+  },
 } as const;
 
 function resolveProvider(model: string) {
@@ -70,6 +75,8 @@ function resolveProvider(model: string) {
     return { cfg: PROVIDERS.groq, providerModel: model.replace(/^groq\//, "") };
   if (model.includes("openrouter") || model.includes("openrouter.ai"))
     return { cfg: PROVIDERS.openrouter, providerModel: model.replace(/^openrouter\//, "") };
+  if (model.includes("nvidia"))
+    return { cfg: PROVIDERS.nvidia, providerModel: model.replace(/^nvidia\//, "") };
 
   // Default to Gemini provider when unsure
   return { cfg: PROVIDERS.gemini, providerModel: model };
@@ -89,6 +96,8 @@ const MODEL_PRICING: Record<string, { in: number; out: number }> = {
   "openai/gpt-5": { in: 1.25, out: 10 },
   "openai/gpt-5-mini": { in: 0.25, out: 2 },
   "openai/gpt-5-nano": { in: 0.05, out: 0.4 },
+  "meta/llama-3.3-70b-instruct": { in: 0, out: 0 },
+  "nvidia/llama-3.1-nemotron-70b-instruct": { in: 0, out: 0 },
 };
 const USD_TO_INR = 84;
 const CREDITS_PER_REQUEST = 1;

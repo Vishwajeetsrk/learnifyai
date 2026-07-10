@@ -223,7 +223,7 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
             const name = content.replace(/(https?:\/\/[^\s]+)/, "").replace(/[:\-–]\s*$/, "").trim().split(/[:\-–]/)[0]?.trim() || content.trim();
             return { name, description: "", techStack: "", githubUrl: urlMatch ? urlMatch[1] : "" };
           })
-          .filter((p) => p.name.length > 1);
+          .filter((p: ProjectEntry) => p.name.length > 1);
         setProjects(parsedProjects);
       }
 

@@ -288,6 +288,10 @@ function AdminOverview() {
     },
   });
 
+  const userMap = new Map<string, any>(
+    (usersQuery.data?.rows ?? []).map((u: any) => [u.id, u]),
+  );
+
   // Cohorts
   const adminCohortsQuery = useQuery({
     enabled: isAdmin && typeof window !== "undefined",
@@ -457,7 +461,7 @@ function AdminOverview() {
         const h = ws.getRow(1);
         h.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
         h.fill = { type: "pattern", pattern: "solid", fgColor: { argb: headerFill } };
-        h.alignment = { horizontal: "center", vertical: "center" };
+        h.alignment = { horizontal: "center", vertical: "middle" };
         h.commit();
       }
     };
@@ -469,19 +473,19 @@ function AdminOverview() {
     titleRow.getCell(1).value = "LEARNIFY AI — ADMIN DASHBOARD REPORT";
     titleRow.font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
     titleRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF2E4057" } };
-    titleRow.alignment = { horizontal: "center", vertical: "center" };
+    titleRow.alignment = { horizontal: "center", vertical: "middle" };
     titleRow.height = 40;
 
     dash.addRow([]);
     const hRow = dash.addRow(["Metric", "Value", "Period", "Growth", "Status", "Notes"]);
     hRow.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
     hRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF4472C4" } };
-    hRow.alignment = { horizontal: "center", vertical: "center" };
+    hRow.alignment = { horizontal: "center", vertical: "middle" };
 
     const dashMetrics = [
       ["Report Period", rangeLabel, "—", "—", "✓", "Admin report range"],
       ["Total Users", usersQuery.data?.total ?? 0, "All time", "—", "✓", "Registered accounts"],
-      ["AI Requests (24h)", aiReq24hQuery.data ?? 0, "Last 24h", "—", aiReq24hQuery.data > 0 ? "✓ Active" : "⚠ Idle", "Chat messages"],
+      ["AI Requests (24h)", aiReq24hQuery.data ?? 0, "Last 24h", "—", (aiReq24hQuery.data ?? 0) > 0 ? "✓ Active" : "⚠ Idle", "Chat messages"],
       ["Revenue in Period", `₹${rangeRevenue.toLocaleString("en-IN")}`, rangeLabel, `Week: ₹${weeklyRevenue.toLocaleString("en-IN")}`, rangeRevenue > 0 ? "✓" : "—", "Completed credits"],
       ["This Week Revenue", `₹${weeklyRevenue.toLocaleString("en-IN")}`, "This week", `Month: ₹${monthlyRevenue.toLocaleString("en-IN")}`, "✓", "Mon—Sun"],
       ["This Month Revenue", `₹${monthlyRevenue.toLocaleString("en-IN")}`, "This month", "—", "✓", "Month to date"],
@@ -496,7 +500,7 @@ function AdminOverview() {
     for (let i = 4; i <= 4 + dashMetrics.length; i++) {
       const row = dash.getRow(i);
       if (i % 2 === 0) row.eachCell((c) => { c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF2F7FB" } }; });
-      row.alignment = { vertical: "center" };
+      row.alignment = { vertical: "middle" };
     }
 
     // ─── DAILY REVENUE ───
@@ -566,7 +570,7 @@ function AdminOverview() {
     const txHead = txWs.addRow(["ID", "User ID", "Amount (₹)", "Type", "Status", "Description", "Date"]);
     txHead.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
     txHead.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF2E75B6" } };
-    txHead.alignment = { horizontal: "center", vertical: "center" };
+    txHead.alignment = { horizontal: "center", vertical: "middle" };
     tx.forEach((t) => txWs.addRow([t.id.slice(0, 8) + "…", t.user_id.slice(0, 8) + "…", Number(t.amount_inr), t.type, t.status, t.description ?? "", format(new Date(t.created_at), "dd-MM-yyyy HH:mm")]));
     txWs.getColumn(1).width = 14; txWs.getColumn(2).width = 14; txWs.getColumn(3).width = 14;
     txWs.getColumn(4).width = 10; txWs.getColumn(5).width = 12; txWs.getColumn(6).width = 35; txWs.getColumn(7).width = 20;
@@ -577,7 +581,7 @@ function AdminOverview() {
     const uHead = usersWs.addRow(["ID", "Name", "Email", "Roles", "Status", "AI Credits", "Joined", "Last Sign In"]);
     uHead.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
     uHead.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF548235" } };
-    uHead.alignment = { horizontal: "center", vertical: "center" };
+    uHead.alignment = { horizontal: "center", vertical: "middle" };
     userRows.forEach((u) => usersWs.addRow([u.id.slice(0, 8) + "…", u.full_name ?? "", u.email ?? "", u.roles.join(", "), u.disabled ? "Banned" : "Active", u.credits_remaining, format(new Date(u.created_at), "dd-MM-yyyy"), u.last_sign_in_at ? format(new Date(u.last_sign_in_at), "dd-MM-yyyy HH:mm") : "Never"]));
     usersWs.getColumn(1).width = 14; usersWs.getColumn(2).width = 22; usersWs.getColumn(3).width = 30;
     usersWs.getColumn(4).width = 28; usersWs.getColumn(5).width = 12; usersWs.getColumn(6).width = 12;
@@ -590,7 +594,7 @@ function AdminOverview() {
       const aiHead = aiWs.addRow(["Model", "Cost (USD)", "Cost (INR)", "Tokens", "Date"]);
       aiHead.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
       aiHead.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFBF8F00" } };
-      aiHead.alignment = { horizontal: "center", vertical: "center" };
+      aiHead.alignment = { horizontal: "center", vertical: "middle" };
       aiCosts.forEach((a) => aiWs.addRow([a.model ?? "unknown", Number(a.cost_usd ?? 0).toFixed(4), Number(a.cost_inr ?? 0).toFixed(2), a.total_tokens ?? 0, format(new Date(a.created_at), "dd-MM-yyyy HH:mm")]));
       const tUsd = aiCosts.reduce((s, a) => s + Number(a.cost_usd ?? 0), 0);
       const tInr = aiCosts.reduce((s, a) => s + Number(a.cost_inr ?? 0), 0);
@@ -1189,9 +1193,9 @@ function AdminOverview() {
 
         {/* Creator applications */}
         <ApprovalsSection
-          creatorApps={creatorAppsQuery.data ?? []}
+          creatorApps={(creatorAppsQuery.data ?? []) as unknown as CreatorAppRow[]}
           appsLoading={creatorAppsQuery.isLoading}
-          userMap={new Map((usersQuery.data?.rows ?? []).map((u) => [u.id, u]))}
+          userMap={userMap}
           adminId={user?.id ?? ""}
           onChanged={() => {
             qc.invalidateQueries({ queryKey: ["admin", "creator-apps"] });
@@ -2012,7 +2016,7 @@ function ApprovalsSection({
     return u?.full_name || u?.email || id.slice(0, 8);
   };
   const getProfile = (a: CreatorAppRow) => a.profiles?.full_name || a.profiles?.email || getUser(a.user_id);
-  const getAvatar = (a: CreatorAppRow) => a.profiles?.avatar_url;
+  const getAvatar = (a: CreatorAppRow) => a.profiles?.avatar_url ?? undefined;
 
   const AppCard = ({ app, type }: { app: CreatorAppRow; type: "creator" | "coach" }) => (
     <div className="px-6 py-3 border-b last:border-b-0 hover:bg-accent/20 transition-colors">

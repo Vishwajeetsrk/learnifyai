@@ -201,7 +201,7 @@ Learnify AI's playground features **multi-language compilation** powered by Wand
 | **Styling**    | Tailwind CSS v4 + Shadcn UI                                                     |
 | **State**      | TanStack Query + React Context                                                  |
 | **Database**   | Supabase (PostgreSQL + Auth + Storage)                                          |
-| **AI**         | OpenRouter, Gemini, Groq (multi-provider fallback)                              |
+| **AI**         | OpenRouter, Gemini, Groq, NVIDIA (multi-provider fallback)                      |
 | **Payments**   | Cashfree (Recurring Subscriptions + Wallet + Payouts)                           |
 | **Embeddings** | Gemini text-embedding-004 + pgvector                                            |
 | **Email**      | Resend (primary) ←→ Gmail SMTP ←→ Brevo (fallback chain, per-provider timeouts) |
@@ -221,7 +221,7 @@ Learnify AI's playground features **multi-language compilation** powered by Wand
 - Node.js v18+
 - Supabase project (PostgreSQL database instance + Auth + Storage)
 - Cashfree merchant account (for payments)
-- At least one AI provider key (Gemini, OpenRouter, or Groq)
+- At least one AI provider key (Gemini, OpenRouter, Groq, or NVIDIA)
 - Gmail App Password or Resend API key (for emails)
 
 ### Setup & Run Guide
@@ -326,6 +326,7 @@ npx playwright test
 | `OPENROUTER_API_KEY`            | ⚡       | OpenRouter API key for AI tutoring and features                              |
 | `GEMINI_API_KEY`                | ⚡       | Google Gemini API key (fallback or primary AI model)                         |
 | `GROQ_API_KEY`                  | ⚡       | Groq API key (for fast inference models)                                     |
+| `NVIDIA_API_KEY`                | ⚡       | NVIDIA API key (for Llama models via NVIDIA AI)                              |
 | `CASHFREE_APP_ID`               | 💰       | Cashfree payment gateway App ID                                              |
 | `CASHFREE_SECRET_KEY`           | 💰       | Cashfree payment gateway Secret Key                                          |
 | `CASHFREE_WEBHOOK_SECRET`       | 💰       | Cashfree webhook signature verification secret                               |
@@ -515,6 +516,14 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Zoom Controls**: Upgraded canvas toolbar with zoom buttons (−, +), reset to 100%, and smooth scaling up to 200%.
 - ✅ **Keyboard Shortcuts**: Added keydown listeners for Delete/Backspace to remove selected elements, and Escape to deselect.
 - ✅ **Desktop Drag & Drop**: Dragging image files from desktop onto the canvas either sets the background image (if dropped on background) or inserts a new draggable image element.
+
+### v4.9.0 (July 2026) — Zero Build Errors, NVIDIA AI Provider, 40 DB Migrations Applied
+
+- ✅ **Zero TypeScript Build Errors**: All 53 TS errors eliminated from the codebase. Fixed: nullability in Insert types across all tables (nullable → `T | null`, hasDefault → `T`, required → `T`), regenerated types.ts with 4 missing tables (`admin_audit_logs`, `concept_graphs`, `explanations_cache`, `store_items`), fixed admin.tsx ExcelJS vertical alignment `"center"`→`"middle"`, `aiReq24hQuery.data ?? 0` guard, `userMap` scope, `getAvatar` null→undefined, `creatorApps` type cast, fixed career-studio.tsx imports, portfolio-builder.tsx `any` annotation, AnnouncementBroadcast null-coalescing.
+- ✅ **NVIDIA AI Provider Wired**: Added `NVIDIA_API_KEY` to environment config. NVIDIA added as a first-class AI provider in `src/routes/api/chat.ts` (PROVIDERS object + resolveProvider fallback) and `src/lib/agent.functions.ts` (AI_PROVIDERS array + NVIDIA_URL constant). Available models: `meta/llama-3.3-70b-instruct`, `nvidia/llama-3.1-nemotron-70b-instruct`.
+- ✅ **40 DB Migrations Applied to Production**: Ran all pending migrations covering billing, pricing, WCMS, onboarding, blog, concept_graphs, admin_audit_logs, store_items, and more. Production schema now fully synced with migrations.
+- ✅ **MIND_MAP.md Created**: Comprehensive project map for AI agent navigation, covering all routes, components, lib modules, integrations, hooks, types and root config files.
+- ✅ **`MigrationPlan.md` Audit & Plan**: Complete review of all 118 DB tables, migration status, and pending tasks documented in `plans/TransformationPlan.md`.
 
 ### v4.8.0 (July 2026) — Visual Learning Integration, Owner Video Player Fix, Build & AI Tutor Fixes
 

@@ -6,6 +6,7 @@ const AGENT_MODEL = process.env.AGENT_MODEL || "";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const NVIDIA_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
 
 const TOOLS = [
   {
@@ -98,6 +99,13 @@ const AI_PROVIDERS = [
       ? [AGENT_MODEL, ...FALLBACK_MODELS.filter((m) => m !== AGENT_MODEL)]
       : FALLBACK_MODELS,
     extraHeaders: { "HTTP-Referer": "https://learnifyaitool.vercel.app" } as Record<string, string>,
+  },
+  {
+    name: "NVIDIA",
+    url: NVIDIA_URL,
+    getKey: () => process.env.NVIDIA_API_KEY,
+    models: ["meta/llama-3.3-70b-instruct", "nvidia/llama-3.1-nemotron-70b-instruct"],
+    extraHeaders: {} as Record<string, string>,
   },
 ];
 

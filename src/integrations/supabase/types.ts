@@ -4189,6 +4189,147 @@ export type Database = {
         };
         Relationships: [];
       };
+      admin_audit_logs: {
+        Row: {
+          id: string;
+          actor_id: string;
+          actor_email: string;
+          action: string;
+          entity_type: string;
+          entity_id: string;
+          changes: Json;
+          metadata: Json;
+          ip_address: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          actor_id: string;
+          actor_email?: string | null;
+          action: string;
+          entity_type: string;
+          entity_id?: string | null;
+          changes?: Json | null;
+          metadata?: Json | null;
+          ip_address?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          actor_id?: string;
+          actor_email?: string | null;
+          action?: string;
+          entity_type?: string;
+          entity_id?: string | null;
+          changes?: Json | null;
+          metadata?: Json | null;
+          ip_address?: string | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      concept_graphs: {
+        Row: {
+          id: string;
+          course_id: string;
+          lesson_id: string;
+          nodes: Json;
+          edges: Json;
+          generated_at: string;
+        };
+        Insert: {
+          id?: string;
+          course_id?: string | null;
+          lesson_id?: string | null;
+          nodes?: Json;
+          edges?: Json;
+          generated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          course_id?: string | null;
+          lesson_id?: string | null;
+          nodes?: Json;
+          edges?: Json;
+          generated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      explanations_cache: {
+        Row: {
+          id: string;
+          lesson_id: string;
+          level: string;
+          content: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          lesson_id?: string | null;
+          level: string;
+          content: string;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          lesson_id?: string | null;
+          level?: string;
+          content?: string;
+          created_at?: string | null;
+        };
+        Relationships: [];
+      };
+      store_items: {
+        Row: {
+          id: string;
+          name: string;
+          description: string;
+          category: string;
+          cost: number;
+          icon: string;
+          color: string;
+          perks: string[];
+          is_prime: boolean;
+          prime_price: number;
+          auto_claim: boolean;
+          enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          category?: string;
+          cost?: number;
+          icon?: string | null;
+          color?: string | null;
+          perks?: string[] | null;
+          is_prime?: boolean | null;
+          prime_price?: number | null;
+          auto_claim?: boolean | null;
+          enabled?: boolean | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          category?: string;
+          cost?: number;
+          icon?: string | null;
+          color?: string | null;
+          perks?: string[] | null;
+          is_prime?: boolean | null;
+          prime_price?: number | null;
+          auto_claim?: boolean | null;
+          enabled?: boolean | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       subscription_analytics: {
