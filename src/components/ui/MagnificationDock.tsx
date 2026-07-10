@@ -77,7 +77,7 @@ function DockItem({
       onFocus={() => isHovered.set(1)}
       onBlur={() => isHovered.set(0)}
       onClick={onClick}
-      className={`relative inline-flex items-center justify-center rounded-full bg-card border-border border shadow-lg cursor-pointer transition-all ${
+      className={`relative inline-flex items-center justify-center rounded-full bg-card border-border border shadow-lg cursor-pointer ${
         isActive ? 'ring-2 ring-primary border-primary bg-primary/10' : 'hover:bg-muted/80'
       } ${className}`}
       tabIndex={0}

@@ -72,7 +72,7 @@ function CareerStudioHub() {
 
   return (
     <AppShell>
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-4 md:px-10 py-6 overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring", stiffness: 300, damping: 25 }} className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-4 md:px-10 py-6 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.08),transparent_60%)] pointer-events-none" />
         <div className="max-w-7xl mx-auto flex items-center justify-between relative">
           <div className="flex items-center gap-4">
@@ -93,8 +93,8 @@ function CareerStudioHub() {
       </motion.div>
 
       <div className="min-h-[calc(100vh-8rem)] pb-28">
-        <AnimatePresence mode="wait">
-          <motion.div key={activeTab} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.2 }}>
+        <AnimatePresence mode="popLayout">
+          <motion.div key={activeTab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.1 }}>
             {activeTab === "resume" && <ResumeBuilderPage embedded />}
             {activeTab === "ats" && <AtsCheckerPage embedded />}
             {activeTab === "interview" && <InterviewPage embedded />}
@@ -111,7 +111,7 @@ function CareerStudioHub() {
         </AnimatePresence>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-[95%]">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 25 }} className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-[95%]">
         <MagnificationDock items={dockItems} {...dockProps} />
       </motion.div>
     </AppShell>

@@ -31,6 +31,8 @@ import {
   ShoppingCart,
   Activity,
   Megaphone,
+  MonitorPlay,
+  Brain,
   Server,
   Compass,
 } from "lucide-react";
@@ -898,9 +900,15 @@ function AdminOverview() {
             >
               <Award className="h-4 w-4" /> Certificates
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/store" })}>
-              <ShoppingCart className="h-4 w-4" /> XP Store
-            </Button>
+  <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/store" })}>
+    <ShoppingCart className="h-4 w-4" /> XP Store
+  </Button>
+  <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/system-design" as any })}>
+    <MonitorPlay className="h-4 w-4" /> System Design
+  </Button>
+  <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/visual-learning" as any })}>
+    <Brain className="h-4 w-4" /> Visual Learning
+  </Button>
             <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/audit-logs" })}>
               <ShieldAlert className="h-4 w-4" /> Audit Logs
             </Button>

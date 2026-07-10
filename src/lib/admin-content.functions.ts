@@ -19,6 +19,10 @@ const ALLOWED_TABLES = [
   "coaching_roadmaps",
   "blog_posts",
   "design_projects",
+  "system_design_topics",
+  "concept_graphs",
+  "explanations_cache",
+  "store_items",
 ] as const;
 
 const actionSchema = z.object({
@@ -115,7 +119,7 @@ export const adminContentQuery = createServerFn({ method: "GET" })
     await checkAdminRole(userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    let query = supabaseAdmin.from(data.table).select(data.columns || "*");
+    let query = supabaseAdmin.from(data.table as any).select(data.columns || "*");
     if (data.eqFilter) {
       query = query.eq(data.eqFilter.column, data.eqFilter.value);
     }
@@ -169,7 +173,7 @@ export const adminContentUpsert = createServerFn({ method: "POST" })
     const opts: any = {};
     if (data.onConflict) opts.onConflict = data.onConflict;
 
-    const { error } = await supabaseAdmin.from(data.table).upsert(data.data, opts);
+    const { error } = await supabaseAdmin.from(data.table as any).upsert(data.data, opts);
     if (error) throw error;
     return { success: true };
   });

@@ -1,0 +1,167 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Brain, Search, ArrowLeft, Trash2, RefreshCw, Eye, X, BookOpen, Lightbulb, GraduationCap } from "lucide-react";
+import { AppShell } from "@/components/AppShell";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/_authenticated/admin/visual-learning" as any)({
+  head: () => ({ meta: [{ title: "Visual Learning — Admin — Learnify AI" }] }),
+  component: AdminVisualLearningPage,
+});
+
+function AdminVisualLearningPage() {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("concepts");
+  const [search, setSearch] = useState("");
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+
+  const conceptsQuery = useQuery({
+    queryKey: ["admin-concept-graphs"],
+    queryFn: async () => {
+      const { data } = await supabase.from("concept_graphs").select("*").order("generated_at", { ascending: false }).limit(50);
+      return data ?? [];
+    },
+  });
+
+  const explanationsQuery = useQuery({
+    queryKey: ["admin-explanations-cache"],
+    queryFn: async () => {
+      const { data } = await supabase.from("explanations_cache").select("*").order("created_at", { ascending: false }).limit(50);
+      return data ?? [];
+    },
+  });
+
+  const concepts = conceptsQuery.data ?? [];
+  const explanations = explanationsQuery.data ?? [];
+
+  const filteredConcepts = search ? concepts.filter((c: any) => c.lesson_id?.toLowerCase().includes(search.toLowerCase()) || c.course_id?.toLowerCase().includes(search.toLowerCase())) : concepts;
+  const filteredExplanations = search ? explanations.filter((e: any) => e.lesson_id?.toLowerCase().includes(search.toLowerCase()) || e.content?.toLowerCase().includes(search.toLowerCase())) : explanations;
+
+  const deleteConcept = async (id: string) => {
+    if (!window.confirm("Delete this concept graph?")) return;
+    const { error } = await supabase.from("concept_graphs").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Concept graph deleted");
+    qc.invalidateQueries({ queryKey: ["admin-concept-graphs"] });
+  };
+
+  const deleteExplanation = async (id: string) => {
+    if (!window.confirm("Delete this explanation?")) return;
+    const { error } = await supabase.from("explanations_cache").delete().eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Explanation deleted");
+    qc.invalidateQueries({ queryKey: ["admin-explanations-cache"] });
+  };
+
+  return (
+    <AppShell>
+      <div className="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/admin" })}><ArrowLeft className="h-4 w-4" /></Button>
+            <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center shrink-0">
+              <Brain className="h-5 w-5 text-purple-500" />
+            </div>
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold">Visual Learning</h1>
+              <p className="text-xs text-muted-foreground">Concept graphs & explanations cache</p>
+            </div>
+          </div>
+        </div>
+
+        <Tabs value={tab} onValueChange={setTab}>
+          <TabsList>
+            <TabsTrigger value="concepts" className="text-xs gap-1.5"><Brain className="h-3.5 w-3.5" /> Concept Graphs ({concepts.length})</TabsTrigger>
+            <TabsTrigger value="explanations" className="text-xs gap-1.5"><Lightbulb className="h-3.5 w-3.5" /> Explain Like I'm 12 ({explanations.length})</TabsTrigger>
+          </TabsList>
+
+          <div className="relative max-w-xs mt-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by lesson/course ID..." className="pl-8 h-9 text-xs" />
+          </div>
+
+          <TabsContent value="concepts" className="mt-3 space-y-3">
+            {conceptsQuery.isLoading ? (
+              <div className="p-8 text-center text-sm text-muted-foreground">Loading...</div>
+            ) : filteredConcepts.length === 0 ? (
+              <div className="p-8 text-center text-sm text-muted-foreground">No concept graphs found. They are generated by AI when viewing a lesson.</div>
+            ) : filteredConcepts.map((c: any) => (
+              <Card key={c.id} className="border-l-4 border-l-purple-500">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="secondary" className="text-[9px]">Lesson: {c.lesson_id?.slice(0, 8)}...</Badge>
+                        {c.course_id && <Badge variant="outline" className="text-[9px]">Course: {c.course_id?.slice(0, 8)}...</Badge>}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">Nodes: {c.nodes?.length || 0} · Edges: {c.edges?.length || 0}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">Generated: {c.generated_at ? new Date(c.generated_at).toLocaleString() : "N/A"}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setSelectedItem(selectedItem?.id === c.id ? null : c)}>
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive" onClick={() => deleteConcept(c.id)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  {selectedItem?.id === c.id && (
+                    <div className="mt-3 p-3 rounded-lg bg-muted/50 max-h-60 overflow-auto">
+                      <p className="text-[10px] font-mono text-muted-foreground whitespace-pre-wrap">{JSON.stringify({ nodes: c.nodes, edges: c.edges }, null, 2).slice(0, 2000)}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+
+          <TabsContent value="explanations" className="mt-3 space-y-3">
+            {explanationsQuery.isLoading ? (
+              <div className="p-8 text-center text-sm text-muted-foreground">Loading...</div>
+            ) : filteredExplanations.length === 0 ? (
+              <div className="p-8 text-center text-sm text-muted-foreground">No explanations cached. They are generated by AI when using Explain Like I'm 12.</div>
+            ) : filteredExplanations.map((e: any) => (
+              <Card key={e.id} className="border-l-4 border-l-amber-500">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Badge variant="secondary" className="text-[9px]">Lesson: {e.lesson_id?.slice(0, 8)}...</Badge>
+                        <Badge variant="outline" className="text-[9px] capitalize">{e.level}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{e.content?.slice(0, 200)}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">{new Date(e.created_at).toLocaleString()}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setSelectedItem(selectedItem?.id === e.id ? null : e)}>
+                        <Eye className="h-3 w-3" />
+                      </Button>
+                      <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive" onClick={() => deleteExplanation(e.id)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  {selectedItem?.id === e.id && (
+                    <div className="mt-3 p-3 rounded-lg bg-muted/50 max-h-60 overflow-auto">
+                      <p className="text-xs whitespace-pre-wrap">{e.content}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AppShell>
+  );
+}

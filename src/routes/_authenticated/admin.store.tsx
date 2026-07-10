@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ShoppingCart, Search, ChevronLeft, ChevronRight, Star, Plus, Pencil, Trash2, Crown, Sparkles, Image, X, Check } from "lucide-react";
+import { ShoppingCart, Search, ChevronLeft, ChevronRight, Star, Plus, Pencil, Trash2, Crown, Sparkles, Image, X, Check, Tags, Package, Eye } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +34,7 @@ function AdminStorePage() {
   const [itemDialog, setItemDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [itemForm, setItemForm] = useState({
-    name: "", description: "", category: "tools", cost: 100, icon: "Sparkles", color: "from-blue-500 to-blue-600", perks: "", is_prime: false, prime_price: 0, auto_claim: false, enabled: true,
+    name: "", description: "", category: "tools", cost: 100, icon: "Sparkles", color: "from-blue-500 to-blue-600", perks: "", is_prime: false, prime_price: 0, auto_claim: false, enabled: true, image_url: "", stock: "", tags: "",
   });
 
   const purchasesQuery = useQuery({
@@ -70,7 +70,7 @@ function AdminStorePage() {
 
   const openNewItem = () => {
     setEditingItem(null);
-    setItemForm({ name: "", description: "", category: "tools", cost: 100, icon: "Sparkles", color: "from-blue-500 to-blue-600", perks: "", is_prime: false, prime_price: 0, auto_claim: false, enabled: true });
+    setItemForm({ name: "", description: "", category: "tools", cost: 100, icon: "Sparkles", color: "from-blue-500 to-blue-600", perks: "", is_prime: false, prime_price: 0, auto_claim: false, enabled: true, image_url: "", stock: "", tags: "" });
     setItemDialog(true);
   };
 
@@ -81,6 +81,7 @@ function AdminStorePage() {
       icon: item.icon || "Sparkles", color: item.color || "from-blue-500 to-blue-600",
       perks: (item.perks || []).join(", "), is_prime: item.is_prime || false,
       prime_price: item.prime_price || 0, auto_claim: item.auto_claim || false, enabled: item.enabled !== false,
+      image_url: item.image_url || "", stock: item.stock != null ? String(item.stock) : "", tags: (item.tags || []).join(", "),
     });
     setItemDialog(true);
   };
@@ -99,6 +100,9 @@ function AdminStorePage() {
       prime_price: Math.max(0, Number(itemForm.prime_price)),
       auto_claim: itemForm.auto_claim,
       enabled: itemForm.enabled,
+      image_url: itemForm.image_url.trim() || null,
+      stock: itemForm.stock ? parseInt(itemForm.stock, 10) : null,
+      tags: itemForm.tags.split(",").map((s) => s.trim()).filter(Boolean),
     };
     try {
       if (editingItem) {
@@ -223,12 +227,19 @@ function AdminStorePage() {
                 <div className="col-span-full p-8 text-center text-sm text-muted-foreground">No items yet.</div>
               ) : items.map((item: any) => (
                 <Card key={item.id} className={cn("relative overflow-hidden", !item.enabled && "opacity-60")}>
+                  {item.image_url && <img src={item.image_url} alt={item.name} className="w-full h-24 object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-3 min-w-0">
+                        {item.image_url ? (
+                          <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 bg-muted">
+                            <img src={item.image_url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                          </div>
+                        ) : (
                         <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-gradient-to-br", item.color || "from-primary to-primary/60")}>
                           {item.is_prime ? <Crown className="h-5 w-5 text-white" /> : <Sparkles className="h-5 w-5 text-white" />}
                         </div>
+                        )}
                         <div className="min-w-0">
                           <p className="font-semibold text-sm truncate">{item.name}</p>
                           <p className="text-[10px] text-muted-foreground capitalize">{item.category}{item.is_prime ? ` · Prime ₹${item.prime_price}` : ` · ${item.cost} XP`}</p>
@@ -242,8 +253,14 @@ function AdminStorePage() {
                     {item.description && <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{item.description}</p>}
                     <div className="flex flex-wrap gap-1 mt-2">
                       {item.auto_claim && <Badge variant="secondary" className="text-[9px]"><Check className="h-2.5 w-2.5 mr-0.5" /> Auto-claim</Badge>}
+                      {item.stock != null && <Badge variant="outline" className="text-[9px]"><Package className="h-2.5 w-2.5 mr-0.5" /> Stock: {item.stock}</Badge>}
                       {!item.enabled && <Badge variant="outline" className="text-[9px] text-muted-foreground">Disabled</Badge>}
                     </div>
+                    {item.tags?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {item.tags.map((tag: string) => <Badge key={tag} variant="default" className="text-[8px] h-4">{tag}</Badge>)}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -288,6 +305,18 @@ function AdminStorePage() {
                 <div className="space-y-1.5 col-span-2">
                   <Label>Perk IDs (comma separated)</Label>
                   <Input value={itemForm.perks} onChange={(e) => setItemForm((f) => ({ ...f, perks: e.target.value }))} placeholder="resume_premium, gold_frame" />
+                </div>
+                <div className="space-y-1.5 col-span-2">
+                  <Label className="flex items-center gap-1"><Image className="h-3 w-3" /> Image URL</Label>
+                  <Input value={itemForm.image_url} onChange={(e) => setItemForm((f) => ({ ...f, image_url: e.target.value }))} placeholder="https://example.com/item-image.png" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="flex items-center gap-1"><Package className="h-3 w-3" /> Stock (optional)</Label>
+                  <Input type="number" min={0} value={itemForm.stock} onChange={(e) => setItemForm((f) => ({ ...f, stock: e.target.value }))} placeholder="Unlimited if empty" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="flex items-center gap-1"><Tags className="h-3 w-3" /> Tags</Label>
+                  <Input value={itemForm.tags} onChange={(e) => setItemForm((f) => ({ ...f, tags: e.target.value }))} placeholder="popular, new, limited" />
                 </div>
               </div>
               <div className="flex flex-col gap-3 rounded-lg border p-3">
