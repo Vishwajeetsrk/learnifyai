@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { InteractiveAvatar } from "@/components/InteractiveAvatar";
 import { AppShell } from "@/components/AppShell";
 import {
   ShoppingCart, Star, Palette, FileText, Loader2, Check,
-  Sparkles, Zap, Tag, Trophy,
+  Sparkles, Zap, Tag, Trophy, Smile,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -128,6 +129,14 @@ function StorePage() {
   const fetchPurchases = useServerFn(getUserPurchases);
   const [purchasing, setPurchasing] = useState<string | null>(null);
 
+  const { data: avatarItems = [] } = useQuery({
+    queryKey: ["store-avatar-items"],
+    queryFn: async () => {
+      const { data } = await supabase.from("store_items").select("*").contains("tags", ["avatar"]).eq("enabled", true);
+      return data ?? [];
+    },
+  });
+
   const { data: profile } = useQuery({
     queryKey: ["my-profile", user?.id],
     queryFn: async () => {
@@ -224,6 +233,34 @@ function StorePage() {
             )}
           </div>
         </header>
+
+        {avatarItems.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Smile className="h-5 w-5 text-primary" /> Interactive Avatars
+              <Badge variant="secondary" className="text-[10px]">₹1 or 1 XP each</Badge>
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {avatarItems.map((item: any) => {
+                const owned = !!purchasedPerks[item.id];
+                const isPurchasing = purchasing === item.id;
+                return (
+                  <div key={item.id} className="flex flex-col items-center gap-2">
+                    <div className={`relative rounded-2xl p-3 bg-card border-2 ${owned ? "border-emerald-500" : "border-border"} transition-all hover:shadow-lg ${!owned ? "cursor-pointer" : ""}`}
+                      onClick={() => !owned && !isPurchasing && handlePurchase(item.id, item.cost || 1, item.name)}>
+                      <InteractiveAvatar src={item.image_url || "/avatars/avatar-m1.svg"} name={item.name} size={128} />
+                      {owned && <div className="absolute top-2 right-2 bg-emerald-500 rounded-full p-1"><Check className="h-3 w-3 text-white" /></div>}
+                    </div>
+                    <p className="text-xs font-medium text-center truncate max-w-full">{item.name}</p>
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                      <Star className="h-2.5 w-2.5 text-yellow-500 fill-yellow-500" /> 1 XP <span className="text-muted-foreground/50">·</span> ₹{item.prime_price || 1}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {categories.map((cat) => (
           <div key={cat} className="mb-10">

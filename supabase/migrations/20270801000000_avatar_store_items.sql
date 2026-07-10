@@ -1,0 +1,9 @@
+-- Insert 6 interactive avatar items into XP Store at ₹1 each (prime price)
+INSERT INTO public.store_items (name, description, category, cost, icon, color, perks, is_prime, prime_price, auto_claim, enabled, image_url, stock, tags) VALUES
+  ('Avatar M1', 'Stylish male avatar with interactive eyes and animated smile. Watch it follow your cursor!', 'cosmetics', 0, 'Smile', 'from-blue-400 to-blue-600', ARRAY['avatar_m1'], true, 1, true, true, '/avatars/avatar-m1.svg', NULL, ARRAY['avatar', 'male', 'interactive']),
+  ('Avatar M2', 'Cool male avatar — eyes track your mouse and smile animates on hover.', 'cosmetics', 0, 'Smile', 'from-emerald-400 to-emerald-600', ARRAY['avatar_m2'], true, 1, true, true, '/avatars/avatar-m2.svg', NULL, ARRAY['avatar', 'male', 'interactive']),
+  ('Avatar M3', 'Bold male avatar with live eye tracking and reactive smile.', 'cosmetics', 0, 'Smile', 'from-purple-400 to-purple-600', ARRAY['avatar_m3'], true, 1, true, true, '/avatars/avatar-m3.svg', NULL, ARRAY['avatar', 'male', 'interactive']),
+  ('Avatar F1', 'Elegant female avatar — her eyes follow your every move. Smiles when you hover!', 'cosmetics', 0, 'Smile', 'from-pink-400 to-pink-600', ARRAY['avatar_f1'], true, 1, true, true, '/avatars/avatar-f1.svg', NULL, ARRAY['avatar', 'female', 'interactive']),
+  ('Avatar F2', 'Chic female avatar with mouse-tracking eyes and hover-activated smile.', 'cosmetics', 0, 'Smile', 'from-rose-400 to-rose-600', ARRAY['avatar_f2'], true, 1, true, true, '/avatars/avatar-f2.svg', NULL, ARRAY['avatar', 'female', 'interactive']),
+  ('Avatar F3', 'Graceful female avatar — interactive eyes follow cursor, smile brightens on hover.', 'cosmetics', 0, 'Smile', 'from-violet-400 to-violet-600', ARRAY['avatar_f3'], true, 1, true, true, '/avatars/avatar-f3.svg', NULL, ARRAY['avatar', 'female', 'interactive'])
+ON CONFLICT DO NOTHING;
