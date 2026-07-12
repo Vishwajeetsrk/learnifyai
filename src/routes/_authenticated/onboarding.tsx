@@ -106,6 +106,7 @@ function OnboardingPage() {
   const skipFn = useServerFn(skipOnboarding);
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [aiSubStep, setAiSubStep] = useState(0); // 0=goal, 1=experience, 2=interests, 3=learning style
   const [loading, setLoading] = useState(true);
   const [aiProfile, setAiProfile] = useState<{
     goals: string[];
@@ -364,124 +365,208 @@ function OnboardingPage() {
           </div>
         )}
 
-        {/* ═══ AI ONBOARDING ═══ */}
+        {/* ═══ AI ONBOARDING — Sub-steps (one question at a time) ═══ */}
         {step.id === "ai_onboarding" && (
-          <div className="space-y-8 animate-in fade-in-0 slide-in-from-bottom-4">
-            <div className="text-center">
-              <h2 className="text-3xl font-bold font-display mb-2">Tell us about yourself</h2>
-              <p className="text-muted-foreground">
-                Our AI will personalize your learning experience based on your goals.
-              </p>
+          <div className="animate-in fade-in-0 slide-in-from-bottom-4">
+            {/* Sub-step progress */}
+            <div className="flex items-center justify-center gap-2 mb-8">
+              {["Goal", "Experience", "Interests", "Learning Style"].map((label, i) => (
+                <div key={label} className="flex items-center gap-1.5">
+                  <div className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-300",
+                    i < aiSubStep ? "bg-primary text-primary-foreground scale-90" :
+                    i === aiSubStep ? "bg-primary text-primary-foreground ring-4 ring-primary/20" :
+                    "bg-muted text-muted-foreground"
+                  )}>
+                    {i < aiSubStep ? <Check className="h-3 w-3" /> : i + 1}
+                  </div>
+                  <span className={cn(
+                    "text-[10px] font-medium hidden sm:block transition-colors",
+                    i === aiSubStep ? "text-foreground" : "text-muted-foreground"
+                  )}>{label}</span>
+                  {i < 3 && <div className={cn("w-6 h-px transition-colors", i < aiSubStep ? "bg-primary" : "bg-border")} />}
+                </div>
+              ))}
             </div>
 
-            {/* Goals */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">What are your goals?</Label>
-              <div className="flex flex-wrap gap-2">
-                {GOALS.map((g) => (
-                  <Badge
-                    key={g}
-                    variant={(aiProfile.goals ?? []).includes(g) ? "default" : "outline"}
-                    className="cursor-pointer text-sm py-1.5 px-3"
-                    onClick={() =>
-                      setAiProfile((prev) => ({
-                        ...prev,
-                        goals: (prev.goals ?? []).includes(g)
-                          ? (prev.goals ?? []).filter((x) => x !== g)
-                          : [...(prev.goals ?? []), g],
-                      }))
-                    }
-                  >
-                    {(aiProfile.goals ?? []).includes(g) && <Check className="h-3 w-3 mr-1" />}
-                    {g}
-                  </Badge>
-                ))}
+            {/* Sub-step 0 — What's your main goal? */}
+            {aiSubStep === 0 && (
+              <div className="space-y-6 text-center animate-in fade-in-0 slide-in-from-right-4">
+                <div>
+                  <div className="text-5xl mb-4">🎯</div>
+                  <h2 className="text-2xl sm:text-3xl font-bold font-display mb-2">What's your main goal?</h2>
+                  <p className="text-muted-foreground text-sm">Pick one — you can always change this later.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+                  {GOALS.map((g) => (
+                    <button
+                      key={g}
+                      className={cn(
+                        "p-4 rounded-2xl border-2 text-sm font-medium text-left transition-all duration-200 hover:scale-105 hover:shadow-md",
+                        (aiProfile.goals ?? []).includes(g)
+                          ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
+                          : "border-border bg-card hover:border-primary/40"
+                      )}
+                      onClick={() => {
+                        setAiProfile((prev) => ({ ...prev, goals: [g] }));
+                        setTimeout(() => setAiSubStep(1), 250);
+                      }}
+                    >
+                      {(aiProfile.goals ?? []).includes(g) && <Check className="h-3.5 w-3.5 text-primary mb-1" />}
+                      {g}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex justify-center gap-3 pt-2">
+                  <Button variant="ghost" size="sm" onClick={() => goToStep(currentStep - 1)}>
+                    <ArrowLeft className="mr-1 h-3 w-3" /> Back
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Experience */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Your experience level</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {EXPERIENCE_LEVELS.map((lvl) => (
-                  <button
-                    key={lvl.value}
-                    className={cn(
-                      "p-4 rounded-xl border text-left transition-all",
-                      aiProfile.experience === lvl.value
-                        ? "border-primary bg-primary/5 ring-1 ring-primary"
-                        : "hover:bg-muted/30",
-                    )}
-                    onClick={() => setAiProfile((prev) => ({ ...prev, experience: lvl.value }))}
-                  >
-                    <div className="font-medium text-sm">{lvl.label}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{lvl.desc}</div>
-                  </button>
-                ))}
+            {/* Sub-step 1 — Experience level */}
+            {aiSubStep === 1 && (
+              <div className="space-y-6 text-center animate-in fade-in-0 slide-in-from-right-4">
+                <div>
+                  <div className="text-5xl mb-4">📊</div>
+                  <h2 className="text-2xl sm:text-3xl font-bold font-display mb-2">What's your experience level?</h2>
+                  <p className="text-muted-foreground text-sm">Be honest — we'll tailor content just for you.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
+                  {EXPERIENCE_LEVELS.map((lvl) => (
+                    <button
+                      key={lvl.value}
+                      className={cn(
+                        "p-5 rounded-2xl border-2 text-left transition-all duration-200 hover:scale-105 hover:shadow-md",
+                        aiProfile.experience === lvl.value
+                          ? "border-primary bg-primary/10 ring-2 ring-primary/20"
+                          : "border-border bg-card hover:border-primary/40"
+                      )}
+                      onClick={() => {
+                        setAiProfile((prev) => ({ ...prev, experience: lvl.value }));
+                        setTimeout(() => setAiSubStep(2), 250);
+                      }}
+                    >
+                      {aiProfile.experience === lvl.value && <Check className="h-3.5 w-3.5 text-primary mb-1" />}
+                      <div className="font-semibold text-sm">{lvl.label}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{lvl.desc}</div>
+                    </button>
+                  ))}
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setAiSubStep(0)}>
+                  <ArrowLeft className="mr-1 h-3 w-3" /> Back
+                </Button>
               </div>
-            </div>
+            )}
 
-            {/* Interests */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">What interests you?</Label>
-              <div className="flex flex-wrap gap-2">
-                {INTERESTS.map((i) => (
-                  <Badge
-                    key={i}
-                    variant={(aiProfile.interests ?? []).includes(i) ? "default" : "outline"}
-                    className="cursor-pointer text-sm py-1.5 px-3"
-                    onClick={() =>
-                      setAiProfile((prev) => ({
-                        ...prev,
-                        interests: (prev.interests ?? []).includes(i)
-                          ? (prev.interests ?? []).filter((x) => x !== i)
-                          : [...(prev.interests ?? []), i],
-                      }))
-                    }
+            {/* Sub-step 2 — Interests (pick up to 4) */}
+            {aiSubStep === 2 && (
+              <div className="space-y-6 animate-in fade-in-0 slide-in-from-right-4">
+                <div className="text-center">
+                  <div className="text-5xl mb-4">💡</div>
+                  <h2 className="text-2xl sm:text-3xl font-bold font-display mb-2">What topics interest you?</h2>
+                  <p className="text-muted-foreground text-sm">Pick up to 4 — we'll recommend courses and tools for these.</p>
+                </div>
+                <div className="flex flex-wrap gap-2 justify-center max-w-lg mx-auto">
+                  {INTERESTS.map((interest) => {
+                    const selected = (aiProfile.interests ?? []).includes(interest);
+                    const maxReached = (aiProfile.interests ?? []).length >= 4;
+                    return (
+                      <button
+                        key={interest}
+                        disabled={maxReached && !selected}
+                        className={cn(
+                          "px-4 py-2 rounded-full border-2 text-sm font-medium transition-all duration-200",
+                          selected
+                            ? "border-primary bg-primary text-primary-foreground scale-105"
+                            : maxReached
+                              ? "border-border bg-muted text-muted-foreground opacity-40 cursor-not-allowed"
+                              : "border-border bg-card hover:border-primary/50 hover:scale-105"
+                        )}
+                        onClick={() =>
+                          setAiProfile((prev) => ({
+                            ...prev,
+                            interests: selected
+                              ? (prev.interests ?? []).filter((x) => x !== interest)
+                              : (prev.interests ?? []).length < 4
+                                ? [...(prev.interests ?? []), interest]
+                                : prev.interests ?? [],
+                          }))
+                        }
+                      >
+                        {selected && <Check className="h-3 w-3 inline mr-1" />}
+                        {interest}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="text-center text-xs text-muted-foreground">
+                  {(aiProfile.interests ?? []).length} / 4 selected
+                </div>
+                <div className="flex justify-center gap-3">
+                  <Button variant="ghost" size="sm" onClick={() => setAiSubStep(1)}>
+                    <ArrowLeft className="mr-1 h-3 w-3" /> Back
+                  </Button>
+                  <Button
+                    disabled={(aiProfile.interests ?? []).length === 0}
+                    onClick={() => setAiSubStep(3)}
                   >
-                    {(aiProfile.interests ?? []).includes(i) && <Check className="h-3 w-3 mr-1" />}
-                    {i}
-                  </Badge>
-                ))}
+                    Continue <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Learning Style */}
-            <div className="space-y-3">
-              <Label className="text-base font-semibold">Preferred learning style</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { value: "visual", label: "Visual", desc: "Videos & diagrams", icon: "👁️" },
-                  { value: "hands-on", label: "Hands-on", desc: "Learn by doing", icon: "🛠️" },
-                  { value: "reading", label: "Reading", desc: "Articles & docs", icon: "📖" },
-                  { value: "mixed", label: "Mixed", desc: "A bit of everything", icon: "🎯" },
-                ].map((s) => (
-                  <button
-                    key={s.value}
-                    className={cn(
-                      "p-4 rounded-xl border text-left transition-all",
-                      aiProfile.learning_style === s.value
-                        ? "border-primary bg-primary/5 ring-1 ring-primary"
-                        : "hover:bg-muted/30",
-                    )}
-                    onClick={() => setAiProfile((prev) => ({ ...prev, learning_style: s.value }))}
-                  >
-                    <span className="text-2xl">{s.icon}</span>
-                    <div className="font-medium text-sm mt-1">{s.label}</div>
-                    <div className="text-xs text-muted-foreground">{s.desc}</div>
-                  </button>
-                ))}
+            {/* Sub-step 3 — Learning style */}
+            {aiSubStep === 3 && (
+              <div className="space-y-6 text-center animate-in fade-in-0 slide-in-from-right-4">
+                <div>
+                  <div className="text-5xl mb-4">🧠</div>
+                  <h2 className="text-2xl sm:text-3xl font-bold font-display mb-2">How do you learn best?</h2>
+                  <p className="text-muted-foreground text-sm">We'll prioritize this format in your recommendations.</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
+                  {[
+                    { value: "visual", label: "Visual", desc: "Videos & diagrams", emoji: "👁️" },
+                    { value: "hands-on", label: "Hands-on", desc: "Learn by doing", emoji: "🛠️" },
+                    { value: "reading", label: "Reading", desc: "Articles & docs", emoji: "📖" },
+                    { value: "mixed", label: "Mixed", desc: "A bit of everything", emoji: "🎯" },
+                  ].map((s) => (
+                    <button
+                      key={s.value}
+                      className={cn(
+                        "p-5 rounded-2xl border-2 text-center transition-all duration-200 hover:scale-105 hover:shadow-md",
+                        aiProfile.learning_style === s.value
+                          ? "border-primary bg-primary/10 ring-2 ring-primary/20"
+                          : "border-border bg-card hover:border-primary/40"
+                      )}
+                      onClick={async () => {
+                        const updated = { ...aiProfile, learning_style: s.value };
+                        setAiProfile(updated);
+                        if (updated.goals.length === 0) { toast.error("Select a goal first"); setAiSubStep(0); return; }
+                        if (!updated.experience) { toast.error("Select experience level"); setAiSubStep(1); return; }
+                        if (updated.interests.length === 0) { toast.error("Select interests"); setAiSubStep(2); return; }
+                        try {
+                          await saveProfileFn({ data: updated });
+                          toast.success("Profile saved! 🎉");
+                          await completeAndNext();
+                        } catch {
+                          toast.error("Save failed — please try again");
+                        }
+                      }}
+                    >
+                      <div className="text-3xl mb-2">{s.emoji}</div>
+                      <div className="font-semibold text-sm">{s.label}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{s.desc}</div>
+                    </button>
+                  ))}
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => setAiSubStep(2)}>
+                  <ArrowLeft className="mr-1 h-3 w-3" /> Back
+                </Button>
               </div>
-            </div>
-
-            <div className="flex justify-between">
-              <Button variant="outline" onClick={() => goToStep(currentStep - 1)}>
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-              </Button>
-              <Button onClick={handleSaveAiProfile}>
-                Save & Continue <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
+            )}
           </div>
         )}
 
