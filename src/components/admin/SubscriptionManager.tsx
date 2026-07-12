@@ -6,12 +6,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
-  CreditCard, Plus, Trash2, Edit3, Save, X, Loader2,
-  IndianRupee, Users, Zap, Crown, Search,
+  CreditCard,
+  Plus,
+  Trash2,
+  Edit3,
+  Save,
+  X,
+  Loader2,
+  IndianRupee,
+  Users,
+  Zap,
+  Crown,
+  Search,
 } from "lucide-react";
 
 type PricingPlan = {
@@ -64,9 +80,7 @@ export function SubscriptionManager() {
 
   const filtered = useMemo(() => {
     const needle = search.trim().toLowerCase();
-    return plans.filter((p) =>
-      !needle || p.name.toLowerCase().includes(needle)
-    );
+    return plans.filter((p) => !needle || p.name.toLowerCase().includes(needle));
   }, [plans, search]);
 
   const subscriberCount = useMemo(() => {
@@ -84,14 +98,19 @@ export function SubscriptionManager() {
       if (error) throw new Error(error.message);
       toast.success("Plan deleted");
       qc.invalidateQueries({ queryKey: ["admin-pricing-plans"] });
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
     setDeleteId(null);
   };
 
   const handleSave = async (form: Partial<PricingPlan>) => {
     try {
       if (editingPlan?.id && editingPlan.id !== "new") {
-        const { error } = await supabase.from("pricing_plans").update(form).eq("id", editingPlan.id);
+        const { error } = await supabase
+          .from("pricing_plans")
+          .update(form)
+          .eq("id", editingPlan.id);
         if (error) throw new Error(error.message);
         toast.success("Plan updated");
       } else {
@@ -115,7 +134,9 @@ export function SubscriptionManager() {
       qc.invalidateQueries({ queryKey: ["admin-pricing-plans"] });
       setShowEditor(false);
       setEditingPlan(null);
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const activeSubs = (subscribers as any[]).filter((s) => s.status === "active").length;
@@ -135,7 +156,12 @@ export function SubscriptionManager() {
           </h2>
           <p className="text-sm text-muted-foreground">Manage pricing plans and subscribers</p>
         </div>
-        <Button onClick={() => { setEditingPlan(null); setShowEditor(true); }}>
+        <Button
+          onClick={() => {
+            setEditingPlan(null);
+            setShowEditor(true);
+          }}
+        >
           <Plus className="h-4 w-4 mr-1" /> New Plan
         </Button>
       </div>
@@ -144,7 +170,9 @@ export function SubscriptionManager() {
       <div className="grid grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-blue-50 text-blue-500"><Zap className="h-4 w-4" /></div>
+            <div className="p-2 rounded-lg bg-blue-50 text-blue-500">
+              <Zap className="h-4 w-4" />
+            </div>
             <div>
               <div className="text-2xl font-bold">{plans.length}</div>
               <div className="text-xs text-muted-foreground">Plans</div>
@@ -153,7 +181,9 @@ export function SubscriptionManager() {
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-green-50 text-green-500"><Users className="h-4 w-4" /></div>
+            <div className="p-2 rounded-lg bg-green-50 text-green-500">
+              <Users className="h-4 w-4" />
+            </div>
             <div>
               <div className="text-2xl font-bold">{activeSubs}</div>
               <div className="text-xs text-muted-foreground">Active Subscribers</div>
@@ -162,7 +192,9 @@ export function SubscriptionManager() {
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-violet-50 text-violet-500"><IndianRupee className="h-4 w-4" /></div>
+            <div className="p-2 rounded-lg bg-violet-50 text-violet-500">
+              <IndianRupee className="h-4 w-4" />
+            </div>
             <div>
               <div className="text-2xl font-bold">₹{mrr.toLocaleString("en-IN")}</div>
               <div className="text-xs text-muted-foreground">MRR</div>
@@ -174,10 +206,15 @@ export function SubscriptionManager() {
       {/* Plans Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((plan) => (
-          <Card key={plan.id} className={`relative ${plan.highlighted ? "ring-2 ring-primary" : ""}`}>
+          <Card
+            key={plan.id}
+            className={`relative ${plan.highlighted ? "ring-2 ring-primary" : ""}`}
+          >
             {plan.badge && (
               <div className="absolute -top-3 left-4">
-                <Badge className="bg-primary text-primary-foreground text-[10px]">{plan.badge}</Badge>
+                <Badge className="bg-primary text-primary-foreground text-[10px]">
+                  {plan.badge}
+                </Badge>
               </div>
             )}
             <CardContent className="p-5">
@@ -185,19 +222,30 @@ export function SubscriptionManager() {
                 <div>
                   <h3 className="font-semibold text-lg">{plan.name}</h3>
                   <div className="mt-1 flex items-baseline gap-1">
-                    <span className="text-3xl font-bold">₹{plan.price_inr.toLocaleString("en-IN")}</span>
-                    {plan.interval && <span className="text-muted-foreground text-sm">/{plan.interval}</span>}
+                    <span className="text-3xl font-bold">
+                      ₹{plan.price_inr.toLocaleString("en-IN")}
+                    </span>
+                    {plan.interval && (
+                      <span className="text-muted-foreground text-sm">/{plan.interval}</span>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-1">
                   <Button
-                    size="icon" variant="ghost" className="h-7 w-7"
-                    onClick={() => { setEditingPlan(plan); setShowEditor(true); }}
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7"
+                    onClick={() => {
+                      setEditingPlan(plan);
+                      setShowEditor(true);
+                    }}
                   >
                     <Edit3 className="h-3.5 w-3.5" />
                   </Button>
                   <Button
-                    size="icon" variant="ghost" className="h-7 w-7 text-red-500"
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7 text-red-500"
                     onClick={() => setDeleteId(plan.id)}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -218,9 +266,15 @@ export function SubscriptionManager() {
                 </ul>
               )}
               <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                {plan.max_courses != null && <Badge variant="secondary">{plan.max_courses} courses</Badge>}
-                {plan.ai_credits_monthly != null && <Badge variant="secondary">{plan.ai_credits_monthly} AI credits/mo</Badge>}
-                {plan.trial_days != null && <Badge variant="secondary">{plan.trial_days}d trial</Badge>}
+                {plan.max_courses != null && (
+                  <Badge variant="secondary">{plan.max_courses} courses</Badge>
+                )}
+                {plan.ai_credits_monthly != null && (
+                  <Badge variant="secondary">{plan.ai_credits_monthly} AI credits/mo</Badge>
+                )}
+                {plan.trial_days != null && (
+                  <Badge variant="secondary">{plan.trial_days}d trial</Badge>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -232,20 +286,30 @@ export function SubscriptionManager() {
         <PlanEditor
           plan={editingPlan}
           onSave={handleSave}
-          onClose={() => { setShowEditor(false); setEditingPlan(null); }}
+          onClose={() => {
+            setShowEditor(false);
+            setEditingPlan(null);
+          }}
         />
       )}
 
       {/* Delete Confirmation */}
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Delete Plan</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Delete Plan</DialogTitle>
+          </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently delete this pricing plan. Active subscribers will not be affected but will not renew.
+            This will permanently delete this pricing plan. Active subscribers will not be affected
+            but will not renew.
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete Plan</Button>
+            <Button variant="outline" onClick={() => setDeleteId(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete Plan
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -253,7 +317,11 @@ export function SubscriptionManager() {
   );
 }
 
-function PlanEditor({ plan, onSave, onClose }: {
+function PlanEditor({
+  plan,
+  onSave,
+  onClose,
+}: {
   plan: PricingPlan | null;
   onSave: (form: Partial<PricingPlan>) => void;
   onClose: () => void;
@@ -298,12 +366,20 @@ function PlanEditor({ plan, onSave, onClose }: {
         <div className="space-y-4 mt-4">
           <div>
             <label className="text-sm font-medium">Plan Name</label>
-            <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Pro" />
+            <Input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="e.g. Pro"
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium">Price (INR)</label>
-              <Input type="number" value={form.price_inr} onChange={(e) => setForm({ ...form, price_inr: Number(e.target.value) })} />
+              <Input
+                type="number"
+                value={form.price_inr}
+                onChange={(e) => setForm({ ...form, price_inr: Number(e.target.value) })}
+              />
             </div>
             <div>
               <label className="text-sm font-medium">Interval</label>
@@ -321,21 +397,39 @@ function PlanEditor({ plan, onSave, onClose }: {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium">Max Courses</label>
-              <Input type="number" value={form.max_courses} onChange={(e) => setForm({ ...form, max_courses: e.target.value })} placeholder="Unlimited" />
+              <Input
+                type="number"
+                value={form.max_courses}
+                onChange={(e) => setForm({ ...form, max_courses: e.target.value })}
+                placeholder="Unlimited"
+              />
             </div>
             <div>
               <label className="text-sm font-medium">AI Credits/mo</label>
-              <Input type="number" value={form.ai_credits_monthly} onChange={(e) => setForm({ ...form, ai_credits_monthly: Number(e.target.value) })} />
+              <Input
+                type="number"
+                value={form.ai_credits_monthly}
+                onChange={(e) => setForm({ ...form, ai_credits_monthly: Number(e.target.value) })}
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium">Badge Text</label>
-              <Input value={form.badge} onChange={(e) => setForm({ ...form, badge: e.target.value })} placeholder="e.g. Most Popular" />
+              <Input
+                value={form.badge}
+                onChange={(e) => setForm({ ...form, badge: e.target.value })}
+                placeholder="e.g. Most Popular"
+              />
             </div>
             <div>
               <label className="text-sm font-medium">Trial Days</label>
-              <Input type="number" value={form.trial_days} onChange={(e) => setForm({ ...form, trial_days: e.target.value })} placeholder="0" />
+              <Input
+                type="number"
+                value={form.trial_days}
+                onChange={(e) => setForm({ ...form, trial_days: e.target.value })}
+                placeholder="0"
+              />
             </div>
           </div>
           <div>
@@ -348,14 +442,25 @@ function PlanEditor({ plan, onSave, onClose }: {
             />
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" checked={form.highlighted} onChange={(e) => setForm({ ...form, highlighted: e.target.checked })} className="rounded" />
+            <input
+              type="checkbox"
+              checked={form.highlighted}
+              onChange={(e) => setForm({ ...form, highlighted: e.target.checked })}
+              className="rounded"
+            />
             <label className="text-sm font-medium">Highlighted (featured plan)</label>
           </div>
         </div>
         <DialogFooter className="mt-6">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button onClick={handleSave} disabled={saving || !form.name}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+            ) : (
+              <Save className="h-4 w-4 mr-1" />
+            )}
             Save Plan
           </Button>
         </DialogFooter>

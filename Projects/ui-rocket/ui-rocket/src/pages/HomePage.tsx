@@ -1,6 +1,6 @@
-import { BodySections } from '../components/BodySections';
-import { Hero } from '../components/Hero';
-import { Navbar } from '../components/Navbar';
+import { BodySections } from "../components/BodySections";
+import { Hero } from "../components/Hero";
+import { Navbar } from "../components/Navbar";
 
 export function HomePage() {
   return (

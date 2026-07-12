@@ -1,4 +1,4 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 export function StudioPage({ embedded = false }: { embedded?: boolean }) {
   const body = (

@@ -1,4 +1,4 @@
-import { LOGO_NAMES } from '../constants';
+import { LOGO_NAMES } from "../constants";
 
 export default function LogoRow() {
   const doubled = [...LOGO_NAMES, ...LOGO_NAMES];

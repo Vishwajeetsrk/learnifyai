@@ -1,18 +1,18 @@
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { InnerPageShell } from '../components/InnerPageShell';
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { InnerPageShell } from "../components/InnerPageShell";
 
 const CAPABILITIES = [
   {
-    title: 'encryption at rest',
-    detail: 'aes-256 envelopes with customer-managed keys and automatic rotation.',
+    title: "encryption at rest",
+    detail: "aes-256 envelopes with customer-managed keys and automatic rotation.",
   },
   {
-    title: 'runtime shield',
-    detail: 'policy checks on every api call with tamper-evident audit streams.',
+    title: "runtime shield",
+    detail: "policy checks on every api call with tamper-evident audit streams.",
   },
   {
-    title: 'privacy mesh',
-    detail: 'field-level tokenization so analysts never touch raw identifiers.',
+    title: "privacy mesh",
+    detail: "field-level tokenization so analysts never touch raw identifiers.",
   },
 ] as const;
 
@@ -35,8 +35,11 @@ export function PlatformPage() {
         ))}
       </div>
       <p className="mt-12 text-sm text-white/50">
-        compare tiers on{' '}
-        <PresetNavLink target={{ kind: 'route', path: 'solutions' }} className="text-white underline">
+        compare tiers on{" "}
+        <PresetNavLink
+          target={{ kind: "route", path: "solutions" }}
+          className="text-white underline"
+        >
           solutions
         </PresetNavLink>
         .

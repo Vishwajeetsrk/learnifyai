@@ -12,10 +12,13 @@ export const generateCourseSyllabus = createServerFn({ method: "POST" })
   .validator((d: unknown) => generateSchema.parse(d))
   .handler(async ({ data, context }) => {
     const userId = context.userId!;
-    
+
     // Optional: verify admin role
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: roles } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", userId);
+    const { data: roles } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
     const userRoles = (roles ?? []).map((r: any) => r.role);
     if (!userRoles.includes("super_admin") && !userRoles.includes("admin")) {
       throw new Error("Forbidden");
@@ -79,17 +82,20 @@ Example JSON Output:
 `;
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: "application/json"
-          }
-        })
-      });
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json",
+            },
+          }),
+        },
+      );
 
       if (!response.ok) {
         throw new Error(`Gemini API Error: ${response.statusText}`);
@@ -97,7 +103,7 @@ Example JSON Output:
 
       const result = await response.json();
       const text = result.candidates[0].content.parts[0].text;
-      
+
       return JSON.parse(text);
     } catch (error: any) {
       console.error("AI Generation failed:", error);

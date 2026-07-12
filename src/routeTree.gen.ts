@@ -80,7 +80,9 @@ import { Route as AuthenticatedAiRouteImport } from './routes/_authenticated/ai'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAchievementsRouteImport } from './routes/_authenticated/achievements'
 import { Route as AuthenticatedSystemDesignIndexRouteImport } from './routes/_authenticated/system-design.index'
+import { Route as AuthenticatedPlaygroundIndexRouteImport } from './routes/_authenticated/playground.index'
 import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
+import { Route as VerifyInvoiceIdRouteImport } from './routes/verify.invoice.$id'
 import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/api/webhooks/cashfree-subscription'
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
 import { Route as ApiCronRetryCertEmailsRouteImport } from './routes/api/cron/retry-cert-emails'
@@ -100,7 +102,9 @@ import { Route as AuthenticatedCreatorEarningsRouteImport } from './routes/_auth
 import { Route as AuthenticatedCreatorCommentsRouteImport } from './routes/_authenticated/creator.comments'
 import { Route as AuthenticatedCoursesSlugRouteImport } from './routes/_authenticated/courses.$slug'
 import { Route as AuthenticatedCohortsIdRouteImport } from './routes/_authenticated/cohorts.$id'
+import { Route as AuthenticatedAdminVisualLearningRouteImport } from './routes/_authenticated/admin/visual-learning'
 import { Route as AuthenticatedAdminSystemHealthRouteImport } from './routes/_authenticated/admin.system-health'
+import { Route as AuthenticatedAdminSystemDesignRouteImport } from './routes/_authenticated/admin/system-design'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin/subscriptions'
 import { Route as AuthenticatedAdminStoreRouteImport } from './routes/_authenticated/admin.store'
 import { Route as AuthenticatedAdminMissingVideosRouteImport } from './routes/_authenticated/admin.missing-videos'
@@ -480,12 +484,23 @@ const AuthenticatedSystemDesignIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedSystemDesignRoute,
   } as any)
+const AuthenticatedPlaygroundIndexRoute =
+  AuthenticatedPlaygroundIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedPlaygroundRoute,
+  } as any)
 const AuthenticatedCoursesIndexRoute =
   AuthenticatedCoursesIndexRouteImport.update({
     id: '/courses/',
     path: '/courses/',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const VerifyInvoiceIdRoute = VerifyInvoiceIdRouteImport.update({
+  id: '/verify/invoice/$id',
+  path: '/verify/invoice/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWebhooksCashfreeSubscriptionRoute =
   ApiWebhooksCashfreeSubscriptionRouteImport.update({
     id: '/api/webhooks/cashfree-subscription',
@@ -595,10 +610,22 @@ const AuthenticatedCohortsIdRoute = AuthenticatedCohortsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedCohortsRoute,
 } as any)
+const AuthenticatedAdminVisualLearningRoute =
+  AuthenticatedAdminVisualLearningRouteImport.update({
+    id: '/visual-learning',
+    path: '/visual-learning',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSystemHealthRoute =
   AuthenticatedAdminSystemHealthRouteImport.update({
     id: '/system-health',
     path: '/system-health',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSystemDesignRoute =
+  AuthenticatedAdminSystemDesignRouteImport.update({
+    id: '/system-design',
+    path: '/system-design',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminSubscriptionsRoute =
@@ -747,7 +774,9 @@ export interface FileRoutesByFullPath {
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
   '/admin/store': typeof AuthenticatedAdminStoreRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/system-design': typeof AuthenticatedAdminSystemDesignRoute
   '/admin/system-health': typeof AuthenticatedAdminSystemHealthRoute
+  '/admin/visual-learning': typeof AuthenticatedAdminVisualLearningRoute
   '/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/creator/comments': typeof AuthenticatedCreatorCommentsRoute
@@ -767,7 +796,9 @@ export interface FileRoutesByFullPath {
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
+  '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
   '/courses/': typeof AuthenticatedCoursesIndexRoute
+  '/playground/': typeof AuthenticatedPlaygroundIndexRoute
   '/system-design/': typeof AuthenticatedSystemDesignIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
@@ -819,7 +850,6 @@ export interface FileRoutesByTo {
   '/interview': typeof AuthenticatedInterviewRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
-  '/playground': typeof AuthenticatedPlaygroundRouteWithChildren
   '/portfolio-builder': typeof AuthenticatedPortfolioBuilderRoute
   '/resume-builder': typeof AuthenticatedResumeBuilderRoute
   '/settings': typeof AuthenticatedSettingsRoute
@@ -850,7 +880,9 @@ export interface FileRoutesByTo {
   '/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
   '/admin/store': typeof AuthenticatedAdminStoreRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/admin/system-design': typeof AuthenticatedAdminSystemDesignRoute
   '/admin/system-health': typeof AuthenticatedAdminSystemHealthRoute
+  '/admin/visual-learning': typeof AuthenticatedAdminVisualLearningRoute
   '/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/creator/comments': typeof AuthenticatedCreatorCommentsRoute
@@ -870,7 +902,9 @@ export interface FileRoutesByTo {
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
+  '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
   '/courses': typeof AuthenticatedCoursesIndexRoute
+  '/playground': typeof AuthenticatedPlaygroundIndexRoute
   '/system-design': typeof AuthenticatedSystemDesignIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
@@ -956,7 +990,9 @@ export interface FileRoutesById {
   '/_authenticated/admin/missing-videos': typeof AuthenticatedAdminMissingVideosRoute
   '/_authenticated/admin/store': typeof AuthenticatedAdminStoreRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
+  '/_authenticated/admin/system-design': typeof AuthenticatedAdminSystemDesignRoute
   '/_authenticated/admin/system-health': typeof AuthenticatedAdminSystemHealthRoute
+  '/_authenticated/admin/visual-learning': typeof AuthenticatedAdminVisualLearningRoute
   '/_authenticated/cohorts/$id': typeof AuthenticatedCohortsIdRoute
   '/_authenticated/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/_authenticated/creator/comments': typeof AuthenticatedCreatorCommentsRoute
@@ -976,7 +1012,9 @@ export interface FileRoutesById {
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
+  '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
   '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
+  '/_authenticated/playground/': typeof AuthenticatedPlaygroundIndexRoute
   '/_authenticated/system-design/': typeof AuthenticatedSystemDesignIndexRoute
   '/api/public/hooks/run-reminders': typeof ApiPublicHooksRunRemindersRoute
 }
@@ -1062,7 +1100,9 @@ export interface FileRouteTypes {
     | '/admin/missing-videos'
     | '/admin/store'
     | '/admin/subscriptions'
+    | '/admin/system-design'
     | '/admin/system-health'
+    | '/admin/visual-learning'
     | '/cohorts/$id'
     | '/courses/$slug'
     | '/creator/comments'
@@ -1082,7 +1122,9 @@ export interface FileRouteTypes {
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
+    | '/verify/invoice/$id'
     | '/courses/'
+    | '/playground/'
     | '/system-design/'
     | '/api/public/hooks/run-reminders'
   fileRoutesByTo: FileRoutesByTo
@@ -1134,7 +1176,6 @@ export interface FileRouteTypes {
     | '/interview'
     | '/leaderboard'
     | '/onboarding'
-    | '/playground'
     | '/portfolio-builder'
     | '/resume-builder'
     | '/settings'
@@ -1165,7 +1206,9 @@ export interface FileRouteTypes {
     | '/admin/missing-videos'
     | '/admin/store'
     | '/admin/subscriptions'
+    | '/admin/system-design'
     | '/admin/system-health'
+    | '/admin/visual-learning'
     | '/cohorts/$id'
     | '/courses/$slug'
     | '/creator/comments'
@@ -1185,7 +1228,9 @@ export interface FileRouteTypes {
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
+    | '/verify/invoice/$id'
     | '/courses'
+    | '/playground'
     | '/system-design'
     | '/api/public/hooks/run-reminders'
   id:
@@ -1270,7 +1315,9 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/missing-videos'
     | '/_authenticated/admin/store'
     | '/_authenticated/admin/subscriptions'
+    | '/_authenticated/admin/system-design'
     | '/_authenticated/admin/system-health'
+    | '/_authenticated/admin/visual-learning'
     | '/_authenticated/cohorts/$id'
     | '/_authenticated/courses/$slug'
     | '/_authenticated/creator/comments'
@@ -1290,7 +1337,9 @@ export interface FileRouteTypes {
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
+    | '/verify/invoice/$id'
     | '/_authenticated/courses/'
+    | '/_authenticated/playground/'
     | '/_authenticated/system-design/'
     | '/api/public/hooks/run-reminders'
   fileRoutesById: FileRoutesById
@@ -1337,6 +1386,7 @@ export interface RootRouteChildren {
   ApiCronRetryCertEmailsRoute: typeof ApiCronRetryCertEmailsRoute
   ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
   ApiWebhooksCashfreeSubscriptionRoute: typeof ApiWebhooksCashfreeSubscriptionRoute
+  VerifyInvoiceIdRoute: typeof VerifyInvoiceIdRoute
   ApiPublicHooksRunRemindersRoute: typeof ApiPublicHooksRunRemindersRoute
 }
 
@@ -1839,12 +1889,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSystemDesignIndexRouteImport
       parentRoute: typeof AuthenticatedSystemDesignRoute
     }
+    '/_authenticated/playground/': {
+      id: '/_authenticated/playground/'
+      path: '/'
+      fullPath: '/playground/'
+      preLoaderRoute: typeof AuthenticatedPlaygroundIndexRouteImport
+      parentRoute: typeof AuthenticatedPlaygroundRoute
+    }
     '/_authenticated/courses/': {
       id: '/_authenticated/courses/'
       path: '/courses'
       fullPath: '/courses/'
       preLoaderRoute: typeof AuthenticatedCoursesIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/verify/invoice/$id': {
+      id: '/verify/invoice/$id'
+      path: '/verify/invoice/$id'
+      fullPath: '/verify/invoice/$id'
+      preLoaderRoute: typeof VerifyInvoiceIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/webhooks/cashfree-subscription': {
       id: '/api/webhooks/cashfree-subscription'
@@ -1979,11 +2043,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCohortsIdRouteImport
       parentRoute: typeof AuthenticatedCohortsRoute
     }
+    '/_authenticated/admin/visual-learning': {
+      id: '/_authenticated/admin/visual-learning'
+      path: '/visual-learning'
+      fullPath: '/admin/visual-learning'
+      preLoaderRoute: typeof AuthenticatedAdminVisualLearningRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/system-health': {
       id: '/_authenticated/admin/system-health'
       path: '/system-health'
       fullPath: '/admin/system-health'
       preLoaderRoute: typeof AuthenticatedAdminSystemHealthRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/system-design': {
+      id: '/_authenticated/admin/system-design'
+      path: '/system-design'
+      fullPath: '/admin/system-design'
+      preLoaderRoute: typeof AuthenticatedAdminSystemDesignRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/subscriptions': {
@@ -2077,7 +2155,9 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminMissingVideosRoute: typeof AuthenticatedAdminMissingVideosRoute
   AuthenticatedAdminStoreRoute: typeof AuthenticatedAdminStoreRoute
   AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
+  AuthenticatedAdminSystemDesignRoute: typeof AuthenticatedAdminSystemDesignRoute
   AuthenticatedAdminSystemHealthRoute: typeof AuthenticatedAdminSystemHealthRoute
+  AuthenticatedAdminVisualLearningRoute: typeof AuthenticatedAdminVisualLearningRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
@@ -2091,7 +2171,9 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminMissingVideosRoute: AuthenticatedAdminMissingVideosRoute,
   AuthenticatedAdminStoreRoute: AuthenticatedAdminStoreRoute,
   AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
+  AuthenticatedAdminSystemDesignRoute: AuthenticatedAdminSystemDesignRoute,
   AuthenticatedAdminSystemHealthRoute: AuthenticatedAdminSystemHealthRoute,
+  AuthenticatedAdminVisualLearningRoute: AuthenticatedAdminVisualLearningRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
@@ -2131,6 +2213,7 @@ interface AuthenticatedPlaygroundRouteChildren {
   AuthenticatedPlaygroundProjectsRoute: typeof AuthenticatedPlaygroundProjectsRoute
   AuthenticatedPlaygroundReactRoute: typeof AuthenticatedPlaygroundReactRoute
   AuthenticatedPlaygroundWebRoute: typeof AuthenticatedPlaygroundWebRoute
+  AuthenticatedPlaygroundIndexRoute: typeof AuthenticatedPlaygroundIndexRoute
 }
 
 const AuthenticatedPlaygroundRouteChildren: AuthenticatedPlaygroundRouteChildren =
@@ -2145,6 +2228,7 @@ const AuthenticatedPlaygroundRouteChildren: AuthenticatedPlaygroundRouteChildren
     AuthenticatedPlaygroundProjectsRoute: AuthenticatedPlaygroundProjectsRoute,
     AuthenticatedPlaygroundReactRoute: AuthenticatedPlaygroundReactRoute,
     AuthenticatedPlaygroundWebRoute: AuthenticatedPlaygroundWebRoute,
+    AuthenticatedPlaygroundIndexRoute: AuthenticatedPlaygroundIndexRoute,
   }
 
 const AuthenticatedPlaygroundRouteWithChildren =
@@ -2294,6 +2378,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCronRetryCertEmailsRoute: ApiCronRetryCertEmailsRoute,
   ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,
   ApiWebhooksCashfreeSubscriptionRoute: ApiWebhooksCashfreeSubscriptionRoute,
+  VerifyInvoiceIdRoute: VerifyInvoiceIdRoute,
   ApiPublicHooksRunRemindersRoute: ApiPublicHooksRunRemindersRoute,
 }
 export const routeTree = rootRouteImport

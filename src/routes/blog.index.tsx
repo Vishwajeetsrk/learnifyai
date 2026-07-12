@@ -18,21 +18,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { getCleanBannerUrl } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-export const Route = createFileRoute("/blog/")(
-  {
-    head: () => ({
-      meta: [
-        { title: "Blog — Learnify AI" },
-        {
-          name: "description",
-          content:
-            "Insights, tutorials, career advice, and platform updates from the Learnify AI team.",
-        },
-      ],
-    }),
-    component: BlogIndexPage,
-  }
-);
+export const Route = createFileRoute("/blog/")({
+  head: () => ({
+    meta: [
+      { title: "Blog — Learnify AI" },
+      {
+        name: "description",
+        content:
+          "Insights, tutorials, career advice, and platform updates from the Learnify AI team.",
+      },
+    ],
+  }),
+  component: BlogIndexPage,
+});
 
 const CATEGORIES = [
   { label: "All", value: "all", icon: Rss },
@@ -91,11 +89,10 @@ function BlogIndexPage() {
               <Rss className="h-3.5 w-3.5" />
               Learnify AI Blog
             </div>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-              Learn. Build. Launch.
-            </h1>
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Learn. Build. Launch.</h1>
             <p className="mt-4 text-lg text-muted-foreground">
-              Insights, tutorials, career advice, and platform updates — written by the team building the future of learning.
+              Insights, tutorials, career advice, and platform updates — written by the team
+              building the future of learning.
             </p>
           </div>
         </section>
@@ -115,8 +112,17 @@ function BlogIndexPage() {
                 onClick={() => void refetch()}
                 className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                  <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4"
+                >
+                  <polyline points="23 4 23 10 17 10" />
+                  <polyline points="1 20 1 14 7 14" />
                   <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                 </svg>
                 Retry
@@ -166,15 +172,21 @@ function BlogIndexPage() {
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                       <Tag className="h-3 w-3" />
-                      {((featured as any).tags?.[0]) || "Article"}
+                      {(featured as any).tags?.[0] || "Article"}
                     </span>
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {format(parseISO((featured as any).published_at || (featured as any).created_at), "MMM d, yyyy")}
+                      {format(
+                        parseISO((featured as any).published_at || (featured as any).created_at),
+                        "MMM d, yyyy",
+                      )}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      {readingTime((featured as any).content || (featured as any).excerpt || "")} min read
+                      {readingTime(
+                        (featured as any).content || (featured as any).excerpt || "",
+                      )}{" "}
+                      min read
                     </span>
                   </div>
 
@@ -243,7 +255,9 @@ function BlogIndexPage() {
                       <div className="flex flex-1 flex-col gap-3 p-5">
                         <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                           <Calendar className="h-3 w-3" />
-                          <span>{format(parseISO(post.published_at || post.created_at), "MMM d, yyyy")}</span>
+                          <span>
+                            {format(parseISO(post.published_at || post.created_at), "MMM d, yyyy")}
+                          </span>
                           <span>·</span>
                           <Clock className="h-3 w-3" />
                           <span>{readingTime(post.content || post.excerpt || "")} min</span>

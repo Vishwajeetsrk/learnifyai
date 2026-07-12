@@ -1,6 +1,6 @@
-import { ArrowRight } from 'lucide-react';
-import { useState } from 'react';
-import { HERO_TABS, HERO_VIDEO } from '../constants';
+import { ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { HERO_TABS, HERO_VIDEO } from "../constants";
 
 export default function TabbedHero() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -26,14 +26,14 @@ export default function TabbedHero() {
         <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center">
           <p
             className="animate-fade-in-up mb-4 text-xs font-medium uppercase tracking-[0.35em] text-white/45"
-            style={{ animationDelay: '0.1s' }}
+            style={{ animationDelay: "0.1s" }}
           >
             Enterprise AI platform
           </p>
 
           <h1
             className="animate-fade-in-up font-display max-w-4xl text-[clamp(2.25rem,6vw,4.5rem)] font-semibold leading-[1.05] tracking-[-0.03em]"
-            style={{ animationDelay: '0.2s' }}
+            style={{ animationDelay: "0.2s" }}
           >
             <span className="stellar-gradient-text">Stellar intelligence</span>
             <span className="block text-white">for every workflow</span>
@@ -41,7 +41,7 @@ export default function TabbedHero() {
 
           <p
             className="animate-fade-in-up mt-5 max-w-xl text-base leading-relaxed text-white/55 md:text-lg"
-            style={{ animationDelay: '0.35s' }}
+            style={{ animationDelay: "0.35s" }}
           >
             Deploy models, orchestrate agents, and govern production AI from one tabbed command
             center—built for teams that ship at stellar velocity.
@@ -49,7 +49,7 @@ export default function TabbedHero() {
 
           <div
             className="animate-fade-in-up mt-8 flex flex-wrap gap-3"
-            style={{ animationDelay: '0.45s' }}
+            style={{ animationDelay: "0.45s" }}
           >
             <a
               href="#solutions"
@@ -66,10 +66,7 @@ export default function TabbedHero() {
             </a>
           </div>
 
-          <div
-            className="animate-fade-in-up mt-12 md:mt-16"
-            style={{ animationDelay: '0.55s' }}
-          >
+          <div className="animate-fade-in-up mt-12 md:mt-16" style={{ animationDelay: "0.55s" }}>
             <div className="liquid-glass mb-4 inline-flex flex-wrap gap-1 rounded-2xl p-1.5">
               {HERO_TABS.map((tab, i) => (
                 <button
@@ -78,8 +75,8 @@ export default function TabbedHero() {
                   onClick={() => setActiveIndex(i)}
                   className={`rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
                     i === activeIndex
-                      ? 'bg-white text-black shadow-lg shadow-violet-500/10'
-                      : 'text-white/65 hover:bg-white/5 hover:text-white'
+                      ? "bg-white text-black shadow-lg shadow-violet-500/10"
+                      : "text-white/65 hover:bg-white/5 hover:text-white"
                   }`}
                 >
                   {tab.label}

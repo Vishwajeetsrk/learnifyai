@@ -1,11 +1,11 @@
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { FadeDown } from './FadeDown';
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { FadeDown } from "./FadeDown";
 
 const NAV_ROUTES = [
-  { label: 'Solutions', path: 'renewables' },
-  { label: 'Projects', path: 'strategies' },
-  { label: 'Impact', path: 'photovoltaic' },
-  { label: 'About', path: 'wind' },
+  { label: "Solutions", path: "renewables" },
+  { label: "Projects", path: "strategies" },
+  { label: "Impact", path: "photovoltaic" },
+  { label: "About", path: "wind" },
 ] as const;
 
 export function Navbar() {

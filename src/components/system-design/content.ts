@@ -5,7 +5,8 @@ export const TOPICS: Topic[] = [
     id: "load-balancer",
     title: "Load Balancer",
     subtitle: "Distribute traffic across servers for reliability and scale",
-    description: "A load balancer acts as the traffic cop for your system, distributing incoming requests across multiple servers to ensure no single server becomes overwhelmed. It's the foundation of horizontal scaling.",
+    description:
+      "A load balancer acts as the traffic cop for your system, distributing incoming requests across multiple servers to ensure no single server becomes overwhelmed. It's the foundation of horizontal scaling.",
     icon: "shuffle",
     difficulty: "beginner",
     duration: "15 min",
@@ -16,7 +17,8 @@ export const TOPICS: Topic[] = [
         id: "what-is",
         title: "What is a Load Balancer?",
         type: "visual",
-        content: "A load balancer sits between users and servers, distributing incoming requests across multiple backend servers. It handles health checks, SSL termination, and session persistence.",
+        content:
+          "A load balancer sits between users and servers, distributing incoming requests across multiple backend servers. It handles health checks, SSL termination, and session persistence.",
         visual: {
           description: "Request flow through load balancer",
           nodes: [
@@ -42,10 +44,12 @@ export const TOPICS: Topic[] = [
         id: "story",
         title: "The Airport Analogy",
         type: "story",
-        content: "Think of a load balancer like an airport check-in counter. Without it, all passengers crowd one counter (one server). With multiple counters, a coordinator directs passengers to the shortest line. If one counter closes, passengers go to others. This is exactly how load balancers work.",
+        content:
+          "Think of a load balancer like an airport check-in counter. Without it, all passengers crowd one counter (one server). With multiple counters, a coordinator directs passengers to the shortest line. If one counter closes, passengers go to others. This is exactly how load balancers work.",
         story: {
           context: "Imagine a busy airport with thousands of passengers.",
-          analogy: "The load balancer is the flight coordinator directing passengers to the right counter.",
+          analogy:
+            "The load balancer is the flight coordinator directing passengers to the right counter.",
           transition: "Now let's see how this translates to server architecture.",
         },
       },
@@ -53,38 +57,54 @@ export const TOPICS: Topic[] = [
         id: "algorithms",
         title: "Load Balancing Algorithms",
         type: "text",
-        content: "Round Robin — Requests are distributed sequentially. Least Connections — Sends to the server with fewest active connections. IP Hash — Routes based on client IP for session persistence. Weighted Round Robin — Servers with higher capacity get more traffic. Each algorithm suits different use cases.",
+        content:
+          "Round Robin — Requests are distributed sequentially. Least Connections — Sends to the server with fewest active connections. IP Hash — Routes based on client IP for session persistence. Weighted Round Robin — Servers with higher capacity get more traffic. Each algorithm suits different use cases.",
       },
       {
         id: "types",
         title: "Types of Load Balancers",
         type: "comparison",
-        content: "Hardware vs Software vs Cloud load balancers each have distinct tradeoffs in cost, flexibility, and maintenance.",
+        content:
+          "Hardware vs Software vs Cloud load balancers each have distinct tradeoffs in cost, flexibility, and maintenance.",
       },
     ],
     quiz: [
       {
         id: "lb-q1",
         question: "What is the primary purpose of a load balancer?",
-        options: ["Store data persistently", "Distribute traffic across servers", "Compress images", "Manage user authentication"],
+        options: [
+          "Store data persistently",
+          "Distribute traffic across servers",
+          "Compress images",
+          "Manage user authentication",
+        ],
         correctIndex: 1,
-        explanation: "Load balancers distribute incoming network traffic across multiple servers to ensure reliability and prevent overload.",
+        explanation:
+          "Load balancers distribute incoming network traffic across multiple servers to ensure reliability and prevent overload.",
         difficulty: "easy",
       },
       {
         id: "lb-q2",
-        question: "Which load balancing algorithm sends requests to the server with fewest active connections?",
+        question:
+          "Which load balancing algorithm sends requests to the server with fewest active connections?",
         options: ["Round Robin", "IP Hash", "Least Connections", "Random"],
         correctIndex: 2,
-        explanation: "Least Connections routing sends traffic to the server currently handling the fewest active connections.",
+        explanation:
+          "Least Connections routing sends traffic to the server currently handling the fewest active connections.",
         difficulty: "medium",
       },
       {
         id: "lb-q3",
         question: "What is a key benefit of load balancers for scalability?",
-        options: ["Faster CPU speeds", "Horizontal scaling", "Vertical scaling only", "Reduced memory usage"],
+        options: [
+          "Faster CPU speeds",
+          "Horizontal scaling",
+          "Vertical scaling only",
+          "Reduced memory usage",
+        ],
         correctIndex: 1,
-        explanation: "Load balancers enable horizontal scaling by distributing traffic across added servers seamlessly.",
+        explanation:
+          "Load balancers enable horizontal scaling by distributing traffic across added servers seamlessly.",
         difficulty: "easy",
       },
     ],
@@ -120,9 +140,31 @@ export const TOPICS: Topic[] = [
       {
         title: "Load Balancer Algorithms",
         items: [
-          { name: "Round Robin", icon: "refresh-cw", pros: ["Simple to implement", "Fair distribution", "Low overhead"], cons: ["Ignores server load", "No session awareness", "Unequal if server specs differ"], useCases: ["Identical server specs", "Stateless applications", "Simple setups"] },
-          { name: "Least Connections", icon: "activity", pros: ["Adapts to load", "Better resource use", "Handles varying request times"], cons: ["More complex", "Requires connection tracking", "Higher memory usage"], useCases: ["Long-lived connections", "Variable request processing", "WebSocket servers"] },
-          { name: "IP Hash", icon: "hash", pros: ["Session persistence", "No session store needed", "Deterministic routing"], cons: ["Uneven distribution", "Client IP changes break", "Not ideal for autoscaling"], useCases: ["Sticky sessions", "Stateful applications", "Shopping carts"] },
+          {
+            name: "Round Robin",
+            icon: "refresh-cw",
+            pros: ["Simple to implement", "Fair distribution", "Low overhead"],
+            cons: ["Ignores server load", "No session awareness", "Unequal if server specs differ"],
+            useCases: ["Identical server specs", "Stateless applications", "Simple setups"],
+          },
+          {
+            name: "Least Connections",
+            icon: "activity",
+            pros: ["Adapts to load", "Better resource use", "Handles varying request times"],
+            cons: ["More complex", "Requires connection tracking", "Higher memory usage"],
+            useCases: [
+              "Long-lived connections",
+              "Variable request processing",
+              "WebSocket servers",
+            ],
+          },
+          {
+            name: "IP Hash",
+            icon: "hash",
+            pros: ["Session persistence", "No session store needed", "Deterministic routing"],
+            cons: ["Uneven distribution", "Client IP changes break", "Not ideal for autoscaling"],
+            useCases: ["Sticky sessions", "Stateful applications", "Shopping carts"],
+          },
         ],
       },
     ],
@@ -130,7 +172,8 @@ export const TOPICS: Topic[] = [
       {
         company: "Netflix",
         title: "Netflix's Multi-Region Load Balancing",
-        description: "Netflix uses AWS Elastic Load Balancers across multiple regions. Their custom solution routes traffic based on region, availability zone, and real-time server health. They use DNS-based routing at the top level and internal LBs within each region.",
+        description:
+          "Netflix uses AWS Elastic Load Balancers across multiple regions. Their custom solution routes traffic based on region, availability zone, and real-time server health. They use DNS-based routing at the top level and internal LBs within each region.",
         architecture: {
           description: "Netflix multi-region LB architecture",
           nodes: [
@@ -160,7 +203,8 @@ export const TOPICS: Topic[] = [
     id: "caching",
     title: "Caching",
     subtitle: "Store frequently accessed data for lightning-fast retrieval",
-    description: "Caching stores copies of frequently accessed data in a high-speed storage layer. When data is requested, the cache is checked first — if found (cache hit), it's returned instantly. If not (cache miss), it's fetched from the slower source and stored for next time.",
+    description:
+      "Caching stores copies of frequently accessed data in a high-speed storage layer. When data is requested, the cache is checked first — if found (cache hit), it's returned instantly. If not (cache miss), it's fetched from the slower source and stored for next time.",
     icon: "zap",
     difficulty: "beginner",
     duration: "20 min",
@@ -171,7 +215,8 @@ export const TOPICS: Topic[] = [
         id: "what-is",
         title: "What is Caching?",
         type: "visual",
-        content: "A cache is a high-speed data storage layer that stores a subset of data, typically transient in nature. Caches reduce latency and improve read throughput by serving data from fast memory instead of slower disk-based storage.",
+        content:
+          "A cache is a high-speed data storage layer that stores a subset of data, typically transient in nature. Caches reduce latency and improve read throughput by serving data from fast memory instead of slower disk-based storage.",
         visual: {
           description: "Cache request flow — hit vs miss",
           nodes: [
@@ -196,10 +241,12 @@ export const TOPICS: Topic[] = [
         id: "story",
         title: "The Librarian Story",
         type: "story",
-        content: "A librarian keeps popular books on a shelf near the front desk. When someone asks for a book, she checks the nearby shelf first. If it's there, she hands it over instantly — that's a cache hit. If not, she walks to the storage room to get it — a cache miss — but then leaves a copy on the shelf for next time.",
+        content:
+          "A librarian keeps popular books on a shelf near the front desk. When someone asks for a book, she checks the nearby shelf first. If it's there, she hands it over instantly — that's a cache hit. If not, she walks to the storage room to get it — a cache miss — but then leaves a copy on the shelf for next time.",
         story: {
           context: "A librarian serves hundreds of visitors daily at a busy library.",
-          analogy: "The 'popular books shelf' is your cache — frequently accessed data stored close at hand.",
+          analogy:
+            "The 'popular books shelf' is your cache — frequently accessed data stored close at hand.",
           transition: "Now let's see how this principle powers modern web applications.",
         },
       },
@@ -207,22 +254,30 @@ export const TOPICS: Topic[] = [
         id: "strategies",
         title: "Caching Strategies",
         type: "text",
-        content: "Cache-Aside — Application checks cache first, then database on miss. Write-Through — Data written to cache and DB simultaneously. Write-Behind — Data written to cache, then asynchronously to DB. Cache eviction policies include LRU (Least Recently Used), LFU (Least Frequently Used), and TTL (Time-To-Live).",
+        content:
+          "Cache-Aside — Application checks cache first, then database on miss. Write-Through — Data written to cache and DB simultaneously. Write-Behind — Data written to cache, then asynchronously to DB. Cache eviction policies include LRU (Least Recently Used), LFU (Least Frequently Used), and TTL (Time-To-Live).",
       },
       {
         id: "levels",
         title: "Cache Levels",
         type: "comparison",
-        content: "Caching can happen at multiple layers: Browser Cache (local storage), CDN Cache (geographic edge nodes), Application Cache (in-memory caches like Redis), Database Cache (query result caching). Each layer has different latency characteristics and use cases.",
+        content:
+          "Caching can happen at multiple layers: Browser Cache (local storage), CDN Cache (geographic edge nodes), Application Cache (in-memory caches like Redis), Database Cache (query result caching). Each layer has different latency characteristics and use cases.",
       },
     ],
     quiz: [
       {
         id: "cache-q1",
         question: "What happens on a cache hit?",
-        options: ["Data is fetched from database", "Data is returned from cache", "Cache is cleared", "New cache entry created"],
+        options: [
+          "Data is fetched from database",
+          "Data is returned from cache",
+          "Cache is cleared",
+          "New cache entry created",
+        ],
         correctIndex: 1,
-        explanation: "On a cache hit, the requested data is found in the cache and returned immediately, skipping the slower database lookup.",
+        explanation:
+          "On a cache hit, the requested data is found in the cache and returned immediately, skipping the slower database lookup.",
         difficulty: "easy",
       },
       {
@@ -230,15 +285,22 @@ export const TOPICS: Topic[] = [
         question: "Which cache eviction policy removes the oldest unused entries?",
         options: ["LFU", "TTL", "LRU", "FIFO"],
         correctIndex: 2,
-        explanation: "LRU (Least Recently Used) evicts items that haven't been accessed for the longest time.",
+        explanation:
+          "LRU (Least Recently Used) evicts items that haven't been accessed for the longest time.",
         difficulty: "medium",
       },
       {
         id: "cache-q3",
         question: "Why is cache invalidation considered hard in distributed systems?",
-        options: ["Caches are too slow", "Multiple cache nodes must be updated atomically", "Disk space is limited", "Network latency"],
+        options: [
+          "Caches are too slow",
+          "Multiple cache nodes must be updated atomically",
+          "Disk space is limited",
+          "Network latency",
+        ],
         correctIndex: 1,
-        explanation: "In distributed systems, keeping all cache nodes consistent when data changes requires complex coordination.",
+        explanation:
+          "In distributed systems, keeping all cache nodes consistent when data changes requires complex coordination.",
         difficulty: "hard",
       },
     ],
@@ -267,7 +329,8 @@ export const TOPICS: Topic[] = [
     id: "databases",
     title: "SQL vs NoSQL",
     subtitle: "Choose the right database for your data's shape and scale",
-    description: "SQL databases store structured data in tables with predefined schemas and relationships. NoSQL databases offer flexible schemas optimized for specific data models like documents, key-values, graphs, or columns. The choice depends on your consistency needs, scale requirements, and data shape.",
+    description:
+      "SQL databases store structured data in tables with predefined schemas and relationships. NoSQL databases offer flexible schemas optimized for specific data models like documents, key-values, graphs, or columns. The choice depends on your consistency needs, scale requirements, and data shape.",
     icon: "database",
     difficulty: "beginner",
     duration: "25 min",
@@ -278,16 +341,19 @@ export const TOPICS: Topic[] = [
         id: "overview",
         title: "SQL vs NoSQL",
         type: "comparison",
-        content: "SQL databases excel at complex queries and strict consistency. NoSQL databases excel at horizontal scaling and flexible schemas.",
+        content:
+          "SQL databases excel at complex queries and strict consistency. NoSQL databases excel at horizontal scaling and flexible schemas.",
       },
       {
         id: "story",
         title: "The Filing Cabinet vs Storage Unit",
         type: "story",
-        content: "SQL is like a filing cabinet — every file in its labeled folder with strict rules. NoSQL is like a storage unit — you can store anything: boxes, furniture, artwork. The filing cabinet makes finding specific records easy; the storage unit gives you unlimited flexibility.",
+        content:
+          "SQL is like a filing cabinet — every file in its labeled folder with strict rules. NoSQL is like a storage unit — you can store anything: boxes, furniture, artwork. The filing cabinet makes finding specific records easy; the storage unit gives you unlimited flexibility.",
         story: {
           context: "Running a business that needs to store information about customers.",
-          analogy: "SQL = perfectly organized filing cabinet. NoSQL = spacious storage unit with flexible organization.",
+          analogy:
+            "SQL = perfectly organized filing cabinet. NoSQL = spacious storage unit with flexible organization.",
           transition: "Let's examine the technical tradeoffs in detail.",
         },
       },
@@ -295,7 +361,8 @@ export const TOPICS: Topic[] = [
         id: "when-to-use",
         title: "When to Use Each",
         type: "text",
-        content: "Use SQL when: data is structured, relationships are complex, ACID compliance is required, and queries involve joins. Use NoSQL when: data is semi-structured or unstructured, you need horizontal scaling, rapid iteration on schema, or high write throughput.",
+        content:
+          "Use SQL when: data is structured, relationships are complex, ACID compliance is required, and queries involve joins. Use NoSQL when: data is semi-structured or unstructured, you need horizontal scaling, rapid iteration on schema, or high write throughput.",
       },
     ],
     quiz: [
@@ -304,23 +371,36 @@ export const TOPICS: Topic[] = [
         question: "Which property guarantees that database transactions are processed reliably?",
         options: ["CRUD", "ACID", "BASE", "JSON"],
         correctIndex: 1,
-        explanation: "ACID (Atomicity, Consistency, Isolation, Durability) guarantees reliable transaction processing.",
+        explanation:
+          "ACID (Atomicity, Consistency, Isolation, Durability) guarantees reliable transaction processing.",
         difficulty: "medium",
       },
       {
         id: "db-q2",
         question: "When would you choose a NoSQL database over SQL?",
-        options: ["Complex joins required", "Strict ACID compliance", "Flexible schema needed", "Fixed data structure"],
+        options: [
+          "Complex joins required",
+          "Strict ACID compliance",
+          "Flexible schema needed",
+          "Fixed data structure",
+        ],
         correctIndex: 2,
-        explanation: "NoSQL databases are ideal when you need flexible schemas and rapid iteration on data models.",
+        explanation:
+          "NoSQL databases are ideal when you need flexible schemas and rapid iteration on data models.",
         difficulty: "easy",
       },
       {
         id: "db-q3",
         question: "What is the CAP theorem about?",
-        options: ["Consistency, Availability, Partition Tolerance", "Compute, Access, Persist", "Cache, Aggregate, Partition", "Create, Append, Protect"],
+        options: [
+          "Consistency, Availability, Partition Tolerance",
+          "Compute, Access, Persist",
+          "Cache, Aggregate, Partition",
+          "Create, Append, Protect",
+        ],
         correctIndex: 0,
-        explanation: "CAP theorem states a distributed system can only guarantee two of: Consistency, Availability, and Partition Tolerance.",
+        explanation:
+          "CAP theorem states a distributed system can only guarantee two of: Consistency, Availability, and Partition Tolerance.",
         difficulty: "hard",
       },
     ],
@@ -346,8 +426,30 @@ export const TOPICS: Topic[] = [
       {
         title: "SQL vs NoSQL",
         items: [
-          { name: "SQL", icon: "grid", pros: ["Strong consistency", "Complex queries with joins", "Strict schema enforcement", "Mature ecosystem"], cons: ["Vertical scaling limits", "Rigid schema changes", "Less performant at scale"], useCases: ["Financial systems", "ERP/CRM", "E-commerce orders"] },
-          { name: "NoSQL", icon: "layers", pros: ["Horizontal scaling", "Flexible schemas", "High write throughput", "Fast prototyping"], cons: ["Eventual consistency", "Limited complex queries", "Less mature tooling"], useCases: ["Real-time analytics", "IoT data", "Content management", "User profiles"] },
+          {
+            name: "SQL",
+            icon: "grid",
+            pros: [
+              "Strong consistency",
+              "Complex queries with joins",
+              "Strict schema enforcement",
+              "Mature ecosystem",
+            ],
+            cons: ["Vertical scaling limits", "Rigid schema changes", "Less performant at scale"],
+            useCases: ["Financial systems", "ERP/CRM", "E-commerce orders"],
+          },
+          {
+            name: "NoSQL",
+            icon: "layers",
+            pros: [
+              "Horizontal scaling",
+              "Flexible schemas",
+              "High write throughput",
+              "Fast prototyping",
+            ],
+            cons: ["Eventual consistency", "Limited complex queries", "Less mature tooling"],
+            useCases: ["Real-time analytics", "IoT data", "Content management", "User profiles"],
+          },
         ],
       },
     ],
@@ -355,7 +457,8 @@ export const TOPICS: Topic[] = [
       {
         company: "Uber",
         title: "Uber's Polyglot Database Strategy",
-        description: "Uber uses multiple databases for different needs: MySQL for core trip data (ACID compliance), Cassandra for real-time driver location (high write throughput), Redis for surge pricing (low-latency), and Elasticsearch for search.",
+        description:
+          "Uber uses multiple databases for different needs: MySQL for core trip data (ACID compliance), Cassandra for real-time driver location (high write throughput), Redis for surge pricing (low-latency), and Elasticsearch for search.",
         architecture: {
           description: "Uber's database stack",
           nodes: [
@@ -381,7 +484,8 @@ export const TOPICS: Topic[] = [
     id: "cdn",
     title: "Content Delivery Network",
     subtitle: "Serve content from edge locations near your users",
-    description: "A CDN is a geographically distributed network of proxy servers that cache static and dynamic content. When a user requests content, it's served from the nearest edge server, drastically reducing latency and offloading traffic from origin servers.",
+    description:
+      "A CDN is a geographically distributed network of proxy servers that cache static and dynamic content. When a user requests content, it's served from the nearest edge server, drastically reducing latency and offloading traffic from origin servers.",
     icon: "globe",
     difficulty: "beginner",
     duration: "12 min",
@@ -392,7 +496,8 @@ export const TOPICS: Topic[] = [
         id: "what-is",
         title: "What is a CDN?",
         type: "visual",
-        content: "A CDN places servers at edge locations worldwide. When a user requests content, DNS routes them to the nearest edge server. If the edge has the content cached, it's served immediately (edge hit). If not, the edge fetches from origin, caches it, and serves.",
+        content:
+          "A CDN places servers at edge locations worldwide. When a user requests content, DNS routes them to the nearest edge server. If the edge has the content cached, it's served immediately (edge hit). If not, the edge fetches from origin, caches it, and serves.",
         visual: {
           description: "CDN request routing across global edge nodes",
           nodes: [
@@ -416,24 +521,37 @@ export const TOPICS: Topic[] = [
         id: "benefits",
         title: "Key Benefits",
         type: "text",
-        content: "Reduced latency — content travels shorter distances. Reduced origin load — edge servers handle requests. DDoS protection — CDN absorbs attack traffic. High availability — if one edge goes down, others take over. Global reach — serve users anywhere with consistent speed.",
+        content:
+          "Reduced latency — content travels shorter distances. Reduced origin load — edge servers handle requests. DDoS protection — CDN absorbs attack traffic. High availability — if one edge goes down, others take over. Global reach — serve users anywhere with consistent speed.",
       },
     ],
     quiz: [
       {
         id: "cdn-q1",
         question: "What is the primary purpose of a CDN?",
-        options: ["Store backups", "Reduce latency by serving from edge", "Compress videos", "Manage DNS"],
+        options: [
+          "Store backups",
+          "Reduce latency by serving from edge",
+          "Compress videos",
+          "Manage DNS",
+        ],
         correctIndex: 1,
-        explanation: "CDNs reduce latency by serving content from geographically distributed edge servers close to users.",
+        explanation:
+          "CDNs reduce latency by serving content from geographically distributed edge servers close to users.",
         difficulty: "easy",
       },
       {
         id: "cdn-q2",
         question: "What happens on a CDN cache miss?",
-        options: ["User gets 404 error", "Edge fetches from origin and caches it", "Request is dropped", "Cache is cleared"],
+        options: [
+          "User gets 404 error",
+          "Edge fetches from origin and caches it",
+          "Request is dropped",
+          "Cache is cleared",
+        ],
         correctIndex: 1,
-        explanation: "On a cache miss, the edge server fetches content from the origin server, caches it for future requests, and serves it to the user.",
+        explanation:
+          "On a cache miss, the edge server fetches content from the origin server, caches it for future requests, and serves it to the user.",
         difficulty: "medium",
       },
     ],
@@ -462,7 +580,8 @@ export const TOPICS: Topic[] = [
     id: "message-queues",
     title: "Message Queues",
     subtitle: "Decouple services with async communication",
-    description: "Message queues enable asynchronous communication between services. Producers send messages to a queue, and consumers process them at their own pace. This decouples services, enables buffering during traffic spikes, and improves overall system reliability.",
+    description:
+      "Message queues enable asynchronous communication between services. Producers send messages to a queue, and consumers process them at their own pace. This decouples services, enables buffering during traffic spikes, and improves overall system reliability.",
     icon: "inbox",
     difficulty: "intermediate",
     duration: "18 min",
@@ -473,7 +592,8 @@ export const TOPICS: Topic[] = [
         id: "what-is",
         title: "What is a Message Queue?",
         type: "visual",
-        content: "A message queue stores messages between producers and consumers. Producers write messages without waiting for consumers. Consumers read messages at their own pace. This decouples the system — if a consumer goes down, messages queue up until it recovers.",
+        content:
+          "A message queue stores messages between producers and consumers. Producers write messages without waiting for consumers. Consumers read messages at their own pace. This decouples the system — if a consumer goes down, messages queue up until it recovers.",
         visual: {
           description: "Pub/sub architecture with message queue",
           nodes: [
@@ -499,10 +619,12 @@ export const TOPICS: Topic[] = [
         id: "story",
         title: "The Restaurant Kitchen",
         type: "story",
-        content: "In a restaurant kitchen, the expediting rack holds orders. Chefs (producers) put completed dishes on the rack. Waiters (consumers) pick them up when ready to serve. If no waiter is available, dishes stay on the rack — nothing is lost. The rack decouples chefs from waiters.",
+        content:
+          "In a restaurant kitchen, the expediting rack holds orders. Chefs (producers) put completed dishes on the rack. Waiters (consumers) pick them up when ready to serve. If no waiter is available, dishes stay on the rack — nothing is lost. The rack decouples chefs from waiters.",
         story: {
           context: "A busy restaurant kitchen during dinner rush.",
-          analogy: "The expediting rack is your message queue. Chefs = producers, Waiters = consumers.",
+          analogy:
+            "The expediting rack is your message queue. Chefs = producers, Waiters = consumers.",
           transition: "This same pattern applies to distributed systems at scale.",
         },
       },
@@ -510,24 +632,37 @@ export const TOPICS: Topic[] = [
         id: "patterns",
         title: "Common Patterns",
         type: "text",
-        content: "Work Queues — Distribute tasks among workers. Pub/Sub — One message to multiple consumers. Event Sourcing — Store events as the source of truth. Dead Letter Queues — Handle failed messages gracefully. Each pattern solves a different async communication challenge.",
+        content:
+          "Work Queues — Distribute tasks among workers. Pub/Sub — One message to multiple consumers. Event Sourcing — Store events as the source of truth. Dead Letter Queues — Handle failed messages gracefully. Each pattern solves a different async communication challenge.",
       },
     ],
     quiz: [
       {
         id: "mq-q1",
         question: "What is the main benefit of message queues?",
-        options: ["Faster database queries", "Decoupling services", "Better encryption", "Static file serving"],
+        options: [
+          "Faster database queries",
+          "Decoupling services",
+          "Better encryption",
+          "Static file serving",
+        ],
         correctIndex: 1,
-        explanation: "Message queues decouple services by enabling asynchronous communication, so producers and consumers operate independently.",
+        explanation:
+          "Message queues decouple services by enabling asynchronous communication, so producers and consumers operate independently.",
         difficulty: "easy",
       },
       {
         id: "mq-q2",
         question: "What is a dead letter queue?",
-        options: ["Queue for deleted messages", "Queue for failed messages", "Queue with no consumers", "FIFO queue"],
+        options: [
+          "Queue for deleted messages",
+          "Queue for failed messages",
+          "Queue with no consumers",
+          "FIFO queue",
+        ],
         correctIndex: 1,
-        explanation: "A dead letter queue stores messages that failed to process, preventing data loss and allowing later analysis.",
+        explanation:
+          "A dead letter queue stores messages that failed to process, preventing data loss and allowing later analysis.",
         difficulty: "medium",
       },
     ],
@@ -557,7 +692,8 @@ export const TOPICS: Topic[] = [
     id: "api-gateway",
     title: "API Gateway",
     subtitle: "Single entry point for all client requests",
-    description: "An API gateway is a server that acts as the single entry point for all client requests. It routes requests to appropriate microservices, handles authentication, rate limiting, request transformation, and response aggregation. Clients don't need to know the internal service topology.",
+    description:
+      "An API gateway is a server that acts as the single entry point for all client requests. It routes requests to appropriate microservices, handles authentication, rate limiting, request transformation, and response aggregation. Clients don't need to know the internal service topology.",
     icon: "shield",
     difficulty: "intermediate",
     duration: "15 min",
@@ -568,7 +704,8 @@ export const TOPICS: Topic[] = [
         id: "what-is",
         title: "What is an API Gateway?",
         type: "visual",
-        content: "An API gateway sits between clients and microservices. Instead of clients calling multiple services directly, they call the gateway, which handles routing, authentication, rate limiting, and protocol translation.",
+        content:
+          "An API gateway sits between clients and microservices. Instead of clients calling multiple services directly, they call the gateway, which handles routing, authentication, rate limiting, and protocol translation.",
         visual: {
           description: "API Gateway routing to backend services",
           nodes: [
@@ -594,16 +731,23 @@ export const TOPICS: Topic[] = [
         id: "features",
         title: "Key Features",
         type: "text",
-        content: "Authentication — Centralized auth checks. Rate Limiting — Per-client traffic control. Request Transformation — Convert protocols (REST→gRPC). Response Aggregation — Combine multiple service responses. Circuit Breaking — Fail fast when downstream services are down.",
+        content:
+          "Authentication — Centralized auth checks. Rate Limiting — Per-client traffic control. Request Transformation — Convert protocols (REST→gRPC). Response Aggregation — Combine multiple service responses. Circuit Breaking — Fail fast when downstream services are down.",
       },
     ],
     quiz: [
       {
         id: "gw-q1",
         question: "What problem does an API gateway solve?",
-        options: ["Database connection pooling", "Clients knowing internal service topology", "File storage", "CSS bundling"],
+        options: [
+          "Database connection pooling",
+          "Clients knowing internal service topology",
+          "File storage",
+          "CSS bundling",
+        ],
         correctIndex: 1,
-        explanation: "API gateways abstract internal service topology from clients, providing a single entry point.",
+        explanation:
+          "API gateways abstract internal service topology from clients, providing a single entry point.",
         difficulty: "medium",
       },
     ],
@@ -633,7 +777,8 @@ export const TOPICS: Topic[] = [
     id: "microservices",
     title: "Microservices Architecture",
     subtitle: "Build applications as a suite of independently deployable services",
-    description: "Microservices architecture structures an application as a collection of loosely coupled, independently deployable services. Each service owns its data, runs its own process, and communicates via well-defined APIs. This enables autonomous teams, independent scaling, and technology diversity.",
+    description:
+      "Microservices architecture structures an application as a collection of loosely coupled, independently deployable services. Each service owns its data, runs its own process, and communicates via well-defined APIs. This enables autonomous teams, independent scaling, and technology diversity.",
     icon: "box",
     difficulty: "intermediate",
     duration: "25 min",
@@ -644,7 +789,8 @@ export const TOPICS: Topic[] = [
         id: "what-is",
         title: "What is Microservices?",
         type: "visual",
-        content: "Instead of one giant application (monolith), microservices split functionality into small, independent services. Each service has its own database, can be deployed independently, and is owned by a small team.",
+        content:
+          "Instead of one giant application (monolith), microservices split functionality into small, independent services. Each service has its own database, can be deployed independently, and is owned by a small team.",
         visual: {
           description: "Monolith vs Microservices comparison",
           nodes: [
@@ -672,7 +818,8 @@ export const TOPICS: Topic[] = [
         id: "story",
         title: "The Food Court",
         type: "story",
-        content: "A food court has independent stalls — pizza, burgers, sushi, tacos. Each runs independently with its own kitchen. If the pizza stall closes, the rest stay open. One stall can upgrade its menu without affecting others. That's microservices. A single restaurant is a monolith — if the kitchen floods, everything closes.",
+        content:
+          "A food court has independent stalls — pizza, burgers, sushi, tacos. Each runs independently with its own kitchen. If the pizza stall closes, the rest stay open. One stall can upgrade its menu without affecting others. That's microservices. A single restaurant is a monolith — if the kitchen floods, everything closes.",
         story: {
           context: "A shopping mall food court serving thousands daily.",
           analogy: "Independent food stalls = microservices. Single restaurant = monolith.",
@@ -683,16 +830,23 @@ export const TOPICS: Topic[] = [
         id: "challenges",
         title: "Key Challenges",
         type: "text",
-        content: "Service Discovery — Services need to find each other. Data Consistency — Each service owns its data, making transactions complex. Network Latency — Remote calls replace in-process calls. Observability — Monitoring and debugging across services. Deployment Complexity — Coordinating releases across services.",
+        content:
+          "Service Discovery — Services need to find each other. Data Consistency — Each service owns its data, making transactions complex. Network Latency — Remote calls replace in-process calls. Observability — Monitoring and debugging across services. Deployment Complexity — Coordinating releases across services.",
       },
     ],
     quiz: [
       {
         id: "ms-q1",
         question: "What is a key characteristic of microservices?",
-        options: ["Shared database for all services", "Independent deployability", "Single codebase", "Tight coupling"],
+        options: [
+          "Shared database for all services",
+          "Independent deployability",
+          "Single codebase",
+          "Tight coupling",
+        ],
         correctIndex: 1,
-        explanation: "Microservices are independently deployable — each service can be updated without affecting others.",
+        explanation:
+          "Microservices are independently deployable — each service can be updated without affecting others.",
         difficulty: "easy",
       },
       {
@@ -700,7 +854,8 @@ export const TOPICS: Topic[] = [
         question: "Which pattern helps microservices find each other?",
         options: ["API Gateway", "Service Discovery", "Database per Service", "Event Sourcing"],
         correctIndex: 1,
-        explanation: "Service Discovery enables microservices to dynamically locate each other's network addresses.",
+        explanation:
+          "Service Discovery enables microservices to dynamically locate each other's network addresses.",
         difficulty: "medium",
       },
     ],
@@ -736,8 +891,30 @@ export const TOPICS: Topic[] = [
       {
         title: "Monolith vs Microservices",
         items: [
-          { name: "Monolith", icon: "box", pros: ["Simple development", "Easy debugging", "Low latency", "Atomic deployments"], cons: ["Tight coupling", "Scaling entire app", "Technology lock-in", "Slow iteration"], useCases: ["Startups", "Simple applications", "Small teams"] },
-          { name: "Microservices", icon: "layers", pros: ["Independent scaling", "Technology diversity", "Faster deployments", "Team autonomy"], cons: ["Distributed complexity", "Network latency", "Data consistency", "Operational overhead"], useCases: ["Large applications", "Multiple teams", "Rapid scaling needs"] },
+          {
+            name: "Monolith",
+            icon: "box",
+            pros: ["Simple development", "Easy debugging", "Low latency", "Atomic deployments"],
+            cons: ["Tight coupling", "Scaling entire app", "Technology lock-in", "Slow iteration"],
+            useCases: ["Startups", "Simple applications", "Small teams"],
+          },
+          {
+            name: "Microservices",
+            icon: "layers",
+            pros: [
+              "Independent scaling",
+              "Technology diversity",
+              "Faster deployments",
+              "Team autonomy",
+            ],
+            cons: [
+              "Distributed complexity",
+              "Network latency",
+              "Data consistency",
+              "Operational overhead",
+            ],
+            useCases: ["Large applications", "Multiple teams", "Rapid scaling needs"],
+          },
         ],
       },
     ],
@@ -746,7 +923,8 @@ export const TOPICS: Topic[] = [
     id: "consistent-hashing",
     title: "Consistent Hashing",
     subtitle: "Distribute data evenly while minimizing reshuffling",
-    description: "Consistent Hashing is a distributed hashing scheme that minimizes key remapping when the number of hash slots changes. Unlike traditional modulo hashing where adding/removing a node requires remapping almost all keys, consistent hashing only remaps K/N keys on average.",
+    description:
+      "Consistent Hashing is a distributed hashing scheme that minimizes key remapping when the number of hash slots changes. Unlike traditional modulo hashing where adding/removing a node requires remapping almost all keys, consistent hashing only remaps K/N keys on average.",
     icon: "hash",
     difficulty: "advanced",
     duration: "20 min",
@@ -757,7 +935,8 @@ export const TOPICS: Topic[] = [
         id: "what-is",
         title: "What is Consistent Hashing?",
         type: "visual",
-        content: "Place hash values on a circle (hash ring). Each server is assigned positions on the ring. Each key is hashed and assigned to the nearest server clockwise. When a server is added or removed, only keys in that server's region need to be remapped.",
+        content:
+          "Place hash values on a circle (hash ring). Each server is assigned positions on the ring. Each key is hashed and assigned to the nearest server clockwise. When a server is added or removed, only keys in that server's region need to be remapped.",
         visual: {
           description: "Consistent hashing ring",
           nodes: [
@@ -783,10 +962,12 @@ export const TOPICS: Topic[] = [
         id: "story",
         title: "The Round Table",
         type: "story",
-        content: "Imagine a round table with servers seated around it. Each key finds the nearest server clockwise. When a new server sits at the table, it only takes keys between it and the next server — the rest stays put. When a server leaves, only their immediate neighbors need to handle the extra load.",
+        content:
+          "Imagine a round table with servers seated around it. Each key finds the nearest server clockwise. When a new server sits at the table, it only takes keys between it and the next server — the rest stays put. When a server leaves, only their immediate neighbors need to handle the extra load.",
         story: {
           context: "A round table with dynamically arriving and leaving guests.",
-          analogy: "Seats = server positions. Guests = data keys. Clockwise nearest = assignment rule.",
+          analogy:
+            "Seats = server positions. Guests = data keys. Clockwise nearest = assignment rule.",
           transition: "This elegant solution powers some of the largest distributed systems.",
         },
       },
@@ -794,24 +975,37 @@ export const TOPICS: Topic[] = [
         id: "virtual-nodes",
         title: "Virtual Nodes",
         type: "text",
-        content: "To handle uneven distribution, consistent hashing uses virtual nodes — each physical server appears multiple times on the ring. This spreads keys more evenly and reduces the impact of server additions or removals. DynamoDB uses this extensively.",
+        content:
+          "To handle uneven distribution, consistent hashing uses virtual nodes — each physical server appears multiple times on the ring. This spreads keys more evenly and reduces the impact of server additions or removals. DynamoDB uses this extensively.",
       },
     ],
     quiz: [
       {
         id: "ch-q1",
         question: "What problem does consistent hashing solve?",
-        options: ["Slow database queries", "Minimizing key remapping when nodes change", "Faster network routing", "Data encryption"],
+        options: [
+          "Slow database queries",
+          "Minimizing key remapping when nodes change",
+          "Faster network routing",
+          "Data encryption",
+        ],
         correctIndex: 1,
-        explanation: "Consistent hashing minimizes the number of keys that must be remapped when servers are added or removed.",
+        explanation:
+          "Consistent hashing minimizes the number of keys that must be remapped when servers are added or removed.",
         difficulty: "hard",
       },
       {
         id: "ch-q2",
         question: "What is the purpose of virtual nodes?",
-        options: ["Reduce memory usage", "Improve distribution balance", "Faster hash computation", "Network compression"],
+        options: [
+          "Reduce memory usage",
+          "Improve distribution balance",
+          "Faster hash computation",
+          "Network compression",
+        ],
         correctIndex: 1,
-        explanation: "Virtual nodes (vnodes) improve load distribution by representing each physical server at multiple points on the hash ring.",
+        explanation:
+          "Virtual nodes (vnodes) improve load distribution by representing each physical server at multiple points on the hash ring.",
         difficulty: "hard",
       },
     ],
@@ -842,7 +1036,8 @@ export const TOPICS: Topic[] = [
     id: "rate-limiting",
     title: "Rate Limiting",
     subtitle: "Control traffic flow to protect your services",
-    description: "Rate limiting controls the rate of requests a client can make to an API within a time window. It prevents abuse, ensures fair usage, protects backend services from overload, and helps maintain quality of service for all users.",
+    description:
+      "Rate limiting controls the rate of requests a client can make to an API within a time window. It prevents abuse, ensures fair usage, protects backend services from overload, and helps maintain quality of service for all users.",
     icon: "gauge",
     difficulty: "intermediate",
     duration: "15 min",
@@ -853,7 +1048,8 @@ export const TOPICS: Topic[] = [
         id: "what-is",
         title: "What is Rate Limiting?",
         type: "visual",
-        content: "Rate limiting tracks each client's request count within a time window. If a client exceeds the limit, subsequent requests are rejected with 429 Too Many Requests. Different clients can have different limits based on their plan.",
+        content:
+          "Rate limiting tracks each client's request count within a time window. If a client exceeds the limit, subsequent requests are rejected with 429 Too Many Requests. Different clients can have different limits based on their plan.",
         visual: {
           description: "Rate limit enforcement",
           nodes: [
@@ -879,7 +1075,8 @@ export const TOPICS: Topic[] = [
         id: "algorithms",
         title: "Rate Limiting Algorithms",
         type: "text",
-        content: "Token Bucket — Tokens added at fixed rate; each request consumes one. Leaky Bucket — Requests processed at fixed rate; excess spills. Sliding Window — Counts requests in a rolling time window. Fixed Window — Resets counter at window boundaries (simpler but allows bursts).",
+        content:
+          "Token Bucket — Tokens added at fixed rate; each request consumes one. Leaky Bucket — Requests processed at fixed rate; excess spills. Sliding Window — Counts requests in a rolling time window. Fixed Window — Resets counter at window boundaries (simpler but allows bursts).",
       },
     ],
     quiz: [
@@ -896,7 +1093,8 @@ export const TOPICS: Topic[] = [
         question: "Which algorithm permits smooth request flow by adding tokens at a fixed rate?",
         options: ["Fixed Window", "Token Bucket", "Leaky Bucket", "Sliding Window"],
         correctIndex: 1,
-        explanation: "Token Bucket adds tokens at a fixed rate; each request consumes a token, allowing smooth traffic flow.",
+        explanation:
+          "Token Bucket adds tokens at a fixed rate; each request consumes a token, allowing smooth traffic flow.",
         difficulty: "medium",
       },
     ],
@@ -921,7 +1119,8 @@ export const TOPICS: Topic[] = [
     id: "cap-theorem",
     title: "CAP Theorem",
     subtitle: "The fundamental tradeoff in distributed systems",
-    description: "CAP theorem states that a distributed data store can only provide two of three guarantees simultaneously: Consistency (every read returns the most recent write), Availability (every request receives a response), and Partition Tolerance (system continues despite network failures). In practice, partitions are inevitable, so you choose between CP and AP.",
+    description:
+      "CAP theorem states that a distributed data store can only provide two of three guarantees simultaneously: Consistency (every read returns the most recent write), Availability (every request receives a response), and Partition Tolerance (system continues despite network failures). In practice, partitions are inevitable, so you choose between CP and AP.",
     icon: "triangle",
     difficulty: "advanced",
     duration: "20 min",
@@ -932,7 +1131,8 @@ export const TOPICS: Topic[] = [
         id: "what-is",
         title: "The CAP Triangle",
         type: "visual",
-        content: "CAP theorem is often visualized as a triangle. You can pick at most two vertices. In distributed systems, P (Partition Tolerance) is mandatory because network failures happen. So your choice is really between CP (Consistency + Partition) and AP (Availability + Partition).",
+        content:
+          "CAP theorem is often visualized as a triangle. You can pick at most two vertices. In distributed systems, P (Partition Tolerance) is mandatory because network failures happen. So your choice is really between CP (Consistency + Partition) and AP (Availability + Partition).",
         visual: {
           description: "CAP theorem triangle",
           nodes: [
@@ -960,7 +1160,8 @@ export const TOPICS: Topic[] = [
         id: "story",
         title: "The Phone Network",
         type: "story",
-        content: "Two friends talking on a phone that cuts off. The CP approach: they wait (are unavailable) until the line reconnects to ensure every word arrives in order. The AP approach: they continue talking, accepting that some words might be lost (stale reads). You can't have both — either you stop to ensure consistency, or continue with potential inconsistency.",
+        content:
+          "Two friends talking on a phone that cuts off. The CP approach: they wait (are unavailable) until the line reconnects to ensure every word arrives in order. The AP approach: they continue talking, accepting that some words might be lost (stale reads). You can't have both — either you stop to ensure consistency, or continue with potential inconsistency.",
         story: {
           context: "A phone call between two friends coordinating plans.",
           analogy: "CP = wait for perfect connection. AP = continue with gaps.",
@@ -971,24 +1172,33 @@ export const TOPICS: Topic[] = [
         id: "real-world",
         title: "Real-World Choices",
         type: "text",
-        content: "CP Systems: Google Spanner, HBase, MongoDB (with write concern) — prioritize consistency, may reject writes during partition. AP Systems: Amazon DynamoDB, Cassandra, CouchDB — prioritize availability, accept eventual consistency. CA Systems: Traditional single-node databases — not distributed, so partitions don't apply.",
+        content:
+          "CP Systems: Google Spanner, HBase, MongoDB (with write concern) — prioritize consistency, may reject writes during partition. AP Systems: Amazon DynamoDB, Cassandra, CouchDB — prioritize availability, accept eventual consistency. CA Systems: Traditional single-node databases — not distributed, so partitions don't apply.",
       },
     ],
     quiz: [
       {
         id: "cap-q1",
-        question: "According to CAP theorem, how many guarantees can a distributed system provide simultaneously?",
+        question:
+          "According to CAP theorem, how many guarantees can a distributed system provide simultaneously?",
         options: ["One", "Two", "Three", "None"],
         correctIndex: 1,
-        explanation: "CAP theorem states a distributed system can only provide two of three guarantees: Consistency, Availability, and Partition Tolerance.",
+        explanation:
+          "CAP theorem states a distributed system can only provide two of three guarantees: Consistency, Availability, and Partition Tolerance.",
         difficulty: "medium",
       },
       {
         id: "cap-q2",
         question: "Why do most distributed systems choose between CP and AP (not CA)?",
-        options: ["CA is too slow", "Partitions are inevitable in networks", "CA systems can't scale", "Users prefer it"],
+        options: [
+          "CA is too slow",
+          "Partitions are inevitable in networks",
+          "CA systems can't scale",
+          "Users prefer it",
+        ],
         correctIndex: 1,
-        explanation: "Network partitions are inevitable in distributed systems, so Partition Tolerance is mandatory, leaving a choice between CP and AP.",
+        explanation:
+          "Network partitions are inevitable in distributed systems, so Partition Tolerance is mandatory, leaving a choice between CP and AP.",
         difficulty: "hard",
       },
     ],
@@ -1019,16 +1229,61 @@ export const TOPICS: Topic[] = [
 
 export const KNOWLEDGE_GRAPH: { nodes: KnowledgeNode[]; links: KnowledgeLink[] } = {
   nodes: [
-    { id: "load-balancer", label: "Load Balancer", group: "infrastructure", description: "Distribute traffic across servers" },
-    { id: "caching", label: "Caching", group: "performance", description: "Fast data retrieval layer" },
-    { id: "databases", label: "SQL vs NoSQL", group: "data", description: "Database selection tradeoffs" },
+    {
+      id: "load-balancer",
+      label: "Load Balancer",
+      group: "infrastructure",
+      description: "Distribute traffic across servers",
+    },
+    {
+      id: "caching",
+      label: "Caching",
+      group: "performance",
+      description: "Fast data retrieval layer",
+    },
+    {
+      id: "databases",
+      label: "SQL vs NoSQL",
+      group: "data",
+      description: "Database selection tradeoffs",
+    },
     { id: "cdn", label: "CDN", group: "infrastructure", description: "Global content delivery" },
-    { id: "message-queues", label: "Message Queues", group: "architecture", description: "Async service communication" },
-    { id: "api-gateway", label: "API Gateway", group: "architecture", description: "Single entry point for services" },
-    { id: "microservices", label: "Microservices", group: "architecture", description: "Independent deployable services" },
-    { id: "consistent-hashing", label: "Consistent Hashing", group: "algorithms", description: "Efficient distributed data placement" },
-    { id: "rate-limiting", label: "Rate Limiting", group: "security", description: "API traffic control" },
-    { id: "cap-theorem", label: "CAP Theorem", group: "theory", description: "Distributed system tradeoffs" },
+    {
+      id: "message-queues",
+      label: "Message Queues",
+      group: "architecture",
+      description: "Async service communication",
+    },
+    {
+      id: "api-gateway",
+      label: "API Gateway",
+      group: "architecture",
+      description: "Single entry point for services",
+    },
+    {
+      id: "microservices",
+      label: "Microservices",
+      group: "architecture",
+      description: "Independent deployable services",
+    },
+    {
+      id: "consistent-hashing",
+      label: "Consistent Hashing",
+      group: "algorithms",
+      description: "Efficient distributed data placement",
+    },
+    {
+      id: "rate-limiting",
+      label: "Rate Limiting",
+      group: "security",
+      description: "API traffic control",
+    },
+    {
+      id: "cap-theorem",
+      label: "CAP Theorem",
+      group: "theory",
+      description: "Distributed system tradeoffs",
+    },
   ],
   links: [
     { source: "load-balancer", target: "caching", label: "improves" },

@@ -1,10 +1,10 @@
-import { ArrowRight } from 'lucide-react';
-import { useState } from 'react';
-import { TextRoll } from './TextRoll';
-import { PartnerBadgeIcon } from './PartnerBadgeIcon';
-import { HeroShaderBackground } from './HeroShaderBackground';
-import { Navbar } from './Navbar';
-import { MobileMenu } from './MobileMenu';
+import { ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { TextRoll } from "./TextRoll";
+import { PartnerBadgeIcon } from "./PartnerBadgeIcon";
+import { HeroShaderBackground } from "./HeroShaderBackground";
+import { Navbar } from "./Navbar";
+import { MobileMenu } from "./MobileMenu";
 
 export function HeroSection() {
   const [menuOpen, setMenuOpen] = useState(false);

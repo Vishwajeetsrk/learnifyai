@@ -1,5 +1,5 @@
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { NAV_LINKS } from '../constants';
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { NAV_LINKS } from "../constants";
 
 export default function Footer() {
   return (
@@ -17,7 +17,7 @@ export default function Footer() {
           {NAV_LINKS.map((link) => (
             <PresetNavLink
               key={link.path}
-              target={{ kind: 'route', path: link.path }}
+              target={{ kind: "route", path: link.path }}
               className="text-sm text-white/50 transition-colors hover:text-white"
             >
               {link.label}
@@ -25,7 +25,7 @@ export default function Footer() {
           ))}
         </nav>
         <PresetNavLink
-          target={{ kind: 'route', path: 'pricing' }}
+          target={{ kind: "route", path: "pricing" }}
           className="inline-flex w-fit rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-white/90"
         >
           Start free trial

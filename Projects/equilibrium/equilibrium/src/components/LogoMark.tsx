@@ -1,4 +1,4 @@
-export default function LogoMark({ className = 'h-9 w-9' }: { className?: string }) {
+export default function LogoMark({ className = "h-9 w-9" }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

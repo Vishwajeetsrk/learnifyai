@@ -1,5 +1,5 @@
-import { STATS, VIDEOS } from '../constants';
-import { HlsVideo } from './HlsVideo';
+import { STATS, VIDEOS } from "../constants";
+import { HlsVideo } from "./HlsVideo";
 
 export function StatementSection() {
   return (
@@ -27,9 +27,8 @@ export function StatementSection() {
           className="mt-8 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg"
           data-editable
         >
-          One app to control climate, lighting, navigation, and energy. Monitor every
-          system in real time, automate your routines, and let Velorah learn how you live
-          on the road.
+          One app to control climate, lighting, navigation, and energy. Monitor every system in real
+          time, automate your routines, and let Velorah learn how you live on the road.
         </p>
         <div className="mt-14 grid grid-cols-2 gap-8 sm:grid-cols-4 sm:gap-12">
           {STATS.map((stat) => (

@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
-import type { CSSProperties, ElementType, ReactNode } from 'react';
+import { motion } from "framer-motion";
+import type { CSSProperties, ElementType, ReactNode } from "react";
 
-type FadeUpAs = 'div' | 'section' | 'span' | 'h1' | 'h2' | 'h3' | 'p' | 'nav';
+type FadeUpAs = "div" | "section" | "span" | "h1" | "h2" | "h3" | "p" | "nav";
 
 const MOTION_MAP: Record<FadeUpAs, ElementType> = {
   div: motion.div,
@@ -32,7 +32,7 @@ export function FadeUp({
   y = 24,
   className,
   style,
-  as = 'div',
+  as = "div",
   once = true,
 }: FadeUpProps) {
   const Component = MOTION_MAP[as] ?? motion.div;

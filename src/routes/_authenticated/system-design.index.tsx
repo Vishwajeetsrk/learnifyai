@@ -52,7 +52,12 @@ function SystemDesignAcademyPage() {
   const [showGraph, setShowGraph] = useState(false);
 
   const filteredTopics = TOPICS.filter((t) => {
-    if (searchQuery && !t.title.toLowerCase().includes(searchQuery.toLowerCase()) && !t.subtitle.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (
+      searchQuery &&
+      !t.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !t.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+      return false;
     if (selectedDifficulty && t.difficulty !== selectedDifficulty) return false;
     return true;
   });
@@ -81,7 +86,9 @@ function SystemDesignAcademyPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold tracking-tight">System Design Academy</h1>
-              <p className="text-sm text-muted-foreground">Master distributed systems through interactive learning</p>
+              <p className="text-sm text-muted-foreground">
+                Master distributed systems through interactive learning
+              </p>
             </div>
           </div>
         </div>
@@ -92,15 +99,24 @@ function SystemDesignAcademyPage() {
             <LearningProgress />
           </div>
           <div className="relative">
-            <div className={cn(
-              "rounded-xl border border-border bg-card overflow-hidden transition-all",
-              showGraph ? "lg:col-span-2" : ""
-            )}>
+            <div
+              className={cn(
+                "rounded-xl border border-border bg-card overflow-hidden transition-all",
+                showGraph ? "lg:col-span-2" : "",
+              )}
+            >
               {showGraph ? (
                 <div className="p-2">
                   <div className="flex items-center justify-between px-2 pb-2">
                     <span className="text-xs font-semibold">Knowledge Graph</span>
-                    <Button variant="ghost" size="sm" className="h-6 text-[10px]" onClick={() => setShowGraph(false)}>Close</Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 text-[10px]"
+                      onClick={() => setShowGraph(false)}
+                    >
+                      Close
+                    </Button>
                   </div>
                   <KnowledgeGraph onTopicClick={handleTopicClick} compact />
                 </div>
@@ -114,7 +130,9 @@ function SystemDesignAcademyPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-xs font-medium">Explore Knowledge Graph</p>
-                    <p className="text-[10px] text-muted-foreground">Visualize topic relationships</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Visualize topic relationships
+                    </p>
                   </div>
                   <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
@@ -144,7 +162,7 @@ function SystemDesignAcademyPage() {
                   "px-3 py-1.5 rounded-lg text-[10px] font-medium border transition capitalize",
                   selectedDifficulty === d
                     ? DIFFICULTY_COLORS[d].split(" ")[0] + " border-primary/30 bg-primary/5"
-                    : "border-border text-muted-foreground hover:border-foreground/30"
+                    : "border-border text-muted-foreground hover:border-foreground/30",
                 )}
               >
                 {d}
@@ -218,8 +236,14 @@ function DifficultySection({
   onTopicClick: (id: string) => void;
 }) {
   if (topics.length === 0) return null;
-  const borderColor = color === "green" ? "border-green-500/30" : color === "yellow" ? "border-yellow-500/30" : "border-red-500/30";
-  const textColor = color === "green" ? "text-green-500" : color === "yellow" ? "text-yellow-500" : "text-red-500";
+  const borderColor =
+    color === "green"
+      ? "border-green-500/30"
+      : color === "yellow"
+        ? "border-yellow-500/30"
+        : "border-red-500/30";
+  const textColor =
+    color === "green" ? "text-green-500" : color === "yellow" ? "text-yellow-500" : "text-red-500";
 
   return (
     <section className="space-y-3">
@@ -236,31 +260,32 @@ function DifficultySection({
   );
 }
 
-function TopicCard({
-  topic,
-  onClick,
-}: {
-  topic: (typeof TOPICS)[number];
-  onClick: () => void;
-}) {
+function TopicCard({ topic, onClick }: { topic: (typeof TOPICS)[number]; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
       className="group text-left rounded-xl border border-border bg-card p-4 hover:border-primary/30 hover:shadow-lg transition-all duration-200 space-y-3"
     >
       <div className="flex items-start justify-between">
-        <div className={cn(
-          "h-8 w-8 rounded-lg flex items-center justify-center",
-          "bg-primary/5 text-primary group-hover:bg-primary/10 transition-colors"
-        )}>
+        <div
+          className={cn(
+            "h-8 w-8 rounded-lg flex items-center justify-center",
+            "bg-primary/5 text-primary group-hover:bg-primary/10 transition-colors",
+          )}
+        >
           {TOPIC_ICONS[topic.icon] || <BookOpen className="h-4 w-4" />}
         </div>
-        <Badge variant="outline" className={cn("text-[10px] capitalize font-normal", DIFFICULTY_COLORS[topic.difficulty])}>
+        <Badge
+          variant="outline"
+          className={cn("text-[10px] capitalize font-normal", DIFFICULTY_COLORS[topic.difficulty])}
+        >
           {topic.difficulty}
         </Badge>
       </div>
       <div>
-        <h3 className="text-sm font-medium group-hover:text-primary transition-colors">{topic.title}</h3>
+        <h3 className="text-sm font-medium group-hover:text-primary transition-colors">
+          {topic.title}
+        </h3>
         <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{topic.subtitle}</p>
       </div>
       <div className="flex items-center gap-3 text-[10px] text-muted-foreground">

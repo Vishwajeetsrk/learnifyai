@@ -1,15 +1,10 @@
-import { useState } from 'react';
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
-import BubbleMenu from '../components/BubbleMenu';
-import SpotlightReveal from '../components/SpotlightReveal';
-import { ArcPaceLogo } from '../components/ArcPaceLogo';
-import {
-  HERO_IMAGE_1,
-  HERO_IMAGE_2,
-  HERO_VIDEO_1,
-  HERO_VIDEO_2,
-} from '../constants';
-import { PILL_MENU_ITEMS } from '../routes';
+import { useState } from "react";
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
+import BubbleMenu from "../components/BubbleMenu";
+import SpotlightReveal from "../components/SpotlightReveal";
+import { ArcPaceLogo } from "../components/ArcPaceLogo";
+import { HERO_IMAGE_1, HERO_IMAGE_2, HERO_VIDEO_1, HERO_VIDEO_2 } from "../constants";
+import { PILL_MENU_ITEMS } from "../routes";
 
 export function HomePage() {
   const [isFirstVideoPlaying, setIsFirstVideoPlaying] = useState(false);
@@ -33,7 +28,7 @@ export function HomePage() {
         <header className="relative z-50 flex w-full items-start justify-center pt-[150px]">
           <button
             type="button"
-            onClick={() => navigateToRoute('')}
+            onClick={() => navigateToRoute("")}
             className="text-white"
             aria-label="ARC PACE home"
           >
@@ -50,11 +45,11 @@ export function HomePage() {
         <main className="relative z-10 flex w-full flex-1 flex-col items-center justify-end px-4 pb-24 text-center text-white">
           <h1
             className="mx-auto w-full translate-y-[50px] font-sans font-medium leading-[1.05] tracking-tight"
-            style={{ fontSize: 'clamp(14px, 3vw, 51px)' }}
+            style={{ fontSize: "clamp(14px, 3vw, 51px)" }}
           >
             <span className="block">Pure Comfort For</span>
             <span className="block">
-              Next-Generation Athletes.{' '}
+              Next-Generation Athletes.{" "}
               <span className="font-serif font-normal italic pr-1">We Craft</span>
             </span>
             <span className="block font-serif font-normal italic pr-1">
@@ -69,7 +64,7 @@ export function HomePage() {
 
       <section
         className="relative z-10 h-[100dvh] w-full overflow-hidden bg-black text-white"
-        style={{ boxShadow: '0 -20px 50px rgba(0,0,0,0.5)' }}
+        style={{ boxShadow: "0 -20px 50px rgba(0,0,0,0.5)" }}
       >
         <SpotlightReveal
           imageSrc={HERO_IMAGE_2}
@@ -92,9 +87,9 @@ export function HomePage() {
         <div
           className="absolute left-[calc(8%+200px)] top-[20%] z-20 w-[320px] rounded-sm border border-white/10 px-8 py-6"
           style={{
-            background: 'rgba(0, 0, 0, 0.16)',
-            backdropFilter: 'blur(80px)',
-            WebkitBackdropFilter: 'blur(80px)',
+            background: "rgba(0, 0, 0, 0.16)",
+            backdropFilter: "blur(80px)",
+            WebkitBackdropFilter: "blur(80px)",
           }}
         >
           <div className="mb-4 flex items-end gap-2">
@@ -103,7 +98,7 @@ export function HomePage() {
             </span>
             <div className="w-[11px]">
               <svg
-                style={{ width: '160px', height: '80px' }}
+                style={{ width: "160px", height: "80px" }}
                 viewBox="0 0 289 138"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -140,8 +135,17 @@ export function HomePage() {
                       type="matrix"
                       values="0 0 0 0 0.854902 0 0 0 0 0.227451 0 0 0 0 0.0862745 0 0 0 1 0"
                     />
-                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_878_28499" />
-                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_878_28499" result="shape" />
+                    <feBlend
+                      mode="normal"
+                      in2="BackgroundImageFix"
+                      result="effect1_dropShadow_878_28499"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in="SourceGraphic"
+                      in2="effect1_dropShadow_878_28499"
+                      result="shape"
+                    />
                   </filter>
                 </defs>
               </svg>

@@ -1,17 +1,16 @@
-import { lazy, Suspense } from 'react';
-import { motion } from 'motion/react';
-import { Maximize, Snowflake, Zap } from 'lucide-react';
+import { lazy, Suspense } from "react";
+import { motion } from "motion/react";
+import { Maximize, Snowflake, Zap } from "lucide-react";
 
-const Spline = lazy(() => import('@splinetool/react-spline'));
+const Spline = lazy(() => import("@splinetool/react-spline"));
 
-const SCENE_URL =
-  'https://prod.spline.design/PIgTjpRFA03yfLyK/scene.splinecode';
+const SCENE_URL = "https://prod.spline.design/PIgTjpRFA03yfLyK/scene.splinecode";
 
 const SPECS = [
-  { label: 'Stack', value: 'React + Node + SQL' },
-  { label: 'Logic', value: 'V8 - Runtime Logic' },
-  { label: 'Uptime', value: '99.9% High-Avail' },
-  { label: 'Scale', value: 'Responsive Modern Layout' },
+  { label: "Stack", value: "React + Node + SQL" },
+  { label: "Logic", value: "V8 - Runtime Logic" },
+  { label: "Uptime", value: "99.9% High-Avail" },
+  { label: "Scale", value: "Responsive Modern Layout" },
 ] as const;
 
 const ICONS = [Snowflake, Maximize, Zap] as const;
@@ -19,10 +18,7 @@ const ICONS = [Snowflake, Maximize, Zap] as const;
 export default function App() {
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden relative selection:bg-white selection:text-black">
-      <div
-        className="absolute inset-0 z-0"
-        style={{ transform: 'translateX(15%)' }}
-      >
+      <div className="absolute inset-0 z-0" style={{ transform: "translateX(15%)" }}>
         <Suspense fallback={<div className="absolute inset-0 bg-black" />}>
           <Spline scene={SCENE_URL} className="h-full w-full" />
         </Suspense>
@@ -34,7 +30,7 @@ export default function App() {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
               <h1 className="font-display text-[40px] sm:text-[56px] md:text-[72px] leading-[1] md:leading-[0.9] font-extralight tracking-tight uppercase max-w-xl bg-gradient-to-r from-white/20 via-white/70 to-white bg-clip-text text-transparent">
                 Automation
@@ -49,9 +45,8 @@ export default function App() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
             >
-              Developed with high-end skills and a pixel-perfect frame for those
-              who don&apos;t just browse the web—they build it. Code your
-              dreams....
+              Developed with high-end skills and a pixel-perfect frame for those who don&apos;t just
+              browse the web—they build it. Code your dreams....
             </motion.p>
 
             <motion.div
@@ -93,9 +88,7 @@ export default function App() {
                   <span className="text-xs text-white/70 group-hover:text-white transition-colors">
                     {spec.label}
                   </span>
-                  <span className="text-xs font-mono tracking-tight text-white">
-                    {spec.value}
-                  </span>
+                  <span className="text-xs font-mono tracking-tight text-white">{spec.value}</span>
                 </div>
               ))}
             </div>

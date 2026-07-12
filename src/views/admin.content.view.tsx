@@ -100,6 +100,7 @@ import MenuManager from "@/components/admin/MenuManager";
 import BlogManager from "@/components/admin/BlogManager";
 const DesignProjectsManager = lazy(() => import("@/components/admin/DesignProjectsManager"));
 const CouponManager = lazy(() => import("@/components/admin/CouponManager"));
+const InvoiceDesigner = lazy(() => import("@/components/admin/InvoiceDesigner"));
 
 const AVATAR_URLS = {
   rishabh: "/avatars/Rishabh-Sharma.png",
@@ -323,6 +324,7 @@ export default function AdminContentPage() {
     "blog",
     "wcms-sections",
     "promo-banner",
+    "invoice-designer",
   ].includes(tabAlias)
     ? tabAlias
     : "events";
@@ -457,6 +459,10 @@ export default function AdminContentPage() {
               <Percent className="h-4 w-4 mr-2" />
               Promo Banner
             </TabsTrigger>
+            <TabsTrigger value="invoice-designer">
+              <FileText className="h-4 w-4 mr-2" />
+              Invoice Designer
+            </TabsTrigger>
             <TabsTrigger value="wcms-sections">
               <Layers className="h-4 w-4 mr-2" />
               Sections
@@ -503,6 +509,11 @@ export default function AdminContentPage() {
           <TabsContent value="coupons" className="mt-6">
             <Suspense fallback={<LazyFallback />}>
               <CouponManager />
+            </Suspense>
+          </TabsContent>
+          <TabsContent value="invoice-designer" className="mt-6">
+            <Suspense fallback={<LazyFallback />}>
+              <InvoiceDesigner />
             </Suspense>
           </TabsContent>
           <TabsContent value="community" className="mt-6">
@@ -1293,7 +1304,17 @@ function PricingManager() {
         ai_credits_monthly: 500,
         max_courses: 3,
         description: "1–3 free courses, limited daily AI credits, community access.",
-        features: ["1–3 free courses", "Limited daily AI credits", "Community access", "Basic progress tracking", "Basic certificates", "Email support", "500 AI credits / month", "Course notes & summaries", "Basic quiz access"],
+        features: [
+          "1–3 free courses",
+          "Limited daily AI credits",
+          "Community access",
+          "Basic progress tracking",
+          "Basic certificates",
+          "Email support",
+          "500 AI credits / month",
+          "Course notes & summaries",
+          "Basic quiz access",
+        ],
         cta_label: "Get Started Free",
         cta_to: "/signup",
         highlighted: false,
@@ -1311,8 +1332,20 @@ function PricingManager() {
         interval: "month",
         ai_credits_monthly: 10000,
         max_courses: -1,
-        description: "Casual learners — full course library, higher AI credit cap, notes & flashcards.",
-        features: ["Full course library", "Higher AI credit cap", "Notes & flashcards", "Unlimited courses", "Advanced AI tutor", "All certificates", "Download resources", "Community challenges", "Priority support", "10,000 AI credits / month"],
+        description:
+          "Casual learners — full course library, higher AI credit cap, notes & flashcards.",
+        features: [
+          "Full course library",
+          "Higher AI credit cap",
+          "Notes & flashcards",
+          "Unlimited courses",
+          "Advanced AI tutor",
+          "All certificates",
+          "Download resources",
+          "Community challenges",
+          "Priority support",
+          "10,000 AI credits / month",
+        ],
         cta_label: "Start Pro",
         cta_to: "/signup?plan=pro",
         highlighted: true,
@@ -1330,8 +1363,28 @@ function PricingManager() {
         interval: "month",
         ai_credits_monthly: 25000,
         max_courses: -1,
-        description: "Job-seekers — everything in Pro + Resume / ATS / Interview Prep / Career Roadmap, verified certificates included.",
-        features: ["Everything in Pro", "Resume Builder", "ATS Checker", "Interview Prep", "Career Roadmap", "Verified certificates included", "Custom certificate templates", "Portfolio Builder", "LinkedIn Optimizer", "Internship Tracker", "Career Analytics", "Interview recording & playback", "Advanced ATS optimization", "Skill gap analysis", "Project recommendations", "Lifetime certificate access", "Priority support", "25,000 AI credits / month"],
+        description:
+          "Job-seekers — everything in Pro + Resume / ATS / Interview Prep / Career Roadmap, verified certificates included.",
+        features: [
+          "Everything in Pro",
+          "Resume Builder",
+          "ATS Checker",
+          "Interview Prep",
+          "Career Roadmap",
+          "Verified certificates included",
+          "Custom certificate templates",
+          "Portfolio Builder",
+          "LinkedIn Optimizer",
+          "Internship Tracker",
+          "Career Analytics",
+          "Interview recording & playback",
+          "Advanced ATS optimization",
+          "Skill gap analysis",
+          "Project recommendations",
+          "Lifetime certificate access",
+          "Priority support",
+          "25,000 AI credits / month",
+        ],
         cta_label: "Become Job Ready",
         cta_to: "/signup?plan=career-pro",
         highlighted: false,
@@ -1350,7 +1403,24 @@ function PricingManager() {
         ai_credits_monthly: 0,
         max_courses: -1,
         description: "Colleges & companies — seats, SSO, admin reporting, custom branding.",
-        features: ["Everything in Career Pro", "Seats", "SSO + RBAC", "Admin reporting", "Custom branding", "Admin dashboard", "Team management", "Bulk enrollment", "Attendance tracking", "Batch management", "White label", "Custom domain", "Department analytics", "Certificate automation", "API access", "Dedicated support"],
+        features: [
+          "Everything in Career Pro",
+          "Seats",
+          "SSO + RBAC",
+          "Admin reporting",
+          "Custom branding",
+          "Admin dashboard",
+          "Team management",
+          "Bulk enrollment",
+          "Attendance tracking",
+          "Batch management",
+          "White label",
+          "Custom domain",
+          "Department analytics",
+          "Certificate automation",
+          "API access",
+          "Dedicated support",
+        ],
         cta_label: "Book Demo",
         cta_to: "/contact",
         highlighted: false,
@@ -1394,7 +1464,11 @@ function PricingManager() {
     <div className="space-y-4">
       <div className="flex justify-end gap-2">
         <Button size="sm" variant="outline" onClick={seedDefaultPlans} disabled={saving}>
-          {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1.5" />}
+          {saving ? (
+            <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+          )}
           Seed Default Plans
         </Button>
         <Button onClick={newPlan}>
@@ -1843,7 +1917,12 @@ function DemoVideoManager() {
     queryKey: ["admin-demo-video"],
     queryFn: async () => {
       const result = await doQuery({
-        data: { table: "site_settings", columns: "value", eqFilter: { column: "key", value: "tour_video_url" }, single: true },
+        data: {
+          table: "site_settings",
+          columns: "value",
+          eqFilter: { column: "key", value: "tour_video_url" },
+          single: true,
+        },
       });
       return ((result as any)?.value as string) || "";
     },
@@ -1857,7 +1936,11 @@ function DemoVideoManager() {
     setSaving(true);
     try {
       await doUpsert({
-        data: { table: "site_settings", data: { key: "tour_video_url", value: videoUrl }, onConflict: "key" },
+        data: {
+          table: "site_settings",
+          data: { key: "tour_video_url", value: videoUrl },
+          onConflict: "key",
+        },
       });
       toast.success("Demo video saved");
       qc.invalidateQueries({ queryKey: ["admin-demo-video"] });
@@ -1898,7 +1981,9 @@ function DemoVideoManager() {
     try {
       const ext = file.name.split(".").pop() || "mp4";
       const path = `demo-videos/tour-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("media").upload(path, file, { contentType: file.type });
+      const { error: upErr } = await supabase.storage
+        .from("media")
+        .upload(path, file, { contentType: file.type });
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
       setVideoUrl(urlData.publicUrl);
@@ -1910,7 +1995,12 @@ function DemoVideoManager() {
     }
   };
 
-  if (isLoading) return <div className="flex justify-center py-10"><Loader2 className="h-5 w-5 animate-spin" /></div>;
+  if (isLoading)
+    return (
+      <div className="flex justify-center py-10">
+        <Loader2 className="h-5 w-5 animate-spin" />
+      </div>
+    );
 
   const isYouTube = videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be");
   const isMP4 = videoUrl.endsWith(".mp4") || videoUrl.includes("media/storage");
@@ -1921,7 +2011,8 @@ function DemoVideoManager() {
         <div>
           <h3 className="font-semibold text-lg">Demo / Tour Video</h3>
           <p className="text-sm text-muted-foreground">
-            This video plays in the "Watch Demo" modal on the homepage. Supports YouTube embeds or direct MP4 URLs.
+            This video plays in the "Watch Demo" modal on the homepage. Supports YouTube embeds or
+            direct MP4 URLs.
           </p>
         </div>
 
@@ -1958,9 +2049,24 @@ function DemoVideoManager() {
         <div className="space-y-2">
           <Label>Or upload a video file</Label>
           <div className="flex items-center gap-2">
-            <input type="file" accept="video/*" onChange={handleFileUpload} className="hidden" id="demo-video-upload" />
-            <Button variant="outline" size="sm" onClick={() => document.getElementById("demo-video-upload")?.click()} disabled={uploading}>
-              {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+            <input
+              type="file"
+              accept="video/*"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="demo-video-upload"
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => document.getElementById("demo-video-upload")?.click()}
+              disabled={uploading}
+            >
+              {uploading ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Upload className="h-4 w-4 mr-2" />
+              )}
               {uploading ? "Uploading..." : "Choose Video"}
             </Button>
             <span className="text-xs text-muted-foreground">Max 50MB · MP4, WebM</span>
@@ -2272,15 +2378,27 @@ function CertTemplatesManager() {
           <ShieldCheck className="h-4 w-4 mr-2" />
           Full Designer
         </Button>
-        <Button variant="outline" size="sm" onClick={() => window.open("/admin/certificates?tab=canva", "_self")}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.open("/admin/certificates?tab=canva", "_self")}
+        >
           <LayoutTemplate className="h-4 w-4 mr-2" />
           Canva Templates
         </Button>
-        <Button variant="outline" size="sm" onClick={() => window.open("/admin/certificates?tab=analytics", "_self")}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.open("/admin/certificates?tab=analytics", "_self")}
+        >
           <BarChart3 className="h-4 w-4 mr-2" />
           Analytics
         </Button>
-        <Button variant="outline" size="sm" onClick={() => window.open("/admin/certificates?tab=categories", "_self")}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.open("/admin/certificates?tab=categories", "_self")}
+        >
           <FolderTree className="h-4 w-4 mr-2" />
           Categories
         </Button>
@@ -3261,43 +3379,258 @@ function FaqsManager() {
   };
 
   const seedDefaultFaqs = async () => {
-    const defaults: { question: string; answer: string; category: string; order_index: number; published: boolean }[] = [
+    const defaults: {
+      question: string;
+      answer: string;
+      category: string;
+      order_index: number;
+      published: boolean;
+    }[] = [
       // Plans & Pricing
-      { question: "Can I switch plans anytime?", answer: "Yes, you can upgrade or downgrade at any time. Changes take effect immediately and your billing will be prorated.", category: "Plans & Pricing", order_index: 10, published: true },
-      { question: "Is there a free trial?", answer: "The Free plan is free forever with basic features. All premium plans come with a 7-day money-back guarantee so you can try risk-free.", category: "Plans & Pricing", order_index: 20, published: true },
-      { question: "What happens when I run out of AI credits?", answer: "You can purchase additional AI credit top-ups at any time, or upgrade to a higher plan for more monthly credits.", category: "Plans & Pricing", order_index: 30, published: true },
-      { question: "Do you offer student discounts?", answer: "Yes! We offer a 50% discount for verified students. Contact support with your student ID to apply the discount.", category: "Plans & Pricing", order_index: 40, published: true },
-      { question: "Can I cancel my subscription anytime?", answer: "Yes, you can cancel anytime. Your access continues until the end of the current billing period.", category: "Plans & Pricing", order_index: 50, published: true },
+      {
+        question: "Can I switch plans anytime?",
+        answer:
+          "Yes, you can upgrade or downgrade at any time. Changes take effect immediately and your billing will be prorated.",
+        category: "Plans & Pricing",
+        order_index: 10,
+        published: true,
+      },
+      {
+        question: "Is there a free trial?",
+        answer:
+          "The Free plan is free forever with basic features. All premium plans come with a 7-day money-back guarantee so you can try risk-free.",
+        category: "Plans & Pricing",
+        order_index: 20,
+        published: true,
+      },
+      {
+        question: "What happens when I run out of AI credits?",
+        answer:
+          "You can purchase additional AI credit top-ups at any time, or upgrade to a higher plan for more monthly credits.",
+        category: "Plans & Pricing",
+        order_index: 30,
+        published: true,
+      },
+      {
+        question: "Do you offer student discounts?",
+        answer:
+          "Yes! We offer a 50% discount for verified students. Contact support with your student ID to apply the discount.",
+        category: "Plans & Pricing",
+        order_index: 40,
+        published: true,
+      },
+      {
+        question: "Can I cancel my subscription anytime?",
+        answer:
+          "Yes, you can cancel anytime. Your access continues until the end of the current billing period.",
+        category: "Plans & Pricing",
+        order_index: 50,
+        published: true,
+      },
       // Billing
-      { question: "What payment methods do you accept?", answer: "We accept all major credit cards, debit cards, UPI, Net Banking, and popular wallets through our secure payment partner Cashfree.", category: "Billing", order_index: 60, published: true },
-      { question: "Can I get a refund?", answer: "Yes, we offer a 7-day money-back guarantee on all premium plans. Contact our support team within 7 days of purchase for a full refund.", category: "Billing", order_index: 70, published: true },
-      { question: "How do I download my invoice?", answer: "Invoices are available in your account settings under Billing History. You can download PDF invoices for all past payments.", category: "Billing", order_index: 80, published: true },
-      { question: "Is my payment information secure?", answer: "Absolutely. We use PCI-compliant payment processing through Cashfree. Your card details are never stored on our servers.", category: "Billing", order_index: 90, published: true },
-      { question: "Do you offer GST invoices?", answer: "Yes, GST invoices are available for all Indian customers. Make sure your GST number is added in your billing settings.", category: "Billing", order_index: 100, published: true },
+      {
+        question: "What payment methods do you accept?",
+        answer:
+          "We accept all major credit cards, debit cards, UPI, Net Banking, and popular wallets through our secure payment partner Cashfree.",
+        category: "Billing",
+        order_index: 60,
+        published: true,
+      },
+      {
+        question: "Can I get a refund?",
+        answer:
+          "Yes, we offer a 7-day money-back guarantee on all premium plans. Contact our support team within 7 days of purchase for a full refund.",
+        category: "Billing",
+        order_index: 70,
+        published: true,
+      },
+      {
+        question: "How do I download my invoice?",
+        answer:
+          "Invoices are available in your account settings under Billing History. You can download PDF invoices for all past payments.",
+        category: "Billing",
+        order_index: 80,
+        published: true,
+      },
+      {
+        question: "Is my payment information secure?",
+        answer:
+          "Absolutely. We use PCI-compliant payment processing through Cashfree. Your card details are never stored on our servers.",
+        category: "Billing",
+        order_index: 90,
+        published: true,
+      },
+      {
+        question: "Do you offer GST invoices?",
+        answer:
+          "Yes, GST invoices are available for all Indian customers. Make sure your GST number is added in your billing settings.",
+        category: "Billing",
+        order_index: 100,
+        published: true,
+      },
       // Features
-      { question: "What AI features are included?", answer: "AI Tutor, Resume Builder, Interview Coach, Certificate Generator, and Career Roadmap are included in Pro and above plans.", category: "Features", order_index: 110, published: true },
-      { question: "How do certificates work?", answer: "Complete a course and pass the assessment to earn a verified certificate with a unique QR code and ID. Certificates can be shared on LinkedIn.", category: "Features", order_index: 120, published: true },
-      { question: "Is there a mobile app?", answer: "Learnify AI is fully responsive and works on all devices. A dedicated mobile app is coming soon.", category: "Features", order_index: 130, published: true },
-      { question: "Can I download course materials?", answer: "Yes, you can download video transcripts, notes, and code samples for offline reference.", category: "Features", order_index: 140, published: true },
-      { question: "Do you offer placement assistance?", answer: "Pro and Enterprise plans include resume review, mock interviews, and career guidance. Enterprise plans also include direct company referrals.", category: "Features", order_index: 150, published: true },
+      {
+        question: "What AI features are included?",
+        answer:
+          "AI Tutor, Resume Builder, Interview Coach, Certificate Generator, and Career Roadmap are included in Pro and above plans.",
+        category: "Features",
+        order_index: 110,
+        published: true,
+      },
+      {
+        question: "How do certificates work?",
+        answer:
+          "Complete a course and pass the assessment to earn a verified certificate with a unique QR code and ID. Certificates can be shared on LinkedIn.",
+        category: "Features",
+        order_index: 120,
+        published: true,
+      },
+      {
+        question: "Is there a mobile app?",
+        answer:
+          "Learnify AI is fully responsive and works on all devices. A dedicated mobile app is coming soon.",
+        category: "Features",
+        order_index: 130,
+        published: true,
+      },
+      {
+        question: "Can I download course materials?",
+        answer:
+          "Yes, you can download video transcripts, notes, and code samples for offline reference.",
+        category: "Features",
+        order_index: 140,
+        published: true,
+      },
+      {
+        question: "Do you offer placement assistance?",
+        answer:
+          "Pro and Enterprise plans include resume review, mock interviews, and career guidance. Enterprise plans also include direct company referrals.",
+        category: "Features",
+        order_index: 150,
+        published: true,
+      },
       // Technical
-      { question: "Is my data secure?", answer: "Yes, we use SSL encryption, secure payment processing, and follow industry best practices for data protection. Your data is stored securely on Cloudflare.", category: "Technical", order_index: 160, published: true },
-      { question: "Can I access courses offline?", answer: "Currently, courses are available online only. However, you can save video transcripts and notes for offline reading.", category: "Technical", order_index: 170, published: true },
-      { question: "What browsers are supported?", answer: "Learnify AI works on all modern browsers including Chrome, Firefox, Safari, and Edge.", category: "Technical", order_index: 180, published: true },
-      { question: "How do I reset my password?", answer: "Click 'Forgot Password' on the login page. We'll send a password reset link to your registered email.", category: "Technical", order_index: 190, published: true },
-      { question: "What is the AI Tutor and how does it work?", answer: "The AI Tutor is an intelligent chatbot powered by GPT-4 that can explain concepts, debug code, answer questions, and guide you through your learning journey in real-time.", category: "Technical", order_index: 200, published: true },
+      {
+        question: "Is my data secure?",
+        answer:
+          "Yes, we use SSL encryption, secure payment processing, and follow industry best practices for data protection. Your data is stored securely on Cloudflare.",
+        category: "Technical",
+        order_index: 160,
+        published: true,
+      },
+      {
+        question: "Can I access courses offline?",
+        answer:
+          "Currently, courses are available online only. However, you can save video transcripts and notes for offline reading.",
+        category: "Technical",
+        order_index: 170,
+        published: true,
+      },
+      {
+        question: "What browsers are supported?",
+        answer:
+          "Learnify AI works on all modern browsers including Chrome, Firefox, Safari, and Edge.",
+        category: "Technical",
+        order_index: 180,
+        published: true,
+      },
+      {
+        question: "How do I reset my password?",
+        answer:
+          "Click 'Forgot Password' on the login page. We'll send a password reset link to your registered email.",
+        category: "Technical",
+        order_index: 190,
+        published: true,
+      },
+      {
+        question: "What is the AI Tutor and how does it work?",
+        answer:
+          "The AI Tutor is an intelligent chatbot powered by GPT-4 that can explain concepts, debug code, answer questions, and guide you through your learning journey in real-time.",
+        category: "Technical",
+        order_index: 200,
+        published: true,
+      },
       // Account
-      { question: "How do I update my profile?", answer: "Go to your Account Settings to update your name, email, password, and profile picture.", category: "Account", order_index: 210, published: true },
-      { question: "How do I delete my account?", answer: "Go to Account Settings > Danger Zone. Enter your password to confirm. All your data will be permanently deleted within 30 days.", category: "Account", order_index: 220, published: true },
-      { question: "How do I change my email address?", answer: "Go to Account Settings and update your email. You'll receive a verification link at the new address.", category: "Account", order_index: 230, published: true },
-      { question: "Can I have multiple devices logged in?", answer: "Yes, you can access your account from multiple devices simultaneously.", category: "Account", order_index: 240, published: true },
-      { question: "How do I view my learning progress?", answer: "Your dashboard shows course progress, completed courses, certificates earned, and AI credit usage.", category: "Account", order_index: 250, published: true },
+      {
+        question: "How do I update my profile?",
+        answer:
+          "Go to your Account Settings to update your name, email, password, and profile picture.",
+        category: "Account",
+        order_index: 210,
+        published: true,
+      },
+      {
+        question: "How do I delete my account?",
+        answer:
+          "Go to Account Settings > Danger Zone. Enter your password to confirm. All your data will be permanently deleted within 30 days.",
+        category: "Account",
+        order_index: 220,
+        published: true,
+      },
+      {
+        question: "How do I change my email address?",
+        answer:
+          "Go to Account Settings and update your email. You'll receive a verification link at the new address.",
+        category: "Account",
+        order_index: 230,
+        published: true,
+      },
+      {
+        question: "Can I have multiple devices logged in?",
+        answer: "Yes, you can access your account from multiple devices simultaneously.",
+        category: "Account",
+        order_index: 240,
+        published: true,
+      },
+      {
+        question: "How do I view my learning progress?",
+        answer:
+          "Your dashboard shows course progress, completed courses, certificates earned, and AI credit usage.",
+        category: "Account",
+        order_index: 250,
+        published: true,
+      },
       // Students
-      { question: "Is Learnify suitable for beginners?", answer: "Absolutely! Our courses range from beginner to advanced. The AI Tutor adapts to your skill level and explains concepts at your pace.", category: "Students", order_index: 260, published: true },
-      { question: "How do I get verified as a student?", answer: "Upload your valid student ID or university email in Account Settings. Verification is processed within 24 hours.", category: "Students", order_index: 270, published: true },
-      { question: "Can I get a discount as a student?", answer: "Yes, verified students get 50% off on all premium plans. Complete student verification first, then the discount will be applied automatically.", category: "Students", order_index: 280, published: true },
-      { question: "Can I refer a friend?", answer: "Yes! Share your referral link from the dashboard. Both you and your friend get 500 bonus AI credits when they sign up.", category: "Students", order_index: 290, published: true },
-      { question: "Do you offer college partnerships?", answer: "Yes, we partner with colleges and universities to provide bulk access. Contact our enterprise sales team for custom pricing.", category: "Students", order_index: 300, published: true },
+      {
+        question: "Is Learnify suitable for beginners?",
+        answer:
+          "Absolutely! Our courses range from beginner to advanced. The AI Tutor adapts to your skill level and explains concepts at your pace.",
+        category: "Students",
+        order_index: 260,
+        published: true,
+      },
+      {
+        question: "How do I get verified as a student?",
+        answer:
+          "Upload your valid student ID or university email in Account Settings. Verification is processed within 24 hours.",
+        category: "Students",
+        order_index: 270,
+        published: true,
+      },
+      {
+        question: "Can I get a discount as a student?",
+        answer:
+          "Yes, verified students get 50% off on all premium plans. Complete student verification first, then the discount will be applied automatically.",
+        category: "Students",
+        order_index: 280,
+        published: true,
+      },
+      {
+        question: "Can I refer a friend?",
+        answer:
+          "Yes! Share your referral link from the dashboard. Both you and your friend get 500 bonus AI credits when they sign up.",
+        category: "Students",
+        order_index: 290,
+        published: true,
+      },
+      {
+        question: "Do you offer college partnerships?",
+        answer:
+          "Yes, we partner with colleges and universities to provide bulk access. Contact our enterprise sales team for custom pricing.",
+        category: "Students",
+        order_index: 300,
+        published: true,
+      },
     ];
     setSaving(true);
     try {
@@ -3324,7 +3657,11 @@ function FaqsManager() {
     <div className="space-y-4">
       <div className="flex justify-end gap-2">
         <Button size="sm" variant="outline" onClick={seedDefaultFaqs} disabled={saving}>
-          {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1.5" />}
+          {saving ? (
+            <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+          )}
           Seed Default FAQs
         </Button>
         <Button onClick={newFaq}>
@@ -4306,7 +4643,6 @@ function RoadmapManager() {
   );
 }
 
-
 // ─────────────────────────── Community Groups (Cohorts) ───────────────────────────
 
 type CohortRow = {
@@ -4747,42 +5083,74 @@ function PromoBannerManager() {
             <Label>Enable Banner</Label>
             <p className="text-xs text-muted-foreground">Show or hide the banner site-wide</p>
           </div>
-          <Switch checked={form.enabled} onCheckedChange={(v) => setForm({ ...form, enabled: v })} />
+          <Switch
+            checked={form.enabled}
+            onCheckedChange={(v) => setForm({ ...form, enabled: v })}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label>Headline</Label>
-            <Input value={form.headline} onChange={(e) => setForm({ ...form, headline: e.target.value })} placeholder="Launch Offer" />
+            <Input
+              value={form.headline}
+              onChange={(e) => setForm({ ...form, headline: e.target.value })}
+              placeholder="Launch Offer"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Discount Text</Label>
-            <Input value={form.discount} onChange={(e) => setForm({ ...form, discount: e.target.value })} placeholder="20% Off" />
+            <Input
+              value={form.discount}
+              onChange={(e) => setForm({ ...form, discount: e.target.value })}
+              placeholder="20% Off"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Subtitle</Label>
-            <Input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} placeholder="Limited Time" />
+            <Input
+              value={form.subtitle}
+              onChange={(e) => setForm({ ...form, subtitle: e.target.value })}
+              placeholder="Limited Time"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>CTA Text</Label>
-            <Input value={form.cta} onChange={(e) => setForm({ ...form, cta: e.target.value })} placeholder="Claim Now" />
+            <Input
+              value={form.cta}
+              onChange={(e) => setForm({ ...form, cta: e.target.value })}
+              placeholder="Claim Now"
+            />
           </div>
         </div>
 
         <div className="space-y-1.5">
           <Label>CTA Link</Label>
-          <Input value={form.ctaLink} onChange={(e) => setForm({ ...form, ctaLink: e.target.value })} placeholder="/pricing?coupon=LAUNCH20" />
+          <Input
+            value={form.ctaLink}
+            onChange={(e) => setForm({ ...form, ctaLink: e.target.value })}
+            placeholder="/pricing?coupon=LAUNCH20"
+          />
         </div>
 
         <div className="space-y-1.5">
           <Label>Timer End Date</Label>
-          <Input type="datetime-local" value={form.timerEndDate} onChange={(e) => setForm({ ...form, timerEndDate: e.target.value })} />
-          <p className="text-xs text-muted-foreground">Leave empty to use timerDays (default 7 days from now)</p>
+          <Input
+            type="datetime-local"
+            value={form.timerEndDate}
+            onChange={(e) => setForm({ ...form, timerEndDate: e.target.value })}
+          />
+          <p className="text-xs text-muted-foreground">
+            Leave empty to use timerDays (default 7 days from now)
+          </p>
         </div>
 
         <div className="space-y-1.5">
           <Label>Background Gradient</Label>
-          <Select value={form.bgGradient} onValueChange={(v) => setForm({ ...form, bgGradient: v })}>
+          <Select
+            value={form.bgGradient}
+            onValueChange={(v) => setForm({ ...form, bgGradient: v })}
+          >
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -4802,7 +5170,10 @@ function PromoBannerManager() {
             <Label>Dismissible</Label>
             <p className="text-xs text-muted-foreground">Allow users to close the banner</p>
           </div>
-          <Switch checked={form.dismissible} onCheckedChange={(v) => setForm({ ...form, dismissible: v })} />
+          <Switch
+            checked={form.dismissible}
+            onCheckedChange={(v) => setForm({ ...form, dismissible: v })}
+          />
         </div>
       </div>
 

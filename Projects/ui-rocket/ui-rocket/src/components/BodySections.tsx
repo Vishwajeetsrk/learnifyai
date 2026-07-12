@@ -1,30 +1,30 @@
-import { FadeUp } from './FadeUp';
-import { MIcon } from './MIcon';
-import { PrimaryButton } from './PrimaryButton';
-import { scrollToSection } from '../lib/scroll';
+import { FadeUp } from "./FadeUp";
+import { MIcon } from "./MIcon";
+import { PrimaryButton } from "./PrimaryButton";
+import { scrollToSection } from "../lib/scroll";
 
 const FEATURES = [
   {
-    icon: 'auto_fix_high',
-    title: 'Prompt to pixels',
-    body: 'Describe screens in plain language and get editable React + Tailwind output.',
+    icon: "auto_fix_high",
+    title: "Prompt to pixels",
+    body: "Describe screens in plain language and get editable React + Tailwind output.",
   },
   {
-    icon: 'layers',
-    title: 'Live preview',
-    body: 'Watch layouts update in real time with crossfaded preview video.',
+    icon: "layers",
+    title: "Live preview",
+    body: "Watch layouts update in real time with crossfaded preview video.",
   },
   {
-    icon: 'palette',
-    title: 'Glass system',
-    body: 'Liquid-glass components, serif display type, and motion presets included.',
+    icon: "palette",
+    title: "Glass system",
+    body: "Liquid-glass components, serif display type, and motion presets included.",
   },
 ];
 
 const PLANS = [
-  { name: 'Starter', price: '$0', detail: '3 projects, community support' },
-  { name: 'Pro', price: '$29', detail: 'Unlimited exports, priority render' },
-  { name: 'Team', price: '$79', detail: 'Shared libraries, SSO, audit logs' },
+  { name: "Starter", price: "$0", detail: "3 projects, community support" },
+  { name: "Pro", price: "$29", detail: "Unlimited exports, priority render" },
+  { name: "Team", price: "$79", detail: "Shared libraries, SSO, audit logs" },
 ];
 
 export function BodySections() {
@@ -33,15 +33,18 @@ export function BodySections() {
       <section id="about" className="scroll-mt-24 border-t border-white/10 px-6 py-24 md:px-12">
         <div className="mx-auto max-w-3xl text-center">
           <FadeUp>
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-300/80" data-editable>
+            <p
+              className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-300/80"
+              data-editable
+            >
               About
             </p>
             <h2 className="mt-4 font-serif text-3xl text-white sm:text-4xl" data-editable>
               Built for product teams who ship fast
             </h2>
             <p className="mt-4 text-base leading-relaxed text-white/55" data-editable>
-              UI Rocket combines generative layout, design tokens, and scroll-native motion so you can
-              go from idea to landing page without leaving the canvas.
+              UI Rocket combines generative layout, design tokens, and scroll-native motion so you
+              can go from idea to landing page without leaving the canvas.
             </p>
           </FadeUp>
         </div>
@@ -50,7 +53,10 @@ export function BodySections() {
       <section id="features" className="scroll-mt-24 border-t border-white/10 px-6 py-24 md:px-12">
         <div className="mx-auto max-w-5xl">
           <FadeUp className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-300/80" data-editable>
+            <p
+              className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-300/80"
+              data-editable
+            >
               Features
             </p>
             <h2 className="mt-4 font-serif text-3xl text-white sm:text-4xl" data-editable>
@@ -75,10 +81,16 @@ export function BodySections() {
         </div>
       </section>
 
-      <section id="pricing" className="scroll-mt-24 border-t border-white/10 px-6 py-24 md:px-12 pb-32">
+      <section
+        id="pricing"
+        className="scroll-mt-24 border-t border-white/10 px-6 py-24 md:px-12 pb-32"
+      >
         <div className="mx-auto max-w-4xl">
           <FadeUp className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-300/80" data-editable>
+            <p
+              className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-300/80"
+              data-editable
+            >
               Pricing
             </p>
             <h2 className="mt-4 font-serif text-3xl text-white sm:text-4xl" data-editable>
@@ -98,7 +110,7 @@ export function BodySections() {
                   <p className="mt-2 flex-1 text-sm text-white/55" data-editable>
                     {plan.detail}
                   </p>
-                  <PrimaryButton className="mt-6 w-full" onClick={() => scrollToSection('pricing')}>
+                  <PrimaryButton className="mt-6 w-full" onClick={() => scrollToSection("pricing")}>
                     Choose {plan.name}
                   </PrimaryButton>
                 </article>

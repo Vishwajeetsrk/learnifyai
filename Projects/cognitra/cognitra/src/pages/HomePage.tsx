@@ -1,10 +1,10 @@
-import { HeroSection } from '../components/HeroSection';
-import { ServicesSection } from '../components/ServicesSection';
-import { StatementSection } from '../components/StatementSection';
-import { CasePage } from './CasePage';
-import { ConnectPage } from './ConnectPage';
-import { CrewPage } from './CrewPage';
-import { RatesPage } from './RatesPage';
+import { HeroSection } from "../components/HeroSection";
+import { ServicesSection } from "../components/ServicesSection";
+import { StatementSection } from "../components/StatementSection";
+import { CasePage } from "./CasePage";
+import { ConnectPage } from "./ConnectPage";
+import { CrewPage } from "./CrewPage";
+import { RatesPage } from "./RatesPage";
 
 /** Single-scroll home with embedded section previews for hash anchors */
 export function HomePage() {

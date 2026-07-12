@@ -107,11 +107,14 @@ function ApplyCoachPage() {
             <CardHeader>
               <div className="flex items-center gap-2 text-primary">
                 <Compass className="h-5 w-5" />
-                <span className="text-xs font-semibold uppercase tracking-wider">Coach Program</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">
+                  Coach Program
+                </span>
               </div>
               <CardTitle className="text-2xl">Apply to Become a Coach</CardTitle>
               <CardDescription>
-                Share your expertise, host 1-on-1 mentorship sessions, and earn directly on Learnify AI.
+                Share your expertise, host 1-on-1 mentorship sessions, and earn directly on Learnify
+                AI.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -124,10 +127,17 @@ function ApplyCoachPage() {
                   >
                     {photoPreview ? (
                       <>
-                        <img src={photoPreview} alt="Profile" className="h-full w-full object-cover" />
+                        <img
+                          src={photoPreview}
+                          alt="Profile"
+                          className="h-full w-full object-cover"
+                        />
                         <button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); setPhotoPreview(null); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPhotoPreview(null);
+                          }}
                           className="absolute top-0 right-0 h-5 w-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center"
                         >
                           <X className="h-3 w-3" />
@@ -170,7 +180,13 @@ function ApplyCoachPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" required value={form.email} onChange={(e) => update("email", e.target.value)} />
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      value={form.email}
+                      onChange={(e) => update("email", e.target.value)}
+                    />
                   </div>
                 </div>
 
@@ -253,7 +269,11 @@ function ApplyCoachPage() {
                 </div>
 
                 <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Send className="h-4 w-4 mr-2" />
+                  )}
                   Submit Coach Application
                 </Button>
               </form>

@@ -1,7 +1,7 @@
-import { Globe, Linkedin, MapPin, Play, Twitter, Youtube } from 'lucide-react';
-import { AVATAR_URLS, HERO_HEADLINE } from '../constants';
-import { FadeDown } from './FadeDown';
-import { StaggeredFade } from './StaggeredFade';
+import { Globe, Linkedin, MapPin, Play, Twitter, Youtube } from "lucide-react";
+import { AVATAR_URLS, HERO_HEADLINE } from "../constants";
+import { FadeDown } from "./FadeDown";
+import { StaggeredFade } from "./StaggeredFade";
 
 export function HeroSection() {
   return (
@@ -20,8 +20,8 @@ export function HeroSection() {
 
       <FadeDown delay={0.75} className="mt-6 max-w-xl">
         <p className="text-base leading-relaxed text-heading/70 md:text-lg">
-          Deploy community-scale renewable systems with real-time monitoring and
-          transparent impact reporting.
+          Deploy community-scale renewable systems with real-time monitoring and transparent impact
+          reporting.
         </p>
       </FadeDown>
 

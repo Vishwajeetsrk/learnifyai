@@ -1,4 +1,4 @@
-import { JOURNAL_ENTRIES } from '../constants';
+import { JOURNAL_ENTRIES } from "../constants";
 
 export function JournalSection() {
   return (

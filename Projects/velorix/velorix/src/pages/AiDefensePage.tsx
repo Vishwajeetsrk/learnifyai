@@ -1,4 +1,4 @@
-import InnerPageLayout from '../components/InnerPageLayout';
+import InnerPageLayout from "../components/InnerPageLayout";
 
 export default function AiDefensePage() {
   return (

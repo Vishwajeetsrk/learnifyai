@@ -1,8 +1,8 @@
-import { Pause, Play } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { HERO_IMAGE, HERO_VIDEOS } from '../constants';
-import { useInView } from '../hooks/useInView';
+import { Pause, Play } from "lucide-react";
+import { useEffect, useState } from "react";
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { HERO_IMAGE, HERO_VIDEOS } from "../constants";
+import { useInView } from "../hooks/useInView";
 
 function WavyUnderline() {
   return (
@@ -39,16 +39,12 @@ export function HeroSection() {
       className="relative flex min-h-screen scroll-mt-0 flex-col lg:flex-row"
     >
       <div className="relative min-h-[60vh] w-full lg:min-h-0 lg:w-1/2">
-        <img
-          src={HERO_IMAGE}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+        <img src={HERO_IMAGE} alt="" className="absolute inset-0 h-full w-full object-cover" />
         <div className="absolute inset-0 bg-black/30" aria-hidden />
 
         <div
           className={`relative z-10 flex h-full min-h-[60vh] flex-col justify-end px-6 pb-16 pt-32 sm:px-10 lg:min-h-0 lg:pb-20 lg:pt-40 ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+            isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           } transition-all duration-1000`}
         >
           <h1 className="mb-6 text-4xl font-light leading-[1.05] text-white sm:text-5xl md:text-6xl lg:text-[clamp(3.5rem,5vw,6rem)]">
@@ -62,8 +58,11 @@ export function HeroSection() {
           <p className="mb-10 max-w-md text-sm text-white/80 md:text-base">
             Committed to sustainable beauty and minimize our impact on the planet.
           </p>
-          <PresetNavLink target={{ kind: 'route', path: 'about' }}>
-            <button type="button" className="btn-primary rounded-full bg-white px-10 py-4 text-sm text-black">
+          <PresetNavLink target={{ kind: "route", path: "about" }}>
+            <button
+              type="button"
+              className="btn-primary rounded-full bg-white px-10 py-4 text-sm text-black"
+            >
               about us
             </button>
           </PresetNavLink>
@@ -80,7 +79,7 @@ export function HeroSection() {
             muted
             playsInline
             className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-              index === activeSlide ? 'opacity-100' : 'opacity-0'
+              index === activeSlide ? "opacity-100" : "opacity-0"
             }`}
           />
         ))}
@@ -93,7 +92,7 @@ export function HeroSection() {
                 type="button"
                 aria-label={`Go to slide ${index + 1}`}
                 className={`h-2 w-2 rounded-full transition-all ${
-                  index === activeSlide ? 'scale-125 bg-white' : 'bg-white/50'
+                  index === activeSlide ? "scale-125 bg-white" : "bg-white/50"
                 }`}
                 onClick={() => setActiveSlide(index)}
               />
@@ -101,7 +100,7 @@ export function HeroSection() {
           </div>
           <button
             type="button"
-            aria-label={playing ? 'Pause slideshow' : 'Play slideshow'}
+            aria-label={playing ? "Pause slideshow" : "Play slideshow"}
             className="flex h-8 w-8 items-center justify-center rounded-full border border-white/50 text-white"
             onClick={() => setPlaying((p) => !p)}
           >

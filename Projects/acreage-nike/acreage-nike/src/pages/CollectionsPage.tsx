@@ -1,9 +1,9 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 const COLLECTIONS = [
-  { name: 'Performance', count: '12 silhouettes', tone: 'Elite training & court' },
-  { name: 'Urban', count: '8 silhouettes', tone: 'City exploration' },
-  { name: 'Trail', count: '6 silhouettes', tone: 'Light off-road' },
+  { name: "Performance", count: "12 silhouettes", tone: "Elite training & court" },
+  { name: "Urban", count: "8 silhouettes", tone: "City exploration" },
+  { name: "Trail", count: "6 silhouettes", tone: "Light off-road" },
 ];
 
 export function CollectionsPage() {

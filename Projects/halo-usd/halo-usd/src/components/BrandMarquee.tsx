@@ -1,4 +1,4 @@
-import type { BrandStyle } from '../constants';
+import type { BrandStyle } from "../constants";
 
 type BrandMarqueeProps = {
   brands: BrandStyle[];
@@ -10,8 +10,8 @@ type BrandMarqueeProps = {
 export default function BrandMarquee({
   brands,
   trackClass,
-  itemSpacing = 'mx-7',
-  itemClassName = 'text-black/60',
+  itemSpacing = "mx-7",
+  itemClassName = "text-black/60",
 }: BrandMarqueeProps) {
   const items = brands.map((brand) => (
     <span
@@ -23,10 +23,10 @@ export default function BrandMarquee({
         letterSpacing: brand.letterSpacing,
         fontSize: brand.fontSize,
         fontStyle: brand.fontStyle,
-        textTransform: brand.textTransform as React.CSSProperties['textTransform'],
+        textTransform: brand.textTransform as React.CSSProperties["textTransform"],
       }}
       data-editable
-      data-preset-text={`brand-${brand.name.toLowerCase().replace(/\s+/g, '-')}`}
+      data-preset-text={`brand-${brand.name.toLowerCase().replace(/\s+/g, "-")}`}
     >
       {brand.name}
     </span>

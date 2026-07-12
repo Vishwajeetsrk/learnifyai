@@ -1,6 +1,6 @@
-import { linkToSectionId, scrollToSection, sectionHref } from '../lib/scroll';
+import { linkToSectionId, scrollToSection, sectionHref } from "../lib/scroll";
 
-const FOOTER_LINKS = ['Privacy', 'Terms'] as const;
+const FOOTER_LINKS = ["Privacy", "Terms"] as const;
 
 export function SiteFooter() {
   return (

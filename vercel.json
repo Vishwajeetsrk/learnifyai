@@ -50,7 +50,9 @@
     },
     {
       "source": "/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "s-maxage=60, stale-while-revalidate=300" }]
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, s-maxage=0, stale-while-revalidate=10" }
+      ]
     },
     {
       "source": "/favicon.ico",

@@ -1,12 +1,12 @@
-import { Bath, Bed, Layers, Square } from 'lucide-react';
-import type { PropertyListing } from '../constants';
+import { Bath, Bed, Layers, Square } from "lucide-react";
+import type { PropertyListing } from "../constants";
 
 export function PropertyCard({ property }: { property: PropertyListing }) {
   const stats = [
     { icon: Square, label: `${property.area} m²` },
-    { icon: Layers, label: `${property.floors} floor${property.floors > 1 ? 's' : ''}` },
+    { icon: Layers, label: `${property.floors} floor${property.floors > 1 ? "s" : ""}` },
     { icon: Bed, label: `${property.beds} beds` },
-    { icon: Bath, label: `${property.baths} bath${property.baths > 1 ? 's' : ''}` },
+    { icon: Bath, label: `${property.baths} bath${property.baths > 1 ? "s" : ""}` },
   ];
 
   return (
@@ -32,7 +32,10 @@ export function PropertyCard({ property }: { property: PropertyListing }) {
         </p>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           {stats.map(({ icon: Icon, label }) => (
-            <span key={label} className="flex items-center gap-1.5 text-[11px] font-medium text-[#141414]">
+            <span
+              key={label}
+              className="flex items-center gap-1.5 text-[11px] font-medium text-[#141414]"
+            >
               <Icon className="size-[13px] text-[#A5A5A5]" strokeWidth={2.5} />
               {label}
             </span>

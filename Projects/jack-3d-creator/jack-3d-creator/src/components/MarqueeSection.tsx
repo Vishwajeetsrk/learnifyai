@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { MARQUEE_GIFS } from '../constants';
+import { useEffect, useRef, useState } from "react";
+import { MARQUEE_GIFS } from "../constants";
 
 const ROW1 = MARQUEE_GIFS.slice(0, 11);
 const ROW2 = MARQUEE_GIFS.slice(11);
@@ -10,19 +10,18 @@ function MarqueeRow({
   offset,
 }: {
   images: readonly string[];
-  direction: 'left' | 'right';
+  direction: "left" | "right";
   offset: number;
 }) {
   const tripled = [...images, ...images, ...images];
-  const translate =
-    direction === 'right' ? offset - 200 : -(offset - 200);
+  const translate = direction === "right" ? offset - 200 : -(offset - 200);
 
   return (
     <div
       className="flex gap-3"
       style={{
         transform: `translateX(${translate}px)`,
-        willChange: 'transform',
+        willChange: "transform",
       }}
     >
       {tripled.map((src, i) => (
@@ -53,16 +52,12 @@ export function MarqueeSection() {
     };
 
     onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <section
-      id="marquee"
-      ref={sectionRef}
-      className="bg-canvas pb-10 pt-24 sm:pt-32 md:pt-40"
-    >
+    <section id="marquee" ref={sectionRef} className="bg-canvas pb-10 pt-24 sm:pt-32 md:pt-40">
       <div className="flex flex-col gap-3 overflow-hidden">
         <MarqueeRow images={ROW1} direction="right" offset={offset} />
         <MarqueeRow images={ROW2} direction="left" offset={offset} />

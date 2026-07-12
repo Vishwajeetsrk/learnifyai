@@ -1,5 +1,5 @@
-import { HeroSection } from '../components/HeroSection';
-import { PresetSiteSections } from '../../../_shared/components/PresetSiteSections';
+import { HeroSection } from "../components/HeroSection";
+import { PresetSiteSections } from "../../../_shared/components/PresetSiteSections";
 
 export function HomePage() {
   return (

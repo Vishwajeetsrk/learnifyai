@@ -1,9 +1,26 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Shield, GraduationCap, Menu, Settings as SettingsIcon,
-  Wallet as WalletIcon, Clapperboard, Wand2, ShoppingCart, Award, BarChart3,
-  Users, Compass, Trophy, Sparkles, CreditCard, PieChart, FolderOpen,
-  Briefcase, X, ChevronRight,
+  LayoutDashboard,
+  Shield,
+  GraduationCap,
+  Menu,
+  Settings as SettingsIcon,
+  Wallet as WalletIcon,
+  Clapperboard,
+  Wand2,
+  ShoppingCart,
+  Award,
+  BarChart3,
+  Users,
+  Compass,
+  Trophy,
+  Sparkles,
+  CreditCard,
+  PieChart,
+  FolderOpen,
+  Briefcase,
+  X,
+  ChevronRight,
 } from "lucide-react";
 import { useState, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -34,13 +51,37 @@ interface NavItem {
 
 const nav: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, section: "main" },
-  { to: "/courses", label: "Courses", icon: GraduationCap, featureKey: "course_builder", section: "main" },
+  {
+    to: "/courses",
+    label: "Courses",
+    icon: GraduationCap,
+    featureKey: "course_builder",
+    section: "main",
+  },
   { to: "/ai", label: "AI Tutor", icon: Sparkles, featureKey: "ai_tools", section: "main" },
-  { to: "/career-studio", label: "Career Studio", icon: Briefcase, featureKey: "ai_tools", section: "main" },
-  { to: "/community-hub", label: "Community", icon: Users, featureKey: "community", section: "main" },
+  {
+    to: "/career-studio",
+    label: "Career Studio",
+    icon: Briefcase,
+    featureKey: "ai_tools",
+    section: "main",
+  },
+  {
+    to: "/community-hub",
+    label: "Community",
+    icon: Users,
+    featureKey: "community",
+    section: "main",
+  },
   { to: "/coaching", label: "Coaching", icon: Compass, featureKey: "coaching", section: "main" },
   { to: "/ai-tools", label: "AI Tools", icon: Wand2, featureKey: "ai_tools", section: "main" },
-  { to: "/certificates", label: "Certificates", icon: Award, featureKey: "certificates", section: "main" },
+  {
+    to: "/certificates",
+    label: "Certificates",
+    icon: Award,
+    featureKey: "certificates",
+    section: "main",
+  },
   { to: "/projects", label: "Template Mastery", icon: FolderOpen, section: "main" },
   { to: "/store", label: "XP Store", icon: ShoppingCart, section: "main" },
   { to: "/cart", label: "Cart", icon: ShoppingCart, section: "main" },
@@ -49,7 +90,13 @@ const nav: NavItem[] = [
   { to: "/creator", label: "Creator", icon: BarChart3, creatorOnly: true, section: "creator" },
   { to: "/studio", label: "Studio", icon: Clapperboard, creatorOnly: true, section: "creator" },
   { to: "/admin", label: "Admin", icon: Shield, adminOnly: true, section: "admin" },
-  { to: "/admin/subscriptions", label: "Subscriptions", icon: PieChart, adminOnly: true, section: "admin" },
+  {
+    to: "/admin/subscriptions",
+    label: "Subscriptions",
+    icon: PieChart,
+    adminOnly: true,
+    section: "admin",
+  },
   { to: "/admin/billing", label: "Billing OS", icon: BarChart3, adminOnly: true, section: "admin" },
 ];
 
@@ -138,7 +185,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   };
 
-  const NavSection = ({ title, items, onClick }: { title?: string; items: NavItem[]; onClick?: () => void }) => {
+  const NavSection = ({
+    title,
+    items,
+    onClick,
+  }: {
+    title?: string;
+    items: NavItem[];
+    onClick?: () => void;
+  }) => {
     if (items.length === 0) return null;
     return (
       <div className="space-y-1">
@@ -205,7 +260,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <Logo height="h-7" />
         </Link>
         <div className="flex-1" />
-        {cartCount.data ?? 0 > 0 ? (
+        {(cartCount.data ?? 0 > 0) ? (
           <Link to="/cart" className="relative">
             <ShoppingCart className="h-5 w-5 text-muted-foreground" />
             <span className="absolute -top-1.5 -right-1.5 text-[9px] bg-primary text-primary-foreground rounded-full min-w-[16px] h-4 flex items-center justify-center font-semibold">
@@ -230,9 +285,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 to={item.to}
                 className={cn(
                   "flex flex-col items-center justify-center gap-0.5 w-14 py-1 rounded-xl transition-all",
-                  active
-                    ? "text-primary"
-                    : "text-muted-foreground active:text-foreground",
+                  active ? "text-primary" : "text-muted-foreground active:text-foreground",
                 )}
               >
                 <Icon className="h-5 w-5" strokeWidth={active ? 2.5 : 2} />

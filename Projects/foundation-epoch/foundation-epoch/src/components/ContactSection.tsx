@@ -1,7 +1,7 @@
-import { motion } from 'motion/react';
-import { Mail, MessageSquare } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
-import { cn } from '../lib/utils';
+import { motion } from "motion/react";
+import { Mail, MessageSquare } from "lucide-react";
+import { type FormEvent, useState } from "react";
+import { cn } from "../lib/utils";
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
@@ -21,14 +21,14 @@ export function ContactSection() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
+            viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5 }}
           >
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500">Contact</p>
             <h2
               className={cn(
-                'mt-3 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight',
-                'text-gray-900 md:text-4xl',
+                "mt-3 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight",
+                "text-gray-900 md:text-4xl",
               )}
             >
               Start your epoch with us
@@ -55,12 +55,10 @@ export function ContactSection() {
           <motion.form
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-40px' }}
+            viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.45 }}
             onSubmit={handleSubmit}
-            className={cn(
-              'rounded-3xl border border-gray-200 bg-[#f9fafb] p-6 md:p-8',
-            )}
+            className={cn("rounded-3xl border border-gray-200 bg-[#f9fafb] p-6 md:p-8")}
           >
             {submitted ? (
               <p className="py-8 text-center text-sm font-medium text-gray-800">
@@ -76,8 +74,8 @@ export function ContactSection() {
                     name="email"
                     placeholder="you@company.com"
                     className={cn(
-                      'mt-2 w-full rounded-xl border border-gray-200 bg-white px-4 py-3',
-                      'text-sm outline-none ring-gray-900/10 focus:ring-2',
+                      "mt-2 w-full rounded-xl border border-gray-200 bg-white px-4 py-3",
+                      "text-sm outline-none ring-gray-900/10 focus:ring-2",
                     )}
                   />
                 </label>
@@ -89,16 +87,16 @@ export function ContactSection() {
                     rows={4}
                     placeholder="What are you building?"
                     className={cn(
-                      'mt-2 w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3',
-                      'text-sm outline-none ring-gray-900/10 focus:ring-2',
+                      "mt-2 w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3",
+                      "text-sm outline-none ring-gray-900/10 focus:ring-2",
                     )}
                   />
                 </label>
                 <button
                   type="submit"
                   className={cn(
-                    'mt-6 w-full rounded-full bg-gray-900 py-3.5 text-sm font-semibold text-white',
-                    'transition hover:bg-gray-800',
+                    "mt-6 w-full rounded-full bg-gray-900 py-3.5 text-sm font-semibold text-white",
+                    "transition hover:bg-gray-800",
                   )}
                 >
                   Send message

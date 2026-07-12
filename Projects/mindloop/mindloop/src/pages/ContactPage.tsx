@@ -1,5 +1,5 @@
-import CtaSection from '../components/CtaSection';
-import Footer from '../components/Footer';
+import CtaSection from "../components/CtaSection";
+import Footer from "../components/Footer";
 
 export function ContactPage() {
   return (

@@ -79,11 +79,21 @@ export function CaptionPanel({
   };
 
   return (
-    <div className="flex flex-col bg-background border-l border-border" role="dialog" aria-label="Caption settings">
+    <div
+      className="flex flex-col bg-background border-l border-border"
+      role="dialog"
+      aria-label="Caption settings"
+    >
       {/* Header */}
       <div className="flex items-center justify-between p-3 border-b border-border">
         <h3 className="font-semibold text-sm">Subtitles / CC</h3>
-        <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={onClose} aria-label="Close subtitles panel">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-7 w-7 p-0"
+          onClick={onClose}
+          aria-label="Close subtitles panel"
+        >
           <X className="h-3.5 w-3.5" />
         </Button>
       </div>
@@ -111,7 +121,11 @@ export function CaptionPanel({
       </div>
 
       {/* Track list */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1" role="listbox" aria-label="Subtitle tracks">
+      <div
+        className="flex-1 overflow-y-auto p-2 space-y-1"
+        role="listbox"
+        aria-label="Subtitle tracks"
+      >
         {/* Off option */}
         <button
           onClick={() => onSelectTrack(null)}
@@ -148,9 +162,7 @@ export function CaptionPanel({
                   {track.label}
                   {lang && ` (${lang.label})`}
                 </span>
-                <span className="text-[10px] opacity-50 ml-auto">
-                  {track.cues.length} cues
-                </span>
+                <span className="text-[10px] opacity-50 ml-auto">{track.cues.length} cues</span>
               </button>
               <Button
                 variant="ghost"

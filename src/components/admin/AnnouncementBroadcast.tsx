@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -29,7 +35,14 @@ export function AnnouncementBroadcast() {
     setSending(true);
     setResult(null);
     try {
-      const res = await sendFn({ data: { title: title.trim(), body: body.trim(), type: type as any, targetRole: targetRole as any } });
+      const res = await sendFn({
+        data: {
+          title: title.trim(),
+          body: body.trim(),
+          type: type as any,
+          targetRole: targetRole as any,
+        },
+      });
       if (res.success) {
         setResult({ notifiedCount: res.notifiedCount ?? 0, totalTarget: res.totalTarget ?? 0 });
         toast.success(`Announcement sent to ${res.notifiedCount} users!`);
@@ -57,7 +70,9 @@ export function AnnouncementBroadcast() {
         </div>
         <div>
           <h3 className="font-bold text-lg">Announcement Broadcast</h3>
-          <p className="text-xs text-muted-foreground">Send in-app notifications to all users or filtered groups</p>
+          <p className="text-xs text-muted-foreground">
+            Send in-app notifications to all users or filtered groups
+          </p>
         </div>
       </div>
 
@@ -109,7 +124,9 @@ export function AnnouncementBroadcast() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">
-                  <div className="flex items-center gap-2"><Globe className="h-3.5 w-3.5" /> All Users</div>
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-3.5 w-3.5" /> All Users
+                  </div>
                 </SelectItem>
                 <SelectItem value="students">Students</SelectItem>
                 <SelectItem value="creators">Creators</SelectItem>
@@ -120,11 +137,17 @@ export function AnnouncementBroadcast() {
         </div>
 
         <div className="flex gap-2 pt-2">
-          <Button onClick={handleSend} disabled={sending || !title.trim() || !body.trim()} className="gap-2">
+          <Button
+            onClick={handleSend}
+            disabled={sending || !title.trim() || !body.trim()}
+            className="gap-2"
+          >
             {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             {sending ? "Sending..." : "Send Announcement"}
           </Button>
-          <Button variant="outline" onClick={handleReset} disabled={sending}>Reset</Button>
+          <Button variant="outline" onClick={handleReset} disabled={sending}>
+            Reset
+          </Button>
         </div>
       </Card>
 
@@ -133,9 +156,12 @@ export function AnnouncementBroadcast() {
           <div className="flex items-center gap-3">
             <Users className="h-5 w-5 text-emerald-600" />
             <div>
-              <p className="font-bold text-sm text-emerald-700 dark:text-emerald-300">Announcement sent successfully!</p>
+              <p className="font-bold text-sm text-emerald-700 dark:text-emerald-300">
+                Announcement sent successfully!
+              </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Notified <strong>{result.notifiedCount}</strong> of <strong>{result.totalTarget}</strong> target users
+                Notified <strong>{result.notifiedCount}</strong> of{" "}
+                <strong>{result.totalTarget}</strong> target users
               </p>
             </div>
           </div>

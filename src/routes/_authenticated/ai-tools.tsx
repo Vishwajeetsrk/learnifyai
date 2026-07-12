@@ -20,6 +20,7 @@ import {
   Eye,
   GitFork,
   Save,
+  FileText,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -50,6 +51,7 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { runAiTool } from "@/lib/ai-tools.functions";
+import { CheatSheetRenderer, type CheatSheetData } from "@/components/cheat-sheet/CheatSheetGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -58,7 +60,7 @@ export const Route = createFileRoute("/_authenticated/ai-tools")({
   component: AIToolsPage,
 });
 
-type ToolId = "quiz" | "doubt" | "career" | "reminder" | "synth" | "flashcards";
+type ToolId = "quiz" | "doubt" | "career" | "reminder" | "synth" | "flashcards" | "cheatsheet";
 
 const TOOLS: {
   id: ToolId;
@@ -108,6 +110,13 @@ const TOOLS: {
     tagline: "Active-recall cards on any topic.",
     icon: Layers,
     gradient: "from-teal-500/15 to-lime-500/10",
+  },
+  {
+    id: "cheatsheet",
+    title: "Cheat Sheet",
+    tagline: "Generate topic summaries with key points, comparisons, and quizzes.",
+    icon: FileText,
+    gradient: "from-violet-500/15 to-indigo-500/10",
   },
 ];
 
@@ -529,9 +538,10 @@ function ForkDialog({
 function ToolDialog({ tool, onClose }: { tool: ToolId; onClose: () => void }) {
   const meta = TOOLS.find((t) => t.id === tool)!;
   const Icon = meta.icon;
+  const isCheatsheet = tool === "cheatsheet";
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className={cn("max-h-[90vh] overflow-y-auto", isCheatsheet ? "max-w-5xl" : "max-w-3xl")}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Icon className="h-5 w-5 text-primary" /> {meta.title}
@@ -545,6 +555,7 @@ function ToolDialog({ tool, onClose }: { tool: ToolId; onClose: () => void }) {
         {tool === "reminder" && <ReminderTool />}
         {tool === "synth" && <SynthTool />}
         {tool === "flashcards" && <FlashcardsTool />}
+        {tool === "cheatsheet" && <CheatSheetTool />}
 
         <DialogFooter>
           <Button variant="ghost" onClick={onClose}>
@@ -950,8 +961,8 @@ function SynthTool() {
 }
 
 /* ---------------- Flashcards ---------------- */
-type Card = { 
-  front: string; 
+type Card = {
+  front: string;
   back: string;
   interval?: number;
   repetition?: number;
@@ -1014,11 +1025,16 @@ function FlashcardsTool() {
     const saved = localStorage.getItem("learnify_sm2_deck");
     let allCards = [];
     if (saved) {
-      try { allCards = JSON.parse(saved); } catch (e) {}
+      try {
+        allCards = JSON.parse(saved);
+      } catch (e) {}
     }
     // Merge updated cards by replacing them or appending them
     // For simplicity in this demo, we'll just save all current generated cards to the SM-2 deck.
-    const merged = [...allCards, ...updatedCards.filter(c => !allCards.find((ac: Card) => ac.front === c.front))];
+    const merged = [
+      ...allCards,
+      ...updatedCards.filter((c) => !allCards.find((ac: Card) => ac.front === c.front)),
+    ];
     localStorage.setItem("learnify_sm2_deck", JSON.stringify(merged));
   };
 
@@ -1030,7 +1046,7 @@ function FlashcardsTool() {
       JSON.parse(r.json),
     );
     if (res?.cards) {
-      const initialized = res.cards.map(c => ({
+      const initialized = res.cards.map((c) => ({
         ...c,
         interval: 0,
         repetition: 0,
@@ -1048,7 +1064,7 @@ function FlashcardsTool() {
       quality,
       currentCard.repetition || 0,
       currentCard.efactor || 2.5,
-      currentCard.interval || 0
+      currentCard.interval || 0,
     );
 
     const updatedCard = {
@@ -1062,13 +1078,13 @@ function FlashcardsTool() {
     const newCards = [...cards];
     newCards[idx] = updatedCard;
     setCards(newCards);
-    
+
     // Update local storage master deck
     const saved = localStorage.getItem("learnify_sm2_deck");
     if (saved) {
       try {
         const allCards = JSON.parse(saved);
-        const mapped = allCards.map((c: Card) => c.front === updatedCard.front ? updatedCard : c);
+        const mapped = allCards.map((c: Card) => (c.front === updatedCard.front ? updatedCard : c));
         localStorage.setItem("learnify_sm2_deck", JSON.stringify(mapped));
       } catch (e) {}
     }
@@ -1099,14 +1115,22 @@ function FlashcardsTool() {
         />
       </div>
       <Button onClick={generate} disabled={loading} className="w-full">
-        {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Layers className="h-4 w-4 mr-2" />}
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+        ) : (
+          <Layers className="h-4 w-4 mr-2" />
+        )}
         Generate New Flashcards
       </Button>
       {current && (
         <div className="space-y-3">
           <div className="text-xs text-muted-foreground flex justify-between">
-            <span>Card {idx + 1} / {cards!.length}</span>
-            <Badge variant="secondary" className="text-[9px]">SM-2 Active</Badge>
+            <span>
+              Card {idx + 1} / {cards!.length}
+            </span>
+            <Badge variant="secondary" className="text-[9px]">
+              SM-2 Active
+            </Badge>
           </div>
           <button
             onClick={() => setFlipped((f) => !f)}
@@ -1119,18 +1143,134 @@ function FlashcardsTool() {
               <p className="text-base font-medium">{flipped ? current.back : current.front}</p>
             </div>
           </button>
-          
+
           {flipped ? (
             <div className="grid grid-cols-3 gap-2">
-              <Button size="sm" variant="destructive" className="bg-red-500/20 text-red-600 hover:bg-red-500/30" onClick={() => rateCard(2)}>Hard</Button>
-              <Button size="sm" variant="outline" className="border-blue-500/30 text-blue-600 hover:bg-blue-500/10" onClick={() => rateCard(4)}>Good</Button>
-              <Button size="sm" variant="outline" className="border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10" onClick={() => rateCard(5)}>Easy</Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="bg-red-500/20 text-red-600 hover:bg-red-500/30"
+                onClick={() => rateCard(2)}
+              >
+                Hard
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-blue-500/30 text-blue-600 hover:bg-blue-500/10"
+                onClick={() => rateCard(4)}
+              >
+                Good
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
+                onClick={() => rateCard(5)}
+              >
+                Easy
+              </Button>
             </div>
           ) : (
-            <Button className="w-full" variant="secondary" onClick={() => setFlipped(true)}>Show Answer</Button>
+            <Button className="w-full" variant="secondary" onClick={() => setFlipped(true)}>
+              Show Answer
+            </Button>
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function CheatSheetTool() {
+  const [topic, setTopic] = useState("");
+  const [level, setLevel] = useState<"beginner" | "advanced">("beginner");
+  const [data, setData] = useState<CheatSheetData | null>(null);
+  const [rawJson, setRawJson] = useState("");
+  const { loading, run } = useTool();
+
+  const generate = async () => {
+    if (!topic.trim()) return toast.error("Enter a topic");
+    const res = await run<CheatSheetData>(
+      { action: "cheatsheet", topic: topic.trim(), level },
+      (r) => {
+        const parsed = JSON.parse(r.json);
+        return parsed;
+      },
+    );
+    if (res) {
+      setData(res);
+      setRawJson(JSON.stringify(res, null, 2));
+    }
+  };
+
+  if (data) {
+    return (
+      <CheatSheetRenderer
+        data={data}
+        rawJson={rawJson}
+        onReset={() => {
+          setData(null);
+          setRawJson("");
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-4 py-2">
+      <p className="text-sm text-muted-foreground">
+        Enter any topic — HTML, Firebase, React, Docker, SQL — and get a fully structured cheat sheet
+        with quick reference, comparison tables, gotchas, and interview Q&amp;A.
+      </p>
+      <div className="flex flex-col gap-2">
+        <Input
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          placeholder="e.g. HTML, React Hooks, Firebase Auth, SQL Joins, Docker..."
+          className="flex-1"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              generate();
+            }
+          }}
+        />
+        <div className="flex items-center gap-2">
+          <div className="flex items-center bg-muted p-1 rounded-lg gap-1">
+            <Button
+              type="button"
+              size="sm"
+              variant={level === "beginner" ? "default" : "ghost"}
+              className="text-xs h-7 px-3"
+              onClick={() => setLevel("beginner")}
+            >
+              Beginner
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={level === "advanced" ? "default" : "ghost"}
+              className="text-xs h-7 px-3"
+              onClick={() => setLevel("advanced")}
+            >
+              Advanced
+            </Button>
+          </div>
+          <Button
+            onClick={generate}
+            disabled={loading || !topic.trim()}
+            className="flex-1"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <FileText className="h-4 w-4 mr-2" />
+            )}
+            {loading ? "Generating..." : `Generate ${level} Cheat Sheet`}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

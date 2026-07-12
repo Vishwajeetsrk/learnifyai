@@ -34,61 +34,61 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 
 ### ✨ For Learners
 
-| Feature                          | Description                                                                              |
-| -------------------------------- | ---------------------------------------------------------------------------------------- |
-| 🤖 **AI Tutor**                  | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)         |
-| 💼 **Career Studio (11-in-1)**   | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder, **LinkedIn Optimizer**, **Career & Salary Analytics**, **Internship Tracker**, **Skill Gap Analysis**, **Career Finder (Ikigai)**, and **Skill Roadmaps** |
-| 🎓 **System Design Academy**    | 10 topics (Netflix, Uber, WhatsApp, YouTube, Twitter, Amazon, Google, Instagram, Slack, Zoom) with animated architecture diagrams, knowledge graph, voice narration, quiz |
-| 🧠 **Visual Learning**           | Concept Graph (force-directed knowledge map), Explain Like I'm 12, Dynamic Learning Map, built into every lesson |
-| 🏆 **Gamification Dashboard**    | XP progress, streak calendar, badge showcase, leaderboard rank, upcoming rewards — accessible from course player |
-| 🗺️ **Career Path Course Catalog**| 9 career path filters (Frontend, Backend, Full Stack, etc.), level filters, sort, Trending/Recommended rails |
-| 🪄 **Cheat Sheet Generator**     | 6-section toggleable cheat sheets with PDF export and browser print for every lesson |
-| 🎓 **12 Launch Course Categories**| Full Stack, Python, AI & Prompting, Data Science, Cyber Security, UI/UX, Resume, Interview, Roadmaps, Marketing, Freelancing, Personal Branding |
-| 📚 **Documentation Hub (`/docs`)** | Comprehensive platform guides for Students, Creators (Free/Paid), and Coaches (Free/Paid) |
-| 🎥 **Interactive Watch Demo**    | Guided modal tour covering platform features, credit usage, and creator earning model |
-| 📱 **Mobile App (Android & iOS)**| Mobile app showcase with VIP early access registration |
-| 📜 **Certificate Accreditation** | Cryptographic QR verification with MSME Udyam, NSDC Skill India, and ISO 9001 accreditation guide |
-| 🎥 **Advanced Video Player**     | Captions (VTT/SRT), searchable transcript, PiP, keyboard shortcuts, screenshots, bookmarking, focus/theater mode, auto-next lesson |
-| 💻 **Code Playground**           | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant  |
-| 📝 **Smart Notes**               | Auto-generated flashcards, summaries, and quizzes from any lesson                        |
-| 🏆 **Gamification Engine**     | XP, streaks, badges, leaderboards, XP Store with server-side purchase tracking, interactive AI quizzes, confetti celebrations |
-| 🛍️ **XP Store**                 | Spend XP on premium perks (themes, discounts, credits, badges) — server-side purchase history with admin panel at `/admin/store` |
-| 📅 **Calendar Sync**             | Browser-based `.ics` generator to sync events to Google, Apple, and Outlook calendars    |
-| 💰 **Wallet & AI Credits**       | Starter 500 AI credits/mo, creator earnings & withdrawals, Cashfree gateway integration     |
-| 📋 **Billing Dashboard**         | Plan management, Cashfree invoices, coupons (`WELCOME20`, `STUDENT50`, `LAUNCH20`)       |
-| 🎯 **Onboarding Wizard**         | 8-step guided setup with AI coach, daily habits tracking, and project creation           |
-| 🗺️ **Interactive Product Tours** | Role-specific guided tours (Student, Creator, Admin, AI Tools) with spotlight tooltips   |
-| 🌐 **Multi-Language (11 langs)** | Full UI i18n with English, Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Spanish, French, German |
-| 📝 **Blog**                      | Read articles, like posts, and comment with community                                    |
+| Feature                            | Description                                                                                                                                                                                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 🤖 **AI Tutor**                    | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)                                                                                                                                                                 |
+| 💼 **Career Studio (11-in-1)**     | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder, **LinkedIn Optimizer**, **Career & Salary Analytics**, **Internship Tracker**, **Skill Gap Analysis**, **Career Finder (Ikigai)**, and **Skill Roadmaps** |
+| 🎓 **System Design Academy**       | 10 topics (Netflix, Uber, WhatsApp, YouTube, Twitter, Amazon, Google, Instagram, Slack, Zoom) with animated architecture diagrams, knowledge graph, voice narration, quiz                                                                        |
+| 🧠 **Visual Learning**             | Concept Graph (force-directed knowledge map), Explain Like I'm 12, Dynamic Learning Map, built into every lesson                                                                                                                                 |
+| 🏆 **Gamification Dashboard**      | XP progress, streak calendar, badge showcase, leaderboard rank, upcoming rewards — accessible from course player                                                                                                                                 |
+| 🗺️ **Career Path Course Catalog**  | 9 career path filters (Frontend, Backend, Full Stack, etc.), level filters, sort, Trending/Recommended rails                                                                                                                                     |
+| 🪄 **Cheat Sheet Generator**       | Real brand logos (HTML, Supabase, Firebase, ChatGPT, etc.), timeline layout, Save to Library, beautiful Print/PDF export, Share button |
+| 🎓 **12 Launch Course Categories** | Full Stack, Python, AI & Prompting, Data Science, Cyber Security, UI/UX, Resume, Interview, Roadmaps, Marketing, Freelancing, Personal Branding                                                                                                  |
+| 📚 **Documentation Hub (`/docs`)** | Comprehensive platform guides for Students, Creators (Free/Paid), and Coaches (Free/Paid)                                                                                                                                                        |
+| 🎥 **Interactive Watch Demo**      | Guided modal tour covering platform features, credit usage, and creator earning model                                                                                                                                                            |
+| 📱 **Mobile App (Android & iOS)**  | Mobile app showcase with VIP early access registration                                                                                                                                                                                           |
+| 📜 **Certificate Accreditation**   | Cryptographic QR verification with MSME Udyam, NSDC Skill India, and ISO 9001 accreditation guide                                                                                                                                                |
+| 🎥 **Advanced Video Player**       | Captions (VTT/SRT), searchable transcript, PiP, keyboard shortcuts, screenshots, bookmarking, focus/theater mode, auto-next lesson                                                                                                               |
+| 💻 **Code Playground**             | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant                                                                                                                                                          |
+| 📝 **Smart Notes**                 | Auto-generated flashcards, summaries, and quizzes from any lesson                                                                                                                                                                                |
+| 🏆 **Gamification Engine**         | XP, streaks, badges, leaderboards, XP Store with server-side purchase tracking, interactive AI quizzes, confetti celebrations                                                                                                                    |
+| 🛍️ **XP Store**                    | Spend XP on premium perks (themes, discounts, credits, badges) — server-side purchase history with admin panel at `/admin/store`                                                                                                                 |
+| 📅 **Calendar Sync**               | Browser-based `.ics` generator to sync events to Google, Apple, and Outlook calendars                                                                                                                                                            |
+| 💰 **Wallet & AI Credits**         | Starter 500 AI credits/mo, creator earnings & withdrawals, Cashfree gateway integration                                                                                                                                                          |
+| 📋 **Billing Dashboard**           | Plan management, Cashfree invoices, coupons (`WELCOME20`, `STUDENT50`, `LAUNCH20`)                                                                                                                                                               |
+| 🎯 **Onboarding Wizard**           | 8-step guided setup with AI coach, daily habits tracking, and project creation                                                                                                                                                                   |
+| 🗺️ **Interactive Product Tours**   | Role-specific guided tours (Student, Creator, Admin, AI Tools) with spotlight tooltips                                                                                                                                                           |
+| 🌐 **Multi-Language (11 langs)**   | Full UI i18n with English, Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Spanish, French, German                                                                                                                                    |
+| 📝 **Blog**                        | Read articles, like posts, and comment with community                                                                                                                                                                                            |
 
 ### 🎓 For Creators
 
-| Feature                       | Description                                                      |
-| ----------------------------- | ---------------------------------------------------------------- |
-| 🏗️ **Creator Studio**         | Build courses, add lessons, manage quizzes and assignments       |
-| 🪄 **AI Course Builder**      | Auto-generate course outlines, lessons, and thumbnails           |
-| 🎓 **Certificate Templates**  | Assign certificate templates to courses from course detail page  |
+| Feature                            | Description                                                                                                          |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 🏗️ **Creator Studio**              | Build courses, add lessons, manage quizzes and assignments                                                           |
+| 🪄 **AI Course Builder**           | Auto-generate course outlines, lessons, and thumbnails                                                               |
+| 🎓 **Certificate Templates**       | Assign certificate templates to courses from course detail page                                                      |
 | 🎨 **Certificate Designer Studio** | html2canvas-based editor with 5 templates, interactive canvas, properties panel, PNG/PDF export, bulk CSV generation |
-| 🧑‍💼 **Coaching Hub**           | Book 1-on-1 sessions, schedule slots, chat, AI roadmap generator |
-| 🗺️ **Manual Roadmap Builder** | Create custom learning roadmaps with phases, skills, milestones  |
-| 👥 **Cohorts**                | Live group learning with community spaces                        |
-| 📊 **Earnings Dashboard**     | Revenue tracking, payouts, and invoices                          |
+| 🧑‍💼 **Coaching Hub**                | Book 1-on-1 sessions, schedule slots, chat, AI roadmap generator                                                     |
+| 🗺️ **Manual Roadmap Builder**      | Create custom learning roadmaps with phases, skills, milestones                                                      |
+| 👥 **Cohorts**                     | Live group learning with community spaces                                                                            |
+| 📊 **Earnings Dashboard**          | Revenue tracking, payouts, and invoices                                                                              |
 
 ### 🌐 Platform-Wide
 
-| Feature                       | Description                                                                                                                                                                               |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 💬 **Community Feed**         | Social learning with posts, comments, likes, edit/delete, rich text editor                                                                                                                |
-| 💬 **Community Chat**         | Real-time live presence chat where messages automatically delete after 24 hours                                                                                                           |
-| 📥 **Inbox**                  | Direct messaging between coaches and students                                                                                                                                             |
+| Feature                       | Description                                                                                                                                                                                        |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 💬 **Community Feed**         | Social learning with posts, comments, likes, edit/delete, rich text editor                                                                                                                         |
+| 💬 **Community Chat**         | Real-time live presence chat where messages automatically delete after 24 hours                                                                                                                    |
+| 📥 **Inbox**                  | Direct messaging between coaches and students                                                                                                                                                      |
 | ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates (templates/canva/designer/bulk/analytics/categories), email templates, content management, subscription management, coupon CRUD, student verification |
-| 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                                                                                                                               |
-| 📧 **Email System**           | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback                                                                                 |
-| 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                                                                                                         |
-| 📄 **Legal Pages**            | Privacy Policy, Terms of Service, Refund Policy                                                                                                                                           |
-| 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                                                                                                  |
-| 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager, blog system                                                                                                         |
-| 🎯 **Interactive Tours**      | Role-specific product tours with spotlight cutout and auto-skip for missing targets                                                                                                       |
+| 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                                                                                                                                        |
+| 📧 **Email System**           | Professional branded emails (Welcome, Certificates, Subscriptions) — Resend primary, Gmail/Brevo fallback                                                                                          |
+| 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                                                                                                                  |
+| 📄 **Legal Pages**            | Privacy Policy, Terms of Service, Refund Policy                                                                                                                                                    |
+| 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                                                                                                           |
+| 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager, blog system                                                                                                                  |
+| 🎯 **Interactive Tours**      | Role-specific product tours with spotlight cutout and auto-skip for missing targets                                                                                                                |
 
 ---
 
@@ -107,19 +107,19 @@ Full Canva-style certificate editor with **5 built-in templates** (Navy Gold, Na
 
 ### Editor Features
 
-| Feature | Description |
-|---------|-------------|
-| **5 Templates** | Navy Gold, Navy Blue, Royal Purple, Forest Green, Crimson Gold |
-| **Interactive Canvas** | Click-to-select elements with visual selection handles |
-| **Left Panel** | Templates, Elements (badges/seals/dividers), Text presets, Uploads |
-| **Right Panel** | Properties (font/color/position) + Content Manager (form fields) |
-| **Background Decorations** | Per-template SVG sweeps, triangles, ribbons, gold borders |
-| **Badge & Ribbon** | Gold scallop seal with crown/trophy/code icons |
-| **Center Seal** | Laurel wreath with Learnify AI logo |
-| **QR Code** | Auto-generated verification QR with live URL |
-| **Bottom Features Bar** | AI-Powered, Industry Relevant, Career Focused, Lifetime Access |
-| **PNG Export** | 2x resolution via html2canvas |
-| **PDF Export** | A4 landscape via browser print dialog |
+| Feature                    | Description                                                        |
+| -------------------------- | ------------------------------------------------------------------ |
+| **5 Templates**            | Navy Gold, Navy Blue, Royal Purple, Forest Green, Crimson Gold     |
+| **Interactive Canvas**     | Click-to-select elements with visual selection handles             |
+| **Left Panel**             | Templates, Elements (badges/seals/dividers), Text presets, Uploads |
+| **Right Panel**            | Properties (font/color/position) + Content Manager (form fields)   |
+| **Background Decorations** | Per-template SVG sweeps, triangles, ribbons, gold borders          |
+| **Badge & Ribbon**         | Gold scallop seal with crown/trophy/code icons                     |
+| **Center Seal**            | Laurel wreath with Learnify AI logo                                |
+| **QR Code**                | Auto-generated verification QR with live URL                       |
+| **Bottom Features Bar**    | AI-Powered, Industry Relevant, Career Focused, Lifetime Access     |
+| **PNG Export**             | 2x resolution via html2canvas                                      |
+| **PDF Export**             | A4 landscape via browser print dialog                              |
 
 ### Uploading Your 30+ Canva Templates
 
@@ -206,9 +206,9 @@ Learnify AI's playground features **multi-language compilation** powered by Wand
 | **Embeddings** | Gemini text-embedding-004 + pgvector                                            |
 | **Email**      | Resend (primary) ←→ Gmail SMTP ←→ Brevo (fallback chain, per-provider timeouts) |
 | **Code Exec**  | Wandbox / Piston / Judge0 (multi-executor fallback)                             |
-| **Canvas**     | html2canvas (certificate capture with selection handles)                         |
-| **PDF Export** | html2canvas + browser print (high-res A4 landscape certificate generation)       |
-| **Bulk Gen**   | JSZip (CSV → ZIP of PDFs for batch certificate issuance)                       |
+| **Canvas**     | html2canvas (certificate capture with selection handles)                        |
+| **PDF Export** | html2canvas + browser print (high-res A4 landscape certificate generation)      |
+| **Bulk Gen**   | JSZip (CSV → ZIP of PDFs for batch certificate issuance)                        |
 | **Testing**    | Playwright (E2E)                                                                |
 | **Deployment** | Vercel (Edge Network + Serverless Functions)                                    |
 
@@ -505,7 +505,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
-### v4.2.0 (July 2026) - Certificate Designer Overhaul & Email Automation
+### v5.0.0 (July 2026) — Enterprise Invoice 2.0, Cheat Sheet Overhaul, Avatar System Fix
+
+- ✅ **Enterprise Invoice Designer 2.0**: Built a Canva-like dual-pane invoice designer in Admin → Content Manager. Features: 5 templates (Modern, Minimal, Corporate, Luxury, Dark), live canvas preview, logo + digital signature upload to Supabase Storage, GSTIN/address/colors/watermark/QR toggle/terms settings, saved to `site_settings` table, full audit logging via `admin_audit_logs`.
+- ✅ **Invoice PDF Engine Overhaul** (`invoice-pdf.ts`): Enterprise-grade jsPDF generator with CGST/SGST tax breakdown, QR code verification, digital signature block, template branding (colors, logo, watermark), and proper verification URL pointing to `learnifyai.com/verify/invoice/...`.
+- ✅ **Public Invoice Verification Page** (`/verify/invoice/$id`): Secure public route that shows invoice status, metadata, and verification seal — no auth required.
+- ✅ **Cheat Sheet Generator Overhaul** (`CheatSheetGenerator.tsx`): Full rewrite with 20+ real inline SVG brand logos (HTML5, CSS3, JS, TS, React, Vue, Angular, Node.js, Python, Supabase, Firebase, Docker, Git, MySQL, PostgreSQL, MongoDB, AWS, WordPress, Figma, Canva, ChatGPT, Excel, GitHub, Tailwind, Next.js, Vite, Redis, Kubernetes). Timeline layout for Core Concepts. Save to Library via localStorage with Bookmark toggle. Beautiful styled Print view (not raw JSON). Downloadable print-ready HTML for PDF. Share button with Web Share API / clipboard fallback. Timestamp in toolbar.
+- ✅ **XP Store Avatar Fix**: Removed `InteractiveAvatar` component (SVG eyes/mouth overlay was rendering on top of avatar faces at wrong coordinates). Replaced with clean edge-to-edge `<img>` tags. Avatar cards now use premium styling: `scale-110` hover zoom, dark "Unlock" overlay, `ring-4` active glow, rounded 2xl. Section renamed from "Interactive Avatars" → **"3D Profile Avatars"**.
+- ✅ **Video Player Bookmark Removed**: Cleaned up unused bookmark control from the video player UI.
+
 
 - ✅ **Certificate Auto-Email**: Fixed `issueAndEmailCertificate` server function to actually send emails using the 5-provider fallback chain (Gmail → Resend API → Brevo → Resend SMTP → Brevo SMTP). Previously was a placeholder that only logged to console. Now sends a branded HTML email with certificate ID, score, and verification link on every issuance.
 - ✅ **Certificate Email Template**: Built a dedicated HTML email template for auto-issued certificates with Learnify AI branding, gradient header, certificate details table (ID, date, score), and "View & Download Certificate" CTA button.
@@ -821,10 +829,10 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **DiceBear Avatar Mappings**: All 6 art styles verified.
 - ✅ **Bug Fixes**: TextPreview `useState` → `useEffect`, duplicate imports, duplicate declarations.
 
-### v3.3.0 (July 2026) - Certificate Designer Pro Canva Engine + Projects Showcase + Multilingual i18n + Career Studio Dock
+### v3.3.0 (July 2026) - Certificate Designer Pro Canva Engine + Projects Showcase + Multilingual i18n + Career Studio Dock & Cheat Sheet HTML Upgrade
 
 - ✅ **Certificate Designer Pro 5.0 (Canva Vector Engine)**:
-  - 30 High-Detail Seed Templates across 6 categories (*Academic: 6, Professional: 8, Executive: 4, Certification: 4, Achievement: 4, Technology: 4*).
+  - 30 High-Detail Seed Templates across 6 categories (_Academic: 6, Professional: 8, Executive: 4, Certification: 4, Achievement: 4, Technology: 4_).
   - Multi-Format Exports: High-Res PNG (`html2canvas-pro`), Print PDF (`jsPDF` A4 landscape), Vector SVG XML export, and Motion Animated GIF export.
   - Guilloche Rosette Watermarks, Security Wave backgrounds, Ornate Golden Hairline Borders, Luxury Frames, Gold Verified Seals, Star Medals, and Laurel Crests rendered natively via SVG.
   - Pure Vector Canvas Mode: Added `Show PNG Image / Hide PNG Image` toggle in the Design sidebar tab, completely eliminating duplicate/overlapping text when editing pre-baked template PNGs.
@@ -835,10 +843,16 @@ MIT License. See [LICENSE](LICENSE) for details.
   - Integrated 47 highly polished design templates, 3D Spline prototypes, and GSAP micro-sites.
   - Interactive Live Sandbox Simulator: Switch between Desktop, Tablet, and Mobile device frames inside real-time iframe previews.
   - 1-Click "Copy Prompt" Button: Copy precise prompt instructions to replicate UI/UX design with AI platforms (Claude, Lovable, Antigravity).
-  - SVG Filter Chips: Replaced all legacy emoji categories with crisp SVG icons (*Zap, Video, Box, Gem, Moon, Minus, Lock*).
+  - SVG Filter Chips: Replaced all legacy emoji categories with crisp SVG icons (_Zap, Video, Box, Gem, Moon, Minus, Lock_).
 - ✅ **Career Studio macOS Magnification Dock**:
   - Integrated macOS-inspired `MagnificationDock` component with spring physics, dynamic magnification, and tooltips in Career Studio.
   - 9-in-1 Career Toolsuite: Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder, LinkedIn Optimizer, Career Analytics, Internship Tracker, and Skill Gap Analysis.
+- ✅ **Clean Code & Route Splitting**:
+  - Cleaned up TanStack Router warnings by splitting page components out of routes into independent files under `src/components/career-studio/` (such as [ResumeBuilderPage.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/components/career-studio/ResumeBuilderPage.tsx), [AtsCheckerPage.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/components/career-studio/AtsCheckerPage.tsx), [InterviewPage.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/components/career-studio/InterviewPage.tsx), [CareerRoadmapPage.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/components/career-studio/CareerRoadmapPage.tsx), and [PortfolioBuilderPage.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/components/career-studio/PortfolioBuilderPage.tsx)).
+- ✅ **Cheat Sheet HTML Upgrade**:
+  - Upgraded the Cheat Sheet generation feature supporting key summary sections with formatting controls (Print, PDF export, HTML preview/download, Beginner/Advanced toggles) styled with a branded footer and headings in `/system-design/$topic`.
+- ✅ **Job Application Flow**:
+  - Implemented an internal apply form modal in Careers (`/careers`) that saves applications to local storage. Connected the `Latest Jobs` listing in the dashboard to careers with job-specific query parameters.
 - ✅ **Multilingual i18n & Translation System**:
   - Full internationalization support across 11 languages: English (en), Hindi (hi), Bengali (bn), German (de), Spanish (es), French (fr), Gujarati (gu), Kannada (kn), Marathi (mr), Tamil (ta), Telugu (te).
 - ✅ **Official Knowledge Base & Platform Audit**:
@@ -870,6 +884,20 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **DiceBear Avatar Mappings**: All 6 art styles (avataaars, adventurer, bottts, pixel-art, fun-emoji, lorelei) verified
 - ✅ **Bug Fixes**: Duplicate imports in `courses.$slug.tsx`, duplicate skill handler in `settings.tsx`
 
+### v3.2.0 (July 2026) - E2E Verification & Playwright Robustness
+
+- ✅ **E2E Platform Verification**: Created and ran a comprehensive verification suite (`tests/comprehensive-platform-test.spec.ts`) covering 84 distinct test scenarios:
+  - **Public Pages**: Homepage, Blog, Features, Pricing, Roadmap, FAQ, About, Careers, Community, Docs, Showcase, Certificates, etc.
+  - **Authentication Flows**: Forms, sign-in, signup, forgot password, error handling, cookie consent.
+  - **Authenticated Areas**: Dashboard, Course player, AI Chat, AI Tools, Monaco Playground, ATS Checker, Resume Builder, Portfolio Builder, Cohorts, Leaderboard, Support, Store, Billing.
+  - **Admin Panels**: Dashboard, Content Manager, Certificate Manager, Course Manager, Auditing logs, Store management.
+  - **Creator Hub**: Creator dashboard, Subscribers, Earnings.
+- ✅ **Test Speed & Reliability Optimizations**:
+  - Configured default navigation states to wait for `domcontentloaded` instead of full `load` event across all test suites, speeding up test run times by 4x.
+  - Implemented automatic authenticated state reuse via Playwright `storageState`, saving a global sign-in snapshot to `playwright/.auth/user.json`.
+  - Added smart hydration checks in the sign-in helper to prevent double submissions and native form submit page refreshes during React event attachment.
+  - Set robust navigation timeouts (40s for login, 30s for other pages) to prevent flaky failures on high-concurrency dev servers.
+
 ### v3.1.0 (June 2026) - Critical Fixes & Course Enrollment Logic
 
 - ✅ **Payment Auth Fixed**: Resolved "Unauthorized: Invalid token" error by improving auth middleware to handle multiple Supabase cookie names (`sb-access-token`, `sb-refresh-token`, `supabase-auth-token`, `sb-auth-token`, and any `sb-*` prefixed cookies) with robust fallback parsing.
@@ -895,6 +923,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Avatar Character Visual Customizer**: Transformed the Avatar Builder dropdowns into an interactive, zoomed-in visual grid. You can now see exactly what the Clothing, Eyes, Mouth, Accessories, Eyebrows, and Nose look like via live generated SVGs before applying them to your character.
 - ✅ **Official Skill Badges**: Added automatic, high-resolution official tech stack logos (via Devicon) to the user's Skills array in their Public Profile and Settings, replacing plain text badges with premium branded icons (e.g. React, Node.js, Python, AWS).
 - ✅ **System-Wide Enhancements**: Fixed Certificate Designer zoom mechanics, resolved Admin Dashboard mobile overflow, enabled client-side thumbnail generation for custom video uploads, and parsed raw JSON payment errors into human-readable toast notifications.
+
+### v1.6.0 (July 2026)
+
+- ✅ **Enterprise Invoice System & Live Designer**: Built a Canva-like visual Invoice Designer inside the Content Manager enabling admins to customize company information, GST numbers, logos, digital signatures, terms, watermarks, and verification QR code toggles. Added five layout templates: Modern, Minimal, Corporate, Luxury (Navy & Gold), and Dark Mode. Created a public invoice verification route `/verify/invoice/$id` directly linked to invoice records. Integrated automatic edit audits inside the `admin_audit_logs` table.
+- ✅ **XP Store Avatar Purchase Ledger**: Replaced simple static buttons in the store page with a functional purchase selector. Clicking an owned avatar instantly updates the user's active avatar in their profile, while purchasing an avatar immediately applies it. Restructured Interactive Avatars to cost **only ₹1 Cash** (removing the XP payment option, updating listings, and centering the Cash payment button in the dialog). Added a beautiful **Purchase & Transaction History** tabbed ledger detailing both XP perk purchases and wallet transactions.
+- ✅ **Character Customization Live Preview**: Added real-time profile border styling around the visual customized character (rendering neon and animated rainbow-glow borders on the settings preview page), and mapped previously broken clothing styles (mapping `shirtOpen` to `shirtScoopNeck` and `dress` to `overall` in the DiceBear API).
+- ✅ **Advanced Video Player Translation & CC**: Added **AI Audio Tracks** and **CC Translation** selectors to the player settings menu. Users can now translate subtitles in real-time or enable AI dubbing voiceovers using synchronized browser `speechSynthesis` (supporting Hindi, Spanish, French, German, and major Indian languages). Integrated automatic subtitle generation when lessons lack pre-uploaded caption tracks, and removed the unused bookmark button from player controls.
 
 ### v1.5.0 (June 2026)
 

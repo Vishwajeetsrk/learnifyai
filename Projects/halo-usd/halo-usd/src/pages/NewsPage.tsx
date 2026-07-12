@@ -1,5 +1,5 @@
-import BackedBySection from '../components/BackedBySection';
-import Navbar from '../components/Navbar';
+import BackedBySection from "../components/BackedBySection";
+import Navbar from "../components/Navbar";
 
 export default function NewsPage() {
   return (

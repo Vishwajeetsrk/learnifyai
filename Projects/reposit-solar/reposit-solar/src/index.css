@@ -17,7 +17,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Outfit', sans-serif;
+  font-family: "Outfit", sans-serif;
 }
 
 body {
@@ -64,7 +64,11 @@ body.light-theme {
   align-items: center;
   justify-content: space-between;
   overflow: hidden;
-  background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+  background-image: radial-gradient(
+    circle at center,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 100%
+  );
 }
 
 body.light-theme .hero {
@@ -107,7 +111,7 @@ body.light-theme .hero {
 }
 
 .hero-bg::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;

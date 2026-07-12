@@ -95,9 +95,33 @@ export function ArchitectureVisualizer({
     } else if (shape === "cylinder" || type === "database") {
       shapeEl = (
         <>
-          <ellipse cx={p.x} cy={p.y - r * 0.6} rx={r} ry={r * 0.35} fill={`${color}20`} stroke={color} strokeWidth={isHovered ? 3 : 1.5} />
-          <rect x={p.x - r} y={p.y - r * 0.6} width={r * 2} height={r * 1.2} fill={`${color}10`} stroke={color} strokeWidth={isHovered ? 3 : 1.5} />
-          <ellipse cx={p.x} cy={p.y + r * 0.6} rx={r} ry={r * 0.35} fill={`${color}20`} stroke={color} strokeWidth={isHovered ? 3 : 1.5} />
+          <ellipse
+            cx={p.x}
+            cy={p.y - r * 0.6}
+            rx={r}
+            ry={r * 0.35}
+            fill={`${color}20`}
+            stroke={color}
+            strokeWidth={isHovered ? 3 : 1.5}
+          />
+          <rect
+            x={p.x - r}
+            y={p.y - r * 0.6}
+            width={r * 2}
+            height={r * 1.2}
+            fill={`${color}10`}
+            stroke={color}
+            strokeWidth={isHovered ? 3 : 1.5}
+          />
+          <ellipse
+            cx={p.x}
+            cy={p.y + r * 0.6}
+            rx={r}
+            ry={r * 0.35}
+            fill={`${color}20`}
+            stroke={color}
+            strokeWidth={isHovered ? 3 : 1.5}
+          />
         </>
       );
     } else if (shape === "hexagon" || type === "cache") {
@@ -106,7 +130,13 @@ export function ArchitectureVisualizer({
         return `${p.x + r * Math.cos(a)},${p.y + r * Math.sin(a)}`;
       }).join(" ");
       shapeEl = (
-        <polygon points={pts} fill={`${color}20`} stroke={color} strokeWidth={isHovered ? 3 : 1.5} className="transition-all duration-300" />
+        <polygon
+          points={pts}
+          fill={`${color}20`}
+          stroke={color}
+          strokeWidth={isHovered ? 3 : 1.5}
+          className="transition-all duration-300"
+        />
       );
     } else if (shape === "trapezoid" || type === "queue") {
       shapeEl = (
@@ -260,13 +290,7 @@ export function ArchitectureVisualizer({
 
         {/* Description */}
         {!compact && (
-          <text
-            x={10}
-            y={h - 8}
-            fill="#6b7280"
-            fontSize={8}
-            className="pointer-events-none"
-          >
+          <text x={10} y={h - 8} fill="#6b7280" fontSize={8} className="pointer-events-none">
             {diagram.description}
           </text>
         )}

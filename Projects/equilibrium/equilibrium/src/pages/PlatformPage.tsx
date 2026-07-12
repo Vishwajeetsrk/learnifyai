@@ -1,9 +1,9 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 const CAPABILITIES = [
-  { name: 'Flow canvas', desc: 'Map AI workflows with serif-forward editorial chrome.' },
-  { name: 'Silence mode', desc: 'Strip notifications for uninterrupted deep work sessions.' },
-  { name: 'Eternal archive', desc: 'Versioned prompts and artifacts with calm retrieval.' },
+  { name: "Flow canvas", desc: "Map AI workflows with serif-forward editorial chrome." },
+  { name: "Silence mode", desc: "Strip notifications for uninterrupted deep work sessions." },
+  { name: "Eternal archive", desc: "Versioned prompts and artifacts with calm retrieval." },
 ];
 
 export function PlatformPage({ embedded = false }: { embedded?: boolean }) {

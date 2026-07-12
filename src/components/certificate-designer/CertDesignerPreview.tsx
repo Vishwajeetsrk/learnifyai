@@ -1,10 +1,26 @@
 import { useState, useRef, useCallback } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, Printer, X, Image, Type, QrCode, Linkedin, Award, ShieldCheck } from "lucide-react";
+import {
+  Download,
+  Printer,
+  X,
+  Image,
+  Type,
+  QrCode,
+  Linkedin,
+  Award,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "sonner";
 import { generateOpenBadgeV3 } from "@/lib/open-badges.functions";
 import { LinkedInShareModal } from "./LinkedInShareModal";
@@ -88,7 +104,10 @@ export function CertDesignerPreview({ template, onClose }: Props) {
 
   const fields = template.fields_json;
   const theme = template.theme_colors;
-  const verificationUrl = typeof window !== "undefined" ? `${window.location.origin}/verified-certificates?id=${data.certId}` : `https://learnifyaitool.vercel.app/verified-certificates?id=${data.certId}`;
+  const verificationUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/verified-certificates?id=${data.certId}`
+      : `https://learnifyaitool.vercel.app/verified-certificates?id=${data.certId}`;
 
   const handleExportOpenBadge = () => {
     const badge = generateOpenBadgeV3({
@@ -129,7 +148,9 @@ export function CertDesignerPreview({ template, onClose }: Props) {
       const pdfW = pdf.internal.pageSize.getWidth();
       const pdfH = pdf.internal.pageSize.getHeight();
       pdf.addImage(imgData, "PNG", 0, 0, pdfW, pdfH);
-      pdf.save(`certificate-${(data.studentName || "certificate").replace(/\s+/g, "_")}-${Date.now()}.pdf`);
+      pdf.save(
+        `certificate-${(data.studentName || "certificate").replace(/\s+/g, "_")}-${Date.now()}.pdf`,
+      );
     } catch (err) {
       console.error("PDF export failed:", err);
     } finally {
@@ -194,7 +215,12 @@ export function CertDesignerPreview({ template, onClose }: Props) {
             textAlign: field.align || "center",
           }}
         >
-          <img src={src} alt={key} style={{ width: "100%", height: "100%", objectFit: "contain" }} crossOrigin="anonymous" />
+          <img
+            src={src}
+            alt={key}
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            crossOrigin="anonymous"
+          />
         </div>
       );
     }
@@ -222,9 +248,7 @@ export function CertDesignerPreview({ template, onClose }: Props) {
             textAlign: "center",
           }}
         >
-          <div style={{ fontSize: "9px", color: "#0a6e8a", fontWeight: 600 }}>
-            QR Code
-          </div>
+          <div style={{ fontSize: "9px", color: "#0a6e8a", fontWeight: 600 }}>QR Code</div>
         </div>
       );
     }
@@ -253,7 +277,12 @@ export function CertDesignerPreview({ template, onClose }: Props) {
     );
   };
 
-  const filteredFields = activeFieldTab === "all" ? ALL_FIELDS : activeFieldTab === "images" ? ALL_FIELDS.filter((f) => f.key.includes("Image") || f.key.includes("Logo")) : ALL_FIELDS.filter((f) => !f.key.includes("Image") && !f.key.includes("Logo"));
+  const filteredFields =
+    activeFieldTab === "all"
+      ? ALL_FIELDS
+      : activeFieldTab === "images"
+        ? ALL_FIELDS.filter((f) => f.key.includes("Image") || f.key.includes("Logo"))
+        : ALL_FIELDS.filter((f) => !f.key.includes("Image") && !f.key.includes("Logo"));
 
   return (
     <>
@@ -298,9 +327,24 @@ export function CertDesignerPreview({ template, onClose }: Props) {
 
             <div className="w-72 space-y-3 shrink-0 pr-4 overflow-y-auto max-h-[60vh]">
               <div className="flex gap-1 mb-2">
-                <button onClick={() => setActiveFieldTab("all")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "all" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>All</button>
-                <button onClick={() => setActiveFieldTab("text")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "text" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>Text</button>
-                <button onClick={() => setActiveFieldTab("images")} className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "images" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>Images</button>
+                <button
+                  onClick={() => setActiveFieldTab("all")}
+                  className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "all" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setActiveFieldTab("text")}
+                  className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "text" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+                >
+                  Text
+                </button>
+                <button
+                  onClick={() => setActiveFieldTab("images")}
+                  className={`px-2 py-1 text-[10px] rounded ${activeFieldTab === "images" ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+                >
+                  Images
+                </button>
               </div>
 
               {filteredFields.map(({ key, label }) => {
@@ -309,7 +353,11 @@ export function CertDesignerPreview({ template, onClose }: Props) {
                 return (
                   <div key={key}>
                     <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      {field.type === "image" || field.type === "qr" ? <Image className="h-3 w-3" /> : <Type className="h-3 w-3" />}
+                      {field.type === "image" || field.type === "qr" ? (
+                        <Image className="h-3 w-3" />
+                      ) : (
+                        <Type className="h-3 w-3" />
+                      )}
                       {label}
                     </Label>
                     <Input
@@ -339,7 +387,12 @@ export function CertDesignerPreview({ template, onClose }: Props) {
           </div>
 
           <DialogFooter className="px-6 pb-6 pt-4 flex-wrap gap-2">
-            <Button variant="outline" size="sm" onClick={() => setShowLinkedInModal(true)} className="text-[#0A66C2] border-[#0A66C2]/30 hover:bg-[#0A66C2]/10">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowLinkedInModal(true)}
+              className="text-[#0A66C2] border-[#0A66C2]/30 hover:bg-[#0A66C2]/10"
+            >
               <Linkedin className="h-4 w-4 mr-1.5" /> Add to LinkedIn
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowOpenBadgesModal(true)}>

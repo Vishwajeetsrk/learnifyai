@@ -1,6 +1,6 @@
-import { MARQUEE_LOGOS } from '../constants';
+import { MARQUEE_LOGOS } from "../constants";
 
-function MarqueeRow({ speedClass }: { speedClass: 'marquee-track-15' | 'marquee-track-30' }) {
+function MarqueeRow({ speedClass }: { speedClass: "marquee-track-15" | "marquee-track-30" }) {
   return (
     <div className={`${speedClass} flex w-max shrink-0 items-center`}>
       {MARQUEE_LOGOS.map((name) => (

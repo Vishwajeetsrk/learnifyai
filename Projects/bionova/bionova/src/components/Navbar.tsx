@@ -1,8 +1,8 @@
-import type { MouseEvent } from 'react';
-import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import { navigateToRoute, routeHref } from '../../../_shared/preset-site-routing';
-import { NAV_ITEMS } from '../routes';
+import type { MouseEvent } from "react";
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
+import { navigateToRoute, routeHref } from "../../../_shared/preset-site-routing";
+import { NAV_ITEMS } from "../routes";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,8 +17,8 @@ export default function Navbar() {
     <>
       <header className="relative z-20 flex items-center justify-between px-5 py-5 lg:px-16">
         <a
-          href={routeHref('')}
-          onClick={navClick('')}
+          href={routeHref("")}
+          onClick={navClick("")}
           className="font-heading text-xl font-bold tracking-tight"
           aria-label="BIONOVA home"
         >
@@ -40,15 +40,15 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-6 md:flex">
           <a
-            href={routeHref('contact')}
-            onClick={navClick('contact')}
+            href={routeHref("contact")}
+            onClick={navClick("contact")}
             className="text-sm font-semibold text-foreground/70 transition-opacity hover:text-foreground"
           >
             Log in
           </a>
           <a
-            href={routeHref('contact')}
-            onClick={navClick('contact')}
+            href={routeHref("contact")}
+            onClick={navClick("contact")}
             className="rounded-full bg-hero-btn px-5 py-2.5 text-sm font-semibold text-white"
           >
             Request a call
@@ -85,8 +85,8 @@ export default function Navbar() {
               </a>
             ))}
             <a
-              href={routeHref('contact')}
-              onClick={navClick('contact')}
+              href={routeHref("contact")}
+              onClick={navClick("contact")}
               className="py-3 text-lg font-semibold text-foreground/70"
             >
               Log in
@@ -94,8 +94,8 @@ export default function Navbar() {
           </nav>
           <div className="border-t border-foreground/10 p-5">
             <a
-              href={routeHref('contact')}
-              onClick={navClick('contact')}
+              href={routeHref("contact")}
+              onClick={navClick("contact")}
               className="block rounded-full bg-hero-btn py-3 text-center text-sm font-semibold text-white"
             >
               Request a call

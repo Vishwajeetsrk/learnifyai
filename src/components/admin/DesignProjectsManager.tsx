@@ -58,6 +58,7 @@ export default function DesignProjectsManager() {
       description: "",
       path: "",
       color: "#2563EB",
+      teaser_video_url: "",
       course_modules: [],
       architecture_nodes: [],
     });
@@ -90,7 +91,9 @@ export default function DesignProjectsManager() {
     if (!editing.title) return toast.error("Please provide a title first.");
     setIsGenerating(true);
     try {
-      const result = await doGenerate({ data: { title: editing.title, description: editing.description || "" } });
+      const result = await doGenerate({
+        data: { title: editing.title, description: editing.description || "" },
+      });
       setEditing({
         ...editing,
         course_modules: result.course_modules || editing.course_modules,
@@ -109,7 +112,9 @@ export default function DesignProjectsManager() {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-lg font-semibold">Design Projects (Template Mastery)</h2>
-          <p className="text-sm text-muted-foreground">Manage templates for the interactive studio.</p>
+          <p className="text-sm text-muted-foreground">
+            Manage templates for the interactive studio.
+          </p>
         </div>
         <Button onClick={newProject}>
           <Plus className="h-4 w-4 mr-2" />
@@ -128,10 +133,16 @@ export default function DesignProjectsManager() {
       ) : (
         <div className="space-y-2">
           {projects.map((p) => (
-            <div key={p.id} className="rounded-xl border border-border/60 bg-card p-4 flex items-center justify-between">
+            <div
+              key={p.id}
+              className="rounded-xl border border-border/60 bg-card p-4 flex items-center justify-between"
+            >
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded bg-primary/10 flex items-center justify-center">
-                  <LayoutTemplate className="h-5 w-5 text-primary" style={{ color: p.color || 'var(--primary)' }} />
+                  <LayoutTemplate
+                    className="h-5 w-5 text-primary"
+                    style={{ color: p.color || "var(--primary)" }}
+                  />
                 </div>
                 <div>
                   <h3 className="font-semibold">{p.title}</h3>
@@ -139,7 +150,14 @@ export default function DesignProjectsManager() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => { setEditing(p); setOpen(true); }}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setEditing(p);
+                    setOpen(true);
+                  }}
+                >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
                 <Button size="sm" variant="outline" onClick={() => setDeleteId(p.id)}>
@@ -156,14 +174,18 @@ export default function DesignProjectsManager() {
           <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
             <DialogHeader className="flex flex-row items-center justify-between pb-2">
               <DialogTitle>{editing.id ? "Edit Project" : "New Project"}</DialogTitle>
-              <Button 
-                variant="secondary" 
-                size="sm" 
-                onClick={handleGenerateAI} 
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleGenerateAI}
                 disabled={isGenerating || !editing.title}
                 className="bg-primary/10 text-primary hover:bg-primary/20 mr-4"
               >
-                {isGenerating ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Sparkles className="h-4 w-4 mr-1.5" />}
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-1.5" />
+                )}
                 AI Generate
               </Button>
             </DialogHeader>
@@ -171,65 +193,109 @@ export default function DesignProjectsManager() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Title</Label>
-                  <Input value={editing.title} onChange={e => setEditing({...editing, title: e.target.value})} placeholder="e.g. Acreage Nike" />
+                  <Input
+                    value={editing.title}
+                    onChange={(e) => setEditing({ ...editing, title: e.target.value })}
+                    placeholder="e.g. Acreage Nike"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Slug</Label>
-                  <Input value={editing.slug} onChange={e => setEditing({...editing, slug: e.target.value})} placeholder="e.g. acreage-nike" disabled={!!editing.id} />
+                  <Input
+                    value={editing.slug}
+                    onChange={(e) => setEditing({ ...editing, slug: e.target.value })}
+                    placeholder="e.g. acreage-nike"
+                    disabled={!!editing.id}
+                  />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label>Description</Label>
-                <Textarea value={editing.description || ""} onChange={e => setEditing({...editing, description: e.target.value})} placeholder="Project description..." />
+                <Textarea
+                  value={editing.description || ""}
+                  onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+                  placeholder="Project description..."
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Iframe Path URL</Label>
-                  <Input value={editing.path || ""} onChange={e => setEditing({...editing, path: e.target.value})} placeholder="e.g. /templates/acreage/index.html" />
+                  <Input
+                    value={editing.path || ""}
+                    onChange={(e) => setEditing({ ...editing, path: e.target.value })}
+                    placeholder="e.g. /templates/acreage/index.html"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Theme Color (Hex)</Label>
-                  <Input value={editing.color || ""} onChange={e => setEditing({...editing, color: e.target.value})} placeholder="#2563EB" />
+                  <Input
+                    value={editing.color || ""}
+                    onChange={(e) => setEditing({ ...editing, color: e.target.value })}
+                    placeholder="#2563EB"
+                  />
                 </div>
               </div>
               <div className="space-y-2">
+                <Label>Teaser Video URL</Label>
+                <Input
+                  value={editing.teaser_video_url || ""}
+                  onChange={(e) => setEditing({ ...editing, teaser_video_url: e.target.value })}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                />
+              </div>
+              <div className="space-y-2">
                 <Label>Course Modules (JSON)</Label>
-                <Textarea 
-                  value={typeof editing.course_modules === 'string' ? editing.course_modules : JSON.stringify(editing.course_modules, null, 2)} 
-                  onChange={e => {
+                <Textarea
+                  value={
+                    typeof editing.course_modules === "string"
+                      ? editing.course_modules
+                      : JSON.stringify(editing.course_modules, null, 2)
+                  }
+                  onChange={(e) => {
                     try {
-                      setEditing({...editing, course_modules: JSON.parse(e.target.value)});
+                      setEditing({ ...editing, course_modules: JSON.parse(e.target.value) });
                     } catch {
-                      setEditing({...editing, course_modules: e.target.value});
+                      setEditing({ ...editing, course_modules: e.target.value });
                     }
-                  }} 
-                  className="font-mono text-xs h-32" 
+                  }}
+                  className="font-mono text-xs h-32"
                 />
               </div>
               <div className="space-y-2">
                 <Label>Architecture Nodes (JSON)</Label>
-                <Textarea 
-                  value={typeof editing.architecture_nodes === 'string' ? editing.architecture_nodes : JSON.stringify(editing.architecture_nodes, null, 2)} 
-                  onChange={e => {
+                <Textarea
+                  value={
+                    typeof editing.architecture_nodes === "string"
+                      ? editing.architecture_nodes
+                      : JSON.stringify(editing.architecture_nodes, null, 2)
+                  }
+                  onChange={(e) => {
                     try {
-                      setEditing({...editing, architecture_nodes: JSON.parse(e.target.value)});
+                      setEditing({ ...editing, architecture_nodes: JSON.parse(e.target.value) });
                     } catch {
-                      setEditing({...editing, architecture_nodes: e.target.value});
+                      setEditing({ ...editing, architecture_nodes: e.target.value });
                     }
-                  }} 
-                  className="font-mono text-xs h-32" 
+                  }}
+                  className="font-mono text-xs h-32"
                 />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setOpen(false)}>
+                Cancel
+              </Button>
               <Button onClick={() => save(editing)}>Save Project</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
 
-      <AlertDialog open={!!deleteId} onOpenChange={(v) => { if (!v) setDeleteId(null); }}>
+      <AlertDialog
+        open={!!deleteId}
+        onOpenChange={(v) => {
+          if (!v) setDeleteId(null);
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Project?</AlertDialogTitle>
@@ -237,18 +303,24 @@ export default function DesignProjectsManager() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={async () => {
-              if (!deleteId) return;
-              try {
-                await doAdminAction({ data: { table: "design_projects", action: "delete", id: deleteId } });
-                toast.success("Project deleted");
-                qc.invalidateQueries({ queryKey: ["admin-design-projects"] });
-              } catch (e: any) {
-                toast.error(e?.message || "Delete failed");
-              } finally {
-                setDeleteId(null);
-              }
-            }}>Delete</AlertDialogAction>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!deleteId) return;
+                try {
+                  await doAdminAction({
+                    data: { table: "design_projects", action: "delete", id: deleteId },
+                  });
+                  toast.success("Project deleted");
+                  qc.invalidateQueries({ queryKey: ["admin-design-projects"] });
+                } catch (e: any) {
+                  toast.error(e?.message || "Delete failed");
+                } finally {
+                  setDeleteId(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

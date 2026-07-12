@@ -1,9 +1,9 @@
-import InnerPageLayout from '../components/InnerPageLayout';
+import InnerPageLayout from "../components/InnerPageLayout";
 
 const METRICS = [
-  { label: 'Hours reclaimed / week', value: '12.4' },
-  { label: 'Tasks automated', value: '2.8k' },
-  { label: 'Error rate', value: '0.3%' },
+  { label: "Hours reclaimed / week", value: "12.4" },
+  { label: "Tasks automated", value: "2.8k" },
+  { label: "Error rate", value: "0.3%" },
 ];
 
 export default function InsightsPage() {

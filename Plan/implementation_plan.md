@@ -1,19 +1,22 @@
 # Learnify AI — Platform Expansion & Architectural Master Plan
 
 ## Executive Overview
-This phase executes a major expansion of **Learnify AI** by introducing 12 launch course categories with a deep 100+ topic curriculum catalog, 4 new Career Studio engines (*LinkedIn Optimizer*, *Career Analytics*, *Internship Tracker*, *Skill Gap Analysis*), an interactive **Watch Demo** modal, a complete **Documentation Hub** (`/docs`), **Creators & Coaches (Free vs Paid)** tier separation, **Mobile App Coming Soon** (Android & iOS) showcase, **Certificate Governance & Accreditation Advisory**, and homepage layout fixes.
+
+This phase executes a major expansion of **Learnify AI** by introducing 12 launch course categories with a deep 100+ topic curriculum catalog, 4 new Career Studio engines (_LinkedIn Optimizer_, _Career Analytics_, _Internship Tracker_, _Skill Gap Analysis_), an interactive **Watch Demo** modal, a complete **Documentation Hub** (`/docs`), **Creators & Coaches (Free vs Paid)** tier separation, **Mobile App Coming Soon** (Android & iOS) showcase, **Certificate Governance & Accreditation Advisory**, and homepage layout fixes.
 
 ---
 
 ## Technical Architecture & Proposed Changes
 
 ### 1. Instant UI & Layout Fixes
+
 - **Homepage Section Reordering** ([index.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/index.tsx)):
-  - Place **"How We Compare"** section *BEFORE* **"Why Learners Upgrade"**.
+  - Place **"How We Compare"** section _BEFORE_ **"Why Learners Upgrade"**.
 - **Responsive Profile Cover** ([settings.view.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/views/settings.view.tsx), [u.$id.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/_authenticated/u.$id.tsx)):
   - Ensure missing profile cover defaults to a responsive SVG geometric gradient pattern on laptop screens.
 
 ### 2. Comprehensive Course Catalog & 12 Launch Categories
+
 - **Files**: [courses.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/courses.tsx), [course-catalog.ts](file:///c:/Users/vishw/Music/Learnify%20AI/src/lib/course-catalog.ts)
 - **12 Launch Categories**:
   1. Full Stack Development
@@ -33,6 +36,7 @@ This phase executes a major expansion of **Learnify AI** by introducing 12 launc
 - **"Coming Soon" Badges & Requests**: Visual indicators for upcoming courses and user course requests.
 
 ### 3. Career Studio — 4 New Features
+
 - **File**: [career-studio.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/_authenticated/career-studio.tsx)
 - **LinkedIn / GitHub Optimizer**: Headline generator, bio audit, keyword density checker, and engagement score.
 - **Career Analytics**: Salary benchmarks, demand trends, and placement probability score.
@@ -40,6 +44,7 @@ This phase executes a major expansion of **Learnify AI** by introducing 12 launc
 - **Skill Gap Analysis**: Role-based target skill matrix with automated learning path recommendations.
 
 ### 4. Interactive Watch Demo Component
+
 - **Files**: [WatchDemoModal.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/components/interactive/WatchDemoModal.tsx), [index.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/index.tsx), [AppShell.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/components/AppShell.tsx)
 - Interactive walkthrough covering:
   1. **What is Learnify AI?** (AI Tutor, Resume Builder, Mock Interviews).
@@ -47,6 +52,7 @@ This phase executes a major expansion of **Learnify AI** by introducing 12 launc
   3. **How to Earn?** (Creator 80/20 revenue share, Coach paid sessions, Affiliate referrals).
 
 ### 5. Documentation Hub (`/docs`)
+
 - **File**: [NEW] [docs.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/docs.tsx)
 - Complete structured guide for:
   - **Students**: Getting started, AI credits usage, earning certificates, redeeming coupons.
@@ -54,15 +60,18 @@ This phase executes a major expansion of **Learnify AI** by introducing 12 launc
   - **Coaches (Free vs Paid)**: 1-on-1 session scheduling, instant payout wallet, rating system.
 
 ### 6. Creator & Coach Tier Separation (Free vs Paid)
+
 - **Files**: [creators.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/creators.tsx), [coaches.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/coaches.tsx), [apply-coach.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/_authenticated/apply-coach.tsx)
 - **Free Creator/Coach Tier**: Publish 1 free course/session, 70% payout split, community listing.
 - **Paid Creator/Coach Tier**: Unlimited paid courses/sessions, 80% instant payout, featured badge, custom landing page.
 
 ### 7. Mobile App Coming Soon Banner
+
 - **File**: [MobileAppBanner.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/components/interactive/MobileAppBanner.tsx)
 - Google Play Store & Apple App Store badge preview with "Notify Me / Early Access" registration modal.
 
 ### 8. Certificate Governance & Accreditation Advisory
+
 - **Files**: [certificates.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/certificates.tsx), [admin.certificates.tsx](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/_authenticated/admin.certificates.tsx)
 - Accreditation application guide for ISO 9001, MSME, Skill India, and NSDC compliance, detailing cryptographic verification & tamper-proof QR verification.
 
@@ -90,11 +99,13 @@ graph TD
 ## Verification Plan
 
 ### Automated Verification
+
 - `npx tsc --noEmit` — verify 100% type safety.
 - `npm run build` — verify Nitro production build succeeds.
 - `npx playwright test tests/full-platform.spec.ts` — verify E2E suite passes.
 
 ### Manual Feature Verification
+
 - Check homepage section order: "How We Compare" appears before "Why Learners Upgrade".
 - Test 12 launch categories filter on `/courses`.
 - Test Career Studio tabs (LinkedIn Optimizer, Internship Tracker, Skill Gap Analysis).

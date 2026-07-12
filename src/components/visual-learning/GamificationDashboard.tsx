@@ -1,8 +1,19 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Trophy, Flame, Star, Target, Zap, Medal, Crown, Shield, TrendingUp,
-  BookOpen, CheckCircle2, Lock, Sparkles,
+  Trophy,
+  Flame,
+  Star,
+  Target,
+  Zap,
+  Medal,
+  Crown,
+  Shield,
+  TrendingUp,
+  BookOpen,
+  CheckCircle2,
+  Lock,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,11 +23,51 @@ interface GamificationDashboardProps {
 }
 
 const RANKS = [
-  { name: "Bronze", min: 1, max: 5, color: "text-amber-600", bg: "bg-amber-500/10", border: "border-amber-500/30", icon: Shield },
-  { name: "Silver", min: 6, max: 10, color: "text-slate-300", bg: "bg-slate-400/10", border: "border-slate-400/30", icon: Medal },
-  { name: "Gold", min: 11, max: 15, color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/30", icon: Trophy },
-  { name: "Platinum", min: 16, max: 20, color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/30", icon: Crown },
-  { name: "Diamond", min: 21, max: 25, color: "text-sky-400", bg: "bg-sky-500/10", border: "border-sky-500/30", icon: Star },
+  {
+    name: "Bronze",
+    min: 1,
+    max: 5,
+    color: "text-amber-600",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/30",
+    icon: Shield,
+  },
+  {
+    name: "Silver",
+    min: 6,
+    max: 10,
+    color: "text-slate-300",
+    bg: "bg-slate-400/10",
+    border: "border-slate-400/30",
+    icon: Medal,
+  },
+  {
+    name: "Gold",
+    min: 11,
+    max: 15,
+    color: "text-yellow-400",
+    bg: "bg-yellow-500/10",
+    border: "border-yellow-500/30",
+    icon: Trophy,
+  },
+  {
+    name: "Platinum",
+    min: 16,
+    max: 20,
+    color: "text-cyan-400",
+    bg: "bg-cyan-500/10",
+    border: "border-cyan-500/30",
+    icon: Crown,
+  },
+  {
+    name: "Diamond",
+    min: 21,
+    max: 25,
+    color: "text-sky-400",
+    bg: "bg-sky-500/10",
+    border: "border-sky-500/30",
+    icon: Star,
+  },
 ];
 
 const BADGE_THRESHOLDS = [
@@ -65,20 +116,24 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
   const { data: badges } = useQuery({
     queryKey: ["gamification-badges", uid],
     queryFn: async () => {
-      const { data: b } = await supabase
+      const { data: b } = (await supabase
         .from("user_badges")
         .select("badge_id, earned_at, badges(name, xp_required)")
-        .eq("user_id", uid) as any;
+        .eq("user_id", uid)) as any;
       return (b as any[]) || [];
     },
     enabled: !!uid,
   });
 
-  const earnedBadgeIds = useMemo(() => new Set((badges || []).map((b: any) => b.badge_id)), [badges]);
+  const earnedBadgeIds = useMemo(
+    () => new Set((badges || []).map((b: any) => b.badge_id)),
+    [badges],
+  );
   const xp = profile?.xp ?? 0;
   const level = xpToLevel(xp);
   const rank = RANKS.find((r) => level >= r.min && level <= r.max) || RANKS[0];
-  const progressPct = level >= 25 ? 100 : (xpInCurrentLevel(xp) / (xpInCurrentLevel(xp) + xpToNextLevel(xp))) * 100;
+  const progressPct =
+    level >= 25 ? 100 : (xpInCurrentLevel(xp) / (xpInCurrentLevel(xp) + xpToNextLevel(xp))) * 100;
   const RankIcon = rank.icon;
 
   return (
@@ -90,14 +145,17 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
             <div className={cn("text-xs font-semibold uppercase tracking-wider", rank.color)}>
               {rank.name} Rank
             </div>
-            <div className="text-2xl font-bold text-foreground mt-1">
-              Level {level}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {xp.toLocaleString()} total XP
-            </div>
+            <div className="text-2xl font-bold text-foreground mt-1">Level {level}</div>
+            <div className="text-xs text-muted-foreground mt-1">{xp.toLocaleString()} total XP</div>
           </div>
-          <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center", rank.bg, rank.border, "border")}>
+          <div
+            className={cn(
+              "h-14 w-14 rounded-2xl flex items-center justify-center",
+              rank.bg,
+              rank.border,
+              "border",
+            )}
+          >
             <RankIcon className={cn("h-7 w-7", rank.color)} />
           </div>
         </div>
@@ -122,10 +180,25 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-2">
-        <StatBox icon={Flame} label="Current Streak" value={`${profile?.current_streak ?? 0} days`} color="text-orange-500" />
-        <StatBox icon={TrendingUp} label="Best Streak" value={`${profile?.highest_streak ?? 0} days`} color="text-blue-500" />
+        <StatBox
+          icon={Flame}
+          label="Current Streak"
+          value={`${profile?.current_streak ?? 0} days`}
+          color="text-orange-500"
+        />
+        <StatBox
+          icon={TrendingUp}
+          label="Best Streak"
+          value={`${profile?.highest_streak ?? 0} days`}
+          color="text-blue-500"
+        />
         <StatBox icon={Star} label="Level" value={String(level)} color="text-yellow-500" />
-        <StatBox icon={Trophy} label="Badges" value={`${earnedBadgeIds.size}`} color="text-purple-500" />
+        <StatBox
+          icon={Trophy}
+          label="Badges"
+          value={`${earnedBadgeIds.size}`}
+          color="text-purple-500"
+        />
       </div>
 
       {/* XP Sources Table */}
@@ -158,14 +231,23 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
                 key={badge.name}
                 className={cn(
                   "flex flex-col items-center gap-1 p-2 rounded-lg transition-all",
-                  earned ? "bg-primary/10 border border-primary/20" : "bg-muted/30 border border-transparent opacity-50",
+                  earned
+                    ? "bg-primary/10 border border-primary/20"
+                    : "bg-muted/30 border border-transparent opacity-50",
                 )}
               >
                 <span className="text-xl">{badge.icon}</span>
-                <span className={cn("text-[9px] font-semibold text-center leading-tight", earned ? "text-foreground" : "text-muted-foreground")}>
+                <span
+                  className={cn(
+                    "text-[9px] font-semibold text-center leading-tight",
+                    earned ? "text-foreground" : "text-muted-foreground",
+                  )}
+                >
                   {badge.name}
                 </span>
-                <span className="text-[8px] text-muted-foreground">{badge.xp.toLocaleString()} XP</span>
+                <span className="text-[8px] text-muted-foreground">
+                  {badge.xp.toLocaleString()} XP
+                </span>
               </div>
             );
           })}
@@ -184,7 +266,17 @@ export function GamificationDashboard({ userId }: GamificationDashboardProps) {
   );
 }
 
-function StatBox({ icon: Icon, label, value, color }: { icon: any; label: string; value: string; color: string }) {
+function StatBox({
+  icon: Icon,
+  label,
+  value,
+  color,
+}: {
+  icon: any;
+  label: string;
+  value: string;
+  color: string;
+}) {
   return (
     <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/20 border border-border/30">
       <div className={cn("h-9 w-9 rounded-lg flex items-center justify-center bg-muted/30", color)}>
@@ -228,11 +320,16 @@ function LearningHeatmap() {
             key={i}
             className="w-3 h-3 rounded-sm shrink-0"
             style={{
-              background: intensity === 0 ? "#1a1a2e"
-                : intensity === 1 ? "#312e81"
-                : intensity === 2 ? "#4338ca"
-                : intensity === 3 ? "#6366f1"
-                : "#818cf8",
+              background:
+                intensity === 0
+                  ? "#1a1a2e"
+                  : intensity === 1
+                    ? "#312e81"
+                    : intensity === 2
+                      ? "#4338ca"
+                      : intensity === 3
+                        ? "#6366f1"
+                        : "#818cf8",
             }}
             title={`${d.date.toLocaleDateString()}`}
           />

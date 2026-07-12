@@ -1,37 +1,41 @@
-import { BookOpen, Building2, Layers, Users } from 'lucide-react';
+import { BookOpen, Building2, Layers, Users } from "lucide-react";
 
 const SECTIONS = [
   {
-    id: 'solutions',
+    id: "solutions",
     icon: Layers,
-    eyebrow: 'Solutions',
-    title: 'One platform for every AI workload',
-    body: 'From retrieval pipelines to autonomous agents, Stellar.ai unifies prototyping, evaluation, and production deploys. Swap models without rewriting orchestration—version prompts, compare runs, and promote winners in a single control plane.',
-    bullets: ['Model routing & fallbacks', 'Eval suites & regression gates', 'Multi-region deploy'],
+    eyebrow: "Solutions",
+    title: "One platform for every AI workload",
+    body: "From retrieval pipelines to autonomous agents, Stellar.ai unifies prototyping, evaluation, and production deploys. Swap models without rewriting orchestration—version prompts, compare runs, and promote winners in a single control plane.",
+    bullets: ["Model routing & fallbacks", "Eval suites & regression gates", "Multi-region deploy"],
   },
   {
-    id: 'for-teams',
+    id: "for-teams",
     icon: Users,
-    eyebrow: 'For Teams',
-    title: 'Built for cross-functional shipping',
-    body: 'Engineers, PMs, and operators share live canvases with comment threads, approval flows, and environment-scoped secrets. Every change is attributable—no more shadow prompts in spreadsheets.',
-    bullets: ['Role-based workspaces', 'Review & sign-off flows', 'Slack & Linear integrations'],
+    eyebrow: "For Teams",
+    title: "Built for cross-functional shipping",
+    body: "Engineers, PMs, and operators share live canvases with comment threads, approval flows, and environment-scoped secrets. Every change is attributable—no more shadow prompts in spreadsheets.",
+    bullets: ["Role-based workspaces", "Review & sign-off flows", "Slack & Linear integrations"],
   },
   {
-    id: 'about',
+    id: "about",
     icon: Building2,
-    eyebrow: 'About',
-    title: 'We believe intelligence should feel inevitable',
-    body: 'Stellar.ai started in 2024 with a simple thesis: production AI deserves the same craft as consumer software. Today we power mission-critical workflows for teams who refuse to trade safety for speed.',
-    bullets: ['HQ in San Francisco', 'Backed by leading infra investors', 'SOC2 Type II in progress'],
+    eyebrow: "About",
+    title: "We believe intelligence should feel inevitable",
+    body: "Stellar.ai started in 2024 with a simple thesis: production AI deserves the same craft as consumer software. Today we power mission-critical workflows for teams who refuse to trade safety for speed.",
+    bullets: [
+      "HQ in San Francisco",
+      "Backed by leading infra investors",
+      "SOC2 Type II in progress",
+    ],
   },
   {
-    id: 'learn-hub',
+    id: "learn-hub",
     icon: BookOpen,
-    eyebrow: 'Learn Hub',
-    title: 'Guides, patterns, and office hours',
-    body: 'Explore playbooks for agent design, cost optimization, and governance templates. Weekly office hours with our solutions architects—free for every workspace on Pro and above.',
-    bullets: ['Agent cookbook', 'Cost playbook', 'Compliance templates'],
+    eyebrow: "Learn Hub",
+    title: "Guides, patterns, and office hours",
+    body: "Explore playbooks for agent design, cost optimization, and governance templates. Weekly office hours with our solutions architects—free for every workspace on Pro and above.",
+    bullets: ["Agent cookbook", "Cost playbook", "Compliance templates"],
   },
 ] as const;
 

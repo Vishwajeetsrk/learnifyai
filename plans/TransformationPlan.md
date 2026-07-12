@@ -14,6 +14,7 @@ PART 1: EXECUTIVE SUMMARY
 The Career Tools platform will be transformed into a world-class AI Career Operating System, combining the strengths of LinkedIn Premium, Coursera Career Academy, and modern AI copilots into one unified career success platform.
 
 **Key Transformation Metrics:**
+
 - 70% reduction in manual career searching time
 - 60% improvement in interview preparation relevance
 - 40% increase in career satisfaction scores
@@ -46,18 +47,21 @@ PART 4: TEAM STRUCTURE & SQUADS
 ---------------------------
 
 SQUAD A: FOUNDATIONAL INFRASTRUCTURE
+
 - 5 members (Technical Lead, Backend Dev, Database Engineer, DevOps, QA)
 - Responsibilities: Database schema, API layer, Authentication, CI/CD
 - Timeline: Days 1-21
 - Deliverables: Career Intelligence Engine, Skill APIs, Learning Recommendation APIs
 
-SQUAD B: AI CAREER COACH DEVELOPMENT  
+SQUAD B: AI CAREER COACH DEVELOPMENT
+
 - 5 members (AI Architect, ML Engineer, Backend Dev, Frontend Dev, UX Designer)
 - Responsibilities: AI sub-agents, Context management, Query processing
 - Timeline: Days 8-28
 - Deliverables: Job Search Agent, Salary Negotiation Agent, Network Building Agent, Skill Mastery Agent
 
 SQUAD C: FRONTEND & VISUAL LEARNING
+
 - 5 members (Frontend Lead, React Developer, Designer, Visual Engineer, Testing)
 - Responsibilities: Career Dashboard, Concept Graphs, Explain Like I'm 12, Gamification UI
 - Timeline: Days 6-30
@@ -68,23 +72,23 @@ SQUAD C: FRONTEND & VISUAL LEARNING
 PART 5: FEATURE IMPLEMENTATION MATRIX
 ----------------------------------
 
-| FEATURE GROUP | STATUS | PRIORITY | DEADLINE | SQUAD |
-|---------------|--------|----------|----------|-------|
-| Career Health Score | IN PROGRESS | CRITICAL | Day 15 | A |
-| Job Readiness Score | READY | CRITICAL | Day 15 | A |
-| Recruiter Readiness Score | READY | CRITICAL | Day 15 | A |
-| Skill Intelligence Engine | READY | HIGH | Day 21 | A |
-| Learning Recommendation Engine | READY | HIGH | Day 28 | A |
-| Job Search Agent | READY | CRITICAL | Day 21 | B |
-| Salary Negotiation Agent | READY | HIGH | Day 21 | B |
-| Network Building Agent | READY | HIGH | Day 21 | B |
-| Skill Mastery Agent | READY | HIGH | Day 28 | B |
-| Unified Career Dashboard | IN PROGRESS | CRITICAL | Day 25 | C |
-| Concept Graph Component | COMPLETED | HIGH | Day 25 | C |
-| Explain Like I12 | COMPLETED | HIGH | Day 28 | C |
-| Dynamic Learning Map | IN PROGRESS | HIGH | Day 30 | C |
-| Gamification Dashboard | IN PROGRESS | HIGH | Day 30 | C |
-| Mobile App MVP | READY | MEDIUM | Day 30 | C |
+| FEATURE GROUP                  | STATUS      | PRIORITY | DEADLINE | SQUAD |
+| ------------------------------ | ----------- | -------- | -------- | ----- |
+| Career Health Score            | IN PROGRESS | CRITICAL | Day 15   | A     |
+| Job Readiness Score            | READY       | CRITICAL | Day 15   | A     |
+| Recruiter Readiness Score      | READY       | CRITICAL | Day 15   | A     |
+| Skill Intelligence Engine      | READY       | HIGH     | Day 21   | A     |
+| Learning Recommendation Engine | READY       | HIGH     | Day 28   | A     |
+| Job Search Agent               | READY       | CRITICAL | Day 21   | B     |
+| Salary Negotiation Agent       | READY       | HIGH     | Day 21   | B     |
+| Network Building Agent         | READY       | HIGH     | Day 21   | B     |
+| Skill Mastery Agent            | READY       | HIGH     | Day 28   | B     |
+| Unified Career Dashboard       | IN PROGRESS | CRITICAL | Day 25   | C     |
+| Concept Graph Component        | COMPLETED   | HIGH     | Day 25   | C     |
+| Explain Like I12               | COMPLETED   | HIGH     | Day 28   | C     |
+| Dynamic Learning Map           | IN PROGRESS | HIGH     | Day 30   | C     |
+| Gamification Dashboard         | IN PROGRESS | HIGH     | Day 30   | C     |
+| Mobile App MVP                 | READY       | MEDIUM   | Day 30   | C     |
 
 ---
 
@@ -95,39 +99,44 @@ PHASE 1: CORE INFRASTRUCTURE (Days 1-15)
 ------------------------------------
 
 1.1 Database Migration Strategy
-   - Source: Existing normalized databases
-   - Target: Career intelligence schema with vectors
-   - Migration tools: Supabase migration scripts
-   - Rollback plan: Data backup + point-in-time recovery
+
+- Source: Existing normalized databases
+- Target: Career intelligence schema with vectors
+- Migration tools: Supabase migration scripts
+- Rollback plan: Data backup + point-in-time recovery
 
 1.2 API Layer Architecture
-   - Gateway: CloudFlare Workers (edge compute)
-   - Authentication: JWT + Supabase Auth integration
-   - Rate limiting: 100 requests/second per user
-   - Caching: Redis for common queries (career scores, skill data)
-   - Monitoring: OpenTelemetry + structured logging
+
+- Gateway: CloudFlare Workers (edge compute)
+- Authentication: JWT + Supabase Auth integration
+- Rate limiting: 100 requests/second per user
+- Caching: Redis for common queries (career scores, skill data)
+- Monitoring: OpenTelemetry + structured logging
 
 1.3 Tech Stack Specification
-   ```
-   Frontend: Next.js 14 + React 18 + TypeScript
-   Backend: Cloudflare Workers + Node.js
-   Database: Supabase (Postgres + Extensions)
-   AI: OpenRouter + Gemini + Groq
-   Cache: Redis
-   Monitoring: Sentry + Datadog
-   CI/CD: GitHub Actions
-   ```
+
+```
+Frontend: Next.js 14 + React 18 + TypeScript
+Backend: Cloudflare Workers + Node.js
+Database: Supabase (Postgres + Extensions)
+AI: OpenRouter + Gemini + Groq
+Cache: Redis
+Monitoring: Sentry + Datadog
+CI/CD: GitHub Actions
+```
 
 1.4 Deployment Strategy
-   - Staging: GitHub Actions to Cloudflare Workers preview envs
-   - Production: Cloudflare Workers (global edge)
-   - Databases: Supabase production clusters
-   - Monitoring: Real-time dashboards for system health
+
+- Staging: GitHub Actions to Cloudflare Workers preview envs
+- Production: Cloudflare Workers (global edge)
+- Databases: Supabase production clusters
+- Monitoring: Real-time dashboards for system health
 
 PHASE 2: AI SYSTEM INTEGRATION (Days 8-28)
 ---------------------------------------
 
 2.1 Career Coach Agent Architecture
+
 ```json
 {
   "agent_framework": {
@@ -146,20 +155,23 @@ PHASE 2: AI SYSTEM INTEGRATION (Days 8-28)
 ```
 
 2.2 Data Integration Pipeline
-   - Data sources: Internal (user data) + External (market APIs)
-   - ETL jobs: Daily refresh of market intelligence
-   - Quality control: Automated validation + anomaly detection
-   - Storage: Columnar DB for analytics, document DB for AI context
+
+- Data sources: Internal (user data) + External (market APIs)
+- ETL jobs: Daily refresh of market intelligence
+- Quality control: Automated validation + anomaly detection
+- Storage: Columnar DB for analytics, document DB for AI context
 
 2.3 Model Management
-   - Primary models: OpenRouter (business logic) + Groq (fast inference)
-   - Fine-tuning pipeline: Continuous improvement from user interactions
-   - Model versioning: A/B testing for agent responses
+
+- Primary models: OpenRouter (business logic) + Groq (fast inference)
+- Fine-tuning pipeline: Continuous improvement from user interactions
+- Model versioning: A/B testing for agent responses
 
 PHASE 3: VISUAL LEARNING CAPABILITIES (Days 12-30)
 -----------------------------------
 
 3.1 React Flow Integration
+
 ```bash
 # Package updates needed:
 npm install @xyflow/react d3-force
@@ -167,6 +179,7 @@ npm install --save-dev @types/d3-force
 ```
 
 3.2 Component Architecture
+
 ```
 Visual Learning Components (/src/components/visual-learning):
 ├── ConceptGraph.tsx (React Flow based)
@@ -185,10 +198,11 @@ Career Dashboard Components (/src/components/career):
 ```
 
 3.3 Animation & Interaction Design
-   - Smooth transitions between components
-   - Micro-interactions for user feedback
-   - Responsive design for mobile + desktop
-   - Accessibility compliance (WCAG 2.1 AA)
+
+- Smooth transitions between components
+- Micro-interactions for user feedback
+- Responsive design for mobile + desktop
+- Accessibility compliance (WCAG 2.1 AA)
 
 ---
 
@@ -196,12 +210,14 @@ PART 7: UI/UX DESIGN SPECIFICATIONS
 -----------------------------------
 
 7.1 Design System
-   - Colors: Primary (blue/indigo), Secondary (green/orange), Accent (purple)
-   - Typography: Inter (body), Playfair Display (headings)
-   - Spacing: 4px grid system
-   - Components: 40+ design tokens for consistency
+
+- Colors: Primary (blue/indigo), Secondary (green/orange), Accent (purple)
+- Typography: Inter (body), Playfair Display (headings)
+- Spacing: 4px grid system
+- Components: 40+ design tokens for consistency
 
 7.2 Wireframe Hierarchy
+
 ```
 Level 1: Unified Career Dashboard
 ├── Career Health Score Widget (Left)
@@ -211,7 +227,7 @@ Level 1: Unified Career Dashboard
 
 Level 2: Deep-Dive Views
 ├── Skills Management (Skills tab)
-├── Learning Journey (Learning tab) 
+├── Learning Journey (Learning tab)
 ├── Market Intelligence (Market tab)
 └── Profile Settings (Settings tab)
 ```
@@ -222,20 +238,23 @@ PART 8: ANALYTICS & MONITORING
 ----------------------------
 
 8.1 Product Analytics
-   - Events: User journeys, feature adoption, conversion funnels
-   - Metrics: DAU/MAU, retention curves, feature usage patterns
-   - Tools: Mixpanel + Google Analytics 4
+
+- Events: User journeys, feature adoption, conversion funnels
+- Metrics: DAU/MAU, retention curves, feature usage patterns
+- Tools: Mixpanel + Google Analytics 4
 
 8.2 System Monitoring
-   - Health checks: API response times, error rates
-   - Performance: APM for Cloudflare Workers
-   - Security: WAF + rate limiting monitoring
-   - Scaling: Auto-scaling thresholds and alerts
+
+- Health checks: API response times, error rates
+- Performance: APM for Cloudflare Workers
+- Security: WAF + rate limiting monitoring
+- Scaling: Auto-scaling thresholds and alerts
 
 8.3 Business Intelligence
-   - Dashboard: Revenue, user growth, feature performance
-   - Reports: Weekly/Monthly trend analysis
-   - A/B testing: Feature optimization and pricing tests
+
+- Dashboard: Revenue, user growth, feature performance
+- Reports: Weekly/Monthly trend analysis
+- A/B testing: Feature optimization and pricing tests
 
 ---
 
@@ -243,6 +262,7 @@ PART 9: DATABASE SCHEMA & DATA MODELS
 ------------------------------------
 
 9.1 Core Entity Models
+
 ```sql
 -- Career Intelligence
 CREATE TABLE career_predictions (
@@ -279,9 +299,10 @@ CREATE TABLE user_learning_paths (
 ```
 
 9.2 Vector Database for AI Context
-   - Tool: Supabase pgvector extension
-   - Use case: Semantic similarity for career recommendations
-   - Storage: Combined with traditional structured data
+
+- Tool: Supabase pgvector extension
+- Use case: Semantic similarity for career recommendations
+- Storage: Combined with traditional structured data
 
 ---
 
@@ -297,7 +318,7 @@ The Agents SDK will be used for:
    - Memory: Persistent across sessions using Vector DB
 
 2. **Learning Assistant Agent**
-   - Agent ID: `learning-assistant-agent` 
+   - Agent ID: `learning-assistant-agent`
    - Purpose: Provides concept explanations, learning recommendations, practice problems
    - Tools: Note taking, quiz generation, concept mapping
    - Context: Lesson content + user learning history
@@ -314,35 +335,37 @@ PART 11: MONETIZATION & REVENUE MODEL
 ----------------------------------
 
 11.1 Product Tiers
-   ```
-   Free Tier (_basic_):
-   ├── Basic career scores (1 per day)
-   ├── Limited AI coach queries (5/day)
-   ├── Static skill recommendations
-   └── Basic profile management
 
-   Premium Tier ($29/month):
-   ├── Unlimited career scores (hourly updates)
-   ├── Unlimited AI coach queries
-   ├── Personalized learning paths
-   ├── Market intelligence (weekly)
-   ├── Export capabilities (PDF/resume)
-   └── Priority support
+```
+Free Tier (_basic_):
+├── Basic career scores (1 per day)
+├── Limited AI coach queries (5/day)
+├── Static skill recommendations
+└── Basic profile management
 
-   Enterprise Tier (Custom):
-   ├── Custom career assessment
-   ├── Bulk learning path generation
-   ├── Enterprise analytics dashboard
-   ├── Custom integrations (HR systems)
-   ├── Dedicated account manager
-   └── SLA guarantees
-   ```
+Premium Tier ($29/month):
+├── Unlimited career scores (hourly updates)
+├── Unlimited AI coach queries
+├── Personalized learning paths
+├── Market intelligence (weekly)
+├── Export capabilities (PDF/resume)
+└── Priority support
+
+Enterprise Tier (Custom):
+├── Custom career assessment
+├── Bulk learning path generation
+├── Enterprise analytics dashboard
+├── Custom integrations (HR systems)
+├── Dedicated account manager
+└── SLA guarantees
+```
 
 11.2 Revenue Milestones
-   - Month 1: $25K MRR (1.5K premium users)
-   - Month 2: $75K MRR (5K premium users)
-   - Month 3: $150K MRR (10K premium users)
-   - Month 6: $500K MRR (30K premium users)
+
+- Month 1: $25K MRR (1.5K premium users)
+- Month 2: $75K MRR (5K premium users)
+- Month 3: $150K MRR (10K premium users)
+- Month 6: $500K MRR (30K premium users)
 
 ---
 
@@ -350,6 +373,7 @@ PART 12: LAUNCH ROADMAP & TIMELINE
 ---------------------------------
 
 DAY 1-7: FOUNDATION SPRINT
+
 - Database schema implementation
 - Core API endpoints for career scores
 - Authentication & authorization
@@ -357,6 +381,7 @@ DAY 1-7: FOUNDATION SPRINT
 - Staging environment deployment
 
 DAY 8-14: AI COACH SPRINT
+
 - Job Search Agent MVP
 - Salary Negotiation Agent
 - Network Building Agent
@@ -364,18 +389,21 @@ DAY 8-14: AI COACH SPRINT
 - Beta testing with 100 users
 
 DAY 15-21: MARKET INTELLIGENCE SPRINT
+
 - Hiring Demand Intelligence implementation
 - Salary Intelligence System
 - Industry trend analysis
 - User feedback integration
 
 DAY 22-28: VISUAL LEARNING SPRINT
+
 - Concept Graph React Flow integration
 - Explain Like I12 implementation
 - Dynamic Learning Map
 - Mobile app MVP
 
 DAY 29-30: PRODUCTION READINESS
+
 - Load testing (10K concurrent users)
 - Security audit & penetration testing
 - Performance optimization
@@ -388,22 +416,25 @@ PART 13: SUCCESS METRICS & KPIs
 ------------------------------
 
 13.1 User Engagement
-   - Daily Active Users (DAU): Target 5K by day 30
-   - Session Duration: Average 8 minutes per user
-   - Feature Adoption: 60% of users use AI coach
-   - Retention: 70% return rate within 30 days
+
+- Daily Active Users (DAU): Target 5K by day 30
+- Session Duration: Average 8 minutes per user
+- Feature Adoption: 60% of users use AI coach
+- Retention: 70% return rate within 30 days
 
 13.2 Product Success
-   - Career Health Score Accuracy: >85%
-   - User Satisfaction: >4.5/5.0
-   - Time Saved: 70% reduction in career search time
-   - Conversion Rate: 15% move from free to premium
+
+- Career Health Score Accuracy: >85%
+- User Satisfaction: >4.5/5.0
+- Time Saved: 70% reduction in career search time
+- Conversion Rate: 15% move from free to premium
 
 13.3 Business Success
-   - Revenue: $25K MRR by day 30
-   - Customer Acquisition Cost (CAC): <$50
-   - Lifetime Value (LTV): >$500
-   - Churn Rate: <5% monthly
+
+- Revenue: $25K MRR by day 30
+- Customer Acquisition Cost (CAC): <$50
+- Lifetime Value (LTV): >$500
+- Churn Rate: <5% monthly
 
 ---
 
@@ -411,16 +442,18 @@ PART 14: RISK MITIGATION & CONTINGENCY
 -----------------------------------
 
 14.1 Technical Risks
-   - AI Model Failures: Fallback to rule-based systems
-   - API Integration Issues: Redundant providers
-   - Database Performance: Read replicas + caching
-   - Security Vulnerabilities: Regular penetration testing
+
+- AI Model Failures: Fallback to rule-based systems
+- API Integration Issues: Redundant providers
+- Database Performance: Read replicas + caching
+- Security Vulnerabilities: Regular penetration testing
 
 14.2 Business Risks
-   - Market Adoption: Launch with compelling free features
-   - Competitor Response: Accelerate feature delivery
-   - Technical Debt: Regular refactoring cycles
-   - Team Turnover: Knowledge sharing + documentation
+
+- Market Adoption: Launch with compelling free features
+- Competitor Response: Accelerate feature delivery
+- Technical Debt: Regular refactoring cycles
+- Team Turnover: Knowledge sharing + documentation
 
 ---
 
@@ -428,20 +461,23 @@ PART 15: CONTINUOUS IMPROVEMENT
 -------------------------------
 
 15.1 Feedback Loop
-   - User surveys: Weekly NPS + feature requests
-   - In-app surveys: Contextual feedback collection
-   - Analytics: User behavior tracking and pattern analysis
+
+- User surveys: Weekly NPS + feature requests
+- In-app surveys: Contextual feedback collection
+- Analytics: User behavior tracking and pattern analysis
 
 15.2 Product Roadmap
-   - Phase 1: Complete MVP (Month 1)
-   - Phase 2: Enterprise capabilities (Month 2-3)
-   - Phase 3: Mobile optimization (Month 4-5)
-   - Phase 4: Advanced AI capabilities (Month 6-9)
+
+- Phase 1: Complete MVP (Month 1)
+- Phase 2: Enterprise capabilities (Month 2-3)
+- Phase 3: Mobile optimization (Month 4-5)
+- Phase 4: Advanced AI capabilities (Month 6-9)
 
 15.3 Innovation Pipeline
-   - Monthly feature sprints (Design-Thinking framework)
-   - Quarterly strategic reviews
-   - Annual platform overhaul
+
+- Monthly feature sprints (Design-Thinking framework)
+- Quarterly strategic reviews
+- Annual platform overhaul
 
 ---
 
@@ -449,38 +485,41 @@ PART 16: GOVERNANCE & COMPLIANCE
 -------------------------------
 
 16.1 Security
-   - Data encryption: AES-256 for stored data
-   - API security: OAuth 2.0 + API keys
-   - Privacy: GDPR compliant + CCPA support
-   - Access control: Role-based + least privilege
+
+- Data encryption: AES-256 for stored data
+- API security: OAuth 2.0 + API keys
+- Privacy: GDPR compliant + CCPA support
+- Access control: Role-based + least privilege
 
 16.2 Legal
-   - Terms of Service: User rights + responsibilities
-   - Data Processing Agreement (DPA) for processors
-   - Intellectual property ownership
-   - Liability limitations
+
+- Terms of Service: User rights + responsibilities
+- Data Processing Agreement (DPA) for processors
+- Intellectual property ownership
+- Liability limitations
 
 16.3 Quality Assurance
-   - Automated testing: 95% test coverage
-   - Manual testing: User acceptance testing (UAT)
-   - Performance testing: Load testing + stress testing
-   - Security testing: Vulnerability scanning
+
+- Automated testing: 95% test coverage
+- Manual testing: User acceptance testing (UAT)
+- Performance testing: Load testing + stress testing
+- Security testing: Vulnerability scanning
 
 ---
 
 IMPLEMENTATION PRIORITY MATRIX
 -----------------------------
 
-| TASK | EST. TIME | PRIORITY | OWNER | DEPENDENCIES |
-|------|-----------|----------|-------|--------------|
-| Database schema migration | 40 hours | CRITICAL | Squad A | None |
-| AI agent integration | 120 hours | CRITICAL | Squad B | Agent SDK |
-| Concept graph implementation | 80 hours | HIGH | Squad C | React Flow |
-| Career dashboard | 100 hours | CRITICAL | Squad C | All APIs |
-| Mobile app MVP | 60 hours | MEDIUM | Squad C | Native apps |
-| Testing & QA | 80 hours | CRITICAL | All | All components |
-| Documentation | 40 hours | HIGH | All | Complete code |
-| Performance optimization | 40 hours | HIGH | DevOps | Production |
+| TASK                         | EST. TIME | PRIORITY | OWNER   | DEPENDENCIES   |
+| ---------------------------- | --------- | -------- | ------- | -------------- |
+| Database schema migration    | 40 hours  | CRITICAL | Squad A | None           |
+| AI agent integration         | 120 hours | CRITICAL | Squad B | Agent SDK      |
+| Concept graph implementation | 80 hours  | HIGH     | Squad C | React Flow     |
+| Career dashboard             | 100 hours | CRITICAL | Squad C | All APIs       |
+| Mobile app MVP               | 60 hours  | MEDIUM   | Squad C | Native apps    |
+| Testing & QA                 | 80 hours  | CRITICAL | All     | All components |
+| Documentation                | 40 hours  | HIGH     | All     | Complete code  |
+| Performance optimization     | 40 hours  | HIGH     | DevOps  | Production     |
 
 ---
 
@@ -523,7 +562,7 @@ The transformation requires the following **Agent Skills** to be added:
    - APIs: Career intelligence APIs, Market data APIs
    - Context: User profile + career history
 
-2. **Learning Assistant Agent Skill**  
+2. **Learning Assistant Agent Skill**
    - Deployable: Cloudflare Worker
    - Libraries: Content processing + RAG
    - Tools: Concept generation, explanation formatting

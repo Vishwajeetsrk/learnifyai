@@ -162,15 +162,11 @@ export function CertThumbnail({
           <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/60 text-amber-400 border border-amber-400/20 backdrop-blur-md">
             {category}
           </span>
-          {actions && (
-            <div className="flex gap-1">{actions}</div>
-          )}
+          {actions && <div className="flex gap-1">{actions}</div>}
         </div>
         <div className="my-auto text-center z-10 text-white">
           <h4 className="font-serif font-bold text-sm line-clamp-1">{name}</h4>
-          <p className="text-[10px] text-slate-300 line-clamp-1">
-            Certificate of Completion
-          </p>
+          <p className="text-[10px] text-slate-300 line-clamp-1">Certificate of Completion</p>
         </div>
       </div>
       <div className="p-3 bg-white flex items-center justify-between text-xs border-t border-slate-100">

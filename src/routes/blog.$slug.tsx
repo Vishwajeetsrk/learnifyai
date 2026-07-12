@@ -22,8 +22,14 @@ export const Route = createFileRoute("/blog/$slug")({
         { title: `${post.title} — Learnify AI Blog` },
         { name: "description", content: post.excerpt || "Read our latest article on Learnify AI." },
         { property: "og:title", content: `${post.title} — Learnify AI Blog` },
-        { property: "og:description", content: post.excerpt || "Read our latest article on Learnify AI." },
-        { property: "og:image", content: post.featured_image || "https://learnifyaitool.vercel.app/logo.png" },
+        {
+          property: "og:description",
+          content: post.excerpt || "Read our latest article on Learnify AI.",
+        },
+        {
+          property: "og:image",
+          content: post.featured_image || "https://learnifyaitool.vercel.app/logo.png",
+        },
         { property: "og:type", content: "article" },
       ],
       scripts: [
@@ -32,18 +38,22 @@ export const Route = createFileRoute("/blog/$slug")({
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "BlogPosting",
-            "headline": post.title,
-            "image": post.featured_image ? [post.featured_image] : ["https://learnifyaitool.vercel.app/logo.png"],
-            "datePublished": post.published_at || post.created_at,
-            "dateModified": post.published_at || post.created_at,
-            "description": post.excerpt || "",
-            "author": [{
-              "@type": "Person",
-              "name": post.profiles?.full_name || "Learnify AI Author",
-            }]
-          })
-        }
-      ]
+            headline: post.title,
+            image: post.featured_image
+              ? [post.featured_image]
+              : ["https://learnifyaitool.vercel.app/logo.png"],
+            datePublished: post.published_at || post.created_at,
+            dateModified: post.published_at || post.created_at,
+            description: post.excerpt || "",
+            author: [
+              {
+                "@type": "Person",
+                name: post.profiles?.full_name || "Learnify AI Author",
+              },
+            ],
+          }),
+        },
+      ],
     };
   },
   loader: async ({ params }) => {
@@ -183,8 +193,6 @@ function BlogPostPage() {
           >
             <ArrowLeft className="h-4 w-4" /> Back to blog
           </Link>
-
-
 
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{post.title}</h1>
 

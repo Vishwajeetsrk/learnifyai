@@ -1,12 +1,7 @@
-import { ArrowUpRight, Sparkle } from 'lucide-react';
-import {
-  CAREER_TIMELINE,
-  VIDEO_BACKGROUND,
-  VIDEO_DAILY_SOFTWARE,
-  VIDEO_STATS,
-} from '../constants';
-import { BackgroundVideo } from './BackgroundVideo';
-import { IconMarquee } from './IconMarquee';
+import { ArrowUpRight, Sparkle } from "lucide-react";
+import { CAREER_TIMELINE, VIDEO_BACKGROUND, VIDEO_DAILY_SOFTWARE, VIDEO_STATS } from "../constants";
+import { BackgroundVideo } from "./BackgroundVideo";
+import { IconMarquee } from "./IconMarquee";
 
 const STROKE = 1.5;
 
@@ -19,8 +14,8 @@ export function FeaturesSection() {
             Hi, I&apos;m Max Reed!
           </h1>
           <p className="mt-3 max-w-3xl text-sm leading-[1.6] text-white/60 md:text-[15px]">
-            A London-based creator crafting bold digital products, brand systems, and
-            motion-led interfaces for teams who want clarity without losing personality.
+            A London-based creator crafting bold digital products, brand systems, and motion-led
+            interfaces for teams who want clarity without losing personality.
           </p>
         </div>
         <button
@@ -50,9 +45,7 @@ export function FeaturesSection() {
                   key={entry.year}
                   className="flex flex-col items-center gap-2 text-center sm:gap-2.5"
                 >
-                  <span className="text-xs font-medium text-white/50 md:text-sm">
-                    {entry.year}
-                  </span>
+                  <span className="text-xs font-medium text-white/50 md:text-sm">{entry.year}</span>
                   <Sparkle className="h-3 w-3 text-white/30" strokeWidth={STROKE} />
                   <span className="text-[10px] leading-snug text-white/90 sm:text-xs md:text-sm">
                     {entry.role}
@@ -71,8 +64,8 @@ export function FeaturesSection() {
               Client Voice
             </p>
             <blockquote className="relative z-10 mt-4 text-base leading-[1.55] text-white/90 md:text-lg">
-              &ldquo;Max translated our messy product story into a crisp, cinematic
-              experience. Elena Brooks, CMO at Northline.&rdquo;
+              &ldquo;Max translated our messy product story into a crisp, cinematic experience.
+              Elena Brooks, CMO at Northline.&rdquo;
             </blockquote>
             <p className="relative z-10 mt-4 text-sm text-white/50">Elena Brooks</p>
           </div>
@@ -81,9 +74,7 @@ export function FeaturesSection() {
             <BackgroundVideo src={VIDEO_STATS} />
             <div className="absolute inset-0 bg-black/35" />
             <div className="relative z-10 flex h-full min-h-[200px] flex-col justify-end p-5 md:min-h-[240px] md:p-6">
-              <p className="text-4xl font-normal tracking-tight md:text-5xl lg:text-6xl">
-                10M+
-              </p>
+              <p className="text-4xl font-normal tracking-tight md:text-5xl lg:text-6xl">10M+</p>
               <p className="mt-1 text-sm text-white/60">Views across shipped campaigns</p>
             </div>
           </div>

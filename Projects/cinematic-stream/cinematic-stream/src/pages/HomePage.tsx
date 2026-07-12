@@ -1,7 +1,7 @@
-import { Calendar, ChevronLeft, ChevronRight, Clock, Play, Star } from 'lucide-react';
-import HeroVideo from '../components/HeroVideo';
-import Navbar from '../components/Navbar';
-import { HERO_VIDEO } from '../routes';
+import { Calendar, ChevronLeft, ChevronRight, Clock, Play, Star } from "lucide-react";
+import HeroVideo from "../components/HeroVideo";
+import Navbar from "../components/Navbar";
+import { HERO_VIDEO } from "../routes";
 
 export function HomePage() {
   return (
@@ -23,7 +23,7 @@ export function HomePage() {
             <div className="w-full flex-1">
               <div
                 className="animate-blur-fade-up mb-6 flex flex-wrap items-center gap-3 text-xs sm:mb-8 sm:gap-6 sm:text-sm"
-                style={{ animationDelay: '300ms' }}
+                style={{ animationDelay: "300ms" }}
               >
                 <span className="inline-flex items-center gap-1.5 font-medium">
                   <Star className="h-4 w-4 fill-white sm:h-5 sm:w-5" />
@@ -41,14 +41,14 @@ export function HomePage() {
 
               <h1
                 className="animate-blur-fade-up mb-4 text-3xl font-normal tracking-[-0.04em] sm:mb-6 sm:text-5xl md:text-6xl lg:text-7xl"
-                style={{ animationDelay: '400ms' }}
+                style={{ animationDelay: "400ms" }}
               >
                 Step Through. Work Smarter.
               </h1>
 
               <p
                 className="animate-blur-fade-up mb-6 max-w-2xl text-base text-gray-400 sm:mb-12 sm:text-lg md:text-xl"
-                style={{ animationDelay: '500ms' }}
+                style={{ animationDelay: "500ms" }}
               >
                 A voyage through forgotten realms, where past and future intertwine.
               </p>
@@ -57,7 +57,7 @@ export function HomePage() {
                 <button
                   type="button"
                   className="animate-blur-fade-up inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-sm font-medium text-black transition-colors hover:bg-gray-200 sm:px-8 sm:py-3"
-                  style={{ animationDelay: '600ms' }}
+                  style={{ animationDelay: "600ms" }}
                 >
                   <Play className="h-[18px] w-[18px] fill-black" />
                   Watch Now
@@ -65,7 +65,7 @@ export function HomePage() {
                 <button
                   type="button"
                   className="animate-blur-fade-up liquid-glass rounded-full px-6 py-2.5 text-sm font-medium sm:px-8 sm:py-3"
-                  style={{ animationDelay: '700ms' }}
+                  style={{ animationDelay: "700ms" }}
                 >
                   Learn More
                 </button>
@@ -76,7 +76,7 @@ export function HomePage() {
               <button
                 type="button"
                 className="animate-blur-fade-up liquid-glass inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium sm:flex-none sm:px-6 sm:py-3"
-                style={{ animationDelay: '800ms' }}
+                style={{ animationDelay: "800ms" }}
               >
                 <ChevronLeft className="h-4 w-4" />
                 Previous
@@ -84,7 +84,7 @@ export function HomePage() {
               <button
                 type="button"
                 className="animate-blur-fade-up liquid-glass inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium sm:flex-none sm:px-6 sm:py-3"
-                style={{ animationDelay: '900ms' }}
+                style={{ animationDelay: "900ms" }}
               >
                 Next
                 <ChevronRight className="h-4 w-4" />

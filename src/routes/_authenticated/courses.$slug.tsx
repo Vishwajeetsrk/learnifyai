@@ -91,7 +91,15 @@ import {
 import { VisualLearningPanel } from "@/components/visual-learning/VisualLearningPanel";
 
 type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "ai-agent" | "visual";
-const VALID_TABS: CourseTab[] = ["notes", "summary", "doubt", "exercise", "playground", "ai-agent", "visual"];
+const VALID_TABS: CourseTab[] = [
+  "notes",
+  "summary",
+  "doubt",
+  "exercise",
+  "playground",
+  "ai-agent",
+  "visual",
+];
 
 export const Route = createFileRoute("/_authenticated/courses/$slug")({
   head: () => ({ meta: [{ title: "Course — Learnify AI" }] }),
@@ -605,14 +613,14 @@ function CourseDetail() {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Course",
-              "name": course.title,
-              "description": course.description || "Intelligent tech certification course.",
-              "provider": {
+              name: course.title,
+              description: course.description || "Intelligent tech certification course.",
+              provider: {
                 "@type": "Organization",
-                "name": "Learnify AI",
-                "sameAs": "https://learnifyaitool.vercel.app"
-              }
-            })
+                name: "Learnify AI",
+                sameAs: "https://learnifyaitool.vercel.app",
+              },
+            }),
           }}
         />
       )}
@@ -814,7 +822,9 @@ function CourseDetail() {
                   lessons={lessons.map((l) => ({
                     id: l.id,
                     title: l.title,
-                    duration: l.duration_minutes ? `${Math.floor(l.duration_minutes / 60)}:${(l.duration_minutes % 60).toString().padStart(2, "0")}` : "0:00",
+                    duration: l.duration_minutes
+                      ? `${Math.floor(l.duration_minutes / 60)}:${(l.duration_minutes % 60).toString().padStart(2, "0")}`
+                      : "0:00",
                     completed: completed.has(l.id),
                   }))}
                   currentLessonId={active?.id || ""}

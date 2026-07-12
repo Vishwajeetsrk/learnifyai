@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { motion } from 'motion/react';
+import type { ReactNode } from "react";
+import { motion } from "motion/react";
 
 export function PageShell({
   title,
@@ -26,7 +26,10 @@ export function PageShell({
             {title}
           </h1>
           {subtitle ? (
-            <p className="mt-6 text-[15px] leading-relaxed text-[#A5A5A5] md:text-[18px]" data-editable>
+            <p
+              className="mt-6 text-[15px] leading-relaxed text-[#A5A5A5] md:text-[18px]"
+              data-editable
+            >
               {subtitle}
             </p>
           ) : null}

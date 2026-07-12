@@ -1,10 +1,10 @@
-import { ArrowRight } from 'lucide-react';
-import type { ReactNode } from 'react';
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
+import { ArrowRight } from "lucide-react";
+import type { ReactNode } from "react";
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
 
 type PillButtonProps = {
   children: ReactNode;
-  size?: 'base' | 'lg';
+  size?: "base" | "lg";
   route?: string;
   section?: string;
   onClick?: () => void;
@@ -14,17 +14,15 @@ type PillButtonProps = {
 
 export default function PillButton({
   children,
-  size = 'lg',
+  size = "lg",
   route,
   section,
   onClick,
-  className = '',
+  className = "",
   presetText,
 }: PillButtonProps) {
   const sizeClass =
-    size === 'lg'
-      ? 'text-base md:text-lg pl-8 pr-2 py-2'
-      : 'text-base pl-6 pr-1.5 py-1.5';
+    size === "lg" ? "text-base md:text-lg pl-8 pr-2 py-2" : "text-base pl-6 pr-1.5 py-1.5";
 
   const inner = (
     <>
@@ -41,7 +39,11 @@ export default function PillButton({
 
   if (route) {
     return (
-      <PresetNavLink target={{ kind: 'route', path: route }} className={baseClassName} data-editable>
+      <PresetNavLink
+        target={{ kind: "route", path: route }}
+        className={baseClassName}
+        data-editable
+      >
         {inner}
       </PresetNavLink>
     );
@@ -49,7 +51,11 @@ export default function PillButton({
 
   if (section) {
     return (
-      <PresetNavLink target={{ kind: 'section', id: section }} className={baseClassName} data-editable>
+      <PresetNavLink
+        target={{ kind: "section", id: section }}
+        className={baseClassName}
+        data-editable
+      >
         {inner}
       </PresetNavLink>
     );

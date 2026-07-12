@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import { useState, useRef, useEffect, useMemo, lazy, Suspense } from "react";
 import { AppShell } from "@/components/AppShell";
 import { AIPanel } from "@/components/playground/AIPanel";
@@ -47,6 +47,11 @@ const searchSchema = z.object({ project: z.string().optional() });
 
 export const Route = createFileRoute("/_authenticated/playground/editor")({
   validateSearch: (s: Record<string, unknown>) => searchSchema.parse(s),
+  beforeLoad: ({ search }) => {
+    if (!search.project) {
+      throw redirect({ to: "/playground/projects" });
+    }
+  },
   head: () => ({ meta: [{ title: "Code Editor — Learnify AI" }] }),
   component: PlaygroundEditor,
 });
@@ -83,6 +88,34 @@ function PlaygroundEditor() {
   const [capturing, setCapturing] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
 
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const handleActiveFileChange = (path: string, code: string) => {
+    setFiles((prev) => {
+      const updated = prev.map((f) => {
+        const fullPath = (f.path === "/" ? "" : f.path) + "/" + f.name;
+        if (fullPath === path) {
+          return { ...f, content: code };
+        }
+        return f;
+      });
+      const matched = updated.find((f) => {
+        const fullPath = (f.path === "/" ? "" : f.path) + "/" + f.name;
+        return fullPath === path;
+      });
+      if (matched && matched.id !== activeFileId) {
+        setActiveFileId(matched.id);
+      }
+      return updated;
+    });
+  };
+
   const handleCaptureScreenshot = async () => {
     if (!projectId) return toast.error("Save the project first");
     setCapturing(true);
@@ -117,13 +150,13 @@ function PlaygroundEditor() {
   const updateProjectFn = useServerFn(updateProject);
   const bulkSyncFn = useServerFn(bulkSyncFiles);
 
-  const { data: project } = useRQ({
+  const { data: project, isLoading: loadingProject } = useRQ({
     enabled: !!projectId,
     queryKey: ["playground-project", projectId],
     queryFn: async () => getProjectFn({ data: { id: projectId! } }),
   });
 
-  const { data: fetchedFiles } = useRQ({
+  const { data: fetchedFiles, isLoading: loadingFiles } = useRQ({
     enabled: !!projectId,
     queryKey: ["playground-project-files", projectId],
     queryFn: async () => getProjectFilesFn({ data: { projectId: projectId! } }),
@@ -408,9 +441,16 @@ function PlaygroundEditor() {
         {/* IDE & AI Pane Layout */}
         <div className="flex-1 flex overflow-hidden flex-col lg:flex-row relative">
           <div className="flex-1 overflow-hidden relative">
-            {!projectId ? (
-              <div className="h-full flex items-center justify-center text-muted-foreground">
-                Loading project...
+            {(loadingProject || loadingFiles) ? (
+              <div className="h-full flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : !project ? (
+              <div className="h-full flex items-center justify-center text-muted-foreground text-sm flex-col gap-2">
+                <p>Project not found or failed to load.</p>
+                <Link to="/playground/projects" className="text-primary hover:underline text-xs">
+                  Back to Projects
+                </Link>
               </div>
             ) : (
               <Suspense
@@ -432,6 +472,8 @@ function PlaygroundEditor() {
                     saving={saving}
                     onScreenshot={handleCaptureScreenshot}
                     capturing={capturing}
+                    onActiveFileChange={handleActiveFileChange}
+                    isMobile={isMobile}
                   />
                 ) : (
                   <StandardIDE
@@ -449,6 +491,7 @@ function PlaygroundEditor() {
                     timeMs={timeMs}
                     saving={saving}
                     onSaveProject={handleStandardSave}
+                    isMobile={isMobile}
                   />
                 )}
               </Suspense>
@@ -456,14 +499,19 @@ function PlaygroundEditor() {
           </div>
 
           {activePanel && (
-            <div className={cn(
-              "lg:w-80 lg:border-l bg-card shrink-0 flex flex-col z-40 transition-transform duration-300",
-              "fixed inset-x-0 bottom-0 h-[85vh] rounded-t-3xl border-t shadow-[0_-10px_40px_rgba(0,0,0,0.5)] lg:static lg:h-auto lg:rounded-none lg:border-t-0 lg:shadow-none lg:translate-y-0",
-              activePanel ? "translate-y-0" : "translate-y-full"
-            )}>
+            <div
+              className={cn(
+                "lg:w-80 lg:border-l bg-card shrink-0 flex flex-col z-40 transition-transform duration-300",
+                "fixed inset-x-0 bottom-0 h-[85vh] rounded-t-3xl border-t shadow-[0_-10px_40px_rgba(0,0,0,0.5)] lg:static lg:h-auto lg:rounded-none lg:border-t-0 lg:shadow-none lg:translate-y-0",
+                activePanel ? "translate-y-0" : "translate-y-full",
+              )}
+            >
               {/* Mobile Drag Handle */}
-              <div className="flex lg:hidden justify-center pt-3 pb-2 w-full cursor-pointer" onClick={() => setActivePanel(null)}>
-                 <div className="w-12 h-1.5 bg-muted rounded-full" />
+              <div
+                className="flex lg:hidden justify-center pt-3 pb-2 w-full cursor-pointer"
+                onClick={() => setActivePanel(null)}
+              >
+                <div className="w-12 h-1.5 bg-muted rounded-full" />
               </div>
               {activePanel === "ai" && (
                 <AIPanel

@@ -10,10 +10,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { sendWelcomeEmail } from "@/lib/welcome-email.functions";
 import { assignDefaultRole } from "@/lib/profile-save.functions";
+import { validatePasswordStrength } from "@/lib/password-validator";
 import logoUrl from "@/assets/learnify-logo.png?url";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({ meta: [{ title: "Create your account — Learnify AI" }] }),
+  head: () => ({ meta: [{ title: "Join Learnify AI — Start Learning" }] }),
   component: SignupPage,
 });
 
@@ -34,6 +35,13 @@ function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const pwdCheck = validatePasswordStrength(password);
+    if (!pwdCheck.isValid) {
+      toast.error(pwdCheck.error || "Weak password.");
+      return;
+    }
+
     setSubmitting(true);
     const { data, error } = await supabase.auth.signUp({
       email,

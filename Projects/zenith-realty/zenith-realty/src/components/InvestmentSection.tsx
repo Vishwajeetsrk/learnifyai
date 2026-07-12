@@ -1,6 +1,6 @@
-import type { SVGProps } from 'react';
-import { Bar, BarChart, ResponsiveContainer } from 'recharts';
-import { CHART_CARDS } from '../constants';
+import type { SVGProps } from "react";
+import { Bar, BarChart, ResponsiveContainer } from "recharts";
+import { CHART_CARDS } from "../constants";
 
 type BarShapeProps = SVGProps<SVGRectElement> & {
   x?: number;
@@ -36,7 +36,9 @@ export function InvestmentSection() {
               Our holdings go beyond floor plans; they represent a vehicle for your wealth to thrive
               consistently.
             </p>
-            <p data-editable>We meticulously vet the premier market offerings for our valued partners.</p>
+            <p data-editable>
+              We meticulously vet the premier market offerings for our valued partners.
+            </p>
           </div>
         </div>
         <div className="grid gap-6 md:grid-cols-3">
@@ -48,7 +50,10 @@ export function InvestmentSection() {
                 className="flex aspect-video flex-col justify-between bg-white p-6 md:aspect-[1.8/1]"
               >
                 <div>
-                  <p className="text-[12px] font-medium uppercase tracking-tight text-[#141414]/40" data-editable>
+                  <p
+                    className="text-[12px] font-medium uppercase tracking-tight text-[#141414]/40"
+                    data-editable
+                  >
                     {card.title}
                   </p>
                   <p className="mt-2 text-4xl font-medium text-[#141414]" data-editable>

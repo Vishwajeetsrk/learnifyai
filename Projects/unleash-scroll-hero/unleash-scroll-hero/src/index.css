@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -14,8 +14,8 @@
 }
 
 @font-face {
-  font-family: 'Dirtyline36Daysoftype2022';
-  src: url('/preset-sites/unleash-scroll-hero/Dirtyline-36daysoftype-2022.woff2') format('woff2');
+  font-family: "Dirtyline36Daysoftype2022";
+  src: url("/preset-sites/unleash-scroll-hero/Dirtyline-36daysoftype-2022.woff2") format("woff2");
   font-style: normal;
   font-weight: normal;
   text-rendering: optimizeLegibility;

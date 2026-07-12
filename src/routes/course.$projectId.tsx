@@ -6,8 +6,9 @@ import { motion } from "framer-motion";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Play, Layout, Code2, BookOpen, Volume2, Lock, X } from "lucide-react";
+import { ArrowLeft, Play, Layout, Code2, BookOpen, Volume2, Lock, X, VideoOff } from "lucide-react";
 import projectsData from "@/data/projects.json";
+import { extractYouTubeVideoId } from "@/lib/course-player";
 
 export const Route = createFileRoute("/course/$projectId")({
   component: CourseDetailPage,
@@ -29,7 +30,7 @@ function CourseDetailPage() {
       } catch {
         return projectsData.find((p) => p.id === projectId) || null;
       }
-    }
+    },
   });
 
   const project = dbProject as any;
@@ -47,8 +48,12 @@ function CourseDetailPage() {
   if (!project) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center px-4">
-        <h2 className="text-2xl font-display font-semibold mb-2 text-foreground">Course Not Found</h2>
-        <p className="text-muted-foreground mb-6">The template course you're looking for doesn't exist.</p>
+        <h2 className="text-2xl font-display font-semibold mb-2 text-foreground">
+          Course Not Found
+        </h2>
+        <p className="text-muted-foreground mb-6">
+          The template course you're looking for doesn't exist.
+        </p>
         <Link to="/projects" className="text-primary hover:underline">
           &larr; Back to Projects
         </Link>
@@ -56,54 +61,75 @@ function CourseDetailPage() {
     );
   }
 
-  const modules = project.course_modules?.length > 0 ? project.course_modules : [
-    {
-      step: 1,
-      title: "Project Setup & Environment",
-      text: "Initialize a Vite + React + TypeScript workspace. Set up Tailwind CSS."
-    },
-    {
-      step: 2,
-      title: "UI Architecture & Layout",
-      text: "Structure the main components. Build the navigation and responsive grid layouts."
-    },
-    {
-      step: 3,
-      title: "Implementing Core Features",
-      text: `Develop the core functionality: ${project.description?.substring(0, 60) || project.title}...`
-    },
-    {
-      step: 4,
-      title: "Animations & Polish",
-      text: "Add smooth transitions, hover effects, and animations to bring the template to life."
-    }
-  ];
+  const modules =
+    project.course_modules?.length > 0
+      ? project.course_modules
+      : [
+          {
+            step: 1,
+            title: "Project Setup & Environment",
+            text: "Initialize a Vite + React + TypeScript workspace. Set up Tailwind CSS.",
+          },
+          {
+            step: 2,
+            title: "UI Architecture & Layout",
+            text: "Structure the main components. Build the navigation and responsive grid layouts.",
+          },
+          {
+            step: 3,
+            title: "Implementing Core Features",
+            text: `Develop the core functionality: ${project.description?.substring(0, 60) || project.title}...`,
+          },
+          {
+            step: 4,
+            title: "Animations & Polish",
+            text: "Add smooth transitions, hover effects, and animations to bring the template to life.",
+          },
+        ];
 
   const descLower = (project.description || "").toLowerCase();
   const techStack = project.tech_stack || [
     { icon: Code2, title: "React + Vite", desc: "Frontend framework" },
     { icon: Layout, title: "Tailwind CSS", desc: "Styling engine" },
-    ...(descLower.includes("gsap") ? [{ icon: Play, title: "GSAP", desc: "Animation library" }] : []),
-    ...(descLower.includes("3d") || descLower.includes("spline") ? [{ icon: BookOpen, title: "Spline / 3D", desc: "Interactive 3D" }] : []),
-    ...(descLower.includes("video") ? [{ icon: Play, title: "React Player", desc: "Video handling" }] : []),
+    ...(descLower.includes("gsap")
+      ? [{ icon: Play, title: "GSAP", desc: "Animation library" }]
+      : []),
+    ...(descLower.includes("3d") || descLower.includes("spline")
+      ? [{ icon: BookOpen, title: "Spline / 3D", desc: "Interactive 3D" }]
+      : []),
+    ...(descLower.includes("video")
+      ? [{ icon: Play, title: "React Player", desc: "Video handling" }]
+      : []),
   ];
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
       <Helmet>
         <title>{project.title} — Learnify AI Template</title>
-        <meta name="description" content={project.description || "Learn and master this interactive UI template on Learnify AI."} />
+        <meta
+          name="description"
+          content={
+            project.description || "Learn and master this interactive UI template on Learnify AI."
+          }
+        />
         <meta property="og:title" content={`${project.title} — Learnify AI Template`} />
-        <meta property="og:description" content={project.description || "Learn and master this interactive UI template on Learnify AI."} />
+        <meta
+          property="og:description"
+          content={
+            project.description || "Learn and master this interactive UI template on Learnify AI."
+          }
+        />
       </Helmet>
 
       <SiteHeader />
 
       <main className="flex-1 pt-24 pb-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-
           {/* Breadcrumb */}
-          <Link to="/projects" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors">
+          <Link
+            to="/projects"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
+          >
             <ArrowLeft className="h-4 w-4" />
             Back to Templates
           </Link>
@@ -111,44 +137,68 @@ function CourseDetailPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Left Column: Video / Hero Preview */}
             <div className="lg:col-span-8 space-y-6">
+              {(() => {
+                const videoId = project.teaser_video_url
+                  ? extractYouTubeVideoId(project.teaser_video_url)
+                  : null;
+                const embedSrc = videoId
+                  ? `https://www.youtube.com/embed/${videoId}?autoplay=1`
+                  : null;
 
-              {isPlayingTeaser ? (
-                <div className="aspect-video w-full bg-black rounded-2xl shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-300">
-                  <iframe
-                    className="w-full h-full"
-                    src={project.teaser_video_url || "https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1"}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                  <button
-                    onClick={() => setIsPlayingTeaser(false)}
-                    className="absolute top-4 right-4 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full transition-colors backdrop-blur-md"
+                return isPlayingTeaser && embedSrc ? (
+                  <div className="aspect-video w-full bg-black rounded-2xl shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-300">
+                    <iframe
+                      className="w-full h-full"
+                      src={embedSrc}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                    <button
+                      onClick={() => setIsPlayingTeaser(false)}
+                      className="absolute top-4 right-4 bg-black/60 hover:bg-black/90 text-white p-2 rounded-full transition-colors backdrop-blur-md"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className="aspect-video w-full bg-black rounded-2xl border border-border shadow-2xl overflow-hidden relative group cursor-pointer"
+                    onClick={() => {
+                      if (embedSrc) setIsPlayingTeaser(true);
+                    }}
                   >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-              ) : (
-                <div
-                  className="aspect-video w-full bg-black rounded-2xl border border-border shadow-2xl overflow-hidden relative group cursor-pointer"
-                  onClick={() => setIsPlayingTeaser(true)}
-                >
-                  <iframe
-                    src={project.path}
-                    title={project.title}
-                    className="w-full h-full pointer-events-none opacity-60 mix-blend-screen"
-                  />
+                    <iframe
+                      src={project.path}
+                      title={project.title}
+                      className="w-full h-full pointer-events-none opacity-60 mix-blend-screen"
+                    />
 
-                  {/* Overlay Play Button */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all group-hover:bg-black/20">
-                    <div className="flex flex-col items-center gap-3">
-                      <button className="h-16 w-16 bg-primary/90 text-primary-foreground rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-primary transition-all shadow-glow pointer-events-none">
-                        <Play className="h-6 w-6 ml-1" />
-                      </button>
-                      <span className="text-sm font-medium text-white/90 drop-shadow-md">Watch Course Teaser</span>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all group-hover:bg-black/20">
+                      <div className="flex flex-col items-center gap-3">
+                        {embedSrc ? (
+                          <>
+                            <button className="h-16 w-16 bg-primary/90 text-primary-foreground rounded-full flex items-center justify-center group-hover:scale-110 group-hover:bg-primary transition-all shadow-glow pointer-events-none">
+                              <Play className="h-6 w-6 ml-1" />
+                            </button>
+                            <span className="text-sm font-medium text-white/90 drop-shadow-md">
+                              Watch Course Teaser
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <div className="h-16 w-16 bg-muted/80 text-muted-foreground rounded-full flex items-center justify-center">
+                              <VideoOff className="h-6 w-6" />
+                            </div>
+                            <span className="text-sm font-medium text-white/70 drop-shadow-md">
+                              No teaser video available
+                            </span>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               <div className="space-y-4">
                 <h1 className="text-3xl md:text-4xl font-display font-semibold text-foreground tracking-tight">
@@ -159,13 +209,20 @@ function CourseDetailPage() {
                 </p>
 
                 <div className="flex flex-wrap gap-2 pt-2">
-                  <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium text-secondary-foreground">GSAP</span>
-                  <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium text-secondary-foreground">React</span>
-                  <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium text-secondary-foreground">Tailwind CSS</span>
-                  <span className="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-medium">Advanced</span>
+                  <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium text-secondary-foreground">
+                    GSAP
+                  </span>
+                  <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium text-secondary-foreground">
+                    React
+                  </span>
+                  <span className="px-3 py-1 bg-secondary rounded-full text-xs font-medium text-secondary-foreground">
+                    Tailwind CSS
+                  </span>
+                  <span className="px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-full text-xs font-medium">
+                    Advanced
+                  </span>
                 </div>
               </div>
-
             </div>
 
             {/* Right Column: Curriculum & CTA */}
@@ -198,11 +255,15 @@ function CourseDetailPage() {
                               <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-xs font-bold text-foreground group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                                 {mod.step}
                               </div>
-                              {i !== modules.length - 1 && <div className="w-[1px] h-full bg-border mt-2" />}
+                              {i !== modules.length - 1 && (
+                                <div className="w-[1px] h-full bg-border mt-2" />
+                              )}
                             </div>
                             <div className="pb-4">
                               <h4 className="text-sm font-semibold text-foreground">{mod.title}</h4>
-                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{mod.text}</p>
+                              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                {mod.text}
+                              </p>
                             </div>
                           </div>
                         ))
@@ -219,7 +280,10 @@ function CourseDetailPage() {
                       {techStack.map((tech: any, idx: number) => {
                         const Icon = tech.icon;
                         return (
-                          <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-accent/50 border border-border/50 group hover:border-primary/50 transition-colors">
+                          <div
+                            key={idx}
+                            className="flex items-center gap-3 p-3 rounded-xl bg-accent/50 border border-border/50 group hover:border-primary/50 transition-colors"
+                          >
                             <Icon className="h-5 w-5 text-primary" />
                             <div>
                               <p className="text-sm font-medium">{tech.title}</p>
@@ -233,7 +297,11 @@ function CourseDetailPage() {
                 </div>
 
                 <div className="mt-8 space-y-3">
-                  <Link to="/studio/$projectId" params={{ projectId: project.id }} className="w-full bg-primary text-primary-foreground font-semibold h-14 rounded-xl hover:bg-primary/90 transition-all flex flex-col items-center justify-center shadow-glow">
+                  <Link
+                    to="/studio/$projectId"
+                    params={{ projectId: project.id }}
+                    className="w-full bg-primary text-primary-foreground font-semibold h-14 rounded-xl hover:bg-primary/90 transition-all flex flex-col items-center justify-center shadow-glow"
+                  >
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4" /> Start Building Now
                     </div>
@@ -241,13 +309,17 @@ function CourseDetailPage() {
                       <Lock className="h-2.5 w-2.5" /> Career Pro
                     </div>
                   </Link>
-                  <a href={project.path} target="_blank" rel="noreferrer" className="w-full flex items-center justify-center bg-secondary text-secondary-foreground font-medium h-12 rounded-xl hover:bg-secondary/80 transition-all">
+                  <a
+                    href={project.path}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full flex items-center justify-center bg-secondary text-secondary-foreground font-medium h-12 rounded-xl hover:bg-secondary/80 transition-all"
+                  >
                     View Live Template
                   </a>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </main>

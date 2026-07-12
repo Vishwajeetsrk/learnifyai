@@ -1,6 +1,6 @@
-import { HERO_BRANDS, HERO_VIDEO } from '../constants';
-import BrandMarquee from './BrandMarquee';
-import PillButton from './PillButton';
+import { HERO_BRANDS, HERO_VIDEO } from "../constants";
+import BrandMarquee from "./BrandMarquee";
+import PillButton from "./PillButton";
 
 export default function HeroSection() {
   return (
@@ -8,7 +8,7 @@ export default function HeroSection() {
       <div
         id="network"
         className="relative h-screen w-full scroll-mt-24 overflow-hidden rounded-2xl"
-        style={{ maxHeight: 'calc(100vh - 5rem)' }}
+        style={{ maxHeight: "calc(100vh - 5rem)" }}
       >
         <video
           className="absolute inset-0 h-full w-full object-cover"
@@ -22,7 +22,7 @@ export default function HeroSection() {
         <div className="relative z-10 flex h-full flex-col items-start justify-start p-12 pt-36">
           <h1
             className="mb-4 max-w-xl text-5xl leading-tight font-semibold text-black md:text-6xl"
-            style={{ letterSpacing: '-0.04em' }}
+            style={{ letterSpacing: "-0.04em" }}
             data-editable
             data-preset-text="hero-headline"
           >

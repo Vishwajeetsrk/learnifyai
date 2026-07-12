@@ -3,10 +3,25 @@ import { AgentChat } from "./AgentChat";
 import { learningAssistantChat } from "@/lib/learning-assistant.functions";
 
 const SUGGESTIONS = [
-  { label: "Explain React Server Components", prompt: "Can you explain React Server Components to me like I'm a junior developer? Include a simple code example." },
-  { label: "Study plan for TypeScript", prompt: "I'm a Python developer new to TypeScript. Create a 4-week study plan to get job-ready." },
-  { label: "Practice: Binary search problem", prompt: "Generate a LeetCode-style binary search practice problem with test cases." },
-  { label: "Review my code", prompt: "I wrote a Python function to fetch and paginate API data. Can you review it for best practices?" },
+  {
+    label: "Explain React Server Components",
+    prompt:
+      "Can you explain React Server Components to me like I'm a junior developer? Include a simple code example.",
+  },
+  {
+    label: "Study plan for TypeScript",
+    prompt:
+      "I'm a Python developer new to TypeScript. Create a 4-week study plan to get job-ready.",
+  },
+  {
+    label: "Practice: Binary search problem",
+    prompt: "Generate a LeetCode-style binary search practice problem with test cases.",
+  },
+  {
+    label: "Review my code",
+    prompt:
+      "I wrote a Python function to fetch and paginate API data. Can you review it for best practices?",
+  },
 ];
 
 export function LearningAssistantChat() {

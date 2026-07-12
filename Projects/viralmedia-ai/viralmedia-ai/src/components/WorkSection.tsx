@@ -1,5 +1,5 @@
-import { motion } from 'motion/react';
-import { PROJECTS } from '../constants';
+import { motion } from "motion/react";
+import { PROJECTS } from "../constants";
 
 export function WorkSection() {
   return (
@@ -9,8 +9,7 @@ export function WorkSection() {
           Selected <span className="font-accent italic font-normal">Work</span>
         </h2>
         <p className="text-center text-lg text-muted-foreground max-w-2xl mx-auto mb-16">
-          A curated collection of projects where bold design meets intelligent
-          technology.
+          A curated collection of projects where bold design meets intelligent technology.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -19,7 +18,7 @@ export function WorkSection() {
               key={project.title}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
+              viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.6, delay: i * 0.1 }}
             >
               <div className="liquid-glass aspect-[4/3] rounded-2xl overflow-hidden mb-4">
@@ -30,12 +29,8 @@ export function WorkSection() {
                   loading="lazy"
                 />
               </div>
-              <h3 className="text-xl font-medium text-foreground font-body">
-                {project.title}
-              </h3>
-              <p className="text-sm text-muted-foreground font-body mt-1">
-                {project.category}
-              </p>
+              <h3 className="text-xl font-medium text-foreground font-body">{project.title}</h3>
+              <p className="text-sm text-muted-foreground font-body mt-1">{project.category}</p>
             </motion.article>
           ))}
         </div>

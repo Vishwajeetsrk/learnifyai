@@ -1,6 +1,6 @@
-import { ArrowRight } from 'lucide-react';
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
-import { TextRoll } from './TextRoll';
+import { ArrowRight } from "lucide-react";
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
+import { TextRoll } from "./TextRoll";
 
 export function ManifestoSection() {
   return (
@@ -24,7 +24,7 @@ export function ManifestoSection() {
         </p>
         <button
           type="button"
-          onClick={() => navigateToRoute('studio')}
+          onClick={() => navigateToRoute("studio")}
           className="group mt-10 flex w-fit items-center gap-2 rounded-full border border-gray-300 bg-white py-2 pl-5 pr-2 text-[13px] font-medium text-gray-900 transition-colors hover:border-gray-400 sm:text-sm"
         >
           <TextRoll text="Meet the studio" heightClass="h-[20px]" />

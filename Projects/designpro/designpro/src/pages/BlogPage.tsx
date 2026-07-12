@@ -1,5 +1,5 @@
-import PageShell from '../components/PageShell';
-import { BLOG_POSTS } from '../constants';
+import PageShell from "../components/PageShell";
+import { BLOG_POSTS } from "../constants";
 
 export function BlogPage() {
   return (
@@ -10,7 +10,10 @@ export function BlogPage() {
     >
       <ul className="divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/5">
         {BLOG_POSTS.map((post) => (
-          <li key={post.title} className="flex flex-col gap-2 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <li
+            key={post.title}
+            className="flex flex-col gap-2 px-6 py-5 sm:flex-row sm:items-center sm:justify-between"
+          >
             <div>
               <p className="text-xs uppercase tracking-wider text-[#64CEFB]">{post.tag}</p>
               <h2 className="mt-1 text-base font-medium sm:text-lg">{post.title}</h2>

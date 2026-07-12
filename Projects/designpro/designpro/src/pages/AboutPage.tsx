@@ -1,4 +1,4 @@
-import PageShell from '../components/PageShell';
+import PageShell from "../components/PageShell";
 
 export function AboutPage() {
   return (
@@ -10,16 +10,16 @@ export function AboutPage() {
       <div className="grid gap-6 md:grid-cols-3">
         {[
           {
-            stat: '8,000+',
-            label: 'Alumni placed across product orgs worldwide',
+            stat: "8,000+",
+            label: "Alumni placed across product orgs worldwide",
           },
           {
-            stat: '92%',
-            label: 'Graduates report a promotion or new role within 6 months',
+            stat: "92%",
+            label: "Graduates report a promotion or new role within 6 months",
           },
           {
-            stat: '40+',
-            label: 'Live mentor sessions per cohort with operator feedback',
+            stat: "40+",
+            label: "Live mentor sessions per cohort with operator feedback",
           },
         ].map((item) => (
           <article

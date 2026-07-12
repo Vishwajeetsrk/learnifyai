@@ -1,6 +1,6 @@
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { CONTACT_ROUTE, HOME_ROUTE, NAV_LINKS } from '../constants';
-import { ClippedButton } from './ClippedButton';
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { CONTACT_ROUTE, HOME_ROUTE, NAV_LINKS } from "../constants";
+import { ClippedButton } from "./ClippedButton";
 
 function TargoLogo() {
   return (

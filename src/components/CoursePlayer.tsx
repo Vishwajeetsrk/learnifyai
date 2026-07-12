@@ -18,7 +18,13 @@ interface CoursePlayerProps {
   // Advanced mode props
   mode?: "basic" | "advanced";
   title?: string;
-  lessons?: { id: string; title: string; duration: string; completed: boolean; videoUrl?: string }[];
+  lessons?: {
+    id: string;
+    title: string;
+    duration: string;
+    completed: boolean;
+    videoUrl?: string;
+  }[];
   currentLessonId?: string;
   onLessonClick?: (id: string) => void;
   onComplete?: (lessonId: string) => void;

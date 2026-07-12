@@ -1,10 +1,10 @@
-import { ArrowRight } from 'lucide-react';
-import { TextRoll } from './TextRoll';
+import { ArrowRight } from "lucide-react";
+import { TextRoll } from "./TextRoll";
 
 const SMALL_IMAGE =
-  'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260516_090123_74be96d4-9c1b-40cf-932a-96f4f4babed3.png&w=1280&q=85';
+  "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260516_090123_74be96d4-9c1b-40cf-932a-96f4f4babed3.png&w=1280&q=85";
 const LARGE_IMAGE =
-  'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260516_090133_c157d30b-a99a-4477-bec1-a446149ec3f2.png&w=1280&q=85';
+  "https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260516_090133_c157d30b-a99a-4477-bec1-a446149ec3f2.png&w=1280&q=85";
 
 function OrangeButton() {
   return (
@@ -22,7 +22,10 @@ function OrangeButton() {
 
 export function AboutSection() {
   return (
-    <section id="studio" className="scroll-mt-24 overflow-hidden bg-white pb-12 pt-16 sm:pb-16 sm:pt-20 lg:pb-24 lg:pt-32">
+    <section
+      id="studio"
+      className="scroll-mt-24 overflow-hidden bg-white pb-12 pt-16 sm:pb-16 sm:pt-20 lg:pb-24 lg:pt-32"
+    >
       <div className="mx-auto w-full max-w-[1440px]">
         <div className="mb-6 flex items-center gap-3 px-5 sm:mb-8 sm:px-8 lg:px-12">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 text-[11px] font-semibold text-white sm:h-7 sm:w-7 sm:text-xs">
@@ -41,8 +44,8 @@ export function AboutSection() {
 
         <div className="px-5 sm:px-8 lg:hidden lg:px-12">
           <p className="text-[15px] font-medium leading-[1.6] text-gray-900 sm:text-[17px]">
-            Through research, creative thinking and iteration we help growing brands
-            realize their digital full potential.
+            Through research, creative thinking and iteration we help growing brands realize their
+            digital full potential.
           </p>
           <OrangeButton />
           <div className="mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row sm:gap-5">

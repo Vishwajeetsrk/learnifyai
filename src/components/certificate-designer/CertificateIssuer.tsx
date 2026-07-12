@@ -8,10 +8,25 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
-  Award, CheckCircle2, User, BookOpen, Calendar, Hash, Share2, Copy, ExternalLink, Sparkles,
+  Award,
+  CheckCircle2,
+  User,
+  BookOpen,
+  Calendar,
+  Hash,
+  Share2,
+  Copy,
+  ExternalLink,
+  Sparkles,
 } from "lucide-react";
 
 type CertificateIssuerProps = {
@@ -25,7 +40,13 @@ type CertificateIssuerProps = {
 };
 
 export function CertificateIssuer({
-  courseId, courseName, userId, userName, userEmail, score = 85, onIssued,
+  courseId,
+  courseName,
+  userId,
+  userName,
+  userEmail,
+  score = 85,
+  onIssued,
 }: CertificateIssuerProps) {
   const qc = useQueryClient();
   const [showEditName, setShowEditName] = useState(false);
@@ -101,13 +122,19 @@ export function CertificateIssuer({
   return (
     <div className="space-y-4">
       {/* Certificate Status Card */}
-      <Card className={isIssued ? "border-emerald-200 bg-emerald-50/50" : "border-amber-200 bg-amber-50/50"}>
+      <Card
+        className={
+          isIssued ? "border-emerald-200 bg-emerald-50/50" : "border-amber-200 bg-amber-50/50"
+        }
+      >
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${
-                isIssued ? "bg-emerald-100 text-emerald-600" : "bg-amber-100 text-amber-600"
-              }`}>
+              <div
+                className={`h-10 w-10 rounded-xl flex items-center justify-center ${
+                  isIssued ? "bg-emerald-100 text-emerald-600" : "bg-amber-100 text-amber-600"
+                }`}
+              >
                 {isIssued ? <CheckCircle2 className="h-5 w-5" /> : <Award className="h-5 w-5" />}
               </div>
               <div>
@@ -115,7 +142,9 @@ export function CertificateIssuer({
                   {isIssued ? "Certificate Issued" : "Certificate Ready"}
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  {isIssued ? "Your certificate has been issued and emailed" : "Complete the course to receive your certificate"}
+                  {isIssued
+                    ? "Your certificate has been issued and emailed"
+                    : "Complete the course to receive your certificate"}
                 </CardDescription>
               </div>
             </div>
@@ -135,7 +164,12 @@ export function CertificateIssuer({
                 <p className="text-[10px] text-slate-500">{userEmail}</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setShowEditName(true)}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs h-7"
+              onClick={() => setShowEditName(true)}
+            >
               Edit Name
             </Button>
           </div>
@@ -158,8 +192,15 @@ export function CertificateIssuer({
                   <p className="text-[10px] text-slate-500">Certificate Code</p>
                   <p className="text-xs font-mono font-bold text-slate-900">{certCode}</p>
                 </div>
-                <Button variant="ghost" size="icon" className="h-7 w-7"
-                  onClick={() => { navigator.clipboard.writeText(certCode); toast.success("Copied!"); }}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => {
+                    navigator.clipboard.writeText(certCode);
+                    toast.success("Copied!");
+                  }}
+                >
                   <Copy className="h-3 w-3" />
                 </Button>
               </div>
@@ -169,7 +210,11 @@ export function CertificateIssuer({
                 <div>
                   <p className="text-[10px] text-slate-500">Issued</p>
                   <p className="text-xs font-bold text-slate-900">
-                    {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                    {new Date().toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </p>
                 </div>
               </div>
@@ -179,25 +224,40 @@ export function CertificateIssuer({
           {/* Actions */}
           <div className="flex items-center gap-2">
             {!isIssued ? (
-              <Button onClick={handleIssue} disabled={isIssuing || checkingCert}
-                className="flex-1 bg-[#6B5BFB] hover:bg-[#5a4be0] text-white text-xs h-9">
+              <Button
+                onClick={handleIssue}
+                disabled={isIssuing || checkingCert}
+                className="flex-1 bg-[#6B5BFB] hover:bg-[#5a4be0] text-white text-xs h-9"
+              >
                 {isIssuing ? (
-                  <><Sparkles className="h-3.5 w-3.5 mr-1 animate-spin" /> Issuing...</>
+                  <>
+                    <Sparkles className="h-3.5 w-3.5 mr-1 animate-spin" /> Issuing...
+                  </>
                 ) : (
-                  <><Award className="h-3.5 w-3.5 mr-1" /> Issue Certificate</>
+                  <>
+                    <Award className="h-3.5 w-3.5 mr-1" /> Issue Certificate
+                  </>
                 )}
               </Button>
             ) : (
               <>
-                <Button variant="outline" size="sm" className="flex-1 text-xs h-8"
-                  onClick={() => window.open(verifyUrl, "_blank")}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs h-8"
+                  onClick={() => window.open(verifyUrl, "_blank")}
+                >
                   <ExternalLink className="h-3 w-3 mr-1" /> Verify
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1 text-xs h-8"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs h-8"
                   onClick={() => {
                     const linkedInUrl = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${encodeURIComponent(courseName)}&organizationName=Learnify+AI&issueYear=${new Date().getFullYear()}&issueMonth=${new Date().getMonth() + 1}&certUrl=${encodeURIComponent(verifyUrl)}&certId=${encodeURIComponent(certCode)}`;
                     window.open(linkedInUrl, "_blank");
-                  }}>
+                  }}
+                >
                   <Share2 className="h-3 w-3 mr-1" /> LinkedIn
                 </Button>
               </>
@@ -222,18 +282,28 @@ export function CertificateIssuer({
           </DialogHeader>
           <div className="space-y-3">
             <p className="text-xs text-muted-foreground">
-              This name will appear on your certificate. You can edit it before the certificate is issued.
+              This name will appear on your certificate. You can edit it before the certificate is
+              issued.
             </p>
             <div>
               <Label className="text-xs">Display Name</Label>
-              <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Enter your full name" className="mt-1" />
+              <Input
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Enter your full name"
+                className="mt-1"
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditName(false)} className="text-xs">Cancel</Button>
-            <Button onClick={() => updateName.mutate(displayName)} disabled={!displayName.trim()}
-              className="text-xs bg-[#6B5BFB] hover:bg-[#5a4be0] text-white">
+            <Button variant="outline" onClick={() => setShowEditName(false)} className="text-xs">
+              Cancel
+            </Button>
+            <Button
+              onClick={() => updateName.mutate(displayName)}
+              disabled={!displayName.trim()}
+              className="text-xs bg-[#6B5BFB] hover:bg-[#5a4be0] text-white"
+            >
               Save Name
             </Button>
           </DialogFooter>

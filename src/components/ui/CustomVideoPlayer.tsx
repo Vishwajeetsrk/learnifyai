@@ -50,7 +50,8 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
       setHasError(true);
       const err = video.error;
       if (err?.code === MediaError.MEDIA_ERR_ABORTED) setErrorMsg("Video loading aborted");
-      else if (err?.code === MediaError.MEDIA_ERR_NETWORK) setErrorMsg("Network error while loading video");
+      else if (err?.code === MediaError.MEDIA_ERR_NETWORK)
+        setErrorMsg("Network error while loading video");
       else if (err?.code === MediaError.MEDIA_ERR_DECODE) setErrorMsg("Video decoding error");
       else setErrorMsg("This video format is not supported");
     };
@@ -89,16 +90,19 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
     return () => document.removeEventListener("fullscreenchange", onChange);
   }, []);
 
-  const togglePlay = useCallback((e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    const video = videoRef.current;
-    if (!video || hasError) return;
-    if (video.paused) {
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-    }
-  }, [hasError]);
+  const togglePlay = useCallback(
+    (e?: React.MouseEvent) => {
+      e?.stopPropagation();
+      const video = videoRef.current;
+      if (!video || hasError) return;
+      if (video.paused) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    },
+    [hasError],
+  );
 
   const toggleMute = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -118,14 +122,17 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
     } catch {}
   }, []);
 
-  const handleSeek = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    const video = videoRef.current;
-    if (!video || !progressRef.current || !duration) return;
-    const rect = progressRef.current.getBoundingClientRect();
-    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    video.currentTime = pct * video.duration;
-  }, [duration]);
+  const handleSeek = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.stopPropagation();
+      const video = videoRef.current;
+      if (!video || !progressRef.current || !duration) return;
+      const rect = progressRef.current.getBoundingClientRect();
+      const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      video.currentTime = pct * video.duration;
+    },
+    [duration],
+  );
 
   const showControlsTemporarily = useCallback(() => {
     setShowControls(true);
@@ -141,7 +148,9 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
     } else {
       setShowControls(true);
     }
-    return () => { if (hideTimerRef.current) clearTimeout(hideTimerRef.current); };
+    return () => {
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    };
   }, [isPlaying]);
 
   const formatTime = (t: number) => {
@@ -156,7 +165,9 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
       ref={containerRef}
       className="relative w-full h-full bg-black overflow-hidden"
       onMouseMove={showControlsTemporarily}
-      onMouseLeave={() => { if (isPlaying) hideTimerRef.current = setTimeout(() => setShowControls(false), 1500); }}
+      onMouseLeave={() => {
+        if (isPlaying) hideTimerRef.current = setTimeout(() => setShowControls(false), 1500);
+      }}
       onClick={togglePlay}
     >
       <video
@@ -172,7 +183,10 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
 
       {/* Error State */}
       {hasError && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-30" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-30"
+          onClick={(e) => e.stopPropagation()}
+        >
           <AlertCircle className="h-12 w-12 text-red-400 mb-3" />
           <p className="text-white text-sm font-medium mb-1">Unable to play video</p>
           <p className="text-white/60 text-xs">{errorMsg}</p>
@@ -182,7 +196,10 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
               setHasError(false);
               setErrorMsg("");
               const video = videoRef.current;
-              if (video) { video.load(); video.play().catch(() => {}); }
+              if (video) {
+                video.load();
+                video.play().catch(() => {});
+              }
             }}
             className="mt-4 px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs rounded-lg transition-colors"
           >
@@ -201,7 +218,10 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
           <div className="absolute inset-0 bg-black/30" />
           <button
             className="relative z-10 h-14 w-14 sm:h-16 sm:w-16 md:h-20 md:w-20 bg-white/95 text-black rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-transform shadow-2xl"
-            onClick={(e) => { e.stopPropagation(); togglePlay(e); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              togglePlay(e);
+            }}
             aria-label="Play video"
           >
             <Play className="h-6 w-6 sm:h-7 sm:w-7 md:h-9 md:w-9 ml-0.5" fill="currentColor" />
@@ -214,7 +234,9 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
         <div
           onClick={(e) => e.stopPropagation()}
           className={`absolute bottom-0 left-0 right-0 z-20 transition-all duration-300 ${
-            showControls ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+            showControls
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-2 pointer-events-none"
           }`}
         >
           <div className="bg-gradient-to-t from-black/95 via-black/60 to-transparent px-3 pb-2 pt-8 sm:px-5 sm:pb-3 md:pb-4">
@@ -225,7 +247,10 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
               onClick={handleSeek}
             >
               <div className="absolute inset-0 bg-white/10 rounded-full" />
-              <div className="absolute inset-y-0 left-0 bg-white/30 rounded-full transition-[width] duration-150" style={{ width: `${buffered}%` }} />
+              <div
+                className="absolute inset-y-0 left-0 bg-white/30 rounded-full transition-[width] duration-150"
+                style={{ width: `${buffered}%` }}
+              />
               <div
                 className="absolute top-0 left-0 h-full bg-primary rounded-full transition-[width] duration-75"
                 style={{ width: `${progress}%` }}
@@ -239,18 +264,42 @@ export function CustomVideoPlayer({ src, poster, autoPlay = false }: CustomVideo
             {/* Buttons */}
             <div className="flex items-center justify-between text-white mt-1.5 sm:mt-2">
               <div className="flex items-center gap-2.5 sm:gap-4">
-                <button onClick={togglePlay} className="hover:text-primary transition-colors" aria-label={isPlaying ? "Pause" : "Play"}>
-                  {isPlaying ? <Pause className="h-4 w-4 sm:h-5 sm:w-5" /> : <Play className="h-4 w-4 sm:h-5 sm:w-5" fill="currentColor" />}
+                <button
+                  onClick={togglePlay}
+                  className="hover:text-primary transition-colors"
+                  aria-label={isPlaying ? "Pause" : "Play"}
+                >
+                  {isPlaying ? (
+                    <Pause className="h-4 w-4 sm:h-5 sm:w-5" />
+                  ) : (
+                    <Play className="h-4 w-4 sm:h-5 sm:w-5" fill="currentColor" />
+                  )}
                 </button>
-                <button onClick={toggleMute} className="hover:text-primary transition-colors" aria-label={isMuted ? "Unmute" : "Mute"}>
-                  {isMuted ? <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" /> : <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />}
+                <button
+                  onClick={toggleMute}
+                  className="hover:text-primary transition-colors"
+                  aria-label={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? (
+                    <VolumeX className="h-4 w-4 sm:h-5 sm:w-5" />
+                  ) : (
+                    <Volume2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                  )}
                 </button>
                 <span className="text-[10px] sm:text-xs font-mono opacity-80 tabular-nums">
                   {formatTime(videoRef.current?.currentTime || 0)} / {formatTime(duration)}
                 </span>
               </div>
-              <button onClick={toggleFullscreen} className="hover:text-primary transition-colors" aria-label="Fullscreen">
-                {isFullscreen ? <Minimize className="h-4 w-4 sm:h-5 sm:w-5" /> : <Maximize className="h-4 w-4 sm:h-5 sm:w-5" />}
+              <button
+                onClick={toggleFullscreen}
+                className="hover:text-primary transition-colors"
+                aria-label="Fullscreen"
+              >
+                {isFullscreen ? (
+                  <Minimize className="h-4 w-4 sm:h-5 sm:w-5" />
+                ) : (
+                  <Maximize className="h-4 w-4 sm:h-5 sm:w-5" />
+                )}
               </button>
             </div>
           </div>

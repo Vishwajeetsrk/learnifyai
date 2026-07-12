@@ -34,7 +34,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Input } from "@/components/ui/input";
 import projectsData from "@/data/projects.json";
 
-
 export const Route = createFileRoute("/projects")({
   head: () => ({
     meta: [
@@ -113,7 +112,8 @@ function getProjectTheme(p: Project) {
 }
 
 function getTags(descInput: string | Project): string[] {
-  const desc = typeof descInput === "string" ? descInput : (descInput?.description || descInput?.title || "");
+  const desc =
+    typeof descInput === "string" ? descInput : descInput?.description || descInput?.title || "";
   const tags: string[] = [];
   const lower = (desc || "").toLowerCase();
   if (lower.includes("gsap")) tags.push("GSAP");
@@ -131,14 +131,22 @@ function matchesFilter(p: Project, filterKey: string): boolean {
   if (filterKey === "all") return true;
   const lower = (p.description || "").toLowerCase();
   switch (filterKey) {
-    case "gsap": return lower.includes("gsap");
-    case "video": return lower.includes("video") || lower.includes("loop");
-    case "3d": return lower.includes("3d") || lower.includes("spline");
-    case "glass": return lower.includes("glass") || lower.includes("liquid");
-    case "dark": return lower.includes("dark") || lower.includes("black");
-    case "minimal": return lower.includes("minimal") || lower.includes("clean");
-    case "forms": return lower.includes("form") || lower.includes("sign");
-    default: return true;
+    case "gsap":
+      return lower.includes("gsap");
+    case "video":
+      return lower.includes("video") || lower.includes("loop");
+    case "3d":
+      return lower.includes("3d") || lower.includes("spline");
+    case "glass":
+      return lower.includes("glass") || lower.includes("liquid");
+    case "dark":
+      return lower.includes("dark") || lower.includes("black");
+    case "minimal":
+      return lower.includes("minimal") || lower.includes("clean");
+    case "forms":
+      return lower.includes("form") || lower.includes("sign");
+    default:
+      return true;
   }
 }
 
@@ -179,7 +187,7 @@ function ProjectCard({
           observer.disconnect();
         }
       },
-      { rootMargin: "300px" }
+      { rootMargin: "300px" },
     );
     if (cardRef.current) observer.observe(cardRef.current);
     return () => observer.disconnect();
@@ -212,7 +220,9 @@ function ProjectCard({
       transition={{ type: "spring", stiffness: 260, damping: 22 }}
     >
       {/* Thumbnail Live Preview Card Cover */}
-      <div className={`aspect-video bg-gradient-to-br ${bg} relative overflow-hidden flex-shrink-0`}>
+      <div
+        className={`aspect-video bg-gradient-to-br ${bg} relative overflow-hidden flex-shrink-0`}
+      >
         {/* Loading shimmer placeholder */}
         {!iframeLoaded && (
           <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-black/60 to-black/90">
@@ -243,7 +253,11 @@ function ProjectCard({
               }}
               loading="lazy"
               sandbox="allow-scripts allow-same-origin allow-popups"
-              onLoad={() => { iframeLoadedRef.current = true; setIframeLoaded(true); setIframeError(false); }}
+              onLoad={() => {
+                iframeLoadedRef.current = true;
+                setIframeLoaded(true);
+                setIframeError(false);
+              }}
             />
           </div>
         )}
@@ -255,7 +269,10 @@ function ProjectCard({
               <Lock className="h-6 w-6 text-amber-400" />
               <span className="text-xs text-white/80">Preview blocked by site</span>
               <button
-                onClick={(e) => { e.stopPropagation(); window.open(p.path, "_blank"); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(p.path, "_blank");
+                }}
                 className="flex items-center gap-1 text-[10px] font-semibold text-white bg-primary/80 hover:bg-primary px-3 py-1.5 rounded-lg transition-all"
               >
                 <ExternalLink className="h-3 w-3" /> Open in new tab
@@ -283,7 +300,10 @@ function ProjectCard({
         </button>
 
         {/* Hover overlay — Hidden on mobile by default, tap eye button to show; hover on desktop */}
-        <div className={`absolute inset-0 bg-black/75 backdrop-blur-sm transition-all duration-300 flex flex-col md:flex-row items-center justify-center md:justify-between gap-3 p-4 z-20 mobile-overlay ${isVisible ? 'opacity-0 md:opacity-0 md:group-hover:opacity-100' : 'opacity-0'}`} id={`overlay-${p.id}`}>
+        <div
+          className={`absolute inset-0 bg-black/75 backdrop-blur-sm transition-all duration-300 flex flex-col md:flex-row items-center justify-center md:justify-between gap-3 p-4 z-20 mobile-overlay ${isVisible ? "opacity-0 md:opacity-0 md:group-hover:opacity-100" : "opacity-0"}`}
+          id={`overlay-${p.id}`}
+        >
           <div className="flex flex-col sm:flex-row items-center gap-2">
             <button
               onClick={onClick}
@@ -319,7 +339,11 @@ function ProjectCard({
             title="Copy prompt for AI tools"
             className="flex items-center gap-1 text-[11px] font-medium text-white bg-black/60 hover:bg-black/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/20 transition-all hover:scale-105 w-full sm:w-auto justify-center"
           >
-            {copied ? <CheckCheck className="h-3.5 w-3.5 text-emerald-400" /> : <ClipboardCopy className="h-3.5 w-3.5" />}
+            {copied ? (
+              <CheckCheck className="h-3.5 w-3.5 text-emerald-400" />
+            ) : (
+              <ClipboardCopy className="h-3.5 w-3.5" />
+            )}
             {copied ? "Copied!" : "Copy Prompt"}
           </button>
         </div>
@@ -377,7 +401,7 @@ function ProjectsPage() {
   });
 
   const { user, isAdmin } = useAuth();
-  
+
   const currentSub = useQuery({
     enabled: !!user,
     queryKey: ["my-subscription", user?.id],
@@ -392,11 +416,14 @@ function ProjectsPage() {
     },
   });
   const activePlanName = currentSub.data?.plan?.name?.toLowerCase() || "free";
-  const hasCareerPro = isAdmin || activePlanName === "career pro" || activePlanName === "enterprise";
+  const hasCareerPro =
+    isAdmin || activePlanName === "career pro" || activePlanName === "enterprise";
 
   // Escape key closes modal
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setSelectedProject(null); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedProject(null);
+    };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
@@ -415,9 +442,12 @@ function ProjectsPage() {
 
   const getViewportWidth = () => {
     switch (viewport) {
-      case "mobile": return "375px";
-      case "tablet": return "768px";
-      default: return "100%";
+      case "mobile":
+        return "375px";
+      case "tablet":
+        return "768px";
+      default:
+        return "100%";
     }
   };
 
@@ -446,8 +476,7 @@ function ProjectsPage() {
               transition={{ duration: 0.7, delay: 0.1 }}
               className="font-display text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tighter leading-tight"
             >
-              Next-Gen Website{" "}
-              <span className="text-gradient">Design Portfolio</span>
+              Next-Gen Website <span className="text-gradient">Design Portfolio</span>
             </motion.h1>
 
             <motion.p
@@ -457,8 +486,8 @@ function ProjectsPage() {
               className="text-muted-foreground text-base sm:text-lg max-w-2xl mx-auto"
             >
               Interact with our collection of{" "}
-              <span className="text-foreground font-semibold">{projectsData.length}</span>{" "}
-              highly polished design templates, 3D prototypes, landing pages, and cinematic micro-sites.
+              <span className="text-foreground font-semibold">{projectsData.length}</span> highly
+              polished design templates, 3D prototypes, landing pages, and cinematic micro-sites.
             </motion.p>
 
             {/* Search */}
@@ -493,9 +522,7 @@ function ProjectsPage() {
           <div className="max-w-7xl mx-auto flex flex-wrap items-center gap-2 pb-0.5">
             <div className="flex items-center gap-1.5 mr-1 text-muted-foreground shrink-0">
               <Filter className="h-4 w-4" />
-              <span className="text-xs font-semibold">
-                ({filteredProjects.length})
-              </span>
+              <span className="text-xs font-semibold">({filteredProjects.length})</span>
             </div>
             {FILTER_CATEGORIES.map((cat) => {
               const Icon = cat.icon;
@@ -523,14 +550,21 @@ function ProjectsPage() {
             <LayoutGrid className="h-5 w-5 text-primary" />
             <h2 className="font-display text-lg font-semibold text-foreground">
               All Interactive Designs
-              <span className="ml-2 text-sm text-muted-foreground font-normal">({filteredProjects.length})</span>
+              <span className="ml-2 text-sm text-muted-foreground font-normal">
+                ({filteredProjects.length})
+              </span>
             </h2>
           </div>
 
           {filteredProjects.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {filteredProjects.map((p) => (
-                <ProjectCard key={p.id} p={p} onClick={() => setSelectedProject(p)} hasCareerPro={hasCareerPro} />
+                <ProjectCard
+                  key={p.id}
+                  p={p}
+                  onClick={() => setSelectedProject(p)}
+                  hasCareerPro={hasCareerPro}
+                />
               ))}
             </div>
           ) : (
@@ -540,7 +574,10 @@ function ProjectsPage() {
               <p className="text-sm text-muted-foreground mt-1">
                 Try searching for "GSAP", "3D", or{" "}
                 <button
-                  onClick={() => { setSearch(""); setFilter("all"); }}
+                  onClick={() => {
+                    setSearch("");
+                    setFilter("all");
+                  }}
                   className="text-primary underline underline-offset-2"
                 >
                   clear filters
@@ -556,7 +593,9 @@ function ProjectsPage() {
         {selectedProject && (
           <div
             className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4 bg-black/75 backdrop-blur-md"
-            onClick={(e) => { if (e.target === e.currentTarget) setSelectedProject(null); }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setSelectedProject(null);
+            }}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: 10 }}
@@ -670,14 +709,27 @@ function ProjectsPage() {
                     title={selectedProject.name}
                     className="w-full flex-1 bg-white border-0"
                     sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-downloads"
-                    onLoad={(e) => { (e.target as HTMLIFrameElement).style.display = "block"; }}
-                    onError={() => { /* fallback handles timeout */ }}
+                    onLoad={(e) => {
+                      (e.target as HTMLIFrameElement).style.display = "block";
+                    }}
+                    onError={() => {
+                      /* fallback handles timeout */
+                    }}
                   />
-                  <div id="modal-iframe-fallback" className="hidden flex-col items-center justify-center w-full h-full bg-muted/30">
+                  <div
+                    id="modal-iframe-fallback"
+                    className="hidden flex-col items-center justify-center w-full h-full bg-muted/30"
+                  >
                     <Lock className="h-8 w-8 text-amber-400 mb-2" />
-                    <p className="text-sm text-muted-foreground mb-3">Preview blocked by the site</p>
-                    <a href={selectedProject.path} target="_blank" rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 px-4 py-2 rounded-xl transition-all">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Preview blocked by the site
+                    </p>
+                    <a
+                      href={selectedProject.path}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary/90 px-4 py-2 rounded-xl transition-all"
+                    >
                       <ExternalLink className="h-4 w-4" /> Open in new tab
                     </a>
                   </div>

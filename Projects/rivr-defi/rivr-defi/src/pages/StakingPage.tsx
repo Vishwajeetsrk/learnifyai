@@ -1,4 +1,4 @@
-import { BottomLeftCard } from '../components/BottomLeftCard';
+import { BottomLeftCard } from "../components/BottomLeftCard";
 
 export function StakingPage() {
   return (

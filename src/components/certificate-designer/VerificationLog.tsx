@@ -2,7 +2,14 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Search, ShieldCheck, ShieldAlert, RefreshCw, Download, Calendar } from "lucide-react";
 import { Verification } from "./types";
@@ -16,20 +23,24 @@ export function VerificationLog({ verifications, onRefresh }: Props) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "verified" | "invalid">("all");
 
-  const stats = useMemo(() => ({
-    total: verifications.length,
-    verified: verifications.filter((v) => v.status === "verified").length,
-    invalid: verifications.filter((v) => v.status === "invalid" || v.status === "expired").length,
-    thisMonth: verifications.filter((v) => {
-      const d = new Date(v.verifiedAt);
-      const now = new Date();
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }).length,
-  }), [verifications]);
+  const stats = useMemo(
+    () => ({
+      total: verifications.length,
+      verified: verifications.filter((v) => v.status === "verified").length,
+      invalid: verifications.filter((v) => v.status === "invalid" || v.status === "expired").length,
+      thisMonth: verifications.filter((v) => {
+        const d = new Date(v.verifiedAt);
+        const now = new Date();
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      }).length,
+    }),
+    [verifications],
+  );
 
   const filtered = useMemo(() => {
     return verifications.filter((v) => {
-      const matchSearch = !search ||
+      const matchSearch =
+        !search ||
         v.recipientName.toLowerCase().includes(search.toLowerCase()) ||
         v.code.toLowerCase().includes(search.toLowerCase());
       const matchStatus = statusFilter === "all" || v.status === statusFilter;
@@ -40,8 +51,9 @@ export function VerificationLog({ verifications, onRefresh }: Props) {
   const exportLog = () => {
     const csv = [
       "Date,Code,Recipient,Course,Status,IP",
-      ...filtered.map((v) =>
-        `${new Date(v.verifiedAt).toLocaleString()},${v.code},${v.recipientName},${v.courseTitle},${v.status},${v.ip || "N/A"}`
+      ...filtered.map(
+        (v) =>
+          `${new Date(v.verifiedAt).toLocaleString()},${v.code},${v.recipientName},${v.courseTitle},${v.status},${v.ip || "N/A"}`,
       ),
     ].join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
@@ -153,7 +165,9 @@ export function VerificationLog({ verifications, onRefresh }: Props) {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">{v.code}</code>
+                        <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">
+                          {v.code}
+                        </code>
                       </TableCell>
                       <TableCell className="font-medium text-sm">{v.recipientName}</TableCell>
                       <TableCell className="text-sm">{v.courseTitle}</TableCell>
@@ -167,7 +181,9 @@ export function VerificationLog({ verifications, onRefresh }: Props) {
                           {v.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-xs text-muted-foreground font-mono">{v.ip || "N/A"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground font-mono">
+                        {v.ip || "N/A"}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}

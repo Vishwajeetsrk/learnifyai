@@ -58,7 +58,9 @@ export function AgentHub() {
           </div>
           <div>
             <h2 className="text-lg font-bold tracking-tight">AI Agent Skills</h2>
-            <p className="text-xs text-muted-foreground">Specialized AI agents for career, learning & market insights</p>
+            <p className="text-xs text-muted-foreground">
+              Specialized AI agents for career, learning & market insights
+            </p>
           </div>
         </div>
 
@@ -74,7 +76,7 @@ export function AgentHub() {
                   "flex items-center gap-2.5 px-4 py-2.5 rounded-xl border text-xs font-semibold snap-start shrink-0 transition-all",
                   isActive
                     ? `${agent.activeBg} ${agent.activeText} border-transparent shadow-md`
-                    : `${agent.bg} ${agent.color} border hover:shadow-sm`
+                    : `${agent.bg} ${agent.color} border hover:shadow-sm`,
                 )}
               >
                 <Icon className="h-4 w-4" />

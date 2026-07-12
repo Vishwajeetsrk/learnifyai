@@ -1,5 +1,5 @@
-import { ArrowUpRight } from 'lucide-react';
-import { motion } from 'motion/react';
+import { ArrowUpRight } from "lucide-react";
+import { motion } from "motion/react";
 
 export function BottomLeftCard() {
   return (

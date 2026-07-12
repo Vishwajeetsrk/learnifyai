@@ -1,8 +1,8 @@
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { SecurifyNavbar } from '../components/SecurifyNavbar';
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { SecurifyNavbar } from "../components/SecurifyNavbar";
 
 const HERO_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260418_063509_7d167302-4fd4-480b-8260-18ab572333d4.mp4';
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260418_063509_7d167302-4fd4-480b-8260-18ab572333d4.mp4";
 
 export function HomePage() {
   return (
@@ -21,7 +21,7 @@ export function HomePage() {
       <div className="relative h-full w-full">
         <h1
           className="hero-title animate-blur-fade-up absolute left-4 top-[18%] text-[14vw] font-medium lowercase text-white md:left-10 md:text-[13vw]"
-          style={{ animationDelay: '120ms' }}
+          style={{ animationDelay: "120ms" }}
           data-editable
           data-preset-text="hero-headline-protect"
         >
@@ -29,7 +29,7 @@ export function HomePage() {
         </h1>
         <h1
           className="hero-title animate-blur-fade-up absolute right-4 top-[38%] text-[14vw] font-medium lowercase text-white md:right-10 md:text-[13vw]"
-          style={{ animationDelay: '260ms' }}
+          style={{ animationDelay: "260ms" }}
           data-editable
           data-preset-text="hero-headline-your"
         >
@@ -37,7 +37,7 @@ export function HomePage() {
         </h1>
         <h1
           className="hero-title animate-blur-fade-up absolute left-[18%] top-[58%] text-[14vw] font-medium lowercase text-white md:left-[28%] md:text-[13vw]"
-          style={{ animationDelay: '400ms' }}
+          style={{ animationDelay: "400ms" }}
           data-editable
           data-preset-text="hero-headline-data"
         >
@@ -46,7 +46,7 @@ export function HomePage() {
 
         <p
           className="animate-blur-fade-up absolute left-6 top-[46%] max-w-[240px] text-[15px] leading-snug text-white/90 md:left-10"
-          style={{ animationDelay: '520ms' }}
+          style={{ animationDelay: "520ms" }}
           data-editable
           data-preset-text="hero-tagline"
         >
@@ -55,7 +55,7 @@ export function HomePage() {
 
         <div
           className="animate-blur-fade-up absolute right-6 top-[14%] md:right-24"
-          style={{ animationDelay: '640ms' }}
+          style={{ animationDelay: "640ms" }}
         >
           <div className="flex items-center justify-end gap-3">
             <span className="hidden h-px w-24 rotate-[20deg] bg-white/40 md:block" aria-hidden />
@@ -78,7 +78,7 @@ export function HomePage() {
 
         <div
           className="animate-blur-fade-up absolute bottom-20 left-6 md:bottom-24 md:left-20"
-          style={{ animationDelay: '760ms' }}
+          style={{ animationDelay: "760ms" }}
         >
           <div className="flex items-center gap-3">
             <span
@@ -101,7 +101,7 @@ export function HomePage() {
 
         <div
           className="animate-blur-fade-up absolute bottom-16 right-6 md:bottom-20 md:right-20"
-          style={{ animationDelay: '880ms' }}
+          style={{ animationDelay: "880ms" }}
         >
           <div className="flex items-center justify-end gap-3">
             <span className="hidden h-px w-24 rotate-[-20deg] bg-white/40 md:block" aria-hidden />
@@ -126,16 +126,16 @@ export function HomePage() {
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-b from-transparent to-black" />
 
       <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-6 px-6 text-xs lowercase text-white/50 md:hidden">
-        <PresetNavLink target={{ kind: 'route', path: 'platform' }} className="hover:text-white">
+        <PresetNavLink target={{ kind: "route", path: "platform" }} className="hover:text-white">
           platform
         </PresetNavLink>
-        <PresetNavLink target={{ kind: 'route', path: 'solutions' }} className="hover:text-white">
+        <PresetNavLink target={{ kind: "route", path: "solutions" }} className="hover:text-white">
           solutions
         </PresetNavLink>
-        <PresetNavLink target={{ kind: 'route', path: 'company' }} className="hover:text-white">
+        <PresetNavLink target={{ kind: "route", path: "company" }} className="hover:text-white">
           company
         </PresetNavLink>
-        <PresetNavLink target={{ kind: 'route', path: 'support' }} className="hover:text-white">
+        <PresetNavLink target={{ kind: "route", path: "support" }} className="hover:text-white">
           support
         </PresetNavLink>
       </div>

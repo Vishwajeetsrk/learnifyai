@@ -164,7 +164,8 @@ const DEFAULT_TIERS: Plan[] = [
     id: "default-career-pro",
     name: "Career Pro",
     price_label: "₹499",
-    description: "Job-seekers — everything in Pro + Resume / ATS / Interview Prep / Career Roadmap, verified certificates included.",
+    description:
+      "Job-seekers — everything in Pro + Resume / ATS / Interview Prep / Career Roadmap, verified certificates included.",
     features: [
       "Everything in Pro",
       "All Premium Design Templates",
@@ -405,7 +406,7 @@ function PricingPage() {
     "Anjali Verma": anjaliAvatar,
     "Priya Kapoor": priyaAvatar,
     "Vikram Singh": vikramAvatar,
-    "Vishwajeet": vishwajeetAvatar,
+    Vishwajeet: vishwajeetAvatar,
   };
 
   const cmsFaqItems = cmsFaq?.content?.items ?? FAQ_ITEMS;
@@ -482,7 +483,8 @@ function PricingPage() {
                 id: match.id,
                 price_label: match.price_label || def.price_label,
                 price_inr: typeof match.price_inr === "number" ? match.price_inr : def.price_inr,
-                yearly_price: typeof match.yearly_price === "number" ? match.yearly_price : def.yearly_price,
+                yearly_price:
+                  typeof match.yearly_price === "number" ? match.yearly_price : def.yearly_price,
                 interval: match.interval || def.interval,
                 features: def.features,
               }
@@ -492,9 +494,11 @@ function PricingPage() {
         clearTimeout(timeout);
       }
     },
-    retry: 3,
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    retry: 1,
+    retryDelay: 2000,
     staleTime: 120_000,
+    gcTime: 300_000,
+    placeholderData: DEFAULT_TIERS,
   });
 
   const currentSub = useQuery({
@@ -582,18 +586,10 @@ function PricingPage() {
                   "radial-gradient(70% 50% at 50% 0%, color-mix(in oklab, var(--primary) 15%, transparent), transparent 70%)",
               }}
             />
-            <div
-              className="absolute top-20 left-[10%] w-72 h-72 rounded-full bg-blue-500/5 blur-3xl"
-            />
-            <div
-              className="absolute bottom-10 right-[10%] w-80 h-80 rounded-full bg-purple-500/5 blur-3xl"
-            />
-            <div
-              className="absolute top-1/3 right-[5%] w-48 h-48 rounded-full bg-indigo-500/5 blur-3xl"
-            />
-            <div
-              className="absolute bottom-1/4 left-[5%] w-56 h-56 rounded-full bg-emerald-500/5 blur-3xl"
-            />
+            <div className="absolute top-20 left-[10%] w-72 h-72 rounded-full bg-blue-500/5 blur-3xl" />
+            <div className="absolute bottom-10 right-[10%] w-80 h-80 rounded-full bg-purple-500/5 blur-3xl" />
+            <div className="absolute top-1/3 right-[5%] w-48 h-48 rounded-full bg-indigo-500/5 blur-3xl" />
+            <div className="absolute bottom-1/4 left-[5%] w-56 h-56 rounded-full bg-emerald-500/5 blur-3xl" />
           </div>
 
           {/* Floating UI elements */}
@@ -646,8 +642,7 @@ function PricingPage() {
           </div>
 
           <div className="container mx-auto px-6 pt-20 pb-16 md:pt-28 md:pb-20 max-w-5xl text-center">
-            <div
-            >
+            <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/60 backdrop-blur px-3 py-1 text-xs uppercase tracking-[0.18em] text-muted-foreground mb-6">
                 {cmsHeroContent?.badge || "Pricing"}
               </div>
@@ -665,19 +660,14 @@ function PricingPage() {
             </div>
 
             {/* Trust indicators */}
-            <div
-              className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-10"
-            >
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-8 mt-10">
               {[
                 { icon: Star, label: "4.9 Rating", sub: "10,000+ Learners" },
                 { icon: GraduationCap, label: "25,000+ Certificates", sub: "Issued & Verified" },
                 { icon: Briefcase, label: "Career Focused", sub: "Learning that leads to jobs" },
                 { icon: Users, label: `${learnerCount} Active`, sub: "Learners Online Now" },
               ].map(({ icon: Icon, label, sub }, i) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-3 text-left"
-                >
+                <div key={label} className="flex items-center gap-3 text-left">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 relative">
                     <Icon className="h-5 w-5 text-primary" />
                     {i === 3 && (
@@ -693,9 +683,7 @@ function PricingPage() {
             </div>
 
             {/* CTAs */}
-            <div
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10"
-            >
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
               <div className="transition-transform duration-200 hover:scale-105 active:scale-95">
                 <Button
                   asChild
@@ -743,9 +731,7 @@ function PricingPage() {
 
         {/* ========== WHY LEARNERS UPGRADE ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-5xl">
-          <div
-            className="text-center mb-12"
-          >
+          <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Why Learners Upgrade</h2>
             <p className="mt-3 text-muted-foreground">
               Join thousands who&apos;ve accelerated their learning and career growth.
@@ -772,9 +758,7 @@ function PricingPage() {
 
         {/* ========== FREE TRIAL ========== */}
         <section className="container mx-auto px-6 py-12 max-w-4xl">
-          <div
-            className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary/5 via-primary/10 to-purple-500/5 border border-primary/10"
-          >
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-primary/5 via-primary/10 to-purple-500/5 border border-primary/10">
             <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-primary/5 blur-3xl" />
             <div className="absolute bottom-0 left-0 w-36 h-36 rounded-full bg-purple-500/5 blur-3xl" />
             <div className="relative px-8 py-10 md:px-12 md:py-12 text-center">
@@ -822,9 +806,7 @@ function PricingPage() {
 
         {/* ========== BILLING TOGGLE ========== */}
         <section className="container mx-auto px-6 pt-8 pb-4 max-w-5xl">
-          <div
-            className="flex justify-center"
-          >
+          <div className="flex justify-center">
             <div className="inline-flex items-center gap-1 bg-muted/50 rounded-full p-1.5">
               <button
                 onClick={() => setBillingCycle("monthly")}
@@ -855,9 +837,7 @@ function PricingPage() {
 
         {/* ========== COUPON INPUT ========== */}
         <section className="container mx-auto px-6 pb-4 max-w-lg">
-          <div
-            className="flex items-center gap-2"
-          >
+          <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
@@ -883,11 +863,11 @@ function PricingPage() {
 
         {/* ========== PRICING CARDS ========== */}
         <section className="container mx-auto px-6 py-10 max-w-6xl">
-          {isLoading ? (
+          {isLoading && (!Array.isArray(tiers) || (tiers as Plan[]).length === 0) ? (
             <div className="flex justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : error ? (
+          ) : error && (!Array.isArray(tiers) || (tiers as Plan[]).length === 0) ? (
             <div className="space-y-4 rounded-3xl border border-destructive/20 bg-destructive/5 p-10 text-center">
               <p className="text-lg font-semibold text-destructive">
                 Pricing is temporarily unavailable
@@ -940,9 +920,7 @@ function PricingPage() {
 
         {/* ========== STUDENT DISCOUNT ========== */}
         <section className="container mx-auto px-6 pb-4 max-w-4xl">
-          <div
-            className="rounded-2xl border-2 border-violet-500/20 bg-gradient-to-r from-violet-50 via-background to-violet-50 dark:from-violet-950/20 dark:to-violet-950/20 p-6 md:p-8 flex flex-col md:flex-row items-center gap-6"
-          >
+          <div className="rounded-2xl border-2 border-violet-500/20 bg-gradient-to-r from-violet-50 via-background to-violet-50 dark:from-violet-950/20 dark:to-violet-950/20 p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
             <div className="w-16 h-16 rounded-2xl bg-violet-500/10 flex items-center justify-center shrink-0">
               <GraduationCap className="w-8 h-8 text-violet-600" />
             </div>
@@ -968,9 +946,7 @@ function PricingPage() {
 
         {/* ========== FEATURE COMPARISON ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-6xl">
-          <div
-            className="text-center mb-10"
-          >
+          <div className="text-center mb-10">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Compare Plans</h2>
             <p className="mt-3 text-muted-foreground">See what&apos;s included in each plan.</p>
           </div>
@@ -989,9 +965,7 @@ function PricingPage() {
 
         {/* ========== FOUNDER MESSAGE ========== */}
         <section className="container mx-auto px-6 py-12 max-w-4xl">
-          <div
-            className="relative rounded-3xl overflow-hidden"
-          >
+          <div className="relative rounded-3xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-indigo-600/5 to-purple-700/5" />
             <div className="absolute top-0 right-0 w-48 h-48 rounded-full bg-blue-500/10 blur-3xl" />
             <div className="absolute bottom-0 left-0 w-36 h-36 rounded-full bg-purple-500/10 blur-3xl" />
@@ -1032,9 +1006,7 @@ function PricingPage() {
 
         {/* ========== TESTIMONIALS ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-6xl">
-          <div
-            className="text-center mb-12"
-          >
+          <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Loved by Learners</h2>
             <p className="mt-3 text-muted-foreground">
               Real stories from students who transformed their careers.
@@ -1141,9 +1113,7 @@ function PricingPage() {
 
         {/* ========== CERTIFICATES (InteractiveFolder) ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-3xl">
-          <div
-            className="rounded-2xl border bg-card p-10 md:p-12 text-center"
-          >
+          <div className="rounded-2xl border bg-card p-10 md:p-12 text-center">
             <div className="flex flex-col items-center gap-6">
               <InteractiveFolder
                 size={1.8}
@@ -1189,9 +1159,7 @@ function PricingPage() {
 
         {/* ========== TRUST SECTION ========== */}
         <section className="container mx-auto px-6 py-12 max-w-5xl">
-          <div
-            className="rounded-2xl border bg-card shadow-sm overflow-hidden"
-          >
+          <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-px bg-border/40">
               {TRUST_ITEMS.map((item, i) => (
                 <div
@@ -1264,9 +1232,7 @@ function PricingPage() {
 
         {/* ========== FAQ ========== */}
         <section id="faq-section" className="container mx-auto px-6 py-16 md:py-20 max-w-3xl">
-          <div
-            className="text-center mb-8"
-          >
+          <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
               Frequently Asked Questions
             </h2>
@@ -1335,10 +1301,7 @@ function PricingPage() {
                 .map((item: any, i: number) => {
                   const realIdx = cmsFaqItems.indexOf(item);
                   return (
-                    <div
-                      key={realIdx}
-                      className="border rounded-xl overflow-hidden bg-card"
-                    >
+                    <div key={realIdx} className="border rounded-xl overflow-hidden bg-card">
                       <button
                         onClick={() => setOpenFaq(openFaq === realIdx ? null : realIdx)}
                         className="w-full flex items-center justify-between p-5 text-left font-medium hover:bg-muted/30 transition-colors"
@@ -1366,9 +1329,7 @@ function PricingPage() {
 
         {/* ========== FINAL CTA ========== */}
         <section className="container mx-auto px-6 py-16 md:py-20 max-w-4xl">
-          <div
-            className="relative rounded-3xl overflow-hidden"
-          >
+          <div className="relative rounded-3xl overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700" />
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/20 blur-3xl -translate-y-1/2 translate-x-1/3" />
@@ -1418,9 +1379,7 @@ function PricingPage() {
 
         {/* ========== SECURE PAYMENTS ========== */}
         <section className="container mx-auto px-6 pb-16 max-w-3xl">
-          <div
-            className="text-center space-y-2"
-          >
+          <div className="text-center space-y-2">
             <div className="flex items-center justify-center gap-2">
               <CreditCard className="h-5 w-5 text-primary" />
               <span className="text-sm font-semibold">Secure payments powered by Cashfree</span>
@@ -1503,14 +1462,10 @@ function PricingCard({
       : plan.price_label;
 
   return (
-    <div
-      className="relative flex flex-col snap-start shrink-0 w-[80vw] sm:w-auto"
-    >
+    <div className="relative flex flex-col snap-start shrink-0 w-[80vw] sm:w-auto">
       <div
         className={`relative rounded-2xl flex flex-col overflow-hidden transition-all duration-300 ${
-          isPopular
-            ? "shadow-xl border-2 hover:shadow-2xl"
-            : "border hover:shadow-lg"
+          isPopular ? "shadow-xl border-2 hover:shadow-2xl" : "border hover:shadow-lg"
         }`}
         style={{
           borderColor: isPopular ? accentColor : undefined,
@@ -1545,13 +1500,9 @@ function PricingCard({
 
           {/* Price */}
           <div className="mt-5 mb-1 flex items-baseline gap-1">
-            <span className="text-4xl font-extrabold tracking-tight">
-              {displayPrice}
-            </span>
+            <span className="text-4xl font-extrabold tracking-tight">{displayPrice}</span>
             {hasPrice && plan.interval && (
-              <span className="text-sm text-muted-foreground">
-                /month
-              </span>
+              <span className="text-sm text-muted-foreground">/month</span>
             )}
           </div>
 

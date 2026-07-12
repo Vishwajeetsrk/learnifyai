@@ -263,7 +263,10 @@ export function AiToolsShowcase() {
                       a <strong>horizontal row</strong> or a <strong>vertical column</strong>.
                     </p>
                     <pre className="bg-black/5 dark:bg-black/30 p-2.5 rounded-lg font-mono text-[10px] text-foreground border border-border/50 overflow-x-auto">
-                      <code>.container {"{"} display: flex; justify-content: center; align-items: center; {"}"}</code>
+                      <code>
+                        .container {"{"} display: flex; justify-content: center; align-items:
+                        center; {"}"}
+                      </code>
                     </pre>
                   </div>
                 </div>
@@ -546,9 +549,17 @@ export function AiToolsShowcase() {
                     </div>
                     <p className="font-semibold text-foreground">Key Takeaways:</p>
                     <ul className="list-disc list-inside space-y-1.5 text-foreground/80 pl-1 text-[11px]">
-                      <li><strong>Server Components</strong> render on the server, saving bundle size.</li>
-                      <li><strong>Actions API</strong> simplifies state management for forms.</li>
-                      <li><strong>Ref Forwarding</strong> is obsolete; <code className="text-[10px] bg-muted px-1 rounded">ref</code> is now a standard prop.</li>
+                      <li>
+                        <strong>Server Components</strong> render on the server, saving bundle size.
+                      </li>
+                      <li>
+                        <strong>Actions API</strong> simplifies state management for forms.
+                      </li>
+                      <li>
+                        <strong>Ref Forwarding</strong> is obsolete;{" "}
+                        <code className="text-[10px] bg-muted px-1 rounded">ref</code> is now a
+                        standard prop.
+                      </li>
                     </ul>
                   </div>
                 </div>

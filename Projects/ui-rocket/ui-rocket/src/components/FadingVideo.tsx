@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
 type FadingVideoProps = {
   src: string;
@@ -7,7 +7,7 @@ type FadingVideoProps = {
 };
 
 /** rAF opacity crossfade loop for hero / dashboard clips */
-export function FadingVideo({ src, className = '', style }: FadingVideoProps) {
+export function FadingVideo({ src, className = "", style }: FadingVideoProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const rafIdRef = useRef<number | null>(null);
   const fadingOutRef = useRef(false);
@@ -43,11 +43,11 @@ export function FadingVideo({ src, className = '', style }: FadingVideoProps) {
     if (!video) return;
 
     video.loop = false;
-    video.style.opacity = '0';
+    video.style.opacity = "0";
     fadingOutRef.current = false;
 
     const handleLoadedData = () => {
-      video.style.opacity = '0';
+      video.style.opacity = "0";
       const playPromise = video.play();
       if (playPromise !== undefined) {
         playPromise.then(() => fadeTo(1, 500)).catch(() => fadeTo(1, 500));
@@ -66,7 +66,7 @@ export function FadingVideo({ src, className = '', style }: FadingVideoProps) {
     };
 
     const handleEnded = () => {
-      video.style.opacity = '0';
+      video.style.opacity = "0";
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
         rafIdRef.current = null;
@@ -86,15 +86,15 @@ export function FadingVideo({ src, className = '', style }: FadingVideoProps) {
       }, 100);
     };
 
-    video.addEventListener('loadeddata', handleLoadedData);
-    video.addEventListener('timeupdate', handleTimeUpdate);
-    video.addEventListener('ended', handleEnded);
+    video.addEventListener("loadeddata", handleLoadedData);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("ended", handleEnded);
     if (video.readyState >= 2) handleLoadedData();
 
     return () => {
-      video.removeEventListener('loadeddata', handleLoadedData);
-      video.removeEventListener('timeupdate', handleTimeUpdate);
-      video.removeEventListener('ended', handleEnded);
+      video.removeEventListener("loadeddata", handleLoadedData);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("ended", handleEnded);
       if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
     };
   }, [src]);

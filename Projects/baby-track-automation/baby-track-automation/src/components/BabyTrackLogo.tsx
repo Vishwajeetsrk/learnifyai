@@ -1,11 +1,11 @@
-import { LOGO_PATH } from '../constants';
+import { LOGO_PATH } from "../constants";
 
 type BabyTrackLogoProps = {
   size?: number;
   className?: string;
 };
 
-export default function BabyTrackLogo({ size = 48, className = '' }: BabyTrackLogoProps) {
+export default function BabyTrackLogo({ size = 48, className = "" }: BabyTrackLogoProps) {
   return (
     <svg
       width={size}

@@ -1,7 +1,7 @@
-import { ArrowUpRight } from 'lucide-react';
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
-import { BackgroundVideo } from '../components/BackgroundVideo';
-import { VIDEO_BACKGROUND } from '../constants';
+import { ArrowUpRight } from "lucide-react";
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
+import { BackgroundVideo } from "../components/BackgroundVideo";
+import { VIDEO_BACKGROUND } from "../constants";
 
 export function HomePage() {
   return (
@@ -26,7 +26,7 @@ export function HomePage() {
           <button
             type="button"
             className="inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-medium text-canvas transition hover:bg-white/90"
-            onClick={() => navigateToRoute('work')}
+            onClick={() => navigateToRoute("work")}
           >
             View work
             <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
@@ -34,7 +34,7 @@ export function HomePage() {
           <button
             type="button"
             className="liquid-glass rounded-full px-7 py-3.5 text-sm font-medium text-white transition hover:bg-white/5"
-            onClick={() => navigateToRoute('contact')}
+            onClick={() => navigateToRoute("contact")}
           >
             Let&apos;s team up
           </button>

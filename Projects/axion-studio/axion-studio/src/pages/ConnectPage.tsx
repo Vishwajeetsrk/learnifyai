@@ -1,7 +1,7 @@
-import { ArrowRight } from 'lucide-react';
-import { TextRoll } from '../components/TextRoll';
+import { ArrowRight } from "lucide-react";
+import { TextRoll } from "../components/TextRoll";
 
-const EMAIL = 'hello@axion.studio';
+const EMAIL = "hello@axion.studio";
 
 export function ConnectPage() {
   return (

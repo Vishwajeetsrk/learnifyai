@@ -1,7 +1,7 @@
-import { ABOUT_CORNER_IMAGES, ABOUT_TEXT } from '../constants';
-import { AnimatedText } from './AnimatedText';
-import { ContactButton } from './ContactButton';
-import { FadeIn } from './FadeIn';
+import { ABOUT_CORNER_IMAGES, ABOUT_TEXT } from "../constants";
+import { AnimatedText } from "./AnimatedText";
+import { ContactButton } from "./ContactButton";
+import { FadeIn } from "./FadeIn";
 
 export function AboutSection() {
   return (
@@ -50,7 +50,7 @@ export function AboutSection() {
         <FadeIn delay={0} y={40}>
           <h2
             className="hero-heading text-center font-black uppercase leading-none tracking-tight"
-            style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}
+            style={{ fontSize: "clamp(3rem, 12vw, 160px)" }}
           >
             About me
           </h2>

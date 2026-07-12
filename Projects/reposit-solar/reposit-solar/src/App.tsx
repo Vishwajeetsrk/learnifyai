@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Zap } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Zap } from "lucide-react";
 
 const BASE = import.meta.env.BASE_URL;
 const LIGHT_IMG = `${BASE}images/hero-light.webp`;
 const DARK_IMG = `${BASE}images/hero-dark.webp`;
 
 const NAV_LINKS = [
-  'How It Works',
-  'Our Cases',
-  'About Us',
-  'Careers',
-  'Resources',
-  'Customers',
+  "How It Works",
+  "Our Cases",
+  "About Us",
+  "Careers",
+  "Resources",
+  "Customers",
 ] as const;
 
 export default function App() {
@@ -23,7 +23,7 @@ export default function App() {
   const animatingRef = useRef(false);
 
   useEffect(() => {
-    document.body.classList.toggle('light-theme', !isDark);
+    document.body.classList.toggle("light-theme", !isDark);
   }, [isDark]);
 
   useEffect(() => {
@@ -34,10 +34,10 @@ export default function App() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMenuOpen(false);
+      if (e.key === "Escape") setMenuOpen(false);
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   const toggleTheme = useCallback(
@@ -50,7 +50,7 @@ export default function App() {
       const bgFront = bgFrontRef.current;
 
       if (bgBack) bgBack.style.backgroundImage = `url(${targetImg})`;
-      if (bgFront) bgFront.classList.add('pull-down');
+      if (bgFront) bgFront.classList.add("pull-down");
 
       window.setTimeout(() => {
         setIsDark(toDark);
@@ -58,7 +58,7 @@ export default function App() {
       }, 300);
 
       window.setTimeout(() => {
-        if (bgFront) bgFront.classList.remove('pull-down');
+        if (bgFront) bgFront.classList.remove("pull-down");
         animatingRef.current = false;
       }, 330);
     },
@@ -69,7 +69,9 @@ export default function App() {
 
   const handleCta = () => {
     closeMenu();
-    document.querySelector('.theme-toggle')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document
+      .querySelector(".theme-toggle")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (
@@ -90,7 +92,7 @@ export default function App() {
           </span>
         </div>
 
-        <div className={`nav-links${menuOpen ? ' active' : ''}`}>
+        <div className={`nav-links${menuOpen ? " active" : ""}`}>
           {NAV_LINKS.map((label) => (
             <a
               key={label}
@@ -114,8 +116,8 @@ export default function App() {
 
         <button
           type="button"
-          className={`hamburger${menuOpen ? ' active' : ''}`}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          className={`hamburger${menuOpen ? " active" : ""}`}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
         >
@@ -136,12 +138,12 @@ export default function App() {
           <div
             className="toggle-indicator"
             style={{
-              transform: isDark ? 'translateX(calc(100% + 4px))' : 'translateX(0)',
+              transform: isDark ? "translateX(calc(100% + 4px))" : "translateX(0)",
             }}
           />
           <button
             type="button"
-            className={`toggle-btn${!isDark ? ' active' : ''}`}
+            className={`toggle-btn${!isDark ? " active" : ""}`}
             onClick={() => toggleTheme(false)}
           >
             <span className="label">Morning</span>
@@ -149,7 +151,7 @@ export default function App() {
           </button>
           <button
             type="button"
-            className={`toggle-btn${isDark ? ' active' : ''}`}
+            className={`toggle-btn${isDark ? " active" : ""}`}
             onClick={() => toggleTheme(true)}
           >
             <span className="label">Night</span>

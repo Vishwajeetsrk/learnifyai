@@ -1,5 +1,5 @@
-import { Lock } from 'lucide-react';
-import HeroParallaxVideo from '../components/HeroParallaxVideo';
+import { Lock } from "lucide-react";
+import HeroParallaxVideo from "../components/HeroParallaxVideo";
 
 export function JourneyPage() {
   return (
@@ -12,7 +12,7 @@ export function JourneyPage() {
         </h1>
         <p
           className="hero-fade-in font-hero text-[clamp(40px,5.4vw,72px)] font-normal leading-[1.1] tracking-[-0.02em]"
-          style={{ color: 'rgba(255,255,255,0.55)' }}
+          style={{ color: "rgba(255,255,255,0.55)" }}
         >
           Uncover with keen instinct.
         </p>
@@ -21,10 +21,11 @@ export function JourneyPage() {
       <div className="pointer-events-auto fixed inset-x-0 bottom-14 z-20 flex flex-col items-center gap-6 px-6">
         <p className="hero-fade-in-delay max-w-[620px] text-center text-[15px] leading-relaxed">
           <span className="text-white">
-            Our smart itineraries shape around you — your rhythm, your vibe, your hunger for adventure.
+            Our smart itineraries shape around you — your rhythm, your vibe, your hunger for
+            adventure.
           </span>
           <span className="text-white/55">
-            {' '}
+            {" "}
             Each getaway is tailored, seamless, and wholly yours.
           </span>
         </p>

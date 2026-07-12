@@ -1,12 +1,17 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
-import { MIcon } from './MIcon';
+import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { MIcon } from "./MIcon";
 
 type PrimaryButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
   icon?: string;
 };
 
-export function PrimaryButton({ children, icon = 'arrow_forward', className = '', ...props }: PrimaryButtonProps) {
+export function PrimaryButton({
+  children,
+  icon = "arrow_forward",
+  className = "",
+  ...props
+}: PrimaryButtonProps) {
   return (
     <button
       type="button"

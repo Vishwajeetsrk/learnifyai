@@ -1,6 +1,15 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Lightbulb, Sparkles, Loader2, ChevronDown, User, GraduationCap, Brain, MessageSquare } from "lucide-react";
+import {
+  Lightbulb,
+  Sparkles,
+  Loader2,
+  ChevronDown,
+  User,
+  GraduationCap,
+  Brain,
+  MessageSquare,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -13,14 +22,24 @@ interface ExplainLikeI12Props {
 
 const LEVELS = [
   { id: "beginner", label: "Beginner", icon: User, desc: "Simple terms, relatable examples" },
-  { id: "intermediate", label: "Intermediate", icon: GraduationCap, desc: "Deeper insight, real-world context" },
+  {
+    id: "intermediate",
+    label: "Intermediate",
+    icon: GraduationCap,
+    desc: "Deeper insight, real-world context",
+  },
   { id: "expert", label: "Expert", icon: Brain, desc: "Technical depth, trade-offs" },
   { id: "analogy", label: "Analogy", icon: MessageSquare, desc: "Powerful metaphor" },
 ] as const;
 
 type LevelId = (typeof LEVELS)[number]["id"];
 
-export function ExplainLikeI12({ lessonId, courseId, lessonTitle, lessonContent }: ExplainLikeI12Props) {
+export function ExplainLikeI12({
+  lessonId,
+  courseId,
+  lessonTitle,
+  lessonContent,
+}: ExplainLikeI12Props) {
   const [level, setLevel] = useState<LevelId>("beginner");
   const [showExplainer, setShowExplainer] = useState(false);
 
@@ -132,12 +151,12 @@ export function ExplainLikeI12({ lessonId, courseId, lessonTitle, lessonContent 
 
 function renderMarkdown(md: string): string {
   return md
-    .replace(/### (.+)/g, '<h3>$1</h3>')
-    .replace(/## (.+)/g, '<h2>$1</h2>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/^- (.+)/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-    .replace(/\n\n/g, '</p><p>')
-    .replace(/^(?!<[ulh])/gm, (m) => m ? m : '');
+    .replace(/### (.+)/g, "<h3>$1</h3>")
+    .replace(/## (.+)/g, "<h2>$1</h2>")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/^- (.+)/gm, "<li>$1</li>")
+    .replace(/(<li>.*<\/li>\n?)+/g, "<ul>$&</ul>")
+    .replace(/\n\n/g, "</p><p>")
+    .replace(/^(?!<[ulh])/gm, (m) => (m ? m : ""));
 }

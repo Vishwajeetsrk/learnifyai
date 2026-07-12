@@ -1,8 +1,8 @@
-import Hls from 'hls.js';
-import { ArrowUpRight, Play } from 'lucide-react';
-import { useEffect, useRef } from 'react';
-import { routeHref, navigateToRoute } from '../../../_shared/preset-site-routing';
-import { HERO_IMAGE_PILL, HLS_STREAMS } from '../constants';
+import Hls from "hls.js";
+import { ArrowUpRight, Play } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { routeHref, navigateToRoute } from "../../../_shared/preset-site-routing";
+import { HERO_IMAGE_PILL, HLS_STREAMS } from "../constants";
 
 function CircleArrowButton() {
   return (
@@ -37,7 +37,7 @@ export default function HeroSection() {
           void video.play().catch(() => undefined);
         });
         instances.push(hls);
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
         video.src = src;
         void video.play().catch(() => undefined);
       }
@@ -50,7 +50,7 @@ export default function HeroSection() {
 
   const contactClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    navigateToRoute('contact');
+    navigateToRoute("contact");
   };
 
   return (
@@ -87,7 +87,7 @@ export default function HeroSection() {
 
               <div className="flex flex-wrap items-center gap-4 pt-6">
                 <a
-                  href={routeHref('contact')}
+                  href={routeHref("contact")}
                   onClick={contactClick}
                   className="inline-flex items-center gap-2 rounded-full bg-hero-btn px-6 py-3 text-sm font-semibold text-white"
                 >
@@ -95,7 +95,7 @@ export default function HeroSection() {
                   <ArrowUpRight size={16} />
                 </a>
                 <a
-                  href={routeHref('contact')}
+                  href={routeHref("contact")}
                   onClick={contactClick}
                   className="text-sm font-semibold underline underline-offset-4"
                 >
@@ -163,7 +163,9 @@ export default function HeroSection() {
                     <CircleArrowButton />
                   </div>
                   <div>
-                    <h3 className="text-lg font-normal text-white lg:text-2xl">United bio-entrepreneurs</h3>
+                    <h3 className="text-lg font-normal text-white lg:text-2xl">
+                      United bio-entrepreneurs
+                    </h3>
                     <p className="mt-2 text-xs text-white/80 lg:text-sm">
                       Global hubs in Boston, Basel, and Singapore.
                     </p>

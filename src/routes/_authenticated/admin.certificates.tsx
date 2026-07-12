@@ -9,7 +9,8 @@ export const Route = createFileRoute("/_authenticated/admin/certificates")({
       { title: "Learnify Credential OS 3.0 — Admin" },
       {
         name: "description",
-        content: "Enterprise Credential Operating System: Templates, Designer, Wallet, Verification, and Analytics.",
+        content:
+          "Enterprise Credential Operating System: Templates, Designer, Wallet, Verification, and Analytics.",
       },
     ],
   }),

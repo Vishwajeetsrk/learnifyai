@@ -8,7 +8,9 @@ const ADMIN_PASSWORD = process.env.PLAYWRIGHT_ADMIN_PASSWORD || "12345678";
 async function signInAdmin(page: any) {
   console.log("[content-manager] navigating to /login");
   await page.goto("/login", { timeout: 40000, waitUntil: "domcontentloaded" });
-  await page.waitForURL(/\/login|\/dashboard|\/admin\/content|\/onboarding/, { timeout: 40000 }).catch(() => {});
+  await page
+    .waitForURL(/\/login|\/dashboard|\/admin\/content|\/onboarding/, { timeout: 40000 })
+    .catch(() => {});
   await page.waitForLoadState("domcontentloaded").catch(() => {});
   const startUrl = page.url();
   console.log("[content-manager] login page url", startUrl);
@@ -18,7 +20,7 @@ async function signInAdmin(page: any) {
     return true;
   }
 
-  const cookieBtn = page.getByRole("button", { name: /accept all/i });
+  const cookieBtn = page.getByRole("button", { name: /accept all|accept/i });
   try {
     await cookieBtn.waitFor({ state: "visible", timeout: 5000 });
     await cookieBtn.click();
@@ -32,8 +34,18 @@ async function signInAdmin(page: any) {
   const passwordInput = page.locator("input#password");
   const signInButton = page.getByRole("button", { name: /sign in/i }).first();
 
-  console.log("[content-manager] login button count", await page.getByRole("button", { name: /sign in/i }).count());
-  console.log("[content-manager] login form HTML", await page.locator('form').first().innerHTML().catch(() => ''));
+  console.log(
+    "[content-manager] login button count",
+    await page.getByRole("button", { name: /sign in/i }).count(),
+  );
+  console.log(
+    "[content-manager] login form HTML",
+    await page
+      .locator("form")
+      .first()
+      .innerHTML()
+      .catch(() => ""),
+  );
 
   if (!(await emailInput.isVisible({ timeout: 10000 }).catch(() => false))) {
     console.log("[content-manager] email input not visible after login load", page.url());
@@ -45,57 +57,65 @@ async function signInAdmin(page: any) {
   await passwordInput.fill(ADMIN_PASSWORD);
   await signInButton.scrollIntoViewIfNeeded();
 
-  const authResponsePromise = page.waitForResponse((response) => response.url().includes('/auth/v1/token'), {
-    timeout: 30000,
-  }).catch(() => null);
+  const authResponsePromise = page
+    .waitForResponse((response) => response.url().includes("/auth/v1/token"), {
+      timeout: 30000,
+    })
+    .catch(() => null);
 
   await Promise.all([
     authResponsePromise,
     signInButton.click().catch((error) => {
-      console.log('[content-manager] sign in button click failed', error?.message || error);
+      console.log("[content-manager] sign in button click failed", error?.message || error);
     }),
   ]).catch(() => {
-    console.log('[content-manager] sign in action did not complete within timeout');
+    console.log("[content-manager] sign in action did not complete within timeout");
   });
 
   const authResponse = await authResponsePromise;
   if (authResponse) {
-    console.log('[content-manager] auth response status', authResponse.status(), authResponse.url());
+    console.log(
+      "[content-manager] auth response status",
+      authResponse.status(),
+      authResponse.url(),
+    );
     const body = await authResponse.text().catch(() => null);
     if (body) {
-      console.log('[content-manager] auth response body', body.slice(0, 1000));
+      console.log("[content-manager] auth response body", body.slice(0, 1000));
     }
   } else {
-    console.log('[content-manager] no auth response detected for /auth/v1/token');
+    console.log("[content-manager] no auth response detected for /auth/v1/token");
   }
 
-  await page.waitForURL(/\/dashboard|\/admin\/content|\/onboarding/, {
-    timeout: 30000,
-  }).catch(() => {
-    console.log("[content-manager] did not navigate to a success route after login", page.url());
-  });
+  await page
+    .waitForURL(/\/dashboard|\/admin\/content|\/onboarding/, {
+      timeout: 30000,
+    })
+    .catch(() => {
+      console.log("[content-manager] did not navigate to a success route after login", page.url());
+    });
 
   let currentUrl = page.url();
-  console.log('[content-manager] url after sign in', currentUrl);
+  console.log("[content-manager] url after sign in", currentUrl);
 
-  if (currentUrl.includes('/dashboard')) {
-    console.log('[content-manager] navigating to /admin/content after login');
-    await page.goto('/admin/content', { timeout: 40000, waitUntil: 'networkidle' }).catch(() => {});
+  if (currentUrl.includes("/dashboard")) {
+    console.log("[content-manager] navigating to /admin/content after login");
+    await page.goto("/admin/content", { timeout: 40000, waitUntil: "networkidle" }).catch(() => {});
     await page.waitForURL(/\/admin\/content/, { timeout: 40000 }).catch(() => {});
     currentUrl = page.url();
-    console.log('[content-manager] url after admin/content navigation', currentUrl);
+    console.log("[content-manager] url after admin/content navigation", currentUrl);
   }
 
-  if (currentUrl.includes('/admin/content') || currentUrl.includes('/onboarding')) {
+  if (currentUrl.includes("/admin/content") || currentUrl.includes("/onboarding")) {
     return true;
   }
 
   const errorText = await page
-    .locator('text=/invalid|incorrect|wrong|not found|error/i')
+    .locator("text=/invalid|incorrect|wrong|not found|error/i")
     .allTextContents()
     .catch(() => []);
   if (errorText.length) {
-    console.log('[content-manager] login error text:', errorText.join(' | '));
+    console.log("[content-manager] login error text:", errorText.join(" | "));
   }
 
   return false;
@@ -127,7 +147,11 @@ test.describe("Content Manager Dashboard Verification", () => {
     const dialogTitle = page.getByRole("heading", { name: /new event/i }).first();
     await expect(dialogTitle).toBeVisible({ timeout: 20000 });
 
-    const titleField = page.locator("label:has-text('Title')").locator('..').locator("input").first();
+    const titleField = page
+      .locator("label:has-text('Title')")
+      .locator("..")
+      .locator("input")
+      .first();
     await titleField.fill(`Test Event ${Date.now()}`);
 
     const saveBtn = page.getByRole("button", { name: /save/i }).first();
@@ -155,12 +179,12 @@ test.describe("Content Manager Dashboard Verification", () => {
     });
 
     const tabs = [
-      { name: "Events", clickTarget: "Events", verifyText: "New event" },
-      { name: "Jobs", clickTarget: "Jobs", verifyText: "New job" },
-      { name: "Pricing", clickTarget: "Pricing", verifyText: "New plan" },
-      { name: "Site Settings", clickTarget: "Site", verifyText: "Add custom setting" },
-      { name: "Cert Templates", clickTarget: "Cert Templates", verifyText: "New template" },
-      { name: "Issue Cert", clickTarget: "Issue Cert", verifyText: "Find user by email" },
+      { name: "Events", clickTarget: "Events", verifyText: "New Event" },
+      { name: "Jobs", clickTarget: "Jobs", verifyText: "New Job" },
+      { name: "Pricing", clickTarget: "Pricing", verifyText: "New Plan" },
+      { name: "Site Settings", clickTarget: "Site", verifyText: "Add Custom Setting" },
+      { name: "Cert Templates", clickTarget: "Certificates", verifyText: "New Template" },
+      { name: "Issue Cert", clickTarget: "Bulk Issue", verifyText: "Find user by email" },
       { name: "FAQs", clickTarget: "FAQs", verifyText: "New FAQ" },
       {
         name: "Pages",
@@ -168,8 +192,8 @@ test.describe("Content Manager Dashboard Verification", () => {
         verifyText: "Terms of Service",
       },
       { name: "Roadmap", clickTarget: "Roadmap", verifyText: "Add item" },
-      { name: "Coupons", clickTarget: "Coupons", verifyText: "Add coupon" },
-      { name: "Community Groups", clickTarget: "Community Groups", verifyText: "New group" },
+      { name: "Coupons", clickTarget: "Coupons", verifyText: "Create Coupon" },
+      { name: "Community Groups", clickTarget: "Community Groups", verifyText: "New Group" },
       { name: "Visibility", clickTarget: "Visibility", verifyText: "Feature Visibility Manager" },
     ];
 
@@ -179,7 +203,7 @@ test.describe("Content Manager Dashboard Verification", () => {
       await expect(trigger).toBeVisible({ timeout: 15000 });
       await trigger.scrollIntoViewIfNeeded();
       await trigger.click({ force: true });
-      await expect(page.getByText(t.verifyText)).toBeVisible({ timeout: 20000 });
+      await expect(page.getByText(t.verifyText).first()).toBeVisible({ timeout: 20000 });
     }
   });
 });

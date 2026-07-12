@@ -1,5 +1,5 @@
-import { LegalSections } from '../components/LegalSections';
-import { PageShell } from '../components/PageShell';
+import { LegalSections } from "../components/LegalSections";
+import { PageShell } from "../components/PageShell";
 
 export function PrivacyPage() {
   return (

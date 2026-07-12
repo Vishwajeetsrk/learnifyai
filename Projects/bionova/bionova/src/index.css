@@ -1,4 +1,4 @@
-@import '../../_shared/preset-site-scroll.css';
+@import "../../_shared/preset-site-scroll.css";
 
 @tailwind base;
 @tailwind components;
@@ -18,7 +18,7 @@ body,
 }
 
 body {
-  font-family: 'Poppins', system-ui, sans-serif;
+  font-family: "Poppins", system-ui, sans-serif;
   color: hsl(var(--foreground));
   background: hsl(var(--background));
 }

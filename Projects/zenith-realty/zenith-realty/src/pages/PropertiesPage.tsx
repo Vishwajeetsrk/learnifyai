@@ -1,7 +1,7 @@
-import { motion } from 'motion/react';
-import { PageShell } from '../components/PageShell';
-import { PropertyCard } from '../components/PropertyCard';
-import { PROPERTIES } from '../constants';
+import { motion } from "motion/react";
+import { PageShell } from "../components/PageShell";
+import { PropertyCard } from "../components/PropertyCard";
+import { PROPERTIES } from "../constants";
 
 export function PropertiesPage() {
   return (

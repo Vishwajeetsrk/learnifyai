@@ -37,7 +37,9 @@ export function FontPicker({ value, onChange }: FontPickerProps) {
             key={c.id}
             onClick={() => setCategory(c.id)}
             className={`px-2 py-0.5 rounded text-[10px] font-medium whitespace-nowrap transition-colors ${
-              category === c.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/80"
+              category === c.id
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
             }`}
           >
             {c.label}

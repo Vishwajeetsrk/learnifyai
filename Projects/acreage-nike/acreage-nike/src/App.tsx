@@ -1,22 +1,17 @@
-import { useEffect, useState } from 'react';
-import { PresetHashRouter } from '../../_shared/components/PresetHashRouter';
-import { applyPresetHashOnLoad, navigateToRoute } from '../../_shared/preset-site-routing';
-import { useDraftlyGalleryAutoplay } from '../../_shared/hooks/useDraftlyGalleryAutoplay';
-import BubbleMenu from './components/BubbleMenu';
-import { NikeSwoosh } from './components/NikeSwoosh';
-import SpotlightReveal from './components/SpotlightReveal';
-import {
-  HERO_IMAGE_1,
-  HERO_IMAGE_2,
-  HERO_VIDEO_1,
-  HERO_VIDEO_2,
-} from './constants';
-import { PILL_MENU_ITEMS } from './routes';
-import { CollectionsPage } from './pages/CollectionsPage';
-import { CommunityPage } from './pages/CommunityPage';
-import { ContactPage } from './pages/ContactPage';
-import { DropsPage } from './pages/DropsPage';
-import { InnovationPage } from './pages/InnovationPage';
+import { useEffect, useState } from "react";
+import { PresetHashRouter } from "../../_shared/components/PresetHashRouter";
+import { applyPresetHashOnLoad, navigateToRoute } from "../../_shared/preset-site-routing";
+import { useDraftlyGalleryAutoplay } from "../../_shared/hooks/useDraftlyGalleryAutoplay";
+import BubbleMenu from "./components/BubbleMenu";
+import { NikeSwoosh } from "./components/NikeSwoosh";
+import SpotlightReveal from "./components/SpotlightReveal";
+import { HERO_IMAGE_1, HERO_IMAGE_2, HERO_VIDEO_1, HERO_VIDEO_2 } from "./constants";
+import { PILL_MENU_ITEMS } from "./routes";
+import { CollectionsPage } from "./pages/CollectionsPage";
+import { CommunityPage } from "./pages/CommunityPage";
+import { ContactPage } from "./pages/ContactPage";
+import { DropsPage } from "./pages/DropsPage";
+import { InnovationPage } from "./pages/InnovationPage";
 
 /** Dual sticky fullscreen hero — Nike × Acreage landing spec. */
 function DualSectionHero() {
@@ -41,7 +36,7 @@ function DualSectionHero() {
         <header className="relative z-50 flex w-full items-start justify-center pt-[150px]">
           <button
             type="button"
-            onClick={() => navigateToRoute('')}
+            onClick={() => navigateToRoute("")}
             className="text-white"
             aria-label="Acreage home"
           >
@@ -58,12 +53,12 @@ function DualSectionHero() {
         <main className="relative z-10 flex w-full flex-1 flex-col items-center justify-end px-4 pb-24 text-center text-white">
           <h1
             className="mx-auto w-full translate-y-[50px] font-sans font-medium leading-[1.05] tracking-tight"
-            style={{ fontSize: 'clamp(14px, 3vw, 51px)' }}
+            style={{ fontSize: "clamp(14px, 3vw, 51px)" }}
             data-editable
           >
             <span className="block">Pure Comfort For</span>
             <span className="block">
-              Next-Generation Athletes.{' '}
+              Next-Generation Athletes.{" "}
               <span className="font-serif font-normal italic pr-1">We Craft</span>
             </span>
             <span className="block font-serif font-normal italic pr-1">
@@ -79,7 +74,7 @@ function DualSectionHero() {
       <section
         id="science"
         className="relative z-10 h-[100dvh] w-full overflow-hidden bg-black text-white"
-        style={{ boxShadow: '0 -20px 50px rgba(0,0,0,0.5)' }}
+        style={{ boxShadow: "0 -20px 50px rgba(0,0,0,0.5)" }}
       >
         <SpotlightReveal
           imageSrc={HERO_IMAGE_2}
@@ -104,9 +99,9 @@ function DualSectionHero() {
         <div
           className="absolute left-[calc(8%+200px)] top-[20%] z-20 w-[320px] rounded-sm border border-white/10 px-8 py-6"
           style={{
-            background: 'rgba(0, 0, 0, 0.16)',
-            backdropFilter: 'blur(80px)',
-            WebkitBackdropFilter: 'blur(80px)',
+            background: "rgba(0, 0, 0, 0.16)",
+            backdropFilter: "blur(80px)",
+            WebkitBackdropFilter: "blur(80px)",
           }}
         >
           <div className="mb-4 flex items-end gap-2">
@@ -118,7 +113,7 @@ function DualSectionHero() {
             </span>
             <div className="w-[11px]">
               <svg
-                style={{ width: '160px', height: '80px' }}
+                style={{ width: "160px", height: "80px" }}
                 viewBox="0 0 289 138"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
@@ -155,8 +150,17 @@ function DualSectionHero() {
                       type="matrix"
                       values="0 0 0 0 0.854902 0 0 0 0 0.227451 0 0 0 0 0.0862745 0 0 0 1 0"
                     />
-                    <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_acreage" />
-                    <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_acreage" result="shape" />
+                    <feBlend
+                      mode="normal"
+                      in2="BackgroundImageFix"
+                      result="effect1_dropShadow_acreage"
+                    />
+                    <feBlend
+                      mode="normal"
+                      in="SourceGraphic"
+                      in2="effect1_dropShadow_acreage"
+                      result="shape"
+                    />
                   </filter>
                 </defs>
               </svg>
@@ -174,10 +178,7 @@ function DualSectionHero() {
         </div>
 
         <div className="absolute bottom-[12%] left-[8%] z-20 max-w-[500px] text-white">
-          <h2
-            className="flex flex-col text-[44px] leading-[1.05] tracking-tight"
-            data-editable
-          >
+          <h2 className="flex flex-col text-[44px] leading-[1.05] tracking-tight" data-editable>
             <span className="font-sans font-medium">Bringing Aerospace-</span>
             <span className="font-sans font-medium">Grade Infrastructure</span>
             <span className="pt-1 font-serif font-normal">
@@ -214,7 +215,7 @@ export default function App() {
   return (
     <PresetHashRouter
       routes={{
-        '': <DualSectionHero />,
+        "": <DualSectionHero />,
         drops: <DropsPage />,
         innovation: <InnovationPage />,
         collections: <CollectionsPage />,

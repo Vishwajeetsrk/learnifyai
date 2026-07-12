@@ -15,9 +15,8 @@ export const sendStudentVerificationOtp = createServerFn({ method: "POST" })
           .string()
           .email()
           .refine(
-            (val) =>
-              /(\.edu|\.ac\.in|\.edu\.in|\.ac\.uk|\.edu\.au|university|college)/i.test(val),
-            { message: "Must be a valid student email address (.edu, .ac.in, .edu.in)" }
+            (val) => /(\.edu|\.ac\.in|\.edu\.in|\.ac\.uk|\.edu\.au|university|college)/i.test(val),
+            { message: "Must be a valid student email address (.edu, .ac.in, .edu.in)" },
           ),
       })
       .parse(d),

@@ -128,11 +128,9 @@ export default function CoachingDashboard() {
     const start = new Date(b.slot.start_time).toISOString().replace(/-|:|\.\d\d\d/g, "");
     const end = new Date(b.slot.end_time).toISOString().replace(/-|:|\.\d\d\d/g, "");
     const title = encodeURIComponent(
-      `Coaching with ${isCreator ? b.learner?.full_name || "Client" : b.coach?.full_name || "Coach"}`
+      `Coaching with ${isCreator ? b.learner?.full_name || "Client" : b.coach?.full_name || "Coach"}`,
     );
-    const details = encodeURIComponent(
-      `Meeting Link: ${b.slot?.meeting_link || "TBD"}`
-    );
+    const details = encodeURIComponent(`Meeting Link: ${b.slot?.meeting_link || "TBD"}`);
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}`;
   };
 
@@ -245,7 +243,9 @@ export default function CoachingDashboard() {
           );
 
         if (priceInr > balance) {
-          throw new Error(`Insufficient wallet balance. Slot costs ₹${priceInr}, but you have ₹${balance}.`);
+          throw new Error(
+            `Insufficient wallet balance. Slot costs ₹${priceInr}, but you have ₹${balance}.`,
+          );
         }
 
         const { error: learnerDebitErr } = await supabase.from("wallet_transactions").insert({
@@ -357,8 +357,8 @@ export default function CoachingDashboard() {
         </div>
 
         {activeTab === "scheduling" && (
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-card rounded-2xl border p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            <div className="bg-card rounded-2xl border p-4 sm:p-6">
               <h3 className="font-semibold text-lg mb-4">Upcoming Sessions</h3>
               {myBookings.length === 0 ? (
                 <div className="text-center py-12 px-4 rounded-xl border border-dashed bg-accent/20 text-muted-foreground">
@@ -408,7 +408,11 @@ export default function CoachingDashboard() {
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2">
                         <a href={getGoogleCalendarUrl(b)} target="_blank" rel="noreferrer">
-                          <Button size="sm" variant="outline" className="w-full sm:w-auto gap-2 border-primary/20 text-primary hover:bg-primary/10">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full sm:w-auto gap-2 border-primary/20 text-primary hover:bg-primary/10"
+                          >
                             <CalendarPlus className="h-3.5 w-3.5" /> G-Cal Sync
                           </Button>
                         </a>
@@ -998,10 +1002,18 @@ function RealCohorts({ user }: { user: any }) {
             const isLive = c.status === "live";
             const isScheduled = c.status === "scheduled";
             return (
-              <div key={c.id} className="rounded-xl border p-4 space-y-3 flex flex-col">
+              <div
+                key={c.id}
+                className="rounded-xl border p-4 space-y-3 flex flex-col hover:shadow-md transition-shadow bg-gradient-to-br from-card to-accent/5"
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <h4 className="font-semibold truncate">{c.title}</h4>
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold truncate">{c.title}</h4>
+                      {isLive && (
+                        <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse shrink-0" />
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {c.kind.replace("_", " ")} · {memberCount} enrolled
                     </p>
@@ -1047,7 +1059,8 @@ function RealCohorts({ user }: { user: any }) {
                       </svg>
                     </button>
                     <Badge
-                      className={`text-[10px] ${isLive ? "bg-rose-500" : "bg-muted text-muted-foreground"}`}
+                      className={`text-[10px] ${isLive ? "bg-rose-500/20 text-rose-500 border-rose-500/30" : "bg-muted text-muted-foreground"}`}
+                      variant={isLive ? "outline" : "secondary"}
                     >
                       {c.status}
                     </Badge>
@@ -1056,19 +1069,28 @@ function RealCohorts({ user }: { user: any }) {
                 {c.description && (
                   <p className="text-sm text-muted-foreground line-clamp-2">{c.description}</p>
                 )}
-                <div className="mt-auto text-xs text-muted-foreground">
-                  Starts {format(new Date(c.starts_at), "MMM d, yyyy · h:mm a")}
+                <div className="mt-auto pt-2 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5" />
+                    {format(new Date(c.starts_at), "MMM d, yyyy · h:mm a")}
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Users className="h-3.5 w-3.5" />
+                    {memberCount}/{c.capacity}
+                  </div>
                 </div>
-                {isScheduled && (
-                  <Button size="sm" className="w-full" onClick={() => launchCohort(c.id)}>
-                    <Video className="h-4 w-4" /> Launch Now
-                  </Button>
-                )}
-                {isLive && (
-                  <Button size="sm" className="w-full gap-2">
-                    <Video className="h-4 w-4" /> Enter Studio
-                  </Button>
-                )}
+                <div className="flex gap-2">
+                  {isScheduled && (
+                    <Button size="sm" className="flex-1" onClick={() => launchCohort(c.id)}>
+                      <Video className="h-4 w-4" /> Launch Now
+                    </Button>
+                  )}
+                  {isLive && (
+                    <Button size="sm" className="flex-1 gap-2">
+                      <Video className="h-4 w-4" /> Enter Studio
+                    </Button>
+                  )}
+                </div>
               </div>
             );
           })}

@@ -45,6 +45,7 @@ export function StandardIDE({
   timeMs,
   saving,
   onSaveProject,
+  isMobile = false,
 }: {
   files: File[];
   activeFileId: string | null;
@@ -60,6 +61,7 @@ export function StandardIDE({
   timeMs?: number;
   saving: boolean;
   onSaveProject: () => void;
+  isMobile?: boolean;
 }) {
   const [fontSize, setFontSize] = useState(14);
   const [openTabs, setOpenTabs] = useState<string[]>([]);
@@ -167,7 +169,7 @@ export function StandardIDE({
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 p-2 border-b bg-card">
+      <div className="flex items-center gap-2 p-2 border-b bg-card flex-wrap">
         <Button onClick={onSaveProject} disabled={saving} size="sm" variant="outline">
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -186,29 +188,45 @@ export function StandardIDE({
 
         <LanguageSelector value={language} onChange={setLanguage} />
 
-        <div className="flex items-center border rounded-md mx-2 bg-muted/30">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 rounded-none rounded-l-md hover:bg-accent"
-            onClick={() => setFontSize(Math.max(10, fontSize - 1))}
-            title="Zoom Out (Ctrl+-)"
+        {isMobile && files.length > 0 && (
+          <select
+            value={activeFileId || ""}
+            onChange={(e) => setActiveFileId(e.target.value)}
+            className="text-xs bg-muted border rounded-md px-2 py-1.5 outline-none max-w-[130px]"
           >
-            <ZoomOut className="h-4 w-4" />
-          </Button>
-          <span className="text-xs font-mono px-2 min-w-[40px] text-center select-none">
-            {fontSize}px
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 px-2 rounded-none rounded-r-md hover:bg-accent"
-            onClick={() => setFontSize(Math.min(30, fontSize + 1))}
-            title="Zoom In (Ctrl+Plus)"
-          >
-            <ZoomIn className="h-4 w-4" />
-          </Button>
-        </div>
+            {files.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.name}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {!isMobile && (
+          <div className="flex items-center border rounded-md mx-2 bg-muted/30">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 rounded-none rounded-l-md hover:bg-accent"
+              onClick={() => setFontSize(Math.max(10, fontSize - 1))}
+              title="Zoom Out (Ctrl+-)"
+            >
+              <ZoomOut className="h-4 w-4" />
+            </Button>
+            <span className="text-xs font-mono px-2 min-w-[40px] text-center select-none">
+              {fontSize}px
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2 rounded-none rounded-r-md hover:bg-accent"
+              onClick={() => setFontSize(Math.min(30, fontSize + 1))}
+              title="Zoom In (Ctrl+Plus)"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
 
         <div className="flex-1" />
 
@@ -229,61 +247,65 @@ export function StandardIDE({
       </div>
 
       <div className="flex-1 overflow-hidden">
-        <ResizablePrimitive.Group orientation="horizontal">
+        <ResizablePrimitive.Group orientation={isMobile ? "vertical" : "horizontal"}>
           {/* File Explorer */}
-          <ResizablePrimitive.Panel defaultSize={15} minSize={10} maxSize={30}>
-            <div className="h-full border-r bg-card flex flex-col">
-              <div className="flex items-center justify-between p-2 border-b">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                  <FolderOpen className="h-4 w-4" />
-                  Explorer
-                </span>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onAddFile}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                {files.map((f) => (
-                  <div
-                    key={f.id}
-                    className={cn(
-                      "flex items-center justify-between group px-2 py-1.5 rounded-md cursor-pointer text-sm transition-colors",
-                      activeFileId === f.id
-                        ? "bg-primary/10 text-primary font-medium"
-                        : "hover:bg-muted text-muted-foreground",
-                    )}
-                    onClick={() => openInTab(f.id)}
-                    onContextMenu={(e) => handleContextMenu(e, f.id)}
-                  >
-                    <div className="flex items-center gap-2 overflow-hidden">
-                      {getFileIcon(f.name)}
-                      <span className="truncate">{f.name}</span>
-                    </div>
-                    {files.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-5 w-5 opacity-0 group-hover:opacity-100 hover:text-destructive transition-opacity"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteFile(f.id);
-                        }}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    )}
+          {!isMobile && (
+            <>
+              <ResizablePrimitive.Panel defaultSize={15} minSize={10} maxSize={30}>
+                <div className="h-full border-r bg-card flex flex-col">
+                  <div className="flex items-center justify-between p-2 border-b">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                      <FolderOpen className="h-4 w-4" />
+                      Explorer
+                    </span>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onAddFile}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
                   </div>
-                ))}
-              </div>
-            </div>
-          </ResizablePrimitive.Panel>
-          <ResizablePrimitive.Separator className="w-1 bg-border hover:bg-primary transition-colors cursor-col-resize" />
+                  <div className="flex-1 overflow-y-auto p-2 space-y-1">
+                    {files.map((f) => (
+                      <div
+                        key={f.id}
+                        className={cn(
+                          "flex items-center justify-between group px-2 py-1.5 rounded-md cursor-pointer text-sm transition-colors",
+                          activeFileId === f.id
+                            ? "bg-primary/10 text-primary font-medium"
+                            : "hover:bg-muted text-muted-foreground",
+                        )}
+                        onClick={() => openInTab(f.id)}
+                        onContextMenu={(e) => handleContextMenu(e, f.id)}
+                      >
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          {getFileIcon(f.name)}
+                          <span className="truncate">{f.name}</span>
+                        </div>
+                        {files.length > 1 && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-5 w-5 opacity-0 group-hover:opacity-100 hover:text-destructive transition-opacity"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteFile(f.id);
+                            }}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </ResizablePrimitive.Panel>
+              <ResizablePrimitive.Separator className="w-1 bg-border hover:bg-primary transition-colors cursor-col-resize" />
+            </>
+          )}
 
           {/* Editor with Tabs */}
           <ResizablePrimitive.Panel defaultSize={55} minSize={30}>
             <div className="h-full flex flex-col">
               {/* File Tabs */}
-              {openTabs.length > 0 && (
+              {!isMobile && openTabs.length > 0 && (
                 <div className="flex items-center border-b bg-card overflow-x-auto">
                   {openTabs.map((fileId) => {
                     const file = files.find((f) => f.id === fileId);

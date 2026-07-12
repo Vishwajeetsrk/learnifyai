@@ -1,5 +1,5 @@
-import PageShell from '../components/PageShell';
-import { COURSES } from '../constants';
+import PageShell from "../components/PageShell";
+import { COURSES } from "../constants";
 
 export function CoursesPage() {
   return (

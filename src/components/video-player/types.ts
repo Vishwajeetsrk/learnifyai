@@ -57,12 +57,13 @@ export const DEFAULT_CAPTION_STYLE: CaptionStyle = {
   rounded: false,
 };
 
-export const CAPTION_FONT_SIZES: { label: string; value: CaptionStyle["fontSize"]; px: number }[] = [
-  { label: "Small", value: "small", px: 14 },
-  { label: "Medium", value: "medium", px: 18 },
-  { label: "Large", value: "large", px: 24 },
-  { label: "X-Large", value: "xlarge", px: 32 },
-];
+export const CAPTION_FONT_SIZES: { label: string; value: CaptionStyle["fontSize"]; px: number }[] =
+  [
+    { label: "Small", value: "small", px: 14 },
+    { label: "Medium", value: "medium", px: 18 },
+    { label: "Large", value: "large", px: 24 },
+    { label: "X-Large", value: "xlarge", px: 32 },
+  ];
 
 export const CAPTION_FONTS = [
   "Inter, sans-serif",
@@ -200,11 +201,7 @@ function parseTimestamp(ts: string): number {
   } else if (parts.length === 2) {
     const [m, rest] = parts;
     const [s, ms] = rest.split(".");
-    return (
-      parseInt(m) * 60 +
-      parseInt(s) +
-      parseInt((ms || "0").padEnd(3, "0").slice(0, 3)) / 1000
-    );
+    return parseInt(m) * 60 + parseInt(s) + parseInt((ms || "0").padEnd(3, "0").slice(0, 3)) / 1000;
   }
   return 0;
 }

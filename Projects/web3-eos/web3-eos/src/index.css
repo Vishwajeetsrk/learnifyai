@@ -10,7 +10,7 @@ body,
 }
 
 body {
-  font-family: 'General Sans', system-ui, sans-serif;
+  font-family: "General Sans", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   background: #000;
   color: #fff;
@@ -84,7 +84,7 @@ body {
 }
 
 .waitlist-pill-outer::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: -2px;
   border-radius: inherit;
@@ -107,7 +107,7 @@ body {
 }
 
 .waitlist-pill-streak::after {
-  content: '';
+  content: "";
   position: absolute;
   top: -40%;
   left: 0;

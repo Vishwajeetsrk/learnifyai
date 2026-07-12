@@ -15,11 +15,13 @@ export async function autoGenerateCourseCertificate({
   courseName: string;
 }) {
   const supabaseUrl = process.env.VITE_SUPABASE_URL || "https://gnvsqwyexjuuwkjibxrr.supabase.co";
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
+  const supabaseKey =
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || "";
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   const certId = `LRN-CERT-${Math.floor(100000 + Math.random() * 900000)}`;
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://learnifyaitool.vercel.app";
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "https://learnifyaitool.vercel.app";
   const verificationUrl = `${origin}/verify/${certId}`;
 
   const { data: cert, error } = await supabase

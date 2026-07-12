@@ -1,7 +1,7 @@
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ABOUT_EYEBROW, MARQUEE_BRANDS } from '../constants';
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ABOUT_EYEBROW, MARQUEE_BRANDS } from "../constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,10 +21,10 @@ export function GlassPanel({ scrollContainerRef }: GlassPanelProps) {
 
     const slideSt = ScrollTrigger.create({
       trigger: container,
-      start: 'top bottom',
-      end: 'bottom bottom',
+      start: "top bottom",
+      end: "bottom bottom",
       scrub: 1.5,
-      animation: gsap.fromTo(wrap, { y: '100%' }, { y: '0%', ease: 'none' }),
+      animation: gsap.fromTo(wrap, { y: "100%" }, { y: "0%", ease: "none" }),
     });
 
     const onMouseMove = (e: MouseEvent) => {
@@ -35,15 +35,15 @@ export function GlassPanel({ scrollContainerRef }: GlassPanelProps) {
         y: moveY * 20,
         rotationY: moveX * 4,
         rotationX: -moveY * 4,
-        ease: 'power3.out',
+        ease: "power3.out",
         duration: 1,
       });
     };
-    panel.addEventListener('mousemove', onMouseMove);
+    panel.addEventListener("mousemove", onMouseMove);
 
     return () => {
       slideSt.kill();
-      panel.removeEventListener('mousemove', onMouseMove);
+      panel.removeEventListener("mousemove", onMouseMove);
     };
   }, [scrollContainerRef]);
 
@@ -57,18 +57,18 @@ export function GlassPanel({ scrollContainerRef }: GlassPanelProps) {
       <div
         ref={panelWrapRef}
         className="pointer-events-auto w-full max-w-[1250px] h-[900px] max-h-[85vh]"
-        style={{ perspective: '1000px' }}
+        style={{ perspective: "1000px" }}
       >
         <div
           ref={panelRef}
           className="relative flex h-full w-full flex-col justify-between overflow-hidden rounded-3xl"
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.16)',
-            backdropFilter: 'blur(160px)',
-            WebkitBackdropFilter: 'blur(160px)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            transformStyle: 'preserve-3d',
-            willChange: 'transform',
+            backgroundColor: "rgba(0, 0, 0, 0.16)",
+            backdropFilter: "blur(160px)",
+            WebkitBackdropFilter: "blur(160px)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            transformStyle: "preserve-3d",
+            willChange: "transform",
           }}
         >
           <div className="flex flex-1 flex-col items-center justify-center px-6 text-center md:px-12">
@@ -82,10 +82,9 @@ export function GlassPanel({ scrollContainerRef }: GlassPanelProps) {
               className="mx-auto w-full max-w-[1000px] font-serif text-4xl leading-[1.1] tracking-tight text-white md:text-6xl lg:text-[96px] lg:leading-[92.6px]"
               data-editable
             >
-              We transform sterile concrete into thriving{' '}
-              <span className="italic">urban</span> jungles. Our innovative designs bring wild{' '}
-              <span className="italic">nature</span> back to modern cities. Experience the{' '}
-              <span className="italic">bloom</span>
+              We transform sterile concrete into thriving <span className="italic">urban</span>{" "}
+              jungles. Our innovative designs bring wild <span className="italic">nature</span> back
+              to modern cities. Experience the <span className="italic">bloom</span>
             </h2>
           </div>
           <div className="overflow-hidden border-t border-white/10 py-6">

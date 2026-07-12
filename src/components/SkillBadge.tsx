@@ -1,5 +1,16 @@
 import { Badge } from "@/components/ui/badge";
-import { Terminal, Code, Palette, Share2, Brain, Sparkles, Database, Server, Cpu, Layers } from "lucide-react";
+import {
+  Terminal,
+  Code,
+  Palette,
+  Share2,
+  Brain,
+  Sparkles,
+  Database,
+  Server,
+  Cpu,
+  Layers,
+} from "lucide-react";
 
 export const SKILL_LOGOS: Record<
   string,
@@ -136,7 +147,8 @@ function getNormalizedLogo(skill: string) {
   if (lower.includes("tailwind")) return SKILL_LOGOS["Tailwind CSS"];
   if (lower.includes("git")) return SKILL_LOGOS["Git"];
   if (lower.includes("figma") || lower.includes("design")) return SKILL_LOGOS["Figma"];
-  if (lower.includes("ai") || lower.includes("llm") || lower.includes("prompt")) return SKILL_LOGOS["Generative AI"];
+  if (lower.includes("ai") || lower.includes("llm") || lower.includes("prompt"))
+    return SKILL_LOGOS["Generative AI"];
 
   // Direct simpleicon slug attempt
   const simpleSlug = lower.replace(/[^a-z0-9]/g, "");
@@ -158,7 +170,10 @@ export function SkillBadge({
   const sizeClass = size === "lg" ? "w-5 h-5" : size === "md" ? "w-4 h-4" : "w-3.5 h-3.5";
 
   return (
-    <Badge variant={variant} className={`flex items-center gap-1.5 py-1 px-2.5 rounded-lg shadow-xs border transition-all hover:scale-105 ${className}`}>
+    <Badge
+      variant={variant}
+      className={`flex items-center gap-1.5 py-1 px-2.5 rounded-lg shadow-xs border transition-all hover:scale-105 ${className}`}
+    >
       {iconInfo?.devicon && (
         <img
           src={`https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${iconInfo.devicon}`}

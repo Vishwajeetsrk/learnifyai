@@ -1,6 +1,6 @@
-import { ArrowRight } from 'lucide-react';
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { HERO_VIDEO } from '../constants';
+import { ArrowRight } from "lucide-react";
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { HERO_VIDEO } from "../constants";
 
 export default function HeroSection() {
   return (
@@ -22,16 +22,16 @@ export default function HeroSection() {
           <h1
             data-editable
             className="animate-blur-fade-up text-4xl font-semibold leading-[1.06] tracking-[-0.03em] sm:text-5xl md:text-6xl lg:text-[3.35rem]"
-            style={{ animationDelay: '180ms' }}
+            style={{ animationDelay: "180ms" }}
           >
             Live Better, Feel Whole Every Day
           </h1>
           <div
             className="animate-blur-fade-up mt-8 flex flex-wrap items-center gap-3"
-            style={{ animationDelay: '380ms' }}
+            style={{ animationDelay: "380ms" }}
           >
             <PresetNavLink
-              target={{ kind: 'route', path: 'contact' }}
+              target={{ kind: "route", path: "contact" }}
               className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3 text-sm font-semibold text-background transition hover:brightness-110"
               data-editable
             >
@@ -39,7 +39,7 @@ export default function HeroSection() {
               <ArrowRight className="h-4 w-4" aria-hidden />
             </PresetNavLink>
             <PresetNavLink
-              target={{ kind: 'section', id: 'wellness' }}
+              target={{ kind: "section", id: "wellness" }}
               className="liquid-glass inline-flex items-center gap-2 rounded-full px-7 py-3 text-sm font-medium text-foreground"
               data-editable
             >

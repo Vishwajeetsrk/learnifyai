@@ -1,9 +1,9 @@
-import { AboutPage } from './AboutPage';
-import { ArtistsPage } from './ArtistsPage';
-import { CollectionPage } from './CollectionPage';
-import { DropsPage } from './DropsPage';
-import { FaqPage } from './FaqPage';
-import { ShopPage } from './ShopPage';
+import { AboutPage } from "./AboutPage";
+import { ArtistsPage } from "./ArtistsPage";
+import { CollectionPage } from "./CollectionPage";
+import { DropsPage } from "./DropsPage";
+import { FaqPage } from "./FaqPage";
+import { ShopPage } from "./ShopPage";
 
 export function HomePage() {
   return (

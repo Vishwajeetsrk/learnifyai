@@ -1,16 +1,13 @@
-import {
-  handlePresetNavClick,
-  sectionHref,
-} from '../../../_shared/preset-site-routing';
-import { NAV_LINKS } from '../constants';
+import { handlePresetNavClick, sectionHref } from "../../../_shared/preset-site-routing";
+import { NAV_LINKS } from "../constants";
 
 export function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-6">
       <a
-        href={sectionHref('hero')}
+        href={sectionHref("hero")}
         className="text-xl font-semibold tracking-tight font-body text-foreground"
-        onClick={(e) => handlePresetNavClick(e, 'hero', true)}
+        onClick={(e) => handlePresetNavClick(e, "hero", true)}
       >
         VIRALMEDIA
       </a>
@@ -31,7 +28,7 @@ export function Navbar() {
       <button
         type="button"
         className="liquid-glass-strong rounded-full px-6 py-2.5 text-sm font-medium text-foreground hover:scale-[1.03] transition-transform"
-        onClick={(e) => handlePresetNavClick(e, 'cta', true)}
+        onClick={(e) => handlePresetNavClick(e, "cta", true)}
       >
         Get Started
       </button>

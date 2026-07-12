@@ -1,5 +1,5 @@
-import { GRID_CELL } from '../constants';
-import type { GridOffset } from '../hooks/useSpotlightTracking';
+import { GRID_CELL } from "../constants";
+import type { GridOffset } from "../hooks/useSpotlightTracking";
 
 export function GridBackground({ offset }: { offset: GridOffset }) {
   return (

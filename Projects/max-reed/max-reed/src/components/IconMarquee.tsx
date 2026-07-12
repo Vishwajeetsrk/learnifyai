@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+import type { LucideIcon } from "lucide-react";
 import {
   Aperture,
   Box,
@@ -12,7 +12,7 @@ import {
   PenTool,
   Type,
   Wand2,
-} from 'lucide-react';
+} from "lucide-react";
 
 const ICONS: LucideIcon[] = [
   Figma,
@@ -39,8 +39,8 @@ function IconTile({ Icon }: { Icon: LucideIcon }) {
   );
 }
 
-function MarqueeRow({ direction }: { direction: 'left' | 'right' }) {
-  const animClass = direction === 'left' ? 'marquee-left' : 'marquee-right';
+function MarqueeRow({ direction }: { direction: "left" | "right" }) {
+  const animClass = direction === "left" ? "marquee-left" : "marquee-right";
   const tiles = [...ICONS, ...ICONS];
 
   return (

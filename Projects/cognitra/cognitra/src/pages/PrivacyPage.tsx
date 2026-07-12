@@ -1,5 +1,5 @@
-import { LegalSections } from '../components/LegalSections';
-import { InnerPageLayout } from '../components/InnerPageLayout';
+import { LegalSections } from "../components/LegalSections";
+import { InnerPageLayout } from "../components/InnerPageLayout";
 
 export function PrivacyPage() {
   return (

@@ -1,9 +1,9 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 const POSTS = [
-  { title: 'Silence as infrastructure', date: 'Mar 2026' },
-  { title: 'Designing for deep work', date: 'Feb 2026' },
-  { title: 'Loops that breathe', date: 'Jan 2026' },
+  { title: "Silence as infrastructure", date: "Mar 2026" },
+  { title: "Designing for deep work", date: "Feb 2026" },
+  { title: "Loops that breathe", date: "Jan 2026" },
 ];
 
 export function JournalPage({ embedded = false }: { embedded?: boolean }) {

@@ -1,26 +1,26 @@
-import { LegalSections } from './components/LegalSections';
-import { Hero } from './components/Hero';
+import { LegalSections } from "./components/LegalSections";
+import { Hero } from "./components/Hero";
 
 const SECTIONS = [
   {
-    id: 'ecosystem',
-    title: 'Ecosystem',
-    body: 'RIVR connects staking, liquidity routing, and governance across chains with transparent on-chain accounting.',
+    id: "ecosystem",
+    title: "Ecosystem",
+    body: "RIVR connects staking, liquidity routing, and governance across chains with transparent on-chain accounting.",
   },
   {
-    id: 'economics',
-    title: 'Economics',
-    body: 'Protocol fees, yield routing, and insurance funds are published in real time for depositors and integrators.',
+    id: "economics",
+    title: "Economics",
+    body: "Protocol fees, yield routing, and insurance funds are published in real time for depositors and integrators.",
   },
   {
-    id: 'developers',
-    title: 'Developers',
-    body: 'SDKs, subgraphs, and sandbox keys help teams ship staking experiences without rebuilding core infrastructure.',
+    id: "developers",
+    title: "Developers",
+    body: "SDKs, subgraphs, and sandbox keys help teams ship staking experiences without rebuilding core infrastructure.",
   },
   {
-    id: 'governance',
-    title: 'Governance',
-    body: 'Token holders vote on emissions, risk parameters, and treasury allocations through on-chain proposals.',
+    id: "governance",
+    title: "Governance",
+    body: "Token holders vote on emissions, risk parameters, and treasury allocations through on-chain proposals.",
   },
 ] as const;
 

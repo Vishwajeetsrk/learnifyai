@@ -1,25 +1,25 @@
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
-import { GRASS_IMG, HERO_VIDEO } from '../constants';
-import { scrollToSection } from '../lib/scroll';
-import { AnimatedText } from './AnimatedText';
-import { DashboardMock } from './DashboardMock';
-import { FadeUp } from './FadeUp';
-import { FadingVideo } from './FadingVideo';
-import { HeroBadge } from './HeroBadge';
-import { PrimaryButton } from './PrimaryButton';
-import { SecondaryButton } from './SecondaryButton';
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import { GRASS_IMG, HERO_VIDEO } from "../constants";
+import { scrollToSection } from "../lib/scroll";
+import { AnimatedText } from "./AnimatedText";
+import { DashboardMock } from "./DashboardMock";
+import { FadeUp } from "./FadeUp";
+import { FadingVideo } from "./FadingVideo";
+import { HeroBadge } from "./HeroBadge";
+import { PrimaryButton } from "./PrimaryButton";
+import { SecondaryButton } from "./SecondaryButton";
 
 export function Hero() {
   const containerRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ['start start', 'end start'],
+    offset: ["start start", "end start"],
   });
 
-  const dashboardY = useTransform(scrollYProgress, [0, 1], ['0%', '-25%']);
-  const grassY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
-  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '-60%']);
+  const dashboardY = useTransform(scrollYProgress, [0, 1], ["0%", "-25%"]);
+  const grassY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "-60%"]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.45, 1], [1, 0.55, 0]);
 
   return (
@@ -46,19 +46,21 @@ export function Hero() {
             className="font-serif text-4xl font-normal leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
             data-editable
           >
-            Design at the{' '}
+            Design at the{" "}
             <AnimatedText className="italic text-violet-200">speed of thought</AnimatedText>
           </h1>
         </FadeUp>
         <FadeUp delay={0.16} className="mt-5 max-w-xl">
           <p className="text-base leading-relaxed text-white/60 sm:text-lg" data-editable>
-            UI Rocket turns prompts into production-ready interfaces — with live preview, glass UI, and
-            scroll-driven motion built in.
+            UI Rocket turns prompts into production-ready interfaces — with live preview, glass UI,
+            and scroll-driven motion built in.
           </p>
         </FadeUp>
         <FadeUp delay={0.24} className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <PrimaryButton onClick={() => scrollToSection('pricing')}>Start building</PrimaryButton>
-          <SecondaryButton onClick={() => scrollToSection('features')}>See features</SecondaryButton>
+          <PrimaryButton onClick={() => scrollToSection("pricing")}>Start building</PrimaryButton>
+          <SecondaryButton onClick={() => scrollToSection("features")}>
+            See features
+          </SecondaryButton>
         </FadeUp>
       </motion.div>
 

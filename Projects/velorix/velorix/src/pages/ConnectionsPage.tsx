@@ -1,6 +1,6 @@
-import InnerPageLayout from '../components/InnerPageLayout';
+import InnerPageLayout from "../components/InnerPageLayout";
 
-const INTEGRATIONS = ['Slack', 'Notion', 'Salesforce', 'Stripe', 'Google Workspace', 'HubSpot'];
+const INTEGRATIONS = ["Slack", "Notion", "Salesforce", "Stripe", "Google Workspace", "HubSpot"];
 
 export default function ConnectionsPage() {
   return (

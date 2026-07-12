@@ -1,7 +1,7 @@
-import { ArrowRight } from 'lucide-react';
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
-import { HERO_VIDEO } from '../constants';
-import ShinyText from './ShinyText';
+import { ArrowRight } from "lucide-react";
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
+import { HERO_VIDEO } from "../constants";
+import ShinyText from "./ShinyText";
 
 export default function HeroSection() {
   return (
@@ -34,7 +34,7 @@ export default function HeroSection() {
           </p>
           <h1
             className="font-medium leading-[0.85] tracking-tighter text-white"
-            style={{ fontSize: 'clamp(3rem, 8vw, 8rem)' }}
+            style={{ fontSize: "clamp(3rem, 8vw, 8rem)" }}
           >
             <span className="block">Become</span>
             <span className="block">
@@ -43,7 +43,7 @@ export default function HeroSection() {
           </h1>
           <button
             type="button"
-            onClick={() => navigateToRoute('contact')}
+            onClick={() => navigateToRoute("contact")}
             className="group mt-8 inline-flex items-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-900 md:px-8 md:py-4 md:text-base"
           >
             Apply for Next Enrollment

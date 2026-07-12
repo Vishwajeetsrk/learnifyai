@@ -1,44 +1,44 @@
-import { useState, type MouseEvent } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, Star, X } from 'lucide-react';
+import { useState, type MouseEvent } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, Star, X } from "lucide-react";
 import {
   handlePresetNavClick,
   navigateToRoute,
   presetNavHref,
   resolveNavTarget,
   routeHref,
-} from '../../../_shared/preset-site-routing';
-import { usePresetHashRoute } from '../../../_shared/hooks/usePresetHashRoute';
-import { goldEase } from '../constants';
-import { DESKTOP_LINKS, MOBILE_LINKS } from '../routes';
+} from "../../../_shared/preset-site-routing";
+import { usePresetHashRoute } from "../../../_shared/hooks/usePresetHashRoute";
+import { goldEase } from "../constants";
+import { DESKTOP_LINKS, MOBILE_LINKS } from "../routes";
 
 function isLinkActive(path: string, route: string): boolean {
-  if (route === '') return path === '' || path === 'home';
-  if (route === 'destinations') {
-    return path === 'destinations' || path.startsWith('destinations/');
+  if (route === "") return path === "" || path === "home";
+  if (route === "destinations") {
+    return path === "destinations" || path.startsWith("destinations/");
   }
   return path === route;
 }
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const path = usePresetHashRoute('');
-  const isHome = path === '' || path === 'home';
-  const isTourDetail = path.startsWith('destinations/') && path !== 'destinations';
+  const path = usePresetHashRoute("");
+  const isHome = path === "" || path === "home";
+  const isTourDetail = path.startsWith("destinations/") && path !== "destinations";
 
   const starColor = menuOpen
-    ? 'text-black'
+    ? "text-black"
     : isTourDetail
-      ? 'text-white'
+      ? "text-white"
       : isHome
-        ? 'max-[850px]:text-white min-[851px]:text-black'
-        : 'text-black';
+        ? "max-[850px]:text-white min-[851px]:text-black"
+        : "text-black";
 
-  const menuBtnColor = isHome || isTourDetail ? 'text-white' : 'text-black';
+  const menuBtnColor = isHome || isTourDetail ? "text-white" : "text-black";
 
   const navClick = (route: string) => (e: MouseEvent<HTMLAnchorElement>) => {
     setMenuOpen(false);
-    handlePresetNavClick(e, resolveNavTarget('', { route }));
+    handlePresetNavClick(e, resolveNavTarget("", { route }));
   };
 
   return (
@@ -56,7 +56,7 @@ export function Navbar() {
         type="button"
         className={`fixed right-[30px] top-[30px] z-[300] transition-transform duration-300 ease-out hover:scale-110 ${menuBtnColor}`}
         onClick={() => setMenuOpen((o) => !o)}
-        aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
       >
         <Menu size={32} />
       </button>
@@ -64,9 +64,9 @@ export function Navbar() {
       <AnimatePresence>
         {menuOpen && (
           <motion.div
-            initial={{ y: '-100%' }}
+            initial={{ y: "-100%" }}
             animate={{ y: 0 }}
-            exit={{ y: '-100%' }}
+            exit={{ y: "-100%" }}
             transition={{ duration: 0.75, ease: goldEase }}
             className="fixed inset-0 z-[200] flex flex-col bg-white"
           >
@@ -108,7 +108,7 @@ export function Navbar() {
             return (
               <motion.a
                 key={link.route}
-                href={presetNavHref(resolveNavTarget('', { route: link.route }))}
+                href={presetNavHref(resolveNavTarget("", { route: link.route }))}
                 onClick={navClick(link.route)}
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}

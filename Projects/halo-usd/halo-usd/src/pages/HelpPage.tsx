@@ -1,5 +1,5 @@
-import Navbar from '../components/Navbar';
-import UseCasesSection from '../components/UseCasesSection';
+import Navbar from "../components/Navbar";
+import UseCasesSection from "../components/UseCasesSection";
 
 export default function HelpPage() {
   return (

@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
-import { PresetHashRouter } from '../../_shared/components/PresetHashRouter';
-import { applyPresetHashOnLoad } from '../../_shared/preset-site-routing';
-import { CollectionsPage } from './pages/CollectionsPage';
-import { CommunityPage } from './pages/CommunityPage';
-import { ContactPage } from './pages/ContactPage';
-import { DropsPage } from './pages/DropsPage';
-import { HomePage } from './pages/HomePage';
-import { InnovationPage } from './pages/InnovationPage';
-import { StoresPage } from './pages/StoresPage';
+import { useEffect } from "react";
+import { PresetHashRouter } from "../../_shared/components/PresetHashRouter";
+import { applyPresetHashOnLoad } from "../../_shared/preset-site-routing";
+import { CollectionsPage } from "./pages/CollectionsPage";
+import { CommunityPage } from "./pages/CommunityPage";
+import { ContactPage } from "./pages/ContactPage";
+import { DropsPage } from "./pages/DropsPage";
+import { HomePage } from "./pages/HomePage";
+import { InnovationPage } from "./pages/InnovationPage";
+import { StoresPage } from "./pages/StoresPage";
 
 export default function App() {
   useEffect(() => {
@@ -17,7 +17,7 @@ export default function App() {
   return (
     <PresetHashRouter
       routes={{
-        '': <HomePage />,
+        "": <HomePage />,
         drops: <DropsPage />,
         innovation: <InnovationPage />,
         collections: <CollectionsPage />,

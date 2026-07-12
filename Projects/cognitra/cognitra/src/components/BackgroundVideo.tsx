@@ -1,4 +1,4 @@
-import { BACKGROUND_VIDEO } from '../constants';
+import { BACKGROUND_VIDEO } from "../constants";
 
 export function BackgroundVideo() {
   return (
@@ -10,12 +10,12 @@ export function BackgroundVideo() {
       src={BACKGROUND_VIDEO}
       aria-hidden
       style={{
-        position: 'fixed',
+        position: "fixed",
         top: 0,
         left: 0,
-        width: '100%',
-        height: '100vh',
-        objectFit: 'cover',
+        width: "100%",
+        height: "100vh",
+        objectFit: "cover",
         zIndex: 0,
       }}
     />

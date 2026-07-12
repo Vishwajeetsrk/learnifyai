@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
-import { ArrowRight } from 'lucide-react';
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
+import type { ReactNode } from "react";
+import { ArrowRight } from "lucide-react";
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
 
 type PageShellProps = {
   eyebrow: string;
@@ -24,7 +24,7 @@ export default function PageShell({ eyebrow, title, description, children }: Pag
         <div className="mt-16 border-t border-white/10 pt-10">
           <button
             type="button"
-            onClick={() => navigateToRoute('contact')}
+            onClick={() => navigateToRoute("contact")}
             className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-black transition hover:bg-white/90"
           >
             Apply for Next Enrollment

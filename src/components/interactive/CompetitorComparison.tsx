@@ -37,7 +37,9 @@ export function CompetitorComparison() {
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">How We Compare</h2>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight">
+          How We Compare
+        </h2>
         <p className="mt-3 text-sm sm:text-base text-muted-foreground">
           See why Learnify AI is the complete career platform.
         </p>
@@ -128,7 +130,10 @@ export function CompetitorComparison() {
                 {COMPETITORS.map((c, i) => (
                   <div
                     key={c.name}
-                    className={cn("text-[10px] font-bold text-center", c.highlight && "text-primary")}
+                    className={cn(
+                      "text-[10px] font-bold text-center",
+                      c.highlight && "text-primary",
+                    )}
                   >
                     {c.short}
                   </div>
@@ -174,9 +179,7 @@ export function CompetitorComparison() {
               transition={{ duration: 0.3, delay: cIdx * 0.08 }}
               className={cn(
                 "rounded-xl border p-4",
-                comp.highlight
-                  ? "bg-primary/5 border-primary/20"
-                  : "bg-card border-border",
+                comp.highlight ? "bg-primary/5 border-primary/20" : "bg-card border-border",
               )}
             >
               <div className="flex items-center justify-between mb-3">
@@ -198,10 +201,7 @@ export function CompetitorComparison() {
                 {FEATURES.map((feat) => {
                   const val = feat.values[cIdx];
                   return (
-                    <div
-                      key={feat.name}
-                      className="flex items-center justify-between text-xs"
-                    >
+                    <div key={feat.name} className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground">{feat.name}</span>
                       {typeof val === "boolean" ? (
                         val ? (

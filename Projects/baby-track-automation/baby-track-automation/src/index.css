@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Italiana&family=Manrope:wght@400;600&family=Marck+Script&display=swap');
-@import '../../_shared/preset-site-scroll.css';
-@import 'tailwindcss';
+@import url("https://fonts.googleapis.com/css2?family=Italiana&family=Manrope:wght@400;600&family=Marck+Script&display=swap");
+@import "../../_shared/preset-site-scroll.css";
+@import "tailwindcss";
 
 @theme {
-  --font-manrope: 'Manrope', sans-serif;
-  --font-italiana: 'Italiana', serif;
-  --font-marck: 'Marck Script', cursive;
+  --font-manrope: "Manrope", sans-serif;
+  --font-italiana: "Italiana", serif;
+  --font-marck: "Marck Script", cursive;
 }
 
 html,

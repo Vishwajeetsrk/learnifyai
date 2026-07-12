@@ -1,9 +1,9 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'motion/react';
-import BabyTrackLogo from '../components/BabyTrackLogo';
-import BabyTrackNavbar from '../components/BabyTrackNavbar';
-import { CLOUD_IMAGE, HERO_VIDEO, RED_SECTION_VIDEO } from '../constants';
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
+import BabyTrackLogo from "../components/BabyTrackLogo";
+import BabyTrackNavbar from "../components/BabyTrackNavbar";
+import { CLOUD_IMAGE, HERO_VIDEO, RED_SECTION_VIDEO } from "../constants";
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
 
 export default function HomePage() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -68,7 +68,7 @@ export default function HomePage() {
         <button
           type="button"
           className="absolute right-[20px] top-[24px] z-40 cursor-pointer rounded-[100%] border border-white bg-black/10 px-5 py-3 font-italiana text-[12px] uppercase tracking-widest text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/10 hover:backdrop-blur-[48px] md:right-[64px] md:top-[64px] md:bg-transparent md:px-10 md:py-7 md:text-[18px] md:backdrop-blur-none"
-          onClick={() => navigateToRoute('contact')}
+          onClick={() => navigateToRoute("contact")}
         >
           Get started
         </button>
@@ -133,8 +133,8 @@ export default function HomePage() {
           <div className="relative z-20 mx-auto flex h-auto w-full max-w-[900px] flex-col items-center px-8 text-center md:h-[620px]">
             <BabyTrackLogo size={80} className="text-white" />
             <p className="mx-auto mb-[40px] h-[100px] max-w-[400px] text-[16px] uppercase leading-[1.6] tracking-wider text-white">
-              We built this platform with a single purpose to eliminate operational chaos and restore
-              balance to your daily business routine
+              We built this platform with a single purpose to eliminate operational chaos and
+              restore balance to your daily business routine
             </p>
             <p className="font-marck mb-[32px] text-[120px] leading-none text-white">S.P.D</p>
             <p className="mb-[24px] w-[400px] max-w-full text-[16px] font-light text-white">

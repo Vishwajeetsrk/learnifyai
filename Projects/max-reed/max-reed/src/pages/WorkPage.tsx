@@ -1,4 +1,4 @@
-import { FeaturesSection } from '../components/FeaturesSection';
+import { FeaturesSection } from "../components/FeaturesSection";
 
 export function WorkPage() {
   return <FeaturesSection />;

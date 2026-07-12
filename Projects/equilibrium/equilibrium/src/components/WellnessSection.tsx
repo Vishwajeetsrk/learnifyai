@@ -1,26 +1,29 @@
-import { Leaf, Moon, Sparkles } from 'lucide-react';
+import { Leaf, Moon, Sparkles } from "lucide-react";
 
 const PILLARS = [
   {
     icon: Leaf,
-    title: 'Mindful movement',
-    body: 'Low-impact flows that restore joint mobility and nervous-system calm without burnout.',
+    title: "Mindful movement",
+    body: "Low-impact flows that restore joint mobility and nervous-system calm without burnout.",
   },
   {
     icon: Moon,
-    title: 'Sleep architecture',
-    body: 'Evening protocols and breath pacing that deepen recovery between demanding days.',
+    title: "Sleep architecture",
+    body: "Evening protocols and breath pacing that deepen recovery between demanding days.",
   },
   {
     icon: Sparkles,
-    title: 'Nutrition rhythm',
-    body: 'Seasonal meal cadences aligned to energy peaks — not restrictive, intentionally balanced.',
+    title: "Nutrition rhythm",
+    body: "Seasonal meal cadences aligned to energy peaks — not restrictive, intentionally balanced.",
   },
 ] as const;
 
 export default function WellnessSection() {
   return (
-    <section id="wellness" className="scroll-mt-20 border-t border-white/8 bg-background px-5 py-24 sm:px-8">
+    <section
+      id="wellness"
+      className="scroll-mt-20 border-t border-white/8 bg-background px-5 py-24 sm:px-8"
+    >
       <div className="mx-auto max-w-6xl">
         <p data-editable className="section-eyebrow mb-3">
           Wellness
@@ -32,8 +35,8 @@ export default function WellnessSection() {
           Three pillars that hold your center
         </h2>
         <p data-editable className="mt-4 max-w-xl text-muted">
-          Every program at Equilibrium maps to movement, rest, and nourishment — the triangle
-          that keeps high performers from tipping into depletion.
+          Every program at Equilibrium maps to movement, rest, and nourishment — the triangle that
+          keeps high performers from tipping into depletion.
         </p>
         <div className="mt-12 grid gap-5 sm:grid-cols-3">
           {PILLARS.map(({ icon: Icon, title, body }) => (

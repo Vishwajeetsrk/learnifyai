@@ -4,7 +4,7 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   width: calc(100% - 32px);
   max-width: 720px;
 }

@@ -290,9 +290,7 @@ function AdminOverview() {
     },
   });
 
-  const userMap = new Map<string, any>(
-    (usersQuery.data?.rows ?? []).map((u: any) => [u.id, u]),
-  );
+  const userMap = new Map<string, any>((usersQuery.data?.rows ?? []).map((u: any) => [u.id, u]));
 
   // Cohorts
   const adminCohortsQuery = useQuery({
@@ -458,7 +456,9 @@ function AdminOverview() {
     wb.created = new Date();
 
     const styleSheet = (ws: ExcelJS.Worksheet, widths: number[], headerFill?: string) => {
-      widths.forEach((w, i) => { ws.getColumn(i + 1).width = w; });
+      widths.forEach((w, i) => {
+        ws.getColumn(i + 1).width = w;
+      });
       if (headerFill) {
         const h = ws.getRow(1);
         h.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
@@ -487,21 +487,63 @@ function AdminOverview() {
     const dashMetrics = [
       ["Report Period", rangeLabel, "—", "—", "✓", "Admin report range"],
       ["Total Users", usersQuery.data?.total ?? 0, "All time", "—", "✓", "Registered accounts"],
-      ["AI Requests (24h)", aiReq24hQuery.data ?? 0, "Last 24h", "—", (aiReq24hQuery.data ?? 0) > 0 ? "✓ Active" : "⚠ Idle", "Chat messages"],
-      ["Revenue in Period", `₹${rangeRevenue.toLocaleString("en-IN")}`, rangeLabel, `Week: ₹${weeklyRevenue.toLocaleString("en-IN")}`, rangeRevenue > 0 ? "✓" : "—", "Completed credits"],
-      ["This Week Revenue", `₹${weeklyRevenue.toLocaleString("en-IN")}`, "This week", `Month: ₹${monthlyRevenue.toLocaleString("en-IN")}`, "✓", "Mon—Sun"],
-      ["This Month Revenue", `₹${monthlyRevenue.toLocaleString("en-IN")}`, "This month", "—", "✓", "Month to date"],
+      [
+        "AI Requests (24h)",
+        aiReq24hQuery.data ?? 0,
+        "Last 24h",
+        "—",
+        (aiReq24hQuery.data ?? 0) > 0 ? "✓ Active" : "⚠ Idle",
+        "Chat messages",
+      ],
+      [
+        "Revenue in Period",
+        `₹${rangeRevenue.toLocaleString("en-IN")}`,
+        rangeLabel,
+        `Week: ₹${weeklyRevenue.toLocaleString("en-IN")}`,
+        rangeRevenue > 0 ? "✓" : "—",
+        "Completed credits",
+      ],
+      [
+        "This Week Revenue",
+        `₹${weeklyRevenue.toLocaleString("en-IN")}`,
+        "This week",
+        `Month: ₹${monthlyRevenue.toLocaleString("en-IN")}`,
+        "✓",
+        "Mon—Sun",
+      ],
+      [
+        "This Month Revenue",
+        `₹${monthlyRevenue.toLocaleString("en-IN")}`,
+        "This month",
+        "—",
+        "✓",
+        "Month to date",
+      ],
       ["Notifications", notificationsQuery.data ?? 0, "All time", "—", "✓", "Total sent"],
-      ["Generated", format(new Date(), "dd-MM-yyyy HH:mm"), "—", "—", "—", `By ${user?.email ?? "admin"}`],
+      [
+        "Generated",
+        format(new Date(), "dd-MM-yyyy HH:mm"),
+        "—",
+        "—",
+        "—",
+        `By ${user?.email ?? "admin"}`,
+      ],
     ];
     dashMetrics.forEach((r) => dash.addRow(r));
-    dash.getColumn(1).width = 25; dash.getColumn(2).width = 25; dash.getColumn(3).width = 18;
-    dash.getColumn(4).width = 22; dash.getColumn(5).width = 14; dash.getColumn(6).width = 25;
+    dash.getColumn(1).width = 25;
+    dash.getColumn(2).width = 25;
+    dash.getColumn(3).width = 18;
+    dash.getColumn(4).width = 22;
+    dash.getColumn(5).width = 14;
+    dash.getColumn(6).width = 25;
 
     // Style data cells with alternating colors
     for (let i = 4; i <= 4 + dashMetrics.length; i++) {
       const row = dash.getRow(i);
-      if (i % 2 === 0) row.eachCell((c) => { c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF2F7FB" } }; });
+      if (i % 2 === 0)
+        row.eachCell((c) => {
+          c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF2F7FB" } };
+        });
       row.alignment = { vertical: "middle" };
     }
 
@@ -523,8 +565,16 @@ function AdminOverview() {
         const cell = dailyWs.getCell(i + 2, 2);
         if (d.revenue > 0) {
           cell.fill = {
-            type: "pattern", pattern: "solid",
-            fgColor: { argb: "FF" + Math.round((d.revenue / maxRev) * 180 + 40).toString(16).padStart(2, "0") + "A6D8" },
+            type: "pattern",
+            pattern: "solid",
+            fgColor: {
+              argb:
+                "FF" +
+                Math.round((d.revenue / maxRev) * 180 + 40)
+                  .toString(16)
+                  .padStart(2, "0") +
+                "A6D8",
+            },
           };
         }
       });
@@ -546,48 +596,153 @@ function AdminOverview() {
     const pieWs = wb.addWorksheet("Revenue Breakdown");
     pieWs.addRow(["Category", "Amount (₹)", "% of Total"]);
     const catData: { label: string; amount: number }[] = [
-      { label: "Top-ups", amount: tx.filter((t) => t.status === "completed" && t.type === "credit" && (t.description ?? "").toLowerCase().includes("top-up")).reduce((s, t) => s + Number(t.amount_inr), 0) },
-      { label: "Subscriptions", amount: tx.filter((t) => t.status === "completed" && t.type === "credit" && (t.description ?? "").toLowerCase().includes("purchased plan")).reduce((s, t) => s + Number(t.amount_inr), 0) },
-      { label: "Course Purchases", amount: tx.filter((t) => t.status === "completed" && t.type === "credit" && (t.description ?? "").toLowerCase().includes("course purchase")).reduce((s, t) => s + Number(t.amount_inr), 0) },
-      { label: "Other", amount: tx.filter((t) => t.status === "completed" && t.type === "credit" && !["topup", "subscription", "course"].some((k) => (t.description ?? "").toLowerCase().includes(k))).reduce((s, t) => s + Number(t.amount_inr), 0) },
+      {
+        label: "Top-ups",
+        amount: tx
+          .filter(
+            (t) =>
+              t.status === "completed" &&
+              t.type === "credit" &&
+              (t.description ?? "").toLowerCase().includes("top-up"),
+          )
+          .reduce((s, t) => s + Number(t.amount_inr), 0),
+      },
+      {
+        label: "Subscriptions",
+        amount: tx
+          .filter(
+            (t) =>
+              t.status === "completed" &&
+              t.type === "credit" &&
+              (t.description ?? "").toLowerCase().includes("purchased plan"),
+          )
+          .reduce((s, t) => s + Number(t.amount_inr), 0),
+      },
+      {
+        label: "Course Purchases",
+        amount: tx
+          .filter(
+            (t) =>
+              t.status === "completed" &&
+              t.type === "credit" &&
+              (t.description ?? "").toLowerCase().includes("course purchase"),
+          )
+          .reduce((s, t) => s + Number(t.amount_inr), 0),
+      },
+      {
+        label: "Other",
+        amount: tx
+          .filter(
+            (t) =>
+              t.status === "completed" &&
+              t.type === "credit" &&
+              !["topup", "subscription", "course"].some((k) =>
+                (t.description ?? "").toLowerCase().includes(k),
+              ),
+          )
+          .reduce((s, t) => s + Number(t.amount_inr), 0),
+      },
     ];
     const totalCat = catData.reduce((s, c) => s + c.amount, 0) || 1;
-    catData.forEach((c) => pieWs.addRow([c.label, c.amount, ((c.amount / totalCat) * 100).toFixed(1) + "%"]));
+    catData.forEach((c) =>
+      pieWs.addRow([c.label, c.amount, ((c.amount / totalCat) * 100).toFixed(1) + "%"]),
+    );
     pieWs.addRow([]);
     pieWs.addRow(["TOTAL", totalCat, "100%"]);
     const pieTotalRow = pieWs.lastRow!;
     pieTotalRow.font = { bold: true };
     pieTotalRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF2F7FB" } };
-    pieWs.getColumn(1).width = 22; pieWs.getColumn(2).width = 18; pieWs.getColumn(3).width = 14;
+    pieWs.getColumn(1).width = 22;
+    pieWs.getColumn(2).width = 18;
+    pieWs.getColumn(3).width = 14;
     styleSheet(pieWs, [22, 18, 14], "FF2E75B6");
     // Data bars
     const maxCat = Math.max(...catData.map((c) => c.amount), 1);
     catData.forEach((c, i) => {
       const cell = pieWs.getCell(i + 2, 2);
-      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF" + Math.round((c.amount / maxCat) * 180 + 50).toString(16).padStart(2, "0") + "8CC6" } };
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb:
+            "FF" +
+            Math.round((c.amount / maxCat) * 180 + 50)
+              .toString(16)
+              .padStart(2, "0") +
+            "8CC6",
+        },
+      };
     });
 
     // ─── TRANSACTIONS ───
     const txWs = wb.addWorksheet("Transactions");
-    const txHead = txWs.addRow(["ID", "User ID", "Amount (₹)", "Type", "Status", "Description", "Date"]);
+    const txHead = txWs.addRow([
+      "ID",
+      "User ID",
+      "Amount (₹)",
+      "Type",
+      "Status",
+      "Description",
+      "Date",
+    ]);
     txHead.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
     txHead.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF2E75B6" } };
     txHead.alignment = { horizontal: "center", vertical: "middle" };
-    tx.forEach((t) => txWs.addRow([t.id.slice(0, 8) + "…", t.user_id.slice(0, 8) + "…", Number(t.amount_inr), t.type, t.status, t.description ?? "", format(new Date(t.created_at), "dd-MM-yyyy HH:mm")]));
-    txWs.getColumn(1).width = 14; txWs.getColumn(2).width = 14; txWs.getColumn(3).width = 14;
-    txWs.getColumn(4).width = 10; txWs.getColumn(5).width = 12; txWs.getColumn(6).width = 35; txWs.getColumn(7).width = 20;
+    tx.forEach((t) =>
+      txWs.addRow([
+        t.id.slice(0, 8) + "…",
+        t.user_id.slice(0, 8) + "…",
+        Number(t.amount_inr),
+        t.type,
+        t.status,
+        t.description ?? "",
+        format(new Date(t.created_at), "dd-MM-yyyy HH:mm"),
+      ]),
+    );
+    txWs.getColumn(1).width = 14;
+    txWs.getColumn(2).width = 14;
+    txWs.getColumn(3).width = 14;
+    txWs.getColumn(4).width = 10;
+    txWs.getColumn(5).width = 12;
+    txWs.getColumn(6).width = 35;
+    txWs.getColumn(7).width = 20;
 
     // ─── USERS ───
     const userRows = usersQuery.data?.rows ?? [];
     const usersWs = wb.addWorksheet("Users");
-    const uHead = usersWs.addRow(["ID", "Name", "Email", "Roles", "Status", "AI Credits", "Joined", "Last Sign In"]);
+    const uHead = usersWs.addRow([
+      "ID",
+      "Name",
+      "Email",
+      "Roles",
+      "Status",
+      "AI Credits",
+      "Joined",
+      "Last Sign In",
+    ]);
     uHead.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
     uHead.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF548235" } };
     uHead.alignment = { horizontal: "center", vertical: "middle" };
-    userRows.forEach((u) => usersWs.addRow([u.id.slice(0, 8) + "…", u.full_name ?? "", u.email ?? "", u.roles.join(", "), u.disabled ? "Banned" : "Active", u.credits_remaining, format(new Date(u.created_at), "dd-MM-yyyy"), u.last_sign_in_at ? format(new Date(u.last_sign_in_at), "dd-MM-yyyy HH:mm") : "Never"]));
-    usersWs.getColumn(1).width = 14; usersWs.getColumn(2).width = 22; usersWs.getColumn(3).width = 30;
-    usersWs.getColumn(4).width = 28; usersWs.getColumn(5).width = 12; usersWs.getColumn(6).width = 12;
-    usersWs.getColumn(7).width = 14; usersWs.getColumn(8).width = 20;
+    userRows.forEach((u) =>
+      usersWs.addRow([
+        u.id.slice(0, 8) + "…",
+        u.full_name ?? "",
+        u.email ?? "",
+        u.roles.join(", "),
+        u.disabled ? "Banned" : "Active",
+        u.credits_remaining,
+        format(new Date(u.created_at), "dd-MM-yyyy"),
+        u.last_sign_in_at ? format(new Date(u.last_sign_in_at), "dd-MM-yyyy HH:mm") : "Never",
+      ]),
+    );
+    usersWs.getColumn(1).width = 14;
+    usersWs.getColumn(2).width = 22;
+    usersWs.getColumn(3).width = 30;
+    usersWs.getColumn(4).width = 28;
+    usersWs.getColumn(5).width = 12;
+    usersWs.getColumn(6).width = 12;
+    usersWs.getColumn(7).width = 14;
+    usersWs.getColumn(8).width = 20;
 
     // ─── AI COSTS ───
     const aiCosts = aiCostQuery.data ?? [];
@@ -597,15 +752,26 @@ function AdminOverview() {
       aiHead.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 11 };
       aiHead.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFBF8F00" } };
       aiHead.alignment = { horizontal: "center", vertical: "middle" };
-      aiCosts.forEach((a) => aiWs.addRow([a.model ?? "unknown", Number(a.cost_usd ?? 0).toFixed(4), Number(a.cost_inr ?? 0).toFixed(2), a.total_tokens ?? 0, format(new Date(a.created_at), "dd-MM-yyyy HH:mm")]));
+      aiCosts.forEach((a) =>
+        aiWs.addRow([
+          a.model ?? "unknown",
+          Number(a.cost_usd ?? 0).toFixed(4),
+          Number(a.cost_inr ?? 0).toFixed(2),
+          a.total_tokens ?? 0,
+          format(new Date(a.created_at), "dd-MM-yyyy HH:mm"),
+        ]),
+      );
       const tUsd = aiCosts.reduce((s, a) => s + Number(a.cost_usd ?? 0), 0);
       const tInr = aiCosts.reduce((s, a) => s + Number(a.cost_inr ?? 0), 0);
       const tTok = aiCosts.reduce((s, a) => s + Number(a.total_tokens ?? 0), 0);
       const aiTotalRow = aiWs.addRow(["TOTAL", tUsd.toFixed(4), tInr.toFixed(2), tTok, ""]);
       aiTotalRow.font = { bold: true, size: 12 };
       aiTotalRow.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFF3CD" } };
-      aiWs.getColumn(1).width = 25; aiWs.getColumn(2).width = 14; aiWs.getColumn(3).width = 14;
-      aiWs.getColumn(4).width = 14; aiWs.getColumn(5).width = 20;
+      aiWs.getColumn(1).width = 25;
+      aiWs.getColumn(2).width = 14;
+      aiWs.getColumn(3).width = 14;
+      aiWs.getColumn(4).width = 14;
+      aiWs.getColumn(5).width = 20;
     }
 
     // ─── Download ───
@@ -900,22 +1066,42 @@ function AdminOverview() {
             >
               <Award className="h-4 w-4" /> Certificates
             </Button>
-  <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/store" })}>
-    <ShoppingCart className="h-4 w-4" /> XP Store
-  </Button>
-  <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/system-design" as any })}>
-    <MonitorPlay className="h-4 w-4" /> System Design
-  </Button>
-  <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/visual-learning" as any })}>
-    <Brain className="h-4 w-4" /> Visual Learning
-  </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/audit-logs" })}>
+            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/store" })}>
+              <ShoppingCart className="h-4 w-4" /> XP Store
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate({ to: "/admin/system-design" as any })}
+            >
+              <MonitorPlay className="h-4 w-4" /> System Design
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate({ to: "/admin/visual-learning" as any })}
+            >
+              <Brain className="h-4 w-4" /> Visual Learning
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate({ to: "/admin/audit-logs" })}
+            >
               <ShieldAlert className="h-4 w-4" /> Audit Logs
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/system-health" })}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate({ to: "/admin/system-health" })}
+            >
               <Activity className="h-4 w-4" /> System Health
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/announcements" })}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate({ to: "/admin/announcements" })}
+            >
               <Megaphone className="h-4 w-4" /> Announce
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowEmailTemplates(true)}>
@@ -965,7 +1151,7 @@ function AdminOverview() {
                     setPreset("custom");
                   }}
                 />
-                <span className="text-muted-foreground hidden sm:inline">→</span>
+                <span className="text-muted-foreground">→</span>
                 <DateField
                   label="To"
                   value={to}
@@ -1223,7 +1409,9 @@ function AdminOverview() {
             </p>
           </div>
           {txQuery.isLoading ? (
-            <div className="p-8 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+            <div className="p-8 grid place-items-center">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -1237,23 +1425,55 @@ function AdminOverview() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(txQuery.data ?? []).filter((t) => (t.description ?? "").toLowerCase().includes("top-up") || (t.description ?? "").toLowerCase().includes("topup")).slice(0, 30).map((t) => {
-                    const u = userMap.get(t.user_id);
-                    const userName = u?.full_name || u?.email || t.user_id.slice(0, 8);
-                    return (
-                      <tr key={t.id} className="border-t hover:bg-accent/30">
-                        <td className="px-4 md:px-6 py-3 text-muted-foreground text-xs">{format(new Date(t.created_at), "dd-MM-yyyy HH:mm")}</td>
-                        <td className="px-4 md:px-6 py-3 text-xs font-medium">{userName}</td>
-                        <td className="px-4 md:px-6 py-3 font-semibold">{inr(Number(t.amount_inr))}</td>
-                        <td className="px-4 md:px-6 py-3">
-                          <Badge variant={t.status === "completed" ? "default" : t.status === "pending" ? "secondary" : "outline"} className="text-[10px]">{t.status}</Badge>
-                        </td>
-                        <td className="px-4 md:px-6 py-3 text-muted-foreground text-xs">{t.description ?? "—"}</td>
-                      </tr>
-                    );
-                  })}
-                  {(txQuery.data ?? []).filter((t) => (t.description ?? "").toLowerCase().includes("top-up") || (t.description ?? "").toLowerCase().includes("topup")).length === 0 && (
-                    <tr><td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">No top-ups in this period.</td></tr>
+                  {(txQuery.data ?? [])
+                    .filter(
+                      (t) =>
+                        (t.description ?? "").toLowerCase().includes("top-up") ||
+                        (t.description ?? "").toLowerCase().includes("topup"),
+                    )
+                    .slice(0, 30)
+                    .map((t) => {
+                      const u = userMap.get(t.user_id);
+                      const userName = u?.full_name || u?.email || t.user_id.slice(0, 8);
+                      return (
+                        <tr key={t.id} className="border-t hover:bg-accent/30">
+                          <td className="px-4 md:px-6 py-3 text-muted-foreground text-xs">
+                            {format(new Date(t.created_at), "dd-MM-yyyy HH:mm")}
+                          </td>
+                          <td className="px-4 md:px-6 py-3 text-xs font-medium">{userName}</td>
+                          <td className="px-4 md:px-6 py-3 font-semibold">
+                            {inr(Number(t.amount_inr))}
+                          </td>
+                          <td className="px-4 md:px-6 py-3">
+                            <Badge
+                              variant={
+                                t.status === "completed"
+                                  ? "default"
+                                  : t.status === "pending"
+                                    ? "secondary"
+                                    : "outline"
+                              }
+                              className="text-[10px]"
+                            >
+                              {t.status}
+                            </Badge>
+                          </td>
+                          <td className="px-4 md:px-6 py-3 text-muted-foreground text-xs">
+                            {t.description ?? "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  {(txQuery.data ?? []).filter(
+                    (t) =>
+                      (t.description ?? "").toLowerCase().includes("top-up") ||
+                      (t.description ?? "").toLowerCase().includes("topup"),
+                  ).length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="p-8 text-center text-sm text-muted-foreground">
+                        No top-ups in this period.
+                      </td>
+                    </tr>
                   )}
                 </tbody>
               </table>
@@ -1943,7 +2163,7 @@ function DateField({
       <div className="flex items-center gap-1.5">
         <Label className="text-xs text-muted-foreground hidden sm:inline">{label}</Label>
         <Input
-          className="h-9 w-32 font-mono text-xs"
+          className="h-9 w-36 sm:w-40 font-mono text-xs"
           value={text}
           onChange={(e) => setText(e.target.value)}
           onBlur={() => {
@@ -1980,7 +2200,12 @@ type CreatorAppRow = {
   expertise: string | null;
   status: string;
   created_at: string;
-  profiles?: { id: string; full_name: string | null; email: string | null; avatar_url: string | null };
+  profiles?: {
+    id: string;
+    full_name: string | null;
+    email: string | null;
+    avatar_url: string | null;
+  };
 };
 type UserLite = { id: string; email: string; full_name: string | null };
 
@@ -2012,7 +2237,9 @@ function ApprovalsSection({
     await supabase.from("notifications").insert({
       user_id: a.user_id,
       title: approve ? "Creator application approved" : "Creator application rejected",
-      body: approve ? "You can now publish courses from Creator Studio." : "Your application wasn't accepted this time.",
+      body: approve
+        ? "You can now publish courses from Creator Studio."
+        : "Your application wasn't accepted this time.",
       type: approve ? "success" : "info",
     });
     toast.success(approve ? "Creator approved" : "Application rejected");
@@ -2023,7 +2250,8 @@ function ApprovalsSection({
     const u = userMap.get(id);
     return u?.full_name || u?.email || id.slice(0, 8);
   };
-  const getProfile = (a: CreatorAppRow) => a.profiles?.full_name || a.profiles?.email || getUser(a.user_id);
+  const getProfile = (a: CreatorAppRow) =>
+    a.profiles?.full_name || a.profiles?.email || getUser(a.user_id);
   const getAvatar = (a: CreatorAppRow) => a.profiles?.avatar_url ?? undefined;
 
   const AppCard = ({ app, type }: { app: CreatorAppRow; type: "creator" | "coach" }) => (
@@ -2042,21 +2270,44 @@ function ApprovalsSection({
           <div className="min-w-0 cursor-pointer">
             <div className="text-sm font-medium">{getProfile(app)}</div>
             <div className="text-xs text-muted-foreground">
-              {type === "coach" ? app.expertise || app.motivation.replace("[COACH APPLICATION]", "").trim().slice(0, 40) : app.expertise ?? "—"} · {format(new Date(app.created_at), "dd-MM-yyyy")}
+              {type === "coach"
+                ? app.expertise ||
+                  app.motivation.replace("[COACH APPLICATION]", "").trim().slice(0, 40)
+                : (app.expertise ?? "—")}{" "}
+              · {format(new Date(app.created_at), "dd-MM-yyyy")}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setDetailApp(app)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 text-xs"
+            onClick={() => setDetailApp(app)}
+          >
             <Eye className="h-3 w-3" />
           </Button>
           {app.status === "pending" ? (
             <>
-              <Button size="sm" className="h-7 text-xs" onClick={() => decideApp(app, true)}>Approve</Button>
-              <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => decideApp(app, false)}>Reject</Button>
+              <Button size="sm" className="h-7 text-xs" onClick={() => decideApp(app, true)}>
+                Approve
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs"
+                onClick={() => decideApp(app, false)}
+              >
+                Reject
+              </Button>
             </>
           ) : (
-            <Badge variant={app.status === "approved" ? "default" : "secondary"} className="text-[10px] capitalize">{app.status}</Badge>
+            <Badge
+              variant={app.status === "approved" ? "default" : "secondary"}
+              className="text-[10px] capitalize"
+            >
+              {app.status}
+            </Badge>
           )}
         </div>
       </div>
@@ -2072,7 +2323,8 @@ function ApprovalsSection({
               <Award className="h-4 w-4 text-primary" /> Creator Applications
             </h2>
             <p className="text-xs text-muted-foreground">
-              {creatorOnly.filter((a) => a.status === "pending").length} pending · {creatorOnly.length} total
+              {creatorOnly.filter((a) => a.status === "pending").length} pending ·{" "}
+              {creatorOnly.length} total
             </p>
           </div>
           <Badge variant={pendingApps.length > 0 ? "default" : "secondary"} className="text-[10px]">
@@ -2080,11 +2332,19 @@ function ApprovalsSection({
           </Badge>
         </div>
         {appsLoading ? (
-          <div className="p-8 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          <div className="p-8 grid place-items-center">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
         ) : creatorOnly.length === 0 ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">No creator applications yet.</div>
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            No creator applications yet.
+          </div>
         ) : (
-          <div>{creatorOnly.slice(0, 20).map((a) => <AppCard key={a.id} app={a} type="creator" />)}</div>
+          <div>
+            {creatorOnly.slice(0, 20).map((a) => (
+              <AppCard key={a.id} app={a} type="creator" />
+            ))}
+          </div>
         )}
       </div>
 
@@ -2094,15 +2354,24 @@ function ApprovalsSection({
             <Compass className="h-4 w-4 text-primary" /> Coach Applications
           </h2>
           <p className="text-xs text-muted-foreground">
-            {coachApps.filter((a) => a.status === "pending").length} pending · {coachApps.length} total
+            {coachApps.filter((a) => a.status === "pending").length} pending · {coachApps.length}{" "}
+            total
           </p>
         </div>
         {appsLoading ? (
-          <div className="p-8 grid place-items-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          <div className="p-8 grid place-items-center">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          </div>
         ) : coachApps.length === 0 ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">No coach applications yet.</div>
+          <div className="p-8 text-center text-sm text-muted-foreground">
+            No coach applications yet.
+          </div>
         ) : (
-          <div>{coachApps.slice(0, 20).map((a) => <AppCard key={a.id} app={a} type="coach" />)}</div>
+          <div>
+            {coachApps.slice(0, 20).map((a) => (
+              <AppCard key={a.id} app={a} type="coach" />
+            ))}
+          </div>
         )}
       </div>
 
@@ -2115,7 +2384,11 @@ function ApprovalsSection({
                 <DialogTitle className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-muted overflow-hidden ring-2 ring-primary/20">
                     {getAvatar(detailApp) ? (
-                      <img src={getAvatar(detailApp)} alt="" className="h-full w-full object-cover" />
+                      <img
+                        src={getAvatar(detailApp)}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <div className="h-full w-full flex items-center justify-center text-lg font-bold bg-gradient-to-br from-primary/10 to-primary/5">
                         {(getProfile(detailApp)?.charAt(0) || "?").toUpperCase()}
@@ -2124,34 +2397,69 @@ function ApprovalsSection({
                   </div>
                   <div>
                     <span>{getProfile(detailApp)}</span>
-                    <Badge variant={detailApp.status === "approved" ? "default" : detailApp.status === "pending" ? "secondary" : "outline"} className="ml-2 text-[10px]">{detailApp.status}</Badge>
+                    <Badge
+                      variant={
+                        detailApp.status === "approved"
+                          ? "default"
+                          : detailApp.status === "pending"
+                            ? "secondary"
+                            : "outline"
+                      }
+                      className="ml-2 text-[10px]"
+                    >
+                      {detailApp.status}
+                    </Badge>
                   </div>
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Expertise</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Expertise
+                  </p>
                   <p className="text-sm mt-0.5">{detailApp.expertise || "Not specified"}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Motivation</p>
-                  <p className="text-sm mt-0.5 whitespace-pre-wrap">{detailApp.motivation?.replace("[COACH APPLICATION]", "").trim() || "No motivation provided"}</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Motivation
+                  </p>
+                  <p className="text-sm mt-0.5 whitespace-pre-wrap">
+                    {detailApp.motivation?.replace("[COACH APPLICATION]", "").trim() ||
+                      "No motivation provided"}
+                  </p>
                 </div>
                 {detailApp.portfolio_url && (
                   <div>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Portfolio / Website</p>
-                    <a href={detailApp.portfolio_url} target="_blank" rel="noreferrer" className="text-sm text-primary underline mt-0.5 block">{detailApp.portfolio_url}</a>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Portfolio / Website
+                    </p>
+                    <a
+                      href={detailApp.portfolio_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm text-primary underline mt-0.5 block"
+                    >
+                      {detailApp.portfolio_url}
+                    </a>
                   </div>
                 )}
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Applied</p>
-                  <p className="text-sm mt-0.5">{format(new Date(detailApp.created_at), "dd-MM-yyyy HH:mm")}</p>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Applied
+                  </p>
+                  <p className="text-sm mt-0.5">
+                    {format(new Date(detailApp.created_at), "dd-MM-yyyy HH:mm")}
+                  </p>
                 </div>
               </div>
               {detailApp.status === "pending" && (
                 <DialogFooter className="gap-2">
-                  <Button variant="outline" onClick={() => decideApp(detailApp, false)} size="sm">Reject</Button>
-                  <Button onClick={() => decideApp(detailApp, true)} size="sm">Approve</Button>
+                  <Button variant="outline" onClick={() => decideApp(detailApp, false)} size="sm">
+                    Reject
+                  </Button>
+                  <Button onClick={() => decideApp(detailApp, true)} size="sm">
+                    Approve
+                  </Button>
                 </DialogFooter>
               )}
             </>

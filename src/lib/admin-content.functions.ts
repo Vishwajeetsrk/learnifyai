@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { logAdminAction } from "./admin-audit.functions";
 
 const ALLOWED_TABLES = [
   "events",
@@ -55,9 +56,10 @@ export const adminContentAction = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const tableName: string = data.table;
+
     if (data.action === "delete") {
       if (!data.id) throw new Error("id required for delete");
-      const tableName: string = data.table;
       const { error } = await (supabaseAdmin.from(tableName as any) as any)
         .delete()
         .eq(data.matchKey || "id", data.id);
@@ -65,19 +67,27 @@ export const adminContentAction = createServerFn({ method: "POST" })
         console.error("Delete failed:", error.message);
         throw error;
       }
+      logAdminAction({
+        data: { action: "delete", entityType: tableName, entityId: data.id },
+      }).catch(() => {});
       return { success: true };
     }
 
     if (data.action === "insert") {
-      const tableName: string = data.table;
       const { error } = await supabaseAdmin.from(tableName as never).insert(data.data);
       if (error) throw error;
+      logAdminAction({
+        data: {
+          action: "insert",
+          entityType: tableName,
+          metadata: { title: data.data?.title || data.data?.slug },
+        },
+      }).catch(() => {});
       return { success: true };
     }
 
     if (data.action === "update") {
       if (!data.id) throw new Error("id required for update");
-      const tableName: string = data.table;
       // Strip yearly_price for pricing_plans — column may not exist in schema yet
       let updateData = data.data as any;
       if (tableName === "pricing_plans" && updateData) {
@@ -88,6 +98,14 @@ export const adminContentAction = createServerFn({ method: "POST" })
         .update(updateData)
         .eq(data.matchKey || "id", data.id);
       if (error) throw error;
+      logAdminAction({
+        data: {
+          action: "update",
+          entityType: tableName,
+          entityId: data.id,
+          metadata: { title: data.data?.title },
+        },
+      }).catch(() => {});
       return { success: true };
     }
 

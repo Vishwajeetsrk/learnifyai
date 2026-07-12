@@ -1,12 +1,9 @@
-import { VIDEOS, NAV_LINKS } from '../constants';
-import { BrandMark } from './BrandMark';
+import { VIDEOS, NAV_LINKS } from "../constants";
+import { BrandMark } from "./BrandMark";
 
 export function HeroSection() {
   return (
-    <section
-      id="home"
-      className="relative min-h-screen overflow-hidden bg-[hsl(0,0%,0%)]"
-    >
+    <section id="home" className="relative min-h-screen overflow-hidden bg-[hsl(0,0%,0%)]">
       <video
         src={VIDEOS.hero}
         className="absolute inset-0 z-0 h-full w-full object-cover"
@@ -49,15 +46,15 @@ export function HeroSection() {
           className="animate-fade-rise font-heading max-w-7xl text-5xl font-normal leading-[0.95] tracking-[-2.46px] text-foreground sm:text-7xl md:text-8xl"
           data-editable
         >
-          Where <em className="not-italic text-white">dreams</em> rise{' '}
+          Where <em className="not-italic text-white">dreams</em> rise{" "}
           <em className="not-italic text-white">through the silence.</em>
         </h1>
         <p
           className="animate-fade-rise-delay mt-8 max-w-2xl text-base leading-relaxed text-white sm:text-lg"
           data-editable
         >
-          We&apos;re designing tools for deep thinkers, bold creators, and quiet rebels.
-          Amid the chaos, we build digital spaces for sharp focus and inspired work.
+          We&apos;re designing tools for deep thinkers, bold creators, and quiet rebels. Amid the
+          chaos, we build digital spaces for sharp focus and inspired work.
         </p>
         <a
           href="#cta"

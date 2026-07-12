@@ -36,14 +36,32 @@ interface AgentChatProps {
 function TypingDots() {
   return (
     <span className="inline-flex items-center gap-1 ml-1">
-      <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "0ms" }} />
-      <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "150ms" }} />
-      <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "300ms" }} />
+      <span
+        className="w-1.5 h-1.5 rounded-full bg-foreground/40 animate-bounce"
+        style={{ animationDelay: "0ms" }}
+      />
+      <span
+        className="w-1.5 h-1.5 rounded-full bg-foreground/40 animate-bounce"
+        style={{ animationDelay: "150ms" }}
+      />
+      <span
+        className="w-1.5 h-1.5 rounded-full bg-foreground/40 animate-bounce"
+        style={{ animationDelay: "300ms" }}
+      />
     </span>
   );
 }
 
-export function AgentChat({ agentName, agentIcon, agentColor, accentGradient, chatFn, placeholder, suggestions, userContext }: AgentChatProps) {
+export function AgentChat({
+  agentName,
+  agentIcon,
+  agentColor,
+  accentGradient,
+  chatFn,
+  placeholder,
+  suggestions,
+  userContext,
+}: AgentChatProps) {
   const sendFn = useServerFn(chatFn);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -68,7 +86,9 @@ export function AgentChat({ agentName, agentIcon, agentColor, accentGradient, ch
         data: {
           content: text,
           history: messages.map((m) => ({ role: m.role, content: m.content })),
-          ...(userContext ? { userProfile: userContext, learningContext: userContext, marketContext: userContext } : {}),
+          ...(userContext
+            ? { userProfile: userContext, learningContext: userContext, marketContext: userContext }
+            : {}),
         },
       });
 
@@ -106,7 +126,12 @@ export function AgentChat({ agentName, agentIcon, agentColor, accentGradient, ch
       <div className="flex-1 overflow-y-auto space-y-4 p-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-12">
-            <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-4", agentColor)}>
+            <div
+              className={cn(
+                "w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-4",
+                agentColor,
+              )}
+            >
               {agentIcon}
             </div>
             <h3 className="text-lg font-bold mb-1">{agentName}</h3>
@@ -117,7 +142,10 @@ export function AgentChat({ agentName, agentIcon, agentColor, accentGradient, ch
                   key={i}
                   variant="outline"
                   className="justify-start text-xs h-auto py-2.5 px-4 rounded-xl border-dashed hover:border-primary/50 hover:bg-accent/50 text-left"
-                  onClick={() => { setInput(s.prompt); handleSend(s.prompt); }}
+                  onClick={() => {
+                    setInput(s.prompt);
+                    handleSend(s.prompt);
+                  }}
                   disabled={loading}
                 >
                   <Sparkles className="h-3.5 w-3.5 mr-2 shrink-0 text-primary" />
@@ -128,10 +156,23 @@ export function AgentChat({ agentName, agentIcon, agentColor, accentGradient, ch
           </div>
         ) : (
           messages.map((msg, i) => (
-            <div key={i} className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
-              <div className={cn("max-w-[85%] space-y-1", msg.role === "assistant" && "flex items-start gap-2")}>
+            <div
+              key={i}
+              className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}
+            >
+              <div
+                className={cn(
+                  "max-w-[85%] space-y-1",
+                  msg.role === "assistant" && "flex items-start gap-2",
+                )}
+              >
                 {msg.role === "assistant" && (
-                  <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm", agentColor)}>
+                  <div
+                    className={cn(
+                      "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm",
+                      agentColor,
+                    )}
+                  >
                     {agentIcon}
                   </div>
                 )}
@@ -141,7 +182,7 @@ export function AgentChat({ agentName, agentIcon, agentColor, accentGradient, ch
                       "rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm",
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground rounded-tr-sm"
-                        : "bg-card text-card-foreground border border-border rounded-tl-sm"
+                        : "bg-card text-card-foreground border border-border rounded-tl-sm",
                     )}
                   >
                     {msg.role === "assistant" ? (
@@ -156,9 +197,11 @@ export function AgentChat({ agentName, agentIcon, agentColor, accentGradient, ch
                   </div>
                   {msg.steps && msg.steps.length > 0 && (
                     <div className="mt-1.5 space-y-1">
-                      {msg.steps.filter((s) => s.type === "tool_call").map((step, si) => (
-                        <ToolCallBadge key={si} step={step} />
-                      ))}
+                      {msg.steps
+                        .filter((s) => s.type === "tool_call")
+                        .map((step, si) => (
+                          <ToolCallBadge key={si} step={step} />
+                        ))}
                     </div>
                   )}
                 </div>
@@ -169,23 +212,41 @@ export function AgentChat({ agentName, agentIcon, agentColor, accentGradient, ch
         {loading && (
           <div className="flex justify-start">
             <div className="flex items-start gap-2 max-w-[85%]">
-              <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm", agentColor)}>
+              <div
+                className={cn(
+                  "w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm",
+                  agentColor,
+                )}
+              >
                 {agentIcon}
               </div>
               <div className="rounded-2xl px-4 py-3 border border-border bg-card rounded-tl-sm shadow-sm">
                 {liveStep ? (
                   <span className="text-xs text-muted-foreground flex items-center gap-2">
-                    {liveStep === "Searching & analyzing..." && <Search className="h-3 w-3 animate-pulse" />}
-                    {liveStep === "Running code..." && <Terminal className="h-3 w-3 animate-pulse" />}
+                    {liveStep === "Searching & analyzing..." && (
+                      <Search className="h-3 w-3 animate-pulse" />
+                    )}
+                    {liveStep === "Running code..." && (
+                      <Terminal className="h-3 w-3 animate-pulse" />
+                    )}
                     {liveStep === "Thinking..." && <Lightbulb className="h-3 w-3 animate-pulse" />}
                     {liveStep}
                     <TypingDots />
                   </span>
                 ) : (
                   <span className="flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span
+                      className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full bg-foreground/40 animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </span>
                 )}
               </div>

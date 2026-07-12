@@ -1,34 +1,31 @@
-import { motion, useInView } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
-import { useRef } from 'react';
-import { SERVICE_VIDEOS } from '../constants';
+import { motion, useInView } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
+import { useRef } from "react";
+import { SERVICE_VIDEOS } from "../constants";
 
 const CARDS = [
   {
-    tag: 'Strategy',
-    title: 'Research & Insight',
+    tag: "Strategy",
+    title: "Research & Insight",
     description:
-      'We dig deep into data, culture, and human behavior to surface the insights that drive meaningful, lasting change.',
+      "We dig deep into data, culture, and human behavior to surface the insights that drive meaningful, lasting change.",
     video: SERVICE_VIDEOS.strategy,
   },
   {
-    tag: 'Craft',
-    title: 'Design & Execution',
+    tag: "Craft",
+    title: "Design & Execution",
     description:
-      'From concept to launch, we obsess over every detail to deliver experiences that feel effortless and look extraordinary.',
+      "From concept to launch, we obsess over every detail to deliver experiences that feel effortless and look extraordinary.",
     video: SERVICE_VIDEOS.craft,
   },
 ] as const;
 
 export default function ServicesSection() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <section
-      ref={ref}
-      className="relative overflow-hidden bg-black px-6 py-28 md:py-40"
-    >
+    <section ref={ref} className="relative overflow-hidden bg-black px-6 py-28 md:py-40">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.02)_0%,_transparent_60%)]"
         aria-hidden
@@ -67,7 +64,9 @@ export default function ServicesSection() {
               </div>
               <div className="p-6 md:p-8">
                 <div className="mb-4 flex items-start justify-between gap-4">
-                  <span className="text-xs uppercase tracking-widest text-white/40">{card.tag}</span>
+                  <span className="text-xs uppercase tracking-widest text-white/40">
+                    {card.tag}
+                  </span>
                   <span className="liquid-glass rounded-full p-2 text-white/80">
                     <ArrowUpRight className="h-4 w-4" />
                   </span>

@@ -1,8 +1,8 @@
-import { HERO_VIDEO_URL } from '../constants';
-import { HeroSection } from '../components/HeroSection';
-import { LogoMarquee } from '../components/LogoMarquee';
-import { Navbar } from '../components/Navbar';
-import { PresetSiteSections } from '../../../_shared/components/PresetSiteSections';
+import { HERO_VIDEO_URL } from "../constants";
+import { HeroSection } from "../components/HeroSection";
+import { LogoMarquee } from "../components/LogoMarquee";
+import { Navbar } from "../components/Navbar";
+import { PresetSiteSections } from "../../../_shared/components/PresetSiteSections";
 
 export function HomePage() {
   return (

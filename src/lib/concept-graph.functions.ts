@@ -39,7 +39,10 @@ export const generateConceptGraph = createServerFn({ method: "POST" })
 
     const json = await res.json();
     const content: string = json.choices?.[0]?.message?.content ?? "";
-    const cleaned = content.replace(/```json\s*/g, "").replace(/```\s*/g, "").trim();
+    const cleaned = content
+      .replace(/```json\s*/g, "")
+      .replace(/```\s*/g, "")
+      .trim();
     const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
     const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : { nodes: [], edges: [] };
 
@@ -63,10 +66,7 @@ export const regenerateConceptGraph = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    await supabaseAdmin
-      .from("concept_graphs")
-      .delete()
-      .eq("lesson_id", data.lessonId);
+    await supabaseAdmin.from("concept_graphs").delete().eq("lesson_id", data.lessonId);
 
     const { generateConceptGraph: gen } = await import("./concept-graph.functions");
     return gen({ data, context } as any);

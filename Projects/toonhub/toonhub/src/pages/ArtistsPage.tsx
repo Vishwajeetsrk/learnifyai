@@ -1,16 +1,16 @@
-import { ToonFooter, ToonNav } from '../components/ToonNav';
+import { ToonFooter, ToonNav } from "../components/ToonNav";
 
 const ARTISTS = [
-  { name: 'Mika Tan', role: 'Character design' },
-  { name: 'Rio Vale', role: 'Color & finish' },
-  { name: 'Studio Koto', role: 'Packaging & lore' },
+  { name: "Mika Tan", role: "Character design" },
+  { name: "Rio Vale", role: "Color & finish" },
+  { name: "Studio Koto", role: "Packaging & lore" },
 ];
 
 export function ArtistsPage() {
-  const panel = '#F79B7F';
-  const bg = '#F4845F';
+  const panel = "#F79B7F";
+  const bg = "#F4845F";
   return (
-    <div style={{ backgroundColor: bg, minHeight: '100vh' }}>
+    <div style={{ backgroundColor: bg, minHeight: "100vh" }}>
       <ToonNav />
       <main id="artists" className="px-6 py-20 sm:px-12 max-w-3xl mx-auto text-white">
         <h1 className="font-display text-4xl uppercase">Artists</h1>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 interface HeroVideoProps {
   src: string;
@@ -21,14 +21,14 @@ export default function HeroVideo({ src, className, style }: HeroVideoProps) {
       void video.play().catch(() => {});
     };
 
-    video.addEventListener('loadeddata', ensurePlay);
+    video.addEventListener("loadeddata", ensurePlay);
     if (video.readyState >= 2) ensurePlay();
 
-    return () => video.removeEventListener('loadeddata', ensurePlay);
+    return () => video.removeEventListener("loadeddata", ensurePlay);
   }, [src]);
 
   if (failed) {
-    return <div className={`video-fallback ${className ?? ''}`} style={style} aria-hidden />;
+    return <div className={`video-fallback ${className ?? ""}`} style={style} aria-hidden />;
   }
 
   return (

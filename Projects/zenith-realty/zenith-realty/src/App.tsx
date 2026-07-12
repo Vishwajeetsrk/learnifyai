@@ -1,14 +1,14 @@
-import { useEffect } from 'react';
-import { PresetHashRouter } from '../../_shared/components/PresetHashRouter';
-import { applyPresetHashOnLoad } from '../../_shared/preset-site-routing';
-import { ZenithNavbar } from './components/ZenithNavbar';
-import { BlogPage } from './pages/BlogPage';
-import { CareersPage } from './pages/CareersPage';
-import { CompanyPage } from './pages/CompanyPage';
-import { ContactPage } from './pages/ContactPage';
-import { HomePage } from './pages/HomePage';
-import { MortgagePage } from './pages/MortgagePage';
-import { PropertiesPage } from './pages/PropertiesPage';
+import { useEffect } from "react";
+import { PresetHashRouter } from "../../_shared/components/PresetHashRouter";
+import { applyPresetHashOnLoad } from "../../_shared/preset-site-routing";
+import { ZenithNavbar } from "./components/ZenithNavbar";
+import { BlogPage } from "./pages/BlogPage";
+import { CareersPage } from "./pages/CareersPage";
+import { CompanyPage } from "./pages/CompanyPage";
+import { ContactPage } from "./pages/ContactPage";
+import { HomePage } from "./pages/HomePage";
+import { MortgagePage } from "./pages/MortgagePage";
+import { PropertiesPage } from "./pages/PropertiesPage";
 
 export default function App() {
   useEffect(() => {
@@ -20,7 +20,7 @@ export default function App() {
       <ZenithNavbar />
       <PresetHashRouter
         routes={{
-          '': <HomePage />,
+          "": <HomePage />,
           home: <HomePage />,
           properties: <PropertiesPage />,
           mortgage: <MortgagePage />,

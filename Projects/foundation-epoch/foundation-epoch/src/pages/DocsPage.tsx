@@ -1,4 +1,4 @@
-import { DocsSection } from '../components/DocsSection';
+import { DocsSection } from "../components/DocsSection";
 
 export default function DocsPage() {
   return (

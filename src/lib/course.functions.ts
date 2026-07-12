@@ -134,7 +134,6 @@ export const checkoutCart = createServerFn({ method: "POST" })
       if (dErr) throw new Error(dErr.message);
     }
 
-
     // Check plan course limit before enrolling
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await checkCourseLimit(supabaseAdmin, userId);

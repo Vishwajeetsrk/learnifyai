@@ -1,10 +1,10 @@
-import { Hero } from '../components/Hero';
-import { ContactPage } from './ContactPage';
-import { DevelopersPage } from './DevelopersPage';
-import { EconomicsPage } from './EconomicsPage';
-import { EcosystemPage } from './EcosystemPage';
-import { GovernancePage } from './GovernancePage';
-import { StakingPage } from './StakingPage';
+import { Hero } from "../components/Hero";
+import { ContactPage } from "./ContactPage";
+import { DevelopersPage } from "./DevelopersPage";
+import { EconomicsPage } from "./EconomicsPage";
+import { EcosystemPage } from "./EcosystemPage";
+import { GovernancePage } from "./GovernancePage";
+import { StakingPage } from "./StakingPage";
 
 export function HomePage() {
   return (

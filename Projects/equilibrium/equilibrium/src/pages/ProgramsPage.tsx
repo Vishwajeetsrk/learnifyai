@@ -1,21 +1,23 @@
-import { ArrowRight, Calendar, Sparkles } from 'lucide-react';
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
+import { ArrowRight, Calendar, Sparkles } from "lucide-react";
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
 
 const PROGRAMS = [
   {
-    name: 'Morning Reset',
-    cadence: '6 weeks · 3 sessions / week',
-    focus: 'Breath-led mobility and nervous-system downshift before your workday peaks.',
+    name: "Morning Reset",
+    cadence: "6 weeks · 3 sessions / week",
+    focus: "Breath-led mobility and nervous-system downshift before your workday peaks.",
   },
   {
-    name: 'Executive Recovery',
-    cadence: '8 weeks · hybrid',
-    focus: 'Sleep architecture coaching, guided stillness, and nutrition rhythm for travel-heavy schedules.',
+    name: "Executive Recovery",
+    cadence: "8 weeks · hybrid",
+    focus:
+      "Sleep architecture coaching, guided stillness, and nutrition rhythm for travel-heavy schedules.",
   },
   {
-    name: 'Studio Immersion',
-    cadence: 'Weekend intensive',
-    focus: 'In-person ritual design with coaches — movement labs, sauna protocols, and group reflection.',
+    name: "Studio Immersion",
+    cadence: "Weekend intensive",
+    focus:
+      "In-person ritual design with coaches — movement labs, sauna protocols, and group reflection.",
   },
 ] as const;
 
@@ -48,7 +50,7 @@ export function ProgramsPage() {
         <button
           type="button"
           className="liquid-glass mt-10 inline-flex items-center gap-2 rounded-full px-7 py-3 text-sm font-semibold text-foreground"
-          onClick={() => navigateToRoute('contact')}
+          onClick={() => navigateToRoute("contact")}
         >
           <Sparkles className="h-4 w-4 text-accent" />
           Book a discovery call

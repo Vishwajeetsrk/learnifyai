@@ -8,19 +8,19 @@ import {
   Triangle,
   Zap,
   type LucideIcon,
-} from 'lucide-react';
+} from "lucide-react";
 
 type Partner = { name: string; icon: LucideIcon };
 
 const PARTNERS: Partner[] = [
-  { name: 'Vortex', icon: Orbit },
-  { name: 'Nimbus', icon: Cloud },
-  { name: 'Prism', icon: Triangle },
-  { name: 'Atlas', icon: Layers },
-  { name: 'Nova', icon: Sparkles },
-  { name: 'Helix', icon: Hexagon },
-  { name: 'Cipher', icon: Cpu },
-  { name: 'Flux', icon: Zap },
+  { name: "Vortex", icon: Orbit },
+  { name: "Nimbus", icon: Cloud },
+  { name: "Prism", icon: Triangle },
+  { name: "Atlas", icon: Layers },
+  { name: "Nova", icon: Sparkles },
+  { name: "Helix", icon: Hexagon },
+  { name: "Cipher", icon: Cpu },
+  { name: "Flux", icon: Zap },
 ];
 
 function PartnerChip({ name, icon: Icon }: Partner) {

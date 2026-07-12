@@ -2,22 +2,59 @@ import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  adminListCourses, adminGetCourse, adminCreateCourse, adminUpdateCourse, adminDeleteCourse,
-  adminAddModule, adminUpdateModule, adminDeleteModule,
-  adminAddLesson, adminUpdateLesson, adminDeleteLesson, adminCourseAnalytics,
+  adminListCourses,
+  adminGetCourse,
+  adminCreateCourse,
+  adminUpdateCourse,
+  adminDeleteCourse,
+  adminAddModule,
+  adminUpdateModule,
+  adminDeleteModule,
+  adminAddLesson,
+  adminUpdateLesson,
+  adminDeleteLesson,
+  adminCourseAnalytics,
 } from "@/lib/admin-courses.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
-  GraduationCap, Plus, Search, Trash2, Edit3, Eye, EyeOff, Users,
-  BookOpen, BarChart3, ChevronDown, ChevronRight, Save, X, Loader2,
-  Clock, Award, TrendingUp, Settings,
+  GraduationCap,
+  Plus,
+  Search,
+  Trash2,
+  Edit3,
+  Eye,
+  EyeOff,
+  Users,
+  BookOpen,
+  BarChart3,
+  ChevronDown,
+  ChevronRight,
+  Save,
+  X,
+  Loader2,
+  Clock,
+  Award,
+  TrendingUp,
+  Settings,
 } from "lucide-react";
 
 type CourseRow = any;
@@ -25,10 +62,19 @@ type ModuleRow = any;
 type LessonRow = any;
 
 const CATEGORIES = [
-  "General", "Full Stack Development", "Python", "AI & Prompt Engineering",
-  "Data Science", "Cyber Security", "UI/UX Design", "Digital Marketing",
-  "Resume Builder", "Interview Preparation", "Career Roadmaps",
-  "Academic & CS Fundamentals", "Business & Startups",
+  "General",
+  "Full Stack Development",
+  "Python",
+  "AI & Prompt Engineering",
+  "Data Science",
+  "Cyber Security",
+  "UI/UX Design",
+  "Digital Marketing",
+  "Resume Builder",
+  "Interview Preparation",
+  "Career Roadmaps",
+  "Academic & CS Fundamentals",
+  "Business & Startups",
 ];
 
 const LEVELS = ["beginner", "intermediate", "advanced"] as const;
@@ -50,22 +96,29 @@ export function CourseSystemAdmin() {
 
   const { data: courses = [], isLoading } = useQuery({
     queryKey: ["admin-courses"],
-    queryFn: async () => { const r = await doList(); return (r ?? []) as CourseRow[]; },
+    queryFn: async () => {
+      const r = await doList();
+      return (r ?? []) as CourseRow[];
+    },
   });
 
   const { data: analytics = [] } = useQuery({
     queryKey: ["admin-course-analytics"],
-    queryFn: async () => { const r = await doAnalytics(); return (r ?? []) as any[]; },
+    queryFn: async () => {
+      const r = await doAnalytics();
+      return (r ?? []) as any[];
+    },
     enabled: tab === "analytics",
   });
 
   const filtered = useMemo(() => {
     const needle = search.trim().toLowerCase();
-    return courses.filter((c) =>
-      !needle ||
-      c.title?.toLowerCase().includes(needle) ||
-      c.category?.toLowerCase().includes(needle) ||
-      c.instructor?.toLowerCase().includes(needle)
+    return courses.filter(
+      (c) =>
+        !needle ||
+        c.title?.toLowerCase().includes(needle) ||
+        c.category?.toLowerCase().includes(needle) ||
+        c.instructor?.toLowerCase().includes(needle),
     );
   }, [courses, search]);
 
@@ -75,7 +128,9 @@ export function CourseSystemAdmin() {
       toast.success("Course created");
       qc.invalidateQueries({ queryKey: ["admin-courses"] });
       setShowEditor(false);
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const handleDelete = async () => {
@@ -84,14 +139,19 @@ export function CourseSystemAdmin() {
       await doDelete({ data: { courseId: deleteId } });
       toast.success("Course deleted");
       qc.invalidateQueries({ queryKey: ["admin-courses"] });
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
     setDeleteId(null);
   };
 
   const stats = useMemo(() => {
     const total = courses.length;
     const published = courses.filter((c) => c.published).length;
-    const totalEnrolled = courses.reduce((s, c) => s + (Array.isArray(c.enrollments) ? c.enrollments.length : 0), 0);
+    const totalEnrolled = courses.reduce(
+      (s, c) => s + (Array.isArray(c.enrollments) ? c.enrollments.length : 0),
+      0,
+    );
     return { total, published, draft: total - published, totalEnrolled };
   }, [courses]);
 
@@ -100,7 +160,9 @@ export function CourseSystemAdmin() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <div className="text-xs uppercase tracking-widest text-primary font-medium">Administration</div>
+          <div className="text-xs uppercase tracking-widest text-primary font-medium">
+            Administration
+          </div>
           <h1 className="mt-1 text-2xl sm:text-3xl font-display font-semibold tracking-tight flex items-center gap-2">
             <GraduationCap className="h-7 w-7" /> Course System
           </h1>
@@ -109,10 +171,18 @@ export function CourseSystemAdmin() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" variant={tab === "courses" ? "default" : "outline"} onClick={() => setTab("courses")}>
+          <Button
+            size="sm"
+            variant={tab === "courses" ? "default" : "outline"}
+            onClick={() => setTab("courses")}
+          >
             <BookOpen className="h-4 w-4 mr-1" /> Courses
           </Button>
-          <Button size="sm" variant={tab === "analytics" ? "default" : "outline"} onClick={() => setTab("analytics")}>
+          <Button
+            size="sm"
+            variant={tab === "analytics" ? "default" : "outline"}
+            onClick={() => setTab("analytics")}
+          >
             <BarChart3 className="h-4 w-4 mr-1" /> Analytics
           </Button>
         </div>
@@ -124,7 +194,12 @@ export function CourseSystemAdmin() {
           { label: "Total Courses", value: stats.total, icon: BookOpen, color: "text-blue-500" },
           { label: "Published", value: stats.published, icon: Eye, color: "text-green-500" },
           { label: "Drafts", value: stats.draft, icon: EyeOff, color: "text-amber-500" },
-          { label: "Total Enrolled", value: stats.totalEnrolled, icon: Users, color: "text-violet-500" },
+          {
+            label: "Total Enrolled",
+            value: stats.totalEnrolled,
+            icon: Users,
+            color: "text-violet-500",
+          },
         ].map((s) => (
           <Card key={s.label}>
             <CardContent className="p-4 flex items-center gap-3">
@@ -175,21 +250,29 @@ export function CourseSystemAdmin() {
                 </thead>
                 <tbody>
                   {isLoading ? (
-                    <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
-                      <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" /> Loading courses...
-                    </td></tr>
+                    <tr>
+                      <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                        <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" /> Loading courses...
+                      </td>
+                    </tr>
                   ) : filtered.length === 0 ? (
-                    <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
-                      No courses found.
-                    </td></tr>
+                    <tr>
+                      <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                        No courses found.
+                      </td>
+                    </tr>
                   ) : (
                     filtered.map((c) => (
                       <tr key={c.id} className="border-b last:border-0 hover:bg-muted/30">
                         <td className="px-4 py-3">
                           <div className="font-medium">{c.title}</div>
-                          <div className="text-xs text-muted-foreground truncate max-w-[300px]">{c.description}</div>
+                          <div className="text-xs text-muted-foreground truncate max-w-[300px]">
+                            {c.description}
+                          </div>
                         </td>
-                        <td className="px-4 py-3"><Badge variant="secondary">{c.category}</Badge></td>
+                        <td className="px-4 py-3">
+                          <Badge variant="secondary">{c.category}</Badge>
+                        </td>
                         <td className="px-4 py-3 capitalize">{c.level}</td>
                         <td className="px-4 py-3 font-medium">
                           {Number(c.price_inr) === 0 ? "Free" : `₹${c.price_inr}`}
@@ -205,21 +288,36 @@ export function CourseSystemAdmin() {
                         <td className="px-4 py-3 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <Button
-                              size="icon" variant="ghost" className="h-7 w-7"
-                              onClick={() => setSelectedCourseId(selectedCourseId === c.id ? null : c.id)}
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7"
+                              onClick={() =>
+                                setSelectedCourseId(selectedCourseId === c.id ? null : c.id)
+                              }
                               title="View details"
                             >
-                              {selectedCourseId === c.id ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                              {selectedCourseId === c.id ? (
+                                <ChevronDown className="h-4 w-4" />
+                              ) : (
+                                <ChevronRight className="h-4 w-4" />
+                              )}
                             </Button>
                             <Button
-                              size="icon" variant="ghost" className="h-7 w-7"
-                              onClick={() => { setShowEditor(true); setSelectedCourseId(c.id); }}
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7"
+                              onClick={() => {
+                                setShowEditor(true);
+                                setSelectedCourseId(c.id);
+                              }}
                               title="Edit"
                             >
                               <Edit3 className="h-4 w-4" />
                             </Button>
                             <Button
-                              size="icon" variant="ghost" className="h-7 w-7 text-red-500 hover:text-red-600"
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7 text-red-500 hover:text-red-600"
                               onClick={() => setDeleteId(c.id)}
                               title="Delete"
                             >
@@ -236,12 +334,7 @@ export function CourseSystemAdmin() {
           </div>
 
           {/* Expanded Course Details */}
-          {selectedCourseId && (
-            <CourseDetail
-              courseId={selectedCourseId}
-              doGet={doGet}
-            />
-          )}
+          {selectedCourseId && <CourseDetail courseId={selectedCourseId} doGet={doGet} />}
         </>
       ) : (
         /* Analytics Tab */
@@ -261,7 +354,8 @@ export function CourseSystemAdmin() {
               </thead>
               <tbody>
                 {analytics.map((c: any) => {
-                  const compRate = c.enrolled > 0 ? Math.round((c.completed / c.enrolled) * 100) : 0;
+                  const compRate =
+                    c.enrolled > 0 ? Math.round((c.completed / c.enrolled) * 100) : 0;
                   return (
                     <tr key={c.id} className="border-b last:border-0 hover:bg-muted/30">
                       <td className="px-4 py-3 font-medium">{c.title}</td>
@@ -276,7 +370,10 @@ export function CourseSystemAdmin() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
-                            <div className="h-full bg-green-500 rounded-full" style={{ width: `${compRate}%` }} />
+                            <div
+                              className="h-full bg-green-500 rounded-full"
+                              style={{ width: `${compRate}%` }}
+                            />
                           </div>
                           <span className="text-xs">{compRate}%</span>
                         </div>
@@ -297,7 +394,10 @@ export function CourseSystemAdmin() {
       {showEditor && (
         <CourseEditor
           courseId={selectedCourseId}
-          onClose={() => { setShowEditor(false); setSelectedCourseId(null); }}
+          onClose={() => {
+            setShowEditor(false);
+            setSelectedCourseId(null);
+          }}
           onCreate={handleCreate}
           doGet={doGet}
         />
@@ -310,11 +410,16 @@ export function CourseSystemAdmin() {
             <DialogTitle>Delete Course</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            This will permanently delete this course and all its modules, lessons, and enrollments. This action cannot be undone.
+            This will permanently delete this course and all its modules, lessons, and enrollments.
+            This action cannot be undone.
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete Course</Button>
+            <Button variant="outline" onClick={() => setDeleteId(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete Course
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -334,7 +439,10 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-course-detail", courseId],
-    queryFn: async () => { const r = await doGet({ data: { courseId } }); return r as any; },
+    queryFn: async () => {
+      const r = await doGet({ data: { courseId } });
+      return r as any;
+    },
   });
 
   const [newModuleTitle, setNewModuleTitle] = useState("");
@@ -343,9 +451,13 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
   const [newLessonTitle, setNewLessonTitle] = useState("");
 
   if (isLoading) {
-    return <Card className="mt-4"><CardContent className="p-8 text-center text-muted-foreground">
-      <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" /> Loading course details...
-    </CardContent></Card>;
+    return (
+      <Card className="mt-4">
+        <CardContent className="p-8 text-center text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" /> Loading course details...
+        </CardContent>
+      </Card>
+    );
   }
 
   if (!data) return null;
@@ -355,7 +467,8 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
   const toggleModule = (id: string) => {
     setExpandedModules((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -367,7 +480,9 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
       toast.success("Module added");
       qc.invalidateQueries({ queryKey: ["admin-course-detail", courseId] });
       setNewModuleTitle("");
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const handleAddLesson = async (moduleId: string) => {
@@ -378,7 +493,9 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
       qc.invalidateQueries({ queryKey: ["admin-course-detail", courseId] });
       setNewLessonTitle("");
       setNewLessonModuleId(null);
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const handleDeleteModule = async (moduleId: string) => {
@@ -386,7 +503,9 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
       await doDeleteModule({ data: { moduleId } });
       toast.success("Module deleted");
       qc.invalidateQueries({ queryKey: ["admin-course-detail", courseId] });
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const handleDeleteLesson = async (lessonId: string) => {
@@ -394,7 +513,9 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
       await doDeleteLesson({ data: { lessonId } });
       toast.success("Lesson deleted");
       qc.invalidateQueries({ queryKey: ["admin-course-detail", courseId] });
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const moduleMap = new Map<string, ModuleRow[]>();
@@ -426,77 +547,114 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
 
         {/* Modules List */}
         <div className="space-y-3">
-          {(moduleMap.get(courseId) ?? modules as ModuleRow[]).sort((a, b) => a.order_index - b.order_index).map((mod) => {
-            const modLessons = lessonMap.get(mod.id) ?? [];
-            const isExpanded = expandedModules.has(mod.id);
-            return (
-              <div key={mod.id} className="rounded-lg border bg-muted/30">
-                <div className="flex items-center gap-2 px-4 py-3">
-                  <Button
-                    size="icon" variant="ghost" className="h-6 w-6 shrink-0"
-                    onClick={() => toggleModule(mod.id)}
-                  >
-                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                  </Button>
-                  <div className="flex-1">
-                    <div className="font-medium text-sm">{mod.title}</div>
-                    <div className="text-xs text-muted-foreground">{modLessons.length} lessons</div>
+          {(moduleMap.get(courseId) ?? (modules as ModuleRow[]))
+            .sort((a, b) => a.order_index - b.order_index)
+            .map((mod) => {
+              const modLessons = lessonMap.get(mod.id) ?? [];
+              const isExpanded = expandedModules.has(mod.id);
+              return (
+                <div key={mod.id} className="rounded-lg border bg-muted/30">
+                  <div className="flex items-center gap-2 px-4 py-3">
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6 shrink-0"
+                      onClick={() => toggleModule(mod.id)}
+                    >
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">{mod.title}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {modLessons.length} lessons
+                      </div>
+                    </div>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6"
+                      onClick={() =>
+                        setNewLessonModuleId(newLessonModuleId === mod.id ? null : mod.id)
+                      }
+                      title="Add lesson"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-6 w-6 text-red-500"
+                      onClick={() => handleDeleteModule(mod.id)}
+                      title="Delete module"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button
-                    size="icon" variant="ghost" className="h-6 w-6"
-                    onClick={() => setNewLessonModuleId(newLessonModuleId === mod.id ? null : mod.id)}
-                    title="Add lesson"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="icon" variant="ghost" className="h-6 w-6 text-red-500"
-                    onClick={() => handleDeleteModule(mod.id)}
-                    title="Delete module"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+
+                  {isExpanded && (
+                    <div className="px-4 pb-3 space-y-2">
+                      {modLessons
+                        .sort((a, b) => a.order_index - b.order_index)
+                        .map((les) => (
+                          <div
+                            key={les.id}
+                            className="flex items-center gap-2 pl-8 py-2 rounded-md bg-background/50"
+                          >
+                            <BookOpen className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <span className="text-sm flex-1">{les.title}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {les.duration_minutes}m
+                            </span>
+                            {les.is_preview && (
+                              <Badge variant="outline" className="text-[10px]">
+                                Preview
+                              </Badge>
+                            )}
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-5 w-5 text-red-500"
+                              onClick={() => handleDeleteLesson(les.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+
+                      {newLessonModuleId === mod.id && (
+                        <div className="flex items-center gap-2 pl-8">
+                          <Input
+                            value={newLessonTitle}
+                            onChange={(e) => setNewLessonTitle(e.target.value)}
+                            placeholder="Lesson title..."
+                            className="h-8 text-sm"
+                            onKeyDown={(e) => e.key === "Enter" && handleAddLesson(mod.id)}
+                          />
+                          <Button size="sm" className="h-8" onClick={() => handleAddLesson(mod.id)}>
+                            <Save className="h-3 w-3 mr-1" /> Add
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8"
+                            onClick={() => {
+                              setNewLessonModuleId(null);
+                              setNewLessonTitle("");
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
-
-                {isExpanded && (
-                  <div className="px-4 pb-3 space-y-2">
-                    {modLessons.sort((a, b) => a.order_index - b.order_index).map((les) => (
-                      <div key={les.id} className="flex items-center gap-2 pl-8 py-2 rounded-md bg-background/50">
-                        <BookOpen className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span className="text-sm flex-1">{les.title}</span>
-                        <span className="text-xs text-muted-foreground">{les.duration_minutes}m</span>
-                        {les.is_preview && <Badge variant="outline" className="text-[10px]">Preview</Badge>}
-                        <Button
-                          size="icon" variant="ghost" className="h-5 w-5 text-red-500"
-                          onClick={() => handleDeleteLesson(les.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-
-                    {newLessonModuleId === mod.id && (
-                      <div className="flex items-center gap-2 pl-8">
-                        <Input
-                          value={newLessonTitle}
-                          onChange={(e) => setNewLessonTitle(e.target.value)}
-                          placeholder="Lesson title..."
-                          className="h-8 text-sm"
-                          onKeyDown={(e) => e.key === "Enter" && handleAddLesson(mod.id)}
-                        />
-                        <Button size="sm" className="h-8" onClick={() => handleAddLesson(mod.id)}>
-                          <Save className="h-3 w-3 mr-1" /> Add
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-8" onClick={() => { setNewLessonModuleId(null); setNewLessonTitle(""); }}>
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
 
           {/* Add Module */}
           <div className="flex items-center gap-2 mt-2">
@@ -518,7 +676,12 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
 }
 
 /* ─── Course Editor Dialog ─── */
-function CourseEditor({ courseId, onClose, onCreate, doGet }: {
+function CourseEditor({
+  courseId,
+  onClose,
+  onCreate,
+  doGet,
+}: {
   courseId: string | null;
   onClose: () => void;
   onCreate: (form: any) => void;
@@ -566,7 +729,9 @@ function CourseEditor({ courseId, onClose, onCreate, doGet }: {
         await onCreate(form);
       }
       onClose();
-    } catch (e: any) { toast.error(e.message); }
+    } catch (e: any) {
+      toast.error(e.message);
+    }
     setSaving(false);
   };
 
@@ -596,10 +761,19 @@ function CourseEditor({ courseId, onClose, onCreate, doGet }: {
             </div>
             <div>
               <label className="text-sm font-medium">Category</label>
-              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Select
+                value={form.category}
+                onValueChange={(v) => setForm({ ...form, category: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -617,9 +791,15 @@ function CourseEditor({ courseId, onClose, onCreate, doGet }: {
             <div>
               <label className="text-sm font-medium">Level</label>
               <Select value={form.level} onValueChange={(v: any) => setForm({ ...form, level: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {LEVELS.map((l) => <SelectItem key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</SelectItem>)}
+                  {LEVELS.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {l.charAt(0).toUpperCase() + l.slice(1)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -668,9 +848,15 @@ function CourseEditor({ courseId, onClose, onCreate, doGet }: {
           </div>
         </div>
         <DialogFooter className="mt-6">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button onClick={handleSave} disabled={saving || !form.title || !form.slug}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Save className="h-4 w-4 mr-1" />}
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+            ) : (
+              <Save className="h-4 w-4 mr-1" />
+            )}
             {isEdit ? "Save Changes" : "Create Course"}
           </Button>
         </DialogFooter>

@@ -47,7 +47,7 @@ export function getProfileBorderClass(url: string | null | undefined): string {
 
     // Animated
     case "rainbow-glow":
-      return "ring-[3px] ring-offset-[3px] ring-offset-background shadow-[0_0_20px_rgba(168,85,247,0.6)] animate-pulse";
+      return "ring-[3px] ring-offset-[3px] ring-offset-background animate-rainbow-glow";
     case "pulse-red":
       return "ring-[3px] ring-red-500 ring-offset-[3px] ring-offset-background shadow-[0_0_20px_rgba(239,68,68,0.6)] animate-pulse";
 
@@ -107,7 +107,8 @@ const Avatar = React.forwardRef<
     <AvatarPrimitive.Root
       ref={ref}
       className={cn(
-        "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full transition-all duration-300",
+        "relative flex h-10 w-10 shrink-0 rounded-full transition-all duration-300",
+        borderClass ? "overflow-visible" : "overflow-hidden",
         borderClass,
         className,
       )}

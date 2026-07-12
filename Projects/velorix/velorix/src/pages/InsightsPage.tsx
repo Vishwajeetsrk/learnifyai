@@ -1,4 +1,4 @@
-import InnerPageLayout from '../components/InnerPageLayout';
+import InnerPageLayout from "../components/InnerPageLayout";
 
 export default function InsightsPage() {
   return (
@@ -9,9 +9,9 @@ export default function InsightsPage() {
     >
       <div className="grid gap-4 sm:grid-cols-3">
         {[
-          { label: 'Hours returned / week', value: '42' },
-          { label: 'Tasks auto-resolved', value: '89%' },
-          { label: 'Mean time to calm', value: '3.2d' },
+          { label: "Hours returned / week", value: "42" },
+          { label: "Tasks auto-resolved", value: "89%" },
+          { label: "Mean time to calm", value: "3.2d" },
         ].map((stat) => (
           <div
             key={stat.label}

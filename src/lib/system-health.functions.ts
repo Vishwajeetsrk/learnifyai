@@ -41,8 +41,12 @@ export const getSystemHealth = createServerFn({ method: "GET" })
     // 2. Database connection pool
     try {
       const { data: poolInfo } = await supabaseAdmin.rpc("pg_stat_activity" as any);
-      const activeConns = Array.isArray(poolInfo) ? poolInfo.filter((r: any) => r.state === "active").length : 0;
-      const idleConns = Array.isArray(poolInfo) ? poolInfo.filter((r: any) => r.state === "idle").length : 0;
+      const activeConns = Array.isArray(poolInfo)
+        ? poolInfo.filter((r: any) => r.state === "active").length
+        : 0;
+      const idleConns = Array.isArray(poolInfo)
+        ? poolInfo.filter((r: any) => r.state === "idle").length
+        : 0;
       results.database = {
         status: "healthy",
         activeConnections: activeConns,

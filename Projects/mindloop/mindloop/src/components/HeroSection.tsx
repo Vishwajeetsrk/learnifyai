@@ -1,13 +1,16 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { AVATARS, VIDEOS } from '../constants';
-import { fadeUp } from '../lib/fadeUp';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { AVATARS, VIDEOS } from "../constants";
+import { fadeUp } from "../lib/fadeUp";
 
 export default function HeroSection() {
   const [submitted, setSubmitted] = useState(false);
 
   return (
-    <section id="home" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+    <section
+      id="home"
+      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+    >
       <video
         src={VIDEOS.hero}
         className="absolute inset-0 w-full h-full object-cover"
@@ -44,10 +47,7 @@ export default function HeroSection() {
           Get <span className="font-serif italic font-normal">Inspired</span> with Us
         </motion.h1>
 
-        <motion.p
-          {...fadeUp(0.2)}
-          className="text-lg text-hero-subtitle max-w-2xl mx-auto mb-10"
-        >
+        <motion.p {...fadeUp(0.2)} className="text-lg text-hero-subtitle max-w-2xl mx-auto mb-10">
           Join our feed for meaningful updates, news around technology and a shared journey toward
           depth and direction.
         </motion.p>
@@ -73,7 +73,7 @@ export default function HeroSection() {
             whileTap={{ scale: 0.98 }}
             className="shrink-0 bg-foreground text-background rounded-full px-8 py-3 text-sm font-medium tracking-wide"
           >
-            {submitted ? 'SUBSCRIBED' : 'SUBSCRIBE'}
+            {submitted ? "SUBSCRIBED" : "SUBSCRIBE"}
           </motion.button>
         </motion.form>
       </div>

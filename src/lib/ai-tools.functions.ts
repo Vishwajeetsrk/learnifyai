@@ -36,6 +36,11 @@ const FlashInput = z.object({
   topic: z.string().min(2).max(500),
   count: z.number().int().min(3).max(30).default(10),
 });
+const CheatSheetInput = z.object({
+  action: z.literal("cheatsheet"),
+  topic: z.string().min(2).max(500),
+  level: z.enum(["beginner", "advanced"]).default("beginner"),
+});
 
 const Input = z.discriminatedUnion("action", [
   QuizInput,
@@ -44,6 +49,7 @@ const Input = z.discriminatedUnion("action", [
   ReminderInput,
   SynthInput,
   FlashInput,
+  CheatSheetInput,
 ]);
 
 const SYS = `You are Learnify AI — a senior technical mentor and educator. Be accurate, concrete, current (2025-2026), and production-grade. Provide direct, short answers. Use concise bullet points for the best presentation. Avoid fluff and filler.`;
@@ -73,6 +79,36 @@ function buildMessages(d: z.infer<typeof Input>, ragContext?: string) {
         {
           role: "user",
           content: `Create ${d.count} study flashcards on "${d.topic}". Front = concise prompt; Back = very short answer (1-2 sentences). ${jsonInstruction(`{"cards":[{"front":string,"back":string}]}`)}`,
+        },
+      ],
+    };
+  }
+  if (d.action === "cheatsheet") {
+    const levelNote = d.level === "advanced"
+      ? "Include advanced internals, performance optimizations, security considerations, and production-grade advice."
+      : "Keep it beginner-friendly, explain concepts simply, include analogies and starter code snippets.";
+    return {
+      json: true,
+      messages: [
+        { role: "system", content: SYS },
+        {
+          role: "user",
+          content: `Generate a comprehensive ${d.level} cheat sheet for the topic: "${d.topic}". ${levelNote}
+
+Return ONLY valid minified JSON with this exact structure:
+{"topic":string,"level":"beginner"|"advanced","tagline":string,"emoji":string,"color":string,"sections":[{"id":string,"title":string,"icon":string,"content":string,"code"?:string,"lang"?:string}],"quickref":[{"term":string,"definition":string,"example"?:string}],"comparison":{"title":string,"headers":[string],"rows":[[string]]},"gotchas":[{"bad":string,"good":string}],"interviewQA":[{"q":string,"a":string}],"companies":[string],"resources":[{"title":string,"url":string,"type":"docs"|"video"|"course"|"tool"}]}
+
+Notes:
+- sections: 4-6 sections covering core concepts, how-it-works, best practices, ${d.level === "advanced" ? "internals, performance, and security" : "quick start, common patterns, and tips"}
+- quickref: 8-12 key terms/APIs with short definitions and optional code examples
+- comparison: a 3-5 column table comparing related tools/approaches
+- gotchas: 4-6 common mistakes with a bad example and the correct version
+- interviewQA: 5-8 real interview Q&A pairs
+- companies: 4-8 real companies that use this technology in production
+- emoji: a single emoji that best represents the topic
+- color: a tailwind color name like "blue", "orange", "red", "green", "purple", "yellow", "pink", "cyan", "indigo" matching the topic's brand or feel
+- For code in sections and quickref, use real working code examples, not pseudocode
+Return ONLY the JSON, no markdown, no code fences.`,
         },
       ],
     };
@@ -144,6 +180,8 @@ function titleFor(d: z.infer<typeof Input>): string {
       return `Career plan · ${d.goal.slice(0, 60)}`;
     case "synth":
       return `Synthesis · ${d.notes.slice(0, 50)}…`;
+    case "cheatsheet":
+      return `Cheat Sheet · ${d.topic} (${d.level})`;
   }
 }
 

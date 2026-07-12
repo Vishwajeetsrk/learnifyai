@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { X, Sparkles, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { usePublicSection } from "@/hooks/use-wcms-public";
 
 const DISMISSED_KEY = "learnify_promo_banner_dismissed";
@@ -41,7 +41,12 @@ export function LaunchOfferBanner({ className }: LaunchOfferBannerProps) {
     ? { ...DEFAULT_CONTENT, ...(cms.content as PromoBannerContent) }
     : DEFAULT_CONTENT;
 
-  const [dismissed, setDismissed] = useState(() => localStorage.getItem(DISMISSED_KEY) === "true");
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(DISMISSED_KEY) === "true";
+    }
+    return false;
+  });
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
@@ -73,13 +78,33 @@ export function LaunchOfferBanner({ className }: LaunchOfferBannerProps) {
     return () => clearInterval(id);
   }, [content.timerEndDate]);
 
+  const navigate = useNavigate();
+
   if (!content.enabled) return null;
   if (content.dismissible && dismissed) return null;
 
-  const linkTo = content.ctaLink || "/signup";
+  const parsedLink = useMemo(() => {
+    const raw = content.ctaLink || "/signup";
+    try {
+      const url = new URL(raw, window.location.origin);
+      const params: Record<string, string> = {};
+      url.searchParams.forEach((v, k) => {
+        params[k] = v;
+      });
+      return { to: url.pathname, search: params };
+    } catch {
+      return { to: raw, search: {} };
+    }
+  }, [content.ctaLink]);
 
   return (
-    <div className={cn("relative bg-gradient-to-r text-white overflow-hidden", content.bgGradient || "from-blue-600 via-indigo-600 to-purple-700", className)}>
+    <div
+      className={cn(
+        "relative bg-gradient-to-r text-white overflow-hidden",
+        content.bgGradient || "from-blue-600 via-indigo-600 to-purple-700",
+        className,
+      )}
+    >
       <div className="absolute inset-0 opacity-[0.03]">
         <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white blur-3xl" />
         <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-white blur-3xl" />
@@ -124,11 +149,11 @@ export function LaunchOfferBanner({ className }: LaunchOfferBannerProps) {
           </span>
         </span>
         <Button
-          asChild
           size="sm"
           className="h-7 text-[10px] sm:text-xs px-3 rounded-full bg-white text-indigo-700 hover:bg-white/90 font-bold shadow-sm"
+          onClick={() => navigate({ to: parsedLink.to, search: parsedLink.search })}
         >
-          <Link to={linkTo}>{content.cta}</Link>
+          {content.cta}
         </Button>
         {content.dismissible && (
           <button

@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
-import { Lock } from 'lucide-react';
-import { PresetSiteSections } from '../../_shared/components/PresetSiteSections';
-import { applyPresetHashOnLoad } from '../../_shared/preset-site-routing';
-import HeroParallaxVideo from './components/HeroParallaxVideo';
-import { linkToSectionId, scrollToSection, sectionHref } from './lib/scroll';
+import { useEffect } from "react";
+import { Lock } from "lucide-react";
+import { PresetSiteSections } from "../../_shared/components/PresetSiteSections";
+import { applyPresetHashOnLoad } from "../../_shared/preset-site-routing";
+import HeroParallaxVideo from "./components/HeroParallaxVideo";
+import { linkToSectionId, scrollToSection, sectionHref } from "./lib/scroll";
 
-const NAV_LINKS = ['JOURNEY', 'BENEFITS', 'JOURNAL', 'GUIDEBOOK'] as const;
+const NAV_LINKS = ["JOURNEY", "BENEFITS", "JOURNAL", "GUIDEBOOK"] as const;
 
 export default function App() {
   useEffect(() => {
@@ -22,8 +22,8 @@ export default function App() {
 
         <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-10 py-8">
           <a
-            href={sectionHref('journey')}
-            onClick={(e) => scrollToSection(e, 'journey')}
+            href={sectionHref("journey")}
+            onClick={(e) => scrollToSection(e, "journey")}
             className="text-[17px] font-semibold tracking-tight"
           >
             Wanderful<sup className="ml-0.5 text-[0.55em]">TM</sup>
@@ -46,16 +46,16 @@ export default function App() {
           </nav>
 
           <a
-            href={sectionHref('roaming')}
-            onClick={(e) => scrollToSection(e, 'roaming')}
+            href={sectionHref("roaming")}
+            onClick={(e) => scrollToSection(e, "roaming")}
             className="liquid-glass hidden rounded-full px-5 py-2.5 font-body text-[11px] font-medium tracking-[0.12em] text-white/90 transition-colors hover:text-white md:inline-flex"
           >
             GET ROAMING
           </a>
 
           <a
-            href={sectionHref('roaming')}
-            onClick={(e) => scrollToSection(e, 'roaming')}
+            href={sectionHref("roaming")}
+            onClick={(e) => scrollToSection(e, "roaming")}
             className="liquid-glass rounded-full px-5 py-2.5 font-body text-[11px] font-medium tracking-[0.12em] text-white/90 md:hidden"
           >
             GET ROAMING
@@ -68,7 +68,7 @@ export default function App() {
           </h1>
           <p
             className="hero-fade-in font-hero text-[clamp(40px,5.4vw,72px)] font-normal leading-[1.1] tracking-[-0.02em]"
-            style={{ color: 'rgba(255,255,255,0.55)' }}
+            style={{ color: "rgba(255,255,255,0.55)" }}
           >
             Uncover with keen instinct.
           </p>
@@ -77,10 +77,11 @@ export default function App() {
         <div className="pointer-events-auto fixed inset-x-0 bottom-14 z-20 flex flex-col items-center gap-6 px-6">
           <p className="hero-fade-in-delay max-w-[620px] text-center text-[15px] leading-relaxed">
             <span className="text-white">
-              Our smart itineraries shape around you — your rhythm, your vibe, your hunger for adventure.
+              Our smart itineraries shape around you — your rhythm, your vibe, your hunger for
+              adventure.
             </span>
             <span className="text-white/55">
-              {' '}
+              {" "}
               Each getaway is tailored, seamless, and wholly yours.
             </span>
           </p>
@@ -101,30 +102,45 @@ export default function App() {
         </div>
       </section>
 
-      <section id="benefits" className="scroll-mt-24 border-t border-white/10 bg-black px-6 py-20 md:px-12">
+      <section
+        id="benefits"
+        className="scroll-mt-24 border-t border-white/10 bg-black px-6 py-20 md:px-12"
+      >
         <h2 className="font-body text-xs uppercase tracking-[0.2em] text-white/50">Benefits</h2>
         <p className="mt-4 max-w-2xl text-lg text-white/80">
           Roaming plans adapt to your calendar, budget, and preferred pace—no generic packages.
         </p>
       </section>
 
-      <section id="journal" className="scroll-mt-24 border-t border-white/10 bg-black px-6 py-20 md:px-12">
+      <section
+        id="journal"
+        className="scroll-mt-24 border-t border-white/10 bg-black px-6 py-20 md:px-12"
+      >
         <h2 className="font-body text-xs uppercase tracking-[0.2em] text-white/50">Journal</h2>
         <p className="mt-4 max-w-2xl text-white/70">
-          Field notes from Patagonia, Kyoto, and the Atacama—written by travelers, not algorithms alone.
+          Field notes from Patagonia, Kyoto, and the Atacama—written by travelers, not algorithms
+          alone.
         </p>
       </section>
 
-      <section id="guidebook" className="scroll-mt-24 border-t border-white/10 bg-black px-6 py-20 md:px-12">
+      <section
+        id="guidebook"
+        className="scroll-mt-24 border-t border-white/10 bg-black px-6 py-20 md:px-12"
+      >
         <h2 className="font-body text-xs uppercase tracking-[0.2em] text-white/50">Guidebook</h2>
         <p className="mt-4 max-w-2xl text-white/70">
           Offline maps, phrase cards, and local hosts vetted by the Wanderful network.
         </p>
       </section>
 
-      <section id="roaming" className="scroll-mt-24 border-t border-white/10 bg-black px-6 py-24 text-center md:px-12">
+      <section
+        id="roaming"
+        className="scroll-mt-24 border-t border-white/10 bg-black px-6 py-24 text-center md:px-12"
+      >
         <h2 className="text-3xl font-semibold">Get roaming</h2>
-        <p className="mx-auto mt-4 max-w-md text-white/60">Activate your eSIM in under two minutes.</p>
+        <p className="mx-auto mt-4 max-w-md text-white/60">
+          Activate your eSIM in under two minutes.
+        </p>
         <button
           type="button"
           className="mt-8 rounded-full bg-white px-8 py-3.5 text-[15px] font-medium text-black"

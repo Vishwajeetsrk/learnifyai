@@ -208,12 +208,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           name: "Learnify AI",
           url: "https://learnifyaitool.vercel.app",
           logo: "https://learnifyaitool.vercel.app/logo.png",
-          description: "Learnify AI is the intelligent Career Operating System offering AI-driven learning, verified credentials, and career placement roadmaps.",
+          description:
+            "Learnify AI is the intelligent Career Operating System offering AI-driven learning, verified credentials, and career placement roadmaps.",
           sameAs: [
             "https://twitter.com/LearnifyAI",
             "https://linkedin.com/company/learnify-ai",
-            "https://github.com/Vishwajeetsrk/learnifyai"
-          ]
+            "https://github.com/Vishwajeetsrk/learnifyai",
+          ],
         }),
       },
       {
@@ -292,28 +293,28 @@ function RootComponent() {
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-        <MotionPrefProvider>
-          <CursorProvider>
-            <AuthProvider>
-              <FeatureProvider>
-                <TourProvider>
-                  <ThemeSync />
-                  <NavigationProgress />
-                  <InteractiveCursor />
-                  <PageTransition>
-                    {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-                    <Outlet />
-                  </PageTransition>
-                  <TourTrigger />
-                  <Toaster richColors position="top-right" />
-                  <CookieConsent />
-                </TourProvider>
-              </FeatureProvider>
-            </AuthProvider>
-          </CursorProvider>
-        </MotionPrefProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
+          <MotionPrefProvider>
+            <CursorProvider>
+              <AuthProvider>
+                <FeatureProvider>
+                  <TourProvider>
+                    <ThemeSync />
+                    <NavigationProgress />
+                    <InteractiveCursor />
+                    <PageTransition>
+                      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                      <Outlet />
+                    </PageTransition>
+                    <TourTrigger />
+                    <Toaster richColors position="top-right" />
+                    <CookieConsent />
+                  </TourProvider>
+                </FeatureProvider>
+              </AuthProvider>
+            </CursorProvider>
+          </MotionPrefProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
     </HelmetProvider>
   );
 }

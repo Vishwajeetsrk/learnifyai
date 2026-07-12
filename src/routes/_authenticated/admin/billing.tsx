@@ -470,9 +470,7 @@ function BillingOSPage() {
       const { data } = await (supabase as any)
         .from("invoices")
         .select("id, invoice_number, total_inr, status, created_at, user_id")
-        .or(
-          `invoice_number.ilike.%${refundInvoiceSearch}%,id.ilike.%${refundInvoiceSearch}%`,
-        )
+        .or(`invoice_number.ilike.%${refundInvoiceSearch}%,id.ilike.%${refundInvoiceSearch}%`)
         .in("status", ["paid", "pending"])
         .limit(8);
       setRefundInvoiceResults(data || []);
@@ -730,7 +728,9 @@ function BillingOSPage() {
                 <DialogContent className="sm:max-w-lg">
                   <DialogHeader>
                     <DialogTitle>Create Manual Invoice</DialogTitle>
-                    <DialogDescription>Issue a new invoice to a user and optionally email it.</DialogDescription>
+                    <DialogDescription>
+                      Issue a new invoice to a user and optionally email it.
+                    </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-2">
                     <div className="space-y-1">
@@ -758,9 +758,7 @@ function BillingOSPage() {
                                 onClick={() => {
                                   setManualSelectedUser(u);
                                   setManualUserId(u.id);
-                                  setManualUserSearch(
-                                    `${u.full_name || u.email} (${u.email})`,
-                                  );
+                                  setManualUserSearch(`${u.full_name || u.email} (${u.email})`);
                                   setManualUserOpen(false);
                                 }}
                               >
@@ -769,7 +767,9 @@ function BillingOSPage() {
                                 </div>
                                 <div className="min-w-0">
                                   <p className="font-medium truncate">{u.full_name || "Unknown"}</p>
-                                  <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    {u.email}
+                                  </p>
                                 </div>
                                 {u.mobile && (
                                   <span className="text-xs text-muted-foreground shrink-0 ml-auto">
@@ -818,14 +818,18 @@ function BillingOSPage() {
                     </div>
                     {manualSelectedUser && manualAmount && (
                       <div className="rounded-lg border bg-muted/30 p-3 space-y-1.5 text-sm">
-                        <p className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Preview</p>
+                        <p className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">
+                          Preview
+                        </p>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">To:</span>
                           <span>{manualSelectedUser.full_name || manualSelectedUser.email}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Amount:</span>
-                          <span className="font-semibold">{inr(parseFloat(manualAmount) || 0)}</span>
+                          <span className="font-semibold">
+                            {inr(parseFloat(manualAmount) || 0)}
+                          </span>
                         </div>
                         {manualDescription && (
                           <div className="flex justify-between">
@@ -1248,7 +1252,9 @@ function BillingOSPage() {
                 <DialogContent className="sm:max-w-lg">
                   <DialogHeader>
                     <DialogTitle>Process Refund</DialogTitle>
-                    <DialogDescription>Issue a refund for a user's invoice and optionally notify them.</DialogDescription>
+                    <DialogDescription>
+                      Issue a refund for a user's invoice and optionally notify them.
+                    </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-2">
                     <div className="space-y-1">
@@ -1274,9 +1280,7 @@ function BillingOSPage() {
                                 className="w-full flex items-center gap-3 px-3 py-2 text-sm hover:bg-muted text-left"
                                 onClick={() => {
                                   setRefundSelectedUser(u);
-                                  setRefundUserSearch(
-                                    `${u.full_name || u.email} (${u.email})`,
-                                  );
+                                  setRefundUserSearch(`${u.full_name || u.email} (${u.email})`);
                                   setRefundUserOpen(false);
                                 }}
                               >
@@ -1285,7 +1289,9 @@ function BillingOSPage() {
                                 </div>
                                 <div className="min-w-0">
                                   <p className="font-medium truncate">{u.full_name || "Unknown"}</p>
-                                  <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    {u.email}
+                                  </p>
                                 </div>
                               </button>
                             ))}
@@ -1330,7 +1336,10 @@ function BillingOSPage() {
                                     {inv.invoice_number || inv.id.slice(0, 8)}
                                   </p>
                                   <p className="text-xs text-muted-foreground">
-                                    {inv.status} · {inv.created_at ? format(new Date(inv.created_at), "MMM d") : ""}
+                                    {inv.status} ·{" "}
+                                    {inv.created_at
+                                      ? format(new Date(inv.created_at), "MMM d")
+                                      : ""}
                                   </p>
                                 </div>
                                 <span className="font-medium shrink-0 ml-2">
@@ -1372,7 +1381,9 @@ function BillingOSPage() {
                         >
                           <option value="">Select reason</option>
                           {REFUND_REASONS.map((r) => (
-                            <option key={r} value={r}>{r}</option>
+                            <option key={r} value={r}>
+                              {r}
+                            </option>
                           ))}
                         </select>
                         <Input
@@ -1665,10 +1676,18 @@ function BillingOSPage() {
                       Razorpay and international payment support coming soon.
                     </p>
                     <div className="flex gap-2 mt-2">
-                      <Badge variant="outline" className="text-xs">Razorpay</Badge>
-                      <Badge variant="outline" className="text-xs">Stripe</Badge>
-                      <Badge variant="outline" className="text-xs">PayPal</Badge>
-                      <Badge variant="outline" className="text-xs">International Cards</Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Razorpay
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        Stripe
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        PayPal
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        International Cards
+                      </Badge>
                     </div>
                   </div>
                   <h3 className="font-semibold mb-2">Webhook Status</h3>

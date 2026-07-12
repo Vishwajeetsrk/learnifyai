@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
-import { useDraftlyGalleryAutoplay } from '../../../_shared/hooks/useDraftlyGalleryAutoplay';
-import { HERO_VIDEO } from '../constants';
+import { useEffect, useRef } from "react";
+import { motion } from "motion/react";
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
+import { useDraftlyGalleryAutoplay } from "../../../_shared/hooks/useDraftlyGalleryAutoplay";
+import { HERO_VIDEO } from "../constants";
 
 export function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -44,7 +44,7 @@ export function HeroSection() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
-                onClick={() => navigateToRoute('contact')}
+                onClick={() => navigateToRoute("contact")}
                 className="mt-8 bg-[#141414] px-9 py-4 text-[13px] font-medium uppercase tracking-wider text-white shadow-2xl"
                 data-editable
                 data-preset-text="hero-cta"

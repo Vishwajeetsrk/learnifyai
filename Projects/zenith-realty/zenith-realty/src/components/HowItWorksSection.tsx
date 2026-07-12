@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import { HOW_IT_WORKS_IMAGE } from '../constants';
+import { useState } from "react";
+import { HOW_IT_WORKS_IMAGE } from "../constants";
 
 const MENU_ITEMS = [
-  { id: 'market', label: 'Market Analysis' },
-  { id: 'collection', label: 'Exclusive collection' },
-  { id: 'policy', label: 'Policy Support' },
-  { id: 'closing', label: 'Closing Deal' },
+  { id: "market", label: "Market Analysis" },
+  { id: "collection", label: "Exclusive collection" },
+  { id: "policy", label: "Policy Support" },
+  { id: "closing", label: "Closing Deal" },
 ] as const;
 
 export function HowItWorksSection() {
-  const [active, setActive] = useState<(typeof MENU_ITEMS)[number]['id']>('collection');
+  const [active, setActive] = useState<(typeof MENU_ITEMS)[number]["id"]>("collection");
 
   return (
     <section id="how-it-works" className="px-5 py-20 md:px-10 md:py-28">
@@ -55,9 +55,7 @@ export function HowItWorksSection() {
                   type="button"
                   onClick={() => setActive(item.id)}
                   className={`text-left text-[13px] font-medium transition-colors ${
-                    active === item.id
-                      ? 'text-[#141414]'
-                      : 'text-[#A5A5A5] hover:text-[#141414]'
+                    active === item.id ? "text-[#141414]" : "text-[#A5A5A5] hover:text-[#141414]"
                   }`}
                 >
                   {item.label}
@@ -66,7 +64,11 @@ export function HowItWorksSection() {
             </nav>
           </div>
           <div className="aspect-video overflow-hidden md:col-span-8 md:aspect-square">
-            <img src={HOW_IT_WORKS_IMAGE} alt="Zenith Realty service" className="h-full w-full object-cover" />
+            <img
+              src={HOW_IT_WORKS_IMAGE}
+              alt="Zenith Realty service"
+              className="h-full w-full object-cover"
+            />
           </div>
         </div>
       </div>

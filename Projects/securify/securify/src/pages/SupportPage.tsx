@@ -1,17 +1,17 @@
-import { InnerPageShell } from '../components/InnerPageShell';
+import { InnerPageShell } from "../components/InnerPageShell";
 
 const FAQ = [
   {
-    q: 'how fast can we onboard?',
-    a: 'most teams ship their first protected environment within one business day.',
+    q: "how fast can we onboard?",
+    a: "most teams ship their first protected environment within one business day.",
   },
   {
-    q: 'do you support hipaa / gdpr?',
-    a: 'yes—region pinning, dpa templates, and audit exports ship with enterprise plans.',
+    q: "do you support hipaa / gdpr?",
+    a: "yes—region pinning, dpa templates, and audit exports ship with enterprise plans.",
   },
   {
-    q: 'where is data stored?',
-    a: 'choose us, eu, or apac residency; keys never leave your selected boundary.',
+    q: "where is data stored?",
+    a: "choose us, eu, or apac residency; keys never leave your selected boundary.",
   },
 ] as const;
 

@@ -1,17 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { PRODUCTS } from '../constants';
-import { useInView } from '../hooks/useInView';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { PRODUCTS } from "../constants";
+import { useInView } from "../hooks/useInView";
 
-type Tab = 'best-sellers' | 'sets';
+type Tab = "best-sellers" | "sets";
 
 export function BestSellersSection() {
   const { ref, isVisible } = useInView(0.15);
-  const [tab, setTab] = useState<Tab>('best-sellers');
+  const [tab, setTab] = useState<Tab>("best-sellers");
   const [scrollProgress, setScrollProgress] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
-  const visibleProducts = tab === 'sets' ? PRODUCTS.filter((p) => p.isSet) : PRODUCTS;
+  const visibleProducts = tab === "sets" ? PRODUCTS.filter((p) => p.isSet) : PRODUCTS;
 
   const updateProgress = useCallback(() => {
     const el = carouselRef.current;
@@ -24,8 +24,8 @@ export function BestSellersSection() {
     const el = carouselRef.current;
     if (!el) return;
     updateProgress();
-    el.addEventListener('scroll', updateProgress, { passive: true });
-    return () => el.removeEventListener('scroll', updateProgress);
+    el.addEventListener("scroll", updateProgress, { passive: true });
+    return () => el.removeEventListener("scroll", updateProgress);
   }, [updateProgress, tab]);
 
   const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
@@ -44,31 +44,31 @@ export function BestSellersSection() {
     >
       <div
         className={`transition-all duration-[800ms] ${
-          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
+          isVisible ? "translate-y-0 opacity-100" : "translate-y-6 opacity-0"
         }`}
       >
         <div className="mb-8 flex flex-wrap items-end gap-6 sm:mb-10">
           <button
             type="button"
             className={`flex items-center gap-3 text-2xl font-medium capitalize sm:text-4xl md:text-5xl ${
-              tab === 'best-sellers' ? 'text-[#1a1a1a]' : 'text-gray-400 hover:text-gray-600'
+              tab === "best-sellers" ? "text-[#1a1a1a]" : "text-gray-400 hover:text-gray-600"
             }`}
-            onClick={() => setTab('best-sellers')}
+            onClick={() => setTab("best-sellers")}
           >
             best sellers
-            {tab === 'best-sellers' && (
+            {tab === "best-sellers" && (
               <span className="animate-scale-in h-5 w-5 rounded-full bg-[#1a1a1a] sm:h-6 sm:w-6" />
             )}
           </button>
           <button
             type="button"
             className={`flex items-center gap-3 text-2xl font-medium capitalize sm:text-4xl md:text-5xl ${
-              tab === 'sets' ? 'text-[#1a1a1a]' : 'text-gray-400 hover:text-gray-600'
+              tab === "sets" ? "text-[#1a1a1a]" : "text-gray-400 hover:text-gray-600"
             }`}
-            onClick={() => setTab('sets')}
+            onClick={() => setTab("sets")}
           >
             sets
-            {tab === 'sets' && (
+            {tab === "sets" && (
               <span className="animate-scale-in h-5 w-5 rounded-full bg-[#1a1a1a] sm:h-6 sm:w-6" />
             )}
           </button>
@@ -83,7 +83,7 @@ export function BestSellersSection() {
             <article
               key={product.name}
               className={`group -ml-px w-[260px] shrink-0 border border-gray-200 first:ml-0 transition-all duration-500 sm:w-[280px] md:w-[300px] lg:w-[calc(25%-1px)] ${
-                isVisible ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'
+                isVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
               }`}
               style={{ transitionDelay: `${200 + index * 80}ms` }}
             >
@@ -111,8 +111,14 @@ export function BestSellersSection() {
                     <span className="text-gray-400 line-through">{product.oldPrice}</span>
                   )}
                 </div>
-                <PresetNavLink target={{ kind: 'route', path: 'shop' }} className="mt-4 inline-block">
-                  <button type="button" className="btn-primary rounded-full bg-[#1a1a1a] px-6 py-2 text-xs text-white">
+                <PresetNavLink
+                  target={{ kind: "route", path: "shop" }}
+                  className="mt-4 inline-block"
+                >
+                  <button
+                    type="button"
+                    className="btn-primary rounded-full bg-[#1a1a1a] px-6 py-2 text-xs text-white"
+                  >
                     shop now
                   </button>
                 </PresetNavLink>

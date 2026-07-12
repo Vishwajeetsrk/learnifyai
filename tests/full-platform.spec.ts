@@ -18,7 +18,9 @@ test.describe("Full Learnify AI Platform E2E Suite", () => {
       await expect(page.locator("body")).toBeVisible();
     });
 
-    test("Pricing page renders Starter, Pro, and Team plans with LAUNCH20 coupon support", async ({ page }) => {
+    test("Pricing page renders Starter, Pro, and Team plans with LAUNCH20 coupon support", async ({
+      page,
+    }) => {
       await page.goto("/pricing?coupon=LAUNCH20");
       await page.waitForLoadState("domcontentloaded");
     });

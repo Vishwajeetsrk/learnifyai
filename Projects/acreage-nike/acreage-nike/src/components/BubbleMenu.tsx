@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect, type CSSProperties, type ReactNode } from 'react';
-import { gsap } from 'gsap';
-import { routeHref, navigateToRoute } from '../../../_shared/preset-site-routing';
-import './BubbleMenu.css';
+import { useState, useRef, useEffect, type CSSProperties, type ReactNode } from "react";
+import { gsap } from "gsap";
+import { routeHref, navigateToRoute } from "../../../_shared/preset-site-routing";
+import "./BubbleMenu.css";
 
 export interface MenuItem {
   label: string;
@@ -30,12 +30,12 @@ export default function BubbleMenu({
   onMenuClick,
   className,
   style,
-  menuAriaLabel = 'Toggle menu',
-  menuBg = '#fff',
-  menuContentColor = '#111',
+  menuAriaLabel = "Toggle menu",
+  menuBg = "#fff",
+  menuContentColor = "#111",
   useFixedPosition = false,
   items,
-  animationEase = 'back.out(1.5)',
+  animationEase = "back.out(1.5)",
   animationDuration = 0.5,
   staggerDelay = 0.12,
 }: BubbleMenuProps) {
@@ -45,9 +45,9 @@ export default function BubbleMenu({
   const bubblesRef = useRef<(HTMLAnchorElement | null)[]>([]);
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
-  const containerClassName = ['bubble-menu', useFixedPosition ? 'fixed' : 'absolute', className]
+  const containerClassName = ["bubble-menu", useFixedPosition ? "fixed" : "absolute", className]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   const handleToggle = () => {
     const nextState = !isMenuOpen;
@@ -68,9 +68,9 @@ export default function BubbleMenu({
     if (!overlay || !bubbles.length) return;
 
     if (isMenuOpen) {
-      gsap.set(overlay, { display: 'flex' });
+      gsap.set(overlay, { display: "flex" });
       gsap.killTweensOf([...bubbles, ...labels]);
-      gsap.set(bubbles, { scale: 0, transformOrigin: '50% 50%' });
+      gsap.set(bubbles, { scale: 0, transformOrigin: "50% 50%" });
       gsap.set(labels, { y: 24, autoAlpha: 0 });
 
       bubbles.forEach((bubble, i) => {
@@ -80,20 +80,20 @@ export default function BubbleMenu({
         if (labels[i]) {
           tl.to(
             labels[i],
-            { y: 0, autoAlpha: 1, duration: animationDuration, ease: 'power3.out' },
+            { y: 0, autoAlpha: 1, duration: animationDuration, ease: "power3.out" },
             `-=${animationDuration * 0.9}`,
           );
         }
       });
     } else if (showOverlay) {
       gsap.killTweensOf([...bubbles, ...labels]);
-      gsap.to(labels, { y: 24, autoAlpha: 0, duration: 0.2, ease: 'power3.in' });
+      gsap.to(labels, { y: 24, autoAlpha: 0, duration: 0.2, ease: "power3.in" });
       gsap.to(bubbles, {
         scale: 0,
         duration: 0.2,
-        ease: 'power3.in',
+        ease: "power3.in",
         onComplete: () => {
-          gsap.set(overlay, { display: 'none' });
+          gsap.set(overlay, { display: "none" });
           setShowOverlay(false);
         },
       });
@@ -105,7 +105,7 @@ export default function BubbleMenu({
       <nav className={containerClassName} style={style} aria-label="Main navigation">
         <button
           type="button"
-          className={`bubble toggle-bubble menu-btn ${isMenuOpen ? 'open' : ''}`}
+          className={`bubble toggle-bubble menu-btn ${isMenuOpen ? "open" : ""}`}
           onClick={handleToggle}
           aria-label={menuAriaLabel}
           aria-expanded={isMenuOpen}
@@ -125,11 +125,11 @@ export default function BubbleMenu({
                   className="pill-link"
                   style={
                     {
-                      '--item-rot': `${item.rotation ?? 0}deg`,
-                      '--pill-bg': menuBg,
-                      '--pill-color': menuContentColor,
-                      '--hover-bg': item.hoverStyles?.bgColor,
-                      '--hover-color': item.hoverStyles?.textColor,
+                      "--item-rot": `${item.rotation ?? 0}deg`,
+                      "--pill-bg": menuBg,
+                      "--pill-color": menuContentColor,
+                      "--hover-bg": item.hoverStyles?.bgColor,
+                      "--hover-color": item.hoverStyles?.textColor,
                     } as CSSProperties
                   }
                   ref={(el) => {

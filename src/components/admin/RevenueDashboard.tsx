@@ -6,12 +6,32 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  IndianRupee, TrendingUp, Users, CreditCard, ArrowUpRight, ArrowDownRight,
-  Download, Loader2, BarChart3, Wallet, FileText,
+  IndianRupee,
+  TrendingUp,
+  Users,
+  CreditCard,
+  ArrowUpRight,
+  ArrowDownRight,
+  Download,
+  Loader2,
+  BarChart3,
+  Wallet,
+  FileText,
 } from "lucide-react";
 import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
 } from "recharts";
 
 const COLORS = ["#4F46E5", "#7C3AED", "#22C55E", "#F59E0B", "#EF4444", "#06B6D4"];
@@ -22,7 +42,10 @@ export function RevenueDashboard() {
 
   const { data: overview, isLoading: loadingOverview } = useQuery({
     queryKey: ["admin-revenue-overview"],
-    queryFn: async () => { const r = await doOverview(); return r as any; },
+    queryFn: async () => {
+      const r = await doOverview();
+      return r as any;
+    },
   });
 
   const { data: invoicesData, isLoading: loadingInvoices } = useQuery({
@@ -115,8 +138,16 @@ export function RevenueDashboard() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis dataKey="month" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} />
-                  <Tooltip formatter={(v: any) => [`₹${Number(v).toLocaleString("en-IN")}`, "Revenue"]} />
-                  <Area type="monotone" dataKey="revenue" stroke="#4F46E5" fill="#4F46E520" strokeWidth={2} />
+                  <Tooltip
+                    formatter={(v: any) => [`₹${Number(v).toLocaleString("en-IN")}`, "Revenue"]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#4F46E5"
+                    fill="#4F46E520"
+                    strokeWidth={2}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
@@ -187,9 +218,19 @@ export function RevenueDashboard() {
                     <tr key={inv.id} className="border-b last:border-0">
                       <td className="py-2.5 font-mono text-xs">{inv.invoice_number}</td>
                       <td className="py-2.5">{inv.profiles?.email ?? "—"}</td>
-                      <td className="py-2.5 font-medium">₹{Number(inv.total_inr).toLocaleString("en-IN")}</td>
+                      <td className="py-2.5 font-medium">
+                        ₹{Number(inv.total_inr).toLocaleString("en-IN")}
+                      </td>
                       <td className="py-2.5">
-                        <Badge variant={inv.status === "paid" ? "default" : inv.status === "pending" ? "secondary" : "destructive"}>
+                        <Badge
+                          variant={
+                            inv.status === "paid"
+                              ? "default"
+                              : inv.status === "pending"
+                                ? "secondary"
+                                : "destructive"
+                          }
+                        >
                           {inv.status}
                         </Badge>
                       </td>

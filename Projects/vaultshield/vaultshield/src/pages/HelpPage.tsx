@@ -1,8 +1,17 @@
 export function HelpPage() {
   const faqs = [
-    ['How do I import passwords?', 'Use the guided importer from 1Password, Bitwarden, or CSV export.'],
-    ['Is my master password stored?', 'Never—only a salted verifier is kept locally on your device.'],
-    ['Can teams share vaults?', 'Business plans support role-based shared vaults with audit trails.'],
+    [
+      "How do I import passwords?",
+      "Use the guided importer from 1Password, Bitwarden, or CSV export.",
+    ],
+    [
+      "Is my master password stored?",
+      "Never—only a salted verifier is kept locally on your device.",
+    ],
+    [
+      "Can teams share vaults?",
+      "Business plans support role-based shared vaults with audit trails.",
+    ],
   ];
 
   return (
@@ -10,7 +19,7 @@ export function HelpPage() {
       <section id="help" className="scroll-mt-24">
         <h1
           className="mb-4"
-          style={{ fontFamily: 'var(--font-heading)', fontSize: 'clamp(1.75rem, 4vw, 2.5rem)' }}
+          style={{ fontFamily: "var(--font-heading)", fontSize: "clamp(1.75rem, 4vw, 2.5rem)" }}
         >
           Help
         </h1>

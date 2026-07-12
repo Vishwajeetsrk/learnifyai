@@ -147,7 +147,13 @@ function EventsPage() {
                   <button
                     onClick={() => {
                       const endDate = new Date(d.getTime() + 60 * 60 * 1000); // 1 hour duration
-                      downloadICS(e.title, e.description || "Join us for an exciting Learnify event!", d, endDate, e.location || "Online");
+                      downloadICS(
+                        e.title,
+                        e.description || "Join us for an exciting Learnify event!",
+                        d,
+                        endDate,
+                        e.location || "Online",
+                      );
                     }}
                     className="flex items-center gap-1.5 rounded-full border border-border bg-card hover:bg-accent px-4 py-2 text-sm font-medium transition"
                   >
@@ -163,7 +169,10 @@ function EventsPage() {
                       RSVP
                     </a>
                   ) : (
-                    <button disabled className="rounded-full bg-muted text-muted-foreground px-5 py-2 text-sm font-medium opacity-50 cursor-not-allowed">
+                    <button
+                      disabled
+                      className="rounded-full bg-muted text-muted-foreground px-5 py-2 text-sm font-medium opacity-50 cursor-not-allowed"
+                    >
                       Past Event
                     </button>
                   )}

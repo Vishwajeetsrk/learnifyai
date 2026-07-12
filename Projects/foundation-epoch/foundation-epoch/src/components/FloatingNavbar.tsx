@@ -1,14 +1,14 @@
-import { motion } from 'motion/react';
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { cn } from '../lib/utils';
+import { motion } from "motion/react";
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { cn } from "../lib/utils";
 
 const NAV_ITEMS = [
-  { label: 'Home', route: '' },
-  { label: 'Products', route: 'products' },
-  { label: 'Ecosystem', route: 'ecosystem' },
-  { label: 'Docs', route: 'docs' },
-  { label: 'About', route: 'about' },
-  { label: 'Contact', route: 'contact' },
+  { label: "Home", route: "" },
+  { label: "Products", route: "products" },
+  { label: "Ecosystem", route: "ecosystem" },
+  { label: "Docs", route: "docs" },
+  { label: "About", route: "about" },
+  { label: "Contact", route: "contact" },
 ] as const;
 
 export function FloatingNavbar() {
@@ -22,17 +22,17 @@ export function FloatingNavbar() {
     >
       <div
         className={cn(
-          'pointer-events-auto flex flex-wrap items-center justify-center gap-1 rounded-full border border-white/20',
-          'bg-white/10 px-2 py-2 shadow-lg backdrop-blur-xl',
+          "pointer-events-auto flex flex-wrap items-center justify-center gap-1 rounded-full border border-white/20",
+          "bg-white/10 px-2 py-2 shadow-lg backdrop-blur-xl",
         )}
       >
         {NAV_ITEMS.map((item) => (
           <PresetNavLink
-            key={item.route || 'home'}
-            target={{ kind: 'route', path: item.route }}
+            key={item.route || "home"}
+            target={{ kind: "route", path: item.route }}
             className={cn(
-              'rounded-full px-4 py-2.5 text-sm font-medium text-white/90 transition-colors sm:px-5',
-              'hover:bg-white/15 hover:text-white',
+              "rounded-full px-4 py-2.5 text-sm font-medium text-white/90 transition-colors sm:px-5",
+              "hover:bg-white/15 hover:text-white",
             )}
           >
             {item.label}

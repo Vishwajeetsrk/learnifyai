@@ -1,18 +1,9 @@
-import {
-  ChromaFlow,
-  FilmGrain,
-  FlutedGlass,
-  Shader,
-  Swirl,
-} from 'shaders/react';
+import { ChromaFlow, FilmGrain, FlutedGlass, Shader, Swirl } from "shaders/react";
 
 export function HeroShaderBackground() {
   return (
     <div className="pointer-events-none absolute inset-0 z-10">
-      <Shader
-        className="h-full w-full"
-        style={{ width: '100%', height: '100%' }}
-      >
+      <Shader className="h-full w-full" style={{ width: "100%", height: "100%" }}>
         <Swirl colorA="#ffffff" colorB="#f0f0f0" detail={1.7} />
         <ChromaFlow
           baseColor="#ffffff"

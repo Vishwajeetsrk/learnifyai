@@ -1,5 +1,5 @@
-import type { MouseEvent, ReactNode } from 'react';
-import { useCallback, useRef, useState } from 'react';
+import type { MouseEvent, ReactNode } from "react";
+import { useCallback, useRef, useState } from "react";
 
 type MagnetProps = {
   children: ReactNode;
@@ -12,14 +12,14 @@ type MagnetProps = {
 
 export function Magnet({
   children,
-  className = '',
+  className = "",
   padding = 150,
   strength = 3,
-  activeTransition = 'transform 0.3s ease-out',
-  inactiveTransition = 'transform 0.6s ease-in-out',
+  activeTransition = "transform 0.3s ease-out",
+  inactiveTransition = "transform 0.6s ease-in-out",
 }: MagnetProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [transform, setTransform] = useState('translate3d(0, 0, 0)');
+  const [transform, setTransform] = useState("translate3d(0, 0, 0)");
   const [transition, setTransition] = useState(inactiveTransition);
 
   const onMouseMove = useCallback(
@@ -38,7 +38,7 @@ export function Magnet({
         setTransform(`translate3d(${dx / strength}px, ${dy / strength}px, 0)`);
       } else {
         setTransition(inactiveTransition);
-        setTransform('translate3d(0, 0, 0)');
+        setTransform("translate3d(0, 0, 0)");
       }
     },
     [activeTransition, inactiveTransition, padding, strength],
@@ -46,7 +46,7 @@ export function Magnet({
 
   const onMouseLeave = useCallback(() => {
     setTransition(inactiveTransition);
-    setTransform('translate3d(0, 0, 0)');
+    setTransform("translate3d(0, 0, 0)");
   }, [inactiveTransition]);
 
   return (
@@ -55,7 +55,7 @@ export function Magnet({
       className={className}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
-      style={{ transform, transition, willChange: 'transform' }}
+      style={{ transform, transition, willChange: "transform" }}
     >
       {children}
     </div>

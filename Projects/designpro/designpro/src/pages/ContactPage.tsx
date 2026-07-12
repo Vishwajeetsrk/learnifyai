@@ -1,4 +1,4 @@
-import PageShell from '../components/PageShell';
+import PageShell from "../components/PageShell";
 
 export function ContactPage() {
   return (
@@ -50,7 +50,9 @@ export function ContactPage() {
           Submit application
         </button>
       </form>
-      <p className="mt-8 text-sm text-white/50">hello@designpro.studio · We respond within 2 business days.</p>
+      <p className="mt-8 text-sm text-white/50">
+        hello@designpro.studio · We respond within 2 business days.
+      </p>
     </PageShell>
   );
 }

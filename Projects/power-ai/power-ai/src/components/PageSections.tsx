@@ -1,23 +1,23 @@
 const SECTIONS = [
   {
-    id: 'features',
-    title: 'Features',
-    body: 'Deploy models, orchestrate agents, and monitor every workflow with enterprise-grade observability and liquid-glass controls.',
+    id: "features",
+    title: "Features",
+    body: "Deploy models, orchestrate agents, and monitor every workflow with enterprise-grade observability and liquid-glass controls.",
   },
   {
-    id: 'solutions',
-    title: 'Solutions',
-    body: 'From research labs to customer-facing apps, Power AI unifies inference, fine-tuning, and governance in one platform.',
+    id: "solutions",
+    title: "Solutions",
+    body: "From research labs to customer-facing apps, Power AI unifies inference, fine-tuning, and governance in one platform.",
   },
   {
-    id: 'plans',
-    title: 'Plans',
-    body: 'Flexible tiers for teams scaling from pilot to production — transparent usage, dedicated support, and custom SLAs.',
+    id: "plans",
+    title: "Plans",
+    body: "Flexible tiers for teams scaling from pilot to production — transparent usage, dedicated support, and custom SLAs.",
   },
   {
-    id: 'learning',
-    title: 'Learning',
-    body: 'Guides, workshops, and certification paths to help your organization adopt AI responsibly and ship faster.',
+    id: "learning",
+    title: "Learning",
+    body: "Guides, workshops, and certification paths to help your organization adopt AI responsibly and ship faster.",
   },
 ] as const;
 

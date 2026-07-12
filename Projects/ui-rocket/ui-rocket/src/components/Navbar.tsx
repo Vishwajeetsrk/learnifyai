@@ -1,10 +1,10 @@
-import { Menu, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { NAV_SECTIONS } from '../constants';
-import { scrollToSection } from '../lib/scroll';
-import { AnimatedText } from './AnimatedText';
-import { MIcon } from './MIcon';
-import { PrimaryButton } from './PrimaryButton';
+import { Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { NAV_SECTIONS } from "../constants";
+import { scrollToSection } from "../lib/scroll";
+import { AnimatedText } from "./AnimatedText";
+import { MIcon } from "./MIcon";
+import { PrimaryButton } from "./PrimaryButton";
 
 function NavButton({
   label,
@@ -36,13 +36,13 @@ export function Navbar() {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === "Escape") setOpen(false);
     };
-    document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
     };
   }, [open]);
 
@@ -53,7 +53,7 @@ export function Navbar() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
         <button
           type="button"
-          onClick={() => scrollToSection('hero')}
+          onClick={() => scrollToSection("hero")}
           className="flex items-center gap-2.5 text-left"
           aria-label="UI Rocket home"
         >
@@ -65,7 +65,10 @@ export function Navbar() {
           </span>
         </button>
 
-        <nav className="liquid-glass hidden items-center gap-0.5 rounded-full px-1.5 py-1 md:flex" aria-label="Primary">
+        <nav
+          className="liquid-glass hidden items-center gap-0.5 rounded-full px-1.5 py-1 md:flex"
+          aria-label="Primary"
+        >
           {NAV_SECTIONS.map((item) => (
             <NavButton key={item.id} label={item.label} sectionId={item.id} onNavigate={() => {}} />
           ))}
@@ -74,20 +77,20 @@ export function Navbar() {
         <div className="hidden items-center gap-3 md:flex">
           <button
             type="button"
-            onClick={() => scrollToSection('pricing')}
+            onClick={() => scrollToSection("pricing")}
             className="text-sm font-medium text-white/60 transition hover:text-white"
             data-editable
           >
             Sign in
           </button>
-          <PrimaryButton onClick={() => scrollToSection('pricing')}>Start free</PrimaryButton>
+          <PrimaryButton onClick={() => scrollToSection("pricing")}>Start free</PrimaryButton>
         </div>
 
         <button
           type="button"
           className="liquid-glass flex h-10 w-10 items-center justify-center rounded-full md:hidden"
           onClick={() => setOpen((v) => !v)}
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -123,7 +126,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => {
-                scrollToSection('pricing');
+                scrollToSection("pricing");
                 close();
               }}
               className="rounded-xl px-4 py-3 text-left text-sm font-medium text-white/60"
@@ -132,7 +135,13 @@ export function Navbar() {
               Sign in
             </button>
             <div className="mt-2 px-1">
-              <PrimaryButton className="w-full" onClick={() => { scrollToSection('pricing'); close(); }}>
+              <PrimaryButton
+                className="w-full"
+                onClick={() => {
+                  scrollToSection("pricing");
+                  close();
+                }}
+              >
                 Start free
               </PrimaryButton>
             </div>

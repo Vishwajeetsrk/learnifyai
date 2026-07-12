@@ -1,8 +1,12 @@
-import { useEffect, useRef, type MouseEvent } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import { handlePresetNavClick, resolveNavTarget, routeHref } from '../../../_shared/preset-site-routing';
-import { GEM_CARD_VIDEO, HERO_BG_VIDEO, goldEase } from '../constants';
+import { useEffect, useRef, type MouseEvent } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import {
+  handlePresetNavClick,
+  resolveNavTarget,
+  routeHref,
+} from "../../../_shared/preset-site-routing";
+import { GEM_CARD_VIDEO, HERO_BG_VIDEO, goldEase } from "../constants";
 
 function HeroContent() {
   return (
@@ -12,7 +16,7 @@ function HeroContent() {
     >
       <div className="overflow-hidden">
         <motion.h1
-          initial={{ y: '110%' }}
+          initial={{ y: "110%" }}
           animate={{ y: 0 }}
           transition={{ duration: 1.1, ease: goldEase }}
           className="font-light leading-[1.05] tracking-[-0.04em] text-[clamp(42px,6vw,80px)]"
@@ -22,7 +26,7 @@ function HeroContent() {
       </div>
       <div className="mb-8 overflow-hidden">
         <motion.h1
-          initial={{ y: '110%' }}
+          initial={{ y: "110%" }}
           animate={{ y: 0 }}
           transition={{ duration: 1.1, delay: 0.08, ease: goldEase }}
           className="font-light leading-[1.05] tracking-[-0.04em] text-[clamp(42px,6vw,80px)]"
@@ -54,12 +58,12 @@ export function HeroSection() {
       v.play().catch(() => {});
     };
     play();
-    v.addEventListener('loadeddata', play);
-    return () => v.removeEventListener('loadeddata', play);
+    v.addEventListener("loadeddata", play);
+    return () => v.removeEventListener("loadeddata", play);
   }, []);
 
   const exploreClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    handlePresetNavClick(e, resolveNavTarget('', { route: 'destinations' }));
+    handlePresetNavClick(e, resolveNavTarget("", { route: "destinations" }));
   };
 
   return (
@@ -106,7 +110,9 @@ export function HeroSection() {
             </div>
             <div className="gem-content gap-[20px]">
               <div className="mb-5 md:mb-0">
-                <h3 className="font-semibold text-[#1c1c1c] text-xl md:text-base mb-2">Hidden Gems</h3>
+                <h3 className="font-semibold text-[#1c1c1c] text-xl md:text-base mb-2">
+                  Hidden Gems
+                </h3>
                 <p className="text-gray-500 text-xs leading-relaxed">
                   Explore our handpicked collection of authentic stays and secluded retreats, where
                   nature meets comfort in perfect harmony.
@@ -114,7 +120,7 @@ export function HeroSection() {
               </div>
               <a
                 id="explorebtn"
-                href={routeHref('destinations')}
+                href={routeHref("destinations")}
                 onClick={exploreClick}
                 className="bg-black text-white px-8 py-4 md:px-5 md:py-2.5 rounded-full text-xs flex items-center gap-2 self-start hover:bg-zinc-800 transition-all duration-300 active:scale-95 cursor-pointer"
               >

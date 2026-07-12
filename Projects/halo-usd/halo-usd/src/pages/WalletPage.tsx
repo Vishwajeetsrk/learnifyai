@@ -1,5 +1,5 @@
-import Navbar from '../components/Navbar';
-import WalletSection from '../components/WalletSection';
+import Navbar from "../components/Navbar";
+import WalletSection from "../components/WalletSection";
 
 export default function WalletPage() {
   return (

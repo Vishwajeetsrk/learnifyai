@@ -1,4 +1,4 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 export function CompanyPage() {
   return (
@@ -10,15 +10,15 @@ export function CompanyPage() {
         <div className="bg-white p-8 md:p-12">
           <h2 className="text-xl font-medium text-[#141414]">Our approach</h2>
           <p className="mt-4 text-[14px] leading-relaxed text-[#A5A5A5]">
-            We pair local market intelligence with digital walk-throughs so every client can evaluate
-            homes with clarity before stepping inside.
+            We pair local market intelligence with digital walk-throughs so every client can
+            evaluate homes with clarity before stepping inside.
           </p>
         </div>
         <div className="bg-white p-8 md:p-12">
           <h2 className="text-xl font-medium text-[#141414]">Global reach</h2>
           <p className="mt-4 text-[14px] leading-relaxed text-[#A5A5A5]">
-            From coastal California to mountain retreats and island sanctuaries, our advisors maintain
-            vetted portfolios across premier destinations.
+            From coastal California to mountain retreats and island sanctuaries, our advisors
+            maintain vetted portfolios across premier destinations.
           </p>
         </div>
       </div>

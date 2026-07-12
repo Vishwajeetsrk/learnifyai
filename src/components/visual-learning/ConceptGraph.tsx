@@ -12,7 +12,17 @@ import {
   type NodeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { Loader2, Brain, RotateCcw } from "lucide-react";
+import {
+  Loader2,
+  Brain,
+  RotateCcw,
+  Crosshair,
+  ClipboardList,
+  Lightbulb,
+  BookOpen,
+  Rocket,
+  Pin,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ConceptGraphProps {
@@ -30,12 +40,13 @@ const TYPE_COLORS: Record<string, string> = {
   application: "#ec4899",
 };
 
-const TYPE_EMOJIS: Record<string, string> = {
-  core: "🎯",
-  prerequisite: "📋",
-  example: "💡",
-  definition: "📖",
-  application: "🚀",
+const ICON_SIZE = "h-4 w-4";
+const TYPE_ICONS: Record<string, React.ReactNode> = {
+  core: <Crosshair className={ICON_SIZE} />,
+  prerequisite: <ClipboardList className={ICON_SIZE} />,
+  example: <Lightbulb className={ICON_SIZE} />,
+  definition: <BookOpen className={ICON_SIZE} />,
+  application: <Rocket className={ICON_SIZE} />,
 };
 
 function ConceptNode({ data }: { data: any }) {
@@ -51,7 +62,9 @@ function ConceptNode({ data }: { data: any }) {
       }}
     >
       <div className="flex items-center gap-2 mb-1">
-        <span className="text-lg">{TYPE_EMOJIS[data.type] || "📌"}</span>
+        <span className="text-primary">
+          {TYPE_ICONS[data.type] || <Pin className={ICON_SIZE} />}
+        </span>
         <span className="text-xs font-semibold uppercase tracking-wider" style={{ color }}>
           {data.type}
         </span>
@@ -77,7 +90,12 @@ function ConceptNode({ data }: { data: any }) {
 
 const nodeTypes: NodeTypes = { conceptNode: ConceptNode };
 
-export function ConceptGraph({ nodes: rawNodes, edges: rawEdges, loading, onRegenerate }: ConceptGraphProps) {
+export function ConceptGraph({
+  nodes: rawNodes,
+  edges: rawEdges,
+  loading,
+  onRegenerate,
+}: ConceptGraphProps) {
   const initialNodes: Node[] = useMemo(
     () =>
       rawNodes.map((n: any, i: number) => ({
@@ -87,7 +105,12 @@ export function ConceptGraph({ nodes: rawNodes, edges: rawEdges, loading, onRege
           x: 150 + (i % 3) * 220,
           y: 80 + Math.floor(i / 3) * 180,
         },
-        data: { label: n.label, type: n.type, description: n.description, difficulty: n.difficulty },
+        data: {
+          label: n.label,
+          type: n.type,
+          description: n.description,
+          difficulty: n.difficulty,
+        },
       })),
     [rawNodes],
   );
@@ -147,7 +170,13 @@ export function ConceptGraph({ nodes: rawNodes, edges: rawEdges, loading, onRege
       </div>
       {onRegenerate && (
         <div className="absolute top-2 right-2 z-10">
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={onRegenerate} title="Regenerate">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={onRegenerate}
+            title="Regenerate"
+          >
             <RotateCcw className="h-3.5 w-3.5" />
           </Button>
         </div>

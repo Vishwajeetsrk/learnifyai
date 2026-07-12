@@ -58,17 +58,31 @@ const STAMP_SVGS: { name: string; svg: string }[] = [
   },
 ];
 
-export function AssetLibrary({ onAddShape, onAddSvg, onAddDivider, onUploadImage, accentColor }: AssetLibraryProps) {
+export function AssetLibrary({
+  onAddShape,
+  onAddSvg,
+  onAddDivider,
+  onUploadImage,
+  accentColor,
+}: AssetLibraryProps) {
   const [tab, setTab] = useState("shapes");
   const [search, setSearch] = useState("");
 
   return (
     <Tabs value={tab} onValueChange={setTab} className="w-full">
       <TabsList className="grid grid-cols-4 w-full h-8">
-        <TabsTrigger value="shapes" className="text-[10px]">Shapes</TabsTrigger>
-        <TabsTrigger value="ornaments" className="text-[10px]">Ornaments</TabsTrigger>
-        <TabsTrigger value="stamps" className="text-[10px]">Stamps</TabsTrigger>
-        <TabsTrigger value="upload" className="text-[10px]">Upload</TabsTrigger>
+        <TabsTrigger value="shapes" className="text-[10px]">
+          Shapes
+        </TabsTrigger>
+        <TabsTrigger value="ornaments" className="text-[10px]">
+          Ornaments
+        </TabsTrigger>
+        <TabsTrigger value="stamps" className="text-[10px]">
+          Stamps
+        </TabsTrigger>
+        <TabsTrigger value="upload" className="text-[10px]">
+          Upload
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="shapes" className="mt-2 space-y-2">

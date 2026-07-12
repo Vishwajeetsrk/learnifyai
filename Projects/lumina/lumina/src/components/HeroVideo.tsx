@@ -1,4 +1,4 @@
-import { HERO_VIDEO } from '../constants';
+import { HERO_VIDEO } from "../constants";
 
 export default function HeroVideo() {
   return (

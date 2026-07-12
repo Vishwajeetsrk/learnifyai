@@ -3,7 +3,7 @@ type BackgroundVideoProps = {
   className?: string;
 };
 
-export function BackgroundVideo({ src, className = '' }: BackgroundVideoProps) {
+export function BackgroundVideo({ src, className = "" }: BackgroundVideoProps) {
   return (
     <video
       autoPlay

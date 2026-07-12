@@ -15,7 +15,8 @@ export function LegalSections() {
           <h2 className="text-2xl font-medium text-white">terms of service</h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/60">
             by using securify products you agree to acceptable-use policies, data residency choices,
-            and billing terms published here. update with jurisdiction-specific language before go-live.
+            and billing terms published here. update with jurisdiction-specific language before
+            go-live.
           </p>
         </div>
       </section>

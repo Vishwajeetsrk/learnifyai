@@ -32,8 +32,7 @@ export function TranscriptPanel({
   const activeIndex = useMemo(() => {
     return entries.findIndex(
       (e, i) =>
-        currentTime >= e.start &&
-        (i === entries.length - 1 || currentTime < entries[i + 1].start)
+        currentTime >= e.start && (i === entries.length - 1 || currentTime < entries[i + 1].start),
     );
   }, [entries, currentTime]);
 
@@ -70,7 +69,7 @@ export function TranscriptPanel({
         </mark>
       ) : (
         part
-      )
+      ),
     );
   };
 
@@ -134,9 +133,7 @@ export function TranscriptPanel({
       >
         {filteredEntries.length === 0 ? (
           <div className="p-4 text-center text-xs text-muted-foreground">
-            {entries.length === 0
-              ? "No transcript available"
-              : "No results found"}
+            {entries.length === 0 ? "No transcript available" : "No results found"}
           </div>
         ) : (
           <div className="p-2 space-y-0.5">

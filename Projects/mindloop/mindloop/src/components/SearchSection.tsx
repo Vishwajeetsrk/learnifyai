@@ -1,21 +1,21 @@
-import { motion } from 'framer-motion';
-import { PLATFORM_ICONS } from '../constants';
-import { fadeUp } from '../lib/fadeUp';
+import { motion } from "framer-motion";
+import { PLATFORM_ICONS } from "../constants";
+import { fadeUp } from "../lib/fadeUp";
 
 const PLATFORMS = [
   {
-    name: 'ChatGPT',
-    description: 'Answers in seconds — but whose perspective shapes the narrative?',
+    name: "ChatGPT",
+    description: "Answers in seconds — but whose perspective shapes the narrative?",
     iconSrc: PLATFORM_ICONS.chatgpt,
   },
   {
-    name: 'Perplexity',
-    description: 'Research-grade answers with citations — the new default for discovery.',
+    name: "Perplexity",
+    description: "Research-grade answers with citations — the new default for discovery.",
     iconSrc: PLATFORM_ICONS.perplexity,
   },
   {
-    name: 'Google AI',
-    description: 'Search reimagined — summaries before you click, context before you commit.',
+    name: "Google AI",
+    description: "Search reimagined — summaries before you click, context before you commit.",
     iconSrc: PLATFORM_ICONS.googleAi,
   },
 ];
@@ -36,15 +36,13 @@ export default function SearchSection() {
 
       <div className="grid md:grid-cols-3 gap-12 md:gap-8 mb-20 max-w-5xl mx-auto">
         {PLATFORMS.map((platform, i) => (
-          <motion.div key={platform.name} {...fadeUp(0.15 + i * 0.08)} className="flex flex-col items-center">
+          <motion.div
+            key={platform.name}
+            {...fadeUp(0.15 + i * 0.08)}
+            className="flex flex-col items-center"
+          >
             <div className="mb-6 flex items-center justify-center w-[200px] h-[200px]">
-              <img
-                src={platform.iconSrc}
-                alt=""
-                width={96}
-                height={96}
-                className="w-24 h-24"
-              />
+              <img src={platform.iconSrc} alt="" width={96} height={96} className="w-24 h-24" />
             </div>
             <h3 className="font-semibold text-base mb-2">{platform.name}</h3>
             <p className="text-muted-foreground text-sm max-w-xs">{platform.description}</p>

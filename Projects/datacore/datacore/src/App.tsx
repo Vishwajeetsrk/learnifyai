@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { PresetHashRouter } from '../../_shared/components/PresetHashRouter';
-import { PresetRoutePage } from '../../_shared/components/PresetRoutePage';
-import { PresetSiteSections } from '../../_shared/components/PresetSiteSections';
-import { applyPresetHashOnLoad } from '../../_shared/preset-site-routing';
-import { Navbar } from './components/Navbar';
-import { HeroSection } from './components/HeroSection';
+import { useEffect, useState } from "react";
+import { PresetHashRouter } from "../../_shared/components/PresetHashRouter";
+import { PresetRoutePage } from "../../_shared/components/PresetRoutePage";
+import { PresetSiteSections } from "../../_shared/components/PresetSiteSections";
+import { applyPresetHashOnLoad } from "../../_shared/preset-site-routing";
+import { Navbar } from "./components/Navbar";
+import { HeroSection } from "./components/HeroSection";
 
 function DatacoreShell({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -34,7 +34,7 @@ export default function App() {
   return (
     <PresetHashRouter
       routes={{
-        '': (
+        "": (
           <DatacoreShell>
             <HomePage />
           </DatacoreShell>

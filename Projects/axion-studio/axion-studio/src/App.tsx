@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { applyPresetHashOnLoad } from '../../_shared/preset-site-routing';
-import { MobileMenu } from './components/MobileMenu';
-import { Navbar } from './components/Navbar';
-import { LegalSections } from './components/LegalSections';
-import { HomePage } from './pages/HomePage';
+import { useEffect, useState } from "react";
+import { applyPresetHashOnLoad } from "../../_shared/preset-site-routing";
+import { MobileMenu } from "./components/MobileMenu";
+import { Navbar } from "./components/Navbar";
+import { LegalSections } from "./components/LegalSections";
+import { HomePage } from "./pages/HomePage";
 
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);

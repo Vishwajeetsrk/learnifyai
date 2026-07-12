@@ -1,22 +1,22 @@
-import { routeHref, navigateToRoute } from '../../../_shared/preset-site-routing';
-import { PageIntro } from '../components/PageIntro';
+import { routeHref, navigateToRoute } from "../../../_shared/preset-site-routing";
+import { PageIntro } from "../components/PageIntro";
 
 const PLANS = [
   {
-    name: 'Launch',
-    price: '$18k / mo',
-    features: ['Dedicated partner', 'Weekly war-room', 'Investor intro pack'],
+    name: "Launch",
+    price: "$18k / mo",
+    features: ["Dedicated partner", "Weekly war-room", "Investor intro pack"],
   },
   {
-    name: 'Scale',
-    price: '$32k / mo',
-    features: ['Cross-functional pod', 'Regulatory workstream', 'BD pipeline support'],
+    name: "Scale",
+    price: "$32k / mo",
+    features: ["Cross-functional pod", "Regulatory workstream", "BD pipeline support"],
     featured: true,
   },
   {
-    name: 'Enterprise',
-    price: 'Custom',
-    features: ['Multi-asset portfolio', 'Board seat option', 'On-site embedding'],
+    name: "Enterprise",
+    price: "Custom",
+    features: ["Multi-asset portfolio", "Board seat option", "On-site embedding"],
   },
 ];
 
@@ -34,7 +34,7 @@ export function PricingPage() {
             <article
               key={plan.name}
               className={`flex flex-col rounded-[1.5rem] border p-6 lg:rounded-[2rem] ${
-                plan.featured ? 'border-hero-btn bg-hero-btn/10' : 'border-foreground/10'
+                plan.featured ? "border-hero-btn bg-hero-btn/10" : "border-foreground/10"
               }`}
             >
               <h2 className="text-lg font-semibold">{plan.name}</h2>
@@ -45,10 +45,10 @@ export function PricingPage() {
                 ))}
               </ul>
               <a
-                href={routeHref('contact')}
+                href={routeHref("contact")}
                 onClick={(e) => {
                   e.preventDefault();
-                  navigateToRoute('contact');
+                  navigateToRoute("contact");
                 }}
                 className="mt-8 inline-flex justify-center rounded-full bg-hero-btn px-5 py-2.5 text-sm font-semibold text-white"
               >

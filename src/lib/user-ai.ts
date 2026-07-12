@@ -36,7 +36,16 @@ async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+import { validateAIPrompt } from "@/lib/ai-firewall";
+
 export async function callUserAiChat(body: ChatBody, quality: "fast" | "pro" = "fast") {
+  const userMessages = body.messages.filter((m) => m.role === "user");
+  const latestPrompt = userMessages[userMessages.length - 1]?.content || "";
+  const safety = validateAIPrompt(latestPrompt);
+  if (!safety.safe) {
+    throw new Error(safety.reason || "Safety policy violation: Request rejected by AI Firewall.");
+  }
+
   const failures: string[] = [];
 
   for (const provider of USER_AI_PROVIDERS) {

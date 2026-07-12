@@ -1,14 +1,14 @@
-import { useEffect } from 'react';
-import { PresetHashRouter } from '../../_shared/components/PresetHashRouter';
-import { applyPresetHashOnLoad } from '../../_shared/preset-site-routing';
-import Navbar from './components/Navbar';
-import { AboutPage } from './pages/AboutPage';
-import { BlogPage } from './pages/BlogPage';
-import { ContactPage } from './pages/ContactPage';
-import { CoursesPage } from './pages/CoursesPage';
-import { HomePage } from './pages/HomePage';
-import { InstructorsPage } from './pages/InstructorsPage';
-import { TestimonialsPage } from './pages/TestimonialsPage';
+import { useEffect } from "react";
+import { PresetHashRouter } from "../../_shared/components/PresetHashRouter";
+import { applyPresetHashOnLoad } from "../../_shared/preset-site-routing";
+import Navbar from "./components/Navbar";
+import { AboutPage } from "./pages/AboutPage";
+import { BlogPage } from "./pages/BlogPage";
+import { ContactPage } from "./pages/ContactPage";
+import { CoursesPage } from "./pages/CoursesPage";
+import { HomePage } from "./pages/HomePage";
+import { InstructorsPage } from "./pages/InstructorsPage";
+import { TestimonialsPage } from "./pages/TestimonialsPage";
 
 export default function App() {
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function App() {
       <main>
         <PresetHashRouter
           routes={{
-            '': <HomePage />,
+            "": <HomePage />,
             about: <AboutPage />,
             courses: <CoursesPage />,
             instructors: <InstructorsPage />,

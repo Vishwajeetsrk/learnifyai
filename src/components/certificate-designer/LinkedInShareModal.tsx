@@ -76,7 +76,8 @@ export function LinkedInShareModal({
               </span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Auto-fill your LinkedIn "Licenses & Certifications" section with course details, organization name, and verification URL.
+              Auto-fill your LinkedIn "Licenses & Certifications" section with course details,
+              organization name, and verification URL.
             </p>
             <a
               href={linkedinAddUrl}
@@ -100,7 +101,11 @@ export function LinkedInShareModal({
                 onClick={handleCopyText}
                 className="h-7 text-xs text-primary"
               >
-                {copiedText ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                {copiedText ? (
+                  <Check className="h-3 w-3 mr-1" />
+                ) : (
+                  <Copy className="h-3 w-3 mr-1" />
+                )}
                 {copiedText ? "Copied" : "Copy Post"}
               </Button>
             </div>
@@ -115,11 +120,7 @@ export function LinkedInShareModal({
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold">Public Verification URL</Label>
             <div className="flex gap-2">
-              <Input
-                value={verificationUrl}
-                readOnly
-                className="text-xs font-mono bg-muted/30"
-              />
+              <Input value={verificationUrl} readOnly className="text-xs font-mono bg-muted/30" />
               <Button
                 variant="secondary"
                 size="sm"

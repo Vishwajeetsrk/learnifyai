@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { applyPresetHashOnLoad } from '../../_shared/preset-site-routing';
-import { PillNav } from './components/PillNav';
-import { HomePage } from './pages/HomePage';
+import { useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
+import { applyPresetHashOnLoad } from "../../_shared/preset-site-routing";
+import { PillNav } from "./components/PillNav";
+import { HomePage } from "./pages/HomePage";
 
 export default function App() {
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   src: string;
@@ -33,10 +33,10 @@ export default function BoomerangVideoBg({ src, className }: Props) {
       const w = Math.round(vw * scale);
       const h = Math.round(vh * scale);
 
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = w;
       canvas.height = h;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       if (!ctx) return;
       ctx.drawImage(video, 0, 0, w, h);
       frames.push(canvas);
@@ -46,7 +46,7 @@ export default function BoomerangVideoBg({ src, className }: Props) {
       requestVideoFrameCallback?: (cb: () => void) => number;
     };
     const vfcVideo = video as VFCVideo;
-    const hasVFC = typeof vfcVideo.requestVideoFrameCallback === 'function';
+    const hasVFC = typeof vfcVideo.requestVideoFrameCallback === "function";
 
     let rafId = 0;
     const rafLoop = () => {
@@ -78,15 +78,15 @@ export default function BoomerangVideoBg({ src, className }: Props) {
       }
     };
 
-    video.addEventListener('loadedmetadata', onLoaded);
-    video.addEventListener('ended', onEnded);
+    video.addEventListener("loadedmetadata", onLoaded);
+    video.addEventListener("ended", onEnded);
     if (video.readyState >= 1) onLoaded();
 
     return () => {
       capturing = false;
       cancelAnimationFrame(rafId);
-      video.removeEventListener('loadedmetadata', onLoaded);
-      video.removeEventListener('ended', onEnded);
+      video.removeEventListener("loadedmetadata", onLoaded);
+      video.removeEventListener("ended", onEnded);
     };
   }, [src]);
 
@@ -94,7 +94,7 @@ export default function BoomerangVideoBg({ src, className }: Props) {
     if (!framesReady) return;
     const canvas = displayCanvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
     const frames = framesRef.current;
     if (frames.length === 0) return;
@@ -129,12 +129,12 @@ export default function BoomerangVideoBg({ src, className }: Props) {
   }, [framesReady]);
 
   return (
-    <div className={className ?? 'absolute inset-0 w-full h-full'}>
+    <div className={className ?? "absolute inset-0 w-full h-full"}>
       <video
         ref={videoRef}
         src={src}
         className="w-full h-full object-cover"
-        style={{ display: framesReady ? 'none' : 'block' }}
+        style={{ display: framesReady ? "none" : "block" }}
         muted
         playsInline
         preload="auto"
@@ -143,7 +143,7 @@ export default function BoomerangVideoBg({ src, className }: Props) {
       <canvas
         ref={displayCanvasRef}
         className="w-full h-full object-cover"
-        style={{ display: framesReady ? 'block' : 'none' }}
+        style={{ display: framesReady ? "block" : "none" }}
       />
     </div>
   );

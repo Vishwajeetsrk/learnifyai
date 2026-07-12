@@ -1,30 +1,33 @@
-import { motion } from 'framer-motion';
-import { VIDEOS } from '../constants';
-import { fadeUp } from '../lib/fadeUp';
+import { motion } from "framer-motion";
+import { VIDEOS } from "../constants";
+import { fadeUp } from "../lib/fadeUp";
 
 const FEATURES = [
   {
-    title: 'Curated Feed',
-    description: 'Hand-picked stories and insights delivered on your schedule — depth over noise.',
+    title: "Curated Feed",
+    description: "Hand-picked stories and insights delivered on your schedule — depth over noise.",
   },
   {
-    title: 'Writer Tools',
-    description: 'Compose, schedule, and analyze newsletters with a workflow built for clarity.',
+    title: "Writer Tools",
+    description: "Compose, schedule, and analyze newsletters with a workflow built for clarity.",
   },
   {
-    title: 'Community',
-    description: 'Readers and writers in one loop — replies, threads, and shared discovery.',
+    title: "Community",
+    description: "Readers and writers in one loop — replies, threads, and shared discovery.",
   },
   {
-    title: 'Distribution',
-    description: 'Reach inboxes, archives, and syndication channels from a single dashboard.',
+    title: "Distribution",
+    description: "Reach inboxes, archives, and syndication channels from a single dashboard.",
   },
 ];
 
 export default function SolutionSection() {
   return (
     <section id="use-cases" className="py-32 md:py-44 px-6 md:px-28 border-t border-border/30">
-      <motion.p {...fadeUp(0)} className="text-xs tracking-[3px] uppercase text-muted-foreground mb-4">
+      <motion.p
+        {...fadeUp(0)}
+        className="text-xs tracking-[3px] uppercase text-muted-foreground mb-4"
+      >
         SOLUTION
       </motion.p>
       <motion.h2

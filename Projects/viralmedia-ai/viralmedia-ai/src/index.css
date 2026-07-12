@@ -1,4 +1,4 @@
-@import '../../_shared/preset-site-scroll.css';
+@import "../../_shared/preset-site-scroll.css";
 @import "tailwindcss";
 
 @theme {
@@ -41,8 +41,8 @@
   --input: 0 0% 20%;
   --ring: 0 0% 100%;
   --radius: 2px;
-  --font-body: 'Barlow', sans-serif;
-  --font-accent: 'Instrument Serif', serif;
+  --font-body: "Barlow", sans-serif;
+  --font-accent: "Instrument Serif", serif;
 }
 
 html,
@@ -71,7 +71,7 @@ body {
 }
 
 .liquid-glass::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -85,7 +85,9 @@ body {
     rgba(255, 255, 255, 0.15) 80%,
     rgba(255, 255, 255, 0.45) 100%
   );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -97,13 +99,15 @@ body {
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
   border: none;
-  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  box-shadow:
+    4px 4px 4px rgba(0, 0, 0, 0.05),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
   position: relative;
   overflow: hidden;
 }
 
 .liquid-glass-strong::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -117,7 +121,9 @@ body {
     rgba(255, 255, 255, 0.2) 80%,
     rgba(255, 255, 255, 0.5) 100%
   );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;

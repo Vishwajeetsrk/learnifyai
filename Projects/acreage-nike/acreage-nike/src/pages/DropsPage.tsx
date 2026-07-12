@@ -1,10 +1,10 @@
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
-import { PageShell } from '../components/PageShell';
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
+import { PageShell } from "../components/PageShell";
 
 const DROPS = [
-  { name: 'Velocity Pro X', date: 'May 28', status: 'Waitlist open' },
-  { name: 'Urban Drift 02', date: 'June 12', status: 'Members early access' },
-  { name: 'Trail Forge SE', date: 'July 4', status: 'Coming soon' },
+  { name: "Velocity Pro X", date: "May 28", status: "Waitlist open" },
+  { name: "Urban Drift 02", date: "June 12", status: "Members early access" },
+  { name: "Trail Forge SE", date: "July 4", status: "Coming soon" },
 ];
 
 export function DropsPage() {
@@ -37,7 +37,7 @@ export function DropsPage() {
       <button
         type="button"
         className="mt-10 rounded-full bg-white px-8 py-3 text-sm font-medium text-black transition hover:bg-white/90"
-        onClick={() => navigateToRoute('contact')}
+        onClick={() => navigateToRoute("contact")}
       >
         Join the waitlist
       </button>

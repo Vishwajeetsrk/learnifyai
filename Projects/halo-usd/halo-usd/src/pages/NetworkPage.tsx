@@ -1,5 +1,5 @@
-import HeroSection from '../components/HeroSection';
-import Navbar from '../components/Navbar';
+import HeroSection from "../components/HeroSection";
+import Navbar from "../components/Navbar";
 
 export default function NetworkPage() {
   return (
@@ -12,7 +12,7 @@ export default function NetworkPage() {
         <div className="mx-auto max-w-[88rem]">
           <h2
             className="text-4xl font-semibold text-black md:text-5xl"
-            style={{ letterSpacing: '-0.03em' }}
+            style={{ letterSpacing: "-0.03em" }}
             data-editable
             data-preset-text="network-headline"
           >
@@ -23,8 +23,8 @@ export default function NetworkPage() {
             data-editable
             data-preset-text="network-body"
           >
-            Institutional validators, seamless DeFi connectivity, and reward-earning dollars—USD Halo stays
-            pegged while your wealth works across the network.
+            Institutional validators, seamless DeFi connectivity, and reward-earning dollars—USD
+            Halo stays pegged while your wealth works across the network.
           </p>
         </div>
       </section>

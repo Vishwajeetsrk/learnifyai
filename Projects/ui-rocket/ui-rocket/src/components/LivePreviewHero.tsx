@@ -1,6 +1,6 @@
-import { DASHBOARD_VIDEO } from '../constants';
-import { FadingVideo } from './FadingVideo';
-import { MIcon } from './MIcon';
+import { DASHBOARD_VIDEO } from "../constants";
+import { FadingVideo } from "./FadingVideo";
+import { MIcon } from "./MIcon";
 
 export function LivePreviewHero() {
   return (
@@ -17,7 +17,10 @@ export function LivePreviewHero() {
         <MIcon name="refresh" className="ml-auto text-[16px] text-white/35" />
       </div>
       <div className="relative flex-1">
-        <FadingVideo src={DASHBOARD_VIDEO} className="absolute inset-0 h-full w-full object-cover" />
+        <FadingVideo
+          src={DASHBOARD_VIDEO}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#12061f] via-transparent to-transparent" />
       </div>
     </div>

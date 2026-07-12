@@ -1,4 +1,4 @@
-import PillButton from './PillButton';
+import PillButton from "./PillButton";
 
 export default function WalletSection() {
   return (
@@ -10,7 +10,7 @@ export default function WalletSection() {
       <div className="mx-auto max-w-[88rem] text-center">
         <h2
           className="mb-4 text-3xl font-semibold text-black md:text-4xl"
-          style={{ letterSpacing: '-0.03em' }}
+          style={{ letterSpacing: "-0.03em" }}
           data-editable
           data-preset-text="wallet-headline"
         >

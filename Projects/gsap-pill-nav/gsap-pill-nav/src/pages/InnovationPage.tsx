@@ -1,9 +1,18 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 const PILLARS = [
-  { title: 'Reactive foam lattice', body: '78% energy return measured in our impact lab across 12,000 strike cycles.' },
-  { title: 'Breathable shell weave', body: 'Micro-perforated upper mapped to heat zones for all-day urban wear.' },
-  { title: 'Carbon trail plate', body: 'Aerospace-grade plate geometry adapted for pavement and light trail.' },
+  {
+    title: "Reactive foam lattice",
+    body: "78% energy return measured in our impact lab across 12,000 strike cycles.",
+  },
+  {
+    title: "Breathable shell weave",
+    body: "Micro-perforated upper mapped to heat zones for all-day urban wear.",
+  },
+  {
+    title: "Carbon trail plate",
+    body: "Aerospace-grade plate geometry adapted for pavement and light trail.",
+  },
 ];
 
 export function InnovationPage() {

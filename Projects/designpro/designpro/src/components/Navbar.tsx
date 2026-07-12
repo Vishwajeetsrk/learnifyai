@@ -1,10 +1,10 @@
-import type { MouseEvent } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import { navigateToRoute, routeHref } from '../../../_shared/preset-site-routing';
-import { NAV_ITEMS } from '../routes';
-import LogoMark from './LogoMark';
+import type { MouseEvent } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { navigateToRoute, routeHref } from "../../../_shared/preset-site-routing";
+import { NAV_ITEMS } from "../routes";
+import LogoMark from "./LogoMark";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -20,9 +20,9 @@ export default function Navbar() {
       <header className="fixed inset-x-0 top-0 z-50 px-4 py-4 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <a
-            href={routeHref('')}
+            href={routeHref("")}
             className="flex shrink-0 items-center gap-2.5 text-white"
-            onClick={navClick('')}
+            onClick={navClick("")}
             aria-label="DesignPro home"
           >
             <LogoMark className="h-9 w-9" />
@@ -41,7 +41,7 @@ export default function Navbar() {
                 onClick={navClick(link.route)}
               >
                 {link.label}
-                {'arrow' in link && link.arrow ? (
+                {"arrow" in link && link.arrow ? (
                   <ArrowRight className="h-3.5 w-3.5 opacity-80" aria-hidden />
                 ) : null}
               </a>
@@ -73,9 +73,9 @@ export default function Navbar() {
             />
             <motion.aside
               className="fixed right-0 top-0 z-[70] flex h-[100dvh] w-[min(88vw,320px)] flex-col lg:hidden"
-              initial={{ x: '100%' }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              exit={{ x: "100%" }}
               transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="flex h-full flex-col border-l border-gray-700 bg-black/95 backdrop-blur-md">
@@ -105,7 +105,7 @@ export default function Navbar() {
                       onClick={navClick(link.route)}
                     >
                       {link.label}
-                      {'arrow' in link && link.arrow ? (
+                      {"arrow" in link && link.arrow ? (
                         <ArrowRight className="h-4 w-4 opacity-70" aria-hidden />
                       ) : null}
                     </motion.a>

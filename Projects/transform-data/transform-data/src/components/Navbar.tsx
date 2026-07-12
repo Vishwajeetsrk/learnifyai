@@ -1,20 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Menu, Search, X } from 'lucide-react';
-import { scrollToSection } from '../lib/scroll';
-import MobileMenu from './MobileMenu';
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown, Menu, Search, X } from "lucide-react";
+import { scrollToSection } from "../lib/scroll";
+import MobileMenu from "./MobileMenu";
 
 const NAV_LINKS = [
-  { label: 'Platform', id: 'platform' },
-  { label: 'Projects', id: 'projects' },
-  { label: 'Community', id: 'community' },
-  { label: 'Contact', id: 'contact' },
+  { label: "Platform", id: "platform" },
+  { label: "Projects", id: "projects" },
+  { label: "Community", id: "community" },
+  { label: "Contact", id: "contact" },
 ] as const;
 
 export const FEATURE_DROPDOWN = [
-  { label: 'Pipelines', id: 'features-pipelines' },
-  { label: 'Catalog', id: 'features-catalog' },
-  { label: 'Quality', id: 'features-quality' },
-  { label: 'Access', id: 'features-access' },
+  { label: "Pipelines", id: "features-pipelines" },
+  { label: "Catalog", id: "features-catalog" },
+  { label: "Quality", id: "features-quality" },
+  { label: "Access", id: "features-access" },
 ] as const;
 
 export default function Navbar() {
@@ -28,8 +28,8 @@ export default function Navbar() {
         setFeaturesOpen(false);
       }
     };
-    document.addEventListener('mousedown', onDocClick);
-    return () => document.removeEventListener('mousedown', onDocClick);
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
   const navClick = (id: string) => {
@@ -44,7 +44,7 @@ export default function Navbar() {
         <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 md:px-10">
           <button
             type="button"
-            onClick={() => navClick('platform')}
+            onClick={() => navClick("platform")}
             className="font-display text-left text-lg font-semibold tracking-tight text-white"
           >
             Transform Data
@@ -53,7 +53,7 @@ export default function Navbar() {
           <div className="hidden items-center gap-1 lg:flex">
             <button
               type="button"
-              onClick={() => navClick('platform')}
+              onClick={() => navClick("platform")}
               className="rounded-full px-3 py-2 text-sm text-white/80 transition hover:bg-white/5 hover:text-white"
             >
               Platform
@@ -69,7 +69,7 @@ export default function Navbar() {
               >
                 Features
                 <ChevronDown
-                  className={`h-4 w-4 transition-transform ${featuresOpen ? 'rotate-180' : ''}`}
+                  className={`h-4 w-4 transition-transform ${featuresOpen ? "rotate-180" : ""}`}
                 />
               </button>
               {featuresOpen && (
@@ -86,7 +86,7 @@ export default function Navbar() {
                   ))}
                   <button
                     type="button"
-                    onClick={() => navClick('features')}
+                    onClick={() => navClick("features")}
                     className="mt-1 block w-full rounded-xl border-t border-line px-3 py-2 text-left text-xs text-cyan/90 transition hover:bg-white/5"
                   >
                     View all features
@@ -126,7 +126,7 @@ export default function Navbar() {
             <button
               type="button"
               className="liquid-glass flex h-10 w-10 items-center justify-center rounded-full lg:hidden"
-              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
               onClick={() => setMenuOpen((o) => !o)}
             >
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}

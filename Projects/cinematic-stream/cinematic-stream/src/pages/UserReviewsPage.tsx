@@ -1,11 +1,31 @@
-import { Star } from 'lucide-react';
-import { StreamPageShell } from '../components/StreamPageShell';
+import { Star } from "lucide-react";
+import { StreamPageShell } from "../components/StreamPageShell";
 
 const REVIEWS = [
-  { user: 'alex_m', title: 'Step Through', excerpt: 'The third act lands — rare for streaming originals.', score: '9/10' },
-  { user: 'filmgrid', title: 'Northern Passage', excerpt: 'Sound design carries every exterior shot.', score: '8/10' },
-  { user: 'scene_notes', title: 'Glass Meridian', excerpt: 'Scene-level notes on the rooftop sequence are worth it.', score: '8/10' },
-  { user: 'verified_cine', title: 'Echo Division', excerpt: 'Tight pacing, zero filler episodes.', score: '9/10' },
+  {
+    user: "alex_m",
+    title: "Step Through",
+    excerpt: "The third act lands — rare for streaming originals.",
+    score: "9/10",
+  },
+  {
+    user: "filmgrid",
+    title: "Northern Passage",
+    excerpt: "Sound design carries every exterior shot.",
+    score: "8/10",
+  },
+  {
+    user: "scene_notes",
+    title: "Glass Meridian",
+    excerpt: "Scene-level notes on the rooftop sequence are worth it.",
+    score: "8/10",
+  },
+  {
+    user: "verified_cine",
+    title: "Echo Division",
+    excerpt: "Tight pacing, zero filler episodes.",
+    score: "9/10",
+  },
 ];
 
 export function UserReviewsPage() {

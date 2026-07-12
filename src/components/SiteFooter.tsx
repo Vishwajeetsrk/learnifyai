@@ -145,7 +145,10 @@ export function SiteFooter() {
                         {link.label}
                       </a>
                     ) : (
-                      <Link to={link.url || "/"} className="hover:text-foreground transition-colors">
+                      <Link
+                        to={link.url || "/"}
+                        className="hover:text-foreground transition-colors"
+                      >
                         {link.label}
                       </Link>
                     )}

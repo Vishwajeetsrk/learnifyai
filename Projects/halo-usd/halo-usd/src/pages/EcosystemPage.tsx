@@ -1,5 +1,5 @@
-import InfoSection from '../components/InfoSection';
-import Navbar from '../components/Navbar';
+import InfoSection from "../components/InfoSection";
+import Navbar from "../components/Navbar";
 
 export default function EcosystemPage() {
   return (

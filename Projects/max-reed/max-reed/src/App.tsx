@@ -1,22 +1,22 @@
-import { FeaturesSection } from './components/FeaturesSection';
-import { LegalSections } from './components/LegalSections';
-import { Navbar } from './components/Navbar';
+import { FeaturesSection } from "./components/FeaturesSection";
+import { LegalSections } from "./components/LegalSections";
+import { Navbar } from "./components/Navbar";
 
 const EXTRA = [
   {
-    id: 'about',
-    title: 'About',
-    body: 'London-based creator crafting bold digital products, brand systems, and motion-led interfaces for teams worldwide.',
+    id: "about",
+    title: "About",
+    body: "London-based creator crafting bold digital products, brand systems, and motion-led interfaces for teams worldwide.",
   },
   {
-    id: 'contact',
-    title: 'Contact',
-    body: 'hello@maxreed.studio · +44 20 7946 0958 — available for collaborations and studio retainers.',
+    id: "contact",
+    title: "Contact",
+    body: "hello@maxreed.studio · +44 20 7946 0958 — available for collaborations and studio retainers.",
   },
   {
-    id: 'faq',
-    title: 'FAQ',
-    body: 'Typical engagements run 4–12 weeks. We ship design systems, launch films, and product UI with async-friendly workflows.',
+    id: "faq",
+    title: "FAQ",
+    body: "Typical engagements run 4–12 weeks. We ship design systems, launch films, and product UI with async-friendly workflows.",
   },
 ] as const;
 
@@ -26,11 +26,7 @@ export default function App() {
       <Navbar />
       <FeaturesSection />
       {EXTRA.map((s) => (
-        <section
-          key={s.id}
-          id={s.id}
-          className="border-t border-white/10 px-4 py-20 md:px-14"
-        >
+        <section key={s.id} id={s.id} className="border-t border-white/10 px-4 py-20 md:px-14">
           <div className="mx-auto max-w-3xl">
             <h2 className="text-3xl font-normal tracking-tight">{s.title}</h2>
             <p className="mt-4 text-sm text-white/60">{s.body}</p>

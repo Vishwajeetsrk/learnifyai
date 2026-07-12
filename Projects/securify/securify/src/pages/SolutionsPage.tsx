@@ -1,10 +1,10 @@
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { InnerPageShell } from '../components/InnerPageShell';
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { InnerPageShell } from "../components/InnerPageShell";
 
 const TIERS = [
-  { name: 'launch', price: 'free', seats: 'up to 10 builders' },
-  { name: 'scale', price: '$49/mo', seats: 'unlimited workspaces' },
-  { name: 'enterprise', price: 'custom', seats: 'dedicated region + soc2 pack' },
+  { name: "launch", price: "free", seats: "up to 10 builders" },
+  { name: "scale", price: "$49/mo", seats: "unlimited workspaces" },
+  { name: "enterprise", price: "custom", seats: "dedicated region + soc2 pack" },
 ] as const;
 
 export function SolutionsPage() {
@@ -24,7 +24,7 @@ export function SolutionsPage() {
             <p className="mt-2 text-3xl font-medium tracking-tight">{tier.price}</p>
             <p className="mt-3 flex-1 text-sm text-white/60">{tier.seats}</p>
             <PresetNavLink
-              target={{ kind: 'route', path: 'support' }}
+              target={{ kind: "route", path: "support" }}
               className="mt-6 block rounded-full bg-white py-3 text-center text-sm text-black transition-colors hover:bg-neutral-200"
             >
               get started

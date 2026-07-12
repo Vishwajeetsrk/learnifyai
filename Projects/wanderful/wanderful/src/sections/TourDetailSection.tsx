@@ -1,9 +1,13 @@
-import type { MouseEvent } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
-import { handlePresetNavClick, resolveNavTarget, routeHref } from '../../../_shared/preset-site-routing';
-import { goldEase } from '../constants';
-import type { Tour } from '../lib/tours';
+import type { MouseEvent } from "react";
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
+import {
+  handlePresetNavClick,
+  resolveNavTarget,
+  routeHref,
+} from "../../../_shared/preset-site-routing";
+import { goldEase } from "../constants";
+import type { Tour } from "../lib/tours";
 
 type TourDetailSectionProps = {
   tour: Tour;
@@ -11,7 +15,7 @@ type TourDetailSectionProps = {
 
 export function TourDetailSection({ tour }: TourDetailSectionProps) {
   const backClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    handlePresetNavClick(e, resolveNavTarget('', { route: 'destinations' }));
+    handlePresetNavClick(e, resolveNavTarget("", { route: "destinations" }));
   };
 
   return (
@@ -58,17 +62,21 @@ export function TourDetailSection({ tour }: TourDetailSectionProps) {
       >
         <div className="flex flex-col gap-[10px]">
           <a
-            href={routeHref('destinations')}
+            href={routeHref("destinations")}
             onClick={backClick}
             className="inline-flex items-center gap-2 text-sm text-black px-4 py-2 rounded-full transition-all"
           >
             <ArrowLeft size={15} />
             Back to explore
           </a>
-          <h1 className="text-[20px] font-semibold text-[#1c1c1c] mb-4 tracking-tight">{tour.name}</h1>
+          <h1 className="text-[20px] font-semibold text-[#1c1c1c] mb-4 tracking-tight">
+            {tour.name}
+          </h1>
         </div>
 
-        <p className="sm:text-[15px] text-[12px] text-black/70 leading-relaxed mb-8">{tour.description}</p>
+        <p className="sm:text-[15px] text-[12px] text-black/70 leading-relaxed mb-8">
+          {tour.description}
+        </p>
 
         <div className="flex items-center gap-4 mb-10">
           {tour.images.slice(0, 3).map((src, i) => (
@@ -83,13 +91,15 @@ export function TourDetailSection({ tour }: TourDetailSectionProps) {
           <div className="w-9 h-9 rounded-full bg-black text-white text-[11px] font-bold flex items-center justify-center border-2 border-[#f3ebe4]">
             +{tour.friends - 3}
           </div>
-          <span className="text-[13px] font-medium text-black/60">{tour.friends} friends been there</span>
+          <span className="text-[13px] font-medium text-black/60">
+            {tour.friends} friends been there
+          </span>
         </div>
 
         <div className="space-y-4 mb-10 gap-2 flex flex-col">
           {[
-            ['Avg cost per trip', tour.priceDisplay],
-            ['Best time to visit', tour.bestTime],
+            ["Avg cost per trip", tour.priceDisplay],
+            ["Best time to visit", tour.bestTime],
           ].map(([label, value]) => (
             <div
               key={label}
@@ -102,7 +112,9 @@ export function TourDetailSection({ tour }: TourDetailSectionProps) {
             </div>
           ))}
           <div className="flex justify-between items-center pb-2">
-            <span className="text-[13px] text-black/40 font-medium uppercase tracking-wider">Visa</span>
+            <span className="text-[13px] text-black/40 font-medium uppercase tracking-wider">
+              Visa
+            </span>
             <span className="text-sm font-bold text-black/90">
               <span className="text-blue-600">🇪🇺</span> {tour.visa}
             </span>
@@ -111,10 +123,7 @@ export function TourDetailSection({ tour }: TourDetailSectionProps) {
 
         <div className="grid grid-cols-3 gap-3 mb-8">
           {tour.images.map((src) => (
-            <div
-              key={src}
-              className="relative aspect-square rounded-[20px] overflow-hidden group"
-            >
+            <div key={src} className="relative aspect-square rounded-[20px] overflow-hidden group">
               <img
                 src={src}
                 alt=""

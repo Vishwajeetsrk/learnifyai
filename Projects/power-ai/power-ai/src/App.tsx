@@ -1,10 +1,10 @@
-import FadingVideo from './components/FadingVideo';
-import LogoMarquee from './components/LogoMarquee';
-import Navbar from './components/Navbar';
-import { PageSections } from './components/PageSections';
+import FadingVideo from "./components/FadingVideo";
+import LogoMarquee from "./components/LogoMarquee";
+import Navbar from "./components/Navbar";
+import { PageSections } from "./components/PageSections";
 
 const HERO_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_065045_c44942da-53c6-4804-b734-f9e07fc22e08.mp4';
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_065045_c44942da-53c6-4804-b734-f9e07fc22e08.mp4";
 
 export default function App() {
   return (
@@ -27,21 +27,18 @@ export default function App() {
           <main className="flex flex-1 flex-col items-center justify-center px-6 pb-6 text-center md:px-12">
             <h1
               className="animate-blur-fade-up ai-gradient-text font-display text-[clamp(3.5rem,18vw,13.75rem)] font-semibold leading-[0.92] tracking-[-0.04em]"
-              style={{ animationDelay: '200ms' }}
+              style={{ animationDelay: "200ms" }}
             >
               Power AI
             </h1>
             <p
               className="animate-blur-fade-up mt-6 max-w-xl text-sm leading-relaxed text-hero-sub/90 md:text-base"
-              style={{ animationDelay: '400ms' }}
+              style={{ animationDelay: "400ms" }}
             >
               Enterprise intelligence that scales with your team — deploy models, orchestrate
               agents, and ship production AI on one liquid-glass platform.
             </p>
-            <div
-              className="animate-blur-fade-up mt-10"
-              style={{ animationDelay: '550ms' }}
-            >
+            <div className="animate-blur-fade-up mt-10" style={{ animationDelay: "550ms" }}>
               <button
                 type="button"
                 className="liquid-glass rounded-full px-9 py-3.5 text-sm font-semibold text-foreground transition-opacity hover:opacity-90"

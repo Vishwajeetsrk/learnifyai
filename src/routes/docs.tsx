@@ -10,7 +10,11 @@ export const Route = createFileRoute("/docs")({
   head: () => ({
     meta: [
       { title: "Documentation & Platform Guides — Learnify AI" },
-      { name: "description", content: "Complete user documentation, student guides, feature walk-throughs, and creator/coach rules." },
+      {
+        name: "description",
+        content:
+          "Complete user documentation, student guides, feature walk-throughs, and creator/coach rules.",
+      },
     ],
   }),
   component: DocsPage,
@@ -18,93 +22,234 @@ export const Route = createFileRoute("/docs")({
 
 // ─── SVG Icon components ─────────────────────────────────────────────────────
 const BookIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
   </svg>
 );
 const SearchIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
 );
 const CheckIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-emerald-500 shrink-0">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-4 h-4 text-emerald-500 shrink-0"
+  >
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
 const GradCapIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 10v6M2 10l10-5 10 5-10 5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+    <path d="M6 12v5c3 3 9 3 12 0v-5" />
   </svg>
 );
 const UserCheckIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><polyline points="16 11 18 13 22 9" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <polyline points="16 11 18 13 22 9" />
   </svg>
 );
 const CoachIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" /><path d="M12 6v6l4 2" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z" />
+    <path d="M12 6v6l4 2" />
   </svg>
 );
 const CpuIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="4" y="4" width="16" height="16" rx="2" /><rect x="9" y="9" width="6" height="6" />
-    <line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" />
-    <line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" />
-    <line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" />
-    <line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="4" y="4" width="16" height="16" rx="2" />
+    <rect x="9" y="9" width="6" height="6" />
+    <line x1="9" y1="1" x2="9" y2="4" />
+    <line x1="15" y1="1" x2="15" y2="4" />
+    <line x1="9" y1="20" x2="9" y2="23" />
+    <line x1="15" y1="20" x2="15" y2="23" />
+    <line x1="20" y1="9" x2="23" y2="9" />
+    <line x1="20" y1="14" x2="23" y2="14" />
+    <line x1="1" y1="9" x2="4" y2="9" />
+    <line x1="1" y1="14" x2="4" y2="14" />
   </svg>
 );
 const SparkIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z" />
   </svg>
 );
 const ShieldIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <polyline points="9 12 11 14 15 10" />
   </svg>
 );
 const CodeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="16 18 22 12 16 6" />
+    <polyline points="8 6 2 12 8 18" />
   </svg>
 );
 const TerminalIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="4 17 10 11 4 5" />
+    <line x1="12" y1="19" x2="20" y2="19" />
   </svg>
 );
 const BotIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M12 11V6" /><circle cx="12" cy="4" r="2" />
-    <line x1="8" y1="15" x2="8" y2="15" strokeWidth="3" /><line x1="16" y1="15" x2="16" y2="15" strokeWidth="3" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="3" y="11" width="18" height="11" rx="2" />
+    <path d="M12 11V6" />
+    <circle cx="12" cy="4" r="2" />
+    <line x1="8" y1="15" x2="8" y2="15" strokeWidth="3" />
+    <line x1="16" y1="15" x2="16" y2="15" strokeWidth="3" />
   </svg>
 );
 const AwardIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="8" r="6" /><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="8" r="6" />
+    <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11" />
   </svg>
 );
 const UsersIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
   </svg>
 );
 const CameraIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+    <circle cx="12" cy="13" r="4" />
   </svg>
 );
 const WrenchIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
   </svg>
 );
 const RocketIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
     <path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
     <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
@@ -112,14 +257,30 @@ const RocketIcon = () => (
   </svg>
 );
 const WalletIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 12V22H4V12" /><path d="M22 7H2v5h20V7z" /><path d="M12 22V7" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20 12V22H4V12" />
+    <path d="M22 7H2v5h20V7z" />
+    <path d="M12 22V7" />
     <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
     <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
   </svg>
 );
 const TrophyIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <polyline points="6 9 6 2 18 2 18 9" />
     <path d="M6 18H4a2 2 0 0 1-2-2v-1a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2h-2" />
     <rect x="6" y="18" width="12" height="4" rx="1" />
@@ -127,25 +288,57 @@ const TrophyIcon = () => (
   </svg>
 );
 const LayersIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <polygon points="12 2 2 7 12 12 22 7 12 2" />
     <polyline points="2 17 12 22 22 17" />
     <polyline points="2 12 12 17 22 12" />
   </svg>
 );
 const EyeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+    <circle cx="12" cy="12" r="3" />
   </svg>
 );
 const CalendarIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <rect x="3" y="4" width="18" height="18" rx="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
   </svg>
 );
 const ArrowRightIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-4 h-4"
+  >
     <path d="M5 12h14M12 5l7 7-7 7" />
   </svg>
 );
@@ -219,14 +412,17 @@ function DocsPage() {
         <section className="bg-gradient-to-b from-primary/10 via-background to-background border-b py-16 md:py-20">
           <div className="container mx-auto px-6 text-center max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4">
-              <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full"><BookIcon /></span>
+              <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full">
+                <BookIcon />
+              </span>
               Official Knowledge Base
             </div>
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight">
               Learnify AI Documentation
             </h1>
             <p className="mt-4 text-muted-foreground text-base md:text-lg">
-              Everything you need to master AI tutoring, career tools, course publishing, and coach sessions.
+              Everything you need to master AI tutoring, career tools, course publishing, and coach
+              sessions.
             </p>
 
             <div className="relative max-w-xl mx-auto mt-8">
@@ -255,7 +451,7 @@ function DocsPage() {
                   "flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl md:rounded-t-lg text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border md:border-0 md:border-b-2 -mb-px justify-center md:justify-start",
                   activeTab === t.id
                     ? "border-primary text-primary bg-primary/5 md:bg-primary/5 md:border-b-2"
-                    : "border-border md:border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40"
+                    : "border-border md:border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40",
                 )}
               >
                 <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full shrink-0">{t.icon}</span>
@@ -332,14 +528,18 @@ function DocsPage() {
               <div className="rounded-2xl border bg-gradient-to-r from-primary/10 to-primary/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <h3 className="font-semibold text-lg">Ready to experience it all?</h3>
-                  <p className="text-sm text-muted-foreground">Start free. No credit card required.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Start free. No credit card required.
+                  </p>
                 </div>
                 <div className="flex gap-2 shrink-0">
                   <Button asChild>
                     <Link to="/signup">Create free account</Link>
                   </Button>
                   <Button asChild variant="outline">
-                    <Link to="/pricing" search={{ subscribe: undefined } as any}>Compare plans</Link>
+                    <Link to="/pricing" search={{ subscribe: undefined } as any}>
+                      Compare plans
+                    </Link>
                   </Button>
                 </div>
               </div>
@@ -465,32 +665,51 @@ function DocsPage() {
             <div className="space-y-8">
               <div className="p-6 rounded-2xl border bg-gradient-to-br from-purple-500/5 to-indigo-500/10 space-y-5">
                 <div className="flex items-center gap-3">
-                  <span className="w-8 h-8 text-purple-600 [&>svg]:w-full [&>svg]:h-full"><UserCheckIcon /></span>
+                  <span className="w-8 h-8 text-purple-600 [&>svg]:w-full [&>svg]:h-full">
+                    <UserCheckIcon />
+                  </span>
                   <h2 className="text-xl font-bold">Creator Tiers & 80/20 Revenue Split</h2>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Learnify AI empowers instructors, software developers, and industry experts to host free or paid courses with automated Cashfree payouts.
+                  Learnify AI empowers instructors, software developers, and industry experts to
+                  host free or paid courses with automated Cashfree payouts.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-5 rounded-xl border bg-card/70 space-y-2">
                     <div className="font-bold text-sm text-primary flex items-center gap-2">
-                      <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full"><RocketIcon /></span>
+                      <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full">
+                        <RocketIcon />
+                      </span>
                       Free Creator Tier
                     </div>
                     <ul className="text-xs space-y-1.5 text-muted-foreground">
-                      {["Publish up to 1 free or paid course", "70% Revenue payout share", "Standard community listing"].map((p) => (
-                        <li key={p} className="flex items-center gap-2"><CheckIcon /> {p}</li>
+                      {[
+                        "Publish up to 1 free or paid course",
+                        "70% Revenue payout share",
+                        "Standard community listing",
+                      ].map((p) => (
+                        <li key={p} className="flex items-center gap-2">
+                          <CheckIcon /> {p}
+                        </li>
                       ))}
                     </ul>
                   </div>
                   <div className="p-5 rounded-xl border bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border-purple-500/30 space-y-2">
                     <div className="font-bold text-sm text-purple-600 flex items-center gap-2">
-                      <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full"><AwardIcon /></span>
+                      <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full">
+                        <AwardIcon />
+                      </span>
                       Paid / Verified Creator Tier
                     </div>
                     <ul className="text-xs space-y-1.5 text-muted-foreground">
-                      {["Unlimited paid courses & cohorts", "80% Revenue payout share", "Verified Creator Badge & Featured Placement"].map((p) => (
-                        <li key={p} className="flex items-center gap-2"><CheckIcon /> {p}</li>
+                      {[
+                        "Unlimited paid courses & cohorts",
+                        "80% Revenue payout share",
+                        "Verified Creator Badge & Featured Placement",
+                      ].map((p) => (
+                        <li key={p} className="flex items-center gap-2">
+                          <CheckIcon /> {p}
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -531,7 +750,10 @@ function DocsPage() {
               <div className="flex justify-center">
                 <Button asChild>
                   <Link to="/apply-creator">
-                    Apply to be a Creator <span className="ml-1 w-4 h-4 [&>svg]:w-full [&>svg]:h-full inline-block align-middle"><ArrowRightIcon /></span>
+                    Apply to be a Creator{" "}
+                    <span className="ml-1 w-4 h-4 [&>svg]:w-full [&>svg]:h-full inline-block align-middle">
+                      <ArrowRightIcon />
+                    </span>
                   </Link>
                 </Button>
               </div>
@@ -543,32 +765,49 @@ function DocsPage() {
             <div className="space-y-8">
               <div className="p-6 rounded-2xl border bg-gradient-to-br from-emerald-500/5 to-teal-500/10 space-y-5">
                 <div className="flex items-center gap-3">
-                  <span className="w-8 h-8 text-emerald-600 [&>svg]:w-full [&>svg]:h-full"><CoachIcon /></span>
+                  <span className="w-8 h-8 text-emerald-600 [&>svg]:w-full [&>svg]:h-full">
+                    <CoachIcon />
+                  </span>
                   <h2 className="text-xl font-bold">1-on-1 Coaching & Mentorship Program</h2>
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Coaches can set their own availability and pricing for 1-on-1 resume feedback, mock interviews, and career roadmaps.
+                  Coaches can set their own availability and pricing for 1-on-1 resume feedback,
+                  mock interviews, and career roadmaps.
                 </p>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="p-5 rounded-xl border bg-card/70 space-y-2">
                     <div className="font-bold text-sm text-primary flex items-center gap-2">
-                      <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full"><RocketIcon /></span>
+                      <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full">
+                        <RocketIcon />
+                      </span>
                       Free Coach Tier
                     </div>
                     <ul className="text-xs space-y-1.5 text-muted-foreground">
-                      {["Offer free 15-min discovery sessions", "Community profile page"].map((p) => (
-                        <li key={p} className="flex items-center gap-2"><CheckIcon /> {p}</li>
-                      ))}
+                      {["Offer free 15-min discovery sessions", "Community profile page"].map(
+                        (p) => (
+                          <li key={p} className="flex items-center gap-2">
+                            <CheckIcon /> {p}
+                          </li>
+                        ),
+                      )}
                     </ul>
                   </div>
                   <div className="p-5 rounded-xl border bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border-emerald-500/30 space-y-2">
                     <div className="font-bold text-sm text-emerald-600 flex items-center gap-2">
-                      <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full"><AwardIcon /></span>
+                      <span className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full">
+                        <AwardIcon />
+                      </span>
                       Paid / Verified Coach Tier
                     </div>
                     <ul className="text-xs space-y-1.5 text-muted-foreground">
-                      {["Custom session rates (e.g. ₹999/hr)", "80% direct payout split via Cashfree", "Priority booking calendar integration"].map((p) => (
-                        <li key={p} className="flex items-center gap-2"><CheckIcon /> {p}</li>
+                      {[
+                        "Custom session rates (e.g. ₹999/hr)",
+                        "80% direct payout split via Cashfree",
+                        "Priority booking calendar integration",
+                      ].map((p) => (
+                        <li key={p} className="flex items-center gap-2">
+                          <CheckIcon /> {p}
+                        </li>
                       ))}
                     </ul>
                   </div>
@@ -609,7 +848,10 @@ function DocsPage() {
               <div className="flex justify-center">
                 <Button asChild>
                   <Link to="/apply-coach">
-                    Apply to be a Coach <span className="ml-1 w-4 h-4 [&>svg]:w-full [&>svg]:h-full inline-block align-middle"><ArrowRightIcon /></span>
+                    Apply to be a Coach{" "}
+                    <span className="ml-1 w-4 h-4 [&>svg]:w-full [&>svg]:h-full inline-block align-middle">
+                      <ArrowRightIcon />
+                    </span>
                   </Link>
                 </Button>
               </div>

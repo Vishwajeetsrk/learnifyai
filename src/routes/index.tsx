@@ -373,10 +373,12 @@ function Index() {
             <span className="text-xs font-bold text-foreground">Learnify AI</span>
             <span className="text-[10px] text-muted-foreground">The AI-native learning OS</span>
           </div>
-          <Button asChild size="sm" className="bg-foreground text-background hover:bg-foreground/90 font-bold px-4 py-2 rounded-xl">
-            <Link to="/signup">
-              Start Free Trial
-            </Link>
+          <Button
+            asChild
+            size="sm"
+            className="bg-foreground text-background hover:bg-foreground/90 font-bold px-4 py-2 rounded-xl"
+          >
+            <Link to="/signup">Start Free Trial</Link>
           </Button>
         </div>
       )}

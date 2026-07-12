@@ -1,12 +1,12 @@
-import { useEffect, useRef } from 'react';
-import Hls from 'hls.js';
+import { useEffect, useRef } from "react";
+import Hls from "hls.js";
 
 type HlsVideoProps = {
   src: string;
   className?: string;
 };
 
-export default function HlsVideo({ src, className = '' }: HlsVideoProps) {
+export default function HlsVideo({ src, className = "" }: HlsVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function HlsVideo({ src, className = '' }: HlsVideoProps) {
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         void video.play().catch(() => undefined);
       });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
       void video.play().catch(() => undefined);
     }
@@ -32,15 +32,5 @@ export default function HlsVideo({ src, className = '' }: HlsVideoProps) {
     };
   }, [src]);
 
-  return (
-    <video
-      ref={videoRef}
-      className={className}
-      playsInline
-      muted
-      loop
-      autoPlay
-      aria-hidden
-    />
-  );
+  return <video ref={videoRef} className={className} playsInline muted loop autoPlay aria-hidden />;
 }

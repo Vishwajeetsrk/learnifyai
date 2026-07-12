@@ -275,7 +275,7 @@ export const createSubscription = createServerFn({ method: "POST" })
               customer_id: uid,
               customer_name: realName,
               customer_email: realEmail,
-          customer_phone: "9999999999", // Required by Cashfree API; TODO: add phone field to profiles table
+              customer_phone: "9999999999", // Required by Cashfree API; TODO: add phone field to profiles table
             },
             plan_details: {
               plan_id: newCfPlanId,
@@ -587,7 +587,10 @@ export const savePlan = createServerFn({ method: "POST" })
     // The frontend computes it via: plan.yearly_price || Math.round(price_inr * 12 * 0.8)
     const { yearly_price, ...planData } = plan;
     if (planData.id) {
-      const { error } = await supabaseAdmin.from("pricing_plans").update(planData).eq("id", planData.id);
+      const { error } = await supabaseAdmin
+        .from("pricing_plans")
+        .update(planData)
+        .eq("id", planData.id);
       if (error) throw new Error(error.message);
     } else {
       const { id: pid, ...rest } = planData;
@@ -757,35 +760,55 @@ export const getAdminSubscriptionAnalytics = createServerFn({ method: "GET" })
     const arpu = activeSubCount > 0 ? Math.round(totalMrr / activeSubCount) : 0;
 
     // Build plan breakdown from pricing_plans + user_subscriptions counts
-    const planIds = (plans || []).map((p: any) => p.id);
+    // Group by plan name to handle duplicate rows
+    const planGroups = (plans || []).reduce(
+      (groups: any, p: any) => {
+        const name = p.name || "Unknown";
+        if (!groups[name]) {
+          groups[name] = { name, price_inr: p.price_inr || 0, ids: [] };
+        }
+        if (
+          p.price_inr &&
+          (p.price_inr > groups[name].price_inr ||
+            (p.price_inr === groups[name].price_inr && p.interval === "month"))
+        ) {
+          groups[name].price_inr = p.price_inr;
+        }
+        groups[name].ids.push(p.id);
+        return groups;
+      },
+      {} as Record<string, { name: string; price_inr: number; ids: string[] }>,
+    );
+
     const planBreakdown = await Promise.all(
-      planIds.map(async (id: string) => {
-        const { count: active } = await supabaseAdmin
-          .from("user_subscriptions")
-          .select("*", { count: "exact", head: true })
-          .eq("plan_id", id)
-          .eq("status", "active");
-        const { count: cancelled } = await supabaseAdmin
-          .from("user_subscriptions")
-          .select("*", { count: "exact", head: true })
-          .eq("plan_id", id)
-          .eq("status", "cancelled");
-        const { count: expired } = await supabaseAdmin
-          .from("user_subscriptions")
-          .select("*", { count: "exact", head: true })
-          .eq("plan_id", id)
-          .eq("status", "expired");
-        const plan = (plans || []).find((p: any) => p.id === id);
-        return {
-          plan_id: id,
-          plan_name: plan?.name || "Unknown",
-          price_inr: plan?.price_inr || 0,
-          active_subscribers: active || 0,
-          cancelled_count: cancelled || 0,
-          expired_count: expired || 0,
-          mrr: (active || 0) * (plan?.price_inr || 0),
-        };
-      }),
+      (Object.values(planGroups) as { name: string; price_inr: number; ids: string[] }[]).map(
+        async (group) => {
+          const { count: active } = await supabaseAdmin
+            .from("user_subscriptions")
+            .select("*", { count: "exact", head: true })
+            .in("plan_id", group.ids)
+            .eq("status", "active");
+          const { count: cancelled } = await supabaseAdmin
+            .from("user_subscriptions")
+            .select("*", { count: "exact", head: true })
+            .in("plan_id", group.ids)
+            .eq("status", "cancelled");
+          const { count: expired } = await supabaseAdmin
+            .from("user_subscriptions")
+            .select("*", { count: "exact", head: true })
+            .in("plan_id", group.ids)
+            .eq("status", "expired");
+          return {
+            plan_id: group.ids[0],
+            plan_name: group.name,
+            price_inr: group.price_inr,
+            active_subscribers: active || 0,
+            cancelled_count: cancelled || 0,
+            expired_count: expired || 0,
+            mrr: (active || 0) * group.price_inr,
+          };
+        },
+      ),
     );
 
     // Revenue history from invoices (uses date range)

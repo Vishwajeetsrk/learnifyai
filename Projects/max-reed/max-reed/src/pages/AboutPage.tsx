@@ -1,5 +1,5 @@
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
-import { CAREER_TIMELINE } from '../constants';
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
+import { CAREER_TIMELINE } from "../constants";
 
 export function AboutPage() {
   return (
@@ -21,7 +21,7 @@ export function AboutPage() {
         <button
           type="button"
           className="liquid-glass mt-8 rounded-full px-6 py-3 text-sm font-medium"
-          onClick={() => navigateToRoute('contact')}
+          onClick={() => navigateToRoute("contact")}
         >
           Let&apos;s Team Up Today
         </button>

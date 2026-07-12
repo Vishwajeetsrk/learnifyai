@@ -1,10 +1,10 @@
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
-import { FEATURED_VIDEO } from '../constants';
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { FEATURED_VIDEO } from "../constants";
 
 export default function FeaturedVideoSection() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-80px' });
+  const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
     <section ref={ref} className="overflow-hidden bg-black px-6 pb-20 pt-6 md:pb-32 md:pt-10">
@@ -28,8 +28,8 @@ export default function FeaturedVideoSection() {
           <div className="liquid-glass max-w-md rounded-2xl p-6 md:p-8">
             <p className="mb-3 text-xs uppercase tracking-widest text-white/50">Our Approach</p>
             <p className="text-sm leading-relaxed text-white md:text-base">
-              We believe in the power of curiosity-driven exploration. Every project starts with
-              a question, and every answer opens a new door to innovation.
+              We believe in the power of curiosity-driven exploration. Every project starts with a
+              question, and every answer opens a new door to innovation.
             </p>
           </div>
           <motion.button

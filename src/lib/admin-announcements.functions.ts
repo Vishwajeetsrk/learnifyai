@@ -36,15 +36,15 @@ export const sendAnnouncement = createServerFn({ method: "POST" })
     let targetUsers: string[] = [];
 
     if (data.targetRole === "all") {
-      const { data: allUsers } = await supabaseAdmin
-        .from("profiles")
-        .select("id");
+      const { data: allUsers } = await supabaseAdmin.from("profiles").select("id");
       targetUsers = (allUsers ?? []).map((u: any) => u.id);
     } else {
       const roleField =
-        data.targetRole === "students" ? "student" :
-        data.targetRole === "creators" ? "creator" :
-        "admin";
+        data.targetRole === "students"
+          ? "student"
+          : data.targetRole === "creators"
+            ? "creator"
+            : "admin";
       const { data: roleUsers } = await supabaseAdmin
         .from("user_roles")
         .select("user_id")

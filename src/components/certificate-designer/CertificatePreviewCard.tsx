@@ -1,6 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { Eye, Edit3, Share2, Trash2, Copy, MoreVertical, Download, Award } from "lucide-react";
 import { Certificate } from "./types";
 
@@ -14,7 +19,15 @@ type Props = {
   onDelete: (c: Certificate) => void;
 };
 
-export function CertificatePreviewCard({ cert, onPreview, onEdit, onShare, onDuplicate, onExport, onDelete }: Props) {
+export function CertificatePreviewCard({
+  cert,
+  onPreview,
+  onEdit,
+  onShare,
+  onDuplicate,
+  onExport,
+  onDelete,
+}: Props) {
   return (
     <Card className="group overflow-hidden border border-border/40 hover:border-primary/30 hover:shadow-lg transition-all duration-200">
       <div
@@ -24,7 +37,9 @@ export function CertificatePreviewCard({ cert, onPreview, onEdit, onShare, onDup
         <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
           <Award className="h-8 w-8 text-primary/30 mb-2" />
           <h3 className="font-semibold text-sm text-foreground/80">{cert.title}</h3>
-          {cert.courseTitle && <p className="text-xs text-muted-foreground mt-1">{cert.courseTitle}</p>}
+          {cert.courseTitle && (
+            <p className="text-xs text-muted-foreground mt-1">{cert.courseTitle}</p>
+          )}
         </div>
         <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors" />
       </div>
@@ -39,7 +54,12 @@ export function CertificatePreviewCard({ cert, onPreview, onEdit, onShare, onDup
 
         <div className="flex items-center justify-between">
           <div className="flex gap-1">
-            <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => onPreview(cert)}>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => onPreview(cert)}
+            >
               <Eye className="h-3.5 w-3.5" />
             </Button>
             <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => onEdit(cert)}>

@@ -433,7 +433,9 @@ function AdminSubscriptionsPage() {
             </Button>
           </div>
         ) : !data ? (
-          <div className="text-center text-muted-foreground py-20">No analytics data available.</div>
+          <div className="text-center text-muted-foreground py-20">
+            No analytics data available.
+          </div>
         ) : (
           <>
             {/* KPI Cards */}

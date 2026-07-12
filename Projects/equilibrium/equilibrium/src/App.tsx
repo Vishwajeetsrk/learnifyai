@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
-import { PresetHashRouter } from '../../_shared/components/PresetHashRouter';
-import { applyPresetHashOnLoad } from '../../_shared/preset-site-routing';
-import Navbar from './components/Navbar';
-import { ContactPage } from './pages/ContactPage';
-import { FaqPage } from './pages/FaqPage';
-import { HomePage } from './pages/HomePage';
-import { ProgramsPage } from './pages/ProgramsPage';
-import { WellnessPage } from './pages/WellnessPage';
+import { useEffect } from "react";
+import { PresetHashRouter } from "../../_shared/components/PresetHashRouter";
+import { applyPresetHashOnLoad } from "../../_shared/preset-site-routing";
+import Navbar from "./components/Navbar";
+import { ContactPage } from "./pages/ContactPage";
+import { FaqPage } from "./pages/FaqPage";
+import { HomePage } from "./pages/HomePage";
+import { ProgramsPage } from "./pages/ProgramsPage";
+import { WellnessPage } from "./pages/WellnessPage";
 
 export default function App() {
   useEffect(() => {
@@ -19,7 +19,7 @@ export default function App() {
       <main>
         <PresetHashRouter
           routes={{
-            '': <HomePage />,
+            "": <HomePage />,
             wellness: <WellnessPage />,
             programs: <ProgramsPage />,
             faq: <FaqPage />,

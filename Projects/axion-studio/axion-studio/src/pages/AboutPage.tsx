@@ -1,7 +1,7 @@
 const PRINCIPLES = [
-  'Strategy before pixels—we map category ambition before opening Figma.',
-  'WebGL when it earns attention, restraint when clarity converts faster.',
-  'Case studies as proof: Narrativ and Luminar set the bar for every engagement.',
+  "Strategy before pixels—we map category ambition before opening Figma.",
+  "WebGL when it earns attention, restraint when clarity converts faster.",
+  "Case studies as proof: Narrativ and Luminar set the bar for every engagement.",
 ] as const;
 
 export function AboutPage() {

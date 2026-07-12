@@ -263,11 +263,11 @@ export function CustomVideoPlayer({
                 ? "This video was removed or set to private by the uploader."
                 : code === 101 || code === 150
                   ? "This video cannot be played here — it may be a live stream that ended, or embedding is restricted."
-                : code === 153
-                  ? "Video player configuration error. The uploader may have restricted embedding on this site."
-                : code === 5
-                  ? "The video player encountered an error. Try a different browser."
-                : "Video failed to load.";
+                  : code === 153
+                    ? "Video player configuration error. The uploader may have restricted embedding on this site."
+                    : code === 5
+                      ? "The video player encountered an error. Try a different browser."
+                      : "Video failed to load.";
             setYouTubeErrorMsg(msg);
             setError(true);
             setLoading(false);

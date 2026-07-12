@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   SandpackProvider,
   SandpackLayout,
@@ -259,6 +259,22 @@ function PreviewPanel({
   );
 }
 
+function SandpackListener({
+  onActiveFileChange,
+}: {
+  onActiveFileChange: (path: string, code: string) => void;
+}) {
+  const { sandpack } = useSandpack();
+  useEffect(() => {
+    const activePath = sandpack.activeFile;
+    const file = sandpack.files[activePath];
+    if (file) {
+      onActiveFileChange(activePath, file.code);
+    }
+  }, [sandpack.files, sandpack.activeFile, onActiveFileChange]);
+  return null;
+}
+
 export function WebIDE({
   files,
   template,
@@ -266,6 +282,8 @@ export function WebIDE({
   saving,
   onScreenshot,
   capturing,
+  onActiveFileChange,
+  isMobile = false,
 }: {
   files: Record<string, { code: string }>;
   template: "react" | "vanilla" | "node";
@@ -273,12 +291,13 @@ export function WebIDE({
   saving: boolean;
   onScreenshot?: () => void;
   capturing?: boolean;
+  onActiveFileChange?: (path: string, code: string) => void;
+  isMobile?: boolean;
 }) {
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile" | "tablet">("desktop");
   const [fontSize, setFontSize] = useState(14);
   const [key, setKey] = useState(0);
 
-  // Convert the Sandpack files object structure down to a flat record for Supabase sync
   const handleSave = (sandpackFiles: Record<string, { code: string }>) => {
     const flatFiles: Record<string, string> = {};
     for (const [path, fileData] of Object.entries(sandpackFiles)) {
@@ -295,6 +314,7 @@ export function WebIDE({
         theme={aquaBlue}
         options={{ autoReload: true }}
       >
+        {onActiveFileChange && <SandpackListener onActiveFileChange={onActiveFileChange} />}
         <WebIDEToolbar
           onSave={handleSave}
           saving={saving}
@@ -305,13 +325,23 @@ export function WebIDE({
           setKey={setKey}
         />
         <SandpackLayout
-          style={{ borderRadius: 0, border: "none", flex: 1, display: "flex", overflow: "hidden" }}
+          className="flex-1 flex flex-col md:flex-row overflow-hidden border-none rounded-none"
+          style={{
+            borderRadius: 0,
+            border: "none",
+            flex: 1,
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            overflow: "hidden",
+          }}
         >
-          <SandpackFileExplorer
-            style={{ height: "100%", minWidth: "220px", borderRight: "1px solid var(--border)" }}
-          />
+          {!isMobile && (
+            <SandpackFileExplorer
+              style={{ height: "100%", minWidth: "220px", borderRight: "1px solid var(--border)" }}
+            />
+          )}
           <SandpackCodeEditorAny
-            style={{ height: "100%", flex: 1 }}
+            style={{ height: isMobile ? "50%" : "100%", flex: 1 }}
             showLineNumbers
             showInlineErrors
             showTabs
@@ -324,10 +354,22 @@ export function WebIDE({
           />
           {template === "node" ? (
             <SandpackConsole
-              style={{ height: "100%", flex: 1, borderLeft: "1px solid var(--border)" }}
+              style={{
+                height: isMobile ? "50%" : "100%",
+                flex: 1,
+                borderLeft: isMobile ? "none" : "1px solid var(--border)",
+                borderTop: isMobile ? "1px solid var(--border)" : "none",
+              }}
             />
           ) : (
-            <div style={{ height: "100%", flex: 1, display: "flex" }}>
+            <div
+              style={{
+                height: isMobile ? "50%" : "100%",
+                flex: 1,
+                display: "flex",
+                borderTop: isMobile ? "1px solid var(--border)" : "none",
+              }}
+            >
               <PreviewPanel
                 previewDevice={previewDevice}
                 fontSize={fontSize}

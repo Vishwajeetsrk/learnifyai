@@ -461,7 +461,10 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
           { icon: Award, label: "25,000+ Certificates" },
           { icon: Briefcase, label: "Career Focused" },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+          <div
+            key={item.label}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0"
+          >
             <item.icon className="w-3.5 h-3.5 text-primary" />
             <span className="font-medium whitespace-nowrap">{item.label}</span>
           </div>

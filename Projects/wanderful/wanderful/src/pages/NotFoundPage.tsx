@@ -1,11 +1,15 @@
-import type { MouseEvent } from 'react';
-import { motion } from 'framer-motion';
-import { handlePresetNavClick, resolveNavTarget, routeHref } from '../../../_shared/preset-site-routing';
-import { goldEase } from '../constants';
+import type { MouseEvent } from "react";
+import { motion } from "framer-motion";
+import {
+  handlePresetNavClick,
+  resolveNavTarget,
+  routeHref,
+} from "../../../_shared/preset-site-routing";
+import { goldEase } from "../constants";
 
 export function NotFoundPage() {
   const homeClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    handlePresetNavClick(e, resolveNavTarget('', { route: '' }));
+    handlePresetNavClick(e, resolveNavTarget("", { route: "" }));
   };
 
   return (
@@ -35,7 +39,7 @@ export function NotFoundPage() {
         This page doesn&apos;t exist yet.
       </motion.p>
       <motion.a
-        href={routeHref('')}
+        href={routeHref("")}
         onClick={homeClick}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

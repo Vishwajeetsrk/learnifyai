@@ -1,10 +1,10 @@
-import HeroSection from '../components/HeroSection';
-import LogoRow from '../components/LogoRow';
-import SiteLayout from '../components/SiteLayout';
-import { TerraGlobeBanner } from '../components/TerraSectionPage';
-import TerraSectionPage from '../components/TerraSectionPage';
-import ContactPage from './ContactPage';
-import PricingPage from './PricingPage';
+import HeroSection from "../components/HeroSection";
+import LogoRow from "../components/LogoRow";
+import SiteLayout from "../components/SiteLayout";
+import { TerraGlobeBanner } from "../components/TerraSectionPage";
+import TerraSectionPage from "../components/TerraSectionPage";
+import ContactPage from "./ContactPage";
+import PricingPage from "./PricingPage";
 
 export default function HomePage() {
   return (

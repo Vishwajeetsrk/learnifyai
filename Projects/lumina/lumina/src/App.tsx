@@ -1,8 +1,8 @@
-import HeroVideo from './components/HeroVideo';
-import HeroSection from './components/HeroSection';
-import DiscoverSection from './components/DiscoverSection';
-import MissionSection from './components/MissionSection';
-import Footer from './components/Footer';
+import HeroVideo from "./components/HeroVideo";
+import HeroSection from "./components/HeroSection";
+import DiscoverSection from "./components/DiscoverSection";
+import MissionSection from "./components/MissionSection";
+import Footer from "./components/Footer";
 
 export default function App() {
   return (

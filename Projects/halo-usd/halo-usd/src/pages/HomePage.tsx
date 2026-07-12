@@ -1,8 +1,8 @@
-import BackedBySection from '../components/BackedBySection';
-import HeroSection from '../components/HeroSection';
-import InfoSection from '../components/InfoSection';
-import Navbar from '../components/Navbar';
-import UseCasesSection from '../components/UseCasesSection';
+import BackedBySection from "../components/BackedBySection";
+import HeroSection from "../components/HeroSection";
+import InfoSection from "../components/InfoSection";
+import Navbar from "../components/Navbar";
+import UseCasesSection from "../components/UseCasesSection";
 
 export default function HomePage() {
   return (

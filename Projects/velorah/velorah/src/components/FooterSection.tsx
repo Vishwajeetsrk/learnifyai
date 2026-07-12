@@ -1,12 +1,9 @@
-import { FOOTER_LINKS } from '../constants';
-import { BrandMark } from './BrandMark';
+import { FOOTER_LINKS } from "../constants";
+import { BrandMark } from "./BrandMark";
 
 export function FooterSection() {
   return (
-    <footer
-      id="footer"
-      className="border-t border-border bg-[hsl(0,0%,0%)] px-6 py-16 md:px-12"
-    >
+    <footer id="footer" className="border-t border-border bg-[hsl(0,0%,0%)] px-6 py-16 md:px-12">
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 grid grid-cols-1 gap-12 md:grid-cols-3">
           <div>

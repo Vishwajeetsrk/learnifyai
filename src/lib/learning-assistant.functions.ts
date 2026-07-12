@@ -11,7 +11,8 @@ const TOOLS = [
     type: "function" as const,
     function: {
       name: "execute_code",
-      description: "Execute code in a sandbox and return stdout, stderr, and exit code. Supports python, javascript, typescript, cpp, c, java, go, rust, ruby, php, bash, sql.",
+      description:
+        "Execute code in a sandbox and return stdout, stderr, and exit code. Supports python, javascript, typescript, cpp, c, java, go, rust, ruby, php, bash, sql.",
       parameters: {
         type: "object",
         properties: {
@@ -27,7 +28,8 @@ const TOOLS = [
     type: "function" as const,
     function: {
       name: "web_search",
-      description: "Search the web for current information about technical topics, documentation, tutorials, courses, and learning resources.",
+      description:
+        "Search the web for current information about technical topics, documentation, tutorials, courses, and learning resources.",
       parameters: {
         type: "object",
         properties: {
@@ -176,9 +178,16 @@ async function executeTool(name: string, args: any) {
   return JSON.stringify({ error: `Unknown tool: ${name}` });
 }
 
+import { validateAIPrompt } from "./ai-firewall";
+
 export const learningAssistantChat = createServerFn({ method: "POST" })
   .validator((data: unknown) => MessageSchema.parse(data))
   .handler(async ({ data }) => {
+    const safety = validateAIPrompt(data.content);
+    if (!safety.safe) {
+      throw new Error(safety.reason || "Safety policy violation: Request rejected by AI Firewall.");
+    }
+
     const messages: any[] = [
       ...(data.history ?? []).map((m: any) => ({ role: m.role, content: m.content })),
       {

@@ -1,4 +1,4 @@
-export default function LogoIcon({ className = 'w-7 h-7' }: { className?: string }) {
+export default function LogoIcon({ className = "w-7 h-7" }: { className?: string }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

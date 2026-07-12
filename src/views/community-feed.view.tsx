@@ -316,472 +316,111 @@ export default function CommunityPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 grid place-items-center shadow-lg relative overflow-hidden">
-            <div className="absolute inset-0 bg-white/20 hover:bg-transparent transition-colors" />
-            <MessageSquare className="h-6 w-6 text-white drop-shadow-md" />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight">
-              Community Hub
-            </h1>
-            <p className="text-muted-foreground text-sm mt-0.5">
-              Connect, share, and learn with other builders
-            </p>
-          </div>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 grid place-items-center shadow-lg relative overflow-hidden">
+          <div className="absolute inset-0 bg-white/20 hover:bg-transparent transition-colors" />
+          <MessageSquare className="h-6 w-6 text-white drop-shadow-md" />
         </div>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight">
+            Community Hub
+          </h1>
+          <p className="text-muted-foreground text-sm mt-0.5">
+            Connect, share, and learn with other builders
+          </p>
+        </div>
+      </div>
 
-        {/* Create Post Box */}
-        <div className="bg-card/80 backdrop-blur-md rounded-3xl border border-primary/10 p-6 mb-10 shadow-sm focus-within:shadow-md focus-within:ring-1 focus-within:ring-primary/30 transition-all">
-          <div className="flex gap-3 mb-5">
-            <button
-              onClick={() => setPostType("post")}
-              className={cn(
-                "text-xs px-3 py-1.5 rounded-full border transition",
-                postType === "post"
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "hover:bg-accent",
-              )}
-            >
-              <MessageSquare className="h-3 w-3 inline mr-1" /> Post
-            </button>
-            <button
-              onClick={() => setPostType("poll")}
-              className={cn(
-                "text-xs px-3 py-1.5 rounded-full border transition",
-                postType === "poll"
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "hover:bg-accent",
-              )}
-            >
-              <BarChart3 className="h-3 w-3 inline mr-1" /> Poll
-            </button>
-            <button
-              onClick={() => setPostType("announcement")}
-              className={cn(
-                "text-xs px-3 py-1.5 rounded-full border transition",
-                postType === "announcement"
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "hover:bg-accent",
-              )}
-            >
-              <Megaphone className="h-3 w-3 inline mr-1" /> Announce
-            </button>
-          </div>
-          <div className="flex gap-4">
-            <Avatar className="h-12 w-12 mt-1 border-2 border-background shadow-sm ring-2 ring-primary/10">
-              <AvatarImage src={profile?.avatar_url || ""} />
-              <AvatarFallback className="bg-primary/5 text-primary font-semibold">
-                {profile?.full_name?.charAt(0) || user?.email?.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              {postType === "poll" ? (
-                <div className="space-y-4 mb-3">
-                  <Input
-                    value={pollQuestion}
-                    onChange={(e) => setPollQuestion(e.target.value)}
-                    placeholder="Ask a question..."
-                    className="font-medium"
-                  />
-                  {pollOptions.map((opt, i) => (
-                    <div key={i} className="flex gap-2 items-center">
-                      <Input
-                        value={opt}
-                        onChange={(e) => {
-                          const next = [...pollOptions];
-                          next[i] = e.target.value;
-                          setPollOptions(next);
-                        }}
-                        placeholder={`Option ${i + 1}`}
-                      />
-                      {pollOptions.length > 2 && (
-                        <button
-                          onClick={() => setPollOptions(pollOptions.filter((_, idx) => idx !== i))}
-                          className="text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPollOptions([...pollOptions, ""])}
-                  >
-                    + Add option
-                  </Button>
-                  <div className="flex justify-end pt-2">
-                    <Button
-                      onClick={createPost}
-                      disabled={
-                        isUploading ||
-                        !pollQuestion.trim() ||
-                        pollOptions.filter((o) => o.trim()).length < 2
-                      }
-                      className="rounded-full px-8 shadow-sm"
-                    >
-                      {isUploading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Posting...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="h-4 w-4 mr-2" /> Post
-                        </>
-                      )}
-                    </Button>
+      {/* Create Post Box */}
+      <div className="bg-card/80 backdrop-blur-md rounded-3xl border border-primary/10 p-6 mb-10 shadow-sm focus-within:shadow-md focus-within:ring-1 focus-within:ring-primary/30 transition-all">
+        <div className="flex gap-3 mb-5">
+          <button
+            onClick={() => setPostType("post")}
+            className={cn(
+              "text-xs px-3 py-1.5 rounded-full border transition",
+              postType === "post"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "hover:bg-accent",
+            )}
+          >
+            <MessageSquare className="h-3 w-3 inline mr-1" /> Post
+          </button>
+          <button
+            onClick={() => setPostType("poll")}
+            className={cn(
+              "text-xs px-3 py-1.5 rounded-full border transition",
+              postType === "poll"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "hover:bg-accent",
+            )}
+          >
+            <BarChart3 className="h-3 w-3 inline mr-1" /> Poll
+          </button>
+          <button
+            onClick={() => setPostType("announcement")}
+            className={cn(
+              "text-xs px-3 py-1.5 rounded-full border transition",
+              postType === "announcement"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "hover:bg-accent",
+            )}
+          >
+            <Megaphone className="h-3 w-3 inline mr-1" /> Announce
+          </button>
+        </div>
+        <div className="flex gap-4">
+          <Avatar className="h-12 w-12 mt-1 border-2 border-background shadow-sm ring-2 ring-primary/10">
+            <AvatarImage src={profile?.avatar_url || ""} />
+            <AvatarFallback className="bg-primary/5 text-primary font-semibold">
+              {profile?.full_name?.charAt(0) || user?.email?.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            {postType === "poll" ? (
+              <div className="space-y-4 mb-3">
+                <Input
+                  value={pollQuestion}
+                  onChange={(e) => setPollQuestion(e.target.value)}
+                  placeholder="Ask a question..."
+                  className="font-medium"
+                />
+                {pollOptions.map((opt, i) => (
+                  <div key={i} className="flex gap-2 items-center">
+                    <Input
+                      value={opt}
+                      onChange={(e) => {
+                        const next = [...pollOptions];
+                        next[i] = e.target.value;
+                        setPollOptions(next);
+                      }}
+                      placeholder={`Option ${i + 1}`}
+                    />
+                    {pollOptions.length > 2 && (
+                      <button
+                        onClick={() => setPollOptions(pollOptions.filter((_, idx) => idx !== i))}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
-                </div>
-              ) : (
-                <div className="bg-transparent mb-2">
-                  <EditorContent
-                    editor={editor}
-                    className="cursor-text"
-                    onClick={() => editor?.commands.focus()}
-                  />
-                </div>
-              )}
-
-              {mediaFile && postType !== "poll" && (
-                <div className="relative rounded-lg overflow-hidden bg-accent/40 border inline-flex max-w-[250px] mb-4">
-                  <div className="p-2.5 flex items-center gap-3 text-sm font-medium w-full">
-                    <div className="truncate flex-1 text-foreground">{mediaFile.name}</div>
-                    <button
-                      onClick={() => setMediaFile(null)}
-                      className="text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10 rounded-full p-1 transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {postType !== "poll" && (
-                <div className="flex flex-col gap-3 border-t pt-3">
-                  <div className="flex flex-wrap items-center gap-0.5 sm:gap-1">
-                    <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
-                      <button
-                        onClick={() => editor?.chain().focus().toggleBold().run()}
-                        className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("bold") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                        title="Bold"
-                      >
-                        <Bold className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => editor?.chain().focus().toggleItalic().run()}
-                        className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("italic") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                        title="Italic"
-                      >
-                        <Italic className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => editor?.chain().focus().toggleUnderline().run()}
-                        className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("underline") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                        title="Underline"
-                      >
-                        <Underline className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    {/* Heading dropdown */}
-                    <div className="relative">
-                      <button
-                        onClick={() => setHeadingOpen(!headingOpen)}
-                        className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors flex items-center gap-0.5"
-                        title="Heading"
-                      >
-                        <Heading1 className="h-4 w-4" />
-                        <ChevronDown className="h-3 w-3" />
-                      </button>
-                      {headingOpen && (
-                        <div
-                          className="absolute top-full left-0 mt-1 z-50 w-36 rounded-lg border bg-popover shadow-lg p-1 space-y-0.5"
-                          onMouseLeave={() => setHeadingOpen(false)}
-                        >
-                          {[
-                            { level: 1, label: "Heading 1", icon: Heading1 },
-                            { level: 2, label: "Heading 2", icon: Heading2 },
-                            { level: 3, label: "Heading 3", icon: Heading3 },
-                            { level: 4, label: "Heading 4", icon: Heading4 },
-                          ].map((h) => (
-                            <button
-                              key={h.level}
-                              onClick={() => {
-                                editor
-                                  ?.chain()
-                                  .focus()
-                                  .toggleHeading({ level: h.level as any })
-                                  .run();
-                                setHeadingOpen(false);
-                              }}
-                              className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${editor?.isActive("heading", { level: h.level }) ? "bg-primary/10 text-primary" : "hover:bg-accent"}`}
-                            >
-                              <h.icon className="h-3.5 w-3.5" /> {h.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* List dropdown (bullet + ordered) */}
-                    <div className="relative">
-                      <button
-                        onClick={() => setListOpen(!listOpen)}
-                        className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors flex items-center gap-0.5"
-                        title="List"
-                      >
-                        <List className="h-4 w-4" />
-                        <ChevronDown className="h-3 w-3" />
-                      </button>
-                      {listOpen && (
-                        <div
-                          className="absolute top-full left-0 mt-1 z-50 w-40 rounded-lg border bg-popover shadow-lg p-1 space-y-0.5"
-                          onMouseLeave={() => setListOpen(false)}
-                        >
-                          <button
-                            onClick={() => {
-                              editor?.chain().focus().toggleBulletList().run();
-                              setListOpen(false);
-                            }}
-                            className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs hover:bg-accent"
-                          >
-                            <List className="h-3.5 w-3.5" /> Bullet list
-                          </button>
-                          <button
-                            onClick={() => {
-                              editor?.chain().focus().toggleOrderedList().run();
-                              setListOpen(false);
-                            }}
-                            className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs hover:bg-accent"
-                          >
-                            <ListOrdered className="h-3.5 w-3.5" /> Numbered list
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
-                      <button
-                        onClick={() => editor?.chain().focus().setTextAlign("left").run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: "left" }) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                        title="Align Left"
-                      >
-                        <AlignLeft className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => editor?.chain().focus().setTextAlign("center").run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: "center" }) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                        title="Align Center"
-                      >
-                        <AlignCenter className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => editor?.chain().focus().setTextAlign("right").run()}
-                        className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: "right" }) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                        title="Align Right"
-                      >
-                        <AlignRight className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    {/* Color picker */}
-                    <div className="relative">
-                      <button
-                        onClick={() => setColorOpen(!colorOpen)}
-                        className={`p-1.5 rounded-lg transition-colors ${colorOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                        title="Text Color"
-                      >
-                        <Palette className="h-4 w-4" />
-                      </button>
-                      {colorOpen && (
-                        <div
-                          className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 p-2 rounded-lg border bg-popover shadow-lg w-44 max-w-[90vw]"
-                          onMouseLeave={() => setColorOpen(false)}
-                        >
-                          <div className="grid grid-cols-7 gap-1 mb-2">
-                            {[
-                              "#000000",
-                              "#ef4444",
-                              "#f97316",
-                              "#eab308",
-                              "#22c55e",
-                              "#06b6d4",
-                              "#3b82f6",
-                              "#8b5cf6",
-                              "#ec4899",
-                              "#14b8a6",
-                              "#a855f7",
-                              "#f43f5e",
-                              "#84cc16",
-                              "#0ea5e9",
-                              "#64748b",
-                              "#dc2626",
-                              "#d97706",
-                              "#7c3aed",
-                              "#059669",
-                              "#0284c7",
-                            ].map((c) => (
-                              <button
-                                key={c}
-                                onClick={() => {
-                                  editor?.chain().focus().setColor(c).run();
-                                  setColorOpen(false);
-                                }}
-                                className="h-8 w-8 rounded-full border shrink-0"
-                                style={{ backgroundColor: c }}
-                                title={c}
-                              />
-                            ))}
-                          </div>
-                          <div className="flex items-center gap-1 border-t pt-1.5">
-                            <Input
-                              type="color"
-                              value={customColor || "#000000"}
-                              onChange={(e) => {
-                                setCustomColor(e.target.value);
-                                editor?.chain().focus().setColor(e.target.value).run();
-                              }}
-                              className="!w-8 !h-8 !p-0.5 border rounded cursor-pointer"
-                            />
-                            <Input
-                              value={customColor}
-                              onChange={(e) => {
-                                setCustomColor(e.target.value);
-                                if (e.target.value.match(/^#[0-9a-fA-F]{6}$/))
-                                  editor?.chain().focus().setColor(e.target.value).run();
-                              }}
-                              placeholder="#hex"
-                              className="h-8 text-[10px] flex-1"
-                              maxLength={7}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Font size */}
-                    <div className="flex items-center gap-0.5">
-                      <input
-                        type="number"
-                        min="8"
-                        max="72"
-                        defaultValue="16"
-                        onChange={(e) => {
-                          const v = Number(e.target.value);
-                          if (v >= 8 && v <= 72)
-                            editor
-                              ?.chain()
-                              .focus()
-                              .setMark("textStyle", { fontSize: v + "px" })
-                              .run();
-                        }}
-                        className="w-12 h-7 p-0.5 rounded text-[10px] bg-transparent border text-center text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        title="Font Size (px)"
-                      />
-                      <span className="text-[10px] text-muted-foreground">px</span>
-                    </div>
-
-                    {/* Font family */}
-                    <select
-                      onChange={(e) => editor?.chain().focus().setFontFamily(e.target.value).run()}
-                      className="p-1 rounded text-[10px] bg-transparent border text-muted-foreground cursor-pointer hover:text-foreground max-w-[80px]"
-                      title="Font Family"
-                    >
-                      <option value="Inter">Inter</option>
-                      <option value="Arial">Arial</option>
-                      <option value="Georgia">Georgia</option>
-                      <option value="monospace">Monospace</option>
-                      <option value="Times New Roman">Times</option>
-                      <option value="Courier New">Courier</option>
-                      <option value="Verdana">Verdana</option>
-                      <option value="Trebuchet MS">Trebuchet</option>
-                      <option value="Impact">Impact</option>
-                      <option value="Comic Sans MS">Comic Sans</option>
-                    </select>
-
-                    {/* Emoji picker - simplified */}
-                    <div className="relative">
-                      <button
-                        onClick={() => setEmojiOpen(!emojiOpen)}
-                        className={`p-1.5 rounded-lg transition-colors ${emojiOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
-                        title="Emoji"
-                      >
-                        <SmilePlus className="h-4 w-4" />
-                      </button>
-                      {emojiOpen && (
-                        <div
-                          className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 p-2 rounded-lg border bg-popover shadow-lg w-64 max-w-[90vw]"
-                          onMouseLeave={() => setEmojiOpen(false)}
-                        >
-                          <p className="text-[10px] text-muted-foreground mb-2 px-1">Common emojis:</p>
-                          <div className="grid grid-cols-8 gap-0.5">
-                            {["👍", "❤️", "🎉", "🔥", "⭐", "✅", "💯", "🚀", "💻", "📚", "🎯", "💡", "🙏", "👏", "✨", "🌟"].map((e) => (
-                              <button
-                                key={e}
-                                type="button"
-                                onClick={() => {
-                                  editor?.chain().focus().insertContent(e).run();
-                                  setEmojiOpen(false);
-                                }}
-                                className="hover:bg-accent rounded p-1 text-lg leading-none"
-                              >
-                                {e}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-1 pl-2 border-l">
-                      <label
-                        className="p-1.5 text-indigo-500 hover:bg-indigo-500/10 rounded-lg cursor-pointer transition-colors"
-                        title="Add Image"
-                      >
-                        <ImageIcon className="h-4 w-4" />
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
-                        />
-                      </label>
-                      <label
-                        className="p-1.5 text-rose-500 hover:bg-rose-500/10 rounded-lg cursor-pointer transition-colors"
-                        title="Add Video"
-                      >
-                        <Video className="h-4 w-4" />
-                        <input
-                          type="file"
-                          accept="video/*"
-                          className="hidden"
-                          onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
-                        />
-                      </label>
-                      <label
-                        className="p-1.5 text-amber-500 hover:bg-amber-500/10 rounded-lg cursor-pointer transition-colors"
-                        title="Add Document"
-                      >
-                        <FileText className="h-4 w-4" />
-                        <input
-                          type="file"
-                          accept=".pdf,.doc,.docx"
-                          className="hidden"
-                          onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
-                        />
-                      </label>
-                    </div>
-                  </div>
-
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPollOptions([...pollOptions, ""])}
+                >
+                  + Add option
+                </Button>
+                <div className="flex justify-end pt-2">
                   <Button
                     onClick={createPost}
                     disabled={
                       isUploading ||
-                      (postType === "post" && !editor?.getText().trim() && !mediaFile)
+                      !pollQuestion.trim() ||
+                      pollOptions.filter((o) => o.trim()).length < 2
                     }
-                    className="rounded-full px-6 sm:px-8 w-full sm:w-auto self-stretch sm:self-end shadow-sm"
+                    className="rounded-full px-8 shadow-sm"
                   >
                     {isUploading ? (
                       <>
@@ -789,371 +428,748 @@ export default function CommunityPage() {
                       </>
                     ) : (
                       <>
-                        <Send className="h-4 w-4 mr-2" />{" "}
-                        {postType === "announcement" ? "Announce" : "Post"}
+                        <Send className="h-4 w-4 mr-2" /> Post
                       </>
                     )}
                   </Button>
                 </div>
-              )}
-            </div>
-          </div>
-        </div>
+              </div>
+            ) : (
+              <div className="bg-transparent mb-2">
+                <EditorContent
+                  editor={editor}
+                  className="cursor-text"
+                  onClick={() => editor?.commands.focus()}
+                />
+              </div>
+            )}
 
-        {/* Feed */}
-        <div className="space-y-6">
-          {isLoading ? (
-            <div className="space-y-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-card rounded-3xl border shadow-sm p-6 space-y-4">
-                  <div className="flex gap-4">
-                    <Skeleton className="h-12 w-12 rounded-full" />
-                    <div className="space-y-2 flex-1 pt-1">
-                      <Skeleton className="h-4 w-[150px]" />
-                      <Skeleton className="h-3 w-[100px]" />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-[90%]" />
-                    <Skeleton className="h-4 w-[80%]" />
-                  </div>
-                  <div className="flex gap-4 pt-4 border-t border-border/50">
-                    <Skeleton className="h-5 w-5" />
-                    <Skeleton className="h-5 w-5" />
-                    <Skeleton className="h-5 w-5 ml-auto" />
-                  </div>
+            {mediaFile && postType !== "poll" && (
+              <div className="relative rounded-lg overflow-hidden bg-accent/40 border inline-flex max-w-[250px] mb-4">
+                <div className="p-2.5 flex items-center gap-3 text-sm font-medium w-full">
+                  <div className="truncate flex-1 text-foreground">{mediaFile.name}</div>
+                  <button
+                    onClick={() => setMediaFile(null)}
+                    className="text-muted-foreground hover:bg-black/10 dark:hover:bg-white/10 rounded-full p-1 transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
-              ))}
-            </div>
-          ) : posts.length === 0 ? (
-            <div className="text-center py-20 text-muted-foreground">
-              <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-20" />
-              <p className="text-lg">No posts yet. Be the first to share something!</p>
-            </div>
-          ) : (
-            posts.map((post) => {
-              const isLiked = post.likes?.some((l: any) => l.user_id === user?.id);
-              const isSaved = post.saves?.some((s: any) => s.user_id === user?.id);
-              const isPoll = post.post_type === "poll";
-              const isAnnouncement = post.post_type === "announcement";
-              let pollData: PollData | null = null;
-              if (isPoll && post.content) {
-                try {
-                  pollData = JSON.parse(post.content);
-                } catch {}
-              }
+              </div>
+            )}
 
-              return (
-                <article
-                  key={post.id}
-                  className={cn(
-                    "bg-card rounded-3xl border shadow-sm p-6 transition-all hover:shadow-lg hover:-translate-y-0.5",
-                    isAnnouncement
-                      ? "border-primary/40 ring-1 ring-primary/20 bg-primary/[0.02]"
-                      : "border-border/50",
-                  )}
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex gap-3.5 mb-5">
-                      <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
-                        <AvatarImage src={post.author?.avatar_url} />
-                        <AvatarFallback className="font-medium">
-                          {post.author?.full_name?.charAt(0) || "U"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-semibold flex items-center gap-2">
-                          {post.author?.full_name || "Anonymous User"}
-                          {isAnnouncement && (
-                            <Badge className="text-[10px] h-5">
-                              <Megaphone className="h-3 w-3 mr-1" /> Announcement
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-                        </div>
+            {postType !== "poll" && (
+              <div className="flex flex-col gap-3 border-t pt-3">
+                <div className="flex flex-wrap items-center gap-0.5 sm:gap-1">
+                  <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
+                    <button
+                      onClick={() => editor?.chain().focus().toggleBold().run()}
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("bold") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Bold"
+                    >
+                      <Bold className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => editor?.chain().focus().toggleItalic().run()}
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("italic") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Italic"
+                    >
+                      <Italic className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => editor?.chain().focus().toggleUnderline().run()}
+                      className={`p-2 min-h-[36px] min-w-[36px] rounded-lg transition-colors ${editor?.isActive("underline") ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Underline"
+                    >
+                      <Underline className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Heading dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setHeadingOpen(!headingOpen)}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors flex items-center gap-0.5"
+                      title="Heading"
+                    >
+                      <Heading1 className="h-4 w-4" />
+                      <ChevronDown className="h-3 w-3" />
+                    </button>
+                    {headingOpen && (
+                      <div
+                        className="absolute top-full left-0 mt-1 z-50 w-36 rounded-lg border bg-popover shadow-lg p-1 space-y-0.5"
+                        onMouseLeave={() => setHeadingOpen(false)}
+                      >
+                        {[
+                          { level: 1, label: "Heading 1", icon: Heading1 },
+                          { level: 2, label: "Heading 2", icon: Heading2 },
+                          { level: 3, label: "Heading 3", icon: Heading3 },
+                          { level: 4, label: "Heading 4", icon: Heading4 },
+                        ].map((h) => (
+                          <button
+                            key={h.level}
+                            onClick={() => {
+                              editor
+                                ?.chain()
+                                .focus()
+                                .toggleHeading({ level: h.level as any })
+                                .run();
+                              setHeadingOpen(false);
+                            }}
+                            className={`w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs transition-colors ${editor?.isActive("heading", { level: h.level }) ? "bg-primary/10 text-primary" : "hover:bg-accent"}`}
+                          >
+                            <h.icon className="h-3.5 w-3.5" /> {h.label}
+                          </button>
+                        ))}
                       </div>
-                    </div>
-                    {(user?.id === post.author_id ||
-                      isAdmin ||
-                      user?.email === "vishwajeetsrk@gamil.com" ||
-                      user?.email === "vishwajeetsrk@gmail.com") && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {user?.id === post.author_id && post.post_type !== "poll" && (
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setEditingPostId(post.id);
-                                setEditContent(post.content);
-                              }}
-                            >
-                              <FileText className="h-4 w-4 mr-2" /> Edit Post
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem
-                            className="text-destructive focus:bg-destructive/10"
-                            onClick={() => deletePost(post.id)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" /> Delete Post
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     )}
                   </div>
 
-                  {isPoll && pollData ? (
-                    <PollRenderer
-                      postId={post.id}
-                      pollData={pollData}
-                      votes={post.poll_votes ?? []}
-                      userId={user?.id}
-                    />
-                  ) : editingPostId === post.id ? (
-                    <div className="mb-4 space-y-2">
-                      <Textarea
-                        value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
-                        rows={4}
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={async () => {
-                            if (!editContent.trim()) return toast.error("Content cannot be empty");
-                            const { error } = await supabase
-                              .from("posts" as any)
-                              .update({ content: editContent.trim() })
-                              .eq("id", post.id);
-                            if (error) return toast.error(error.message);
-                            toast.success("Post updated");
-                            setEditingPostId(null);
-                            qc.invalidateQueries({ queryKey: ["community-posts"] });
+                  {/* List dropdown (bullet + ordered) */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setListOpen(!listOpen)}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors flex items-center gap-0.5"
+                      title="List"
+                    >
+                      <List className="h-4 w-4" />
+                      <ChevronDown className="h-3 w-3" />
+                    </button>
+                    {listOpen && (
+                      <div
+                        className="absolute top-full left-0 mt-1 z-50 w-40 rounded-lg border bg-popover shadow-lg p-1 space-y-0.5"
+                        onMouseLeave={() => setListOpen(false)}
+                      >
+                        <button
+                          onClick={() => {
+                            editor?.chain().focus().toggleBulletList().run();
+                            setListOpen(false);
                           }}
+                          className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs hover:bg-accent"
                         >
-                          Save
-                        </Button>
-                        <Button size="sm" variant="outline" onClick={() => setEditingPostId(null)}>
-                          Cancel
-                        </Button>
+                          <List className="h-3.5 w-3.5" /> Bullet list
+                        </button>
+                        <button
+                          onClick={() => {
+                            editor?.chain().focus().toggleOrderedList().run();
+                            setListOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs hover:bg-accent"
+                        >
+                          <ListOrdered className="h-3.5 w-3.5" /> Numbered list
+                        </button>
                       </div>
-                    </div>
-                  ) : (
-                    <div
-                      className="text-sm prose prose-sm dark:prose-invert max-w-none mb-4"
-                      dangerouslySetInnerHTML={{ __html: post.content }}
-                    />
-                  )}
+                    )}
+                  </div>
 
-                  {post.media_url && (
-                    <div className="mb-4 rounded-xl overflow-hidden bg-accent/30 border">
-                      {post.media_type === "image" && (
-                        <img
-                          src={post.media_url}
-                          alt="Post media"
-                          className="max-h-[500px] w-full object-contain"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                      )}
-                      {post.media_type === "video" && isMounted && (
-                        <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
-                          <video
-                            src={post.media_url}
-                            controls
-                            className="w-full h-full object-cover"
-                            controlsList="nodownload"
+                  <div className="flex items-center gap-0.5 pr-2 mr-1 border-r">
+                    <button
+                      onClick={() => editor?.chain().focus().setTextAlign("left").run()}
+                      className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: "left" }) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Align Left"
+                    >
+                      <AlignLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => editor?.chain().focus().setTextAlign("center").run()}
+                      className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: "center" }) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Align Center"
+                    >
+                      <AlignCenter className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => editor?.chain().focus().setTextAlign("right").run()}
+                      className={`p-1.5 rounded-lg transition-colors ${editor?.isActive({ textAlign: "right" }) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Align Right"
+                    >
+                      <AlignRight className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  {/* Color picker */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setColorOpen(!colorOpen)}
+                      className={`p-1.5 rounded-lg transition-colors ${colorOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Text Color"
+                    >
+                      <Palette className="h-4 w-4" />
+                    </button>
+                    {colorOpen && (
+                      <div
+                        className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 p-2 rounded-lg border bg-popover shadow-lg w-44 max-w-[90vw]"
+                        onMouseLeave={() => setColorOpen(false)}
+                      >
+                        <div className="grid grid-cols-7 gap-1 mb-2">
+                          {[
+                            "#000000",
+                            "#ef4444",
+                            "#f97316",
+                            "#eab308",
+                            "#22c55e",
+                            "#06b6d4",
+                            "#3b82f6",
+                            "#8b5cf6",
+                            "#ec4899",
+                            "#14b8a6",
+                            "#a855f7",
+                            "#f43f5e",
+                            "#84cc16",
+                            "#0ea5e9",
+                            "#64748b",
+                            "#dc2626",
+                            "#d97706",
+                            "#7c3aed",
+                            "#059669",
+                            "#0284c7",
+                          ].map((c) => (
+                            <button
+                              key={c}
+                              onClick={() => {
+                                editor?.chain().focus().setColor(c).run();
+                                setColorOpen(false);
+                              }}
+                              className="h-8 w-8 rounded-full border shrink-0"
+                              style={{ backgroundColor: c }}
+                              title={c}
+                            />
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-1 border-t pt-1.5">
+                          <Input
+                            type="color"
+                            value={customColor || "#000000"}
+                            onChange={(e) => {
+                              setCustomColor(e.target.value);
+                              editor?.chain().focus().setColor(e.target.value).run();
+                            }}
+                            className="!w-8 !h-8 !p-0.5 border rounded cursor-pointer"
+                          />
+                          <Input
+                            value={customColor}
+                            onChange={(e) => {
+                              setCustomColor(e.target.value);
+                              if (e.target.value.match(/^#[0-9a-fA-F]{6}$/))
+                                editor?.chain().focus().setColor(e.target.value).run();
+                            }}
+                            placeholder="#hex"
+                            className="h-8 text-[10px] flex-1"
+                            maxLength={7}
                           />
                         </div>
-                      )}
-                      {post.media_type === "pdf" && (
-                        <div className="max-h-[500px]">
-                          <FilePreview url={post.media_url} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Font size */}
+                  <div className="flex items-center gap-0.5">
+                    <input
+                      type="number"
+                      min="8"
+                      max="72"
+                      defaultValue="16"
+                      onChange={(e) => {
+                        const v = Number(e.target.value);
+                        if (v >= 8 && v <= 72)
+                          editor
+                            ?.chain()
+                            .focus()
+                            .setMark("textStyle", { fontSize: v + "px" })
+                            .run();
+                      }}
+                      className="w-12 h-7 p-0.5 rounded text-[10px] bg-transparent border text-center text-muted-foreground [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                      title="Font Size (px)"
+                    />
+                    <span className="text-[10px] text-muted-foreground">px</span>
+                  </div>
+
+                  {/* Font family */}
+                  <select
+                    onChange={(e) => editor?.chain().focus().setFontFamily(e.target.value).run()}
+                    className="p-1 rounded text-[10px] bg-transparent border text-muted-foreground cursor-pointer hover:text-foreground max-w-[80px]"
+                    title="Font Family"
+                  >
+                    <option value="Inter">Inter</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="monospace">Monospace</option>
+                    <option value="Times New Roman">Times</option>
+                    <option value="Courier New">Courier</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Trebuchet MS">Trebuchet</option>
+                    <option value="Impact">Impact</option>
+                    <option value="Comic Sans MS">Comic Sans</option>
+                  </select>
+
+                  {/* Emoji picker - simplified */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setEmojiOpen(!emojiOpen)}
+                      className={`p-1.5 rounded-lg transition-colors ${emojiOpen ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+                      title="Emoji"
+                    >
+                      <SmilePlus className="h-4 w-4" />
+                    </button>
+                    {emojiOpen && (
+                      <div
+                        className="absolute top-full left-1/2 -translate-x-1/2 mt-1 z-50 p-2 rounded-lg border bg-popover shadow-lg w-64 max-w-[90vw]"
+                        onMouseLeave={() => setEmojiOpen(false)}
+                      >
+                        <p className="text-[10px] text-muted-foreground mb-2 px-1">
+                          Common emojis:
+                        </p>
+                        <div className="grid grid-cols-8 gap-0.5">
+                          {[
+                            "👍",
+                            "❤️",
+                            "🎉",
+                            "🔥",
+                            "⭐",
+                            "✅",
+                            "💯",
+                            "🚀",
+                            "💻",
+                            "📚",
+                            "🎯",
+                            "💡",
+                            "🙏",
+                            "👏",
+                            "✨",
+                            "🌟",
+                          ].map((e) => (
+                            <button
+                              key={e}
+                              type="button"
+                              onClick={() => {
+                                editor?.chain().focus().insertContent(e).run();
+                                setEmojiOpen(false);
+                              }}
+                              className="hover:bg-accent rounded p-1 text-lg leading-none"
+                            >
+                              {e}
+                            </button>
+                          ))}
                         </div>
-                      )}
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
 
-                  {!isPoll && (
-                    <div className="flex items-center gap-6 pt-4 border-t border-border/50 text-muted-foreground mt-2">
-                      <button
-                        onClick={() => toggleLike(post.id, isLiked)}
-                        className={`flex items-center gap-1.5 hover:text-rose-500 transition-colors group ${isLiked ? "text-rose-500 font-medium" : ""}`}
-                      >
-                        <Heart
-                          className={`h-5 w-5 transition-transform group-hover:scale-110 ${isLiked ? "fill-current scale-110" : ""}`}
-                        />
-                        <span className="text-sm">{post.likes?.length || 0}</span>
-                      </button>
-                      <button
-                        onClick={() =>
-                          setExpandedPostId(expandedPostId === post.id ? null : post.id)
-                        }
-                        className="flex items-center gap-1.5 hover:text-indigo-500 transition-colors group"
-                      >
-                        <MessageSquare className="h-5 w-5 transition-transform group-hover:scale-110" />
-                        <span className="text-sm">{post.comments?.length || 0}</span>
-                      </button>
-                      <button
-                        onClick={() => toggleSave(post.id, isSaved)}
-                        className={`flex items-center gap-1.5 ml-auto hover:text-amber-500 transition-colors group ${isSaved ? "text-amber-500 font-medium" : ""}`}
-                      >
-                        <Bookmark
-                          className={`h-5 w-5 transition-transform group-hover:scale-110 ${isSaved ? "fill-current" : ""}`}
-                        />
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-1 pl-2 border-l">
+                    <label
+                      className="p-1.5 text-indigo-500 hover:bg-indigo-500/10 rounded-lg cursor-pointer transition-colors"
+                      title="Add Image"
+                    >
+                      <ImageIcon className="h-4 w-4" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
+                      />
+                    </label>
+                    <label
+                      className="p-1.5 text-rose-500 hover:bg-rose-500/10 rounded-lg cursor-pointer transition-colors"
+                      title="Add Video"
+                    >
+                      <Video className="h-4 w-4" />
+                      <input
+                        type="file"
+                        accept="video/*"
+                        className="hidden"
+                        onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
+                      />
+                    </label>
+                    <label
+                      className="p-1.5 text-amber-500 hover:bg-amber-500/10 rounded-lg cursor-pointer transition-colors"
+                      title="Add Document"
+                    >
+                      <FileText className="h-4 w-4" />
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        className="hidden"
+                        onChange={(e) => setMediaFile(e.target.files?.[0] || null)}
+                      />
+                    </label>
+                  </div>
+                </div>
 
-                  {expandedPostId === post.id && (
-                    <div className="mt-4 pt-4 border-t space-y-4">
-                      {post.comments?.length > 0 ? (
-                        <div className="space-y-3">
-                          {post.comments.map((comment: any) => {
-                            const isCommentAuthor = user?.id === comment.author_id;
-                            return (
-                              <div key={comment.id} className="flex gap-2 text-sm group">
-                                <Avatar className="h-6 w-6 mt-0.5 shrink-0">
-                                  <AvatarImage src={comment.author?.avatar_url} />
-                                  <AvatarFallback>
-                                    {comment.author?.full_name?.charAt(0) || "U"}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-0.5">
-                                    <span className="text-xs font-semibold">
-                                      {comment.author?.full_name || "User"}
-                                    </span>
-                                    <span className="text-[10px] text-muted-foreground">
-                                      {comment.created_at
-                                        ? formatDistanceToNow(new Date(comment.created_at), {
-                                            addSuffix: true,
-                                          })
-                                        : ""}
-                                    </span>
-                                    {(isCommentAuthor || isAdmin) && (
-                                      <div className="ml-auto flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        {isCommentAuthor && (
-                                          <button
-                                            onClick={() => {
-                                              setEditingCommentId(comment.id);
-                                              setEditCommentText(comment.content);
-                                            }}
-                                            className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent"
-                                            title="Edit"
-                                          >
-                                            <FileText className="h-3 w-3" />
-                                          </button>
-                                        )}
+                <Button
+                  onClick={createPost}
+                  disabled={
+                    isUploading || (postType === "post" && !editor?.getText().trim() && !mediaFile)
+                  }
+                  className="rounded-full px-6 sm:px-8 w-full sm:w-auto self-stretch sm:self-end shadow-sm"
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Posting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />{" "}
+                      {postType === "announcement" ? "Announce" : "Post"}
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Feed */}
+      <div className="space-y-6">
+        {isLoading ? (
+          <div className="space-y-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-card rounded-3xl border shadow-sm p-6 space-y-4">
+                <div className="flex gap-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="space-y-2 flex-1 pt-1">
+                    <Skeleton className="h-4 w-[150px]" />
+                    <Skeleton className="h-3 w-[100px]" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-[90%]" />
+                  <Skeleton className="h-4 w-[80%]" />
+                </div>
+                <div className="flex gap-4 pt-4 border-t border-border/50">
+                  <Skeleton className="h-5 w-5" />
+                  <Skeleton className="h-5 w-5" />
+                  <Skeleton className="h-5 w-5 ml-auto" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="text-center py-20 text-muted-foreground">
+            <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-20" />
+            <p className="text-lg">No posts yet. Be the first to share something!</p>
+          </div>
+        ) : (
+          posts.map((post) => {
+            const isLiked = post.likes?.some((l: any) => l.user_id === user?.id);
+            const isSaved = post.saves?.some((s: any) => s.user_id === user?.id);
+            const isPoll = post.post_type === "poll";
+            const isAnnouncement = post.post_type === "announcement";
+            let pollData: PollData | null = null;
+            if (isPoll && post.content) {
+              try {
+                pollData = JSON.parse(post.content);
+              } catch {}
+            }
+
+            return (
+              <article
+                key={post.id}
+                className={cn(
+                  "bg-card rounded-3xl border shadow-sm p-6 transition-all hover:shadow-lg hover:-translate-y-0.5",
+                  isAnnouncement
+                    ? "border-primary/40 ring-1 ring-primary/20 bg-primary/[0.02]"
+                    : "border-border/50",
+                )}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex gap-3.5 mb-5">
+                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                      <AvatarImage src={post.author?.avatar_url} />
+                      <AvatarFallback className="font-medium">
+                        {post.author?.full_name?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-semibold flex items-center gap-2">
+                        {post.author?.full_name || "Anonymous User"}
+                        {isAnnouncement && (
+                          <Badge className="text-[10px] h-5">
+                            <Megaphone className="h-3 w-3 mr-1" /> Announcement
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                      </div>
+                    </div>
+                  </div>
+                  {(user?.id === post.author_id ||
+                    isAdmin ||
+                    user?.email === "vishwajeetsrk@gamil.com" ||
+                    user?.email === "vishwajeetsrk@gmail.com") && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {user?.id === post.author_id && post.post_type !== "poll" && (
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setEditingPostId(post.id);
+                              setEditContent(post.content);
+                            }}
+                          >
+                            <FileText className="h-4 w-4 mr-2" /> Edit Post
+                          </DropdownMenuItem>
+                        )}
+                        <DropdownMenuItem
+                          className="text-destructive focus:bg-destructive/10"
+                          onClick={() => deletePost(post.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" /> Delete Post
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
+
+                {isPoll && pollData ? (
+                  <PollRenderer
+                    postId={post.id}
+                    pollData={pollData}
+                    votes={post.poll_votes ?? []}
+                    userId={user?.id}
+                  />
+                ) : editingPostId === post.id ? (
+                  <div className="mb-4 space-y-2">
+                    <Textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      rows={4}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={async () => {
+                          if (!editContent.trim()) return toast.error("Content cannot be empty");
+                          const { error } = await supabase
+                            .from("posts" as any)
+                            .update({ content: editContent.trim() })
+                            .eq("id", post.id);
+                          if (error) return toast.error(error.message);
+                          toast.success("Post updated");
+                          setEditingPostId(null);
+                          qc.invalidateQueries({ queryKey: ["community-posts"] });
+                        }}
+                      >
+                        Save
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditingPostId(null)}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="text-sm prose prose-sm dark:prose-invert max-w-none mb-4"
+                    dangerouslySetInnerHTML={{ __html: post.content }}
+                  />
+                )}
+
+                {post.media_url && (
+                  <div className="mb-4 rounded-xl overflow-hidden bg-accent/30 border">
+                    {post.media_type === "image" && (
+                      <img
+                        src={post.media_url}
+                        alt="Post media"
+                        className="max-h-[500px] w-full object-contain"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
+                    {post.media_type === "video" && isMounted && (
+                      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
+                        <video
+                          src={post.media_url}
+                          controls
+                          className="w-full h-full object-cover"
+                          controlsList="nodownload"
+                        />
+                      </div>
+                    )}
+                    {post.media_type === "pdf" && (
+                      <div className="max-h-[500px]">
+                        <FilePreview url={post.media_url} />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {!isPoll && (
+                  <div className="flex items-center gap-6 pt-4 border-t border-border/50 text-muted-foreground mt-2">
+                    <button
+                      onClick={() => toggleLike(post.id, isLiked)}
+                      className={`flex items-center gap-1.5 hover:text-rose-500 transition-colors group ${isLiked ? "text-rose-500 font-medium" : ""}`}
+                    >
+                      <Heart
+                        className={`h-5 w-5 transition-transform group-hover:scale-110 ${isLiked ? "fill-current scale-110" : ""}`}
+                      />
+                      <span className="text-sm">{post.likes?.length || 0}</span>
+                    </button>
+                    <button
+                      onClick={() => setExpandedPostId(expandedPostId === post.id ? null : post.id)}
+                      className="flex items-center gap-1.5 hover:text-indigo-500 transition-colors group"
+                    >
+                      <MessageSquare className="h-5 w-5 transition-transform group-hover:scale-110" />
+                      <span className="text-sm">{post.comments?.length || 0}</span>
+                    </button>
+                    <button
+                      onClick={() => toggleSave(post.id, isSaved)}
+                      className={`flex items-center gap-1.5 ml-auto hover:text-amber-500 transition-colors group ${isSaved ? "text-amber-500 font-medium" : ""}`}
+                    >
+                      <Bookmark
+                        className={`h-5 w-5 transition-transform group-hover:scale-110 ${isSaved ? "fill-current" : ""}`}
+                      />
+                    </button>
+                  </div>
+                )}
+
+                {expandedPostId === post.id && (
+                  <div className="mt-4 pt-4 border-t space-y-4">
+                    {post.comments?.length > 0 ? (
+                      <div className="space-y-3">
+                        {post.comments.map((comment: any) => {
+                          const isCommentAuthor = user?.id === comment.author_id;
+                          return (
+                            <div key={comment.id} className="flex gap-2 text-sm group">
+                              <Avatar className="h-6 w-6 mt-0.5 shrink-0">
+                                <AvatarImage src={comment.author?.avatar_url} />
+                                <AvatarFallback>
+                                  {comment.author?.full_name?.charAt(0) || "U"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <span className="text-xs font-semibold">
+                                    {comment.author?.full_name || "User"}
+                                  </span>
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {comment.created_at
+                                      ? formatDistanceToNow(new Date(comment.created_at), {
+                                          addSuffix: true,
+                                        })
+                                      : ""}
+                                  </span>
+                                  {(isCommentAuthor || isAdmin) && (
+                                    <div className="ml-auto flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      {isCommentAuthor && (
                                         <button
-                                          onClick={async () => {
-                                            if (!window.confirm("Delete this comment?")) return;
-                                            const { error } = await supabase
-                                              .from("post_comments" as any)
-                                              .delete()
-                                              .eq("id", comment.id);
-                                            if (error) return toast.error(error.message);
-                                            qc.invalidateQueries({ queryKey: ["community-posts"] });
+                                          onClick={() => {
+                                            setEditingCommentId(comment.id);
+                                            setEditCommentText(comment.content);
                                           }}
-                                          className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                          title="Delete"
+                                          className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent"
+                                          title="Edit"
                                         >
-                                          <Trash2 className="h-3 w-3" />
+                                          <FileText className="h-3 w-3" />
                                         </button>
-                                      </div>
-                                    )}
-                                  </div>
-                                  {editingCommentId === comment.id ? (
-                                    <div className="space-y-1.5">
-                                      <Textarea
-                                        value={editCommentText}
-                                        onChange={(e) => setEditCommentText(e.target.value)}
-                                        rows={2}
-                                        className="min-h-[60px]"
-                                      />
-                                      <div className="flex gap-1.5">
-                                        <Button
-                                          size="sm"
-                                          className="h-7 text-xs"
-                                          onClick={async () => {
-                                            if (!editCommentText.trim())
-                                              return toast.error("Comment cannot be empty");
-                                            const { error } = await supabase
-                                              .from("post_comments" as any)
-                                              .update({ content: editCommentText.trim() })
-                                              .eq("id", comment.id);
-                                            if (error) return toast.error(error.message);
-                                            toast.success("Comment updated");
-                                            setEditingCommentId(null);
-                                            qc.invalidateQueries({ queryKey: ["community-posts"] });
-                                          }}
-                                        >
-                                          Save
-                                        </Button>
-                                        <Button
-                                          size="sm"
-                                          variant="outline"
-                                          className="h-7 text-xs"
-                                          onClick={() => setEditingCommentId(null)}
-                                        >
-                                          Cancel
-                                        </Button>
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div className="bg-accent/30 rounded-lg p-2.5">
-                                      <p className="text-muted-foreground whitespace-pre-wrap">
-                                        {comment.content || "..."}
-                                      </p>
+                                      )}
+                                      <button
+                                        onClick={async () => {
+                                          if (!window.confirm("Delete this comment?")) return;
+                                          const { error } = await supabase
+                                            .from("post_comments" as any)
+                                            .delete()
+                                            .eq("id", comment.id);
+                                          if (error) return toast.error(error.message);
+                                          qc.invalidateQueries({ queryKey: ["community-posts"] });
+                                        }}
+                                        className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                        title="Delete"
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </button>
                                     </div>
                                   )}
                                 </div>
+                                {editingCommentId === comment.id ? (
+                                  <div className="space-y-1.5">
+                                    <Textarea
+                                      value={editCommentText}
+                                      onChange={(e) => setEditCommentText(e.target.value)}
+                                      rows={2}
+                                      className="min-h-[60px]"
+                                    />
+                                    <div className="flex gap-1.5">
+                                      <Button
+                                        size="sm"
+                                        className="h-7 text-xs"
+                                        onClick={async () => {
+                                          if (!editCommentText.trim())
+                                            return toast.error("Comment cannot be empty");
+                                          const { error } = await supabase
+                                            .from("post_comments" as any)
+                                            .update({ content: editCommentText.trim() })
+                                            .eq("id", comment.id);
+                                          if (error) return toast.error(error.message);
+                                          toast.success("Comment updated");
+                                          setEditingCommentId(null);
+                                          qc.invalidateQueries({ queryKey: ["community-posts"] });
+                                        }}
+                                      >
+                                        Save
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-7 text-xs"
+                                        onClick={() => setEditingCommentId(null)}
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="bg-accent/30 rounded-lg p-2.5">
+                                    <p className="text-muted-foreground whitespace-pre-wrap">
+                                      {comment.content || "..."}
+                                    </p>
+                                  </div>
+                                )}
                               </div>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <p className="text-xs text-muted-foreground text-center py-2">
-                          No comments yet. Start the conversation!
-                        </p>
-                      )}
-                      <div className="flex gap-2 items-end">
-                        <Textarea
-                          value={commentText}
-                          onChange={(e) => setCommentText(e.target.value)}
-                          placeholder="Write a comment..."
-                          className="min-h-[40px] h-[40px] resize-none"
-                        />
-                        <Button
-                          size="sm"
-                          onClick={() => addComment(post.id)}
-                          disabled={!commentText.trim()}
-                        >
-                          Post
-                        </Button>
+                            </div>
+                          );
+                        })}
                       </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground text-center py-2">
+                        No comments yet. Start the conversation!
+                      </p>
+                    )}
+                    <div className="flex gap-2 items-end">
+                      <Textarea
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        placeholder="Write a comment..."
+                        className="min-h-[40px] h-[40px] resize-none"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() => addComment(post.id)}
+                        disabled={!commentText.trim()}
+                      >
+                        Post
+                      </Button>
                     </div>
-                  )}
-                </article>
-              );
-            })
-          )}
-        </div>
+                  </div>
+                )}
+              </article>
+            );
+          })
+        )}
+      </div>
 
-        {/* Community Real-Time Chat */}
-        <div className="mt-10">
-          <CommunityChat />
-        </div>
+      {/* Community Real-Time Chat */}
+      <div className="mt-10">
+        <CommunityChat />
+      </div>
     </div>
   );
 }

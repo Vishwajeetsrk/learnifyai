@@ -1,13 +1,13 @@
-import type { MouseEvent } from 'react';
-import { ArrowRight, Clock, Menu, X } from 'lucide-react';
+import type { MouseEvent } from "react";
+import { ArrowRight, Clock, Menu, X } from "lucide-react";
 import {
   handlePresetNavClick,
   resolveNavTarget,
   sectionHref,
-} from '../../../_shared/preset-site-routing';
-import { NAV_ITEMS } from '../routes';
-import { TextRoll } from './TextRoll';
-import { useLondonTime } from '../hooks/useLondonTime';
+} from "../../../_shared/preset-site-routing";
+import { NAV_ITEMS } from "../routes";
+import { TextRoll } from "./TextRoll";
+import { useLondonTime } from "../hooks/useLondonTime";
 
 type NavbarProps = {
   menuOpen: boolean;
@@ -18,7 +18,7 @@ export function Navbar({ menuOpen, onMenuToggle }: NavbarProps) {
   const londonTime = useLondonTime();
 
   const navClick = (section: string) => (e: MouseEvent<HTMLAnchorElement>) => {
-    handlePresetNavClick(e, resolveNavTarget('', { section }));
+    handlePresetNavClick(e, resolveNavTarget("", { section }));
   };
 
   return (
@@ -26,8 +26,8 @@ export function Navbar({ menuOpen, onMenuToggle }: NavbarProps) {
       <div className="flex items-center justify-between rounded-full bg-white p-[5px]">
         <div className="flex items-center gap-4 sm:gap-6">
           <a
-            href={sectionHref('hero')}
-            onClick={navClick('hero')}
+            href={sectionHref("hero")}
+            onClick={navClick("hero")}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-900 text-[10px] font-bold tracking-tight text-white sm:h-10 sm:w-10 sm:text-[11px]"
             aria-label="Axion home"
           >
@@ -56,8 +56,8 @@ export function Navbar({ menuOpen, onMenuToggle }: NavbarProps) {
             {londonTime} in London
           </span>
           <a
-            href={sectionHref('connect')}
-            onClick={navClick('connect')}
+            href={sectionHref("connect")}
+            onClick={navClick("connect")}
             className="group flex items-center gap-2 rounded-full bg-[#F26522] py-2 pl-5 pr-2 text-[13px] font-medium text-white transition-colors hover:bg-[#e05a1a]"
           >
             <TextRoll text="Book a strategy call" />
@@ -71,7 +71,7 @@ export function Navbar({ menuOpen, onMenuToggle }: NavbarProps) {
           type="button"
           className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-white md:hidden"
           onClick={onMenuToggle}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
         >
           {menuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>

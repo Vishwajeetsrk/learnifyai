@@ -12,11 +12,11 @@ import {
   SkipForward,
   SkipBack,
   MessageSquare,
-  Bookmark,
   PictureInPicture,
   Camera,
   HelpCircle,
   List,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -33,6 +33,72 @@ import { TranscriptPanel } from "./TranscriptPanel";
 import { CaptionPanel } from "./CaptionPanel";
 import { AdvancedSettingsPanel } from "./AdvancedSettingsPanel";
 import { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay";
+
+const TRANSLATION_DICTS: Record<string, Record<string, string>> = {
+  hi: {
+    "Welcome to this lesson on:": "इस पाठ में आपका स्वागत है:",
+    "In this session, we will explore the core fundamentals and advanced concepts.": "इस सत्र में, हम मुख्य सिद्धांतों और उन्नत अवधारणाओं का पता लगाएंगे।",
+    "Remember that practice is key to mastering these techniques.": "याद रखें कि इन तकनीकों में महारत हासिल करने के लिए अभ्यास ही कुंजी है।",
+    "If you have any doubts, you can ask the AI Tutor in the side panel.": "यदि आपको कोई संदेह है, तो आप साइड पैनल में एआई ट्यूटर से पूछ सकते हैं।",
+    "Let's proceed by writing some code in the interactive playground.": "आइए इंटरैक्टिव प्लेग्राउंड में कुछ कोड लिखकर आगे बढ़ें।",
+    "We will wrap up this topic and proceed to the practice quiz next.": "हम इस विषय को समाप्त करेंगे और आगे अभ्यास प्रश्नोत्तरी पर चलेंगे।",
+    "Thank you for watching! Complete the assessment to claim your certificate.": "देखने के लिए धन्यवाद! अपना प्रमाणपत्र प्राप्त करने के लिए मूल्यांकन पूरा करें।"
+  },
+  es: {
+    "Welcome to this lesson on:": "Bienvenido a esta lección sobre:",
+    "In this session, we will explore the core fundamentals and advanced concepts.": "En esta sesión, exploraremos los fundamentos básicos y los conceptos avanzados.",
+    "Remember that practice is key to mastering these techniques.": "Recuerda que la práctica es clave para dominar estas técnicas.",
+    "If you have any doubts, you can ask the AI Tutor in the side panel.": "Si tienes alguna duda, puedes preguntar al Tutor de IA en el panel lateral.",
+    "Let's proceed by writing some code in the interactive playground.": "Procedamos escribiendo algo de código en el patio de recreo interactivo.",
+    "We will wrap up this topic and proceed to the practice quiz next.": "Terminaremos este tema y procederemos al cuestionario de práctica a continuación.",
+    "Thank you for watching! Complete the assessment to claim your certificate.": "¡Gracias por mirar! Completa la evaluación para reclamar tu certificado."
+  },
+  fr: {
+    "Welcome to this lesson on:": "Bienvenue dans cette leçon sur :",
+    "In this session, we will explore the core fundamentals and advanced concepts.": "Dans cette session, nous explorerons les fondamentaux de base et les concepts avancés.",
+    "Remember that practice is key to mastering these techniques.": "N'oubliez pas que la pratique est la clé pour maîtriser ces techniques.",
+    "If you have any doubts, you can ask the tuteur IA in the side panel.": "Si vous avez des doutes, vous pouvez demander au tuteur IA dans le panneau latéral.",
+    "Let's proceed by writing some code in the interactive playground.": "Commençons par écrire du code dans l'espace de jeu interactif.",
+    "We will wrap up this topic and proceed to the practice quiz next.": "Nous allons terminer ce sujet et passer ensuite au quiz d'entraînement.",
+    "Thank you for watching! Complete the assessment to claim your certificate.": "Merci d'avoir regardé ! Remplissez l'évaluation pour obtenir votre certificat."
+  },
+  de: {
+    "Welcome to this lesson on:": "Willkommen zu dieser Lektion über:",
+    "In this session, we will explore the core fundamentals and advanced concepts.": "In dieser Sitzung werden wir die Grundlagen und fortgeschrittenen Konzepte untersuchen.",
+    "Remember that practice is key to mastering these techniques.": "Denken Sie daran, dass Übung der Schlüssel zur Beherrschung dieser Techniken ist.",
+    "If you have any doubts, you can ask the KI-Tutor in the side panel.": "Wenn Sie Zweifel haben, können Sie den KI-Tutor in der Seitenleiste fragen.",
+    "Let's proceed by writing some code in the interactive playground.": "Schreiben wir etwas Code auf dem interaktiven Spielplatz.",
+    "We will wrap up this topic and proceed to the practice quiz next.": "Wir werden dieses Thema abschließen und als Nächstes mit dem Übungsquiz fortfahren.",
+    "Thank you for watching! Complete the assessment to claim your certificate.": "Vielen Dank fürs Zuschauen! Schließen Sie die Bewertung ab, um Ihr Zertifikat anzufordern."
+  },
+  te: {
+    "Welcome to this lesson on:": "ಈ ಪಾಠಕ್ಕೆ ಸುಸ್ವಾಗತ:",
+    "In this session, we will explore the core fundamentals and advanced concepts.": "ಈ ಅವಧಿಯಲ್ಲಿ, ನಾವು ಮೂಲಭೂತ ಮತ್ತು ಸುಧಾರಿತ ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಅನ್ವೇಷಿಸುತ್ತೇವೆ.",
+    "Remember that practice is key to mastering these techniques.": "ಈ ತಂತ್ರಗಳನ್ನು ಕರಗತ ಮಾಡಿಕೊಳ್ಳಲು ಅಭ್ಯಾಸವೇ ಪ್ರಮುಖವಾಗಿದೆ ಎಂದು ನೆನಪಿಡಿ.",
+    "If you have any doubts, you can ask the AI Tutor in the side panel.": "ನಿಮಗೆ ಯಾವುದೇ ಸಂದೇಹಗಳಿದ್ದರೆ, ನೀವು ಸೈಡ್ ಪ್ಯಾನೆಲ್‌ನಲ್ಲಿರುವ AI ಟ್ಯೂಟರ್ ಅನ್ನು ಕೇಳಬಹುದು.",
+    "Let's proceed by writing some code in the interactive playground.": "ಸಂವಾದಾತ್ಮಕ ಆಟದ ಮೈದಾನದಲ್ಲಿ ಕೆಲವು ಕೋಡ್ ಬರೆಯುವ ಮೂಲಕ ಮುಂದುವರಿಯೋಣ.",
+    "We will wrap up this topic and proceed to the practice quiz next.": "ನಾವು ಈ ವಿಷಯವನ್ನು ಮುಕ್ತಾಯಗೊಳಿಸುತ್ತೇವೆ ಮತ್ತು ಮುಂದೆ ಅಭ್ಯಾಸ ರಸಪ್ರಶ್ನೆಗೆ ಮುಂದುವರಿಯುತ್ತೇವೆ.",
+    "Thank you for watching! Complete the assessment to claim your certificate.": "ನೋಡಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ಪ್ರಮಾಣಪತ್ರವನ್ನು ಪಡೆಯಲು ಮೌಲ್ಯಮಾಪನವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ."
+  },
+  ta: {
+    "Welcome to this lesson on:": "இந்த பாடத்திற்கு உங்களை வரவேற்கிறோம்:",
+    "In this session, we will explore the core fundamentals and advanced concepts.": "இந்த அமர்வில், அடிப்படை மற்றும் மேம்பட்ட கருத்துக்களை ஆராய்வோம்.",
+    "Remember that practice is key to mastering these techniques.": "இந்த நுட்பங்களை மாஸ்டர் செய்ய பயிற்சி முக்கியம் என்பதை நினைவில் கொள்க.",
+    "If you have any doubts, you can ask the AI Tutor in the side panel.": "உங்களுக்கு ஏதேனும் சந்தேகங்கள் இருந்தால், பக்கவாட்டு பேனலில் உள்ள AI பயிற்சியாளரிடம் கேட்கலாம்.",
+    "Let's proceed by writing some code in the interactive playground.": "ஊடாடும் விளையாட்டு மைதானத்தில் சில குறியீட்டை எழுதி தொடர்வோம்.",
+    "We will wrap up this topic and proceed to the practice quiz next.": "இந்த தலைப்பை முடித்துவிட்டு அடுத்ததாக பயிற்சி வினாடி வினாவிற்கு செல்வோம்.",
+    "Thank you for watching! Complete the assessment to claim your certificate.": "பார்த்ததற்கு நன்றி! உங்கள் சான்றிதழைக் கோர மதிப்பீட்டை முடிக்கவும்."
+  },
+  kn: {
+    "Welcome to this lesson on:": "ಈ ಪಾಠಕ್ಕೆ ಸುಸ್ವಾಗತ:",
+    "In this session, we will explore the core fundamentals and advanced concepts.": "ಈ ಅವಧಿಯಲ್ಲಿ, ನಾವು ಮೂಲಭೂತ ಮತ್ತು ಸುಧಾರಿತ ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಅನ್ವೇಷಿಸುತ್ತೇವೆ.",
+    "Remember that practice is key to mastering these techniques.": "ಈ ತಂತ್ರಗಳನ್ನು ಕರಗತ ಮಾಡಿಕೊಳ್ಳಲು ಅಭ್ಯಾಸವೇ ಪ್ರಮುಖವಾಗಿದೆ ಎಂದು ನೆನಪಿಡಿ.",
+    "If you have any doubts, you can ask the AI Tutor in the side panel.": "ನಿಮಗೆ ಯಾವುದೇ ಸಂದೇಹಗಳಿದ್ದರೆ, ನೀವು ಸೈಡ್ ಪ್ಯಾನೆಲ್‌ನಲ್ಲಿರುವ AI ಟ್ಯೂಟರ್ ಅನ್ನು ಕೇಳಬಹುದು.",
+    "Let's proceed by writing some code in the interactive playground.": "ಸಂವಾದಾತ್ಮಕ ಆಟದ ಮೈದಾನದಲ್ಲಿ ಕೆಲವು ಕೋಡ್ ಬರೆಯುವ ಮೂಲಕ ಮುಂದುವರಿಯೋಣ.",
+    "We will wrap up this topic and proceed to the practice quiz next.": "ನಾವು ಈ ವಿಷಯವನ್ನು ಮುಕ್ತಾಯಗೊಳಿಸುತ್ತೇವೆ ಮತ್ತು ಮುಂದೆ ಅಭ್ಯಾಸ ರಸಪ್ರಶ್ನೆಗೆ ಮುಂದುವರಿಯುತ್ತೇವೆ.",
+    "Thank you for watching! Complete the assessment to claim your certificate.": "ನೋಡಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ಪ್ರಮಾಣಪತ್ರವನ್ನು ಪಡೆಯಲು ಮೌಲ್ಯಮಾಪನವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ."
+  }
+};
 
 interface AdvancedVideoPlayerProps {
   videoUrl: string;
@@ -98,14 +164,111 @@ export function AdvancedVideoPlayer({
   // Subtitle tracks
   const [tracks, setTracks] = useState<SubtitleTrack[]>(subtitleTracks);
   const [activeTrack, setActiveTrack] = useState<SubtitleTrack | null>(null);
+  const [audioLanguage, setAudioLanguage] = useState<string>("original");
+  const [translationLanguage, setTranslationLanguage] = useState<string>("off");
+
+  // Auto-generate captions if none passed
+  useEffect(() => {
+    if (subtitleTracks.length > 0) {
+      setTracks(subtitleTracks);
+      setActiveTrack(subtitleTracks[0]);
+    } else {
+      const currentLesson = lessons.find((l) => l.id === currentLessonId);
+      const lessonTitle = currentLesson?.title || title || "Introduction";
+      const generatedCues: TranscriptEntry[] = [
+        { start: 1, end: 6, text: `Welcome to this lesson on:` },
+        { start: 6, end: 10, text: lessonTitle },
+        { start: 12, end: 20, text: "In this session, we will explore the core fundamentals and advanced concepts." },
+        { start: 24, end: 32, text: "Remember that practice is key to mastering these techniques." },
+        { start: 36, end: 44, text: "If you have any doubts, you can ask the AI Tutor in the side panel." },
+        { start: 48, end: 56, text: "Let's proceed by writing some code in the interactive playground." },
+        { start: 60, end: 68, text: "We will wrap up this topic and proceed to the practice quiz next." },
+        { start: 72, end: 82, text: "Thank you for watching! Complete the assessment to claim your certificate." }
+      ];
+
+      const defaultTrack: SubtitleTrack = {
+        id: "auto-english",
+        label: "English (AI Auto-generated)",
+        language: "en",
+        cues: generatedCues,
+        isDefault: true,
+      };
+
+      setTracks([defaultTrack]);
+      setActiveTrack(defaultTrack);
+    }
+  }, [subtitleTracks, lessons, currentLessonId, title]);
 
   // Active caption cue
   const activeCue = useMemo(() => {
-    if (!settings.captionsEnabled || !activeTrack) return null;
-    return activeTrack.cues.find(
-      (cue) => currentTime >= cue.start && currentTime <= cue.end
-    );
-  }, [activeTrack, currentTime, settings.captionsEnabled]);
+    if ((!settings.captionsEnabled && translationLanguage === "off") || !activeTrack) return null;
+    return activeTrack.cues.find((cue) => currentTime >= cue.start && currentTime <= cue.end);
+  }, [activeTrack, currentTime, settings.captionsEnabled, translationLanguage]);
+
+  // Translated cue text
+  const translatedCueText = useMemo(() => {
+    if (!activeCue) return null;
+    if (translationLanguage === "off") return activeCue.text;
+    const dict = TRANSLATION_DICTS[translationLanguage];
+    if (dict && dict[activeCue.text]) return dict[activeCue.text];
+    return `[${translationLanguage.toUpperCase()}] ${activeCue.text}`;
+  }, [activeCue, translationLanguage]);
+
+  // Speech synthesis speaking loop
+  const spokenCueRef = useRef<string | null>(null);
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || audioLanguage === "original" || isYouTube) {
+      if (video && audioLanguage === "original") {
+        video.muted = muted;
+      }
+      return;
+    }
+
+    video.muted = true;
+
+    if (!activeCue) {
+      speechSynthesis.cancel();
+      spokenCueRef.current = null;
+      return;
+    }
+
+    // Determine target text to speak
+    const targetText = translationLanguage !== "off"
+      ? (TRANSLATION_DICTS[translationLanguage]?.[activeCue.text] || activeCue.text)
+      : (TRANSLATION_DICTS[audioLanguage]?.[activeCue.text] || activeCue.text);
+
+    if (spokenCueRef.current !== activeCue.text) {
+      speechSynthesis.cancel();
+      if (playing) {
+        const utterance = new SpeechSynthesisUtterance(targetText);
+        utterance.lang = audioLanguage;
+        const voices = speechSynthesis.getVoices();
+        const matchingVoice = voices.find((v) => v.lang.startsWith(audioLanguage));
+        if (matchingVoice) utterance.voice = matchingVoice;
+        utterance.rate = 0.95;
+        utterance.pitch = 1.0;
+        speechSynthesis.speak(utterance);
+        spokenCueRef.current = activeCue.text;
+      }
+    }
+  }, [activeCue, audioLanguage, translationLanguage, playing, isYouTube, muted]);
+
+  // Pause/Resume SpeechSynthesis with player play/pause
+  useEffect(() => {
+    if (audioLanguage === "original") return;
+    if (playing) {
+      if (speechSynthesis.paused) speechSynthesis.resume();
+    } else {
+      if (speechSynthesis.speaking) speechSynthesis.pause();
+    }
+  }, [playing, audioLanguage]);
+
+  useEffect(() => {
+    return () => {
+      speechSynthesis.cancel();
+    };
+  }, []);
 
   const currentLessonIndex = lessons.findIndex((l) => l.id === currentLessonId);
 
@@ -151,7 +314,15 @@ export function AdvancedVideoPlayer({
       video.removeEventListener("progress", onProgress);
       video.removeEventListener("volumechange", onVolumeChange);
     };
-  }, [isYouTube, currentLessonId, settings.autoNextLesson, currentLessonIndex, lessons, onLessonClick, onComplete]);
+  }, [
+    isYouTube,
+    currentLessonId,
+    settings.autoNextLesson,
+    currentLessonIndex,
+    lessons,
+    onLessonClick,
+    onComplete,
+  ]);
 
   // Playback rate
   useEffect(() => {
@@ -199,10 +370,7 @@ export function AdvancedVideoPlayer({
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement
-      ) return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
 
       const key = e.key.toLowerCase();
       const ctrl = e.ctrlKey || e.metaKey;
@@ -230,23 +398,62 @@ export function AdvancedVideoPlayer({
     if (!video || isYouTube) return;
 
     switch (action) {
-      case "togglePlay": video.paused ? video.play() : video.pause(); break;
-      case "toggleMute": video.muted = !video.muted; break;
-      case "volumeUp": video.volume = Math.min(1, video.volume + 0.1); break;
-      case "volumeDown": video.volume = Math.max(0, video.volume - 0.1); break;
-      case "seekForward": video.currentTime = Math.min(video.duration, video.currentTime + 5); break;
-      case "seekBackward": video.currentTime = Math.max(0, video.currentTime - 5); break;
-      case "skipBack10": video.currentTime = Math.max(0, video.currentTime - 10); break;
-      case "skipForward10": video.currentTime = Math.min(video.duration, video.currentTime + 10); break;
-      case "toggleCaptions": setSettings((s) => ({ ...s, captionsEnabled: !s.captionsEnabled })); break;
-      case "toggleFullscreen": toggleFullscreen(); break;
-      case "toggleTranscript": setShowTranscript((v) => !v); break;
-      case "screenshot": takeScreenshot(); break;
-      case "restart": video.currentTime = 0; break;
-      case "nextLesson": if (currentLessonIndex < lessons.length - 1) onLessonClick(lessons[currentLessonIndex + 1].id); break;
-      case "prevLesson": if (currentLessonIndex > 0) onLessonClick(lessons[currentLessonIndex - 1].id); break;
-      case "openSettings": setShowSettings((v) => !v); break;
-      case "closeModal": setShowSettings(false); setShowTranscript(false); setShowCaptions(false); setShowShortcuts(false); setShowPlaylist(false); break;
+      case "togglePlay":
+        video.paused ? video.play() : video.pause();
+        break;
+      case "toggleMute":
+        video.muted = !video.muted;
+        break;
+      case "volumeUp":
+        video.volume = Math.min(1, video.volume + 0.1);
+        break;
+      case "volumeDown":
+        video.volume = Math.max(0, video.volume - 0.1);
+        break;
+      case "seekForward":
+        video.currentTime = Math.min(video.duration, video.currentTime + 5);
+        break;
+      case "seekBackward":
+        video.currentTime = Math.max(0, video.currentTime - 5);
+        break;
+      case "skipBack10":
+        video.currentTime = Math.max(0, video.currentTime - 10);
+        break;
+      case "skipForward10":
+        video.currentTime = Math.min(video.duration, video.currentTime + 10);
+        break;
+      case "toggleCaptions":
+        setSettings((s) => ({ ...s, captionsEnabled: !s.captionsEnabled }));
+        break;
+      case "toggleFullscreen":
+        toggleFullscreen();
+        break;
+      case "toggleTranscript":
+        setShowTranscript((v) => !v);
+        break;
+      case "screenshot":
+        takeScreenshot();
+        break;
+      case "restart":
+        video.currentTime = 0;
+        break;
+      case "nextLesson":
+        if (currentLessonIndex < lessons.length - 1)
+          onLessonClick(lessons[currentLessonIndex + 1].id);
+        break;
+      case "prevLesson":
+        if (currentLessonIndex > 0) onLessonClick(lessons[currentLessonIndex - 1].id);
+        break;
+      case "openSettings":
+        setShowSettings((v) => !v);
+        break;
+      case "closeModal":
+        setShowSettings(false);
+        setShowTranscript(false);
+        setShowCaptions(false);
+        setShowShortcuts(false);
+        setShowPlaylist(false);
+        break;
       default:
         if (action.startsWith("jump")) {
           const pct = parseInt(action.replace("jump", "")) / 100;
@@ -323,7 +530,9 @@ export function AdvancedVideoPlayer({
   const VolumeIcon = muted || volume === 0 ? VolumeX : volume < 0.5 ? Volume2 : Volume2;
 
   // Format progress time
-  const progressTime = formatTimestamp(hoveringProgress ? (progressHoverX / 100) * duration : currentTime);
+  const progressTime = formatTimestamp(
+    hoveringProgress ? (progressHoverX / 100) * duration : currentTime,
+  );
 
   return (
     <div
@@ -331,7 +540,7 @@ export function AdvancedVideoPlayer({
       className={cn(
         "relative bg-black rounded-xl overflow-hidden select-none",
         settings.theaterMode ? "max-w-[1800px] mx-auto" : "max-w-5xl mx-auto",
-        settings.focusMode && !showControls && "cursor-none"
+        settings.focusMode && !showControls && "cursor-none",
       )}
       onMouseMove={resetControlsTimer}
       onMouseLeave={() => playing && setShowControls(false)}
@@ -377,18 +586,27 @@ export function AdvancedVideoPlayer({
                 settings.captionStyle.blur && "backdrop-blur-sm",
                 settings.captionStyle.position === "top" && "top-4",
                 settings.captionStyle.position === "center" && "top-1/2 -translate-y-1/2",
-                settings.captionStyle.position === "bottom" && "bottom-16"
+                settings.captionStyle.position === "bottom" && "bottom-16",
               )}
               style={{
                 fontSize: `${CAPTION_FONT_SIZES.find((s) => s.value === settings.captionStyle.fontSize)?.px || 18}px`,
                 fontFamily: settings.captionStyle.fontFamily,
-                fontWeight: settings.captionStyle.fontWeight === "bold" ? 700 : settings.captionStyle.fontWeight === "medium" ? 500 : 400,
+                fontWeight:
+                  settings.captionStyle.fontWeight === "bold"
+                    ? 700
+                    : settings.captionStyle.fontWeight === "medium"
+                      ? 500
+                      : 400,
                 color: settings.captionStyle.color,
-                backgroundColor: `${settings.captionStyle.backgroundColor}${Math.round(settings.captionStyle.backgroundOpacity * 2.55).toString(16).padStart(2, "0")}`,
+                backgroundColor: `${settings.captionStyle.backgroundColor}${Math.round(
+                  settings.captionStyle.backgroundOpacity * 2.55,
+                )
+                  .toString(16)
+                  .padStart(2, "0")}`,
               }}
               aria-live="polite"
             >
-              {activeCue.text}
+              {translatedCueText}
             </div>
           )}
         </>
@@ -464,7 +682,9 @@ export function AdvancedVideoPlayer({
               tooltip="Previous lesson"
             />
             <ControlButton
-              icon={playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}
+              icon={
+                playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />
+              }
               onClick={() => videoRef.current?.play()}
               tooltip={playing ? "Pause" : "Play"}
             />
@@ -479,7 +699,9 @@ export function AdvancedVideoPlayer({
             <div className="flex items-center gap-1 group/vol">
               <ControlButton
                 icon={<VolumeIcon className="h-4 w-4" />}
-                onClick={() => { if (videoRef.current) videoRef.current.muted = !videoRef.current.muted; }}
+                onClick={() => {
+                  if (videoRef.current) videoRef.current.muted = !videoRef.current.muted;
+                }}
                 tooltip={muted ? "Unmute" : "Mute"}
               />
               <input
@@ -510,11 +732,6 @@ export function AdvancedVideoPlayer({
 
             {/* Right controls */}
             <ControlButton
-              icon={<Bookmark className="h-4 w-4" />}
-              onClick={() => {}}
-              tooltip="Bookmark"
-            />
-            <ControlButton
               icon={<Camera className="h-4 w-4" />}
               onClick={takeScreenshot}
               tooltip="Screenshot"
@@ -534,13 +751,20 @@ export function AdvancedVideoPlayer({
             />
             <ControlButton
               icon={<MessageSquare className="h-4 w-4" />}
-              onClick={() => { setShowTranscript((v) => !v); setShowCaptions(false); }}
+              onClick={() => {
+                setShowTranscript((v) => !v);
+                setShowCaptions(false);
+              }}
               tooltip="Transcript"
               active={showTranscript}
             />
             <ControlButton
               icon={<Settings className="h-4 w-4" />}
-              onClick={() => { setShowSettings((v) => !v); setShowCaptions(false); setShowTranscript(false); }}
+              onClick={() => {
+                setShowSettings((v) => !v);
+                setShowCaptions(false);
+                setShowTranscript(false);
+              }}
               tooltip="Settings"
               active={showSettings}
             />
@@ -550,7 +774,9 @@ export function AdvancedVideoPlayer({
               tooltip="Keyboard shortcuts"
             />
             <ControlButton
-              icon={isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+              icon={
+                isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />
+              }
               onClick={toggleFullscreen}
               tooltip={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
             />
@@ -564,7 +790,9 @@ export function AdvancedVideoPlayer({
           <TranscriptPanel
             entries={transcriptEntries}
             currentTime={currentTime}
-            onSeek={(time) => { if (videoRef.current) videoRef.current.currentTime = time; }}
+            onSeek={(time) => {
+              if (videoRef.current) videoRef.current.currentTime = time;
+            }}
             onClose={() => setShowTranscript(false)}
             videoTitle={title}
           />
@@ -606,6 +834,10 @@ export function AdvancedVideoPlayer({
             ]}
             currentQuality={settings.quality}
             onQualityChange={(q) => setSettings((prev) => ({ ...prev, quality: q }))}
+            audioLanguage={audioLanguage}
+            onAudioLanguageChange={setAudioLanguage}
+            translationLanguage={translationLanguage}
+            onTranslationLanguageChange={setTranslationLanguage}
             onClose={() => setShowSettings(false)}
           />
         </div>
@@ -616,7 +848,11 @@ export function AdvancedVideoPlayer({
         <div className="absolute top-0 right-0 bottom-0 w-72 bg-background/95 backdrop-blur-sm border-l border-border z-30 flex flex-col">
           <div className="flex items-center justify-between p-3 border-b border-border">
             <h3 className="font-semibold text-sm">Lessons</h3>
-            <button onClick={() => setShowPlaylist(false)} className="text-muted-foreground hover:text-foreground" aria-label="Close playlist">
+            <button
+              onClick={() => setShowPlaylist(false)}
+              className="text-muted-foreground hover:text-foreground"
+              aria-label="Close playlist"
+            >
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
@@ -624,12 +860,15 @@ export function AdvancedVideoPlayer({
             {lessons.map((lesson, i) => (
               <button
                 key={lesson.id}
-                onClick={() => { onLessonClick(lesson.id); setShowPlaylist(false); }}
+                onClick={() => {
+                  onLessonClick(lesson.id);
+                  setShowPlaylist(false);
+                }}
                 className={cn(
                   "w-full text-left px-3 py-2.5 text-xs border-b border-border/50 transition",
                   lesson.id === currentLessonId
                     ? "bg-primary/10 text-primary"
-                    : "hover:bg-muted/50 text-muted-foreground"
+                    : "hover:bg-muted/50 text-muted-foreground",
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -671,7 +910,7 @@ function ControlButton({
       className={cn(
         "relative h-8 w-8 flex items-center justify-center rounded-lg transition",
         disabled && "opacity-30 cursor-not-allowed",
-        active ? "text-primary" : "text-white/80 hover:text-white hover:bg-white/10"
+        active ? "text-primary" : "text-white/80 hover:text-white hover:bg-white/10",
       )}
       onClick={onClick}
       disabled={disabled}

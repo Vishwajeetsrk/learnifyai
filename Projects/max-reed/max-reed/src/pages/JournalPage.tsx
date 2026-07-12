@@ -1,7 +1,7 @@
 const POSTS = [
-  { title: 'Designing motion for product launches', date: 'Mar 2026' },
-  { title: 'Bento grids without losing hierarchy', date: 'Jan 2026' },
-  { title: 'Liquid glass in dark interfaces', date: 'Nov 2025' },
+  { title: "Designing motion for product launches", date: "Mar 2026" },
+  { title: "Bento grids without losing hierarchy", date: "Jan 2026" },
+  { title: "Liquid glass in dark interfaces", date: "Nov 2025" },
 ] as const;
 
 export function JournalPage() {

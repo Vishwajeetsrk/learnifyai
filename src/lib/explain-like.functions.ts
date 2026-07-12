@@ -11,10 +11,14 @@ const Input = z.object({
 });
 
 const LEVEL_DESCRIPTIONS: Record<string, string> = {
-  beginner: "Explain like I'm 12 years old. Use simple words, short sentences, and relatable everyday examples. No jargon without immediate explanation.",
-  intermediate: "Explain like I understand the basics but need deeper insight. Use technical terms but explain why they matter. Connect concepts to real-world applications.",
-  expert: "Explain like I'm a senior engineer. Use precise technical language, mention trade-offs, edge cases, and implementation details. Include system design considerations.",
-  analogy: "Explain using a powerful analogy or metaphor. Map every technical concept to a familiar real-world scenario. Make it memorable and intuitive.",
+  beginner:
+    "Explain like I'm 12 years old. Use simple words, short sentences, and relatable everyday examples. No jargon without immediate explanation.",
+  intermediate:
+    "Explain like I understand the basics but need deeper insight. Use technical terms but explain why they matter. Connect concepts to real-world applications.",
+  expert:
+    "Explain like I'm a senior engineer. Use precise technical language, mention trade-offs, edge cases, and implementation details. Include system design considerations.",
+  analogy:
+    "Explain using a powerful analogy or metaphor. Map every technical concept to a familiar real-world scenario. Make it memorable and intuitive.",
 };
 
 export const explainLike = createServerFn({ method: "POST" })
@@ -40,7 +44,10 @@ export const explainLike = createServerFn({ method: "POST" })
 
     const res = await callUserAiChat({
       messages: [
-        { role: "system", content: `You are an expert educator who adapts explanations to the learner's level. Current level: ${data.level}.` },
+        {
+          role: "system",
+          content: `You are an expert educator who adapts explanations to the learner's level. Current level: ${data.level}.`,
+        },
         { role: "user", content: prompt },
       ],
     });

@@ -1,17 +1,17 @@
-import { motion } from 'motion/react';
+import { motion } from "motion/react";
 
 const PILLARS = [
   {
-    title: 'Ambient clarity',
-    copy: 'Soft gradients and motion-led layouts keep focus on the story without visual noise.',
+    title: "Ambient clarity",
+    copy: "Soft gradients and motion-led layouts keep focus on the story without visual noise.",
   },
   {
-    title: 'Living surfaces',
-    copy: 'Liquid glass refracts the footage beneath — depth without sacrificing legibility.',
+    title: "Living surfaces",
+    copy: "Liquid glass refracts the footage beneath — depth without sacrificing legibility.",
   },
   {
-    title: 'Guided scroll',
-    copy: 'Footer navigation anchors Discover and Mission so visitors always know where to go.',
+    title: "Guided scroll",
+    copy: "Footer navigation anchors Discover and Mission so visitors always know where to go.",
   },
 ];
 
@@ -25,7 +25,7 @@ export default function DiscoverSection() {
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
+          viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
           className="mb-4 text-[11px] font-medium uppercase tracking-[0.35em] text-white/40"
         >
@@ -34,7 +34,7 @@ export default function DiscoverSection() {
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
+          viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.65, delay: 0.08 }}
           className="max-w-3xl text-3xl font-medium tracking-[-0.02em] sm:text-4xl md:text-5xl"
         >
@@ -43,12 +43,12 @@ export default function DiscoverSection() {
         <motion.p
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
+          viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6, delay: 0.14 }}
           className="mt-5 max-w-2xl text-base leading-relaxed text-white/50"
         >
-          Lumina pairs full-bleed video with editorial sections — scroll to uncover the craft
-          behind the atmosphere.
+          Lumina pairs full-bleed video with editorial sections — scroll to uncover the craft behind
+          the atmosphere.
         </motion.p>
 
         <div className="mt-16 grid gap-6 md:grid-cols-3">
@@ -57,7 +57,7 @@ export default function DiscoverSection() {
               key={pillar.title}
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
+              viewport={{ once: true, margin: "-60px" }}
               transition={{ duration: 0.55, delay: 0.1 + i * 0.1 }}
               className="liquid-glass rounded-2xl p-6"
             >

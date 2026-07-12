@@ -1,26 +1,26 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, Menu, X } from 'lucide-react';
-import type { MouseEvent } from 'react';
-import { useEffect, useRef, useState } from 'react';
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Menu, X } from "lucide-react";
+import type { MouseEvent } from "react";
+import { useEffect, useRef, useState } from "react";
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
 import {
   getPresetRoutePath,
   sectionHref,
   subscribePresetHashNavigation,
-} from '../../../_shared/preset-site-routing';
-import { WELLNESS_DROPDOWN } from '../constants';
-import { scrollToHomeSection } from '../lib/nav';
-import LogoMark from './LogoMark';
+} from "../../../_shared/preset-site-routing";
+import { WELLNESS_DROPDOWN } from "../constants";
+import { scrollToHomeSection } from "../lib/nav";
+import LogoMark from "./LogoMark";
 
 const navPillClass = (active: boolean) =>
   `rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-    active ? 'bg-white/10 text-foreground' : 'text-foreground/75 hover:text-foreground'
+    active ? "bg-white/10 text-foreground" : "text-foreground/75 hover:text-foreground"
   }`;
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [wellnessOpen, setWellnessOpen] = useState(false);
-  const [route, setRoute] = useState('');
+  const [route, setRoute] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,26 +35,25 @@ export default function Navbar() {
         setWellnessOpen(false);
       }
     };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, [wellnessOpen]);
 
-  const wellnessActive = route === 'wellness' || WELLNESS_DROPDOWN.some((l) => l.path === route);
+  const wellnessActive = route === "wellness" || WELLNESS_DROPDOWN.some((l) => l.path === route);
 
-  const sectionClick =
-    (sectionId: string) => (e: MouseEvent<HTMLAnchorElement>) => {
-      e.preventDefault();
-      scrollToHomeSection(sectionId);
-      setMenuOpen(false);
-      setWellnessOpen(false);
-    };
+  const sectionClick = (sectionId: string) => (e: MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    scrollToHomeSection(sectionId);
+    setMenuOpen(false);
+    setWellnessOpen(false);
+  };
 
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-50 px-5 py-4 sm:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
           <PresetNavLink
-            target={{ kind: 'route', path: '' }}
+            target={{ kind: "route", path: "" }}
             className="flex shrink-0 items-center gap-2.5 text-foreground"
             aria-label="Equilibrium home"
             onClick={() => setMenuOpen(false)}
@@ -72,8 +71,8 @@ export default function Navbar() {
             aria-label="Primary"
           >
             <PresetNavLink
-              target={{ kind: 'route', path: '' }}
-              className={navPillClass(route === '')}
+              target={{ kind: "route", path: "" }}
+              className={navPillClass(route === "")}
               data-editable
             >
               Home
@@ -93,17 +92,17 @@ export default function Navbar() {
               {wellnessOpen && (
                 <div className="liquid-glass absolute left-0 top-full z-50 mt-2 min-w-[10.5rem] rounded-2xl p-1.5 shadow-lg">
                   <a
-                    href={sectionHref('wellness')}
+                    href={sectionHref("wellness")}
                     className="block rounded-xl px-3 py-2 text-sm text-foreground/90 hover:bg-white/5"
                     data-editable
-                    onClick={sectionClick('wellness')}
+                    onClick={sectionClick("wellness")}
                   >
                     Overview
                   </a>
                   {WELLNESS_DROPDOWN.map((link) => (
                     <PresetNavLink
                       key={link.path}
-                      target={{ kind: 'route', path: link.path }}
+                      target={{ kind: "route", path: link.path }}
                       className="block rounded-xl px-3 py-2 text-sm text-foreground/90 hover:bg-white/5"
                       data-editable
                       onClick={() => setWellnessOpen(false)}
@@ -116,18 +115,18 @@ export default function Navbar() {
             </div>
 
             <a
-              href={sectionHref('routine')}
+              href={sectionHref("routine")}
               className={navPillClass(false)}
               data-editable
-              onClick={sectionClick('routine')}
+              onClick={sectionClick("routine")}
             >
               Routine
             </a>
             <a
-              href={sectionHref('our-team')}
+              href={sectionHref("our-team")}
               className={navPillClass(false)}
               data-editable
-              onClick={sectionClick('our-team')}
+              onClick={sectionClick("our-team")}
             >
               Our Team
             </a>
@@ -135,14 +134,14 @@ export default function Navbar() {
 
           <div className="hidden items-center gap-2 md:flex">
             <PresetNavLink
-              target={{ kind: 'route', path: 'contact' }}
+              target={{ kind: "route", path: "contact" }}
               className="liquid-glass rounded-full px-4 py-2 text-sm font-medium text-foreground/85"
               data-editable
             >
               Log in
             </PresetNavLink>
             <PresetNavLink
-              target={{ kind: 'route', path: 'contact' }}
+              target={{ kind: "route", path: "contact" }}
               className="rounded-full bg-accent px-5 py-2 text-sm font-semibold text-background transition hover:brightness-110"
               data-editable
             >
@@ -175,9 +174,9 @@ export default function Navbar() {
             />
             <motion.aside
               className="fixed right-0 top-0 z-[70] flex h-[100dvh] w-[min(88vw,320px)] flex-col md:hidden"
-              initial={{ x: '100%' }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              exit={{ x: "100%" }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="liquid-glass flex h-full flex-col border-l border-white/10 bg-surface/95">
@@ -199,7 +198,7 @@ export default function Navbar() {
                 </div>
                 <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-6">
                   <PresetNavLink
-                    target={{ kind: 'route', path: '' }}
+                    target={{ kind: "route", path: "" }}
                     className="rounded-xl px-3 py-3 text-base font-medium text-foreground/90 hover:bg-white/5"
                     data-editable
                     onClick={() => setMenuOpen(false)}
@@ -210,10 +209,10 @@ export default function Navbar() {
                     Wellness
                   </p>
                   <a
-                    href={sectionHref('wellness')}
+                    href={sectionHref("wellness")}
                     className="rounded-xl px-3 py-2.5 text-base font-medium text-foreground/90 hover:bg-white/5"
                     data-editable
-                    onClick={sectionClick('wellness')}
+                    onClick={sectionClick("wellness")}
                   >
                     Overview
                   </a>
@@ -225,7 +224,7 @@ export default function Navbar() {
                       transition={{ delay: 0.08 + i * 0.05 }}
                     >
                       <PresetNavLink
-                        target={{ kind: 'route', path: link.path }}
+                        target={{ kind: "route", path: link.path }}
                         className="block rounded-xl px-3 py-2.5 text-base font-medium text-foreground/90 hover:bg-white/5"
                         data-editable
                         onClick={() => setMenuOpen(false)}
@@ -235,25 +234,25 @@ export default function Navbar() {
                     </motion.div>
                   ))}
                   <a
-                    href={sectionHref('routine')}
+                    href={sectionHref("routine")}
                     className="rounded-xl px-3 py-3 text-base font-medium text-foreground/90 hover:bg-white/5"
                     data-editable
-                    onClick={sectionClick('routine')}
+                    onClick={sectionClick("routine")}
                   >
                     Routine
                   </a>
                   <a
-                    href={sectionHref('our-team')}
+                    href={sectionHref("our-team")}
                     className="rounded-xl px-3 py-3 text-base font-medium text-foreground/90 hover:bg-white/5"
                     data-editable
-                    onClick={sectionClick('our-team')}
+                    onClick={sectionClick("our-team")}
                   >
                     Our Team
                   </a>
                 </nav>
                 <div className="flex flex-col gap-2 border-t border-white/10 p-5">
                   <PresetNavLink
-                    target={{ kind: 'route', path: 'contact' }}
+                    target={{ kind: "route", path: "contact" }}
                     className="liquid-glass w-full rounded-full px-5 py-3 text-center text-sm font-medium"
                     data-editable
                     onClick={() => setMenuOpen(false)}
@@ -261,7 +260,7 @@ export default function Navbar() {
                     Log in
                   </PresetNavLink>
                   <PresetNavLink
-                    target={{ kind: 'route', path: 'contact' }}
+                    target={{ kind: "route", path: "contact" }}
                     className="w-full rounded-full bg-accent px-5 py-3 text-center text-sm font-semibold text-background"
                     data-editable
                     onClick={() => setMenuOpen(false)}

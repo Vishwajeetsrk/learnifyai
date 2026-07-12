@@ -89,11 +89,19 @@ export function SiteHeader() {
           <div className="md:hidden">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9 text-foreground" aria-label="Open Menu">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 text-foreground"
+                  aria-label="Open Menu"
+                >
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 bg-background border-l border-border p-6 flex flex-col justify-between">
+              <SheetContent
+                side="right"
+                className="w-80 bg-background border-l border-border p-6 flex flex-col justify-between"
+              >
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-border/40 pb-4">
                     <SheetTitle className="text-left font-display font-semibold text-lg text-foreground">
@@ -139,7 +147,10 @@ export function SiteHeader() {
                         </Button>
                       </SheetClose>
                       <SheetClose asChild>
-                        <Button asChild className="w-full bg-foreground text-background hover:bg-foreground/90">
+                        <Button
+                          asChild
+                          className="w-full bg-foreground text-background hover:bg-foreground/90"
+                        >
                           <Link to="/signup" preload="intent">
                             {tr("nav.getStarted", "Get Started")}
                           </Link>

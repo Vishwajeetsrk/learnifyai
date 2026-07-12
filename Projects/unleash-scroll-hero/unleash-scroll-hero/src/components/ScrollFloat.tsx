@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,11 +15,11 @@ export function ScrollFloat({ children }: ScrollFloatProps) {
     const root = rootRef.current;
     if (!root) return;
 
-    const chars = root.querySelectorAll('.char');
+    const chars = root.querySelectorAll(".char");
     const st = ScrollTrigger.create({
       trigger: document.body,
-      start: 'top top',
-      end: '+=1000',
+      start: "top top",
+      end: "+=1000",
       scrub: 1.5,
       animation: gsap.fromTo(
         chars,
@@ -28,14 +28,14 @@ export function ScrollFloat({ children }: ScrollFloatProps) {
           yPercent: 0,
           scaleY: 1,
           scaleX: 1,
-          transformOrigin: '50% 0%',
+          transformOrigin: "50% 0%",
         },
         {
           opacity: 0,
           yPercent: 250,
           scaleY: 1.2,
           scaleX: 0.9,
-          ease: 'power2.inOut',
+          ease: "power2.inOut",
           duration: 1,
           stagger: 0.05,
         },
@@ -47,7 +47,7 @@ export function ScrollFloat({ children }: ScrollFloatProps) {
     };
   }, [children]);
 
-  const lines = children.split('\n');
+  const lines = children.split("\n");
 
   return (
     <div
@@ -58,19 +58,16 @@ export function ScrollFloat({ children }: ScrollFloatProps) {
         className="scroll-float-text font-dirtyline text-white"
         data-editable
         style={{
-          fontSize: 'clamp(4rem, 15vw, 317px)',
+          fontSize: "clamp(4rem, 15vw, 317px)",
           lineHeight: 0.85,
-          letterSpacing: '0%',
+          letterSpacing: "0%",
         }}
       >
         {lines.map((line, li) => (
-          <span key={li} style={{ display: 'block' }}>
-            {line.split(' ').map((word, wi, words) => (
-              <span
-                key={wi}
-                style={{ display: 'inline-block', whiteSpace: 'nowrap' }}
-              >
-                {word.split('').map((ch, ci) => (
+          <span key={li} style={{ display: "block" }}>
+            {line.split(" ").map((word, wi, words) => (
+              <span key={wi} style={{ display: "inline-block", whiteSpace: "nowrap" }}>
+                {word.split("").map((ch, ci) => (
                   <span key={ci} className="char">
                     {ch}
                   </span>

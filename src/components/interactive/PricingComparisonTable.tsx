@@ -240,7 +240,13 @@ export function PricingComparisonTable({
           >
             <div className="flex items-center justify-between mb-3">
               <div>
-                <h4 className={cn("text-sm font-bold", i === 1 && "text-primary", i === 2 && "text-purple-600 dark:text-purple-400")}>
+                <h4
+                  className={cn(
+                    "text-sm font-bold",
+                    i === 1 && "text-primary",
+                    i === 2 && "text-purple-600 dark:text-purple-400",
+                  )}
+                >
                   {name}
                 </h4>
               </div>
@@ -330,7 +336,9 @@ export function PricingComparisonTable({
             {sections.map((section, sIdx) => (
               <div key={section.title}>
                 <div className="bg-muted/50 px-3 lg:px-4 py-2.5 border-b border-border/30">
-                  <h3 className="text-xs lg:text-sm font-bold text-foreground/80">{section.title}</h3>
+                  <h3 className="text-xs lg:text-sm font-bold text-foreground/80">
+                    {section.title}
+                  </h3>
                 </div>
 
                 {section.features.map((feature, fIdx) => (
@@ -342,7 +350,9 @@ export function PricingComparisonTable({
                       fIdx % 2 === 0 ? "bg-card" : "bg-muted/20",
                       selectedRow === feature.name && "bg-primary/[0.04]",
                     )}
-                    onClick={() => setSelectedRow(selectedRow === feature.name ? null : feature.name)}
+                    onClick={() =>
+                      setSelectedRow(selectedRow === feature.name ? null : feature.name)
+                    }
                   >
                     <div className="p-3 lg:p-4 flex items-center gap-1.5 border-r border-border/20">
                       <span className="text-[11px] lg:text-xs text-foreground/80 font-medium leading-tight">

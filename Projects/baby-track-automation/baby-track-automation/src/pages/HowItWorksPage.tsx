@@ -1,9 +1,21 @@
-import InnerPageLayout from '../components/InnerPageLayout';
+import InnerPageLayout from "../components/InnerPageLayout";
 
 const STEPS = [
-  { step: '01', title: 'Connect', body: 'Link CRM, calendar, billing, and ops tools in minutes with guided OAuth flows.' },
-  { step: '02', title: 'Define', body: 'Map rituals—standups, renewals, handoffs—with visual triggers and approval gates.' },
-  { step: '03', title: 'Run', body: 'Baby Track executes routines with logs, retries, and human-in-the-loop checkpoints.' },
+  {
+    step: "01",
+    title: "Connect",
+    body: "Link CRM, calendar, billing, and ops tools in minutes with guided OAuth flows.",
+  },
+  {
+    step: "02",
+    title: "Define",
+    body: "Map rituals—standups, renewals, handoffs—with visual triggers and approval gates.",
+  },
+  {
+    step: "03",
+    title: "Run",
+    body: "Baby Track executes routines with logs, retries, and human-in-the-loop checkpoints.",
+  },
 ];
 
 export default function HowItWorksPage() {

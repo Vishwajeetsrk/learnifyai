@@ -163,7 +163,7 @@ function DashboardPage() {
   const enrolled = Array.isArray(enrollQ.data) ? enrollQ.data : [];
   const totalCompleted = enrolled.filter((e: any) => e.status === "completed").length;
   const totalCerts = Array.isArray(certsQ.data) ? certsQ.data.length : 0;
-  
+
   const latestCourse = enrolled?.[0];
 
   return (
@@ -180,7 +180,7 @@ function DashboardPage() {
                 </h1>
                 <p className="text-slate-300 font-medium">Ready to crush your goals today?</p>
               </div>
-              
+
               {latestCourse ? (
                 <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/15 mt-4 sm:mt-8">
                   <div className="text-[11px] font-bold uppercase tracking-widest mb-3 text-indigo-300 flex items-center gap-2">
@@ -188,14 +188,29 @@ function DashboardPage() {
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg line-clamp-1 text-white">{latestCourse.courses?.title}</h3>
+                      <h3 className="font-semibold text-lg line-clamp-1 text-white">
+                        {latestCourse.courses?.title}
+                      </h3>
                       <div className="flex items-center gap-3 mt-2">
-                        <div className="h-2 w-32 bg-white/20 rounded-full overflow-hidden"><div className="h-full bg-indigo-400 rounded-full" style={{width: `${latestCourse.progress_pct}%`}} /></div>
-                        <span className="text-sm font-medium text-slate-200">{latestCourse.progress_pct}%</span>
+                        <div className="h-2 w-32 bg-white/20 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-indigo-400 rounded-full"
+                            style={{ width: `${latestCourse.progress_pct}%` }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium text-slate-200">
+                          {latestCourse.progress_pct}%
+                        </span>
                       </div>
                     </div>
-                    <Link to="/courses/$slug" params={{ slug: latestCourse.courses?.slug || latestCourse.courses?.id }}>
-                      <Button variant="secondary" className="rounded-full shadow-lg gap-2 text-slate-950 font-bold bg-white hover:bg-slate-100 w-full sm:w-auto">
+                    <Link
+                      to="/courses/$slug"
+                      params={{ slug: latestCourse.courses?.slug || latestCourse.courses?.id }}
+                    >
+                      <Button
+                        variant="secondary"
+                        className="rounded-full shadow-lg gap-2 text-slate-950 font-bold bg-white hover:bg-slate-100 w-full sm:w-auto"
+                      >
                         <PlayCircle className="h-4 w-4 text-indigo-600" /> Continue
                       </Button>
                     </Link>
@@ -203,9 +218,16 @@ function DashboardPage() {
                 </div>
               ) : (
                 <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/15 mt-4 sm:mt-8">
-                  <p className="mb-3 font-medium text-slate-200">You aren't enrolled in any courses yet.</p>
+                  <p className="mb-3 font-medium text-slate-200">
+                    You aren't enrolled in any courses yet.
+                  </p>
                   <Link to="/courses">
-                    <Button variant="secondary" className="rounded-full shadow-lg text-slate-950 font-bold bg-white hover:bg-slate-100">Browse Courses</Button>
+                    <Button
+                      variant="secondary"
+                      className="rounded-full shadow-lg text-slate-950 font-bold bg-white hover:bg-slate-100"
+                    >
+                      Browse Courses
+                    </Button>
                   </Link>
                 </div>
               )}
@@ -214,42 +236,52 @@ function DashboardPage() {
 
           {/* Weekly Streak & Stats */}
           <div className="w-full lg:w-80 flex flex-col gap-4 shrink-0">
-             <div className="bg-card border rounded-3xl p-6 shadow-card h-full flex flex-col justify-between">
-               <div>
-                 <div className="flex items-center justify-between mb-4">
-                   <h3 className="font-semibold text-sm text-muted-foreground">Weekly Activity</h3>
-                   <Badge variant="outline" className="text-emerald-500 border-emerald-500/30 bg-emerald-500/10 gap-1.5">
-                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                     {profileQ.data?.current_streak || 1} Day Streak
-                   </Badge>
-                 </div>
-                 <div className="flex items-end justify-between gap-1 h-20 mb-2">
-                   {/* Real Github-style activity columns */}
-                   {(weeklyQ.data || [20, 40, 15, 60, 35, 10, 50]).map((val, i) => (
-                     <div key={i} className="w-full max-w-[2rem] bg-muted/50 rounded-t-md relative group flex flex-col justify-end h-full">
-                       <div 
-                         className="w-full bg-primary rounded-t-md transition-all duration-500" 
-                         style={{ height: `${Math.max(val, 8)}%` }} 
-                       />
-                       <span className="text-[10px] text-muted-foreground absolute -bottom-5 left-1/2 -translate-x-1/2 font-medium">
-                         {['M','T','W','T','F','S','S'][i]}
-                       </span>
-                     </div>
-                   ))}
-                 </div>
-               </div>
-               
-               <div className="mt-10 grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
-                  <div>
-                    <div className="text-2xl font-bold font-display">{enrolled.length}</div>
-                    <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Active</div>
+            <div className="bg-card border rounded-3xl p-6 shadow-card h-full flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-sm text-muted-foreground">Weekly Activity</h3>
+                  <Badge
+                    variant="outline"
+                    className="text-emerald-500 border-emerald-500/30 bg-emerald-500/10 gap-1.5"
+                  >
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    {profileQ.data?.current_streak || 1} Day Streak
+                  </Badge>
+                </div>
+                <div className="flex items-end justify-between gap-1 h-20 mb-2">
+                  {/* Real Github-style activity columns */}
+                  {(weeklyQ.data || [20, 40, 15, 60, 35, 10, 50]).map((val, i) => (
+                    <div
+                      key={i}
+                      className="w-full max-w-[2rem] bg-muted/50 rounded-t-md relative group flex flex-col justify-end h-full"
+                    >
+                      <div
+                        className="w-full bg-primary rounded-t-md transition-all duration-500"
+                        style={{ height: `${Math.max(val, 8)}%` }}
+                      />
+                      <span className="text-[10px] text-muted-foreground absolute -bottom-5 left-1/2 -translate-x-1/2 font-medium">
+                        {["M", "T", "W", "T", "F", "S", "S"][i]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-10 grid grid-cols-2 gap-4 pt-4 border-t border-border/50">
+                <div>
+                  <div className="text-2xl font-bold font-display">{enrolled.length}</div>
+                  <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
+                    Active
                   </div>
-                  <div>
-                    <div className="text-2xl font-bold font-display">{totalCerts}</div>
-                    <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">Certificates</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold font-display">{totalCerts}</div>
+                  <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
+                    Certificates
                   </div>
-               </div>
-             </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

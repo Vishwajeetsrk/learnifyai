@@ -20,16 +20,19 @@ export function KeyboardShortcutsOverlay({ onClose }: KeyboardShortcutsOverlayPr
       >
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h2 className="text-sm font-bold">Keyboard Shortcuts</h2>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={onClose} aria-label="Close shortcuts">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={onClose}
+            aria-label="Close shortcuts"
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
         <div className="overflow-y-auto p-4 space-y-2">
           {KEYBOARD_SHORTCUTS.map((s, i) => (
-            <div
-              key={`${s.action}-${i}`}
-              className="flex items-center justify-between py-1.5"
-            >
+            <div key={`${s.action}-${i}`} className="flex items-center justify-between py-1.5">
               <span className="text-xs text-muted-foreground">{s.description}</span>
               <kbd className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-muted text-[10px] font-mono font-medium text-foreground border border-border">
                 {s.ctrl && <span>Ctrl+</span>}

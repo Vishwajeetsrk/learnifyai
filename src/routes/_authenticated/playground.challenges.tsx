@@ -17,7 +17,15 @@ export const Route = createFileRoute("/_authenticated/playground/challenges")({
 });
 
 const DIFFICULTIES = ["all", "easy", "medium", "hard"] as const;
-const CATEGORIES = ["all", "algorithms", "data-structures", "javascript", "python", "sql", "system-design"];
+const CATEGORIES = [
+  "all",
+  "algorithms",
+  "data-structures",
+  "javascript",
+  "python",
+  "sql",
+  "system-design",
+];
 
 function ChallengesPage() {
   const { user } = useAuth();

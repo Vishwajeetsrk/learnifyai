@@ -1,17 +1,17 @@
-import { motion } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
-import { cn, scrollToSection } from '../lib/utils';
+import { motion } from "motion/react";
+import { ArrowRight } from "lucide-react";
+import { cn, scrollToSection } from "../lib/utils";
 
 const HERO_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260505_101331_74f9b798-3f00-4e86-8a01-377aa16ffeaa.mp4';
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260505_101331_74f9b798-3f00-4e86-8a01-377aa16ffeaa.mp4";
 
 export function HeroSection() {
   return (
     <section id="hero" className="px-4 pb-4 pt-8 md:px-8 md:pt-12">
       <div
         className={cn(
-          'relative mx-auto h-[600px] w-full max-w-[1400px] overflow-hidden rounded-[48px]',
-          'shadow-xl shadow-gray-900/10',
+          "relative mx-auto h-[600px] w-full max-w-[1400px] overflow-hidden rounded-[48px]",
+          "shadow-xl shadow-gray-900/10",
         )}
       >
         <video
@@ -54,10 +54,10 @@ export function HeroSection() {
           >
             <button
               type="button"
-              onClick={() => scrollToSection('contact')}
+              onClick={() => scrollToSection("contact")}
               className={cn(
-                'inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5',
-                'text-sm font-semibold text-gray-900 transition hover:bg-gray-100',
+                "inline-flex items-center gap-2 rounded-full bg-white px-7 py-3.5",
+                "text-sm font-semibold text-gray-900 transition hover:bg-gray-100",
               )}
             >
               Contact Us

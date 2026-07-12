@@ -1,4 +1,4 @@
-import { HERO_VIDEO_URL } from '../constants';
+import { HERO_VIDEO_URL } from "../constants";
 
 export function BackgroundVideo() {
   return (

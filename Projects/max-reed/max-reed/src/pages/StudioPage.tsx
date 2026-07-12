@@ -1,6 +1,6 @@
-import { IconMarquee } from '../components/IconMarquee';
-import { VIDEO_DAILY_SOFTWARE } from '../constants';
-import { BackgroundVideo } from '../components/BackgroundVideo';
+import { IconMarquee } from "../components/IconMarquee";
+import { VIDEO_DAILY_SOFTWARE } from "../constants";
+import { BackgroundVideo } from "../components/BackgroundVideo";
 
 export function StudioPage() {
   return (

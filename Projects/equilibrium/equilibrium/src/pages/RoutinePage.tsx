@@ -1,4 +1,4 @@
-import RoutineSection from '../components/RoutineSection';
+import RoutineSection from "../components/RoutineSection";
 
 export function RoutinePage() {
   return <RoutineSection />;

@@ -267,7 +267,13 @@ export default function SettingsPage() {
       params += `&mouthVariant=${mappedMouth}`;
       params += `&eyesVariant=${mappedEyes}`;
       params += `&eyebrowsVariant=${mappedEyebrows}`;
-      params += `&clothesVariant=${s.clothingStyle}`;
+      let clothesStyleVal = s.clothingStyle;
+      if (clothesStyleVal === "shirtOpen") {
+        clothesStyleVal = "shirtScoopNeck";
+      } else if (clothesStyleVal === "dress") {
+        clothesStyleVal = "overall";
+      }
+      params += `&clothesVariant=${clothesStyleVal}`;
       params += `&clothesColor=${s.clothingColor}`;
       if (mappedAcc && mappedAcc !== "none") {
         params += `&accessoriesVariant=${mappedAcc}`;
@@ -1657,24 +1663,24 @@ export default function SettingsPage() {
                     {/* Left Column: Live Preview & Style Selector */}
                     <div className="md:col-span-5 flex flex-col items-center gap-4 bg-muted/30 p-4 rounded-xl border">
                       {/* Live Preview */}
-                      <div className="relative h-40 w-40 rounded-full border-4 border-background bg-card shadow-lg overflow-hidden flex items-center justify-center">
+                      <Avatar
+                        className={cn(
+                          "h-40 w-40 border-4 border-card shadow-lg shrink-0",
+                          getProfileBorderClass(currentCartoonUrl),
+                        )}
+                      >
                         {avatarPreviewError ? (
-                          <div className="h-full w-full rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 grid place-items-center">
-                            <span className="text-4xl font-bold text-white">
-                              {(seed || "L").charAt(0).toUpperCase()}
-                            </span>
-                          </div>
+                          <AvatarFallback className="text-4xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+                            {(seed || "L").charAt(0).toUpperCase()}
+                          </AvatarFallback>
                         ) : (
-                          <img
+                          <AvatarImage
                             key={`avatar-${previewNonce}`}
                             src={currentCartoonUrl}
-                            className="h-full w-full object-cover"
-                            alt="Avatar Preview"
-                            decoding="async"
                             onError={() => setAvatarPreviewError(true)}
                           />
                         )}
-                      </div>
+                      </Avatar>
 
                       <div className="w-full space-y-3">
                         {/* Character Style Selection */}
@@ -1841,7 +1847,9 @@ export default function SettingsPage() {
                                           : "text-muted-foreground"
                                       }`}
                                     >
-                                      {selectedStyle === "bottts" ? "Antenna / Bulb" : "Male / Short"}
+                                      {selectedStyle === "bottts"
+                                        ? "Antenna / Bulb"
+                                        : "Male / Short"}
                                     </button>
                                     <button
                                       type="button"
@@ -1857,7 +1865,9 @@ export default function SettingsPage() {
                                           : "text-muted-foreground"
                                       }`}
                                     >
-                                      {selectedStyle === "bottts" ? "Radar / Horn" : "Female / Long"}
+                                      {selectedStyle === "bottts"
+                                        ? "Radar / Horn"
+                                        : "Female / Long"}
                                     </button>
                                   </div>
                                 ) : null}
@@ -1874,38 +1884,38 @@ export default function SettingsPage() {
                                           { id: "theCaesar", label: "Pyramid" },
                                         ]
                                       : selectedStyle === "lorelei"
-                                      ? [
-                                          { id: "straight01", label: "Long Straight" },
-                                          { id: "straight02", label: "Straight Parted" },
-                                          { id: "curly", label: "Long Curly" },
-                                          { id: "curvy", label: "Long Curvy" },
-                                          { id: "bob", label: "Bob Cut" },
-                                          { id: "miaWallace", label: "Mia Cut" },
-                                          { id: "bun", label: "Hair Bun" },
-                                          { id: "dreads", label: "Dreads" },
-                                          { id: "bigHair", label: "Big Hair" },
-                                        ]
-                                      : hairGender === "male"
-                                      ? [
-                                          { id: "theCaesar", label: "Caesar Cut" },
-                                          { id: "shortFlat", label: "Short Flat" },
-                                          { id: "shortRound", label: "Short Round" },
-                                          { id: "shortWaved", label: "Short Wavy" },
-                                          { id: "shortCurly", label: "Short Curly" },
-                                          { id: "shaggyMullet", label: "Mullet" },
-                                          { id: "noHair", label: "Bald" },
-                                        ]
-                                      : [
-                                          { id: "straight01", label: "Long Straight" },
-                                          { id: "straight02", label: "Straight Parted" },
-                                          { id: "curly", label: "Long Curly" },
-                                          { id: "curvy", label: "Long Curvy" },
-                                          { id: "bob", label: "Bob Cut" },
-                                          { id: "miaWallace", label: "Mia Cut" },
-                                          { id: "bun", label: "Hair Bun" },
-                                          { id: "dreads", label: "Dreads" },
-                                          { id: "bigHair", label: "Big Hair" },
-                                        ];
+                                        ? [
+                                            { id: "straight01", label: "Long Straight" },
+                                            { id: "straight02", label: "Straight Parted" },
+                                            { id: "curly", label: "Long Curly" },
+                                            { id: "curvy", label: "Long Curvy" },
+                                            { id: "bob", label: "Bob Cut" },
+                                            { id: "miaWallace", label: "Mia Cut" },
+                                            { id: "bun", label: "Hair Bun" },
+                                            { id: "dreads", label: "Dreads" },
+                                            { id: "bigHair", label: "Big Hair" },
+                                          ]
+                                        : hairGender === "male"
+                                          ? [
+                                              { id: "theCaesar", label: "Caesar Cut" },
+                                              { id: "shortFlat", label: "Short Flat" },
+                                              { id: "shortRound", label: "Short Round" },
+                                              { id: "shortWaved", label: "Short Wavy" },
+                                              { id: "shortCurly", label: "Short Curly" },
+                                              { id: "shaggyMullet", label: "Mullet" },
+                                              { id: "noHair", label: "Bald" },
+                                            ]
+                                          : [
+                                              { id: "straight01", label: "Long Straight" },
+                                              { id: "straight02", label: "Straight Parted" },
+                                              { id: "curly", label: "Long Curly" },
+                                              { id: "curvy", label: "Long Curvy" },
+                                              { id: "bob", label: "Bob Cut" },
+                                              { id: "miaWallace", label: "Mia Cut" },
+                                              { id: "bun", label: "Hair Bun" },
+                                              { id: "dreads", label: "Dreads" },
+                                              { id: "bigHair", label: "Big Hair" },
+                                            ];
 
                                   return hairOptions.map((hair) => (
                                     <button

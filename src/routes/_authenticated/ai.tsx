@@ -135,9 +135,11 @@ function AIPage() {
   }, [messages, streaming]);
 
   const loadConversations = async () => {
+    if (!user) return;
     const { data, error } = await supabase
       .from("chat_conversations")
       .select("id, title, updated_at")
+      .eq("user_id", user.id)
       .order("updated_at", { ascending: false });
     if (error) return toast.error(error.message);
     setConversations(data ?? []);
@@ -173,10 +175,19 @@ function AIPage() {
   };
 
   const deleteConversation = async (id: string) => {
+    if (!user) return;
     try {
-      const { error: msgErr } = await supabase.from("chat_messages").delete().eq("conversation_id", id);
+      const { error: msgErr } = await supabase
+        .from("chat_messages")
+        .delete()
+        .eq("conversation_id", id)
+        .eq("user_id", user.id);
       if (msgErr) console.error("[deleteConversation] msgs:", msgErr);
-      const { error } = await supabase.from("chat_conversations").delete().eq("id", id);
+      const { error } = await supabase
+        .from("chat_conversations")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id);
       if (error) {
         toast.error("Failed to delete: " + error.message);
         return;
@@ -206,17 +217,15 @@ function AIPage() {
       const { error: msgError } = await supabase
         .from("chat_messages")
         .delete()
-        .in("conversation_id", ids);
+        .in("conversation_id", ids)
+        .eq("user_id", user.id);
       if (msgError) {
         console.error("[deleteAllChats] messages:", msgError);
         toast.error("Failed to delete messages: " + msgError.message);
         return;
       }
       // Then delete conversations
-      const { error } = await supabase
-        .from("chat_conversations")
-        .delete()
-        .eq("user_id", user.id);
+      const { error } = await supabase.from("chat_conversations").delete().eq("user_id", user.id);
       if (error) {
         console.error("[deleteAllChats] conversations:", error);
         toast.error("Failed to delete conversations: " + error.message);
@@ -341,7 +350,11 @@ function AIPage() {
         <div className="lg:hidden fixed bottom-20 left-4 z-50">
           <Sheet>
             <SheetTrigger asChild>
-              <Button size="icon" variant="outline" className="h-10 w-10 rounded-full shadow-lg bg-background/95 backdrop-blur border-primary/30">
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-10 w-10 rounded-full shadow-lg bg-background/95 backdrop-blur border-primary/30"
+              >
                 <MessageSquare className="h-4 w-4" />
               </Button>
             </SheetTrigger>
@@ -350,24 +363,45 @@ function AIPage() {
                 <SheetTitle>Conversations</SheetTitle>
               </SheetHeader>
               <div className="p-3 space-y-2">
-                <Button onClick={() => { newChat(); document.querySelector('[data-state="open"]')?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" })); }} className="w-full justify-start gap-2" variant="outline">
+                <Button
+                  onClick={() => {
+                    newChat();
+                    document
+                      .querySelector('[data-state="open"]')
+                      ?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+                  }}
+                  className="w-full justify-start gap-2"
+                  variant="outline"
+                >
                   <Plus className="h-4 w-4" /> New chat
                 </Button>
                 {conversations.length > 0 && (
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button className="w-full justify-start gap-2 text-destructive hover:text-destructive" variant="ghost" size="sm">
+                      <Button
+                        className="w-full justify-start gap-2 text-destructive hover:text-destructive"
+                        variant="ghost"
+                        size="sm"
+                      >
                         <Trash2 className="h-3.5 w-3.5" /> Delete all history
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete all chat conversations?</AlertDialogTitle>
-                        <AlertDialogDescription>This will permanently remove all {conversations.length} conversations. This cannot be undone.</AlertDialogDescription>
+                        <AlertDialogDescription>
+                          This will permanently remove all {conversations.length} conversations.
+                          This cannot be undone.
+                        </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => void deleteAllChats()} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Yes, delete everything</AlertDialogAction>
+                        <AlertDialogAction
+                          onClick={() => void deleteAllChats()}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Yes, delete everything
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -376,7 +410,9 @@ function AIPage() {
               <ScrollArea className="flex-1 px-2 pb-4">
                 <div className="space-y-1">
                   {conversations.length === 0 ? (
-                    <p className="text-xs text-muted-foreground px-2 py-4 text-center">No conversations yet.</p>
+                    <p className="text-xs text-muted-foreground px-2 py-4 text-center">
+                      No conversations yet.
+                    </p>
                   ) : (
                     conversations.map((c) => (
                       <div key={c.id} className="px-2">
@@ -385,13 +421,17 @@ function AIPage() {
                             onClick={() => selectConversation(c.id)}
                             className={cn(
                               "w-full text-left p-2.5 rounded-lg text-xs transition-colors hover:bg-muted/50 flex items-start gap-2",
-                              activeId === c.id ? "bg-primary/10 text-primary font-medium" : ""
+                              activeId === c.id ? "bg-primary/10 text-primary font-medium" : "",
                             )}
                           >
                             <MessageSquare className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                             <div className="min-w-0 flex-1">
-                              <div className="truncate">{c.title || `Chat ${c.id.slice(0, 6)}`}</div>
-                              <div className="text-[10px] text-muted-foreground mt-0.5">{new Date(c.updated_at).toLocaleDateString()}</div>
+                              <div className="truncate">
+                                {c.title || `Chat ${c.id.slice(0, 6)}`}
+                              </div>
+                              <div className="text-[10px] text-muted-foreground mt-0.5">
+                                {new Date(c.updated_at).toLocaleDateString()}
+                              </div>
                             </div>
                           </button>
                         </SheetClose>

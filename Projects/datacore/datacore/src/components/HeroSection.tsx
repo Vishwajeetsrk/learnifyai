@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { HERO_VIDEO_URL } from '../constants';
+import { motion } from "framer-motion";
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { HERO_VIDEO_URL } from "../constants";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -49,7 +49,7 @@ export function HeroSection() {
             className="hero-text-shadow text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl"
             data-editable
           >
-            Hotel booking built for modern teams{' '}
+            Hotel booking built for modern teams{" "}
             <span className="font-serif italic font-normal">and</span> unforgettable stays
           </motion.h1>
 
@@ -72,7 +72,7 @@ export function HeroSection() {
             animate="visible"
             className="mt-8 flex flex-wrap gap-3 sm:mt-10 sm:gap-4"
           >
-            <PresetNavLink target={{ kind: 'route', path: 'contact' }}>
+            <PresetNavLink target={{ kind: "route", path: "contact" }}>
               <button
                 type="button"
                 className="rounded-full bg-datacore-purple px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-datacore-purple/30 transition-opacity hover:opacity-90 sm:px-8 sm:py-3.5"
@@ -80,7 +80,7 @@ export function HeroSection() {
                 <span data-editable>Book a Free Demo</span>
               </button>
             </PresetNavLink>
-            <PresetNavLink target={{ kind: 'route', path: 'services' }}>
+            <PresetNavLink target={{ kind: "route", path: "services" }}>
               <button
                 type="button"
                 className="glass-pill rounded-full px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 sm:px-8 sm:py-3.5"

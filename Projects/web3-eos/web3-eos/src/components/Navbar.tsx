@@ -1,18 +1,18 @@
-import { ChevronDown, Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { JoinWaitlistPill } from './JoinWaitlistPill';
-import { LogoIpsum } from './LogoIpsum';
+import { ChevronDown, Menu, X } from "lucide-react";
+import { useState } from "react";
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { JoinWaitlistPill } from "./JoinWaitlistPill";
+import { LogoIpsum } from "./LogoIpsum";
 
 const NAV_LINKS = [
-  { label: 'Platform', route: 'platform', chevron: true },
-  { label: 'Ecosystem', route: 'ecosystem', chevron: true },
-  { label: 'Developers', route: 'developers', chevron: true },
-  { label: 'Docs', route: 'docs', chevron: false },
+  { label: "Platform", route: "platform", chevron: true },
+  { label: "Ecosystem", route: "ecosystem", chevron: true },
+  { label: "Developers", route: "developers", chevron: true },
+  { label: "Docs", route: "docs", chevron: false },
 ] as const;
 
 const navLinkClass =
-  'inline-flex items-center gap-1 text-sm font-medium text-white/75 transition-colors hover:text-white';
+  "inline-flex items-center gap-1 text-sm font-medium text-white/75 transition-colors hover:text-white";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -22,7 +22,7 @@ export function Navbar() {
     <>
       <header className="relative z-20 mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
         <PresetNavLink
-          target={{ kind: 'route', path: '' }}
+          target={{ kind: "route", path: "" }}
           className="shrink-0"
           aria-label="Web3 EOS home"
           onClick={closeMenu}
@@ -34,7 +34,7 @@ export function Navbar() {
           {NAV_LINKS.map((link) => (
             <PresetNavLink
               key={link.route}
-              target={{ kind: 'route', path: link.route }}
+              target={{ kind: "route", path: link.route }}
               className={navLinkClass}
             >
               {link.label}
@@ -44,7 +44,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden md:block">
-          <PresetNavLink target={{ kind: 'route', path: 'waitlist' }} onClick={closeMenu}>
+          <PresetNavLink target={{ kind: "route", path: "waitlist" }} onClick={closeMenu}>
             <JoinWaitlistPill />
           </PresetNavLink>
         </div>
@@ -52,7 +52,7 @@ export function Navbar() {
         <button
           type="button"
           className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white md:hidden"
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
           onClick={() => setMenuOpen((open) => !open)}
         >
           {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -65,16 +65,18 @@ export function Navbar() {
             {NAV_LINKS.map((link) => (
               <PresetNavLink
                 key={link.route}
-                target={{ kind: 'route', path: link.route }}
+                target={{ kind: "route", path: link.route }}
                 className={`${navLinkClass} py-1`}
                 onClick={closeMenu}
               >
                 {link.label}
-                {link.chevron ? <ChevronDown className="h-3.5 w-3.5 opacity-70" aria-hidden /> : null}
+                {link.chevron ? (
+                  <ChevronDown className="h-3.5 w-3.5 opacity-70" aria-hidden />
+                ) : null}
               </PresetNavLink>
             ))}
             <PresetNavLink
-              target={{ kind: 'route', path: 'waitlist' }}
+              target={{ kind: "route", path: "waitlist" }}
               className="mt-2 w-fit"
               onClick={closeMenu}
             >

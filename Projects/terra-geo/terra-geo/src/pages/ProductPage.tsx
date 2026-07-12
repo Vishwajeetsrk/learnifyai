@@ -1,5 +1,5 @@
-import SiteLayout from '../components/SiteLayout';
-import TerraSectionPage from '../components/TerraSectionPage';
+import SiteLayout from "../components/SiteLayout";
+import TerraSectionPage from "../components/TerraSectionPage";
 
 export default function ProductPage() {
   return (

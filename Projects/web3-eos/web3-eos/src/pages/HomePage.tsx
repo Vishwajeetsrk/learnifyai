@@ -1,7 +1,7 @@
-import { BackgroundVideo } from '../components/BackgroundVideo';
-import { HeroSection } from '../components/HeroSection';
-import { Navbar } from '../components/Navbar';
-import { PresetSiteSections } from '../../../_shared/components/PresetSiteSections';
+import { BackgroundVideo } from "../components/BackgroundVideo";
+import { HeroSection } from "../components/HeroSection";
+import { Navbar } from "../components/Navbar";
+import { PresetSiteSections } from "../../../_shared/components/PresetSiteSections";
 
 export function HomePage() {
   return (

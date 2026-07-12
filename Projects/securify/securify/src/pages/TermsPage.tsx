@@ -1,5 +1,5 @@
-import { InnerPageShell } from '../components/InnerPageShell';
-import { LegalSections } from '../components/LegalSections';
+import { InnerPageShell } from "../components/InnerPageShell";
+import { LegalSections } from "../components/LegalSections";
 
 export function TermsPage() {
   return (

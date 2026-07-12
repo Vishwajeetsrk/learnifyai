@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 
 /** rAF opacity crossfade duration (ms) — preset spec: 250 */
 export const FADE_DURATION_MS = 250;
@@ -43,12 +43,15 @@ export default function FadingVideo({ src, className, style }: FadingVideoProps)
     if (!video) return;
 
     video.loop = false;
-    video.style.opacity = '0';
+    video.style.opacity = "0";
     fadingOutRef.current = false;
 
     const onLoaded = () => {
-      video.style.opacity = '0';
-      void video.play().then(() => fadeTo(1)).catch(() => fadeTo(1));
+      video.style.opacity = "0";
+      void video
+        .play()
+        .then(() => fadeTo(1))
+        .catch(() => fadeTo(1));
     };
 
     const onTimeUpdate = () => {
@@ -62,37 +65,40 @@ export default function FadingVideo({ src, className, style }: FadingVideoProps)
     };
 
     const onEnded = () => {
-      video.style.opacity = '0';
+      video.style.opacity = "0";
       if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
       window.setTimeout(() => {
         if (!videoRef.current) return;
         videoRef.current.currentTime = 0;
-        void videoRef.current.play().then(() => {
-          fadingOutRef.current = false;
-          fadeTo(1);
-        }).catch(() => {});
+        void videoRef.current
+          .play()
+          .then(() => {
+            fadingOutRef.current = false;
+            fadeTo(1);
+          })
+          .catch(() => {});
       }, 80);
     };
 
     const onError = () => setFailed(true);
 
-    video.addEventListener('loadeddata', onLoaded);
-    video.addEventListener('timeupdate', onTimeUpdate);
-    video.addEventListener('ended', onEnded);
-    video.addEventListener('error', onError);
+    video.addEventListener("loadeddata", onLoaded);
+    video.addEventListener("timeupdate", onTimeUpdate);
+    video.addEventListener("ended", onEnded);
+    video.addEventListener("error", onError);
     if (video.readyState >= 2) onLoaded();
 
     return () => {
-      video.removeEventListener('loadeddata', onLoaded);
-      video.removeEventListener('timeupdate', onTimeUpdate);
-      video.removeEventListener('ended', onEnded);
-      video.removeEventListener('error', onError);
+      video.removeEventListener("loadeddata", onLoaded);
+      video.removeEventListener("timeupdate", onTimeUpdate);
+      video.removeEventListener("ended", onEnded);
+      video.removeEventListener("error", onError);
       if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
     };
   }, [src, failed]);
 
   if (failed) {
-    return <div className={`video-fallback ${className ?? ''}`} style={style} aria-hidden />;
+    return <div className={`video-fallback ${className ?? ""}`} style={style} aria-hidden />;
   }
 
   return (

@@ -1,11 +1,14 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 type JoinWaitlistPillProps = {
   className?: string;
   children?: ReactNode;
 };
 
-export function JoinWaitlistPill({ className = '', children = 'Join Waitlist' }: JoinWaitlistPillProps) {
+export function JoinWaitlistPill({
+  className = "",
+  children = "Join Waitlist",
+}: JoinWaitlistPillProps) {
   return (
     <span className={`waitlist-pill-outer inline-flex ${className}`}>
       <span className="waitlist-pill-streak" aria-hidden />

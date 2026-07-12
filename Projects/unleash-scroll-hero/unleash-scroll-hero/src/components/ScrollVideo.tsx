@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import Hls from 'hls.js';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { AnimatePresence, motion } from 'motion/react';
+import { useEffect, useRef, useState } from "react";
+import Hls from "hls.js";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { AnimatePresence, motion } from "motion/react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,7 +13,7 @@ type ScrollVideoProps = {
   className?: string;
 };
 
-export function ScrollVideo({ src, className = '' }: ScrollVideoProps) {
+export function ScrollVideo({ src, className = "" }: ScrollVideoProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [loading, setLoading] = useState(true);
@@ -55,10 +55,10 @@ export function ScrollVideo({ src, className = '' }: ScrollVideoProps) {
       }
     };
 
-    video.addEventListener('seeked', onSeeked);
+    video.addEventListener("seeked", onSeeked);
 
     const onCanPlay = () => setLoading(false);
-    video.addEventListener('canplay', onCanPlay);
+    video.addEventListener("canplay", onCanPlay);
 
     if (Hls.isSupported()) {
       hls = new Hls({
@@ -85,14 +85,14 @@ export function ScrollVideo({ src, className = '' }: ScrollVideoProps) {
           setProgress(Math.round((bufferedEnd / video.duration) * 100));
         }
       });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = src;
     }
 
     const scrollSt = ScrollTrigger.create({
       trigger: document.documentElement,
-      start: 'top top',
-      end: 'bottom bottom',
+      start: "top top",
+      end: "bottom bottom",
       scrub: true,
       onUpdate: (self) => {
         if (!video.duration) return;
@@ -108,16 +108,16 @@ export function ScrollVideo({ src, className = '' }: ScrollVideoProps) {
         x: moveX * -30,
         y: moveY * -30,
         duration: 1.5,
-        ease: 'power2.out',
+        ease: "power2.out",
       });
     };
-    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener("mousemove", onMouseMove);
 
     return () => {
       cancelAnimationFrame(rafId);
-      window.removeEventListener('mousemove', onMouseMove);
-      video.removeEventListener('seeked', onSeeked);
-      video.removeEventListener('canplay', onCanPlay);
+      window.removeEventListener("mousemove", onMouseMove);
+      video.removeEventListener("seeked", onSeeked);
+      video.removeEventListener("canplay", onCanPlay);
       scrollSt.kill();
       hls?.destroy();
     };
@@ -133,9 +133,7 @@ export function ScrollVideo({ src, className = '' }: ScrollVideoProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <p className="font-sans text-2xl text-white">
-              Loading… {progress}%
-            </p>
+            <p className="font-sans text-2xl text-white">Loading… {progress}%</p>
           </motion.div>
         )}
       </AnimatePresence>

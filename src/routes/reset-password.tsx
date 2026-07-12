@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import { validatePasswordStrength } from "@/lib/password-validator";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({ meta: [{ title: "Set new password — Learnify AI" }] }),
@@ -16,28 +17,25 @@ function ResetPasswordPage() {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [sessionReady, setSessionReady] = useState<boolean | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    // Supabase parses the recovery tokens from the URL hash automatically
-    // and emits PASSWORD_RECOVERY / SIGNED_IN events. We just need to wait
-    // until a session exists before allowing the password update.
+    // Check if session exists immediately (e.g. from recovery link hash)
+    supabase.auth.getSession().then(({ data }) => {
+      setSessionReady(!!data.session);
+    });
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) setSessionReady(true);
-      else if (event === "SIGNED_OUT") setSessionReady(false);
-    });
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
+      if (session) {
         setSessionReady(true);
       } else {
-        // Give the client a brief moment to consume the hash fragment.
+        // If recovery hash is still parsing, give it a tiny grace period
         setTimeout(async () => {
-          const { data: again } = await supabase.auth.getSession();
-          setSessionReady(!!again.session);
+          const { data: againData } = await supabase.auth.getSession();
+          setSessionReady(!!againData.session);
         }, 800);
       }
     });
@@ -47,7 +45,11 @@ function ResetPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.length < 8) return toast.error("Password must be at least 8 characters.");
+    const pwdCheck = validatePasswordStrength(password);
+    if (!pwdCheck.isValid) {
+      toast.error(pwdCheck.error || "Weak password.");
+      return;
+    }
     setSubmitting(true);
     const { error } = await supabase.auth.updateUser({ password });
     setSubmitting(false);

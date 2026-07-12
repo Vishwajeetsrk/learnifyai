@@ -1,43 +1,58 @@
-import { useEffect } from 'react';
-import { ArrowRight, Facebook, Instagram, Youtube } from 'lucide-react';
-import { PresetNavLink } from '../../_shared/components/PresetNavLink';
-import { applyPresetHashOnLoad } from '../../_shared/preset-site-routing';
-import { BRAND_CLIENTS, HERO_VIDEO_URL, NAV_LINKS } from './constants';
+import { useEffect } from "react";
+import { ArrowRight, Facebook, Instagram, Youtube } from "lucide-react";
+import { PresetNavLink } from "../../_shared/components/PresetNavLink";
+import { applyPresetHashOnLoad } from "../../_shared/preset-site-routing";
+import { BRAND_CLIENTS, HERO_VIDEO_URL, NAV_LINKS } from "./constants";
 
-type BrandIconType = (typeof BRAND_CLIENTS)[number]['icon'];
+type BrandIconType = (typeof BRAND_CLIENTS)[number]["icon"];
 
 function BrandIcon({ type }: { type: BrandIconType }) {
-  const base = 'h-8 w-8';
+  const base = "h-8 w-8";
   switch (type) {
-    case 'frame':
+    case "frame":
       return (
         <svg viewBox="0 0 32 32" className={base} aria-hidden>
-          <rect x="4" y="6" width="24" height="20" rx="2" fill="none" stroke="currentColor" strokeWidth="2" />
+          <rect
+            x="4"
+            y="6"
+            width="24"
+            height="20"
+            rx="2"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
           <rect x="10" y="12" width="12" height="8" fill="currentColor" opacity="0.35" />
         </svg>
       );
-    case 'peak':
+    case "peak":
       return (
         <svg viewBox="0 0 32 32" className={base} aria-hidden>
-          <path d="M4 26 L16 6 L28 26 Z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+          <path
+            d="M4 26 L16 6 L28 26 Z"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
           <path d="M12 26 L16 18 L20 26" fill="currentColor" opacity="0.4" />
         </svg>
       );
-    case 'luma':
+    case "luma":
       return (
         <svg viewBox="0 0 32 32" className={base} aria-hidden>
           <circle cx="16" cy="16" r="10" fill="none" stroke="currentColor" strokeWidth="2" />
           <circle cx="16" cy="16" r="4" fill="currentColor" />
         </svg>
       );
-    case 'arc':
+    case "arc":
       return (
         <svg viewBox="0 0 32 32" className={base} aria-hidden>
           <path d="M6 24 Q16 4 26 24" fill="none" stroke="currentColor" strokeWidth="2" />
           <line x1="6" y1="24" x2="26" y2="24" stroke="currentColor" strokeWidth="2" />
         </svg>
       );
-    case 'pixel':
+    case "pixel":
       return (
         <svg viewBox="0 0 32 32" className={base} aria-hidden>
           <rect x="6" y="6" width="8" height="8" fill="currentColor" />
@@ -71,7 +86,7 @@ function Header() {
         {NAV_LINKS.map((link) => (
           <PresetNavLink
             key={link.id}
-            target={{ kind: 'section', id: link.id }}
+            target={{ kind: "section", id: link.id }}
             className="text-sm font-medium text-ink/80 hover:text-ink"
             data-editable
             data-preset-text={`nav-${link.id}`}
@@ -83,7 +98,7 @@ function Header() {
 
       <div className="flex items-center gap-2 sm:gap-3">
         <PresetNavLink
-          target={{ kind: 'section', id: 'signup' }}
+          target={{ kind: "section", id: "signup" }}
           className="rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-white hover:bg-ink/90 sm:px-5"
           data-editable
           data-preset-text="cta-sign-up"
@@ -91,7 +106,7 @@ function Header() {
           Sign Up
         </PresetNavLink>
         <PresetNavLink
-          target={{ kind: 'section', id: 'login' }}
+          target={{ kind: "section", id: "login" }}
           className="rounded-lg border border-ink/20 bg-white/60 px-4 py-2.5 text-sm font-medium text-ink backdrop-blur-sm hover:bg-white/80 sm:px-5"
           data-editable
           data-preset-text="cta-log-in"
@@ -151,7 +166,7 @@ export default function App() {
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-md space-y-4">
             <PresetNavLink
-              target={{ kind: 'section', id: 'signup' }}
+              target={{ kind: "section", id: "signup" }}
               className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-3 text-sm font-medium text-white hover:bg-ink/90"
               data-editable
               data-preset-text="hero-cta"

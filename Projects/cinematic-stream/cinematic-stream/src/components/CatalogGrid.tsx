@@ -1,4 +1,4 @@
-import { Play, Star } from 'lucide-react';
+import { Play, Star } from "lucide-react";
 
 export type CatalogItem = {
   title: string;

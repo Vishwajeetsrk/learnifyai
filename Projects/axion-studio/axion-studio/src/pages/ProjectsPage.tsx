@@ -1,4 +1,4 @@
-import { CaseStudiesSection } from '../components/CaseStudiesSection';
+import { CaseStudiesSection } from "../components/CaseStudiesSection";
 
 export function ProjectsPage() {
   return (

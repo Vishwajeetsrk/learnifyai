@@ -1,8 +1,8 @@
-import { Menu, X } from 'lucide-react';
-import { useState } from 'react';
-import { linkToSectionId, scrollToSection, sectionHref } from '../lib/scroll';
+import { Menu, X } from "lucide-react";
+import { useState } from "react";
+import { linkToSectionId, scrollToSection, sectionHref } from "../lib/scroll";
 
-const NAV_LINKS = ['Features', 'Solutions', 'Plans', 'Learning'] as const;
+const NAV_LINKS = ["Features", "Solutions", "Plans", "Learning"] as const;
 const LOGO_SRC = `${import.meta.env.BASE_URL}logo.svg`;
 
 export default function Navbar() {
@@ -13,8 +13,8 @@ export default function Navbar() {
     <>
       <header className="relative z-50 flex items-center justify-between px-5 py-5 sm:px-8 md:px-12">
         <a
-          href={sectionHref('home')}
-          onClick={(e) => scrollToSection(e, 'home')}
+          href={sectionHref("home")}
+          onClick={(e) => scrollToSection(e, "home")}
           className="flex items-center gap-3"
           aria-label="Power AI home"
         >
@@ -55,7 +55,7 @@ export default function Navbar() {
         <button
           type="button"
           className="liquid-glass flex h-10 w-10 items-center justify-center rounded-full md:hidden"
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
           onClick={() => setMenuOpen((o) => !o)}
         >
           {menuOpen ? <X className="h-[18px] w-[18px]" /> : <Menu className="h-[18px] w-[18px]" />}

@@ -11,7 +11,8 @@ const TOOLS = [
     type: "function" as const,
     function: {
       name: "web_search",
-      description: "Search the web for current job market data, salary benchmarks, hiring trends, company layoffs, skill demand, and industry reports.",
+      description:
+        "Search the web for current job market data, salary benchmarks, hiring trends, company layoffs, skill demand, and industry reports.",
       parameters: {
         type: "object",
         properties: {
@@ -25,7 +26,8 @@ const TOOLS = [
     type: "function" as const,
     function: {
       name: "execute_code",
-      description: "Execute code to analyze market data, compute statistics, or generate visualizations. Supports python, javascript, typescript, and more.",
+      description:
+        "Execute code to analyze market data, compute statistics, or generate visualizations. Supports python, javascript, typescript, and more.",
       parameters: {
         type: "object",
         properties: {
@@ -181,9 +183,16 @@ async function executeTool(name: string, args: any) {
   return JSON.stringify({ error: `Unknown tool: ${name}` });
 }
 
+import { validateAIPrompt } from "./ai-firewall";
+
 export const marketIntelChat = createServerFn({ method: "POST" })
   .validator((data: unknown) => MessageSchema.parse(data))
   .handler(async ({ data }) => {
+    const safety = validateAIPrompt(data.content);
+    if (!safety.safe) {
+      throw new Error(safety.reason || "Safety policy violation: Request rejected by AI Firewall.");
+    }
+
     const messages: any[] = [
       ...(data.history ?? []).map((m: any) => ({ role: m.role, content: m.content })),
       {

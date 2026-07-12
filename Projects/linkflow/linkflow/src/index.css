@@ -8,12 +8,8 @@ body,
   height: 100%;
   margin: 0;
   font-family:
-    'Neue Haas Grotesk Display Pro 55 Roman',
-    'Neue Haas Grotesk Text Pro',
-    'Helvetica Neue',
-    Helvetica,
-    Arial,
-    sans-serif;
+    "Neue Haas Grotesk Display Pro 55 Roman", "Neue Haas Grotesk Text Pro", "Helvetica Neue",
+    Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 

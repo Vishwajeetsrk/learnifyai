@@ -191,10 +191,7 @@ export const deductXP = createServerFn({ method: "POST" })
     const newXp = (profile.xp ?? 0) - data.amount;
 
     await Promise.all([
-      supabaseAdmin
-        .from("profiles")
-        .update({ xp: newXp })
-        .eq("id", data.userId),
+      supabaseAdmin.from("profiles").update({ xp: newXp }).eq("id", data.userId),
 
       supabaseAdmin.from("xp_log").insert({
         user_id: data.userId,
@@ -349,7 +346,14 @@ export const getCourseLearners = createServerFn({ method: "GET" })
 
 export const recordPurchase = createServerFn({ method: "POST" })
   .validator((input: { userId: string; perkId: string; perkName: string; cost: number }) =>
-    z.object({ userId: z.string().uuid(), perkId: z.string(), perkName: z.string(), cost: z.number().positive() }).parse(input),
+    z
+      .object({
+        userId: z.string().uuid(),
+        perkId: z.string(),
+        perkName: z.string(),
+        cost: z.number().positive(),
+      })
+      .parse(input),
   )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -365,7 +369,9 @@ export const recordPurchase = createServerFn({ method: "POST" })
     if (error) {
       console.error("[recordPurchase] insert failed:", error);
       if (error.message?.includes("does not exist")) {
-        throw new Error("XP Store table missing — ask admin to run `node scripts/sync-migrations.cjs`");
+        throw new Error(
+          "XP Store table missing — ask admin to run `node scripts/sync-migrations.cjs`",
+        );
       }
       throw new Error("Failed to record purchase");
     }
@@ -373,10 +379,63 @@ export const recordPurchase = createServerFn({ method: "POST" })
     return { success: true };
   });
 
-export const getUserPurchases = createServerFn({ method: "GET" })
-  .validator((input: { userId: string }) =>
-    z.object({ userId: z.string().uuid() }).parse(input),
+export const purchaseWithWallet = createServerFn({ method: "POST" })
+  .validator((input: { userId: string; perkId: string; perkName: string; costInr: number }) =>
+    z
+      .object({
+        userId: z.string().uuid(),
+        perkId: z.string(),
+        perkName: z.string(),
+        costInr: z.number().positive(),
+      })
+      .parse(input),
   )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // 1. Fetch wallet transactions to compute balance
+    const { data: txs, error: tErr } = await supabaseAdmin
+      .from("wallet_transactions")
+      .select("amount_inr, type, status")
+      .eq("user_id", data.userId);
+    if (tErr) throw new Error(tErr.message);
+
+    const balance = (txs ?? [])
+      .filter((t) => t.status === "completed")
+      .reduce(
+        (s, t) => s + (t.type === "credit" ? Number(t.amount_inr) : -Number(t.amount_inr)),
+        0,
+      );
+
+    if (data.costInr > balance) {
+      throw new Error(`Insufficient wallet balance. Need ₹${data.costInr}, have ₹${balance}. Please top up.`);
+    }
+
+    // 2. Insert debit transaction
+    const { error: dErr } = await supabaseAdmin.from("wallet_transactions").insert({
+      user_id: data.userId,
+      amount_inr: data.costInr,
+      type: "debit",
+      status: "completed",
+      description: `Purchase: ${data.perkName}`,
+    });
+    if (dErr) throw new Error(dErr.message);
+
+    // 3. Record purchase in xp_purchases
+    const { error: pErr } = await (supabaseAdmin as any).from("xp_purchases").insert({
+      user_id: data.userId,
+      perk_id: data.perkId,
+      perk_name: data.perkName,
+      cost: 0,
+      status: "active",
+    });
+    if (pErr) throw new Error(pErr.message);
+
+    return { success: true };
+  });
+
+export const getUserPurchases = createServerFn({ method: "GET" })
+  .validator((input: { userId: string }) => z.object({ userId: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -411,7 +470,11 @@ export const getAllPurchases = createServerFn({ method: "GET" })
     const limit = data.limit ?? 50;
     const offset = (page - 1) * limit;
 
-    const { data: purchases, error, count } = await (supabaseAdmin as any)
+    const {
+      data: purchases,
+      error,
+      count,
+    } = await (supabaseAdmin as any)
       .from("xp_purchases")
       .select("*, profiles!inner(full_name, email, avatar_url)", { count: "exact" })
       .order("created_at", { ascending: false })
@@ -432,7 +495,11 @@ export const getAllPurchases = createServerFn({ method: "GET" })
         status: p.status,
         purchasedAt: p.created_at,
         user: p.profiles
-          ? { fullName: p.profiles.full_name, email: p.profiles.email, avatarUrl: p.profiles.avatar_url }
+          ? {
+              fullName: p.profiles.full_name,
+              email: p.profiles.email,
+              avatarUrl: p.profiles.avatar_url,
+            }
           : null,
       })),
       total: count ?? 0,

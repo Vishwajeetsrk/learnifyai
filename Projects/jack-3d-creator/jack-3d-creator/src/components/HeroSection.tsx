@@ -2,11 +2,11 @@ import {
   handlePresetNavClick,
   presetNavHref,
   resolveNavTarget,
-} from '../../../_shared/preset-site-routing';
-import { NAV_LINKS, PORTRAIT_URL } from '../constants';
-import { ContactButton } from './ContactButton';
-import { FadeIn } from './FadeIn';
-import { Magnet } from './Magnet';
+} from "../../../_shared/preset-site-routing";
+import { NAV_LINKS, PORTRAIT_URL } from "../constants";
+import { ContactButton } from "./ContactButton";
+import { FadeIn } from "./FadeIn";
+import { Magnet } from "./Magnet";
 
 export function HeroSection() {
   return (
@@ -55,7 +55,7 @@ export function HeroSection() {
         <FadeIn delay={0.35} y={20}>
           <p
             className="max-w-[160px] font-light uppercase leading-snug tracking-wide text-mist sm:max-w-[220px] md:max-w-[260px]"
-            style={{ fontSize: 'clamp(0.75rem, 1.4vw, 1.5rem)' }}
+            style={{ fontSize: "clamp(0.75rem, 1.4vw, 1.5rem)" }}
           >
             a 3d creator driven by crafting striking and unforgettable projects
           </p>

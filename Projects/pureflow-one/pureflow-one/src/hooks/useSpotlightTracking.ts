@@ -1,13 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
-import { SPOTLIGHT_R } from '../constants';
+import { useEffect, useRef, useState } from "react";
+import { SPOTLIGHT_R } from "../constants";
 
 export type CursorPoint = { x: number; y: number };
 export type GridOffset = { x: number; y: number };
 
 function isGalleryPreview(): boolean {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === "undefined") return false;
   try {
-    return new URLSearchParams(window.location.search).get('draftlyGallery') === '1';
+    return new URLSearchParams(window.location.search).get("draftlyGallery") === "1";
   } catch {
     return false;
   }
@@ -15,8 +15,8 @@ function isGalleryPreview(): boolean {
 
 export function useSpotlightTracking(heroRef: React.RefObject<HTMLElement | null>) {
   const mouseRef = useRef<CursorPoint>({
-    x: typeof window !== 'undefined' ? window.innerWidth / 2 : 0,
-    y: typeof window !== 'undefined' ? window.innerHeight / 2 : 0,
+    x: typeof window !== "undefined" ? window.innerWidth / 2 : 0,
+    y: typeof window !== "undefined" ? window.innerHeight / 2 : 0,
   });
   const smoothRef = useRef<CursorPoint>({ ...mouseRef.current });
   const gridOffsetRef = useRef<GridOffset>({ x: 0, y: 0 });
@@ -32,7 +32,7 @@ export function useSpotlightTracking(heroRef: React.RefObject<HTMLElement | null
       if (gallery) return;
       mouseRef.current = { x: e.clientX, y: e.clientY };
     };
-    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener("mousemove", onMouseMove);
 
     let raf = 0;
     const tick = () => {
@@ -68,7 +68,7 @@ export function useSpotlightTracking(heroRef: React.RefObject<HTMLElement | null
     raf = requestAnimationFrame(tick);
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener("mousemove", onMouseMove);
       cancelAnimationFrame(raf);
     };
   }, [heroRef]);

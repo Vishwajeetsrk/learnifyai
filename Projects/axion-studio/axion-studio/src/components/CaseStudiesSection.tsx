@@ -1,9 +1,9 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight } from "lucide-react";
 
 const NARRATIV_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260516_122702_390f5305-8719-41d5-ae80-d23ab3796c28.mp4';
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260516_122702_390f5305-8719-41d5-ae80-d23ab3796c28.mp4";
 const LUMINAR_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260516_123323_f909c2b8-ff6c-4edf-882b-8ebcdbe389b5.mp4';
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260516_123323_f909c2b8-ff6c-4edf-882b-8ebcdbe389b5.mp4";
 
 function LinkIcon({ className }: { className?: string }) {
   return (
@@ -46,12 +46,9 @@ function NarrativCard() {
         </div>
       </div>
       <p className="mt-4 text-[13px] leading-relaxed text-gray-600 sm:text-sm">
-        Winner of Site of the Month 2025 - an interactive 3D showcase driving record
-        engagement
+        Winner of Site of the Month 2025 - an interactive 3D showcase driving record engagement
       </p>
-      <h3 className="mt-1 text-sm font-semibold text-gray-900 sm:text-[15px]">
-        Narrativ
-      </h3>
+      <h3 className="mt-1 text-sm font-semibold text-gray-900 sm:text-[15px]">Narrativ</h3>
     </article>
   );
 }
@@ -81,16 +78,17 @@ function LuminarCard() {
       <p className="mt-4 text-[13px] leading-relaxed text-gray-600 sm:text-sm">
         Transforming a dated platform into a conversion-focused brand experience
       </p>
-      <h3 className="mt-1 text-sm font-semibold text-gray-900 sm:text-[15px]">
-        Luminar
-      </h3>
+      <h3 className="mt-1 text-sm font-semibold text-gray-900 sm:text-[15px]">Luminar</h3>
     </article>
   );
 }
 
 export function CaseStudiesSection() {
   return (
-    <section id="projects" className="scroll-mt-24 bg-[#F5F5F5] pb-16 pt-16 sm:pb-20 sm:pt-20 lg:pb-28 lg:pt-28">
+    <section
+      id="projects"
+      className="scroll-mt-24 bg-[#F5F5F5] pb-16 pt-16 sm:pb-20 sm:pt-20 lg:pb-28 lg:pt-28"
+    >
       <div className="mx-auto w-full max-w-[1440px]">
         <div className="mb-6 flex items-center gap-3 px-5 sm:mb-8 sm:px-8 lg:px-12">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 text-[11px] font-semibold text-white sm:h-7 sm:w-7 sm:text-xs">

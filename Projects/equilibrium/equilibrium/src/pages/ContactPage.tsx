@@ -1,4 +1,4 @@
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
 
 export function ContactPage() {
   return (
@@ -45,7 +45,7 @@ export function ContactPage() {
           </button>
         </form>
         <p className="mt-6 text-center text-sm text-muted">
-          Prefer email?{' '}
+          Prefer email?{" "}
           <a href="mailto:hello@equilibrium.studio" className="text-accent hover:underline">
             hello@equilibrium.studio
           </a>
@@ -53,7 +53,7 @@ export function ContactPage() {
         <button
           type="button"
           className="mx-auto mt-6 block text-sm text-muted underline-offset-2 hover:underline"
-          onClick={() => navigateToRoute('')}
+          onClick={() => navigateToRoute("")}
         >
           Back to home
         </button>

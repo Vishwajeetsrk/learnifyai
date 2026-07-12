@@ -14,7 +14,9 @@ interface TopicProgress {
 export function getProgress(): Record<string, TopicProgress> {
   try {
     return JSON.parse(localStorage.getItem(PROGRESS_KEY) || "{}");
-  } catch { return {}; }
+  } catch {
+    return {};
+  }
 }
 
 function saveProgress(progress: Record<string, TopicProgress>) {
@@ -40,12 +42,15 @@ export function useLearningProgress() {
   const stats = useMemo(() => {
     const total = TOPICS.length;
     const completed = Object.values(progress).filter((p) => p.completed).length;
-    const inProgress = Object.values(progress).filter((p => !p.completed)).length;
-    const unlocked = TOPICS.reduce((max, t, i) => {
-      if (i === 0 || progress[TOPICS[i - 1].id]?.completed) return i;
-      return max;
-    }, 0) + 1;
-    const avgScore = Object.values(progress).filter(p => p.completed).reduce((s, p) => s + p.quizScore, 0);
+    const inProgress = Object.values(progress).filter((p) => !p.completed).length;
+    const unlocked =
+      TOPICS.reduce((max, t, i) => {
+        if (i === 0 || progress[TOPICS[i - 1].id]?.completed) return i;
+        return max;
+      }, 0) + 1;
+    const avgScore = Object.values(progress)
+      .filter((p) => p.completed)
+      .reduce((s, p) => s + p.quizScore, 0);
     const avg = completed > 0 ? Math.round(avgScore / completed) : 0;
     return { total, completed, inProgress, unlocked, avgScore: avg };
   }, [progress]);
@@ -66,7 +71,9 @@ export function LearningProgress() {
           <BarChart3 className="h-4 w-4 text-primary" />
           <span className="text-xs font-semibold">Your Progress</span>
         </div>
-        <span className="text-[10px] text-muted-foreground">{stats.completed}/{stats.total} topics</span>
+        <span className="text-[10px] text-muted-foreground">
+          {stats.completed}/{stats.total} topics
+        </span>
       </div>
 
       <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -77,16 +84,46 @@ export function LearningProgress() {
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <StatCard icon={<Trophy className="h-3 w-3" />} label="Completed" value={String(stats.completed)} color="text-green-500" />
-        <StatCard icon={<BookOpen className="h-3 w-3" />} label="In Progress" value={String(stats.inProgress)} color="text-yellow-500" />
-        <StatCard icon={<TrendingUp className="h-3 w-3" />} label="Avg Score" value={`${stats.avgScore}%`} color="text-blue-500" />
-        <StatCard icon={<Target className="h-3 w-3" />} label="Mastery" value={pct >= 80 ? "Advanced" : pct >= 40 ? "Intermediate" : "Beginner"} color="text-purple-500" />
+        <StatCard
+          icon={<Trophy className="h-3 w-3" />}
+          label="Completed"
+          value={String(stats.completed)}
+          color="text-green-500"
+        />
+        <StatCard
+          icon={<BookOpen className="h-3 w-3" />}
+          label="In Progress"
+          value={String(stats.inProgress)}
+          color="text-yellow-500"
+        />
+        <StatCard
+          icon={<TrendingUp className="h-3 w-3" />}
+          label="Avg Score"
+          value={`${stats.avgScore}%`}
+          color="text-blue-500"
+        />
+        <StatCard
+          icon={<Target className="h-3 w-3" />}
+          label="Mastery"
+          value={pct >= 80 ? "Advanced" : pct >= 40 ? "Intermediate" : "Beginner"}
+          color="text-purple-500"
+        />
       </div>
     </div>
   );
 }
 
-function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: string; color: string }) {
+function StatCard({
+  icon,
+  label,
+  value,
+  color,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  color: string;
+}) {
   return (
     <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/30">
       <span className={color}>{icon}</span>

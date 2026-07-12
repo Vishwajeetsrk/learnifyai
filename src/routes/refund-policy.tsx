@@ -7,7 +7,8 @@ export const Route = createFileRoute("/refund-policy")({
       { title: "Refund Policy — Learnify AI" },
       {
         name: "description",
-        content: "Learnify AI refund policy for subscriptions, course purchases, and wallet top-ups.",
+        content:
+          "Learnify AI refund policy for subscriptions, course purchases, and wallet top-ups.",
       },
       { property: "og:title", content: "Refund Policy — Learnify AI" },
       {

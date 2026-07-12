@@ -42,7 +42,10 @@ export function InteractiveAvatar({ src, name, className, size = 128 }: Interact
       className={cn("relative inline-block select-none", className)}
       style={{ width: size, height: size }}
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => { setHovered(false); setMousePos({ x: 0.5, y: 0.5 }); }}
+      onMouseLeave={() => {
+        setHovered(false);
+        setMousePos({ x: 0.5, y: 0.5 });
+      }}
     >
       <img src={src} alt={name} className="w-full h-full rounded-full" draggable={false} />
       <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 128 128">
@@ -51,9 +54,10 @@ export function InteractiveAvatar({ src, name, className, size = 128 }: Interact
         <circle cx={64 - EYE_SPACING + px} cy={EYE_Y + py} r={PUPIL_RADIUS} fill="#1a1a2e" />
         <circle cx={64 + EYE_SPACING + px} cy={EYE_Y + py} r={PUPIL_RADIUS} fill="#1a1a2e" />
         <path
-          d={hovered
-            ? `M ${64 - 12} ${MOUTH_Y} Q ${64} ${MOUTH_Y - 10} ${64 + 12} ${MOUTH_Y}`
-            : `M ${64 - 12} ${MOUTH_Y} Q ${64} ${MOUTH_Y + 2} ${64 + 12} ${MOUTH_Y}`
+          d={
+            hovered
+              ? `M ${64 - 12} ${MOUTH_Y} Q ${64} ${MOUTH_Y - 10} ${64 + 12} ${MOUTH_Y}`
+              : `M ${64 - 12} ${MOUTH_Y} Q ${64} ${MOUTH_Y + 2} ${64 + 12} ${MOUTH_Y}`
           }
           fill="none"
           stroke="#1a1a2e"

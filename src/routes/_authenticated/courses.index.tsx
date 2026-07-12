@@ -226,9 +226,7 @@ function CoursesPage() {
         (price === "free" && Number(c.price_inr) === 0) ||
         (price === "paid" && Number(c.price_inr) > 0);
       const matchLevel = level === "all" || c.level === level;
-      const matchCareer =
-        careerPath === "all" ||
-        (c as any).career_path?.includes(careerPath);
+      const matchCareer = careerPath === "all" || (c as any).career_path?.includes(careerPath);
       const matchQ =
         !needle ||
         c.title.toLowerCase().includes(needle) ||
@@ -249,10 +247,16 @@ function CoursesPage() {
   const sorted = useMemo(() => {
     const arr = [...filtered];
     switch (sort) {
-      case "popular": return arr.sort((a, b) => ((b as any).enrollment_count ?? 0) - ((a as any).enrollment_count ?? 0));
-      case "price-low": return arr.sort((a, b) => Number(a.price_inr) - Number(b.price_inr));
-      case "price-high": return arr.sort((a, b) => Number(b.price_inr) - Number(a.price_inr));
-      default: return arr;
+      case "popular":
+        return arr.sort(
+          (a, b) => ((b as any).enrollment_count ?? 0) - ((a as any).enrollment_count ?? 0),
+        );
+      case "price-low":
+        return arr.sort((a, b) => Number(a.price_inr) - Number(b.price_inr));
+      case "price-high":
+        return arr.sort((a, b) => Number(b.price_inr) - Number(a.price_inr));
+      default:
+        return arr;
     }
   }, [filtered, sort]);
 
@@ -314,7 +318,7 @@ function CoursesPage() {
                     "px-2.5 py-1 rounded-full text-[10px] font-medium border transition",
                     careerPath === p.id
                       ? "bg-primary text-primary-foreground border-primary"
-                      : "border-border text-muted-foreground hover:border-foreground/30"
+                      : "border-border text-muted-foreground hover:border-foreground/30",
                   )}
                   aria-pressed={careerPath === p.id}
                 >
@@ -346,7 +350,9 @@ function CoursesPage() {
 
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Level</span>
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                Level
+              </span>
               <div className="flex gap-1.5" role="group" aria-label="Filter by level">
                 {(["all", "beginner", "intermediate", "advanced"] as const).map((l) => (
                   <button
@@ -356,7 +362,7 @@ function CoursesPage() {
                       "px-2.5 py-1 rounded-full text-[10px] font-medium border capitalize transition",
                       level === l
                         ? "bg-primary text-primary-foreground border-primary"
-                        : "border-border text-muted-foreground hover:border-foreground/30"
+                        : "border-border text-muted-foreground hover:border-foreground/30",
                     )}
                     aria-pressed={level === l}
                   >
@@ -366,7 +372,9 @@ function CoursesPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Price</span>
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                Price
+              </span>
               <div className="flex gap-1.5" role="group" aria-label="Filter by price">
                 {(
                   [
@@ -382,7 +390,7 @@ function CoursesPage() {
                       "px-2.5 py-1 rounded-full text-[10px] font-medium border transition",
                       price === p.id
                         ? "bg-primary text-primary-foreground border-primary"
-                        : "border-border text-muted-foreground hover:border-foreground/30"
+                        : "border-border text-muted-foreground hover:border-foreground/30",
                     )}
                     aria-pressed={price === p.id}
                   >
@@ -392,7 +400,9 @@ function CoursesPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 ml-auto">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Sort</span>
+              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">
+                Sort
+              </span>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortFilter)}
@@ -409,38 +419,61 @@ function CoursesPage() {
         </div>
 
         {/* Trending rail */}
-        {trending.length > 0 && !q && cat === "All" && price === "all" && level === "all" && careerPath === "all" && (
-          <div className="mt-8">
-            <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <h2 className="text-sm font-semibold">Trending Now</h2>
-              <Badge variant="outline" className="text-[10px] bg-red-500/10 text-red-500 border-red-500/30">
-                <Flame className="h-3 w-3 mr-0.5" /> Hot
-              </Badge>
+        {trending.length > 0 &&
+          !q &&
+          cat === "All" &&
+          price === "all" &&
+          level === "all" &&
+          careerPath === "all" && (
+            <div className="mt-8">
+              <div className="flex items-center gap-2 mb-3">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <h2 className="text-sm font-semibold">Trending Now</h2>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] bg-red-500/10 text-red-500 border-red-500/30"
+                >
+                  <Flame className="h-3 w-3 mr-0.5" /> Hot
+                </Badge>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {trending.map((c) => (
+                  <MiniCourseCard
+                    key={c.id}
+                    course={c}
+                    enrollments={enrollmentsQuery.data}
+                    cart={cartQuery.data}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {trending.map((c) => (
-                <MiniCourseCard key={c.id} course={c} enrollments={enrollmentsQuery.data} cart={cartQuery.data} />
-              ))}
-            </div>
-          </div>
-        )}
+          )}
 
         {/* Recommended rail */}
-        {recommended.length > 0 && !q && cat === "All" && price === "all" && level === "all" && careerPath === "all" && (
-          <div className="mt-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="h-4 w-4 text-yellow-500" />
-              <h2 className="text-sm font-semibold">Recommended for You</h2>
-              <span className="text-[10px] text-muted-foreground">Beginner-friendly picks</span>
+        {recommended.length > 0 &&
+          !q &&
+          cat === "All" &&
+          price === "all" &&
+          level === "all" &&
+          careerPath === "all" && (
+            <div className="mt-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="h-4 w-4 text-yellow-500" />
+                <h2 className="text-sm font-semibold">Recommended for You</h2>
+                <span className="text-[10px] text-muted-foreground">Beginner-friendly picks</span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {recommended.map((c) => (
+                  <MiniCourseCard
+                    key={c.id}
+                    course={c}
+                    enrollments={enrollmentsQuery.data}
+                    cart={cartQuery.data}
+                  />
+                ))}
+              </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {recommended.map((c) => (
-                <MiniCourseCard key={c.id} course={c} enrollments={enrollmentsQuery.data} cart={cartQuery.data} />
-              ))}
-            </div>
-          </div>
-        )}
+          )}
 
         {coursesQuery.isLoading ? (
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
@@ -592,8 +625,12 @@ function MiniCourseCard({
         )}
       </div>
       <div className="p-2.5">
-        <p className="text-[10px] text-muted-foreground uppercase tracking-wider truncate">{course.category}</p>
-        <h3 className="text-xs font-semibold mt-0.5 truncate group-hover:text-primary transition-colors">{course.title}</h3>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider truncate">
+          {course.category}
+        </p>
+        <h3 className="text-xs font-semibold mt-0.5 truncate group-hover:text-primary transition-colors">
+          {course.title}
+        </h3>
         <div className="flex items-center justify-between mt-1.5">
           <span className="text-[10px] text-muted-foreground">{course.level}</span>
           <span className="text-[10px] font-semibold">{inr(Number(course.price_inr))}</span>

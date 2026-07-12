@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
-import { linkToSectionId, scrollToSection, sectionHref } from '../lib/scroll';
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { linkToSectionId, scrollToSection, sectionHref } from "../lib/scroll";
 
-const LINKS = ['Work', 'Studio', 'Archive', 'Contact'] as const;
+const LINKS = ["Work", "Studio", "Archive", "Contact"] as const;
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -11,10 +11,10 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 flex items-center justify-between bg-black/50 px-4 py-4 backdrop-blur-md sm:px-6 md:px-12 md:py-6">
       <a
-        href={sectionHref('home')}
-        onClick={(e) => scrollToSection(e, 'home')}
+        href={sectionHref("home")}
+        onClick={(e) => scrollToSection(e, "home")}
         className="animate-blur-fade-up text-lg font-semibold tracking-[0.2em] text-white/95 md:text-xl"
-        style={{ animationDelay: '0ms' }}
+        style={{ animationDelay: "0ms" }}
       >
         CINEMATIC CLOUD
       </a>
@@ -37,34 +37,34 @@ export default function Navbar() {
         <button
           type="button"
           className="animate-blur-fade-up liquid-glass hidden rounded-full px-5 py-2 text-sm font-medium sm:inline-flex"
-          style={{ animationDelay: '350ms' }}
+          style={{ animationDelay: "350ms" }}
         >
           Sign in
         </button>
         <button
           type="button"
           className="animate-blur-fade-up hidden rounded-full bg-white px-5 py-2 text-sm font-medium text-black transition-colors hover:bg-white/90 sm:inline-flex"
-          style={{ animationDelay: '400ms' }}
+          style={{ animationDelay: "400ms" }}
         >
           Get access
         </button>
         <button
           type="button"
           className="animate-blur-fade-up liquid-glass flex h-10 w-10 items-center justify-center rounded-full lg:hidden"
-          style={{ animationDelay: '350ms' }}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          style={{ animationDelay: "350ms" }}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
           onClick={() => setMenuOpen((o) => !o)}
         >
           <span
             className={`transition-all duration-500 ease-out ${
-              menuOpen ? 'rotate-180 scale-50 opacity-0' : 'rotate-0 scale-100 opacity-100'
+              menuOpen ? "rotate-180 scale-50 opacity-0" : "rotate-0 scale-100 opacity-100"
             }`}
           >
             <Menu className="h-[18px] w-[18px]" />
           </span>
           <span
             className={`absolute transition-all duration-500 ease-out ${
-              menuOpen ? 'rotate-0 scale-100 opacity-100' : 'rotate-180 scale-50 opacity-0'
+              menuOpen ? "rotate-0 scale-100 opacity-100" : "rotate-180 scale-50 opacity-0"
             }`}
           >
             <X className="h-[18px] w-[18px]" />

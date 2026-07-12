@@ -35,14 +35,69 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Color scheme detection based on template number
 function getColorScheme(num) {
-  if (num <= 4) return { name: "Teal & Gold", primary: "#0d5c5c", accent: "#c9a84c", background: "#f5f0e8", text: "#0d5c5c" };
-  if (num <= 8) return { name: "Navy & Gold", primary: "#0a1628", accent: "#c9a84c", background: "#f5f0e8", text: "#0a1628" };
-  if (num <= 12) return { name: "Royal Blue & Gold", primary: "#1a3a6b", accent: "#c9a84c", background: "#f5f0e8", text: "#1a3a6b" };
-  if (num <= 16) return { name: "Orange & Navy", primary: "#e67e22", accent: "#c9a84c", background: "#f5f0e8", text: "#0a1628" };
-  if (num <= 20) return { name: "Purple & Gold", primary: "#2d1b69", accent: "#c9a84c", background: "#f5f0e8", text: "#2d1b69" };
-  if (num <= 24) return { name: "Burgundy & Gold", primary: "#6b1d3a", accent: "#c9a84c", background: "#f5f0e8", text: "#6b1d3a" };
-  if (num <= 28) return { name: "Pink & Gold", primary: "#8b1a6b", accent: "#c9a84c", background: "#f5f0e8", text: "#8b1a6b" };
-  return { name: "Emerald & Gold", primary: "#065f46", accent: "#c9a84c", background: "#f5f0e8", text: "#065f46" };
+  if (num <= 4)
+    return {
+      name: "Teal & Gold",
+      primary: "#0d5c5c",
+      accent: "#c9a84c",
+      background: "#f5f0e8",
+      text: "#0d5c5c",
+    };
+  if (num <= 8)
+    return {
+      name: "Navy & Gold",
+      primary: "#0a1628",
+      accent: "#c9a84c",
+      background: "#f5f0e8",
+      text: "#0a1628",
+    };
+  if (num <= 12)
+    return {
+      name: "Royal Blue & Gold",
+      primary: "#1a3a6b",
+      accent: "#c9a84c",
+      background: "#f5f0e8",
+      text: "#1a3a6b",
+    };
+  if (num <= 16)
+    return {
+      name: "Orange & Navy",
+      primary: "#e67e22",
+      accent: "#c9a84c",
+      background: "#f5f0e8",
+      text: "#0a1628",
+    };
+  if (num <= 20)
+    return {
+      name: "Purple & Gold",
+      primary: "#2d1b69",
+      accent: "#c9a84c",
+      background: "#f5f0e8",
+      text: "#2d1b69",
+    };
+  if (num <= 24)
+    return {
+      name: "Burgundy & Gold",
+      primary: "#6b1d3a",
+      accent: "#c9a84c",
+      background: "#f5f0e8",
+      text: "#6b1d3a",
+    };
+  if (num <= 28)
+    return {
+      name: "Pink & Gold",
+      primary: "#8b1a6b",
+      accent: "#c9a84c",
+      background: "#f5f0e8",
+      text: "#8b1a6b",
+    };
+  return {
+    name: "Emerald & Gold",
+    primary: "#065f46",
+    accent: "#c9a84c",
+    background: "#f5f0e8",
+    text: "#065f46",
+  };
 }
 
 function getCategory(num) {
@@ -59,43 +114,83 @@ function getCategory(num) {
 // Default field positions for ALL templates (same layout structure)
 const DEFAULT_FIELDS = {
   studentName: {
-    x: 50, y: 42, fontSize: 52, fontFamily: "Great Vibes",
-    color: "#1a2744", fontWeight: "normal", fontStyle: "normal",
+    x: 50,
+    y: 42,
+    fontSize: 52,
+    fontFamily: "Great Vibes",
+    color: "#1a2744",
+    fontWeight: "normal",
+    fontStyle: "normal",
     variable: "{{student_name}}",
   },
   courseName: {
-    x: 50, y: 55, fontSize: 26, fontFamily: "Georgia",
-    color: "#0a6e8a", fontWeight: "bold", fontStyle: "normal",
+    x: 50,
+    y: 55,
+    fontSize: 26,
+    fontFamily: "Georgia",
+    color: "#0a6e8a",
+    fontWeight: "bold",
+    fontStyle: "normal",
     variable: "{{course_name}}",
   },
   description: {
-    x: 50, y: 62, fontSize: 13, fontFamily: "Georgia",
-    color: "#555555", fontWeight: "normal", fontStyle: "normal",
+    x: 50,
+    y: 62,
+    fontSize: 13,
+    fontFamily: "Georgia",
+    color: "#555555",
+    fontWeight: "normal",
+    fontStyle: "normal",
     text: "and has demonstrated the knowledge and skills\nrequired to complete the course.",
   },
   date: {
-    x: 72, y: 78, fontSize: 14, fontFamily: "Georgia",
-    color: "#333333", fontWeight: "normal", fontStyle: "normal",
+    x: 72,
+    y: 78,
+    fontSize: 14,
+    fontFamily: "Georgia",
+    color: "#333333",
+    fontWeight: "normal",
+    fontStyle: "normal",
     variable: "{{issue_date}}",
   },
   signatureName: {
-    x: 20, y: 76, fontSize: 28, fontFamily: "Great Vibes",
-    color: "#1a2744", fontWeight: "normal", fontStyle: "normal",
+    x: 20,
+    y: 76,
+    fontSize: 28,
+    fontFamily: "Great Vibes",
+    color: "#1a2744",
+    fontWeight: "normal",
+    fontStyle: "normal",
     variable: "{{signature_name}}",
   },
   signatureTitle: {
-    x: 20, y: 80, fontSize: 11, fontFamily: "Georgia",
-    color: "#666666", fontWeight: "normal", fontStyle: "normal",
+    x: 20,
+    y: 80,
+    fontSize: 11,
+    fontFamily: "Georgia",
+    color: "#666666",
+    fontWeight: "normal",
+    fontStyle: "normal",
     text: "Founder & CEO, Learnify AI",
   },
   certId: {
-    x: 85, y: 8, fontSize: 11, fontFamily: "monospace",
-    color: "#999999", fontWeight: "normal", fontStyle: "normal",
+    x: 85,
+    y: 8,
+    fontSize: 11,
+    fontFamily: "monospace",
+    color: "#999999",
+    fontWeight: "normal",
+    fontStyle: "normal",
     variable: "{{certificate_id}}",
   },
   badgeText: {
-    x: 50, y: 92, fontSize: 9, fontFamily: "Georgia",
-    color: "#888888", fontWeight: "normal", fontStyle: "normal",
+    x: 50,
+    y: 92,
+    fontSize: 9,
+    fontFamily: "Georgia",
+    color: "#888888",
+    fontWeight: "normal",
+    fontStyle: "normal",
     text: "AI-Powered Learning  |  Industry Relevant  |  Career Focused  |  Lifetime Access",
   },
 };
@@ -114,9 +209,7 @@ async function uploadTemplate(filePath, fileName) {
     return null;
   }
 
-  const { data: urlData } = supabase.storage
-    .from("canva-templates")
-    .getPublicUrl(fileName);
+  const { data: urlData } = supabase.storage.from("canva-templates").getPublicUrl(fileName);
 
   return urlData?.publicUrl;
 }
@@ -186,7 +279,7 @@ async function main() {
         theme_colors: scheme,
         created_by: null,
       },
-      { onConflict: "id" }
+      { onConflict: "id" },
     );
 
     if (error) {

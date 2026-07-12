@@ -1,4 +1,4 @@
-import { EcosystemSection } from '../components/EcosystemSection';
+import { EcosystemSection } from "../components/EcosystemSection";
 
 export default function EcosystemPage() {
   return (

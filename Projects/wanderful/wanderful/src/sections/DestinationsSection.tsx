@@ -1,11 +1,15 @@
-import { useState, type MouseEvent } from 'react';
-import { motion } from 'framer-motion';
-import { handlePresetNavClick, resolveNavTarget, routeHref } from '../../../_shared/preset-site-routing';
-import { goldEase } from '../constants';
-import { tourDetailPath, tours } from '../lib/tours';
+import { useState, type MouseEvent } from "react";
+import { motion } from "framer-motion";
+import {
+  handlePresetNavClick,
+  resolveNavTarget,
+  routeHref,
+} from "../../../_shared/preset-site-routing";
+import { goldEase } from "../constants";
+import { tourDetailPath, tours } from "../lib/tours";
 
 export function DestinationsSection() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const filtered = tours.filter((t) => t.name.toLowerCase().includes(query.toLowerCase()));
 
   return (
@@ -35,14 +39,12 @@ export function DestinationsSection() {
         </motion.p>
         <div className="flex gap-5 overflow-x-auto pb-6 no-scrollbar">
           {filtered.length === 0 ? (
-            <p className="text-black/40 text-sm pt-4">
-              No tours found for &quot;{query}&quot;
-            </p>
+            <p className="text-black/40 text-sm pt-4">No tours found for &quot;{query}&quot;</p>
           ) : (
             filtered.map((tour, i) => {
               const detailRoute = tourDetailPath(tour.id);
               const cardClick = (e: MouseEvent<HTMLAnchorElement>) => {
-                handlePresetNavClick(e, resolveNavTarget('', { route: detailRoute }));
+                handlePresetNavClick(e, resolveNavTarget("", { route: detailRoute }));
               };
               return (
                 <motion.div

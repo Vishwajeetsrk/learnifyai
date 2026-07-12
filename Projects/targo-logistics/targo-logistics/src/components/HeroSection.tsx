@@ -1,8 +1,8 @@
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { CONTACT_ROUTE, HERO_VIDEO_URL } from '../constants';
-import { ClippedButton } from './ClippedButton';
-import { ConsultationCard } from './ConsultationCard';
-import { Navbar } from './Navbar';
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { CONTACT_ROUTE, HERO_VIDEO_URL } from "../constants";
+import { ClippedButton } from "./ClippedButton";
+import { ConsultationCard } from "./ConsultationCard";
+import { Navbar } from "./Navbar";
 
 export function HeroSection() {
   return (

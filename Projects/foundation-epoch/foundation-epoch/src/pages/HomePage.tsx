@@ -1,9 +1,9 @@
-import { ContactSection } from '../components/ContactSection';
-import { DocsSection } from '../components/DocsSection';
-import { EcosystemSection } from '../components/EcosystemSection';
-import { FeaturesSection } from '../components/FeaturesSection';
-import { HeroSection } from '../components/HeroSection';
-import { LogoMarquee } from '../components/LogoMarquee';
+import { ContactSection } from "../components/ContactSection";
+import { DocsSection } from "../components/DocsSection";
+import { EcosystemSection } from "../components/EcosystemSection";
+import { FeaturesSection } from "../components/FeaturesSection";
+import { HeroSection } from "../components/HeroSection";
+import { LogoMarquee } from "../components/LogoMarquee";
 
 export default function HomePage() {
   return (

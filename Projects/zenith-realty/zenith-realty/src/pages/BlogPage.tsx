@@ -1,14 +1,17 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 const POSTS = [
-  { title: 'Designing sanctuaries in Malibu', date: 'May 2026' },
-  { title: 'VR walk-throughs that close faster', date: 'April 2026' },
-  { title: 'Island portfolios worth watching', date: 'March 2026' },
+  { title: "Designing sanctuaries in Malibu", date: "May 2026" },
+  { title: "VR walk-throughs that close faster", date: "April 2026" },
+  { title: "Island portfolios worth watching", date: "March 2026" },
 ];
 
 export function BlogPage() {
   return (
-    <PageShell title="Blog" subtitle="Market notes, design stories, and tools for modern property search.">
+    <PageShell
+      title="Blog"
+      subtitle="Market notes, design stories, and tools for modern property search."
+    >
       <div className="space-y-4">
         {POSTS.map((post) => (
           <article

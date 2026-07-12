@@ -1,9 +1,9 @@
 /** Scroll targets for nav anchors — green palette below hero. */
 export function LinkFlowSections() {
   const block =
-    'border-t border-[#1f2a1d]/10 py-20 md:py-28 px-6 md:px-10 scroll-mt-24 bg-[#f4f7f2]';
-  const title = 'text-3xl md:text-4xl font-normal tracking-tight text-[#336443]';
-  const body = 'text-[#4b5b47] text-base leading-relaxed max-w-2xl mt-4';
+    "border-t border-[#1f2a1d]/10 py-20 md:py-28 px-6 md:px-10 scroll-mt-24 bg-[#f4f7f2]";
+  const title = "text-3xl md:text-4xl font-normal tracking-tight text-[#336443]";
+  const body = "text-[#4b5b47] text-base leading-relaxed max-w-2xl mt-4";
 
   return (
     <>
@@ -58,7 +58,7 @@ export function LinkFlowSections() {
       <section id="login" className={`${block} bg-white`}>
         <div className="mx-auto max-w-6xl text-center">
           <h2 className={title}>Enter</h2>
-          <p className={body + ' mx-auto'}>Sign in to your LinkFlow dashboard.</p>
+          <p className={body + " mx-auto"}>Sign in to your LinkFlow dashboard.</p>
           <button
             type="button"
             className="mt-8 bg-[#1f2a1d] hover:bg-[#2a3827] text-white text-sm font-semibold px-8 py-3 rounded-full transition-colors"

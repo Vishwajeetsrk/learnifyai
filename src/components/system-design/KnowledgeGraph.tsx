@@ -147,14 +147,32 @@ export function KnowledgeGraph({ onTopicClick, onClose, compact = false }: Knowl
       {/* Controls */}
       {!compact && (
         <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoom((z) => Math.min(2, z + 0.2))} aria-label="Zoom in">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={() => setZoom((z) => Math.min(2, z + 0.2))}
+            aria-label="Zoom in"
+          >
             <ZoomIn className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setZoom((z) => Math.max(0.5, z - 0.2))} aria-label="Zoom out">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 p-0"
+            onClick={() => setZoom((z) => Math.max(0.5, z - 0.2))}
+            aria-label="Zoom out"
+          >
             <ZoomOut className="h-3.5 w-3.5" />
           </Button>
           {onClose && (
-            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={onClose} aria-label="Close graph">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 w-7 p-0"
+              onClick={onClose}
+              aria-label="Close graph"
+            >
               <X className="h-3.5 w-3.5" />
             </Button>
           )}
@@ -179,12 +197,26 @@ export function KnowledgeGraph({ onTopicClick, onClose, compact = false }: Knowl
           return (
             <g key={`link-${i}`}>
               <line
-                x1={s.x} y1={s.y} x2={t.x} y2={t.y}
-                stroke={selectedNode === nodes[link.source]?.id || selectedNode === nodes[link.target]?.id ? "#6366f1" : "#374151"}
+                x1={s.x}
+                y1={s.y}
+                x2={t.x}
+                y2={t.y}
+                stroke={
+                  selectedNode === nodes[link.source]?.id || selectedNode === nodes[link.target]?.id
+                    ? "#6366f1"
+                    : "#374151"
+                }
                 strokeWidth={selectedNode ? 1 : 0.5}
                 className="transition-colors duration-300"
               />
-              <text x={mx} y={my - 4} textAnchor="middle" fill="#6b7280" fontSize={6} className="pointer-events-none">
+              <text
+                x={mx}
+                y={my - 4}
+                textAnchor="middle"
+                fill="#6b7280"
+                fontSize={6}
+                className="pointer-events-none"
+              >
                 {link.label}
               </text>
             </g>

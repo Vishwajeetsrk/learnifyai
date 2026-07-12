@@ -1,9 +1,15 @@
-import { PageIntro } from '../components/PageIntro';
+import { PageIntro } from "../components/PageIntro";
 
 const PILLARS = [
-  { title: 'Strategy', body: 'Therapeutic focus, indication sequencing, and competitive positioning.' },
-  { title: 'Regulatory', body: 'IND/CTA pathways, FDA meeting prep, and global filing coordination.' },
-  { title: 'Capital', body: 'Data-room narrative, investor targeting, and term-sheet support.' },
+  {
+    title: "Strategy",
+    body: "Therapeutic focus, indication sequencing, and competitive positioning.",
+  },
+  {
+    title: "Regulatory",
+    body: "IND/CTA pathways, FDA meeting prep, and global filing coordination.",
+  },
+  { title: "Capital", body: "Data-room narrative, investor targeting, and term-sheet support." },
 ];
 
 export function AboutPage() {

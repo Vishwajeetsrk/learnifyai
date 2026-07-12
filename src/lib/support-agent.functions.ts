@@ -196,9 +196,16 @@ async function executeTool(name: string, args: any) {
   return JSON.stringify({ error: `Unknown tool: ${name}` });
 }
 
+import { validateAIPrompt } from "./ai-firewall";
+
 export const supportChat = createServerFn({ method: "POST" })
   .validator((data: unknown) => SupportMessageSchema.parse(data))
   .handler(async ({ data }) => {
+    const safety = validateAIPrompt(data.content);
+    if (!safety.safe) {
+      throw new Error(safety.reason || "Safety policy violation: Request rejected by AI Firewall.");
+    }
+
     const messages: any[] = [
       ...(data.history ?? []).map((m: any) => ({ role: m.role, content: m.content })),
       {

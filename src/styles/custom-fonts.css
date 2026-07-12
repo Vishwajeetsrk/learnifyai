@@ -1,1075 +1,1073 @@
 /* Custom fonts from Giant Font Bundle */
 
 @font-face {
-  font-family: 'Aladin';
-  src: url('/fonts/Aladin.ttf') format('truetype');
+  font-family: "Aladin";
+  src: url("/fonts/Aladin.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Aldebara';
-  src: url('/fonts/Aldebara.ttf') format('truetype');
+  font-family: "Aldebara";
+  src: url("/fonts/Aldebara.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Alphabet Wave';
-  src: url('/fonts/Alphabet Wave.ttf') format('truetype');
+  font-family: "Alphabet Wave";
+  src: url("/fonts/Alphabet Wave.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Amoxan';
-  src: url('/fonts/Amoxan.ttf') format('truetype');
+  font-family: "Amoxan";
+  src: url("/fonts/Amoxan.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'animasi eyes';
-  src: url('/fonts/animasi eyes.ttf') format('truetype');
+  font-family: "animasi eyes";
+  src: url("/fonts/animasi eyes.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Annabelle';
-  src: url('/fonts/Annabelle.ttf') format('truetype');
+  font-family: "Annabelle";
+  src: url("/fonts/Annabelle.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Azhitromicin';
-  src: url('/fonts/Azhitromicin.ttf') format('truetype');
+  font-family: "Azhitromicin";
+  src: url("/fonts/Azhitromicin.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Baby Cute';
-  src: url('/fonts/Baby Cute.ttf') format('truetype');
+  font-family: "Baby Cute";
+  src: url("/fonts/Baby Cute.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Baby doll';
-  src: url('/fonts/Baby doll.ttf') format('truetype');
+  font-family: "Baby doll";
+  src: url("/fonts/Baby doll.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'BALOTAK';
-  src: url('/fonts/BALOTAK.ttf') format('truetype');
+  font-family: "BALOTAK";
+  src: url("/fonts/BALOTAK.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Beautiful leaves';
-  src: url('/fonts/Beautiful leaves.ttf') format('truetype');
+  font-family: "Beautiful leaves";
+  src: url("/fonts/Beautiful leaves.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'BELAROSA';
-  src: url('/fonts/BELAROSA.ttf') format('truetype');
+  font-family: "BELAROSA";
+  src: url("/fonts/BELAROSA.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Black Forest';
-  src: url('/fonts/Black Forest.ttf') format('truetype');
+  font-family: "Black Forest";
+  src: url("/fonts/Black Forest.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Blue ocean';
-  src: url('/fonts/Blue ocean.ttf') format('truetype');
+  font-family: "Blue ocean";
+  src: url("/fonts/Blue ocean.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Booster';
-  src: url('/fonts/Booster.ttf') format('truetype');
+  font-family: "Booster";
+  src: url("/fonts/Booster.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Bougenville flowers';
-  src: url('/fonts/Bougenville flowers.ttf') format('truetype');
+  font-family: "Bougenville flowers";
+  src: url("/fonts/Bougenville flowers.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'broken Heart';
-  src: url('/fonts/broken Heart.ttf') format('truetype');
+  font-family: "broken Heart";
+  src: url("/fonts/broken Heart.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Browie';
-  src: url('/fonts/Browie.ttf') format('truetype');
+  font-family: "Browie";
+  src: url("/fonts/Browie.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'BUBBLE BOBA';
-  src: url('/fonts/BUBBLE BOBA.ttf') format('truetype');
+  font-family: "BUBBLE BOBA";
+  src: url("/fonts/BUBBLE BOBA.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Butterfly';
-  src: url('/fonts/Butterfly.ttf') format('truetype');
+  font-family: "Butterfly";
+  src: url("/fonts/Butterfly.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'cakiss';
-  src: url('/fonts/cakiss.ttf') format('truetype');
+  font-family: "cakiss";
+  src: url("/fonts/cakiss.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Cattrine';
-  src: url('/fonts/Cattrine.ttf') format('truetype');
+  font-family: "Cattrine";
+  src: url("/fonts/Cattrine.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Ceftriaxon';
-  src: url('/fonts/Ceftriaxon.ttf') format('truetype');
+  font-family: "Ceftriaxon";
+  src: url("/fonts/Ceftriaxon.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Charles';
-  src: url('/fonts/Charles.ttf') format('truetype');
+  font-family: "Charles";
+  src: url("/fonts/Charles.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Cheerful Year';
-  src: url('/fonts/Cheerful Year.ttf') format('truetype');
+  font-family: "Cheerful Year";
+  src: url("/fonts/Cheerful Year.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Christmas';
-  src: url('/fonts/Christmas.ttf') format('truetype');
+  font-family: "Christmas";
+  src: url("/fonts/Christmas.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Coffee Break';
-  src: url('/fonts/Coffee Break.ttf') format('truetype');
+  font-family: "Coffee Break";
+  src: url("/fonts/Coffee Break.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Coffee Robusta';
-  src: url('/fonts/Coffee Robusta.ttf') format('truetype');
+  font-family: "Coffee Robusta";
+  src: url("/fonts/Coffee Robusta.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Crunchy';
-  src: url('/fonts/Crunchy.ttf') format('truetype');
+  font-family: "Crunchy";
+  src: url("/fonts/Crunchy.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'CUTE LOVE';
-  src: url('/fonts/CUTE LOVE.ttf') format('truetype');
+  font-family: "CUTE LOVE";
+  src: url("/fonts/CUTE LOVE.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Cutes';
-  src: url('/fonts/Cutes.ttf') format('truetype');
+  font-family: "Cutes";
+  src: url("/fonts/Cutes.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Delicious Food';
-  src: url('/fonts/Delicious Food.ttf') format('truetype');
+  font-family: "Delicious Food";
+  src: url("/fonts/Delicious Food.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Devil Beside You';
-  src: url('/fonts/Devil Beside You.ttf') format('truetype');
+  font-family: "Devil Beside You";
+  src: url("/fonts/Devil Beside You.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'DIAMOND';
-  src: url('/fonts/DIAMOND.ttf') format('truetype');
+  font-family: "DIAMOND";
+  src: url("/fonts/DIAMOND.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Digital Marketing';
-  src: url('/fonts/Digital Marketing.ttf') format('truetype');
+  font-family: "Digital Marketing";
+  src: url("/fonts/Digital Marketing.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Donuts';
-  src: url('/fonts/Donuts.ttf') format('truetype');
+  font-family: "Donuts";
+  src: url("/fonts/Donuts.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Emerald';
-  src: url('/fonts/Emerald.ttf') format('truetype');
+  font-family: "Emerald";
+  src: url("/fonts/Emerald.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'everybody';
-  src: url('/fonts/everybody.ttf') format('truetype');
+  font-family: "everybody";
+  src: url("/fonts/everybody.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'explore';
-  src: url('/fonts/explore.ttf') format('truetype');
+  font-family: "explore";
+  src: url("/fonts/explore.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'flowers';
-  src: url('/fonts/flowers.ttf') format('truetype');
+  font-family: "flowers";
+  src: url("/fonts/flowers.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'FRIENDLY';
-  src: url('/fonts/FRIENDLY.ttf') format('truetype');
+  font-family: "FRIENDLY";
+  src: url("/fonts/FRIENDLY.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Funny Kids (1)';
-  src: url('/fonts/Funny Kids (1).ttf') format('truetype');
+  font-family: "Funny Kids (1)";
+  src: url("/fonts/Funny Kids (1).ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Gendis Flower';
-  src: url('/fonts/Gendis Flower.ttf') format('truetype');
+  font-family: "Gendis Flower";
+  src: url("/fonts/Gendis Flower.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Georgia';
-  src: url('/fonts/Georgia.ttf') format('truetype');
+  font-family: "Georgia";
+  src: url("/fonts/Georgia.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'GEORGIOS';
-  src: url('/fonts/GEORGIOS.ttf') format('truetype');
+  font-family: "GEORGIOS";
+  src: url("/fonts/GEORGIOS.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Golden Pumpkin';
-  src: url('/fonts/Golden Pumpkin.ttf') format('truetype');
+  font-family: "Golden Pumpkin";
+  src: url("/fonts/Golden Pumpkin.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Greentea Milkshake';
-  src: url('/fonts/Greentea Milkshake.ttf') format('truetype');
+  font-family: "Greentea Milkshake";
+  src: url("/fonts/Greentea Milkshake.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Gupis';
-  src: url('/fonts/Gupis.ttf') format('truetype');
+  font-family: "Gupis";
+  src: url("/fonts/Gupis.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Halloween';
-  src: url('/fonts/Halloween.ttf') format('truetype');
+  font-family: "Halloween";
+  src: url("/fonts/Halloween.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Happy Christmas';
-  src: url('/fonts/Happy Christmas.ttf') format('truetype');
+  font-family: "Happy Christmas";
+  src: url("/fonts/Happy Christmas.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Happy New Year';
-  src: url('/fonts/Happy New Year.ttf') format('truetype');
+  font-family: "Happy New Year";
+  src: url("/fonts/Happy New Year.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Happy Shopping';
-  src: url('/fonts/Happy Shopping.ttf') format('truetype');
+  font-family: "Happy Shopping";
+  src: url("/fonts/Happy Shopping.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Happy weekend';
-  src: url('/fonts/Happy weekend.ttf') format('truetype');
+  font-family: "Happy weekend";
+  src: url("/fonts/Happy weekend.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Hello Christmas';
-  src: url('/fonts/Hello Christmas.ttf') format('truetype');
+  font-family: "Hello Christmas";
+  src: url("/fonts/Hello Christmas.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Hello Winter';
-  src: url('/fonts/Hello Winter.ttf') format('truetype');
+  font-family: "Hello Winter";
+  src: url("/fonts/Hello Winter.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Hellow January';
-  src: url('/fonts/Hellow January.ttf') format('truetype');
+  font-family: "Hellow January";
+  src: url("/fonts/Hellow January.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Hidrocloroquin';
-  src: url('/fonts/Hidrocloroquin.ttf') format('truetype');
+  font-family: "Hidrocloroquin";
+  src: url("/fonts/Hidrocloroquin.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Hollster';
-  src: url('/fonts/Hollster.ttf') format('truetype');
+  font-family: "Hollster";
+  src: url("/fonts/Hollster.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Honeymoon';
-  src: url('/fonts/Honeymoon.ttf') format('truetype');
+  font-family: "Honeymoon";
+  src: url("/fonts/Honeymoon.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Jelline';
-  src: url('/fonts/Jelline.ttf') format('truetype');
+  font-family: "Jelline";
+  src: url("/fonts/Jelline.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'JONS';
-  src: url('/fonts/JONS.ttf') format('truetype');
+  font-family: "JONS";
+  src: url("/fonts/JONS.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Just Friend';
-  src: url('/fonts/Just Friend.ttf') format('truetype');
+  font-family: "Just Friend";
+  src: url("/fonts/Just Friend.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'kindergarten';
-  src: url('/fonts/kindergarten.ttf') format('truetype');
+  font-family: "kindergarten";
+  src: url("/fonts/kindergarten.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Krriiukk';
-  src: url('/fonts/Krriiukk.ttf') format('truetype');
+  font-family: "Krriiukk";
+  src: url("/fonts/Krriiukk.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Leaf';
-  src: url('/fonts/Leaf.ttf') format('truetype');
+  font-family: "Leaf";
+  src: url("/fonts/Leaf.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Lets go to school';
-  src: url('/fonts/Lets go to school.ttf') format('truetype');
+  font-family: "Lets go to school";
+  src: url("/fonts/Lets go to school.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Lighting';
-  src: url('/fonts/Lighting.ttf') format('truetype');
+  font-family: "Lighting";
+  src: url("/fonts/Lighting.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Love Bubbles';
-  src: url('/fonts/Love Bubbles.ttf') format('truetype');
+  font-family: "Love Bubbles";
+  src: url("/fonts/Love Bubbles.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Lovely';
-  src: url('/fonts/Lovely.ttf') format('truetype');
+  font-family: "Lovely";
+  src: url("/fonts/Lovely.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'MandalaClipArt-Regular';
-  src: url('/fonts/MandalaClipArt-Regular.ttf') format('truetype');
+  font-family: "MandalaClipArt-Regular";
+  src: url("/fonts/MandalaClipArt-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Manopo';
-  src: url('/fonts/Manopo.ttf') format('truetype');
+  font-family: "Manopo";
+  src: url("/fonts/Manopo.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Memoriam';
-  src: url('/fonts/Memoriam.ttf') format('truetype');
+  font-family: "Memoriam";
+  src: url("/fonts/Memoriam.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Mennuah';
-  src: url('/fonts/Mennuah.ttf') format('truetype');
+  font-family: "Mennuah";
+  src: url("/fonts/Mennuah.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Methilprednisolon';
-  src: url('/fonts/Methilprednisolon.ttf') format('truetype');
+  font-family: "Methilprednisolon";
+  src: url("/fonts/Methilprednisolon.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Michy';
-  src: url('/fonts/Michy.ttf') format('truetype');
+  font-family: "Michy";
+  src: url("/fonts/Michy.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Miracle Of Christmas';
-  src: url('/fonts/Miracle Of Christmas.ttf') format('truetype');
+  font-family: "Miracle Of Christmas";
+  src: url("/fonts/Miracle Of Christmas.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Mom cooking';
-  src: url('/fonts/Mom cooking.ttf') format('truetype');
+  font-family: "Mom cooking";
+  src: url("/fonts/Mom cooking.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'MONOLOG';
-  src: url('/fonts/MONOLOG.ttf') format('truetype');
+  font-family: "MONOLOG";
+  src: url("/fonts/MONOLOG.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Moo Milky';
-  src: url('/fonts/Moo Milky.ttf') format('truetype');
+  font-family: "Moo Milky";
+  src: url("/fonts/Moo Milky.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'MOUW';
-  src: url('/fonts/MOUW.ttf') format('truetype');
+  font-family: "MOUW";
+  src: url("/fonts/MOUW.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'My Princess';
-  src: url('/fonts/My Princess.ttf') format('truetype');
+  font-family: "My Princess";
+  src: url("/fonts/My Princess.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Naturally';
-  src: url('/fonts/Naturally.ttf') format('truetype');
+  font-family: "Naturally";
+  src: url("/fonts/Naturally.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'North Star';
-  src: url('/fonts/North Star.ttf') format('truetype');
+  font-family: "North Star";
+  src: url("/fonts/North Star.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'NOTHING';
-  src: url('/fonts/NOTHING.ttf') format('truetype');
+  font-family: "NOTHING";
+  src: url("/fonts/NOTHING.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'ONE MORE';
-  src: url('/fonts/ONE MORE.ttf') format('truetype');
+  font-family: "ONE MORE";
+  src: url("/fonts/ONE MORE.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'One Stripe';
-  src: url('/fonts/One Stripe.ttf') format('truetype');
+  font-family: "One Stripe";
+  src: url("/fonts/One Stripe.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Outline';
-  src: url('/fonts/Outline.ttf') format('truetype');
+  font-family: "Outline";
+  src: url("/fonts/Outline.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Photography';
-  src: url('/fonts/Photography.ttf') format('truetype');
+  font-family: "Photography";
+  src: url("/fonts/Photography.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Pikachu';
-  src: url('/fonts/Pikachu.ttf') format('truetype');
+  font-family: "Pikachu";
+  src: url("/fonts/Pikachu.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Pillow';
-  src: url('/fonts/Pillow.ttf') format('truetype');
+  font-family: "Pillow";
+  src: url("/fonts/Pillow.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Playground';
-  src: url('/fonts/Playground.ttf') format('truetype');
+  font-family: "Playground";
+  src: url("/fonts/Playground.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Polipuli';
-  src: url('/fonts/Polipuli.ttf') format('truetype');
+  font-family: "Polipuli";
+  src: url("/fonts/Polipuli.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Pompom';
-  src: url('/fonts/Pompom.ttf') format('truetype');
+  font-family: "Pompom";
+  src: url("/fonts/Pompom.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'POW KIDS';
-  src: url('/fonts/POW KIDS.ttf') format('truetype');
+  font-family: "POW KIDS";
+  src: url("/fonts/POW KIDS.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Princess';
-  src: url('/fonts/Princess.ttf') format('truetype');
+  font-family: "Princess";
+  src: url("/fonts/Princess.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'PURPLE';
-  src: url('/fonts/PURPLE.ttf') format('truetype');
+  font-family: "PURPLE";
+  src: url("/fonts/PURPLE.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'PUZZLE';
-  src: url('/fonts/PUZZLE.ttf') format('truetype');
+  font-family: "PUZZLE";
+  src: url("/fonts/PUZZLE.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'QIWQIW';
-  src: url('/fonts/QIWQIW.ttf') format('truetype');
+  font-family: "QIWQIW";
+  src: url("/fonts/QIWQIW.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Remember';
-  src: url('/fonts/Remember.ttf') format('truetype');
+  font-family: "Remember";
+  src: url("/fonts/Remember.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Richeese';
-  src: url('/fonts/Richeese.ttf') format('truetype');
+  font-family: "Richeese";
+  src: url("/fonts/Richeese.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Rolling door';
-  src: url('/fonts/Rolling door.ttf') format('truetype');
+  font-family: "Rolling door";
+  src: url("/fonts/Rolling door.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Sand';
-  src: url('/fonts/Sand.ttf') format('truetype');
+  font-family: "Sand";
+  src: url("/fonts/Sand.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'sandra';
-  src: url('/fonts/sandra.ttf') format('truetype');
+  font-family: "sandra";
+  src: url("/fonts/sandra.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'sansan';
-  src: url('/fonts/sansan.ttf') format('truetype');
+  font-family: "sansan";
+  src: url("/fonts/sansan.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Sansullin';
-  src: url('/fonts/Sansullin.ttf') format('truetype');
+  font-family: "Sansullin";
+  src: url("/fonts/Sansullin.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Santa Claus';
-  src: url('/fonts/Santa Claus.ttf') format('truetype');
+  font-family: "Santa Claus";
+  src: url("/fonts/Santa Claus.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Saranghae';
-  src: url('/fonts/Saranghae.ttf') format('truetype');
+  font-family: "Saranghae";
+  src: url("/fonts/Saranghae.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Sarapan';
-  src: url('/fonts/Sarapan.ttf') format('truetype');
+  font-family: "Sarapan";
+  src: url("/fonts/Sarapan.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Say Hello';
-  src: url('/fonts/Say Hello.ttf') format('truetype');
+  font-family: "Say Hello";
+  src: url("/fonts/Say Hello.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Scarlove';
-  src: url('/fonts/Scarlove.ttf') format('truetype');
+  font-family: "Scarlove";
+  src: url("/fonts/Scarlove.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'SHIZUKA';
-  src: url('/fonts/SHIZUKA.ttf') format('truetype');
+  font-family: "SHIZUKA";
+  src: url("/fonts/SHIZUKA.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Sky face';
-  src: url('/fonts/Sky face.ttf') format('truetype');
+  font-family: "Sky face";
+  src: url("/fonts/Sky face.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Solaria';
-  src: url('/fonts/Solaria.ttf') format('truetype');
+  font-family: "Solaria";
+  src: url("/fonts/Solaria.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Solatip';
-  src: url('/fonts/Solatip.ttf') format('truetype');
+  font-family: "Solatip";
+  src: url("/fonts/Solatip.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Squaress';
-  src: url('/fonts/Squaress.ttf') format('truetype');
+  font-family: "Squaress";
+  src: url("/fonts/Squaress.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Srengngee';
-  src: url('/fonts/Srengngee.ttf') format('truetype');
+  font-family: "Srengngee";
+  src: url("/fonts/Srengngee.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'START-UP';
-  src: url('/fonts/START-UP.ttf') format('truetype');
+  font-family: "START-UP";
+  src: url("/fonts/START-UP.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Stay Story';
-  src: url('/fonts/Stay Story.ttf') format('truetype');
+  font-family: "Stay Story";
+  src: url("/fonts/Stay Story.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Stricker';
-  src: url('/fonts/Stricker.ttf') format('truetype');
+  font-family: "Stricker";
+  src: url("/fonts/Stricker.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Stripe Calm';
-  src: url('/fonts/Stripe Calm.ttf') format('truetype');
+  font-family: "Stripe Calm";
+  src: url("/fonts/Stripe Calm.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Sunshine';
-  src: url('/fonts/Sunshine.ttf') format('truetype');
+  font-family: "Sunshine";
+  src: url("/fonts/Sunshine.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Taro Flowers';
-  src: url('/fonts/Taro Flowers.ttf') format('truetype');
+  font-family: "Taro Flowers";
+  src: url("/fonts/Taro Flowers.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Thai tea';
-  src: url('/fonts/Thai tea.ttf') format('truetype');
+  font-family: "Thai tea";
+  src: url("/fonts/Thai tea.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Travelling';
-  src: url('/fonts/Travelling.ttf') format('truetype');
+  font-family: "Travelling";
+  src: url("/fonts/Travelling.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Tremor';
-  src: url('/fonts/Tremor.ttf') format('truetype');
+  font-family: "Tremor";
+  src: url("/fonts/Tremor.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Unicorn Beautifull';
-  src: url('/fonts/Unicorn Beautifull.ttf') format('truetype');
+  font-family: "Unicorn Beautifull";
+  src: url("/fonts/Unicorn Beautifull.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'UPNORMAL';
-  src: url('/fonts/UPNORMAL.ttf') format('truetype');
+  font-family: "UPNORMAL";
+  src: url("/fonts/UPNORMAL.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'wedding knick knacks';
-  src: url('/fonts/wedding knick knacks.ttf') format('truetype');
+  font-family: "wedding knick knacks";
+  src: url("/fonts/wedding knick knacks.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Wedding';
-  src: url('/fonts/Wedding.ttf') format('truetype');
+  font-family: "Wedding";
+  src: url("/fonts/Wedding.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Welcome Santa';
-  src: url('/fonts/Welcome Santa.ttf') format('truetype');
+  font-family: "Welcome Santa";
+  src: url("/fonts/Welcome Santa.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'WILD';
-  src: url('/fonts/WILD.ttf') format('truetype');
+  font-family: "WILD";
+  src: url("/fonts/WILD.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'willy';
-  src: url('/fonts/willy.ttf') format('truetype');
+  font-family: "willy";
+  src: url("/fonts/willy.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Winner';
-  src: url('/fonts/Winner.ttf') format('truetype');
+  font-family: "Winner";
+  src: url("/fonts/Winner.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Winter Soraya';
-  src: url('/fonts/Winter Soraya.ttf') format('truetype');
+  font-family: "Winter Soraya";
+  src: url("/fonts/Winter Soraya.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
-
-

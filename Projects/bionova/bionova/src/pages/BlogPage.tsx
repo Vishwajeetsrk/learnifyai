@@ -1,9 +1,9 @@
-import { PageIntro } from '../components/PageIntro';
+import { PageIntro } from "../components/PageIntro";
 
 const POSTS = [
-  { title: 'Designing your first IND-enabling package', date: 'Mar 12, 2026' },
-  { title: 'What Series A biotech investors ask in 2026', date: 'Feb 28, 2026' },
-  { title: 'Building a credible CMC narrative pre-Phase 1', date: 'Feb 3, 2026' },
+  { title: "Designing your first IND-enabling package", date: "Mar 12, 2026" },
+  { title: "What Series A biotech investors ask in 2026", date: "Feb 28, 2026" },
+  { title: "Building a credible CMC narrative pre-Phase 1", date: "Feb 3, 2026" },
 ];
 
 export function BlogPage() {
@@ -18,7 +18,9 @@ export function BlogPage() {
         <ul className="mx-auto max-w-3xl divide-y divide-foreground/10">
           {POSTS.map((post) => (
             <li key={post.title} className="py-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">{post.date}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground/50">
+                {post.date}
+              </p>
               <h2 className="mt-2 text-lg font-semibold">{post.title}</h2>
             </li>
           ))}

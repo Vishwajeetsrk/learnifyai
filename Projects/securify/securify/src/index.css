@@ -12,7 +12,11 @@ body,
 }
 
 body {
-  font-family: "Readex Pro", system-ui, -apple-system, sans-serif;
+  font-family:
+    "Readex Pro",
+    system-ui,
+    -apple-system,
+    sans-serif;
   background: #000;
   color: #fff;
   -webkit-font-smoothing: antialiased;

@@ -39,27 +39,19 @@ export function DefaultAvatar({
   imgClassName,
 }: DefaultAvatarProps) {
   const fallback = getDefaultAvatar(name);
-  const initials = name
-    ?.split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() || "?";
+  const initials =
+    name
+      ?.split(" ")
+      .map((w) => w[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "?";
 
   return (
     <Avatar className={className}>
       {src ? <AvatarImage src={src} className={imgClassName} /> : null}
-      <AvatarFallback
-        className={cn("bg-muted", fallbackClassName)}
-        delayMs={src ? 600 : 0}
-      >
-        {!src && (
-          <img
-            src={fallback}
-            alt=""
-            className="h-full w-full object-cover rounded-full"
-          />
-        )}
+      <AvatarFallback className={cn("bg-muted", fallbackClassName)} delayMs={src ? 600 : 0}>
+        {!src && <img src={fallback} alt="" className="h-full w-full object-cover rounded-full" />}
         {src ? initials : null}
       </AvatarFallback>
     </Avatar>

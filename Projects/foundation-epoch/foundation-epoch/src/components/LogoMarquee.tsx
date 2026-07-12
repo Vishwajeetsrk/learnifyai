@@ -1,12 +1,12 @@
 const LOGOS = [
-  { name: 'Vercel', src: 'https://svgl.app/library/vercel.svg' },
-  { name: 'Linear', src: 'https://svgl.app/library/linear.svg' },
-  { name: 'Stripe', src: 'https://svgl.app/library/stripe.svg' },
-  { name: 'Notion', src: 'https://svgl.app/library/notion.svg' },
-  { name: 'Figma', src: 'https://svgl.app/library/figma.svg' },
-  { name: 'GitHub', src: 'https://svgl.app/library/github.svg' },
-  { name: 'Discord', src: 'https://svgl.app/library/discord.svg' },
-  { name: 'Slack', src: 'https://svgl.app/library/slack.svg' },
+  { name: "Vercel", src: "https://svgl.app/library/vercel.svg" },
+  { name: "Linear", src: "https://svgl.app/library/linear.svg" },
+  { name: "Stripe", src: "https://svgl.app/library/stripe.svg" },
+  { name: "Notion", src: "https://svgl.app/library/notion.svg" },
+  { name: "Figma", src: "https://svgl.app/library/figma.svg" },
+  { name: "GitHub", src: "https://svgl.app/library/github.svg" },
+  { name: "Discord", src: "https://svgl.app/library/discord.svg" },
+  { name: "Slack", src: "https://svgl.app/library/slack.svg" },
 ] as const;
 
 function LogoItem({ name, src }: (typeof LOGOS)[number]) {

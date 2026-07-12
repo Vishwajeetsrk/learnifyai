@@ -35,7 +35,7 @@ export function ComparisonView({ comparison }: ComparisonViewProps) {
               "flex-1 py-2 text-[10px] font-medium uppercase tracking-wider transition",
               activeTab === tab
                 ? "text-primary border-b-2 border-primary"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             {tab === "pros" ? "✅ Pros" : tab === "cons" ? "❌ Cons" : "🎯 Use Cases"}
@@ -52,12 +52,14 @@ export function ComparisonView({ comparison }: ComparisonViewProps) {
                 key={i}
                 className="flex items-start gap-1.5 text-[10px] text-muted-foreground leading-relaxed"
               >
-                <span className={cn(
-                  "mt-0.5 shrink-0",
-                  activeTab === "pros" && "text-green-500",
-                  activeTab === "cons" && "text-red-500",
-                  activeTab === "useCases" && "text-blue-500"
-                )}>
+                <span
+                  className={cn(
+                    "mt-0.5 shrink-0",
+                    activeTab === "pros" && "text-green-500",
+                    activeTab === "cons" && "text-red-500",
+                    activeTab === "useCases" && "text-blue-500",
+                  )}
+                >
                   {activeTab === "pros" ? "✓" : activeTab === "cons" ? "✗" : "→"}
                 </span>
                 <span>{text}</span>

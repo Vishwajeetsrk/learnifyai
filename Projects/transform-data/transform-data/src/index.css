@@ -14,18 +14,18 @@ body,
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   background: #05070d;
   color: #fff;
 }
 
 .font-display {
-  font-family: 'Schibsted Grotesk', system-ui, sans-serif;
+  font-family: "Schibsted Grotesk", system-ui, sans-serif;
 }
 
 .font-body {
-  font-family: 'Noto Sans', system-ui, sans-serif;
+  font-family: "Noto Sans", system-ui, sans-serif;
 }
 
 .font-accent {
@@ -44,7 +44,7 @@ body {
 }
 
 .liquid-glass::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -58,7 +58,9 @@ body {
     rgba(255, 255, 255, 0.15) 80%,
     rgba(255, 255, 255, 0.45) 100%
   );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;

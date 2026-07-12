@@ -1,10 +1,10 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 const STORES = [
-  { city: 'New York', address: 'SoHo — 142 Spring St' },
-  { city: 'London', address: 'Shoreditch — 18 Redchurch St' },
-  { city: 'Tokyo', address: 'Harajuku — 3-18-12 Jingumae' },
-  { city: 'Los Angeles', address: 'Abbot Kinney — 1214 Abbot Kinney Blvd' },
+  { city: "New York", address: "SoHo — 142 Spring St" },
+  { city: "London", address: "Shoreditch — 18 Redchurch St" },
+  { city: "Tokyo", address: "Harajuku — 3-18-12 Jingumae" },
+  { city: "Los Angeles", address: "Abbot Kinney — 1214 Abbot Kinney Blvd" },
 ];
 
 export function StoresPage() {

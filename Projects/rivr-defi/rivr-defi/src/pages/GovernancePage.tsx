@@ -5,8 +5,8 @@ export function GovernancePage() {
         Governance
       </h2>
       <p className="mt-4 max-w-2xl text-[rgba(30,50,90,0.65)]">
-        Token-weighted proposals with timelocked execution and delegate tooling — institutional
-        DeFi governance without neon distraction.
+        Token-weighted proposals with timelocked execution and delegate tooling — institutional DeFi
+        governance without neon distraction.
       </p>
     </section>
   );

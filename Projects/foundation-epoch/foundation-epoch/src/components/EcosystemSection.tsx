@@ -1,40 +1,37 @@
-import { motion } from 'motion/react';
-import { ArrowUpRight, Cpu, Network, Sparkles } from 'lucide-react';
-import { cn, scrollToSection } from '../lib/utils';
+import { motion } from "motion/react";
+import { ArrowUpRight, Cpu, Network, Sparkles } from "lucide-react";
+import { cn, scrollToSection } from "../lib/utils";
 
 const PILLARS = [
   {
     icon: Sparkles,
-    label: 'Intelligence layer',
-    stat: '12B+',
-    detail: 'inference events orchestrated monthly across the epoch mesh.',
+    label: "Intelligence layer",
+    stat: "12B+",
+    detail: "inference events orchestrated monthly across the epoch mesh.",
   },
   {
     icon: Network,
-    label: 'Partner mesh',
-    stat: '240+',
-    detail: 'integrations from identity to observability in one catalog.',
+    label: "Partner mesh",
+    stat: "240+",
+    detail: "integrations from identity to observability in one catalog.",
   },
   {
     icon: Cpu,
-    label: 'Edge fabric',
-    stat: '48',
-    detail: 'regions with dedicated compute pools and private interconnect.',
+    label: "Edge fabric",
+    stat: "48",
+    detail: "regions with dedicated compute pools and private interconnect.",
   },
 ] as const;
 
 export function EcosystemSection() {
   return (
-    <section
-      id="ecosystem"
-      className="scroll-mt-8 bg-white px-4 py-20 md:px-8 md:py-28"
-    >
+    <section id="ecosystem" className="scroll-mt-8 bg-white px-4 py-20 md:px-8 md:py-28">
       <div className="mx-auto max-w-[1400px]">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-end">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
+            viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5 }}
           >
             <p className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500">
@@ -42,8 +39,8 @@ export function EcosystemSection() {
             </p>
             <h2
               className={cn(
-                'mt-3 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight',
-                'text-gray-900 md:text-4xl',
+                "mt-3 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight",
+                "text-gray-900 md:text-4xl",
               )}
             >
               An open mesh for builders, partners, and enterprises
@@ -54,10 +51,10 @@ export function EcosystemSection() {
             </p>
             <button
               type="button"
-              onClick={() => scrollToSection('docs')}
+              onClick={() => scrollToSection("docs")}
               className={cn(
-                'mt-8 inline-flex items-center gap-2 rounded-full border border-gray-300',
-                'px-6 py-3 text-sm font-semibold text-gray-900 transition hover:border-gray-400',
+                "mt-8 inline-flex items-center gap-2 rounded-full border border-gray-300",
+                "px-6 py-3 text-sm font-semibold text-gray-900 transition hover:border-gray-400",
               )}
             >
               Explore the mesh
@@ -71,7 +68,7 @@ export function EcosystemSection() {
                 key={pillar.label}
                 initial={{ opacity: 0, x: 16 }}
                 whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
+                viewport={{ once: true, margin: "-40px" }}
                 transition={{ delay: i * 0.08, duration: 0.45 }}
                 className="flex gap-5 rounded-3xl border border-gray-100 bg-[#f9fafb] p-6"
               >

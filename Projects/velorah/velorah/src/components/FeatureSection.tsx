@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
-import { FEATURE_TABS, VIDEOS } from '../constants';
+import { useMemo, useState } from "react";
+import { FEATURE_TABS, VIDEOS } from "../constants";
 
 export function FeatureSection() {
-  const [activeTab, setActiveTab] = useState<string>('electric');
+  const [activeTab, setActiveTab] = useState<string>("electric");
 
   const active = useMemo(
     () => FEATURE_TABS.find((t) => t.id === activeTab) ?? FEATURE_TABS[0],
@@ -44,8 +44,8 @@ export function FeatureSection() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`rounded-full border px-4 py-2 text-xs transition-colors ${
                     activeTab === tab.id
-                      ? 'border-foreground bg-foreground text-primary-foreground'
-                      : 'border-border text-muted-foreground hover:text-foreground'
+                      ? "border-foreground bg-foreground text-primary-foreground"
+                      : "border-border text-muted-foreground hover:text-foreground"
                   }`}
                   data-editable
                 >

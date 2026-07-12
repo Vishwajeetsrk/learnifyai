@@ -1,8 +1,19 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Smartphone, Bell, CheckCircle2, Sparkles, Wifi, BarChart3,
-  BookOpen, Mic, Award, ArrowRight, Star, Zap, Globe,
+  Smartphone,
+  Bell,
+  CheckCircle2,
+  Sparkles,
+  Wifi,
+  BarChart3,
+  BookOpen,
+  Mic,
+  Award,
+  ArrowRight,
+  Star,
+  Zap,
+  Globe,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +27,11 @@ const FEATURE_HIGHLIGHTS = [
 ];
 
 const PHONE_SCREENS = [
-  { label: "AI Voice Tutor", icon: Mic, text: "Explain React Server Components in simple terms..." },
+  {
+    label: "AI Voice Tutor",
+    icon: Mic,
+    text: "Explain React Server Components in simple terms...",
+  },
   { label: "Smart Notes", icon: BookOpen, text: "Auto-generated from your video lessons" },
   { label: "Career Insights", icon: BarChart3, text: "Track your learning progress" },
 ];
@@ -73,8 +88,8 @@ export function MobileAppBanner() {
               </span>
             </h2>
             <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-xl">
-              Take AI Tutoring, Offline Smart Notes, Voice-based Interview Coaching, and
-              Certificate Verifications wherever you go on Android &amp; iOS.
+              Take AI Tutoring, Offline Smart Notes, Voice-based Interview Coaching, and Certificate
+              Verifications wherever you go on Android &amp; iOS.
             </p>
           </motion.div>
 
@@ -119,15 +134,35 @@ export function MobileAppBanner() {
               whileTap={{ scale: 0.98 }}
               className="flex items-center gap-3 rounded-xl border border-border/60 bg-card px-4 py-3 shadow-sm transition hover:border-primary/40 hover:shadow-md group"
             >
-              <svg viewBox="0 0 16 16" className="h-6 w-6 shrink-0" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#2196F3" d="M8.32 7.68.58 15.42c-.37-.35-.57-.83-.57-1.35V1.93C.01 1.4.22.92.6.56l7.72 7.12z"/>
-                <path fill="#FFC107" d="M15.01 8c0 .7-.38 1.32-1.01 1.67l-2.2 1.22-2.73-2.52-.75-.69 2.89-2.89L14 6.33c.63.35 1.01.97 1.01 1.67z"/>
-                <path fill="#4CAF50" d="M8.32 7.68.6.56C.7.46.83.37.96.29 1.59-.09 2.35-.1 3 .26l8.21 4.53-2.89 2.89z"/>
-                <path fill="#F44336" d="M11.8 10.89 3 15.74c-.31.18-.66.26-1 .26-.36 0-.72-.09-1.04-.29a1.82 1.82 0 0 1-.38-.29l7.74-7.74.75.69 2.73 2.52z"/>
+              <svg
+                viewBox="0 0 16 16"
+                className="h-6 w-6 shrink-0"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill="#2196F3"
+                  d="M8.32 7.68.58 15.42c-.37-.35-.57-.83-.57-1.35V1.93C.01 1.4.22.92.6.56l7.72 7.12z"
+                />
+                <path
+                  fill="#FFC107"
+                  d="M15.01 8c0 .7-.38 1.32-1.01 1.67l-2.2 1.22-2.73-2.52-.75-.69 2.89-2.89L14 6.33c.63.35 1.01.97 1.01 1.67z"
+                />
+                <path
+                  fill="#4CAF50"
+                  d="M8.32 7.68.6.56C.7.46.83.37.96.29 1.59-.09 2.35-.1 3 .26l8.21 4.53-2.89 2.89z"
+                />
+                <path
+                  fill="#F44336"
+                  d="M11.8 10.89 3 15.74c-.31.18-.66.26-1 .26-.36 0-.72-.09-1.04-.29a1.82 1.82 0 0 1-.38-.29l7.74-7.74.75.69 2.73 2.52z"
+                />
               </svg>
               <div className="text-left">
-                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Get it on</div>
-                <div className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">Google Play</div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                  Get it on
+                </div>
+                <div className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                  Google Play
+                </div>
               </div>
             </motion.a>
 
@@ -138,13 +173,20 @@ export function MobileAppBanner() {
               whileTap={{ scale: 0.98 }}
               className="flex items-center gap-3 rounded-xl border border-border/60 bg-card px-4 py-3 shadow-sm transition hover:border-primary/40 hover:shadow-md group"
             >
-              <svg viewBox="0 0 24 24" className="h-6 w-6 fill-foreground shrink-0 group-hover:fill-primary transition-colors">
-                <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09z"/>
-                <path d="M15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.56-1.701z"/>
+              <svg
+                viewBox="0 0 24 24"
+                className="h-6 w-6 fill-foreground shrink-0 group-hover:fill-primary transition-colors"
+              >
+                <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09z" />
+                <path d="M15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.56-1.701z" />
               </svg>
               <div className="text-left">
-                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Download on the</div>
-                <div className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">App Store</div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                  Download on the
+                </div>
+                <div className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                  App Store
+                </div>
               </div>
             </motion.a>
           </motion.div>
@@ -216,7 +258,10 @@ export function MobileAppBanner() {
                   onClick={nextScreen}
                 >
                   <div className="text-[10px] text-primary font-semibold mb-1 flex items-center gap-1">
-                    {(() => { const Icon = PHONE_SCREENS[activeScreen].icon; return <Icon className="h-2.5 w-2.5" />; })()}
+                    {(() => {
+                      const Icon = PHONE_SCREENS[activeScreen].icon;
+                      return <Icon className="h-2.5 w-2.5" />;
+                    })()}
                     {PHONE_SCREENS[activeScreen].label} Active...
                   </div>
                   <p className="text-[10px] text-foreground/80 leading-relaxed">

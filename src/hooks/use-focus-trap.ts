@@ -14,7 +14,7 @@ export function useFocusTrap(isActive: boolean = true) {
 
     const getFocusableElements = () =>
       Array.from(container.querySelectorAll<HTMLElement>(focusableSelector)).filter(
-        (el) => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0
+        (el) => el.offsetWidth > 0 || el.offsetHeight > 0 || el.getClientRects().length > 0,
       );
 
     const focusables = getFocusableElements();

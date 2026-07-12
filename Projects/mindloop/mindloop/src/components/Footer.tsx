@@ -1,10 +1,15 @@
-import type { MouseEvent } from 'react';
-import { navigateToRoute, navigateToSection, routeHref, sectionHref } from '../../../_shared/preset-site-routing';
+import type { MouseEvent } from "react";
+import {
+  navigateToRoute,
+  navigateToSection,
+  routeHref,
+  sectionHref,
+} from "../../../_shared/preset-site-routing";
 
 const FOOTER_LINKS = [
-  { label: 'Privacy', route: 'privacy' },
-  { label: 'Terms', route: 'terms' },
-  { label: 'Contact', sectionId: 'contact' },
+  { label: "Privacy", route: "privacy" },
+  { label: "Terms", route: "terms" },
+  { label: "Contact", sectionId: "contact" },
 ] as const;
 
 export default function Footer() {
@@ -26,7 +31,7 @@ export default function Footer() {
       <p className="text-muted-foreground text-sm">© 2026 Mindloop. All rights reserved.</p>
       <div className="flex items-center gap-6">
         {FOOTER_LINKS.map((link) =>
-          'route' in link ? (
+          "route" in link ? (
             <a
               key={link.route}
               href={routeHref(link.route)}

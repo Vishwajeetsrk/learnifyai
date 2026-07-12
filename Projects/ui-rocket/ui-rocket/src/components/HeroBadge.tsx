@@ -1,10 +1,10 @@
-import { MIcon } from './MIcon';
+import { MIcon } from "./MIcon";
 
 type HeroBadgeProps = {
   label?: string;
 };
 
-export function HeroBadge({ label = 'Now in public beta' }: HeroBadgeProps) {
+export function HeroBadge({ label = "Now in public beta" }: HeroBadgeProps) {
   return (
     <div
       className="liquid-glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-white/80"

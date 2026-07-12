@@ -22,7 +22,7 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
 
   const score = useMemo(
     () => questions.filter((q) => answers[q.id] === q.correctIndex).length,
-    [answers, questions]
+    [answers, questions],
   );
 
   const handleSelect = (index: number) => {
@@ -68,9 +68,11 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
           />
         </div>
         <p className="text-xs text-muted-foreground">
-          {pct >= 80 ? "Excellent! You have a strong understanding." :
-           pct >= 60 ? "Good job! Review the topics you missed." :
-           "Keep studying! Try reviewing the material again."}
+          {pct >= 80
+            ? "Excellent! You have a strong understanding."
+            : pct >= 60
+              ? "Good job! Review the topics you missed."
+              : "Keep studying! Try reviewing the material again."}
         </p>
         <div className="flex items-center justify-center gap-2">
           <Button variant="outline" size="sm" onClick={handleRestart}>
@@ -92,12 +94,14 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
           <span className="text-xs text-muted-foreground">
             Question {currentIndex + 1} of {questions.length}
           </span>
-          <span className={cn(
-            "text-[10px] px-1.5 py-0.5 rounded font-medium",
-            current.difficulty === "easy" && "bg-green-500/10 text-green-500",
-            current.difficulty === "medium" && "bg-yellow-500/10 text-yellow-500",
-            current.difficulty === "hard" && "bg-red-500/10 text-red-500",
-          )}>
+          <span
+            className={cn(
+              "text-[10px] px-1.5 py-0.5 rounded font-medium",
+              current.difficulty === "easy" && "bg-green-500/10 text-green-500",
+              current.difficulty === "medium" && "bg-yellow-500/10 text-yellow-500",
+              current.difficulty === "hard" && "bg-red-500/10 text-red-500",
+            )}
+          >
             {current.difficulty}
           </span>
         </div>
@@ -127,27 +131,48 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
                 className={cn(
                   "w-full text-left px-3 py-2.5 rounded-lg text-xs border transition-all",
                   !hasAnswered && "border-border hover:border-primary/50 hover:bg-muted/50",
-                  hasAnswered && isSelected && isCorrect && "border-green-500 bg-green-500/10 text-green-500",
-                  hasAnswered && isSelected && !isCorrect && "border-red-500 bg-red-500/10 text-red-500",
-                  hasAnswered && !isSelected && isOptionCorrect && "border-green-500/50 bg-green-500/5 text-green-400",
-                  hasAnswered && !isSelected && !isOptionCorrect && "border-border opacity-60"
+                  hasAnswered &&
+                    isSelected &&
+                    isCorrect &&
+                    "border-green-500 bg-green-500/10 text-green-500",
+                  hasAnswered &&
+                    isSelected &&
+                    !isCorrect &&
+                    "border-red-500 bg-red-500/10 text-red-500",
+                  hasAnswered &&
+                    !isSelected &&
+                    isOptionCorrect &&
+                    "border-green-500/50 bg-green-500/5 text-green-400",
+                  hasAnswered && !isSelected && !isOptionCorrect && "border-border opacity-60",
                 )}
                 aria-label={`Option ${i + 1}: ${option}`}
               >
                 <div className="flex items-center gap-2">
-                  <span className={cn(
-                    "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium shrink-0",
-                    !hasAnswered && "border border-border text-muted-foreground",
-                    hasAnswered && isSelected && isCorrect && "bg-green-500 text-white",
-                    hasAnswered && isSelected && !isCorrect && "bg-red-500 text-white",
-                    hasAnswered && !isSelected && isOptionCorrect && "bg-green-500/20 text-green-500 border border-green-500/50",
-                    hasAnswered && !isSelected && !isOptionCorrect && "border border-border text-muted-foreground/50"
-                  )}>
+                  <span
+                    className={cn(
+                      "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium shrink-0",
+                      !hasAnswered && "border border-border text-muted-foreground",
+                      hasAnswered && isSelected && isCorrect && "bg-green-500 text-white",
+                      hasAnswered && isSelected && !isCorrect && "bg-red-500 text-white",
+                      hasAnswered &&
+                        !isSelected &&
+                        isOptionCorrect &&
+                        "bg-green-500/20 text-green-500 border border-green-500/50",
+                      hasAnswered &&
+                        !isSelected &&
+                        !isOptionCorrect &&
+                        "border border-border text-muted-foreground/50",
+                    )}
+                  >
                     {String.fromCharCode(65 + i)}
                   </span>
                   <span className="flex-1">{option}</span>
-                  {hasAnswered && isSelected && isCorrect && <Check className="h-3.5 w-3.5 text-green-500" />}
-                  {hasAnswered && isSelected && !isCorrect && <X className="h-3.5 w-3.5 text-red-500" />}
+                  {hasAnswered && isSelected && isCorrect && (
+                    <Check className="h-3.5 w-3.5 text-green-500" />
+                  )}
+                  {hasAnswered && isSelected && !isCorrect && (
+                    <X className="h-3.5 w-3.5 text-red-500" />
+                  )}
                 </div>
               </button>
             );
@@ -156,10 +181,12 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
 
         {/* Explanation */}
         {showExplanation && (
-          <div className={cn(
-            "p-3 rounded-lg border text-xs space-y-1 animate-in slide-in-from-top-2 duration-200",
-            isCorrect ? "bg-green-500/5 border-green-500/20" : "bg-red-500/5 border-red-500/20"
-          )}>
+          <div
+            className={cn(
+              "p-3 rounded-lg border text-xs space-y-1 animate-in slide-in-from-top-2 duration-200",
+              isCorrect ? "bg-green-500/5 border-green-500/20" : "bg-red-500/5 border-red-500/20",
+            )}
+          >
             <p className={cn("font-medium", isCorrect ? "text-green-500" : "text-red-500")}>
               {isCorrect ? "✓ Correct!" : "✗ Incorrect"}
             </p>
@@ -169,13 +196,11 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
 
         {/* Next button */}
         {hasAnswered && (
-          <Button
-            className="w-full"
-            size="sm"
-            onClick={handleNext}
-          >
+          <Button className="w-full" size="sm" onClick={handleNext}>
             {currentIndex < questions.length - 1 ? (
-              <>Next <ChevronRight className="h-3.5 w-3.5 ml-1" /></>
+              <>
+                Next <ChevronRight className="h-3.5 w-3.5 ml-1" />
+              </>
             ) : (
               "See Results"
             )}

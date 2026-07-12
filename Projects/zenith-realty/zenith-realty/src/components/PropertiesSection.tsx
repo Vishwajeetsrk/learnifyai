@@ -1,6 +1,6 @@
-import { motion } from 'motion/react';
-import { PROPERTIES } from '../constants';
-import { PropertyCard } from './PropertyCard';
+import { motion } from "motion/react";
+import { PROPERTIES } from "../constants";
+import { PropertyCard } from "./PropertyCard";
 
 export function PropertiesSection() {
   return (
@@ -19,8 +19,8 @@ export function PropertiesSection() {
             data-editable
             data-preset-text="properties-subcopy"
           >
-            Our vision bridges balance, design, and attention so that every client resides in a space
-            reflecting their values.
+            Our vision bridges balance, design, and attention so that every client resides in a
+            space reflecting their values.
           </p>
         </div>
         <div className="grid gap-8 md:grid-cols-3">

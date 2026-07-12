@@ -1,5 +1,5 @@
-import Hls from 'hls.js';
-import { useEffect, type RefObject } from 'react';
+import Hls from "hls.js";
+import { useEffect, type RefObject } from "react";
 
 type StreamBinding = {
   ref: RefObject<HTMLVideoElement | null>;
@@ -22,7 +22,7 @@ export function useHlsVideos(streams: StreamBinding[]) {
           void video.play().catch(() => undefined);
         });
         instances.push(hls);
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
         video.src = src;
         void video.play().catch(() => undefined);
       }

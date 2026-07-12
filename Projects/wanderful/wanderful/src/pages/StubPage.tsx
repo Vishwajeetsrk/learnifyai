@@ -1,7 +1,11 @@
-import { motion } from 'framer-motion';
-import type { MouseEvent } from 'react';
-import { handlePresetNavClick, resolveNavTarget, routeHref } from '../../../_shared/preset-site-routing';
-import { goldEase } from '../constants';
+import { motion } from "framer-motion";
+import type { MouseEvent } from "react";
+import {
+  handlePresetNavClick,
+  resolveNavTarget,
+  routeHref,
+} from "../../../_shared/preset-site-routing";
+import { goldEase } from "../constants";
 
 type StubPageProps = {
   title: string;
@@ -10,7 +14,7 @@ type StubPageProps = {
 
 export function StubPage({ title, description }: StubPageProps) {
   const homeClick = (e: MouseEvent<HTMLAnchorElement>) => {
-    handlePresetNavClick(e, resolveNavTarget('', { route: '' }));
+    handlePresetNavClick(e, resolveNavTarget("", { route: "" }));
   };
 
   return (
@@ -32,7 +36,7 @@ export function StubPage({ title, description }: StubPageProps) {
         {description}
       </motion.p>
       <motion.a
-        href={routeHref('')}
+        href={routeHref("")}
         onClick={homeClick}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

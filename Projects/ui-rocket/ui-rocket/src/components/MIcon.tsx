@@ -5,7 +5,7 @@ type MIconProps = {
 };
 
 /** Material Symbols Outlined icon wrapper */
-export function MIcon({ name, className = '', filled = false }: MIconProps) {
+export function MIcon({ name, className = "", filled = false }: MIconProps) {
   return (
     <span
       className={`material-symbols-outlined leading-none ${className}`}

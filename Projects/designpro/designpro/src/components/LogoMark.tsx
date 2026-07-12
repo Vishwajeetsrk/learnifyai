@@ -1,4 +1,4 @@
-export default function LogoMark({ className = 'h-8 w-8' }: { className?: string }) {
+export default function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <span
       className={`inline-flex shrink-0 items-center justify-center rounded-full border-2 border-white ${className}`}

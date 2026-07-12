@@ -1,5 +1,5 @@
-import { Search } from 'lucide-react';
-import { FEATURE_DROPDOWN } from './Navbar';
+import { Search } from "lucide-react";
+import { FEATURE_DROPDOWN } from "./Navbar";
 
 interface MobileMenuProps {
   open: boolean;
@@ -28,10 +28,16 @@ export default function MobileMenu({ open, onClose, onNavigate }: MobileMenuProp
         </label>
 
         <div className="flex flex-col gap-1 font-sans">
-          <button type="button" onClick={() => go('platform')} className="rounded-xl px-3 py-3 text-left text-lg text-white">
+          <button
+            type="button"
+            onClick={() => go("platform")}
+            className="rounded-xl px-3 py-3 text-left text-lg text-white"
+          >
             Platform
           </button>
-          <p className="px-3 pt-2 text-xs font-medium uppercase tracking-widest text-white/40">Features</p>
+          <p className="px-3 pt-2 text-xs font-medium uppercase tracking-widest text-white/40">
+            Features
+          </p>
           {FEATURE_DROPDOWN.map((item) => (
             <button
               key={item.id}
@@ -42,7 +48,7 @@ export default function MobileMenu({ open, onClose, onNavigate }: MobileMenuProp
               {item.label}
             </button>
           ))}
-          {(['projects', 'community', 'contact'] as const).map((id) => (
+          {(["projects", "community", "contact"] as const).map((id) => (
             <button
               key={id}
               type="button"

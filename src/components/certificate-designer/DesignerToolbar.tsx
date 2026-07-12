@@ -1,14 +1,44 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Download, Save, Undo, Redo, Sparkles, Type, Image as ImageIcon,
-  QrCode, ShieldCheck, PenTool, Building2, Award, Palette, Shapes,
-  Calendar, Table2, Minus, Droplets, Grid3X3, ZoomIn, ZoomOut,
-  Maximize2, Copy, Trash2, ArrowUp, ArrowDown, Lock, Unlock,
+  Download,
+  Save,
+  Undo,
+  Redo,
+  Sparkles,
+  Type,
+  Image as ImageIcon,
+  QrCode,
+  ShieldCheck,
+  PenTool,
+  Building2,
+  Award,
+  Palette,
+  Shapes,
+  Calendar,
+  Table2,
+  Minus,
+  Droplets,
+  Grid3X3,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Copy,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { CertElement } from "./types";
 
@@ -45,12 +75,35 @@ type ToolbarProps = {
 };
 
 export function DesignerToolbar({
-  templateName, setTemplateName, onSave, onExportPNG, onExportPDF,
-  onExportSVG, onExportGIF, onUndo, onRedo, onAddElement,
-  canUndo, canRedo, isSaving, onAiOptimize, scale, onZoomIn,
-  onZoomOut, onZoomFit, showGrid, onToggleGrid, snapToGrid,
-  onToggleSnap, selectedId, onDeleteSelected, onDuplicateSelected,
-  onBringForward, onSendBackward, onLockToggle, isLocked,
+  templateName,
+  setTemplateName,
+  onSave,
+  onExportPNG,
+  onExportPDF,
+  onExportSVG,
+  onExportGIF,
+  onUndo,
+  onRedo,
+  onAddElement,
+  canUndo,
+  canRedo,
+  isSaving,
+  onAiOptimize,
+  scale,
+  onZoomIn,
+  onZoomOut,
+  onZoomFit,
+  showGrid,
+  onToggleGrid,
+  snapToGrid,
+  onToggleSnap,
+  selectedId,
+  onDeleteSelected,
+  onDuplicateSelected,
+  onBringForward,
+  onSendBackward,
+  onLockToggle,
+  isLocked,
 }: ToolbarProps) {
   return (
     <div className="h-12 border-b bg-card flex items-center justify-between px-3 shrink-0 shadow-sm z-10 gap-2">
@@ -65,10 +118,24 @@ export function DesignerToolbar({
         <div className="h-5 w-px bg-border shrink-0" />
 
         <div className="flex items-center gap-0.5 shrink-0">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onUndo} disabled={!canUndo} title="Undo (Ctrl+Z)">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={onUndo}
+            disabled={!canUndo}
+            title="Undo (Ctrl+Z)"
+          >
             <Undo className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onRedo} disabled={!canRedo} title="Redo (Ctrl+Y)">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={onRedo}
+            disabled={!canRedo}
+            title="Redo (Ctrl+Y)"
+          >
             <Redo className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -128,20 +195,54 @@ export function DesignerToolbar({
           <>
             <div className="h-5 w-px bg-border shrink-0" />
             <div className="flex items-center gap-0.5 shrink-0">
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onDuplicateSelected} title="Duplicate (Ctrl+D)">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={onDuplicateSelected}
+                title="Duplicate (Ctrl+D)"
+              >
                 <Copy className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onDeleteSelected} title="Delete">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={onDeleteSelected}
+                title="Delete"
+              >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onBringForward} title="Bring Forward">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={onBringForward}
+                title="Bring Forward"
+              >
                 <ArrowUp className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onSendBackward} title="Send Backward">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={onSendBackward}
+                title="Send Backward"
+              >
                 <ArrowDown className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onLockToggle} title={isLocked ? "Unlock" : "Lock"}>
-                {isLocked ? <Lock className="h-3.5 w-3.5 text-amber-600" /> : <Unlock className="h-3.5 w-3.5" />}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={onLockToggle}
+                title={isLocked ? "Unlock" : "Lock"}
+              >
+                {isLocked ? (
+                  <Lock className="h-3.5 w-3.5 text-amber-600" />
+                ) : (
+                  <Unlock className="h-3.5 w-3.5" />
+                )}
               </Button>
             </div>
           </>
@@ -149,31 +250,70 @@ export function DesignerToolbar({
       </div>
 
       <div className="flex items-center gap-1.5 shrink-0">
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onToggleGrid} title="Toggle Grid" style={showGrid ? { backgroundColor: "hsl(var(--primary) / 0.1)" } : {}}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={onToggleGrid}
+          title="Toggle Grid"
+          style={showGrid ? { backgroundColor: "hsl(var(--primary) / 0.1)" } : {}}
+        >
           <Grid3X3 className="h-3.5 w-3.5" />
         </Button>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onToggleSnap} title="Snap to Grid" style={snapToGrid ? { backgroundColor: "hsl(var(--primary) / 0.1)" } : {}}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={onToggleSnap}
+          title="Snap to Grid"
+          style={snapToGrid ? { backgroundColor: "hsl(var(--primary) / 0.1)" } : {}}
+        >
           <Droplets className="h-3.5 w-3.5" />
         </Button>
 
         <div className="h-5 w-px bg-border shrink-0" />
 
         <div className="flex items-center gap-0.5 shrink-0">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onZoomOut} title="Zoom Out">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={onZoomOut}
+            title="Zoom Out"
+          >
             <ZoomOut className="h-3.5 w-3.5" />
           </Button>
-          <span className="text-[10px] font-mono font-medium w-10 text-center">{Math.round(scale * 100)}%</span>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onZoomIn} title="Zoom In">
+          <span className="text-[10px] font-mono font-medium w-10 text-center">
+            {Math.round(scale * 100)}%
+          </span>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={onZoomIn}
+            title="Zoom In"
+          >
             <ZoomIn className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onZoomFit} title="Zoom to Fit">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={onZoomFit}
+            title="Zoom to Fit"
+          >
             <Maximize2 className="h-3.5 w-3.5" />
           </Button>
         </div>
 
         <div className="h-5 w-px bg-border shrink-0" />
 
-        <Button variant="secondary" size="sm" onClick={onAiOptimize} className="h-7 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200 text-xs">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onAiOptimize}
+          className="h-7 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200 text-xs"
+        >
           <Sparkles className="h-3.5 w-3.5 mr-1" /> AI
         </Button>
 

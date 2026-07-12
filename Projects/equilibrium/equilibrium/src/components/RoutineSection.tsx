@@ -1,8 +1,8 @@
 const STEPS = [
-  { time: '06:30', label: 'Grounding breath', detail: '4-7-8 pacing · 8 minutes' },
-  { time: '12:00', label: 'Midday reset', detail: 'Desk mobility · 12 minutes' },
-  { time: '18:45', label: 'Strength flow', detail: 'Low load · 35 minutes' },
-  { time: '21:30', label: 'Sleep primer', detail: 'Dim light · journal · 15 minutes' },
+  { time: "06:30", label: "Grounding breath", detail: "4-7-8 pacing · 8 minutes" },
+  { time: "12:00", label: "Midday reset", detail: "Desk mobility · 12 minutes" },
+  { time: "18:45", label: "Strength flow", detail: "Low load · 35 minutes" },
+  { time: "21:30", label: "Sleep primer", detail: "Dim light · journal · 15 minutes" },
 ] as const;
 
 export default function RoutineSection() {
@@ -17,15 +17,12 @@ export default function RoutineSection() {
             <p data-editable className="section-eyebrow mb-3">
               Routine
             </p>
-            <h2
-              data-editable
-              className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl"
-            >
+            <h2 data-editable className="text-3xl font-semibold tracking-[-0.02em] sm:text-4xl">
               A day shaped around your nervous system
             </h2>
             <p data-editable className="mt-4 text-muted">
-              Routines adapt to travel, training blocks, and recovery weeks. Your coach
-              recalibrates timing — not intensity — when life shifts.
+              Routines adapt to travel, training blocks, and recovery weeks. Your coach recalibrates
+              timing — not intensity — when life shifts.
             </p>
           </div>
           <ol className="flex-1 space-y-3 lg:max-w-lg">
@@ -42,7 +39,7 @@ export default function RoutineSection() {
                   <p className="text-sm text-muted">{step.detail}</p>
                 </div>
                 <span className="hidden text-xs text-foreground/40 sm:inline">
-                  {String(i + 1).padStart(2, '0')}
+                  {String(i + 1).padStart(2, "0")}
                 </span>
               </li>
             ))}

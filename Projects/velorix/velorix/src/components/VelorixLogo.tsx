@@ -1,11 +1,11 @@
-import { LOGO_PATH } from '../constants';
+import { LOGO_PATH } from "../constants";
 
 type VelorixLogoProps = {
   size?: number;
   className?: string;
 };
 
-export default function VelorixLogo({ size = 48, className = '' }: VelorixLogoProps) {
+export default function VelorixLogo({ size = 48, className = "" }: VelorixLogoProps) {
   return (
     <svg
       width={size}

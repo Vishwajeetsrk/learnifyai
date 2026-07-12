@@ -42,29 +42,38 @@ export const adminGetCourse = createServerFn({ method: "GET" })
 
     const { data: enrollments } = await supabase
       .from("enrollments")
-      .select("id, user_id, status, progress_pct, enrolled_at, completed_at, profiles:user_id(full_name, email)")
+      .select(
+        "id, user_id, status, progress_pct, enrolled_at, completed_at, profiles:user_id(full_name, email)",
+      )
       .eq("course_id", data.courseId)
       .order("enrolled_at", { ascending: false });
 
-    return { course, modules: modules ?? [], lessons: lessons ?? [], enrollments: enrollments ?? [] };
+    return {
+      course,
+      modules: modules ?? [],
+      lessons: lessons ?? [],
+      enrollments: enrollments ?? [],
+    };
   });
 
 /* ─── Create course ─── */
 export const adminCreateCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) =>
-    z.object({
-      title: z.string().min(2).max(200),
-      slug: z.string().min(2).max(200),
-      description: z.string().max(2000).optional(),
-      category: z.string().max(100).default("General"),
-      level: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
-      price_inr: z.number().min(0).default(0),
-      instructor: z.string().max(100).default("Learnify AI"),
-      cover_url: z.string().max(500).optional(),
-      duration_minutes: z.number().min(0).default(0),
-      published: z.boolean().default(false),
-    }).parse(d)
+    z
+      .object({
+        title: z.string().min(2).max(200),
+        slug: z.string().min(2).max(200),
+        description: z.string().max(2000).optional(),
+        category: z.string().max(100).default("General"),
+        level: z.enum(["beginner", "intermediate", "advanced"]).default("beginner"),
+        price_inr: z.number().min(0).default(0),
+        instructor: z.string().max(100).default("Learnify AI"),
+        cover_url: z.string().max(500).optional(),
+        duration_minutes: z.number().min(0).default(0),
+        published: z.boolean().default(false),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -80,19 +89,21 @@ export const adminCreateCourse = createServerFn({ method: "POST" })
 export const adminUpdateCourse = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) =>
-    z.object({
-      courseId: z.string().uuid(),
-      title: z.string().min(2).max(200).optional(),
-      slug: z.string().min(2).max(200).optional(),
-      description: z.string().max(2000).optional(),
-      category: z.string().max(100).optional(),
-      level: z.enum(["beginner", "intermediate", "advanced"]).optional(),
-      price_inr: z.number().min(0).optional(),
-      instructor: z.string().max(100).optional(),
-      cover_url: z.string().max(500).optional(),
-      duration_minutes: z.number().min(0).optional(),
-      published: z.boolean().optional(),
-    }).parse(d)
+    z
+      .object({
+        courseId: z.string().uuid(),
+        title: z.string().min(2).max(200).optional(),
+        slug: z.string().min(2).max(200).optional(),
+        description: z.string().max(2000).optional(),
+        category: z.string().max(100).optional(),
+        level: z.enum(["beginner", "intermediate", "advanced"]).optional(),
+        price_inr: z.number().min(0).optional(),
+        instructor: z.string().max(100).optional(),
+        cover_url: z.string().max(500).optional(),
+        duration_minutes: z.number().min(0).optional(),
+        published: z.boolean().optional(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -117,11 +128,13 @@ export const adminDeleteCourse = createServerFn({ method: "POST" })
 export const adminAddModule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) =>
-    z.object({
-      courseId: z.string().uuid(),
-      title: z.string().min(2).max(200),
-      description: z.string().max(1000).optional(),
-    }).parse(d)
+    z
+      .object({
+        courseId: z.string().uuid(),
+        title: z.string().min(2).max(200),
+        description: z.string().max(1000).optional(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -133,7 +146,7 @@ export const adminAddModule = createServerFn({ method: "POST" })
       course_id: data.courseId,
       title: data.title,
       description: data.description ?? "",
-      order_index: (count ?? 0),
+      order_index: count ?? 0,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -143,12 +156,14 @@ export const adminAddModule = createServerFn({ method: "POST" })
 export const adminUpdateModule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) =>
-    z.object({
-      moduleId: z.string().uuid(),
-      title: z.string().min(2).max(200).optional(),
-      description: z.string().max(1000).optional(),
-      order_index: z.number().min(0).optional(),
-    }).parse(d)
+    z
+      .object({
+        moduleId: z.string().uuid(),
+        title: z.string().min(2).max(200).optional(),
+        description: z.string().max(1000).optional(),
+        order_index: z.number().min(0).optional(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -173,15 +188,17 @@ export const adminDeleteModule = createServerFn({ method: "POST" })
 export const adminAddLesson = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) =>
-    z.object({
-      courseId: z.string().uuid(),
-      moduleId: z.string().uuid(),
-      title: z.string().min(2).max(200),
-      description: z.string().max(1000).optional(),
-      video_url: z.string().max(500).optional(),
-      duration_minutes: z.number().min(0).default(0),
-      is_preview: z.boolean().default(false),
-    }).parse(d)
+    z
+      .object({
+        courseId: z.string().uuid(),
+        moduleId: z.string().uuid(),
+        title: z.string().min(2).max(200),
+        description: z.string().max(1000).optional(),
+        video_url: z.string().max(500).optional(),
+        duration_minutes: z.number().min(0).default(0),
+        is_preview: z.boolean().default(false),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -197,7 +214,7 @@ export const adminAddLesson = createServerFn({ method: "POST" })
       video_url: data.video_url ?? "",
       duration_minutes: data.duration_minutes,
       is_preview: data.is_preview,
-      order_index: (count ?? 0),
+      order_index: count ?? 0,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -207,16 +224,18 @@ export const adminAddLesson = createServerFn({ method: "POST" })
 export const adminUpdateLesson = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) =>
-    z.object({
-      lessonId: z.string().uuid(),
-      title: z.string().min(2).max(200).optional(),
-      description: z.string().max(1000).optional(),
-      video_url: z.string().max(500).optional(),
-      content_md: z.string().max(50000).optional(),
-      duration_minutes: z.number().min(0).optional(),
-      is_preview: z.boolean().optional(),
-      order_index: z.number().min(0).optional(),
-    }).parse(d)
+    z
+      .object({
+        lessonId: z.string().uuid(),
+        title: z.string().min(2).max(200).optional(),
+        description: z.string().max(1000).optional(),
+        video_url: z.string().max(500).optional(),
+        content_md: z.string().max(50000).optional(),
+        duration_minutes: z.number().min(0).optional(),
+        is_preview: z.boolean().optional(),
+        order_index: z.number().min(0).optional(),
+      })
+      .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
@@ -248,11 +267,22 @@ export const adminCourseAnalytics = createServerFn({ method: "GET" })
 
     const results = [];
     for (const c of courses ?? []) {
-      const [{ count: enrolled }, { count: completed }, { count: totalLessons }] = await Promise.all([
-        supabase.from("enrollments").select("*", { count: "exact", head: true }).eq("course_id", c.id),
-        supabase.from("enrollments").select("*", { count: "exact", head: true }).eq("course_id", c.id).eq("status", "completed"),
-        supabase.from("lessons").select("*", { count: "exact", head: true }).eq("course_id", c.id),
-      ]);
+      const [{ count: enrolled }, { count: completed }, { count: totalLessons }] =
+        await Promise.all([
+          supabase
+            .from("enrollments")
+            .select("*", { count: "exact", head: true })
+            .eq("course_id", c.id),
+          supabase
+            .from("enrollments")
+            .select("*", { count: "exact", head: true })
+            .eq("course_id", c.id)
+            .eq("status", "completed"),
+          supabase
+            .from("lessons")
+            .select("*", { count: "exact", head: true })
+            .eq("course_id", c.id),
+        ]);
       results.push({
         ...c,
         enrolled: enrolled ?? 0,

@@ -1,6 +1,6 @@
-import { PROJECTS } from '../constants';
-import { FadeIn } from './FadeIn';
-import { ProjectCard } from './ProjectCard';
+import { PROJECTS } from "../constants";
+import { FadeIn } from "./FadeIn";
+import { ProjectCard } from "./ProjectCard";
 
 export function ProjectsSection() {
   return (
@@ -11,7 +11,7 @@ export function ProjectsSection() {
       <FadeIn className="mb-12 text-center md:mb-16">
         <h2
           className="hero-heading font-black uppercase leading-none tracking-tight"
-          style={{ fontSize: 'clamp(3rem, 12vw, 160px)' }}
+          style={{ fontSize: "clamp(3rem, 12vw, 160px)" }}
         >
           Project
         </h2>
@@ -19,12 +19,7 @@ export function ProjectsSection() {
 
       <div className="mx-auto max-w-6xl">
         {PROJECTS.map((project, index) => (
-          <ProjectCard
-            key={project.num}
-            project={project}
-            index={index}
-            total={PROJECTS.length}
-          />
+          <ProjectCard key={project.num} project={project} index={index} total={PROJECTS.length} />
         ))}
       </div>
     </section>

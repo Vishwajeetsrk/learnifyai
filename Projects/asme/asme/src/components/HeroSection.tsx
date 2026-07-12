@@ -1,9 +1,9 @@
-import { type FormEvent, useState } from 'react';
-import { ArrowRight, Globe, Instagram, Twitter } from 'lucide-react';
-import { navigateToRoute } from '../../../_shared/preset-site-routing';
-import { HERO_VIDEO, INSTRUMENT_SERIF } from '../constants';
-import FadingVideo from './FadingVideo';
-import Navbar from './Navbar';
+import { type FormEvent, useState } from "react";
+import { ArrowRight, Globe, Instagram, Twitter } from "lucide-react";
+import { navigateToRoute } from "../../../_shared/preset-site-routing";
+import { HERO_VIDEO, INSTRUMENT_SERIF } from "../constants";
+import FadingVideo from "./FadingVideo";
+import Navbar from "./Navbar";
 
 export default function HeroSection() {
   const [submitted, setSubmitted] = useState(false);
@@ -16,11 +16,7 @@ export default function HeroSection() {
   return (
     <section id="hero" className="relative flex min-h-screen flex-col overflow-hidden bg-black">
       <div className="absolute inset-0">
-        <FadingVideo
-          src={HERO_VIDEO}
-          shiftY
-          className="h-full w-full object-cover"
-        />
+        <FadingVideo src={HERO_VIDEO} shiftY className="h-full w-full object-cover" />
       </div>
 
       <div className="relative z-10 flex min-h-screen flex-col">
@@ -65,14 +61,14 @@ export default function HeroSection() {
             )}
 
             <p className="px-4 text-sm leading-relaxed text-white">
-              Stay updated with the latest news and insights. Subscribe to our newsletter today
-              and never miss out on exciting updates.
+              Stay updated with the latest news and insights. Subscribe to our newsletter today and
+              never miss out on exciting updates.
             </p>
 
             <button
               type="button"
               className="liquid-glass rounded-full px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-white/5"
-              onClick={() => navigateToRoute('manifesto')}
+              onClick={() => navigateToRoute("manifesto")}
             >
               Manifesto
             </button>
@@ -81,9 +77,9 @@ export default function HeroSection() {
 
         <div className="relative z-10 flex justify-center gap-4 pb-12">
           {[
-            { Icon: Instagram, label: 'Instagram' },
-            { Icon: Twitter, label: 'Twitter' },
-            { Icon: Globe, label: 'Website' },
+            { Icon: Instagram, label: "Instagram" },
+            { Icon: Twitter, label: "Twitter" },
+            { Icon: Globe, label: "Website" },
           ].map(({ Icon, label }) => (
             <button
               key={label}

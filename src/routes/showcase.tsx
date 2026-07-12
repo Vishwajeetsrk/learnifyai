@@ -51,7 +51,11 @@ export const Route = createFileRoute("/showcase")({
 
 const FEATURES = [
   {
-    category: <><Gamepad2 className="h-6 w-6" /> Playground & Code Tools</>,
+    category: (
+      <>
+        <Gamepad2 className="h-6 w-6" /> Playground & Code Tools
+      </>
+    ),
     items: [
       {
         icon: Code2,
@@ -106,7 +110,11 @@ const FEATURES = [
     ],
   },
   {
-    category: <><Cog className="h-6 w-6" /> AI & Learning Tools</>,
+    category: (
+      <>
+        <Cog className="h-6 w-6" /> AI & Learning Tools
+      </>
+    ),
     items: [
       {
         icon: Brain,
@@ -136,7 +144,11 @@ const FEATURES = [
     ],
   },
   {
-    category: <><BookOpen className="h-6 w-6" /> Learning & Courses</>,
+    category: (
+      <>
+        <BookOpen className="h-6 w-6" /> Learning & Courses
+      </>
+    ),
     items: [
       {
         icon: PlayCircle,
@@ -171,7 +183,11 @@ const FEATURES = [
     ],
   },
   {
-    category: <><Rocket className="h-6 w-6" /> Creator & Admin</>,
+    category: (
+      <>
+        <Rocket className="h-6 w-6" /> Creator & Admin
+      </>
+    ),
     items: [
       {
         icon: Wrench,

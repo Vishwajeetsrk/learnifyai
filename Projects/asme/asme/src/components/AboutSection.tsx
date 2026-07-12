@@ -1,10 +1,10 @@
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
-import { INSTRUMENT_SERIF } from '../constants';
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { INSTRUMENT_SERIF } from "../constants";
 
 export default function AboutSection() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
+  const inView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
     <section
@@ -31,13 +31,13 @@ export default function AboutSection() {
           className="mt-6 text-4xl leading-[1.1] tracking-tight text-white md:text-6xl lg:text-7xl"
           style={{ fontFamily: INSTRUMENT_SERIF }}
         >
-          Pioneering{' '}
+          Pioneering{" "}
           <em className="text-white/60" style={{ fontFamily: INSTRUMENT_SERIF }}>
             ideas
-          </em>{' '}
+          </em>{" "}
           for
           <br className="hidden md:block" />
-          minds that{' '}
+          minds that{" "}
           <em className="text-white/60" style={{ fontFamily: INSTRUMENT_SERIF }}>
             create, build, and inspire.
           </em>

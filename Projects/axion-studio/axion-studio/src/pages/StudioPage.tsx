@@ -1,4 +1,4 @@
-import { AboutSection } from '../components/AboutSection';
+import { AboutSection } from "../components/AboutSection";
 
 export function StudioPage() {
   return (

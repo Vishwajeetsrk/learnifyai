@@ -1,11 +1,14 @@
-import { ArrowRight } from 'lucide-react';
-import { TextRoll } from './TextRoll';
+import { ArrowRight } from "lucide-react";
+import { TextRoll } from "./TextRoll";
 
-const EMAIL = 'hello@axion.studio';
+const EMAIL = "hello@axion.studio";
 
 export function ConnectSection() {
   return (
-    <section id="connect" className="scroll-mt-24 bg-white px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24">
+    <section
+      id="connect"
+      className="scroll-mt-24 bg-white px-5 py-16 sm:px-8 sm:py-20 lg:px-12 lg:py-24"
+    >
       <div className="mx-auto max-w-[1440px]">
         <div className="mb-6 flex items-center gap-3 sm:mb-8">
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 text-[11px] font-semibold text-white sm:h-7 sm:w-7 sm:text-xs">

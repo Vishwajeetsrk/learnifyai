@@ -3,7 +3,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Award, Check, Copy, Download, ExternalLink, ShieldCheck, Code, Sparkles } from "lucide-react";
+import {
+  Award,
+  Check,
+  Copy,
+  Download,
+  ExternalLink,
+  ShieldCheck,
+  Code,
+  Sparkles,
+} from "lucide-react";
 import { toast } from "sonner";
 import { generateOpenBadgeV3 } from "@/lib/open-badges.functions";
 
@@ -102,7 +111,10 @@ export function OpenBadges3Modal({
                     <p className="text-xs text-indigo-300 font-medium">Issued to {studentName}</p>
                   </div>
                 </div>
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]">
+                <Badge
+                  variant="outline"
+                  className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]"
+                >
                   W3C OBv3 Standard
                 </Badge>
               </div>
@@ -124,10 +136,15 @@ export function OpenBadges3Modal({
 
               {skills.length > 0 && (
                 <div className="space-y-1.5 pt-2">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Aligned Skills</span>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                    Aligned Skills
+                  </span>
                   <div className="flex flex-wrap gap-1.5">
                     {skills.map((s, idx) => (
-                      <span key={idx} className="px-2 py-0.5 rounded-md bg-white/10 text-white text-[10px] font-medium">
+                      <span
+                        key={idx}
+                        className="px-2 py-0.5 rounded-md bg-white/10 text-white text-[10px] font-medium"
+                      >
                         {s}
                       </span>
                     ))}
@@ -137,11 +154,24 @@ export function OpenBadges3Modal({
             </div>
 
             <div className="flex items-center justify-between gap-3 pt-2">
-              <Button variant="outline" size="sm" onClick={handleCopyUrl} className="flex-1 text-xs">
-                {copiedUrl ? <Check className="h-3.5 w-3.5 mr-1.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopyUrl}
+                className="flex-1 text-xs"
+              >
+                {copiedUrl ? (
+                  <Check className="h-3.5 w-3.5 mr-1.5 text-emerald-500" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5 mr-1.5" />
+                )}
                 Copy Badge Link
               </Button>
-              <Button size="sm" onClick={handleDownloadBadge} className="flex-1 text-xs bg-amber-600 hover:bg-amber-700 text-white">
+              <Button
+                size="sm"
+                onClick={handleDownloadBadge}
+                className="flex-1 text-xs bg-amber-600 hover:bg-amber-700 text-white"
+              >
                 <Download className="h-3.5 w-3.5 mr-1.5" />
                 Download OBv3 JSON
               </Button>
@@ -159,13 +189,21 @@ export function OpenBadges3Modal({
                 onClick={handleCopyJson}
                 className="absolute top-2 right-2 text-xs text-slate-400 hover:text-white bg-slate-900/80 border border-slate-700"
               >
-                {copiedJson ? <Check className="h-3.5 w-3.5 mr-1 text-emerald-400" /> : <Copy className="h-3.5 w-3.5 mr-1" />}
+                {copiedJson ? (
+                  <Check className="h-3.5 w-3.5 mr-1 text-emerald-400" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5 mr-1" />
+                )}
                 {copiedJson ? "Copied" : "Copy JSON"}
               </Button>
             </div>
 
             <div className="flex justify-end pt-2">
-              <Button size="sm" onClick={handleDownloadBadge} className="text-xs bg-amber-600 hover:bg-amber-700 text-white">
+              <Button
+                size="sm"
+                onClick={handleDownloadBadge}
+                className="text-xs bg-amber-600 hover:bg-amber-700 text-white"
+              >
                 <Download className="h-3.5 w-3.5 mr-1.5" />
                 Download JSON-LD
               </Button>

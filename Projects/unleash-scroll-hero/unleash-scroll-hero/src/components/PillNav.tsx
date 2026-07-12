@@ -1,33 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
-import gsap from 'gsap';
-import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import './PillNav.css';
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import "./PillNav.css";
 
 gsap.registerPlugin(ScrollToPlugin, ScrollTrigger);
 
 const NAV_ITEMS = [
-  { label: 'Home', id: 'home' as const },
-  { label: 'About', id: 'about' as const },
+  { label: "Home", id: "home" as const },
+  { label: "About", id: "about" as const },
 ];
 
 function scrollToHome() {
-  gsap.to(window, { duration: 2.5, scrollTo: 0, ease: 'power3.inOut' });
+  gsap.to(window, { duration: 2.5, scrollTo: 0, ease: "power3.inOut" });
 }
 
 function scrollToAbout() {
-  const about = document.getElementById('about');
+  const about = document.getElementById("about");
   if (about) {
     gsap.to(window, {
       duration: 2.5,
       scrollTo: { y: about, offsetY: 80 },
-      ease: 'power3.inOut',
+      ease: "power3.inOut",
     });
   } else {
     gsap.to(window, {
       duration: 2.5,
       scrollTo: document.body.scrollHeight,
-      ease: 'power3.inOut',
+      ease: "power3.inOut",
     });
   }
 }
@@ -39,7 +39,7 @@ function PillButton({
   onNavigate,
 }: {
   label: string;
-  target: 'home' | 'about';
+  target: "home" | "about";
   active: boolean;
   onNavigate: () => void;
 }) {
@@ -49,8 +49,8 @@ function PillButton({
     const pill = pillRef.current;
     if (!pill) return;
 
-    const circle = pill.querySelector('.hover-circle') as HTMLElement | null;
-    const stack = pill.querySelector('.label-stack') as HTMLElement | null;
+    const circle = pill.querySelector(".hover-circle") as HTMLElement | null;
+    const stack = pill.querySelector(".label-stack") as HTMLElement | null;
     if (!circle || !stack) return;
 
     const w = pill.offsetWidth;
@@ -65,25 +65,25 @@ function PillButton({
     circle.style.transformOrigin = `50% ${D - delta}px`;
 
     const tl = gsap.timeline({ paused: true });
-    tl.to(circle, { scale: 3, duration: 0.3, ease: 'power2.out' }, 0);
+    tl.to(circle, { scale: 3, duration: 0.3, ease: "power2.out" }, 0);
     tl.to(
-      stack.querySelector('.pill-label'),
-      { yPercent: -100, duration: 0.3, ease: 'power2.out' },
+      stack.querySelector(".pill-label"),
+      { yPercent: -100, duration: 0.3, ease: "power2.out" },
       0,
     );
     tl.to(
-      stack.querySelector('.pill-label-hover'),
-      { yPercent: -100, duration: 0.3, ease: 'power2.out' },
+      stack.querySelector(".pill-label-hover"),
+      { yPercent: -100, duration: 0.3, ease: "power2.out" },
       0,
     );
 
     const onEnter = () => tl.play();
     const onLeave = () => tl.reverse();
-    pill.addEventListener('mouseenter', onEnter);
-    pill.addEventListener('mouseleave', onLeave);
+    pill.addEventListener("mouseenter", onEnter);
+    pill.addEventListener("mouseleave", onLeave);
     return () => {
-      pill.removeEventListener('mouseenter', onEnter);
-      pill.removeEventListener('mouseleave', onLeave);
+      pill.removeEventListener("mouseenter", onEnter);
+      pill.removeEventListener("mouseleave", onLeave);
       tl.kill();
     };
   }, []);
@@ -93,9 +93,9 @@ function PillButton({
       <button
         ref={pillRef}
         type="button"
-        className={`pill ${active ? 'is-active' : ''}`}
+        className={`pill ${active ? "is-active" : ""}`}
         onClick={() => {
-          if (target === 'home') scrollToHome();
+          if (target === "home") scrollToHome();
           else scrollToAbout();
           onNavigate();
         }}
@@ -114,39 +114,39 @@ export function PillNav() {
   const navItemsRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLButtonElement>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState<'home' | 'about'>('home');
+  const [activeSection, setActiveSection] = useState<"home" | "about">("home");
 
   useEffect(() => {
     if (logoRef.current) {
-      gsap.fromTo(logoRef.current, { scale: 0 }, { scale: 1, duration: 0.6, ease: 'power2.out' });
+      gsap.fromTo(logoRef.current, { scale: 0 }, { scale: 1, duration: 0.6, ease: "power2.out" });
     }
     if (navItemsRef.current) {
       gsap.fromTo(
         navItemsRef.current,
-        { width: 0, overflow: 'hidden' },
-        { width: 'auto', duration: 0.6, ease: 'power2.out' },
+        { width: 0, overflow: "hidden" },
+        { width: "auto", duration: 0.6, ease: "power2.out" },
       );
     }
   }, []);
 
   useEffect(() => {
-    const about = document.getElementById('about');
+    const about = document.getElementById("about");
     if (!about) return;
 
     const st = ScrollTrigger.create({
       trigger: about,
-      start: 'top 80%',
-      end: 'bottom top',
-      onEnter: () => setActiveSection('about'),
-      onLeaveBack: () => setActiveSection('home'),
+      start: "top 80%",
+      end: "bottom top",
+      onEnter: () => setActiveSection("about"),
+      onLeaveBack: () => setActiveSection("home"),
     });
 
     return () => st.kill();
   }, []);
 
   const logoHover = () => {
-    const svg = logoRef.current?.querySelector('.logo-svg-container');
-    if (svg) gsap.to(svg, { rotation: 360, duration: 0.2, ease: 'power2.out' });
+    const svg = logoRef.current?.querySelector(".logo-svg-container");
+    if (svg) gsap.to(svg, { rotation: 360, duration: 0.2, ease: "power2.out" });
   };
 
   const closeMobile = () => setMobileOpen(false);
@@ -167,10 +167,22 @@ export function PillNav() {
         >
           <span className="logo-svg-container">
             <svg viewBox="0 0 100 100" width={24} height={24} aria-hidden>
-              <path fill="#fff" d="m50,50c0,18.2,14.77,32.98,32.97,32.98,0-18.2-14.77-32.98-32.97-32.98Z" />
-              <path fill="#fff" d="m17.02,82.98c18.2,0,32.98-14.77,32.98-32.98-18.2,0-32.98,14.77-32.98,32.98Z" />
-              <path fill="#fff" d="m82.98,17.02c-18.2,0-32.97,14.77-32.97,32.97,18.2,0,32.97-14.77,32.97-32.97Z" />
-              <path fill="#fff" d="m17.02,17.02c0,18.2,14.77,32.97,32.98,32.97,0-18.2-14.77-32.97-32.98-32.97Z" />
+              <path
+                fill="#fff"
+                d="m50,50c0,18.2,14.77,32.98,32.97,32.98,0-18.2-14.77-32.98-32.97-32.98Z"
+              />
+              <path
+                fill="#fff"
+                d="m17.02,82.98c18.2,0,32.98-14.77,32.98-32.98-18.2,0-32.98,14.77-32.98,32.98Z"
+              />
+              <path
+                fill="#fff"
+                d="m82.98,17.02c-18.2,0-32.97,14.77-32.97,32.97,18.2,0,32.97-14.77,32.97-32.97Z"
+              />
+              <path
+                fill="#fff"
+                d="m17.02,17.02c0,18.2,14.77,32.97,32.98,32.97,0-18.2-14.77-32.97-32.98-32.97Z"
+              />
             </svg>
           </span>
         </button>
@@ -199,19 +211,19 @@ export function PillNav() {
           <span
             className="hamburger-line"
             style={{
-              transform: mobileOpen ? 'rotate(45deg) translateY(3px)' : undefined,
+              transform: mobileOpen ? "rotate(45deg) translateY(3px)" : undefined,
             }}
           />
           <span
             className="hamburger-line"
             style={{
-              transform: mobileOpen ? 'rotate(-45deg) translateY(-3px)' : undefined,
+              transform: mobileOpen ? "rotate(-45deg) translateY(-3px)" : undefined,
             }}
           />
         </button>
       </div>
 
-      <div className={`mobile-menu-popover mobile-only ${mobileOpen ? 'is-open' : ''}`}>
+      <div className={`mobile-menu-popover mobile-only ${mobileOpen ? "is-open" : ""}`}>
         <ul className="mobile-menu-list">
           {NAV_ITEMS.map(({ label, id }) => (
             <li key={id}>
@@ -219,7 +231,7 @@ export function PillNav() {
                 type="button"
                 className="mobile-menu-link w-full"
                 onClick={() => {
-                  if (id === 'home') scrollToHome();
+                  if (id === "home") scrollToHome();
                   else scrollToAbout();
                   closeMobile();
                 }}

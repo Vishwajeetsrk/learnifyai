@@ -1,12 +1,9 @@
-import { motion } from 'motion/react';
-import { AVATARS, VIDEOS } from '../constants';
+import { motion } from "motion/react";
+import { AVATARS, VIDEOS } from "../constants";
 
 export function HeroSection() {
   return (
-    <section
-      id="hero"
-      className="relative w-full h-screen overflow-hidden scroll-mt-0"
-    >
+    <section id="hero" className="relative w-full h-screen overflow-hidden scroll-mt-0">
       <video
         className="absolute inset-0 h-full w-full object-cover object-bottom -translate-y-[100px] md:translate-y-0"
         src={VIDEOS.hero}
@@ -30,14 +27,11 @@ export function HeroSection() {
               />
             ))}
           </div>
-          <p className="text-sm text-muted-foreground">
-            7,000+ brands already transformed
-          </p>
+          <p className="text-sm text-muted-foreground">7,000+ brands already transformed</p>
         </div>
 
         <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-medium tracking-[-1px] md:tracking-[-2px] text-foreground max-w-4xl">
-          Build Stunning with{' '}
-          <span className="font-accent italic font-normal">AI Magic</span>
+          Build Stunning with <span className="font-accent italic font-normal">AI Magic</span>
         </h1>
 
         <p className="mt-4 text-sm md:text-lg text-muted-foreground whitespace-normal md:whitespace-nowrap max-w-2xl">

@@ -1,6 +1,6 @@
-import { Phone } from 'lucide-react';
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { CONTACT_ROUTE } from '../constants';
+import { Phone } from "lucide-react";
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { CONTACT_ROUTE } from "../constants";
 
 export function ConsultationCard() {
   return (

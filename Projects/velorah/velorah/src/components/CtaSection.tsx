@@ -1,4 +1,4 @@
-import { VIDEOS } from '../constants';
+import { VIDEOS } from "../constants";
 
 export function CtaSection() {
   return (
@@ -32,8 +32,8 @@ export function CtaSection() {
           className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg"
           data-editable
         >
-          Reserve your Velorah today with a fully refundable $500 deposit. Early adopters
-          receive priority delivery and exclusive founding-member benefits.
+          Reserve your Velorah today with a fully refundable $500 deposit. Early adopters receive
+          priority delivery and exclusive founding-member benefits.
         </p>
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
           <button

@@ -1,4 +1,4 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 export function ManifestoPage() {
   return (
@@ -8,12 +8,12 @@ export function ManifestoPage() {
         distraction.
       </p>
       <p>
-        Asme exists to connect ideas, craft, and community. Every story we publish, every product
-        we ship, and every collaboration we nurture starts with wonder and ends with clarity.
+        Asme exists to connect ideas, craft, and community. Every story we publish, every product we
+        ship, and every collaboration we nurture starts with wonder and ends with clarity.
       </p>
       <p>
-        Join us to explore what happens when liquid-glass interfaces meet cinematic storytelling
-        and research-grade insight.
+        Join us to explore what happens when liquid-glass interfaces meet cinematic storytelling and
+        research-grade insight.
       </p>
     </PageShell>
   );

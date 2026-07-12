@@ -1,4 +1,4 @@
-export function ZenithLogo({ className = '' }: { className?: string }) {
+export function ZenithLogo({ className = "" }: { className?: string }) {
   return (
     <div
       className={`text-xl font-black leading-[0.85] tracking-tighter text-[#141414] ${className}`}

@@ -1,5 +1,5 @@
-import SiteLayout from '../components/SiteLayout';
-import StellarSectionPage from '../components/StellarSectionPage';
+import SiteLayout from "../components/SiteLayout";
+import StellarSectionPage from "../components/StellarSectionPage";
 
 export default function LearnHubPage() {
   return (

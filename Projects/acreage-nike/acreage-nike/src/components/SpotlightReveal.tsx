@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import ReactPlayer from 'react-player';
+import { useEffect, useRef } from "react";
+import ReactPlayer from "react-player";
 
 interface SpotlightRevealProps {
   imageSrc: string;
@@ -24,7 +24,7 @@ export default function SpotlightReveal({
       targetX = e.clientX;
       targetY = e.clientY;
     };
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
 
     let animationFrameId: number;
     const animate = () => {
@@ -38,20 +38,20 @@ export default function SpotlightReveal({
       for (let i = 0; i < points.length; i++) {
         const circle = document.getElementById(`trail-${i}-${imageSrc.slice(-8)}`);
         if (circle) {
-          circle.setAttribute('cx', points[i].x.toString());
-          circle.setAttribute('cy', points[i].y.toString());
+          circle.setAttribute("cx", points[i].x.toString());
+          circle.setAttribute("cy", points[i].y.toString());
         }
       }
       animationFrameId = requestAnimationFrame(animate);
     };
     animate();
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(animationFrameId);
     };
   }, [imageSrc]);
 
-  const maskId = `spotlight-mask-${imageSrc.slice(-12).replace(/\W/g, '')}`;
+  const maskId = `spotlight-mask-${imageSrc.slice(-12).replace(/\W/g, "")}`;
 
   return (
     <div className="pointer-events-none absolute inset-0 z-0 flex h-full w-full items-center justify-center overflow-hidden bg-black">
@@ -69,9 +69,9 @@ export default function SpotlightReveal({
             file: {
               attributes: {
                 style: {
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
                 },
               },
             },

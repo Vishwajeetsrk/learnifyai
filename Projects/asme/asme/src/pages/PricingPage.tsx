@@ -1,9 +1,19 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 const PLANS = [
-  { name: 'Explorer', price: 'Free', detail: 'Newsletter + community access', cta: 'Start free' },
-  { name: 'Studio', price: '$24/mo', detail: 'Workshops, archives, and member events', cta: 'Join Studio' },
-  { name: 'Collective', price: 'Custom', detail: 'Brand partnerships and research sprints', cta: 'Talk to us' },
+  { name: "Explorer", price: "Free", detail: "Newsletter + community access", cta: "Start free" },
+  {
+    name: "Studio",
+    price: "$24/mo",
+    detail: "Workshops, archives, and member events",
+    cta: "Join Studio",
+  },
+  {
+    name: "Collective",
+    price: "Custom",
+    detail: "Brand partnerships and research sprints",
+    cta: "Talk to us",
+  },
 ] as const;
 
 export function PricingPage() {
@@ -14,7 +24,10 @@ export function PricingPage() {
         {PLANS.map((plan) => (
           <div key={plan.name} className="liquid-glass rounded-3xl p-6 md:p-8">
             <p className="text-xs uppercase tracking-widest text-white/40">{plan.name}</p>
-            <p className="mt-3 text-3xl text-white" style={{ fontFamily: "'Instrument Serif', serif" }}>
+            <p
+              className="mt-3 text-3xl text-white"
+              style={{ fontFamily: "'Instrument Serif', serif" }}
+            >
               {plan.price}
             </p>
             <p className="mt-3 text-sm text-white/50">{plan.detail}</p>

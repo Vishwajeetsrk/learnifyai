@@ -1,10 +1,26 @@
-import InnerPageLayout from '../components/InnerPageLayout';
+import InnerPageLayout from "../components/InnerPageLayout";
 
 const STEPS = [
-  { step: '01', title: 'Connect', detail: 'Link CRM, billing, inbox, and warehouse tools in minutes.' },
-  { step: '02', title: 'Define rituals', detail: 'Map recurring workflows with plain-language rules and owners.' },
-  { step: '03', title: 'Automate', detail: 'Velorix executes, logs, and surfaces exceptions for human review.' },
-  { step: '04', title: 'Optimize', detail: 'Insights highlight bottlenecks and recommend calmer paths forward.' },
+  {
+    step: "01",
+    title: "Connect",
+    detail: "Link CRM, billing, inbox, and warehouse tools in minutes.",
+  },
+  {
+    step: "02",
+    title: "Define rituals",
+    detail: "Map recurring workflows with plain-language rules and owners.",
+  },
+  {
+    step: "03",
+    title: "Automate",
+    detail: "Velorix executes, logs, and surfaces exceptions for human review.",
+  },
+  {
+    step: "04",
+    title: "Optimize",
+    detail: "Insights highlight bottlenecks and recommend calmer paths forward.",
+  },
 ];
 
 export default function HowItWorksPage() {

@@ -48,12 +48,13 @@ export function generateOpenBadgeV3({
   skills?: string[];
   verificationUrl: string;
 }): OpenBadgeV3Credential {
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://learnifyaitool.vercel.app";
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "https://learnifyaitool.vercel.app";
 
   return {
     "@context": [
       "https://www.w3.org/2018/credentials/v1",
-      "https://purl.imsglobal.org/spec/ob/v3p0/context.json"
+      "https://purl.imsglobal.org/spec/ob/v3p0/context.json",
     ],
     id: `urn:uuid:${certificateId}`,
     type: ["VerifiableCredential", "OpenBadgeCredential"],

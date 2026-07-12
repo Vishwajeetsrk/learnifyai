@@ -30,7 +30,7 @@ export function Flashcard({ question, answer }: FlashcardProps) {
         style={{ transformStyle: "preserve-3d" }}
       >
         {/* Front of Card */}
-        <div 
+        <div
           className="absolute inset-0 backface-hidden bg-card border border-border rounded-2xl shadow-lg p-6 flex flex-col justify-center items-center text-center space-y-4 hover:border-primary/50 transition-colors"
           style={{ backfaceVisibility: "hidden" }}
         >
@@ -42,7 +42,7 @@ export function Flashcard({ question, answer }: FlashcardProps) {
         </div>
 
         {/* Back of Card */}
-        <div 
+        <div
           className="absolute inset-0 backface-hidden bg-primary/5 border border-primary/30 rounded-2xl shadow-lg p-6 flex flex-col justify-center items-center text-center space-y-4"
           style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
         >

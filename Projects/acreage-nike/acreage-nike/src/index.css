@@ -1,10 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap');
-@import '../../_shared/preset-site-scroll.css';
-@import 'tailwindcss';
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap");
+@import "../../_shared/preset-site-scroll.css";
+@import "tailwindcss";
 
 @theme {
-  --font-sans: 'Manrope', sans-serif;
-  --font-serif: 'Instrument Serif', serif;
+  --font-sans: "Manrope", sans-serif;
+  --font-serif: "Instrument Serif", serif;
   --color-acreage-accent: #da3a16;
 }
 

@@ -1,8 +1,8 @@
-import type { MouseEvent } from 'react';
-import { Instagram, Linkedin, Twitter } from 'lucide-react';
-import { navigateToSection, sectionHref } from '../../../_shared/preset-site-routing';
-import LogoMark from './LogoMark';
-import { NAV_ITEMS } from '../routes';
+import type { MouseEvent } from "react";
+import { Instagram, Linkedin, Twitter } from "lucide-react";
+import { navigateToSection, sectionHref } from "../../../_shared/preset-site-routing";
+import LogoMark from "./LogoMark";
+import { NAV_ITEMS } from "../routes";
 
 export default function Navbar() {
   const navClick = (sectionId: string) => (e: MouseEvent<HTMLAnchorElement>) => {
@@ -14,8 +14,8 @@ export default function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 px-8 md:px-28 py-4 bg-transparent">
       <div className="flex items-center justify-between gap-6">
         <a
-          href={sectionHref('home')}
-          onClick={navClick('home')}
+          href={sectionHref("home")}
+          onClick={navClick("home")}
           className="flex items-center gap-3 shrink-0"
           aria-label="Mindloop home"
         >
@@ -42,8 +42,8 @@ export default function Navbar() {
           {[Instagram, Linkedin, Twitter].map((Icon, i) => (
             <a
               key={i}
-              href={sectionHref('contact')}
-              onClick={navClick('contact')}
+              href={sectionHref("contact")}
+              onClick={navClick("contact")}
               aria-label="Social"
               className="liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-foreground/80 hover:text-foreground transition-colors"
             >

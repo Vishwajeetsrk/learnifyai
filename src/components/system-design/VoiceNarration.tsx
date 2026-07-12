@@ -17,7 +17,12 @@ const VOICE_STYLES = [
   { id: "architect", label: "Architect", pitch: 0.8, rate: 0.8 },
 ];
 
-export function VoiceNarration({ text, title, language = "en-US", autoPlay = false }: VoiceNarrationProps) {
+export function VoiceNarration({
+  text,
+  title,
+  language = "en-US",
+  autoPlay = false,
+}: VoiceNarrationProps) {
   const [isSupported, setIsSupported] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
@@ -38,7 +43,9 @@ export function VoiceNarration({ text, title, language = "en-US", autoPlay = fal
     };
     loadVoices();
     speechSynthesis.onvoiceschanged = loadVoices;
-    return () => { speechSynthesis.onvoiceschanged = null; };
+    return () => {
+      speechSynthesis.onvoiceschanged = null;
+    };
   }, [language]);
 
   const speak = useCallback(() => {
@@ -98,7 +105,7 @@ export function VoiceNarration({ text, title, language = "en-US", autoPlay = fal
           variant="ghost"
           size="sm"
           className="h-9 w-9 p-0 rounded-full bg-primary/10 hover:bg-primary/20 text-primary"
-          onClick={() => isPlaying ? pause() : speak()}
+          onClick={() => (isPlaying ? pause() : speak())}
           aria-label={isPlaying ? "Pause" : "Play"}
         >
           {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
@@ -108,14 +115,26 @@ export function VoiceNarration({ text, title, language = "en-US", autoPlay = fal
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium truncate">{voiceStyle.label}</span>
-            <div className={cn("h-1.5 w-1.5 rounded-full", isPlaying ? "bg-green-500 animate-pulse" : "bg-muted-foreground/30")} />
-            <span className="text-[10px] text-muted-foreground">{isPlaying ? "Speaking" : "Ready"}</span>
+            <div
+              className={cn(
+                "h-1.5 w-1.5 rounded-full",
+                isPlaying ? "bg-green-500 animate-pulse" : "bg-muted-foreground/30",
+              )}
+            />
+            <span className="text-[10px] text-muted-foreground">
+              {isPlaying ? "Speaking" : "Ready"}
+            </span>
           </div>
         </div>
 
         {/* Voice style selector */}
         <div className="relative">
-          <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1" onClick={() => setShowStylePicker(!showStylePicker)}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-[10px] gap-1"
+            onClick={() => setShowStylePicker(!showStylePicker)}
+          >
             <Volume2 className="h-3 w-3" />
             Style
             <ChevronDown className="h-2.5 w-2.5" />
@@ -125,10 +144,15 @@ export function VoiceNarration({ text, title, language = "en-US", autoPlay = fal
               {VOICE_STYLES.map((style) => (
                 <button
                   key={style.id}
-                  onClick={() => { setVoiceStyle(style); setShowStylePicker(false); }}
+                  onClick={() => {
+                    setVoiceStyle(style);
+                    setShowStylePicker(false);
+                  }}
                   className={cn(
                     "w-full text-left px-2 py-1.5 rounded text-xs transition",
-                    voiceStyle.id === style.id ? "bg-primary/10 text-primary" : "hover:bg-muted/50 text-muted-foreground"
+                    voiceStyle.id === style.id
+                      ? "bg-primary/10 text-primary"
+                      : "hover:bg-muted/50 text-muted-foreground",
                   )}
                 >
                   <span className="block font-medium">{style.label}</span>
@@ -142,7 +166,13 @@ export function VoiceNarration({ text, title, language = "en-US", autoPlay = fal
         {/* Voice language selector */}
         {voices.length > 1 && (
           <div className="relative">
-            <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1" onClick={() => setShowVoicePicker(!showVoicePicker)} aria-label="Select voice">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-[10px] gap-1"
+              onClick={() => setShowVoicePicker(!showVoicePicker)}
+              aria-label="Select voice"
+            >
               {selectedVoice?.name.split("-")[0] || "Voice"}
               <ChevronDown className="h-2.5 w-2.5" />
             </Button>
@@ -151,10 +181,15 @@ export function VoiceNarration({ text, title, language = "en-US", autoPlay = fal
                 {voices.map((voice) => (
                   <button
                     key={voice.name}
-                    onClick={() => { setSelectedVoice(voice); setShowVoicePicker(false); }}
+                    onClick={() => {
+                      setSelectedVoice(voice);
+                      setShowVoicePicker(false);
+                    }}
                     className={cn(
                       "w-full text-left px-2 py-1.5 rounded text-[10px] transition",
-                      selectedVoice?.name === voice.name ? "bg-primary/10 text-primary" : "hover:bg-muted/50 text-muted-foreground"
+                      selectedVoice?.name === voice.name
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-muted/50 text-muted-foreground",
                     )}
                   >
                     <span className="block">{voice.name}</span>

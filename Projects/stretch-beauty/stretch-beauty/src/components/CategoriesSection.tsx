@@ -1,6 +1,6 @@
-import { PresetNavLink } from '../../../_shared/components/PresetNavLink';
-import { CATEGORIES } from '../constants';
-import { useInView } from '../hooks/useInView';
+import { PresetNavLink } from "../../../_shared/components/PresetNavLink";
+import { CATEGORIES } from "../constants";
+import { useInView } from "../hooks/useInView";
 
 export function CategoriesSection() {
   const { ref, isVisible } = useInView(0.15);
@@ -13,7 +13,7 @@ export function CategoriesSection() {
     >
       <div
         className={`grid grid-cols-1 md:grid-cols-3 ${
-          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'
+          isVisible ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
         } transition-all duration-1000`}
       >
         {CATEGORIES.map((category) => (
@@ -36,12 +36,12 @@ export function CategoriesSection() {
             <div className="relative z-10 flex h-full min-h-[400px] flex-col justify-between p-6 sm:min-h-[500px] sm:p-8 md:min-h-[750px] md:p-12">
               <p
                 className="text-5xl font-medium capitalize transition-transform duration-300 group-hover:-translate-y-0.5 sm:text-6xl md:text-7xl lg:text-8xl"
-                style={{ writingMode: 'vertical-lr', transform: 'rotate(180deg)' }}
+                style={{ writingMode: "vertical-lr", transform: "rotate(180deg)" }}
               >
                 {category.name}
               </p>
 
-              <PresetNavLink target={{ kind: 'route', path: `shop/${category.slug}` }}>
+              <PresetNavLink target={{ kind: "route", path: `shop/${category.slug}` }}>
                 <button
                   type="button"
                   className="btn-primary w-fit rounded-full bg-white px-8 py-3 text-sm text-black"

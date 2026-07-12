@@ -1,26 +1,26 @@
-import { useEffect } from 'react';
-import { PresetNavLink } from '../../_shared/components/PresetNavLink';
-import { PresetSiteSections } from '../../_shared/components/PresetSiteSections';
-import { useDraftlyGalleryAutoplay } from '../../_shared/hooks/useDraftlyGalleryAutoplay';
-import { applyPresetHashOnLoad } from '../../_shared/preset-site-routing';
+import { useEffect } from "react";
+import { PresetNavLink } from "../../_shared/components/PresetNavLink";
+import { PresetSiteSections } from "../../_shared/components/PresetSiteSections";
+import { useDraftlyGalleryAutoplay } from "../../_shared/hooks/useDraftlyGalleryAutoplay";
+import { applyPresetHashOnLoad } from "../../_shared/preset-site-routing";
 
 const HERO_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260421_074215_f4339e1c-0b1a-4f60-98b2-90e3d7840cb7.mp4';
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260421_074215_f4339e1c-0b1a-4f60-98b2-90e3d7840cb7.mp4";
 const SECURITY_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260421_072418_508a7d2e-396d-4f6f-9d42-ec920fcf7755.mp4';
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260421_072418_508a7d2e-396d-4f6f-9d42-ec920fcf7755.mp4";
 const BENEFITS_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260421_072701_f6a01abb-eb30-4559-9d6e-774362defbc3.mp4';
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260421_072701_f6a01abb-eb30-4559-9d6e-774362defbc3.mp4";
 
 const NAV = [
-  { label: 'products', section: 'security' },
-  { label: 'offerings', section: 'companies' },
-  { label: 'mission', section: 'benefits' },
-  { label: 'contact', section: 'contact' },
+  { label: "products", section: "security" },
+  { label: "offerings", section: "companies" },
+  { label: "mission", section: "benefits" },
+  { label: "contact", section: "contact" },
 ] as const;
 
-const GRADIENT_CTA = 'linear-gradient(90deg, #FA8453 0%, #F8C9B2 100%)';
+const GRADIENT_CTA = "linear-gradient(90deg, #FA8453 0%, #F8C9B2 100%)";
 
-function LogoMark({ className = '' }: { className?: string }) {
+function LogoMark({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 256 256" className={className} fill="white" aria-hidden>
       <path d="M 128 192 L 128 256 L 64.5 256 L 32 223 L 0 192 L 0 128 L 64 128 Z M 256 192 L 256 256 L 192.5 256 L 160 223 L 128 192 L 128 128 L 192 128 Z M 128 64 L 128 128 L 64.5 128 L 32 95 L 0 64 L 0 0 L 64 0 Z M 256 64 L 256 128 L 192.5 128 L 160 95 L 128 64 L 128 0 L 192 0 Z" />
@@ -41,10 +41,10 @@ function BackgroundVideo({ src, playing }: { src: string; playing: boolean }) {
   );
 }
 
-function GradientDemoButton({ className = '' }: { className?: string }) {
+function GradientDemoButton({ className = "" }: { className?: string }) {
   return (
     <PresetNavLink
-      target={{ kind: 'section', id: 'contact' }}
+      target={{ kind: "section", id: "contact" }}
       className={`inline-block whitespace-nowrap rounded-full px-4 py-2 text-xs text-black sm:px-7 sm:py-3 sm:text-sm ${className}`}
       style={{ background: GRADIENT_CTA }}
       data-editable
@@ -61,7 +61,7 @@ function Navbar() {
       className="absolute left-0 right-0 top-0 z-20 flex items-center justify-between px-3 pt-4 sm:px-6 sm:pt-6 md:px-10"
     >
       <PresetNavLink
-        target={{ kind: 'section', id: 'hero' }}
+        target={{ kind: "section", id: "hero" }}
         className="flex items-center gap-2 rounded-full bg-neutral-900/90 py-2.5 pl-3 pr-4 backdrop-blur sm:gap-2.5 sm:py-3 sm:pl-4 sm:pr-6"
       >
         <LogoMark className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -74,7 +74,7 @@ function Navbar() {
         {NAV.map((link) => (
           <PresetNavLink
             key={link.section}
-            target={{ kind: 'section', id: link.section }}
+            target={{ kind: "section", id: link.section }}
             className="rounded-full px-5 py-2 text-sm text-neutral-300 transition-colors hover:text-white"
           >
             {link.label}
@@ -83,7 +83,7 @@ function Navbar() {
       </div>
 
       <PresetNavLink
-        target={{ kind: 'section', id: 'contact' }}
+        target={{ kind: "section", id: "contact" }}
         className="rounded-full bg-white px-4 py-2.5 text-xs text-black transition-colors hover:bg-neutral-200 sm:px-6 sm:py-3 sm:text-sm"
       >
         start today
@@ -94,7 +94,10 @@ function Navbar() {
 
 function HeroSection({ playing }: { playing: boolean }) {
   return (
-    <section id="hero" className="relative h-screen min-h-screen w-full overflow-hidden bg-black scroll-mt-0">
+    <section
+      id="hero"
+      className="relative h-screen min-h-screen w-full overflow-hidden bg-black scroll-mt-0"
+    >
       <BackgroundVideo src={HERO_VIDEO} playing={playing} />
 
       <div className="relative mx-auto h-full w-full max-w-[1320px]">
@@ -127,7 +130,10 @@ function HeroSection({ playing }: { playing: boolean }) {
         <div className="absolute bottom-20 left-4 sm:bottom-24 sm:left-6 md:left-10">
           <div className="flex items-center gap-3">
             <div>
-              <p className="text-2xl font-medium tracking-tight sm:text-4xl md:text-5xl" data-editable>
+              <p
+                className="text-2xl font-medium tracking-tight sm:text-4xl md:text-5xl"
+                data-editable
+              >
                 +2.7b
               </p>
               <p
@@ -139,7 +145,7 @@ function HeroSection({ playing }: { playing: boolean }) {
             </div>
             <span
               className="hidden h-px w-24 bg-white/40 md:block"
-              style={{ transform: 'rotate(-20deg)' }}
+              style={{ transform: "rotate(-20deg)" }}
               aria-hidden
             />
           </div>
@@ -149,11 +155,14 @@ function HeroSection({ playing }: { playing: boolean }) {
           <div className="flex items-center gap-3">
             <span
               className="hidden h-px w-24 bg-white/40 md:block"
-              style={{ transform: 'rotate(20deg)' }}
+              style={{ transform: "rotate(20deg)" }}
               aria-hidden
             />
             <div>
-              <p className="text-2xl font-medium tracking-tight sm:text-4xl md:text-5xl" data-editable>
+              <p
+                className="text-2xl font-medium tracking-tight sm:text-4xl md:text-5xl"
+                data-editable
+              >
                 +90k
               </p>
               <p
@@ -170,11 +179,14 @@ function HeroSection({ playing }: { playing: boolean }) {
           <div className="flex items-center gap-3">
             <span
               className="hidden h-px w-24 bg-white/40 md:block"
-              style={{ transform: 'rotate(-20deg)' }}
+              style={{ transform: "rotate(-20deg)" }}
               aria-hidden
             />
             <div>
-              <p className="text-2xl font-medium tracking-tight sm:text-4xl md:text-5xl" data-editable>
+              <p
+                className="text-2xl font-medium tracking-tight sm:text-4xl md:text-5xl"
+                data-editable
+              >
                 +450k
               </p>
               <p
@@ -213,7 +225,7 @@ function SecuritySection({ playing }: { playing: boolean }) {
         <div className="absolute left-1/2 top-6 z-20 w-max max-w-[95vw] -translate-x-1/2 rounded-full bg-neutral-900/80 p-2 backdrop-blur sm:top-10 sm:p-3">
           <div className="flex items-center gap-1 sm:gap-2">
             <PresetNavLink
-              target={{ kind: 'section', id: 'security' }}
+              target={{ kind: "section", id: "security" }}
               className="whitespace-nowrap rounded-full px-4 py-2 text-xs text-white/90 transition-colors hover:text-white sm:px-7 sm:py-3 sm:text-sm"
             >
               confirm real person
@@ -233,10 +245,10 @@ function SecuritySection({ playing }: { playing: boolean }) {
           className="absolute right-4 top-[26%] max-w-[280px] text-[13px] font-light leading-relaxed text-white/90 sm:right-6 sm:top-[34%] sm:max-w-[500px] sm:text-[18px] md:right-16"
           data-editable
         >
-          By teaming up with a defender service, a business can dramatically improve the safeguard of
-          its important info. This covers applying strong obfuscation protocols, gateway barriers, and
-          observation engines to shield against unauthorized entries, info escapes, and malicious
-          cyberhacks.
+          By teaming up with a defender service, a business can dramatically improve the safeguard
+          of its important info. This covers applying strong obfuscation protocols, gateway
+          barriers, and observation engines to shield against unauthorized entries, info escapes,
+          and malicious cyberhacks.
         </p>
       </div>
     </section>
@@ -277,7 +289,10 @@ function CompanyLogo({
 
 function CompaniesSection() {
   return (
-    <section id="companies" className="relative w-full scroll-mt-24 bg-black px-4 py-12 sm:px-6 sm:py-20 md:px-10">
+    <section
+      id="companies"
+      className="relative w-full scroll-mt-24 bg-black px-4 py-12 sm:px-6 sm:py-20 md:px-10"
+    >
       <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
         <div className="relative flex h-24 items-center justify-center overflow-hidden rounded-2xl bg-neutral-950 sm:h-32 md:h-36">
           <div className="absolute -left-24 -top-24 h-40 w-40 rounded-full bg-[#1e3a8a] opacity-40 blur-3xl" />
@@ -339,7 +354,7 @@ function CompaniesSection() {
         </p>
         <div className="relative rounded-full p-[1.5px]" style={{ background: GRADIENT_CTA }}>
           <PresetNavLink
-            target={{ kind: 'section', id: 'contact' }}
+            target={{ kind: "section", id: "contact" }}
             className="block rounded-full bg-black px-8 py-2.5 text-sm lowercase text-white sm:px-10 sm:py-3"
             data-editable
           >
@@ -352,14 +367,17 @@ function CompaniesSection() {
 }
 
 const BENEFIT_BODY =
-  'Defense platforms constantly observe bandwidth streams, record files, and machine behaviors to uncover unusual patterns or outliers that could signal a defensive failure.';
+  "Defense platforms constantly observe bandwidth streams, record files, and machine behaviors to uncover unusual patterns or outliers that could signal a defensive failure.";
 
 function BenefitsSection({ playing }: { playing: boolean }) {
   return (
-    <section id="benefits" className="relative w-full scroll-mt-24 bg-black px-4 py-12 sm:px-6 sm:py-20 md:px-10">
+    <section
+      id="benefits"
+      className="relative w-full scroll-mt-24 bg-black px-4 py-12 sm:px-6 sm:py-20 md:px-10"
+    >
       <h2
         className="mb-12 text-center text-3xl font-light lowercase text-white sm:mb-24 sm:text-4xl md:text-5xl"
-        style={{ letterSpacing: '-0.04em' }}
+        style={{ letterSpacing: "-0.04em" }}
         data-editable
       >
         key benefits
@@ -384,7 +402,7 @@ function BenefitsSection({ playing }: { playing: boolean }) {
         </div>
 
         <div className="relative flex h-[380px] flex-col overflow-hidden rounded-2xl bg-neutral-950 sm:h-[460px]">
-          <div className="relative w-full overflow-hidden" style={{ height: '75%' }}>
+          <div className="relative w-full overflow-hidden" style={{ height: "75%" }}>
             <video
               className="block h-full w-full object-cover"
               src={BENEFITS_VIDEO}

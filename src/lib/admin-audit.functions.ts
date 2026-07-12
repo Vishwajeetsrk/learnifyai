@@ -87,7 +87,11 @@ export const queryAuditLogs = createServerFn({ method: "GET" })
     if (data.startDate) query = query.gte("created_at", data.startDate);
     if (data.endDate) query = query.lte("created_at", data.endDate);
 
-    const { data: logs, error, count } = await query
+    const {
+      data: logs,
+      error,
+      count,
+    } = await query
       .order("created_at", { ascending: false })
       .range(data.offset, data.offset + data.limit - 1);
 

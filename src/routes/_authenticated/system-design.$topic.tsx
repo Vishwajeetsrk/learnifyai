@@ -1,6 +1,18 @@
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import { ArrowLeft, Clock, BookOpen, Users, Trophy, ChevronRight, Sparkles, Play, CheckCircle, BarChart3, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  Clock,
+  BookOpen,
+  Users,
+  Trophy,
+  ChevronRight,
+  Sparkles,
+  Play,
+  CheckCircle,
+  BarChart3,
+  FileText,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,13 +24,21 @@ import { ArchitectureVisualizer } from "@/components/system-design/ArchitectureV
 import { VoiceNarration } from "@/components/system-design/VoiceNarration";
 import { InteractiveQuiz } from "@/components/system-design/InteractiveQuiz";
 import { ComparisonView } from "@/components/system-design/ComparisonView";
-import { markTopicCompleted, markTopicAccessed, useLearningProgress } from "@/components/system-design/LearningProgress";
+import {
+  markTopicCompleted,
+  markTopicAccessed,
+  useLearningProgress,
+} from "@/components/system-design/LearningProgress";
 import { KnowledgeGraph } from "@/components/system-design/KnowledgeGraph";
 import { CheatSheetGenerator } from "@/components/cheat-sheet/CheatSheetGenerator";
 
 export const Route = createFileRoute("/_authenticated/system-design/$topic")({
   head: ({ params }) => ({
-    meta: [{ title: `${getTopic(params.topic)?.title || "Topic"} — System Design Academy — Learnify AI` }],
+    meta: [
+      {
+        title: `${getTopic(params.topic)?.title || "Topic"} — System Design Academy — Learnify AI`,
+      },
+    ],
   }),
   component: SystemDesignTopicPage,
 });
@@ -45,7 +65,9 @@ function SystemDesignTopicPage() {
       <AppShell>
         <div className="max-w-4xl mx-auto px-4 py-16 text-center space-y-4">
           <p className="text-lg font-semibold">Topic not found</p>
-          <p className="text-sm text-muted-foreground">The system design topic "{topicId}" doesn't exist.</p>
+          <p className="text-sm text-muted-foreground">
+            The system design topic "{topicId}" doesn't exist.
+          </p>
           <Button variant="outline" size="sm" onClick={() => navigate({ to: "/system-design" })}>
             <ArrowLeft className="h-4 w-4 mr-1.5" /> Back to Academy
           </Button>
@@ -73,14 +95,20 @@ function SystemDesignTopicPage() {
   const prevTopic = topicIndex > 0 ? TOPICS[topicIndex - 1] : null;
   const nextTopic = topicIndex < TOPICS.length - 1 ? TOPICS[topicIndex + 1] : null;
 
-  const allText = [topic.description, ...topic.sections.map((s) => s.content), ...topic.quiz.map((q) => q.question + " " + q.explanation)].join(". ");
+  const allText = [
+    topic.description,
+    ...topic.sections.map((s) => s.content),
+    ...topic.quiz.map((q) => q.question + " " + q.explanation),
+  ].join(". ");
 
   return (
     <AppShell>
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Link to="/system-design" className="hover:text-foreground transition">Academy</Link>
+          <Link to="/system-design" className="hover:text-foreground transition">
+            Academy
+          </Link>
           <ChevronRight className="h-3 w-3" />
           <span className="text-foreground">{topic.title}</span>
         </div>
@@ -91,7 +119,13 @@ function SystemDesignTopicPage() {
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-2 flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="outline" className={cn("text-[10px] capitalize font-normal", DIFFICULTY_COLORS[topic.difficulty])}>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "text-[10px] capitalize font-normal",
+                      DIFFICULTY_COLORS[topic.difficulty],
+                    )}
+                  >
                     {topic.difficulty}
                   </Badge>
                   <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
@@ -106,7 +140,12 @@ function SystemDesignTopicPage() {
                   <CheckCircle className="h-4 w-4" /> Completed
                 </div>
               )}
-              <Button variant="outline" size="sm" className="shrink-0 text-xs" onClick={() => setShowCheatSheet(true)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="shrink-0 text-xs"
+                onClick={() => setShowCheatSheet(true)}
+              >
                 <FileText className="h-3.5 w-3.5 mr-1.5" /> Cheat Sheet
               </Button>
             </div>
@@ -132,7 +171,9 @@ function SystemDesignTopicPage() {
           {/* Architecture diagram preview */}
           {topic.architecture && (
             <div className="border-t border-border px-6 sm:px-8 pb-6 sm:pb-8 pt-4">
-              <p className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wider">Architecture Overview</p>
+              <p className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wider">
+                Architecture Overview
+              </p>
               <ArchitectureVisualizer diagram={topic.architecture} />
             </div>
           )}
@@ -191,7 +232,9 @@ function SystemDesignTopicPage() {
                         <p className="text-[10px] text-muted-foreground">{cs.title}</p>
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{cs.description}</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {cs.description}
+                    </p>
                   </div>
                   <div className="border-t border-border">
                     <ArchitectureVisualizer diagram={cs.architecture} compact />
@@ -217,17 +260,17 @@ function SystemDesignTopicPage() {
               <Trophy className="h-4 w-4 text-primary" /> Knowledge Check
             </h2>
             {!showQuiz && (
-              <Button size="sm" variant="outline" className="text-xs" onClick={() => setShowQuiz(true)}>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-xs"
+                onClick={() => setShowQuiz(true)}
+              >
                 <Play className="h-3 w-3 mr-1.5" /> Start Quiz
               </Button>
             )}
           </div>
-          {showQuiz && (
-            <InteractiveQuiz
-              questions={topic.quiz}
-              onComplete={handleQuizComplete}
-            />
-          )}
+          {showQuiz && <InteractiveQuiz questions={topic.quiz} onComplete={handleQuizComplete} />}
           {!showQuiz && (
             <p className="text-xs text-muted-foreground">
               Test your understanding with {topic.quiz.length} questions about {topic.title}.
@@ -238,18 +281,30 @@ function SystemDesignTopicPage() {
         {/* Navigation */}
         <div className="flex items-center justify-between pt-4 border-t border-border">
           {prevTopic ? (
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: `/system-design/${prevTopic.id}` })}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate({ to: `/system-design/${prevTopic.id}` })}
+            >
               <ArrowLeft className="h-3.5 w-3.5 mr-1.5" /> {prevTopic.title}
             </Button>
-          ) : <div />}
+          ) : (
+            <div />
+          )}
           <Button variant="ghost" size="sm" onClick={() => navigate({ to: "/system-design" })}>
             Back to Academy
           </Button>
           {nextTopic ? (
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: `/system-design/${nextTopic.id}` })}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate({ to: `/system-design/${nextTopic.id}` })}
+            >
               {nextTopic.title} <ChevronRight className="h-3.5 w-3.5 ml-1.5" />
             </Button>
-          ) : <div />}
+          ) : (
+            <div />
+          )}
         </div>
       </div>
 

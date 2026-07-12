@@ -1,9 +1,9 @@
-import { motion } from 'motion/react';
-import { Chrome, Circle, Eye, EyeOff, Github } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { motion } from "motion/react";
+import { Chrome, Circle, Eye, EyeOff, Github } from "lucide-react";
+import { useState, type ReactNode } from "react";
 
 const HERO_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4';
+  "https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260506_081238_406ed0e3-5d83-436e-a512-0bbff7ec5b95.mp4";
 
 const heroStagger = {
   hidden: { opacity: 0 },
@@ -47,9 +47,7 @@ export default function App() {
           </motion.div>
 
           <motion.div variants={heroChild} className="space-y-3 text-center">
-            <h1 className="whitespace-nowrap text-4xl font-medium tracking-tight">
-              Join Aurora
-            </h1>
+            <h1 className="whitespace-nowrap text-4xl font-medium tracking-tight">Join Aurora</h1>
             <p className="px-4 text-sm leading-relaxed text-white/60">
               Follow these 3 quick phases to activate your space.
             </p>
@@ -69,13 +67,11 @@ export default function App() {
           className="w-full max-w-xl space-y-8 sm:space-y-10 lg:space-y-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <header className="space-y-2">
             <h2 className="text-3xl font-medium tracking-tight">Create New Profile</h2>
-            <p className="text-sm text-white/40">
-              Input your basic details to begin the journey.
-            </p>
+            <p className="text-sm text-white/40">Input your basic details to begin the journey.</p>
           </header>
 
           <div className="grid grid-cols-2 gap-4">
@@ -107,7 +103,7 @@ export default function App() {
               <label className="text-sm font-medium text-white">Password</label>
               <div className="relative">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   className="h-11 w-full rounded-xl border-none bg-brand-gray px-4 pr-11 text-white placeholder:text-white/20 focus:ring-2 focus:ring-white/20"
                 />
@@ -115,13 +111,9 @@ export default function App() {
                   type="button"
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 transition-colors hover:text-white/70"
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               <p className="text-xs text-white/40">Requires at least 8 symbols.</p>
@@ -136,7 +128,7 @@ export default function App() {
           </form>
 
           <p className="text-center text-sm text-white/50">
-            Member of the team?{' '}
+            Member of the team?{" "}
             <a href="#" className="text-white underline-offset-4 hover:underline">
               Log in
             </a>
@@ -159,14 +151,12 @@ function StepItem({
   return (
     <div
       className={`flex items-center gap-4 rounded-2xl px-5 py-4 transition-colors ${
-        active
-          ? 'border border-white bg-white text-black'
-          : 'border-none bg-brand-gray text-white'
+        active ? "border border-white bg-white text-black" : "border-none bg-brand-gray text-white"
       }`}
     >
       <span
         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-          active ? 'bg-black text-white' : 'bg-white/10 text-white/40'
+          active ? "bg-black text-white" : "bg-white/10 text-white/40"
         }`}
       >
         {number}

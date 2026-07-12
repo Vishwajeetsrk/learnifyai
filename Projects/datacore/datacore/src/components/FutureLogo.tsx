@@ -1,4 +1,4 @@
-export function FutureLogo({ className = 'h-8 w-8' }: { className?: string }) {
+export function FutureLogo({ className = "h-8 w-8" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 32 32"

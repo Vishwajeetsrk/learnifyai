@@ -1,9 +1,9 @@
-import { PageShell } from '../components/PageShell';
+import { PageShell } from "../components/PageShell";
 
 const ROLES = [
-  { title: 'Senior Property Advisor', location: 'Los Angeles, CA' },
-  { title: 'VR Experience Producer', location: 'Remote' },
-  { title: 'Investment Analyst', location: 'New York, NY' },
+  { title: "Senior Property Advisor", location: "Los Angeles, CA" },
+  { title: "VR Experience Producer", location: "Remote" },
+  { title: "Investment Analyst", location: "New York, NY" },
 ];
 
 export function CareersPage() {
@@ -14,7 +14,10 @@ export function CareersPage() {
     >
       <ul className="divide-y divide-black/10 bg-white">
         {ROLES.map((role) => (
-          <li key={role.title} className="flex flex-wrap items-center justify-between gap-4 px-8 py-6">
+          <li
+            key={role.title}
+            className="flex flex-wrap items-center justify-between gap-4 px-8 py-6"
+          >
             <div>
               <p className="font-medium text-[#141414]">{role.title}</p>
               <p className="mt-1 text-[13px] text-[#A5A5A5]">{role.location}</p>

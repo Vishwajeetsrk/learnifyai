@@ -1,8 +1,8 @@
 const TEAM = [
-  { name: 'Dr. Amara Chen', role: 'Clinical wellness lead', focus: 'Sleep & recovery science' },
-  { name: 'Marcus Vale', role: 'Movement director', focus: 'Mobility & strength periodization' },
-  { name: 'Elena Ruiz', role: 'Nutrition architect', focus: 'Metabolic rhythm coaching' },
-  { name: 'Jordan Pike', role: 'Mindfulness guide', focus: 'Breathwork & stress regulation' },
+  { name: "Dr. Amara Chen", role: "Clinical wellness lead", focus: "Sleep & recovery science" },
+  { name: "Marcus Vale", role: "Movement director", focus: "Mobility & strength periodization" },
+  { name: "Elena Ruiz", role: "Nutrition architect", focus: "Metabolic rhythm coaching" },
+  { name: "Jordan Pike", role: "Mindfulness guide", focus: "Breathwork & stress regulation" },
 ] as const;
 
 export default function TeamSection() {
@@ -22,8 +22,8 @@ export default function TeamSection() {
           Practitioners who measure calm, not hustle
         </h2>
         <p data-editable className="mt-4 max-w-xl text-muted">
-          Equilibrium coaches blend clinical rigor with studio warmth — every session ends
-          with a plan you can repeat without us in the room.
+          Equilibrium coaches blend clinical rigor with studio warmth — every session ends with a
+          plan you can repeat without us in the room.
         </p>
         <div className="mt-12 grid gap-4 sm:grid-cols-2">
           {TEAM.map((member) => (
@@ -36,9 +36,9 @@ export default function TeamSection() {
                 aria-hidden
               >
                 {member.name
-                  .split(' ')
+                  .split(" ")
                   .map((n) => n[0])
-                  .join('')}
+                  .join("")}
               </div>
               <div>
                 <h3 className="font-semibold">{member.name}</h3>

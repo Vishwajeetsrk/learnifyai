@@ -8,10 +8,12 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
+  globalSetup: "./tests/global-setup.ts",
   use: {
     // Test against the live URL if provided, otherwise use the local Vite dev server.
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || "http://127.0.0.1:4173",
     trace: "on-first-retry",
+    waitUntil: "domcontentloaded",
   },
 
   webServer: {
@@ -24,15 +26,24 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "./playwright/.auth/user.json",
+      },
     },
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
+      use: {
+        ...devices["Desktop Firefox"],
+        storageState: "./playwright/.auth/user.json",
+      },
     },
     {
       name: "webkit",
-      use: { ...devices["Desktop Safari"] },
+      use: {
+        ...devices["Desktop Safari"],
+        storageState: "./playwright/.auth/user.json",
+      },
     },
   ],
 

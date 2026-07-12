@@ -1,5 +1,5 @@
-import { ArrowRight } from 'lucide-react';
-import { PageShell } from '../components/PageShell';
+import { ArrowRight } from "lucide-react";
+import { PageShell } from "../components/PageShell";
 
 export function ContactPage() {
   return (

@@ -130,7 +130,7 @@ export function DashboardEventsJobs() {
                   <span>{j.team}</span>
                   <span>· {j.location}</span>
                 </div>
-                {j.apply_url && (
+                {j.apply_url && j.apply_url.startsWith("http") ? (
                   <a
                     href={j.apply_url}
                     target="_blank"
@@ -139,6 +139,14 @@ export function DashboardEventsJobs() {
                   >
                     Apply →
                   </a>
+                ) : (
+                  <Link
+                    to="/careers"
+                    search={{ apply: j.id }}
+                    className="text-[11px] text-primary hover:underline mt-1 inline-block"
+                  >
+                    Apply →
+                  </Link>
                 )}
               </li>
             ))}

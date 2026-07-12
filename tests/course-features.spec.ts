@@ -29,7 +29,7 @@ test.describe("Course Features & AI Tools (Requires Authentication)", () => {
 
   test("should allow a user to view a course and enroll", async ({ page }) => {
     await page.goto("/courses", { timeout: 15000 });
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("domcontentloaded").catch(() => {});
 
     if (page.url().includes("/login")) {
       test.skip();
@@ -55,7 +55,7 @@ test.describe("Course Features & AI Tools (Requires Authentication)", () => {
 
   test("should load the course playlist and video player", async ({ page }) => {
     await page.goto("/dashboard");
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("domcontentloaded").catch(() => {});
     if (page.url().includes("/login")) {
       test.skip();
       return;
@@ -64,20 +64,20 @@ test.describe("Course Features & AI Tools (Requires Authentication)", () => {
     const enrolledLink = page.locator('a[href*="/learn"]').first();
     if (await enrolledLink.isVisible({ timeout: 3000 }).catch(() => false)) {
       await enrolledLink.click();
-      await page.waitForLoadState("networkidle").catch(() => {});
+      await page.waitForLoadState("domcontentloaded").catch(() => {});
     }
   });
 
   test("should load AI Tools (Chat, Notes, Ask AI, Playground)", async ({ page }) => {
     await page.goto("/dashboard");
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("domcontentloaded").catch(() => {});
     if (page.url().includes("/login")) {
       test.skip();
       return;
     }
 
     await page.goto("/ai");
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("domcontentloaded").catch(() => {});
     if (page.url().includes("/login")) {
       test.skip();
       return;
@@ -89,7 +89,7 @@ test.describe("Course Features & AI Tools (Requires Authentication)", () => {
       .catch(() => null);
 
     await page.goto("/playground", { timeout: 10000 }).catch(() => {});
-    await page.waitForLoadState("networkidle").catch(() => {});
+    await page.waitForLoadState("domcontentloaded").catch(() => {});
     if (page.url().includes("/login")) {
       test.skip();
       return;

@@ -34,7 +34,7 @@ export function LearningCard({ section, isOpen, onToggle }: LearningCardProps) {
       className={cn(
         "rounded-xl border transition-all duration-300",
         typeColors[section.type] || "border-border bg-card",
-        isOpen ? "shadow-lg" : "shadow-sm hover:shadow-md"
+        isOpen ? "shadow-lg" : "shadow-sm hover:shadow-md",
       )}
     >
       <button
@@ -53,24 +53,23 @@ export function LearningCard({ section, isOpen, onToggle }: LearningCardProps) {
 
       {isOpen && (
         <div className="px-4 pb-4 space-y-4 animate-in slide-in-from-top-1 duration-200">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {section.content}
-          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{section.content}</p>
 
-          {section.visual && (
-            <ArchitectureVisualizer diagram={section.visual} compact />
-          )}
+          {section.visual && <ArchitectureVisualizer diagram={section.visual} compact />}
 
           {section.story && (
             <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-4 space-y-2">
-              <p className="text-xs font-medium text-amber-500 uppercase tracking-wider">The Story</p>
+              <p className="text-xs font-medium text-amber-500 uppercase tracking-wider">
+                The Story
+              </p>
               <p className="text-sm text-muted-foreground italic">{section.story.analogy}</p>
               <div className="h-px bg-amber-500/20" />
               <p className="text-xs text-muted-foreground">
                 <span className="font-medium text-amber-400">Context:</span> {section.story.context}
               </p>
               <p className="text-xs text-muted-foreground">
-                <span className="font-medium text-amber-400">Lesson:</span> {section.story.transition}
+                <span className="font-medium text-amber-400">Lesson:</span>{" "}
+                {section.story.transition}
               </p>
             </div>
           )}

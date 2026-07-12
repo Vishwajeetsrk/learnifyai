@@ -1,9 +1,18 @@
-import InnerPageLayout from '../components/InnerPageLayout';
+import InnerPageLayout from "../components/InnerPageLayout";
 
 const CAPABILITIES = [
-  { title: 'Routine engine', body: 'Compose daily automations from triggers, timers, and AI-assisted steps.' },
-  { title: 'Operations hub', body: 'Unified inbox for tasks, alerts, and approvals across every connected tool.' },
-  { title: 'Policy layer', body: 'Guardrails ensure automations stay within budget, scope, and compliance.' },
+  {
+    title: "Routine engine",
+    body: "Compose daily automations from triggers, timers, and AI-assisted steps.",
+  },
+  {
+    title: "Operations hub",
+    body: "Unified inbox for tasks, alerts, and approvals across every connected tool.",
+  },
+  {
+    title: "Policy layer",
+    body: "Guardrails ensure automations stay within budget, scope, and compliance.",
+  },
 ];
 
 export default function PlatformPage() {

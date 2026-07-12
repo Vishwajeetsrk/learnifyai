@@ -1,4 +1,4 @@
-import { VIDEOS } from '../constants';
+import { VIDEOS } from "../constants";
 
 export function VideoShowcaseSection() {
   return (

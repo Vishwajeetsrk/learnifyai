@@ -4,8 +4,8 @@ type LogoMarkProps = {
 };
 
 export default function LogoMark({
-  outerClass = 'w-7 h-7',
-  innerClass = 'w-3 h-3',
+  outerClass = "w-7 h-7",
+  innerClass = "w-3 h-3",
 }: LogoMarkProps) {
   return (
     <span className={`relative inline-flex items-center justify-center ${outerClass}`}>

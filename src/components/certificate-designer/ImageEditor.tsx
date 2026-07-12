@@ -1,9 +1,25 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
-import { Upload, ZoomIn, ZoomOut, Crop, Scissors, RotateCcw, Check, X, ImageIcon } from "lucide-react";
+import {
+  Upload,
+  ZoomIn,
+  ZoomOut,
+  Crop,
+  Scissors,
+  RotateCcw,
+  Check,
+  X,
+  ImageIcon,
+} from "lucide-react";
 
 type ImageEditorProps = {
   open: boolean;
@@ -17,8 +33,14 @@ type ImageEditorProps = {
 };
 
 export function ImageEditor({
-  open, onClose, onApply, initialUrl, title = "Edit Image",
-  aspectRatio = 1, outputWidth = 400, outputHeight = 400,
+  open,
+  onClose,
+  onApply,
+  initialUrl,
+  title = "Edit Image",
+  aspectRatio = 1,
+  outputWidth = 400,
+  outputHeight = 400,
 }: ImageEditorProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -242,38 +264,70 @@ export function ImageEditor({
               {/* Zoom */}
               <div className="flex items-center gap-3">
                 <Label className="text-xs text-slate-500 w-12">Zoom</Label>
-                <Button variant="outline" size="icon" className="h-7 w-7 shrink-0"
-                  onClick={() => setZoom((z) => Math.max(z - 0.1, 0.2))}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7 shrink-0"
+                  onClick={() => setZoom((z) => Math.max(z - 0.1, 0.2))}
+                >
                   <ZoomOut className="h-3 w-3" />
                 </Button>
-                <Slider value={[zoom]} min={0.2} max={3} step={0.05}
-                  onValueChange={(v) => setZoom(v[0])} className="flex-1" />
-                <Button variant="outline" size="icon" className="h-7 w-7 shrink-0"
-                  onClick={() => setZoom((z) => Math.min(z + 0.1, 3))}>
+                <Slider
+                  value={[zoom]}
+                  min={0.2}
+                  max={3}
+                  step={0.05}
+                  onValueChange={(v) => setZoom(v[0])}
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7 shrink-0"
+                  onClick={() => setZoom((z) => Math.min(z + 0.1, 3))}
+                >
                   <ZoomIn className="h-3 w-3" />
                 </Button>
-                <span className="text-[10px] font-mono w-10 text-right">{Math.round(zoom * 100)}%</span>
+                <span className="text-[10px] font-mono w-10 text-right">
+                  {Math.round(zoom * 100)}%
+                </span>
               </div>
 
               {/* Rotation */}
               <div className="flex items-center gap-3">
                 <Label className="text-xs text-slate-500 w-12">Rotate</Label>
-                <Slider value={[rotation]} min={-180} max={180} step={5}
-                  onValueChange={(v) => setRotation(v[0])} className="flex-1" />
+                <Slider
+                  value={[rotation]}
+                  min={-180}
+                  max={180}
+                  step={5}
+                  onValueChange={(v) => setRotation(v[0])}
+                  className="flex-1"
+                />
                 <span className="text-[10px] font-mono w-10 text-right">{rotation}°</span>
               </div>
 
               {/* Action Buttons */}
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={removeBackground}
-                  className="text-xs h-7" disabled={isProcessing}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={removeBackground}
+                  className="text-xs h-7"
+                  disabled={isProcessing}
+                >
                   <Scissors className="h-3 w-3 mr-1" /> Remove BG
                 </Button>
                 <Button variant="outline" size="sm" onClick={handleReset} className="text-xs h-7">
                   <RotateCcw className="h-3 w-3 mr-1" /> Reset
                 </Button>
                 <div className="flex-1" />
-                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="text-xs h-7">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="text-xs h-7"
+                >
                   <Upload className="h-3 w-3 mr-1" /> Change
                 </Button>
               </div>
@@ -285,12 +339,22 @@ export function ImageEditor({
           <Button variant="outline" onClick={onClose} className="text-xs h-8">
             <X className="h-3 w-3 mr-1" /> Cancel
           </Button>
-          <Button onClick={handleApply} disabled={!imageSrc || isProcessing} className="text-xs h-8 bg-[#6B5BFB] hover:bg-[#5a4be0] text-white">
+          <Button
+            onClick={handleApply}
+            disabled={!imageSrc || isProcessing}
+            className="text-xs h-8 bg-[#6B5BFB] hover:bg-[#5a4be0] text-white"
+          >
             <Check className="h-3 w-3 mr-1" /> Apply
           </Button>
         </DialogFooter>
 
-        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </DialogContent>
     </Dialog>
   );

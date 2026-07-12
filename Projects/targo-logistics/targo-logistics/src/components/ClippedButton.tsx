@@ -1,19 +1,19 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 type ClippedButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
-  variant?: 'brand' | 'outline';
+  variant?: "brand" | "outline";
 };
 
 const variantClasses = {
-  brand: 'bg-brand text-white hover:bg-[#d63525]',
-  outline: 'border border-white/35 bg-white/5 text-white hover:bg-white/10',
+  brand: "bg-brand text-white hover:bg-[#d63525]",
+  outline: "border border-white/35 bg-white/5 text-white hover:bg-white/10",
 };
 
 export function ClippedButton({
   children,
-  className = '',
-  variant = 'brand',
+  className = "",
+  variant = "brand",
   ...props
 }: ClippedButtonProps) {
   return (

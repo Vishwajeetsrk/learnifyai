@@ -1,12 +1,12 @@
-import { motion, type HTMLMotionProps } from 'framer-motion';
-import type { ReactNode } from 'react';
+import { motion, type HTMLMotionProps } from "framer-motion";
+import type { ReactNode } from "react";
 
-type FadeUpProps = HTMLMotionProps<'div'> & {
+type FadeUpProps = HTMLMotionProps<"div"> & {
   children: ReactNode;
   delay?: number;
 };
 
-export function FadeUp({ children, delay = 0, className = '', ...rest }: FadeUpProps) {
+export function FadeUp({ children, delay = 0, className = "", ...rest }: FadeUpProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 28 }}

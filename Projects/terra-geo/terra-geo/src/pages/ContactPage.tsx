@@ -1,11 +1,16 @@
-import SiteLayout from '../components/SiteLayout';
+import SiteLayout from "../components/SiteLayout";
 
 export default function ContactPage({ embedded }: { embedded?: boolean }) {
   const content = (
-    <section id="contact" className="scroll-mt-24 border-t border-border px-4 py-20 sm:px-8 md:py-28">
+    <section
+      id="contact"
+      className="scroll-mt-24 border-t border-border px-4 py-20 sm:px-8 md:py-28"
+    >
       <div className="mx-auto max-w-xl">
         <p className="text-xs font-medium uppercase tracking-[0.28em] text-primary/80">Contact</p>
-        <h2 className="mt-3 text-3xl font-medium tracking-tight text-foreground">Talk with Terra</h2>
+        <h2 className="mt-3 text-3xl font-medium tracking-tight text-foreground">
+          Talk with Terra
+        </h2>
         <p className="mt-4 text-muted-foreground">
           hello@terra.maps · Solutions team responds within one business day.
         </p>

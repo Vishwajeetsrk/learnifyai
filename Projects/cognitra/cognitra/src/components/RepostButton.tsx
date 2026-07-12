@@ -1,4 +1,4 @@
-import { Share2 } from 'lucide-react';
+import { Share2 } from "lucide-react";
 
 export function RepostButton() {
   return (
@@ -6,26 +6,26 @@ export function RepostButton() {
       type="button"
       className="cognitra-nav-link"
       style={{
-        position: 'fixed',
+        position: "fixed",
         bottom: 32,
         right: 32,
         zIndex: 5,
-        display: 'flex',
-        alignItems: 'center',
+        display: "flex",
+        alignItems: "center",
         gap: 6,
-        color: 'rgba(0,0,0,0.8)',
+        color: "rgba(0,0,0,0.8)",
         fontSize: 11,
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        cursor: 'pointer',
-        background: 'none',
-        border: 'none',
-        fontFamily: 'inherit',
+        letterSpacing: "0.08em",
+        textTransform: "uppercase",
+        cursor: "pointer",
+        background: "none",
+        border: "none",
+        fontFamily: "inherit",
       }}
       onClick={() => {
-        if (typeof navigator !== 'undefined' && navigator.share) {
+        if (typeof navigator !== "undefined" && navigator.share) {
           void navigator.share({
-            title: 'COGNITRA',
+            title: "COGNITRA",
             url: window.location.href,
           });
         }

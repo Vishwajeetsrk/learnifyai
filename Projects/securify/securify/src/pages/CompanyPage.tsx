@@ -1,9 +1,9 @@
-import { InnerPageShell } from '../components/InnerPageShell';
+import { InnerPageShell } from "../components/InnerPageShell";
 
 const TEAM = [
-  { name: 'mara chen', role: 'ceo & co-founder' },
-  { name: 'elliot price', role: 'head of security research' },
-  { name: 'priya nair', role: 'vp customer trust' },
+  { name: "mara chen", role: "ceo & co-founder" },
+  { name: "elliot price", role: "head of security research" },
+  { name: "priya nair", role: "vp customer trust" },
 ] as const;
 
 export function CompanyPage() {

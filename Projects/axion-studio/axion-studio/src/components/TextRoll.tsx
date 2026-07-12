@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 type TextRollProps = {
   text: string;
   heightClass?: string;
 };
 
-export function TextRoll({ text, heightClass = 'h-[20px]' }: TextRollProps) {
+export function TextRoll({ text, heightClass = "h-[20px]" }: TextRollProps) {
   return (
     <span className={`inline-flex flex-col overflow-hidden ${heightClass}`}>
       <span className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">
@@ -16,7 +16,13 @@ export function TextRoll({ text, heightClass = 'h-[20px]' }: TextRollProps) {
   );
 }
 
-export function TextRollSlot({ children, heightClass = 'h-[20px]' }: { children: ReactNode; heightClass?: string }) {
+export function TextRollSlot({
+  children,
+  heightClass = "h-[20px]",
+}: {
+  children: ReactNode;
+  heightClass?: string;
+}) {
   return (
     <span className={`inline-flex flex-col overflow-hidden ${heightClass}`}>
       <span className="flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:-translate-y-1/2">

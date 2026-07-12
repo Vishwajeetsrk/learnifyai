@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -24,9 +24,9 @@ export function StaggeredFade({ text, className, delay = 0 }: StaggeredFadeProps
             duration: 0.55,
             ease: EASE,
           }}
-          aria-hidden={letter === ' '}
+          aria-hidden={letter === " "}
         >
-          {letter === ' ' ? '\u00A0' : letter}
+          {letter === " " ? "\u00A0" : letter}
         </motion.span>
       ))}
     </span>

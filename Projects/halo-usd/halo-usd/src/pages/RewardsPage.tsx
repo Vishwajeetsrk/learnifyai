@@ -1,5 +1,5 @@
-import PillButton from '../components/PillButton';
-import Navbar from '../components/Navbar';
+import PillButton from "../components/PillButton";
+import Navbar from "../components/Navbar";
 
 export default function RewardsPage() {
   return (
@@ -11,7 +11,7 @@ export default function RewardsPage() {
         <div className="mx-auto max-w-[88rem]">
           <h2
             className="mb-8 text-4xl font-semibold text-black md:text-5xl"
-            style={{ letterSpacing: '-0.03em' }}
+            style={{ letterSpacing: "-0.03em" }}
             data-editable
             data-preset-text="rewards-headline"
           >
@@ -22,12 +22,16 @@ export default function RewardsPage() {
             data-editable
             data-preset-text="rewards-body"
           >
-            USD Halo is a reward-earning dollar coin that lets your savings grow while remaining tied to the
-            U.S. dollar—always fluid, always pegged, fully automated in the background.
+            USD Halo is a reward-earning dollar coin that lets your savings grow while remaining
+            tied to the U.S. dollar—always fluid, always pegged, fully automated in the background.
           </p>
           <div className="mt-12 grid gap-4 sm:grid-cols-2">
             <article className="rounded-2xl bg-[#2B2644] p-7 text-white">
-              <h3 className="text-2xl font-semibold" data-editable data-preset-text="rewards-yield-title">
+              <h3
+                className="text-2xl font-semibold"
+                data-editable
+                data-preset-text="rewards-yield-title"
+              >
                 Passive yield
               </h3>
               <p className="mt-4 text-white/60" data-editable data-preset-text="rewards-yield-body">
@@ -35,10 +39,18 @@ export default function RewardsPage() {
               </p>
             </article>
             <article className="rounded-2xl bg-[#2B2644] p-7 text-white">
-              <h3 className="text-2xl font-semibold" data-editable data-preset-text="rewards-lockups-title">
+              <h3
+                className="text-2xl font-semibold"
+                data-editable
+                data-preset-text="rewards-lockups-title"
+              >
                 No lockups
               </h3>
-              <p className="mt-4 text-white/60" data-editable data-preset-text="rewards-lockups-body">
+              <p
+                className="mt-4 text-white/60"
+                data-editable
+                data-preset-text="rewards-lockups-body"
+              >
                 On-demand access with dollar anchoring intact.
               </p>
             </article>

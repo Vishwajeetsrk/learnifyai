@@ -1,6 +1,7 @@
 import { ShieldCheck, Award, Sparkles, Code, BookOpen } from "lucide-react";
 
-export type CertSystemType = "modern-tech" | "university" | "luxury-executive" | "startup" | "future-ai";
+export type CertSystemType =
+  "modern-tech" | "university" | "luxury-executive" | "startup" | "future-ai";
 
 type CertProps = {
   studentName: string;
@@ -22,7 +23,9 @@ export function ModernTechCert({ studentName, courseName, issueDate, certificate
             L
           </div>
           <div>
-            <h3 className="font-bold text-sm text-slate-900 tracking-tight">LEARNIFY TECH CERTIFICATION</h3>
+            <h3 className="font-bold text-sm text-slate-900 tracking-tight">
+              LEARNIFY TECH CERTIFICATION
+            </h3>
             <p className="text-[10px] text-slate-500 font-mono">VERIFIED ACCREDITATION</p>
           </div>
         </div>
@@ -61,7 +64,9 @@ export function UniversityCert({ studentName, courseName, issueDate, certificate
         <div className="h-14 w-14 mx-auto border-2 border-amber-800 rounded-full flex items-center justify-center">
           <BookOpen className="h-7 w-7 text-amber-900" />
         </div>
-        <h2 className="text-2xl font-bold tracking-widest text-amber-950 uppercase">Learnify Academic Institute</h2>
+        <h2 className="text-2xl font-bold tracking-widest text-amber-950 uppercase">
+          Learnify Academic Institute
+        </h2>
         <p className="text-xs italic text-amber-800">Established MMXXIV</p>
       </div>
 
@@ -70,7 +75,9 @@ export function UniversityCert({ studentName, courseName, issueDate, certificate
         <h1 className="text-4xl font-bold text-slate-900 underline decoration-amber-600/30 decoration-2 underline-offset-8">
           {studentName}
         </h1>
-        <p className="text-xs italic text-slate-600">having fulfilled all academic requirements is hereby awarded the Diploma in</p>
+        <p className="text-xs italic text-slate-600">
+          having fulfilled all academic requirements is hereby awarded the Diploma in
+        </p>
         <h3 className="text-2xl font-bold text-amber-900">{courseName}</h3>
       </div>
 
@@ -92,16 +99,25 @@ export function UniversityCert({ studentName, courseName, issueDate, certificate
   );
 }
 
-export function LuxuryExecutiveCert({ studentName, courseName, issueDate, certificateId }: CertProps) {
+export function LuxuryExecutiveCert({
+  studentName,
+  courseName,
+  issueDate,
+  certificateId,
+}: CertProps) {
   return (
     <div className="w-[1000px] h-[707px] bg-[#0a1628] p-16 flex flex-col justify-between relative overflow-hidden font-sans border-4 border-[#c9a84c] text-white shadow-2xl">
       <div className="flex justify-between items-center z-10">
-        <span className="text-xs font-bold tracking-[0.2em] text-[#c9a84c] uppercase">Executive Credentials</span>
+        <span className="text-xs font-bold tracking-[0.2em] text-[#c9a84c] uppercase">
+          Executive Credentials
+        </span>
         <Award className="h-8 w-8 text-[#c9a84c]" />
       </div>
 
       <div className="text-center space-y-6 my-auto z-10">
-        <h3 className="text-xs tracking-[0.4em] uppercase text-[#c9a84c]">Executive Certification</h3>
+        <h3 className="text-xs tracking-[0.4em] uppercase text-[#c9a84c]">
+          Executive Certification
+        </h3>
         <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200">
           {studentName}
         </h1>
@@ -139,10 +155,18 @@ export function StartupCert({ studentName, courseName, issueDate, certificateId 
       <div className="space-y-4 my-auto">
         <div className="text-xs text-slate-400">// CREDENTIAL_OBJECT</div>
         <div className="p-6 rounded-xl bg-slate-900 border border-slate-800 space-y-3">
-          <p className="text-xs text-slate-400">recipient: <span className="text-indigo-400 font-bold">"{studentName}"</span></p>
-          <p className="text-xs text-slate-400">achievement: <span className="text-emerald-400 font-bold">"{courseName}"</span></p>
-          <p className="text-xs text-slate-400">issued_at: <span className="text-amber-400">"{issueDate}"</span></p>
-          <p className="text-xs text-slate-400">sha256_hash: <span className="text-purple-400">"{certificateId}"</span></p>
+          <p className="text-xs text-slate-400">
+            recipient: <span className="text-indigo-400 font-bold">"{studentName}"</span>
+          </p>
+          <p className="text-xs text-slate-400">
+            achievement: <span className="text-emerald-400 font-bold">"{courseName}"</span>
+          </p>
+          <p className="text-xs text-slate-400">
+            issued_at: <span className="text-amber-400">"{issueDate}"</span>
+          </p>
+          <p className="text-xs text-slate-400">
+            sha256_hash: <span className="text-purple-400">"{certificateId}"</span>
+          </p>
         </div>
       </div>
 
@@ -160,7 +184,9 @@ export function FutureAiCert({ studentName, courseName, issueDate, certificateId
       <div className="flex justify-between items-center z-10">
         <div className="flex items-center gap-2">
           <Sparkles className="h-6 w-6 text-purple-400 animate-pulse" />
-          <span className="text-xs font-bold tracking-widest text-purple-300">LEARNIFY AI AGENTIC CERTIFICATION</span>
+          <span className="text-xs font-bold tracking-widest text-purple-300">
+            LEARNIFY AI AGENTIC CERTIFICATION
+          </span>
         </div>
         <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
           AI VERIFIED
@@ -172,7 +198,8 @@ export function FutureAiCert({ studentName, courseName, issueDate, certificateId
           {studentName}
         </h1>
         <p className="text-xs text-purple-200/70 max-w-md mx-auto">
-          has mastered advanced LLM Agent architectures, prompt engineering, and autonomous systems in
+          has mastered advanced LLM Agent architectures, prompt engineering, and autonomous systems
+          in
         </p>
         <h2 className="text-3xl font-bold text-white tracking-wide">{courseName}</h2>
       </div>

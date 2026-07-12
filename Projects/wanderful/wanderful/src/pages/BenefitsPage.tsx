@@ -6,7 +6,7 @@ export function BenefitsPage() {
         Roaming plans adapt to your calendar, budget, and preferred pace—no generic packages.
       </p>
       <ul className="mt-12 grid gap-6 md:grid-cols-3">
-        {['Adaptive itineraries', 'Local hosts vetted', 'Offline guidebook'].map((t) => (
+        {["Adaptive itineraries", "Local hosts vetted", "Offline guidebook"].map((t) => (
           <li key={t} className="liquid-glass rounded-2xl p-6 text-sm text-white/75">
             {t}
           </li>

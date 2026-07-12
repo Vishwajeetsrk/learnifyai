@@ -1,5 +1,5 @@
-import { INFO_CARD_IMAGE } from '../constants';
-import PillButton from './PillButton';
+import { INFO_CARD_IMAGE } from "../constants";
+import PillButton from "./PillButton";
 
 export default function InfoSection() {
   return (
@@ -9,7 +9,7 @@ export default function InfoSection() {
           <div>
             <h2
               className="mb-8 text-4xl leading-tight font-semibold text-black md:text-5xl"
-              style={{ letterSpacing: '-0.03em' }}
+              style={{ letterSpacing: "-0.03em" }}
               data-editable
               data-preset-text="info-headline"
             >
@@ -29,24 +29,31 @@ export default function InfoSection() {
           </p>
         </div>
 
-        <div id="rewards" className="scroll-mt-24 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div
+          id="rewards"
+          className="scroll-mt-24 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+        >
           <div
             className="flex min-h-80 flex-col justify-between rounded-2xl p-7 lg:col-span-2"
             style={{
               backgroundImage: `url(${INFO_CARD_IMAGE})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
           >
             <h3
               className="text-2xl leading-snug font-semibold text-black"
-              style={{ letterSpacing: '-0.02em' }}
+              style={{ letterSpacing: "-0.02em" }}
               data-editable
               data-preset-text="card-savings-title"
             >
               Savings that bloom
             </h3>
-            <p className="max-w-xs text-base text-black/70" data-editable data-preset-text="card-savings-body">
+            <p
+              className="max-w-xs text-base text-black/70"
+              data-editable
+              data-preset-text="card-savings-body"
+            >
               Gain steady returns as your dollar tokens are routed into top-performing DeFi
               strategies.
             </p>
@@ -55,7 +62,7 @@ export default function InfoSection() {
           <div className="flex min-h-80 flex-col justify-between rounded-2xl bg-[#2B2644] p-7">
             <h3
               className="text-2xl leading-snug font-semibold text-white"
-              style={{ letterSpacing: '-0.02em' }}
+              style={{ letterSpacing: "-0.02em" }}
               data-editable
               data-preset-text="card-fluid-title"
             >
@@ -71,7 +78,7 @@ export default function InfoSection() {
           <div className="flex min-h-80 flex-col justify-between rounded-2xl bg-[#2B2644] p-7">
             <h3
               className="text-2xl leading-snug font-semibold text-white"
-              style={{ letterSpacing: '-0.02em' }}
+              style={{ letterSpacing: "-0.02em" }}
               data-editable
               data-preset-text="card-auto-title"
             >

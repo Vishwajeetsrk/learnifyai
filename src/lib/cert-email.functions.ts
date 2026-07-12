@@ -11,9 +11,7 @@ function escapeHtml(s: string): string {
 
 function resolveOrigin(): string {
   const origin =
-    process.env.APP_URL ||
-    process.env.VITE_APP_URL ||
-    "https://learnifyaitool.vercel.app";
+    process.env.APP_URL || process.env.VITE_APP_URL || "https://learnifyaitool.vercel.app";
   return origin.replace(/[^a-zA-Z0-9:/.\-_]/g, "");
 }
 
@@ -142,8 +140,9 @@ export const issueAndEmailCertificate = createServerFn({ method: "POST" })
     });
 
     // 1. Insert into certificates table
-    const { data: certRecord, error: insertError } = await (supabaseAdmin
-      .from("certificates") as any)
+    const { data: certRecord, error: insertError } = await (
+      supabaseAdmin.from("certificates") as any
+    )
       .insert({
         user_id: context.userId,
         course_id: data.courseId ?? null,
