@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842 595" width="842" height="595">
+  <!-- Clean white background with a modern grid blueprint design -->
+  <rect width="842" height="595" fill="#fcfdfd"/>
+  
+  <!-- Outer double border in Microsoft Steel Blue -->
+  <rect x="20" y="20" width="802" height="555" fill="none" stroke="#0078d4" stroke-width="3"/>
+  <rect x="25" y="25" width="792" height="545" fill="none" stroke="#7f7f7f" stroke-width="1" stroke-dasharray="10,5"/>
+
+  <!-- Left Accent Stripe -->
+  <rect x="20" y="20" width="12" height="555" fill="#0078d4"/>
+  <rect x="32" y="20" width="4" height="555" fill="#f25f22"/>
+
+  <!-- Top Right Microsoft Quad logo watermark -->
+  <g transform="translate(760, 45) scale(0.65)" opacity="0.15">
+    <rect x="0" y="0" width="18" height="18" fill="#f25f22"/>
+    <rect x="22" y="0" width="18" height="18" fill="#7fba00"/>
+    <rect x="0" y="22" width="18" height="18" fill="#00a4ef"/>
+    <rect x="22" y="22" width="18" height="18" fill="#ffb900"/>
+  </g>
+
+  <!-- Technical Certification Gold Ribbon Seal -->
+  <g transform="translate(421, 480) scale(0.7)" opacity="0.95">
+    <!-- Starburst Ribbon background -->
+    <path d="M-20,0 L-40,80 L0,65 L40,80 L20,0" fill="#d4af37" opacity="0.8"/>
+    <path d="M-10,0 L-20,90 L0,75 L20,90 L10,0" fill="#b8860b" opacity="0.8"/>
+    <circle cx="0" cy="0" r="45" fill="#0078d4" stroke="#ffffff" stroke-width="2.5"/>
+    <circle cx="0" cy="0" r="38" fill="none" stroke="#d4af37" stroke-width="1.5" stroke-dasharray="5,2"/>
+    <!-- Microsoft Seal Icon -->
+    <path d="M-15,-8 L15,-8 L15,15 L-15,15 Z" fill="none" stroke="#ffffff" stroke-width="2"/>
+    <line x1="-7" y1="-2" x2="7" y2="-2" stroke="#ffffff" stroke-width="2"/>
+    <line x1="-7" y1="4" x2="7" y2="4" stroke="#ffffff" stroke-width="2"/>
+  </g>
+
+  <!-- ISO & Quality badges -->
+  <g transform="translate(680, 475) scale(0.8)">
+    <rect x="0" y="0" width="70" height="35" rx="4" fill="none" stroke="#0078d4" stroke-width="1.5"/>
+    <text x="35" y="15" font-family="Inter, sans-serif" font-size="7" font-weight="bold" fill="#0078d4" text-anchor="middle">VERIFIED</text>
+    <text x="35" y="27" font-family="Inter, sans-serif" font-size="9" font-weight="extrabold" fill="#0078d4" text-anchor="middle">CREDENTIAL</text>
+  </g>
+
+  <!-- QR scanner box -->
+  <rect x="60" y="445" width="80" height="80" rx="6" fill="#f8f9fa" stroke="#e0e0e0" stroke-width="1"/>
+  <path d="M 65,450 L 75,450 L 75,460" fill="none" stroke="#0078d4" stroke-width="2"/>
+  <path d="M 135,450 L 125,450 L 125,460" fill="none" stroke="#0078d4" stroke-width="2"/>
+  <path d="M 65,520 L 75,520 L 75,510" fill="none" stroke="#0078d4" stroke-width="2"/>
+  <path d="M 135,520 L 125,520 L 125,510" fill="none" stroke="#0078d4" stroke-width="2"/>
+  <text x="100" y="538" font-family="Inter, sans-serif" font-size="7" fill="#888888" text-anchor="middle" font-weight="600">SCAN TO VERIFY</text>
+</svg>

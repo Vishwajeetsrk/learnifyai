@@ -311,6 +311,385 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
       results.errors.push(`Clear old templates: ${deleteError.message}`);
     }
 
+    const PREMIUM_TEMPLATES = [
+      {
+        name: "Google Professional Certificate",
+        category: "Professional",
+        bg_image_url: "/templates/premium/google-cert.svg",
+        thumbnail_url: "/templates/premium/google-cert.svg",
+        theme_colors: {
+          primary: "#4285f4",
+          accent: "#fbbc05",
+          background: "#fafafa",
+          text: "#0f172a",
+        },
+        fields_json: {
+          ...SVG_DEFAULT_FIELDS,
+          title: {
+            ...SVG_DEFAULT_FIELDS.title,
+            text: "Google Cloud",
+            fontFamily: "Outfit, sans-serif",
+            fontSize: 36,
+            color: "#4285f4",
+            x: 50,
+            y: 12,
+            align: "center",
+          },
+          subtitle: {
+            ...SVG_DEFAULT_FIELDS.subtitle,
+            text: "PROFESSIONAL CERTIFICATE SPECIALIZATION",
+            fontFamily: "Inter, sans-serif",
+            fontSize: 11,
+            color: "#64748b",
+            x: 50,
+            y: 19,
+            align: "center",
+          },
+          studentName: {
+            ...SVG_DEFAULT_FIELDS.studentName,
+            fontFamily: "Plus Jakarta Sans, sans-serif",
+            fontWeight: "bold",
+            fontSize: 34,
+            color: "#0f172a",
+            x: 50,
+            y: 32,
+            align: "center",
+          },
+          courseName: {
+            ...SVG_DEFAULT_FIELDS.courseName,
+            fontFamily: "Outfit, sans-serif",
+            fontSize: 24,
+            color: "#4285f4",
+            x: 50,
+            y: 46,
+            align: "center",
+          },
+          learnifyLogo: {
+            x: 88,
+            y: 46,
+            width: 70,
+            height: 25,
+            type: "image",
+            src: "/templates/Logo Learnify AI.svg",
+            align: "center",
+          },
+          qrCode: {
+            x: 10,
+            y: 75,
+            width: 60,
+            height: 60,
+            type: "image",
+            src: "/templates/Logo Learnify AI.svg",
+            align: "center",
+          }
+        }
+      },
+      {
+        name: "Microsoft Technical Specialist",
+        category: "Technology",
+        bg_image_url: "/templates/premium/microsoft-cert.svg",
+        thumbnail_url: "/templates/premium/microsoft-cert.svg",
+        theme_colors: {
+          primary: "#0078d4",
+          accent: "#f25f22",
+          background: "#fcfdfd",
+          text: "#1e293b",
+        },
+        fields_json: {
+          ...SVG_DEFAULT_FIELDS,
+          title: {
+            ...SVG_DEFAULT_FIELDS.title,
+            text: "Microsoft Certified",
+            fontFamily: "Inter, sans-serif",
+            fontSize: 34,
+            color: "#0078d4",
+            x: 50,
+            y: 12,
+            align: "center",
+          },
+          subtitle: {
+            ...SVG_DEFAULT_FIELDS.subtitle,
+            text: "TECHNICAL ASSOCIATE CREDENTIAL",
+            fontFamily: "Inter, sans-serif",
+            fontSize: 10,
+            color: "#475569",
+            x: 50,
+            y: 18,
+            align: "center",
+          },
+          studentName: {
+            ...SVG_DEFAULT_FIELDS.studentName,
+            fontFamily: "Inter, sans-serif",
+            fontWeight: "bold",
+            fontSize: 32,
+            color: "#1e293b",
+            x: 50,
+            y: 32,
+            align: "center",
+          },
+          courseName: {
+            ...SVG_DEFAULT_FIELDS.courseName,
+            fontFamily: "Inter, sans-serif",
+            fontSize: 22,
+            color: "#0078d4",
+            x: 50,
+            y: 46,
+            align: "center",
+          },
+          qrCode: {
+            x: 12,
+            y: 75,
+            width: 60,
+            height: 60,
+            type: "image",
+            src: "/templates/Logo Learnify AI.svg",
+            align: "center",
+          }
+        }
+      },
+      {
+        name: "Coursera Honors Specialization",
+        category: "Academic",
+        bg_image_url: "/templates/premium/coursera-cert.svg",
+        thumbnail_url: "/templates/premium/coursera-cert.svg",
+        theme_colors: {
+          primary: "#d4af37",
+          accent: "#8a6d2b",
+          background: "#fdfaf4",
+          text: "#1e1e1e",
+        },
+        fields_json: {
+          ...SVG_DEFAULT_FIELDS,
+          title: {
+            ...SVG_DEFAULT_FIELDS.title,
+            text: "University Specialization",
+            fontFamily: "Cinzel, serif",
+            fontSize: 32,
+            color: "#8a6d2b",
+            x: 50,
+            y: 12,
+            align: "center",
+          },
+          subtitle: {
+            ...SVG_DEFAULT_FIELDS.subtitle,
+            text: "HONORS CERTIFICATE OF ACCOMPLISHMENT",
+            fontFamily: "Inter, sans-serif",
+            fontSize: 9,
+            color: "#555555",
+            x: 50,
+            y: 18,
+            align: "center",
+          },
+          studentName: {
+            ...SVG_DEFAULT_FIELDS.studentName,
+            fontFamily: "Playfair Display, serif",
+            fontWeight: "bold",
+            fontSize: 34,
+            color: "#1a1a1a",
+            x: 50,
+            y: 32,
+            align: "center",
+          },
+          courseName: {
+            ...SVG_DEFAULT_FIELDS.courseName,
+            fontFamily: "Cinzel, serif",
+            fontSize: 20,
+            color: "#8a6d2b",
+            x: 50,
+            y: 46,
+            align: "center",
+          },
+          qrCode: {
+            x: 83.5,
+            y: 77,
+            width: 60,
+            height: 60,
+            type: "image",
+            src: "/templates/Logo Learnify AI.svg",
+            align: "center",
+          }
+        }
+      },
+      {
+        name: "Claude AI Prompt Engineer",
+        category: "AI & Engineering",
+        bg_image_url: "/templates/premium/claude-cert.svg",
+        thumbnail_url: "/templates/premium/claude-cert.svg",
+        theme_colors: {
+          primary: "#8a7e6b",
+          accent: "#d0c7b6",
+          background: "#faf8f5",
+          text: "#292524",
+        },
+        fields_json: {
+          ...SVG_DEFAULT_FIELDS,
+          title: {
+            ...SVG_DEFAULT_FIELDS.title,
+            text: "Claude Engineering",
+            fontFamily: "Playfair Display, serif",
+            fontSize: 34,
+            color: "#8a7e6b",
+            x: 50,
+            y: 12,
+            align: "center",
+          },
+          subtitle: {
+            ...SVG_DEFAULT_FIELDS.subtitle,
+            text: "ADVANCED PROMPT ARCHITECT CERTIFICATION",
+            fontFamily: "Inter, sans-serif",
+            fontSize: 9,
+            color: "#78716c",
+            x: 50,
+            y: 18,
+            align: "center",
+          },
+          studentName: {
+            ...SVG_DEFAULT_FIELDS.studentName,
+            fontFamily: "Space Grotesk, sans-serif",
+            fontWeight: "bold",
+            fontSize: 32,
+            color: "#292524",
+            x: 50,
+            y: 32,
+            align: "center",
+          },
+          courseName: {
+            ...SVG_DEFAULT_FIELDS.courseName,
+            fontFamily: "Playfair Display, serif",
+            fontSize: 22,
+            color: "#8a7e6b",
+            x: 50,
+            y: 46,
+            align: "center",
+          },
+          qrCode: {
+            x: 11,
+            y: 75,
+            width: 60,
+            height: 60,
+            type: "image",
+            src: "/templates/Logo Learnify AI.svg",
+            align: "center",
+          }
+        }
+      },
+      {
+        name: "Codex Advanced Developer",
+        category: "Code & Algorithms",
+        bg_image_url: "/templates/premium/codex-cert.svg",
+        thumbnail_url: "/templates/premium/codex-cert.svg",
+        theme_colors: {
+          primary: "#00f2fe",
+          accent: "#fe007c",
+          background: "#080a13",
+          text: "#ffffff",
+        },
+        fields_json: {
+          ...SVG_DEFAULT_FIELDS,
+          title: {
+            ...SVG_DEFAULT_FIELDS.title,
+            text: "CODEX ACADEMY",
+            fontFamily: "monospace",
+            fontSize: 36,
+            color: "#00f2fe",
+            x: 50,
+            y: 12,
+            align: "center",
+          },
+          subtitle: {
+            ...SVG_DEFAULT_FIELDS.subtitle,
+            text: "ADVANCED SOFTWARE ENGINEERING SPECIALIST",
+            fontFamily: "monospace",
+            fontSize: 9,
+            color: "#a78bfa",
+            x: 50,
+            y: 18,
+            align: "center",
+          },
+          certifyText: {
+            ...SVG_DEFAULT_FIELDS.certifyText,
+            color: "#94a3b8",
+          },
+          studentName: {
+            ...SVG_DEFAULT_FIELDS.studentName,
+            fontFamily: "monospace",
+            fontWeight: "bold",
+            fontSize: 30,
+            color: "#ffffff",
+            x: 50,
+            y: 32,
+            align: "center",
+          },
+          completeText: {
+            ...SVG_DEFAULT_FIELDS.completeText,
+            color: "#94a3b8",
+          },
+          courseName: {
+            ...SVG_DEFAULT_FIELDS.courseName,
+            fontFamily: "monospace",
+            fontSize: 20,
+            color: "#fe007c",
+            x: 50,
+            y: 46,
+            align: "center",
+          },
+          description: {
+            ...SVG_DEFAULT_FIELDS.description,
+            color: "#94a3b8",
+          },
+          signatureName: {
+            ...SVG_DEFAULT_FIELDS.signatureName,
+            color: "#00f2fe",
+          },
+          signatureTitle: {
+            ...SVG_DEFAULT_FIELDS.signatureTitle,
+            color: "#94a3b8",
+          },
+          date: {
+            ...SVG_DEFAULT_FIELDS.date,
+            color: "#ffffff",
+          },
+          dateLabel: {
+            ...SVG_DEFAULT_FIELDS.dateLabel,
+            color: "#94a3b8",
+          },
+          certId: {
+            ...SVG_DEFAULT_FIELDS.certId,
+            color: "#64748b",
+          },
+          qrCode: {
+            x: 11,
+            y: 75,
+            width: 60,
+            height: 60,
+            type: "image",
+            src: "/templates/Logo Learnify AI.svg",
+            align: "center",
+          }
+        }
+      }
+    ];
+
+    // Seed premium templates first
+    for (const tpl of PREMIUM_TEMPLATES) {
+      const { error } = await supabaseAdmin.from("canva_templates").insert({
+        name: tpl.name,
+        category: tpl.category,
+        bg_image_url: tpl.bg_image_url,
+        thumbnail_url: tpl.thumbnail_url,
+        fields_json: tpl.fields_json,
+        theme_colors: tpl.theme_colors,
+        created_by: context.userId!,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
+      if (error) {
+        results.errors.push(`Premium Template ${tpl.name}: ${error.message}`);
+      } else {
+        results.created++;
+      }
+    }
+
     // Seed all 155 SVG templates from the 8 categories
     for (const cat of SVG_CATEGORIES) {
       for (let i = 1; i <= cat.count; i++) {

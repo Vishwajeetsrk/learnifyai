@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -194,7 +194,7 @@ export function CertDesignerAdmin() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleSeed} className="text-xs">
-              <RefreshCw className="h-3.5 w-3.5 mr-1" /> Seed 155 SVG Templates
+              <RefreshCw className="h-3.5 w-3.5 mr-1" /> Seed & Reset Templates
             </Button>
             <Button
               size="sm"
