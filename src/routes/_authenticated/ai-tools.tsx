@@ -68,6 +68,8 @@ const TOOLS: {
   tagline: string;
   icon: typeof Brain;
   gradient: string;
+  category: "career" | "learning" | "code";
+  isNew?: boolean;
 }[] = [
   {
     id: "quiz",
@@ -75,6 +77,7 @@ const TOOLS: {
     tagline: "Custom MCQs with instant grading.",
     icon: Brain,
     gradient: "from-indigo-500/15 to-fuchsia-500/10",
+    category: "code",
   },
   {
     id: "doubt",
@@ -82,6 +85,7 @@ const TOOLS: {
     tagline: "Mentor-grade answers with code & pitfalls.",
     icon: HelpCircle,
     gradient: "from-amber-500/15 to-rose-500/10",
+    category: "code",
   },
   {
     id: "career",
@@ -89,6 +93,7 @@ const TOOLS: {
     tagline: "12-week roadmap, salaries, portfolio plan.",
     icon: Briefcase,
     gradient: "from-emerald-500/15 to-cyan-500/10",
+    category: "career",
   },
   {
     id: "reminder",
@@ -96,6 +101,7 @@ const TOOLS: {
     tagline: "Schedule study reminders with email + inbox.",
     icon: BellRing,
     gradient: "from-sky-500/15 to-violet-500/10",
+    category: "career",
   },
   {
     id: "synth",
@@ -103,6 +109,7 @@ const TOOLS: {
     tagline: "Notes → TL;DR, glossary, practice Qs.",
     icon: BookOpenCheck,
     gradient: "from-rose-500/15 to-orange-500/10",
+    category: "learning",
   },
   {
     id: "flashcards",
@@ -110,18 +117,44 @@ const TOOLS: {
     tagline: "Active-recall cards on any topic.",
     icon: Layers,
     gradient: "from-teal-500/15 to-lime-500/10",
+    category: "learning",
+    isNew: true,
   },
   {
     id: "cheatsheet",
-    title: "Cheat Sheet",
+    title: "Cheat Sheet Generator",
     tagline: "Generate topic summaries with key points, comparisons, and quizzes.",
     icon: FileText,
     gradient: "from-violet-500/15 to-indigo-500/10",
+    category: "learning",
+    isNew: true,
   },
 ];
 
 function AIToolsPage() {
+  const { user } = useAuth();
   const [open, setOpen] = useState<ToolId | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<"all" | "career" | "learning" | "code">("all");
+
+  const usageQuery = useQuery({
+    enabled: !!user,
+    queryKey: ["ai-tools-usage", user?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("ai_outputs")
+        .select("tool");
+      if (error) throw error;
+      const map: Record<string, number> = {};
+      (data ?? []).forEach((row: any) => {
+        map[row.tool] = (map[row.tool] ?? 0) + 1;
+      });
+      return map;
+    },
+  });
+
+  const filteredTools = TOOLS.filter(
+    (t) => categoryFilter === "all" || t.category === categoryFilter
+  );
 
   return (
     <AppShell>
@@ -135,7 +168,7 @@ function AIToolsPage() {
               AI Tools
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Six purpose-built tools — outputs auto-saved to history.
+              Custom specialized tools built to boost your tech learning and career.
             </p>
           </div>
         </div>
@@ -145,39 +178,82 @@ function AIToolsPage() {
             <TabsTrigger value="tools">
               <Sparkles className="h-3.5 w-3.5" /> Tools
             </TabsTrigger>
+            <TabsTrigger value="library">
+              <Layers className="h-3.5 w-3.5" /> Library 📚
+            </TabsTrigger>
             <TabsTrigger value="history">
               <History className="h-3.5 w-3.5" /> History
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="tools" className="pt-4">
+            {/* Category Filter Chips */}
+            <div className="flex items-center gap-1.5 flex-wrap mb-5 bg-muted/40 p-1 rounded-xl max-w-md">
+              {[
+                { id: "all", label: "All Tools", emoji: "⚡" },
+                { id: "learning", label: "Learning", emoji: "📚" },
+                { id: "career", label: "Career", emoji: "💼" },
+                { id: "code", label: "Code", emoji: "💻" },
+              ].map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => setCategoryFilter(c.id as any)}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer",
+                    categoryFilter === c.id
+                      ? "bg-background text-foreground shadow-sm font-bold"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <span>{c.emoji}</span>
+                  <span>{c.label}</span>
+                </button>
+              ))}
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-              {TOOLS.map((t) => {
+              {filteredTools.map((t) => {
                 const Icon = t.icon;
+                const usage = usageQuery.data?.[t.id] ?? 0;
                 return (
                   <button
                     key={t.id}
                     onClick={() => setOpen(t.id)}
                     className={cn(
-                      "group text-left rounded-2xl border bg-card p-4 sm:p-5 shadow-card hover:shadow-lg hover:-translate-y-0.5 transition-all",
+                      "group text-left rounded-2xl border bg-card p-4 sm:p-5 shadow-card hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col justify-between min-h-[140px] cursor-pointer",
                       "bg-gradient-to-br",
                       t.gradient,
                     )}
                   >
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3 w-full">
                       <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center shrink-0">
                         <Icon className="h-5 w-5 text-primary" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-display font-semibold leading-snug">{t.title}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">{t.tagline}</p>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h3 className="font-display font-semibold leading-snug">{t.title}</h3>
+                          {t.isNew && (
+                            <Badge className="text-[9px] bg-indigo-500/20 text-indigo-400 border border-indigo-400/30 hover:bg-indigo-500/20 uppercase font-bold px-1.5 py-0">
+                              New
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-normal">{t.tagline}</p>
                       </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition" />
+                      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition shrink-0" />
+                    </div>
+                    <div className="w-full mt-4 pt-2.5 border-t border-border/20 flex items-center justify-between text-[10px] text-muted-foreground">
+                      <span className="capitalize">{t.category} suite</span>
+                      <span>Used {usage} times</span>
                     </div>
                   </button>
                 );
               })}
             </div>
+          </TabsContent>
+
+          <TabsContent value="library" className="pt-4">
+            <SavedLibraryPanel />
           </TabsContent>
 
           <TabsContent value="history" className="pt-4">
@@ -188,6 +264,126 @@ function AIToolsPage() {
 
       {open && <ToolDialog tool={open} onClose={() => setOpen(null)} />}
     </AppShell>
+  );
+}
+
+/* ---------------- Saved Cheat Sheet Library ---------------- */
+function SavedLibraryPanel() {
+  const [sheets, setSheets] = useState<{ key: string; data: CheatSheetData; savedAt: string }[]>([]);
+  const [activeSheet, setActiveSheet] = useState<CheatSheetData | null>(null);
+
+  const loadSheets = () => {
+    const list: { key: string; data: CheatSheetData; savedAt: string }[] = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith("cs_saved_")) {
+          const item = localStorage.getItem(key);
+          if (item) {
+            const parsed = JSON.parse(item);
+            if (parsed && parsed.data) {
+              list.push({ key, data: parsed.data, savedAt: parsed.savedAt });
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Error reading saved cheat sheets", e);
+    }
+    setSheets(list.sort((a, b) => new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()));
+  };
+
+  useEffect(() => {
+    loadSheets();
+    window.addEventListener("storage", loadSheets);
+    return () => window.removeEventListener("storage", loadSheets);
+  }, []);
+
+  const deleteSheet = (key: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      localStorage.removeItem(key);
+      toast.success("Cheat sheet deleted from library");
+      loadSheets();
+    } catch {
+      toast.error("Could not delete cheat sheet");
+    }
+  };
+
+  if (activeSheet) {
+    return (
+      <div className="space-y-4">
+        <Button variant="ghost" size="sm" onClick={() => setActiveSheet(null)}>
+          <X className="h-4 w-4 mr-2" /> Back to Library
+        </Button>
+        <div className="rounded-2xl border bg-card/30 p-4 sm:p-6 shadow-sm">
+          <CheatSheetRenderer
+            data={activeSheet}
+            rawJson={JSON.stringify(activeSheet, null, 2)}
+            onReset={() => setActiveSheet(null)}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  if (sheets.length === 0) {
+    return (
+      <div className="text-center py-16 space-y-3 rounded-2xl border border-dashed bg-muted/20">
+        <FileText className="h-10 w-10 text-muted-foreground/60 mx-auto" />
+        <div>
+          <p className="font-semibold text-foreground">No saved cheat sheets</p>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto mt-1 leading-relaxed">
+            Generate a cheat sheet in the Tools tab and click "Save" to build your personal reference library.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {sheets.map((s) => (
+        <div
+          key={s.key}
+          onClick={() => setActiveSheet(s.data)}
+          className="group rounded-2xl border bg-card p-5 shadow-card hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between min-h-[140px]"
+        >
+          <div className="flex items-start justify-between gap-3 w-full">
+            <div className="flex items-center gap-3">
+              <span className="h-11 w-11 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center text-2xl font-bold shrink-0">
+                {s.data.emoji || "📋"}
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h4 className="font-semibold text-sm truncate max-w-[150px]">{s.data.topic}</h4>
+                  <Badge className="text-[8px] px-1 py-0 uppercase font-bold tracking-wider shrink-0 bg-primary/10 text-primary hover:bg-primary/10">
+                    {s.data.level}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-[180px]">
+                  {s.data.tagline}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+              onClick={(e) => deleteSheet(s.key, e)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="mt-4 pt-3 border-t border-border/30 text-[10px] text-muted-foreground flex justify-between items-center w-full">
+            <span>Saved {format(new Date(s.savedAt), "dd MMM yyyy")}</span>
+            <span className="font-medium text-primary flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+              View Sheet <ChevronRight className="h-3.5 w-3.5" />
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
