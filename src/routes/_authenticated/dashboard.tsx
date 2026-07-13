@@ -18,6 +18,7 @@ import {
   Code2,
   Users,
   ExternalLink,
+  Flame,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -120,6 +121,32 @@ function DashboardPage() {
     },
   });
 
+  const onboardingQ = useQuery({
+    enabled: !!user,
+    queryKey: ["onboarding-progress", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("onboarding_progress")
+        .select("*")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const creditsQ = useQuery({
+    enabled: !!user,
+    queryKey: ["ai-credits", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("ai_credits")
+        .select("*")
+        .eq("user_id", user!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
   const weeklyQ = useQuery({
     enabled: !!user,
     queryKey: ["my-weekly-activity", user?.id],
@@ -166,6 +193,13 @@ function DashboardPage() {
 
   const latestCourse = enrolled?.[0];
 
+  const greetingText = (() => {
+    const hr = new Date().getHours();
+    if (hr >= 5 && hr < 12) return "Good morning, " + name + "! 🌅";
+    if (hr >= 12 && hr < 17) return "Good afternoon, " + name + "! ☀️";
+    return "Good evening, " + name + "! 🌌";
+  })();
+
   return (
     <AppShell>
       <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-6xl">
@@ -176,7 +210,7 @@ function DashboardPage() {
             <div className="relative z-10 flex flex-col h-full justify-between gap-6">
               <div>
                 <h1 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mb-2 text-white">
-                  Welcome back, {name}!
+                  {greetingText}
                 </h1>
                 <p className="text-slate-300 font-medium">Ready to crush your goals today?</p>
               </div>
@@ -184,10 +218,10 @@ function DashboardPage() {
               {latestCourse ? (
                 <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/15 mt-4 sm:mt-8">
                   <div className="text-[11px] font-bold uppercase tracking-widest mb-3 text-indigo-300 flex items-center gap-2">
-                    <Sparkles className="h-3.5 w-3.5 text-amber-400" /> Resume Learning
+                    <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" /> Resume Learning
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex-1 min-w-0">
+                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-lg line-clamp-1 text-white">
                         {latestCourse.courses?.title}
                       </h3>
@@ -209,7 +243,7 @@ function DashboardPage() {
                     >
                       <Button
                         variant="secondary"
-                        className="rounded-full shadow-lg gap-2 text-slate-950 font-bold bg-white hover:bg-slate-100 w-full sm:w-auto"
+                        className="rounded-full shadow-lg gap-2 text-slate-950 font-bold bg-white hover:bg-slate-100 w-full sm:w-auto hover:scale-105 transition duration-200"
                       >
                         <PlayCircle className="h-4 w-4 text-indigo-600" /> Continue
                       </Button>
@@ -217,18 +251,100 @@ function DashboardPage() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/15 mt-4 sm:mt-8">
-                  <p className="mb-3 font-medium text-slate-200">
-                    You aren't enrolled in any courses yet.
-                  </p>
-                  <Link to="/courses">
-                    <Button
-                      variant="secondary"
-                      className="rounded-full shadow-lg text-slate-950 font-bold bg-white hover:bg-slate-100"
-                    >
-                      Browse Courses
-                    </Button>
-                  </Link>
+                <div className="bg-black/35 backdrop-blur-md rounded-2xl p-6 border border-white/15 mt-4 sm:mt-8 space-y-4">
+                  <div className="flex items-center gap-2 text-indigo-300 font-bold text-xs uppercase tracking-widest">
+                    <Sparkles className="h-4 w-4 text-amber-400 animate-pulse" /> Start Here
+                  </div>
+
+                  {(() => {
+                    const aiProfile = onboardingQ.data?.ai_profile as any;
+                    if (!aiProfile) {
+                      return (
+                        <div className="space-y-3">
+                          <div>
+                            <h3 className="font-semibold text-lg text-white">
+                              Unlock Personalized Learning
+                            </h3>
+                            <p className="text-slate-300 text-sm mt-1">
+                              Complete your AI Onboarding to receive custom course and career suggestions.
+                            </p>
+                          </div>
+                          <Link to="/onboarding">
+                            <Button
+                              variant="secondary"
+                              className="rounded-full shadow-lg text-slate-950 font-bold bg-white hover:bg-slate-100 hover:scale-105 transition duration-200"
+                            >
+                              Complete AI Setup <Sparkles className="h-3.5 w-3.5 text-indigo-600 ml-1.5" />
+                            </Button>
+                          </Link>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-semibold text-lg text-white">
+                            Your Personalized Learning Journey is Ready
+                          </h3>
+                          <p className="text-slate-300 text-sm mt-1">
+                            We've customized your experience based on your onboarding profile.
+                          </p>
+                        </div>
+
+                        {/* Onboarding Summary Badges */}
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {aiProfile.goals?.[0] && (
+                            <div className="px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 shadow-sm">
+                              🎯 Goal: {aiProfile.goals[0]}
+                            </div>
+                          )}
+                          {aiProfile.experience && (
+                            <div className="px-3 py-1.5 rounded-full text-xs font-semibold bg-violet-500/25 border border-violet-400/40 text-violet-200 capitalize shadow-sm">
+                              📊 {aiProfile.experience}
+                            </div>
+                          )}
+                          {aiProfile.learning_style && (
+                            <div className="px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-500/25 border border-purple-400/40 text-purple-200 capitalize shadow-sm">
+                              🧠 {aiProfile.learning_style} Style
+                            </div>
+                          )}
+                        </div>
+
+                        {aiProfile.interests?.length > 0 && (
+                          <div className="space-y-2">
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Target Areas:</span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {aiProfile.interests.map((interest: string) => (
+                                <span key={interest} className="px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-white/10 text-slate-200 border border-white/5">
+                                  {interest}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                          <Link to="/courses" className="inline-block">
+                            <Button
+                              variant="secondary"
+                              className="rounded-full shadow-lg text-slate-950 font-bold bg-white hover:bg-slate-100 w-full sm:w-auto hover:scale-105 transition duration-200"
+                            >
+                              Explore Courses <ArrowRight className="h-4 w-4 ml-1.5" />
+                            </Button>
+                          </Link>
+                          <Link to="/ai-tools" className="inline-block">
+                            <Button
+                              variant="ghost"
+                              className="rounded-full text-white border border-white/20 hover:bg-white/10 w-full sm:w-auto hover:scale-105 transition duration-200"
+                            >
+                              Try AI Tools
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
             </div>
@@ -236,15 +352,15 @@ function DashboardPage() {
 
           {/* Weekly Streak & Stats */}
           <div className="w-full lg:w-80 flex flex-col gap-4 shrink-0">
-            <div className="bg-card border rounded-3xl p-6 shadow-card h-full flex flex-col justify-between">
+            <div className="bg-card border rounded-3xl p-6 shadow-card flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-sm text-muted-foreground">Weekly Activity</h3>
                   <Badge
                     variant="outline"
-                    className="text-emerald-500 border-emerald-500/30 bg-emerald-500/10 gap-1.5"
+                    className="text-orange-500 border-orange-500/30 bg-orange-500/10 gap-1.5 hover:scale-105 transition-transform duration-200"
                   >
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <Flame className="h-3.5 w-3.5 text-orange-500 fill-orange-500 animate-pulse" />
                     {profileQ.data?.current_streak || 1} Day Streak
                   </Badge>
                 </div>
@@ -281,6 +397,65 @@ function DashboardPage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* AI Credit Meter Card */}
+            <div className="bg-card border rounded-3xl p-6 shadow-card hover:shadow-md hover:scale-[1.02] transition-all duration-200 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 via-transparent to-transparent opacity-60 pointer-events-none" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-indigo-500 group-hover:animate-bounce" />
+                  <h3 className="font-semibold text-sm text-card-foreground">AI Credits Usage</h3>
+                </div>
+                {creditsQ.data && ((creditsQ.data.credits_remaining ?? 500) < 100) && (
+                  <Badge variant="outline" className="text-amber-500 border-amber-500/30 bg-amber-500/10 text-[10px] animate-pulse">
+                    Running Low
+                  </Badge>
+                )}
+              </div>
+
+              {creditsQ.isLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-3/4 bg-muted animate-pulse" />
+                  <Skeleton className="h-2 w-full bg-muted animate-pulse" />
+                  <Skeleton className="h-3 w-1/2 bg-muted animate-pulse" />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-end justify-between">
+                    <span className="text-2xl font-bold font-display text-foreground">
+                      {(creditsQ.data?.credits_used ?? 0).toLocaleString("en-IN")}
+                      <span className="text-xs font-normal text-muted-foreground ml-1">
+                        / {((creditsQ.data?.credits_used ?? 0) + (creditsQ.data?.credits_remaining ?? 500)).toLocaleString("en-IN")} used
+                      </span>
+                    </span>
+                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+                      {(creditsQ.data?.credits_remaining ?? 500).toLocaleString("en-IN")} Left
+                    </span>
+                  </div>
+
+                  <Progress
+                    value={
+                      ((creditsQ.data?.credits_used ?? 0) /
+                      (Math.max((creditsQ.data?.credits_used ?? 0) + (creditsQ.data?.credits_remaining ?? 500), 1))) * 100
+                    }
+                    className="h-2 bg-muted-foreground/10"
+                  />
+
+                  <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground">
+                    <span>Resets monthly</span>
+                    {creditsQ.data && ((creditsQ.data.credits_remaining ?? 500) < 100) ? (
+                      <Link to="/pricing" className="text-primary font-bold hover:underline">
+                        Upgrade →
+                      </Link>
+                    ) : (
+                      <Link to="/billing" className="hover:underline">
+                        Details
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
