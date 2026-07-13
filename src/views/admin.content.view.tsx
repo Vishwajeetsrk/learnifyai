@@ -52,7 +52,7 @@ import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
-import { getCleanBannerUrl } from "@/lib/utils";
+import { getCleanBannerUrl, cn } from "@/lib/utils";
 import { savePlan, deletePlan, syncPlanToCashfree } from "@/lib/subscription.functions";
 import {
   adminContentAction,
@@ -377,190 +377,287 @@ export default function AdminContentPage() {
           </div>
         </div>
 
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="flex-wrap h-auto">
-            <TabsTrigger value="events">
-              <CalendarIcon className="h-4 w-4 mr-2" />
-              Events
-            </TabsTrigger>
-            <TabsTrigger value="jobs">
-              <Briefcase className="h-4 w-4 mr-2" />
-              Jobs
-            </TabsTrigger>
-            <TabsTrigger value="design-projects">
-              <FolderTree className="h-4 w-4 mr-2" />
-              Design Projects
-            </TabsTrigger>
-            <TabsTrigger value="pricing">
-              <Tag className="h-4 w-4 mr-2" />
-              Pricing
-            </TabsTrigger>
-            <TabsTrigger value="site">
-              <Settings className="h-4 w-4 mr-2" />
-              Site
-            </TabsTrigger>
-            <TabsTrigger value="demo-video">
-              <PlayCircle className="h-4 w-4 mr-2" />
-              Demo Video
-            </TabsTrigger>
-            <TabsTrigger value="cert-templates">
-              <Award className="h-4 w-4 mr-2" />
-              Certificates
-            </TabsTrigger>
-            <TabsTrigger value="issue-cert">
-              <Upload className="h-4 w-4 mr-2" />
-              Bulk Issue
-            </TabsTrigger>
-            <TabsTrigger value="faqs">
-              <HelpCircle className="h-4 w-4 mr-2" />
-              FAQs
-            </TabsTrigger>
-            <TabsTrigger value="pages">
-              <FileText className="h-4 w-4 mr-2" />
-              Pages
-            </TabsTrigger>
-            <TabsTrigger value="roadmap">
-              <GitBranch className="h-4 w-4 mr-2" />
-              Roadmap
-            </TabsTrigger>
-            <TabsTrigger value="coupons">
-              <Percent className="h-4 w-4 mr-2" />
-              Coupons
-            </TabsTrigger>
-            <TabsTrigger value="community">
-              <Users className="h-4 w-4 mr-2" />
-              Community Groups
-            </TabsTrigger>
-            <TabsTrigger value="features">
-              <Eye className="h-4 w-4 mr-2" />
-              Visibility
-            </TabsTrigger>
-            <TabsTrigger value="blog">
-              <FileText className="h-4 w-4 mr-2" />
-              Blog
-            </TabsTrigger>
-            <TabsTrigger value="wcms-pages">
-              <Globe className="h-4 w-4 mr-2" />
-              WCMS Pages
-            </TabsTrigger>
-            <TabsTrigger value="wcms-media">
-              <ImageIcon className="h-4 w-4 mr-2" />
-              Media Library
-            </TabsTrigger>
-            <TabsTrigger value="wcms-features">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Features Catalog
-            </TabsTrigger>
-            <TabsTrigger value="wcms-menus">
-              <Menu className="h-4 w-4 mr-2" />
-              Menus
-            </TabsTrigger>
-            <TabsTrigger value="promo-banner">
-              <Percent className="h-4 w-4 mr-2" />
-              Promo Banner
-            </TabsTrigger>
-            <TabsTrigger value="invoice-designer">
-              <FileText className="h-4 w-4 mr-2" />
-              Invoice Designer
-            </TabsTrigger>
-            <TabsTrigger value="wcms-sections">
-              <Layers className="h-4 w-4 mr-2" />
-              Sections
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="events" className="mt-6">
-            <EventsManager />
-          </TabsContent>
-          <TabsContent value="jobs" className="mt-6">
-            <JobsManager />
-          </TabsContent>
-          <TabsContent value="design-projects" className="mt-6">
-            <Suspense fallback={<LazyFallback />}>
-              <DesignProjectsManager />
-            </Suspense>
-          </TabsContent>
-          <TabsContent value="pricing" className="mt-6">
-            <PricingManager />
-          </TabsContent>
-          <TabsContent value="site" className="mt-6">
-            <SiteSettingsManager />
-          </TabsContent>
-          <TabsContent value="demo-video" className="mt-6">
-            <DemoVideoManager />
-          </TabsContent>
-          <TabsContent value="cert-templates" className="mt-6">
-            <CertTemplatesManager />
-          </TabsContent>
-          <TabsContent value="issue-cert" className="mt-6">
-            <Suspense fallback={<LazyFallback />}>
-              <IssueCertificate />
-            </Suspense>
-          </TabsContent>
+        <Tabs value={tab} onValueChange={setTab} className="w-full">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+            {/* Left navigation sidebar */}
+            <div className="col-span-1 md:col-span-3 space-y-4 bg-card/65 backdrop-blur-md rounded-2xl border p-4 shadow-sm md:sticky md:top-24">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-2">
+                Content Menu
+              </h2>
+              
+              {/* Mobile quick-select dropdown */}
+              <div className="block md:hidden">
+                <Select value={tab} onValueChange={setTab}>
+                  <SelectTrigger className="w-full bg-card">
+                    <SelectValue placeholder="Select Tab" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="events">Events</SelectItem>
+                    <SelectItem value="jobs">Jobs</SelectItem>
+                    <SelectItem value="design-projects">Design Projects</SelectItem>
+                    <SelectItem value="pricing">Pricing Tiers</SelectItem>
+                    <SelectItem value="site">Site Settings</SelectItem>
+                    <SelectItem value="demo-video">Demo Video</SelectItem>
+                    <SelectItem value="cert-templates">Certificates</SelectItem>
+                    <SelectItem value="issue-cert">Bulk Issue</SelectItem>
+                    <SelectItem value="faqs">FAQs</SelectItem>
+                    <SelectItem value="pages">Pages</SelectItem>
+                    <SelectItem value="roadmap">Roadmap</SelectItem>
+                    <SelectItem value="coupons">Coupons</SelectItem>
+                    <SelectItem value="community">Community Groups</SelectItem>
+                    <SelectItem value="features">Feature Visibility</SelectItem>
+                    <SelectItem value="blog">Blog</SelectItem>
+                    <SelectItem value="wcms-pages">WCMS Pages</SelectItem>
+                    <SelectItem value="wcms-media">Media Library</SelectItem>
+                    <SelectItem value="wcms-features">Features Catalog</SelectItem>
+                    <SelectItem value="wcms-menus">Navigation Menus</SelectItem>
+                    <SelectItem value="promo-banner">Promo Banner</SelectItem>
+                    <SelectItem value="invoice-designer">Invoice Designer</SelectItem>
+                    <SelectItem value="wcms-sections">Sections</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <TabsContent value="faqs" className="mt-6">
-            <FaqsManager />
-          </TabsContent>
-          <TabsContent value="pages" className="mt-6">
-            <PagesManager />
-          </TabsContent>
-          <TabsContent value="roadmap" className="mt-6">
-            <RoadmapManager />
-          </TabsContent>
-          <TabsContent value="coupons" className="mt-6">
-            <Suspense fallback={<LazyFallback />}>
-              <CouponManager />
-            </Suspense>
-          </TabsContent>
-          <TabsContent value="invoice-designer" className="mt-6">
-            <Suspense fallback={<LazyFallback />}>
-              <InvoiceDesigner />
-            </Suspense>
-          </TabsContent>
-          <TabsContent value="community" className="mt-6">
-            <CohortsManager />
-          </TabsContent>
-          <TabsContent value="features" className="mt-6">
-            <FeaturesManager />
-          </TabsContent>
-          <TabsContent value="wcms-pages" className="mt-6">
-            <div className="flex items-center justify-end -mt-12 mb-2">
-              <div className="w-20 h-20">
-                <img
-                  src="/illustrations/Web_Designing.svg"
-                  alt=""
-                  className="w-full h-full"
-                  loading="lazy"
-                />
+              {/* Desktop categorized list */}
+              <div className="hidden md:flex flex-col gap-4">
+                {/* Category 1: Core Content */}
+                <div className="space-y-1">
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground/70 px-2 py-1 flex items-center gap-1.5">
+                    <FileText className="h-3 w-3 text-indigo-500" />
+                    Core Content
+                  </p>
+                  <div className="flex flex-col gap-0.5">
+                    {[
+                      { id: "events", label: "Events", icon: CalendarIcon },
+                      { id: "jobs", label: "Jobs", icon: Briefcase },
+                      { id: "design-projects", label: "Design Projects", icon: FolderTree },
+                      { id: "faqs", label: "FAQs", icon: HelpCircle },
+                      { id: "coupons", label: "Coupons", icon: Percent },
+                      { id: "community", label: "Groups", icon: Users },
+                      { id: "blog", label: "Blog", icon: FileText },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      const isActive = tab === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setTab(item.id)}
+                          className={cn(
+                            "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
+                            isActive
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Category 2: Page Builder */}
+                <div className="space-y-1">
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground/70 px-2 py-1 flex items-center gap-1.5">
+                    <Globe className="h-3 w-3 text-sky-500" />
+                    Page Builder
+                  </p>
+                  <div className="flex flex-col gap-0.5">
+                    {[
+                      { id: "wcms-pages", label: "WCMS Pages", icon: Globe },
+                      { id: "wcms-sections", label: "Sections", icon: Layers },
+                      { id: "wcms-menus", label: "Menus", icon: Menu },
+                      { id: "wcms-features", label: "Features Catalog", icon: Sparkles },
+                      { id: "promo-banner", label: "Promo Banner", icon: Tag },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      const isActive = tab === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setTab(item.id)}
+                          className={cn(
+                            "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
+                            isActive
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Category 3: Credentials */}
+                <div className="space-y-1">
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground/70 px-2 py-1 flex items-center gap-1.5">
+                    <Award className="h-3 w-3 text-emerald-500" />
+                    Credentials
+                  </p>
+                  <div className="flex flex-col gap-0.5">
+                    {[
+                      { id: "cert-templates", label: "Certificates", icon: Award },
+                      { id: "issue-cert", label: "Bulk Issue", icon: Upload },
+                      { id: "invoice-designer", label: "Invoice Designer", icon: FileText },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      const isActive = tab === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setTab(item.id)}
+                          className={cn(
+                            "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
+                            isActive
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Category 4: Settings & Operations */}
+                <div className="space-y-1">
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground/70 px-2 py-1 flex items-center gap-1.5">
+                    <Settings className="h-3 w-3 text-amber-500" />
+                    Settings & Operations
+                  </p>
+                  <div className="flex flex-col gap-0.5">
+                    {[
+                      { id: "pricing", label: "Pricing Tiers", icon: Tag },
+                      { id: "site", label: "Site Settings", icon: Settings },
+                      { id: "features", label: "Visibility", icon: Eye },
+                      { id: "demo-video", label: "Demo Video", icon: PlayCircle },
+                      { id: "wcms-media", label: "Media Library", icon: ImageIcon },
+                      { id: "pages", label: "Custom Pages", icon: FileText },
+                      { id: "roadmap", label: "Product Roadmap", icon: GitBranch },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      const isActive = tab === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setTab(item.id)}
+                          className={cn(
+                            "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
+                            isActive
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
-            <PageManager />
-          </TabsContent>
-          <TabsContent value="wcms-media" className="mt-6">
-            <MediaLibrary />
-          </TabsContent>
-          <TabsContent value="wcms-features" className="mt-6">
-            <FeaturesCatalog />
-          </TabsContent>
-          <TabsContent value="wcms-menus" className="mt-6">
-            <MenuManager />
-          </TabsContent>
-          <TabsContent value="promo-banner" className="mt-6">
-            <PromoBannerManager />
-          </TabsContent>
-          <TabsContent value="wcms-sections" className="mt-6">
-            <SectionsManager />
-          </TabsContent>
-          <TabsContent value="blog" className="mt-6">
-            <Suspense
-              fallback={
-                <div className="flex justify-center py-10">
-                  <Loader2 className="h-5 w-5 animate-spin" />
+
+            {/* Right side container */}
+            <div className="col-span-1 md:col-span-9 bg-card border rounded-2xl p-6 shadow-sm min-h-[500px]">
+              <TabsContent value="events" className="mt-0">
+                <EventsManager />
+              </TabsContent>
+              <TabsContent value="jobs" className="mt-0">
+                <JobsManager />
+              </TabsContent>
+              <TabsContent value="design-projects" className="mt-0">
+                <Suspense fallback={<LazyFallback />}>
+                  <DesignProjectsManager />
+                </Suspense>
+              </TabsContent>
+              <TabsContent value="pricing" className="mt-0">
+                <PricingManager />
+              </TabsContent>
+              <TabsContent value="site" className="mt-0">
+                <SiteSettingsManager />
+              </TabsContent>
+              <TabsContent value="demo-video" className="mt-0">
+                <DemoVideoManager />
+              </TabsContent>
+              <TabsContent value="cert-templates" className="mt-0">
+                <CertTemplatesManager />
+              </TabsContent>
+              <TabsContent value="issue-cert" className="mt-0">
+                <Suspense fallback={<LazyFallback />}>
+                  <IssueCertificate />
+                </Suspense>
+              </TabsContent>
+              <TabsContent value="faqs" className="mt-0">
+                <FaqsManager />
+              </TabsContent>
+              <TabsContent value="pages" className="mt-0">
+                <PagesManager />
+              </TabsContent>
+              <TabsContent value="roadmap" className="mt-0">
+                <RoadmapManager />
+              </TabsContent>
+              <TabsContent value="coupons" className="mt-0">
+                <Suspense fallback={<LazyFallback />}>
+                  <CouponManager />
+                </Suspense>
+              </TabsContent>
+              <TabsContent value="invoice-designer" className="mt-0">
+                <Suspense fallback={<LazyFallback />}>
+                  <InvoiceDesigner />
+                </Suspense>
+              </TabsContent>
+              <TabsContent value="community" className="mt-0">
+                <CohortsManager />
+              </TabsContent>
+              <TabsContent value="features" className="mt-0">
+                <FeaturesManager />
+              </TabsContent>
+              <TabsContent value="wcms-pages" className="mt-0">
+                <div className="flex items-center justify-end mb-2">
+                  <div className="w-20 h-20">
+                    <img
+                      src="/illustrations/Web_Designing.svg"
+                      alt=""
+                      className="w-full h-full"
+                      loading="lazy"
+                    />
+                  </div>
                 </div>
-              }
-            >
-              <BlogManager />
-            </Suspense>
-          </TabsContent>
+                <PageManager />
+              </TabsContent>
+              <TabsContent value="wcms-media" className="mt-0">
+                <MediaLibrary />
+              </TabsContent>
+              <TabsContent value="wcms-features" className="mt-0">
+                <FeaturesCatalog />
+              </TabsContent>
+              <TabsContent value="wcms-menus" className="mt-0">
+                <MenuManager />
+              </TabsContent>
+              <TabsContent value="promo-banner" className="mt-0">
+                <PromoBannerManager />
+              </TabsContent>
+              <TabsContent value="wcms-sections" className="mt-0">
+                <SectionsManager />
+              </TabsContent>
+              <TabsContent value="blog" className="mt-0">
+                <Suspense fallback={<LazyFallback />}>
+                  <BlogManager />
+                </Suspense>
+              </TabsContent>
+            </div>
+          </div>
         </Tabs>
 
         {/* Tour Popup */}
