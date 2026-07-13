@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 type DemoCard = {
   id: string;
@@ -407,6 +408,466 @@ const ACTIVITIES = [
   { icon: BarChart3, name: "Divya", action: "improved ATS score by 35%" },
 ];
 
+/* ───────────────── Interactive Guest Simulations ───────────────── */
+function InteractiveAiTutorDemo() {
+  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([
+    { role: "assistant", content: "Hi! I'm your Learnify AI Tutor. Ask me any coding or tech question!" }
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const ask = (q: string) => {
+    if (!q.trim() || loading) return;
+    setMessages((p) => [...p, { role: "user", content: q }]);
+    setInput("");
+    setLoading(true);
+    
+    setTimeout(() => {
+      let response = "That's a great question! Here's a brief explanation: ";
+      if (q.toLowerCase().includes("recursion")) {
+        response += "Recursion is a process in which a function calls itself directly or indirectly. A classic example is computing factorials:\n\n```python\ndef factorial(n):\n    if n <= 1: return 1 # Base case\n    return n * factorial(n - 1)\n```";
+      } else if (q.toLowerCase().includes("closure")) {
+        response += "A closure is the combination of a function bundled together with references to its surrounding state (the lexical environment). In JavaScript, closures are created every time a function is created, at function creation time.";
+      } else if (q.toLowerCase().includes("transformer")) {
+        response += "Transformers process sequential data in parallel using a mechanism called self-attention. This allows models like GPT-4 or Gemini to learn the context and relationships between words regardless of distance.";
+      } else {
+        response += `To study "${q}" effectively, focus on the fundamental concepts first, then build hands-on projects, and test your knowledge with quizzes.`;
+      }
+      setMessages((p) => [...p, { role: "assistant", content: response }]);
+      setLoading(false);
+    }, 1200);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-xl border bg-background p-3.5 space-y-3 max-h-[220px] overflow-y-auto scrollbar-thin">
+        {messages.map((m, i) => (
+          <div key={i} className={cn("flex gap-2 text-left", m.role === "user" ? "justify-end" : "justify-start")}>
+            <div className={cn("rounded-2xl p-3 text-xs max-w-[85%] leading-relaxed shadow-sm", m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
+              {m.content.split('\n').map((line, li) => (
+                <p key={li} className={cn(line.startsWith("def") || line.startsWith("    ") ? "font-mono bg-black/10 dark:bg-black/35 p-1.5 rounded mt-1 text-[11px]" : "")}>
+                  {line}
+                </p>
+              ))}
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="flex gap-2 justify-start">
+            <div className="bg-muted text-muted-foreground rounded-2xl px-3 py-2 text-xs animate-pulse">
+              AI Tutor is thinking...
+            </div>
+          </div>
+        )}
+      </div>
+      <div className="flex gap-1.5 flex-wrap">
+        {["Explain Recursion", "What is a Closure?", "What is a Transformer?"].map(tag => (
+          <button key={tag} onClick={() => ask(tag)} className="text-[10px] bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 rounded-full font-medium transition cursor-pointer">
+            {tag}
+          </button>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Ask a question..."
+          onKeyDown={(e) => e.key === "Enter" && ask(input)}
+          className="flex-1 rounded-xl border bg-background px-3 py-1.5 text-xs focus-visible:outline-primary"
+        />
+        <Button size="sm" onClick={() => ask(input)} className="rounded-xl cursor-pointer">Send</Button>
+      </div>
+    </div>
+  );
+}
+
+function InteractiveResumeDemo() {
+  const [name, setName] = useState("Jane Doe");
+  const [title, setTitle] = useState("Software Engineer");
+  const [skills, setSkills] = useState("React, Node.js, TypeScript");
+  const [res, setRes] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const generate = () => {
+    if (!name || !title || !skills) return toast.error("Please fill in all fields");
+    setLoading(true);
+    setTimeout(() => {
+      const score = Math.floor(Math.random() * 15) + 81;
+      setRes({
+        score,
+        bullets: [
+          `Optimized high-performance web applications using ${skills.split(',')[0] || "React"}`,
+          "Improved system responsiveness by 25% with cleaner state architecture",
+          "Automated deployment workflows reducing build errors"
+        ]
+      });
+      setLoading(false);
+    }, 1200);
+  };
+
+  return (
+    <div className="space-y-3">
+      {!res ? (
+        <div className="space-y-2 bg-background p-3.5 rounded-xl border text-left">
+          <p className="text-xs font-semibold">Mini Resume Builder</p>
+          <div className="grid grid-cols-2 gap-2">
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full Name" className="rounded-lg border bg-card px-2.5 py-1 text-xs" />
+            <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Job Title" className="rounded-lg border bg-card px-2.5 py-1 text-xs" />
+          </div>
+          <input value={skills} onChange={(e) => setSkills(e.target.value)} placeholder="Skills (comma separated)" className="w-full rounded-lg border bg-card px-2.5 py-1 text-xs" />
+          <Button size="sm" onClick={generate} disabled={loading} className="w-full rounded-xl cursor-pointer">
+            {loading ? "Generating..." : "Generate AI Resume Details"}
+          </Button>
+        </div>
+      ) : (
+        <div className="bg-background p-3.5 rounded-xl border space-y-3 text-left">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="font-bold text-xs text-foreground">{name}</p>
+              <p className="text-[10px] text-muted-foreground">{title}</p>
+            </div>
+            <div className="text-right">
+              <span className="text-[10px] text-muted-foreground">ATS Score: </span>
+              <span className="text-xs font-bold text-emerald-500">{res.score}/100</span>
+            </div>
+          </div>
+          <div className="space-y-1.5 pt-2 border-t border-dashed">
+            {res.bullets.map((b: string, i: number) => (
+              <p key={i} className="text-xs text-foreground/80 flex items-start gap-1.5">
+                <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                {b}
+              </p>
+            ))}
+          </div>
+          <Button size="sm" variant="outline" onClick={() => setRes(null)} className="w-full rounded-xl cursor-pointer">
+            Create Another
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InteractiveAtsDemo() {
+  const [job, setJob] = useState("Frontend Engineer");
+  const [skillsText, setSkillsText] = useState("JavaScript, HTML, CSS");
+  const [result, setResult] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const check = () => {
+    if (!job || !skillsText) return;
+    setLoading(true);
+    setTimeout(() => {
+      const skills = skillsText.toLowerCase();
+      let score = 55;
+      const suggestions = [];
+      const missing = [];
+
+      if (skills.includes("react") || skills.includes("nextjs") || skills.includes("typescript")) {
+        score += 25;
+      } else {
+        missing.push("React", "TypeScript");
+        suggestions.push("Add modern SPA frameworks like React to stand out.");
+      }
+
+      if (skills.includes("tailwindcss") || skills.includes("css")) {
+        score += 15;
+      } else {
+        missing.push("Tailwind CSS");
+      }
+
+      setResult({ score, missing, suggestions: [...suggestions, "Use STAR method in experience bullets.", "Format phone number in international format."] });
+      setLoading(false);
+    }, 1200);
+  };
+
+  return (
+    <div className="space-y-3">
+      {!result ? (
+        <div className="space-y-2 bg-background p-3.5 rounded-xl border text-left">
+          <p className="text-xs font-semibold">Test ATS Match</p>
+          <input value={job} onChange={(e) => setJob(e.target.value)} placeholder="Target Job Title (e.g. Frontend Engineer)" className="w-full rounded-lg border bg-card px-2.5 py-1 text-xs" />
+          <textarea value={skillsText} onChange={(e) => setSkillsText(e.target.value)} placeholder="Paste your resume skills list here..." rows={2} className="w-full rounded-lg border bg-card px-2.5 py-1 text-xs" />
+          <Button size="sm" onClick={check} disabled={loading} className="w-full rounded-xl cursor-pointer">
+            {loading ? "Analyzing..." : "Check Match Score"}
+          </Button>
+        </div>
+      ) : (
+        <div className="bg-background p-3.5 rounded-xl border space-y-3 text-left">
+          <div className="flex justify-between items-center">
+            <span className="text-xs font-semibold">Match for {job}</span>
+            <span className={cn("text-xs font-bold px-2 py-0.5 rounded-full", result.score >= 70 ? "bg-emerald-500/15 text-emerald-500" : "bg-amber-500/15 text-amber-500")}>
+              {result.score}% Match
+            </span>
+          </div>
+          <div className="space-y-2 border-t pt-2.5">
+            {result.missing.length > 0 && (
+              <div>
+                <p className="text-[10px] font-bold text-red-500 uppercase tracking-wider">Missing Keywords</p>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {result.missing.map((m: string) => (
+                    <span key={m} className="text-[9px] bg-red-500/10 text-red-600 px-1.5 py-0.5 rounded font-medium">{m}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Suggestions</p>
+              <ul className="text-xs space-y-1 list-disc list-inside text-foreground/85 mt-1">
+                {result.suggestions.map((s: string, i: number) => (
+                  <li key={i} className="leading-snug">{s}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => setResult(null)} className="w-full rounded-xl cursor-pointer">
+            Check Another
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InteractiveInterviewDemo() {
+  const [step, setStep] = useState(0);
+  const [ans, setAns] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const QUESTIONS = [
+    "What is your experience with state management in React?",
+    "How do you handle asynchronous operations in JavaScript?",
+    "What is the difference between SQL and NoSQL databases?"
+  ];
+
+  const submit = () => {
+    if (!ans.trim()) return;
+    setLoading(true);
+    setTimeout(() => {
+      let score = "Good structure!";
+      if (ans.length < 25) {
+        score = "Try expanding your answer with real-world examples (STAR method).";
+      } else {
+        score = "Strong technical explanation! Good use of industry terminology.";
+      }
+      setFeedback(score);
+      setLoading(false);
+    }, 1200);
+  };
+
+  const next = () => {
+    setFeedback(null);
+    setAns("");
+    setStep((s) => (s + 1) % QUESTIONS.length);
+  };
+
+  return (
+    <div className="space-y-3 bg-background p-3.5 rounded-xl border text-left">
+      <div className="flex items-center gap-2 mb-2">
+        <Mic className="w-4 h-4 text-pink-500 animate-pulse" />
+        <span className="text-xs font-semibold">Voice Interview Simulator</span>
+      </div>
+      
+      <div className="rounded-lg bg-pink-500/5 p-3 border border-pink-500/10">
+        <p className="text-xs font-medium italic text-foreground">"{QUESTIONS[step]}"</p>
+      </div>
+
+      {!feedback ? (
+        <div className="space-y-2">
+          <textarea
+            value={ans}
+            onChange={(e) => setAns(e.target.value)}
+            placeholder="Type your answer here to simulate speaking..."
+            rows={2}
+            className="w-full rounded-lg border bg-card px-2.5 py-1 text-xs"
+          />
+          <Button size="sm" onClick={submit} disabled={loading || !ans.trim()} className="w-full bg-pink-500 hover:bg-pink-600 text-white rounded-xl cursor-pointer">
+            {loading ? "Analyzing Speech..." : "Submit Answer"}
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div className="p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/10 text-xs text-foreground/85">
+            <span className="font-semibold block text-emerald-600 mb-0.5">AI Feedback:</span>
+            {feedback}
+          </div>
+          <Button size="sm" onClick={next} className="w-full rounded-xl cursor-pointer">
+            Next Question
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InteractiveRoadmapDemo() {
+  const [role, setRole] = useState("Full Stack Developer");
+  const [roadmap, setRoadmap] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const generate = () => {
+    if (!role) return;
+    setLoading(true);
+    setTimeout(() => {
+      const items = [];
+      if (role.toLowerCase().includes("front")) {
+        items.push("Phase 1: Advanced HTML & Modern CSS Grid/Flexbox", "Phase 2: React State, Routing, & Hooks", "Phase 3: State Management (Zustand, Redux Toolkit)", "Phase 4: Client Side Testing (Vitest, Playwright)");
+      } else if (role.toLowerCase().includes("back")) {
+        items.push("Phase 1: Node.js Core API & Express framework", "Phase 2: Relational Databases (PostgreSQL) & SQL Tuning", "Phase 3: Caching layers (Redis) & Message Queues (RabbitMQ)", "Phase 4: Containerization with Docker & CI/CD deployment");
+      } else {
+        items.push("Phase 1: React Frontend Foundations", "Phase 2: Node.js & REST API Backend design", "Phase 3: Database Integrations & ORMs (Prisma)", "Phase 4: Full Deployment & Cloud VPS Management");
+      }
+      setRoadmap(items);
+      setLoading(false);
+    }, 1200);
+  };
+
+  return (
+    <div className="space-y-3">
+      {!roadmap ? (
+        <div className="space-y-2 bg-background p-3.5 rounded-xl border text-left">
+          <p className="text-xs font-semibold">Generate learning roadmap</p>
+          <input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Target Role (e.g. React Developer)" className="w-full rounded-lg border bg-card px-2.5 py-1 text-xs" />
+          <Button size="sm" onClick={generate} disabled={loading} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl cursor-pointer">
+            {loading ? "Generating path..." : "Generate AI Learning Path"}
+          </Button>
+        </div>
+      ) : (
+        <div className="bg-background p-3.5 rounded-xl border space-y-3 text-left">
+          <p className="text-xs font-bold text-foreground">{role} Learning Path</p>
+          <div className="space-y-2.5">
+            {roadmap.map((r: string, i: number) => (
+              <div key={i} className="flex gap-2 items-start text-xs">
+                <span className="w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-bold grid place-items-center shrink-0 mt-0.5">{i+1}</span>
+                <span className="text-foreground/80 leading-snug">{r}</span>
+              </div>
+            ))}
+          </div>
+          <Button size="sm" variant="outline" onClick={() => setRoadmap(null)} className="w-full rounded-xl cursor-pointer">
+            Create Another Path
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InteractiveCertDemo() {
+  const [name, setName] = useState("Vishwajeet Kumar");
+  const [topic, setTopic] = useState("Full Stack Development");
+  const [style, setStyle] = useState("navy");
+  const [generated, setGenerated] = useState(false);
+
+  const getStyleClass = () => {
+    switch (style) {
+      case "purple": return "from-purple-950 to-indigo-900 border-purple-400/50";
+      case "green": return "from-emerald-950 to-teal-900 border-emerald-400/50";
+      default: return "from-blue-950 to-slate-950 border-amber-400/50";
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      {!generated ? (
+        <div className="space-y-2 bg-background p-3.5 rounded-xl border text-left">
+          <p className="text-xs font-semibold">Visual Certificate Creator</p>
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Student Name" className="w-full rounded-lg border bg-card px-2.5 py-1 text-xs" />
+          <input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Topic (e.g. React Developer)" className="w-full rounded-lg border bg-card px-2.5 py-1 text-xs" />
+          <div className="flex gap-2">
+            {[
+              { id: "navy", label: "Navy Gold" },
+              { id: "purple", label: "Royal Purple" },
+              { id: "green", label: "Forest Green" }
+            ].map((st) => (
+              <button
+                key={st.id}
+                type="button"
+                onClick={() => setStyle(st.id)}
+                className={cn("flex-1 text-[10px] border px-2 py-1 rounded cursor-pointer transition", style === st.id ? "bg-primary/10 border-primary text-primary" : "bg-card text-muted-foreground")}
+              >
+                {st.label}
+              </button>
+            ))}
+          </div>
+          <Button size="sm" onClick={() => setGenerated(true)} className="w-full rounded-xl cursor-pointer">Generate Certificate</Button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <div className={cn("border-4 rounded-xl p-5 text-center text-white bg-gradient-to-br shadow-md relative overflow-hidden text-left", getStyleClass())}>
+            <div className="absolute -right-4 -bottom-4 w-16 h-16 rounded-full border border-white/10 flex items-center justify-center rotate-12 pointer-events-none">
+              <Award className="w-8 h-8 text-white/15" />
+            </div>
+            
+            <p className="text-[9px] font-semibold text-amber-400 uppercase tracking-widest text-center">Certificate of Completion</p>
+            <h4 className="text-sm font-bold mt-2 font-serif text-center">{name}</h4>
+            <p className="text-[9px] text-white/60 mt-1 text-center">has successfully completed all requirements for</p>
+            <p className="text-xs font-semibold text-white mt-1 text-center">{topic}</p>
+            <div className="mt-4 pt-2 border-t border-white/10 flex justify-between items-center text-[7px] text-white/40">
+              <span>Date: {new Date().toLocaleDateString()}</span>
+              <span>ID: LFY-{Math.floor(Math.random()*100000)}</span>
+            </div>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => setGenerated(false)} className="w-full rounded-xl cursor-pointer">
+            Create Another Certificate
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InteractivePortfolioDemo() {
+  const [tech, setTech] = useState("React, Node.js, CSS");
+  const [style, setStyle] = useState("Minimal dark");
+  const [plan, setPlan] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const generate = () => {
+    if (!tech) return;
+    setLoading(true);
+    setTimeout(() => {
+      setPlan({
+        sections: ["Hero section: Tagline emphasizing " + tech.split(',')[0], "Projects grid: Highlights 3 projects using " + tech, "About Me: Story explaining experience in these fields", "Contact form: direct Web email link"],
+        advice: "Deploy to Vercel or Netlify. Add a dynamic theme toggle to showcase design skills."
+      });
+      setLoading(false);
+    }, 1200);
+  };
+
+  return (
+    <div className="space-y-3">
+      {!plan ? (
+        <div className="space-y-2 bg-background p-3.5 rounded-xl border text-left">
+          <p className="text-xs font-semibold">Portfolio Blueprint Planner</p>
+          <input value={tech} onChange={(e) => setTech(e.target.value)} placeholder="Tech Stack (e.g. React, Node.js)" className="w-full rounded-lg border bg-card px-2.5 py-1 text-xs" />
+          <input value={style} onChange={(e) => setStyle(e.target.value)} placeholder="Design Vibe (e.g. Minimal dark)" className="w-full rounded-lg border bg-card px-2.5 py-1 text-xs" />
+          <Button size="sm" onClick={generate} disabled={loading} className="w-full rounded-xl cursor-pointer">
+            {loading ? "Structuring portfolio..." : "Create Blueprint Plan"}
+          </Button>
+        </div>
+      ) : (
+        <div className="bg-background p-3.5 rounded-xl border space-y-3 text-left">
+          <p className="text-xs font-bold text-foreground">Suggested Layout ({style})</p>
+          <div className="space-y-1.5">
+            {plan.sections.map((sec: string, i: number) => (
+              <div key={i} className="flex items-start gap-2 text-xs text-foreground/75">
+                <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                <span>{sec}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-muted-foreground italic border-t pt-2">{plan.advice}</p>
+          <Button size="sm" variant="outline" onClick={() => setPlan(null)} className="w-full rounded-xl cursor-pointer">
+            Plan Another
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface InteractiveDemoCardsProps {
   className?: string;
 }
@@ -644,7 +1105,14 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                     className="overflow-hidden border-t"
                   >
                     <div className="p-5 bg-muted/20 space-y-4">
-                      {demo.preview}
+                      {demo.id === "ai-tutor" && <InteractiveAiTutorDemo />}
+                      {demo.id === "resume" && <InteractiveResumeDemo />}
+                      {demo.id === "ats" && <InteractiveAtsDemo />}
+                      {demo.id === "mock-interview" && <InteractiveInterviewDemo />}
+                      {demo.id === "roadmap" && <InteractiveRoadmapDemo />}
+                      {demo.id === "certificate" && <InteractiveCertDemo />}
+                      {demo.id === "portfolio" && <InteractivePortfolioDemo />}
+
                       {!user && demo.route && (
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 rounded-xl bg-primary/5 border border-primary/20 mt-3">
                           <p className="text-[11px] text-muted-foreground text-center sm:text-left">
