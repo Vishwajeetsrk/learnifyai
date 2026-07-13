@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/use-auth";
 
 type DemoCard = {
   id: string;
@@ -411,6 +412,7 @@ interface InteractiveDemoCardsProps {
 }
 
 export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
+  const { user } = useAuth();
   const [open, setOpen] = useState<string | null>(null);
   const [activityIdx, setActivityIdx] = useState(0);
 
@@ -441,9 +443,12 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
 
       <div className="text-center mb-6">
         <h2 className="text-3xl md:text-4xl font-bold tracking-tight">See Learnify AI In Action</h2>
-        <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm">
-          Experience our most powerful AI tools before creating an account. No signup. No credit
-          card. No commitment. Just click and explore.
+        <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm leading-relaxed">
+          {user ? (
+            "Explore our most powerful AI tools. Launch them directly in your workspace or click to preview their capabilities."
+          ) : (
+            "Experience our most powerful AI tools before creating an account. No signup. No credit card. No commitment. Just click and explore."
+          )}
         </p>
       </div>
 
@@ -574,8 +579,8 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
 
                 {/* CTAs */}
                 <div className="flex items-center gap-2">
-                  {demo.route ? (
-                    <Button asChild size="sm" className="h-8 text-xs rounded-lg font-semibold">
+                  {demo.route && user ? (
+                    <Button asChild size="sm" className="h-8 text-xs rounded-lg font-semibold cursor-pointer">
                       <Link to={demo.route}>
                         <Eye className="w-3 h-3 mr-1" />
                         {demo.cta}
@@ -584,7 +589,7 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                   ) : (
                     <Button
                       size="sm"
-                      className="h-8 text-xs rounded-lg font-semibold"
+                      className="h-8 text-xs rounded-lg font-semibold cursor-pointer"
                       style={
                         isOpen
                           ? { background: demo.color, color: "#fff", border: "none" }
@@ -606,8 +611,9 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                       )}
                     </Button>
                   )}
-                  {demo.route ? (
-                    <Button asChild variant="ghost" size="sm" className="h-8 text-xs rounded-lg">
+
+                  {demo.route && user ? (
+                    <Button asChild variant="ghost" size="sm" className="h-8 text-xs rounded-lg cursor-pointer">
                       <Link to={demo.route}>
                         <Play className="w-3 h-3 mr-1" />
                         {demo.secondary}
@@ -617,7 +623,7 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-8 text-xs rounded-lg"
+                      className="h-8 text-xs rounded-lg cursor-pointer"
                       onClick={() => setOpen(isOpen ? null : demo.id)}
                     >
                       <Play className="w-3 h-3 mr-1" />
@@ -637,7 +643,21 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                     transition={{ duration: 0.3, ease: "easeInOut" }}
                     className="overflow-hidden border-t"
                   >
-                    <div className="p-5 bg-muted/20">{demo.preview}</div>
+                    <div className="p-5 bg-muted/20 space-y-4">
+                      {demo.preview}
+                      {!user && demo.route && (
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 rounded-xl bg-primary/5 border border-primary/20 mt-3">
+                          <p className="text-[11px] text-muted-foreground text-center sm:text-left">
+                            This is a live interactive simulation. Sign up for free to access the full tool.
+                          </p>
+                          <Link to="/signup" className="w-full sm:w-auto shrink-0">
+                            <Button size="sm" className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-lg shadow-sm">
+                              Start Free Now
+                            </Button>
+                          </Link>
+                        </div>
+                      )}
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
