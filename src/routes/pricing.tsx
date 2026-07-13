@@ -152,9 +152,9 @@ const DEFAULT_TIERS: Plan[] = [
     cta_to: "/signup?plan=pro",
     highlighted: true,
     price_inr: 199,
-    yearly_price: 1990,
+    yearly_price: 1670,
     interval: "month",
-    badge: "Popular",
+    badge: "Most Popular",
     color: "#6366F1",
     ai_credits_monthly: 10000,
     max_courses: -1,
@@ -193,7 +193,7 @@ const DEFAULT_TIERS: Plan[] = [
     cta_to: "/signup?plan=career-pro",
     highlighted: false,
     price_inr: 499,
-    yearly_price: 4990,
+    yearly_price: 4190,
     interval: "month",
     badge: "Best Value",
     color: "#8B5CF6",
@@ -328,7 +328,7 @@ const FAQ_ITEMS: { q: string; a: string; category: string }[] = [
   },
   {
     q: "Can I get a refund?",
-    a: "We offer a 7-day money-back guarantee on all paid plans. If you're not satisfied, contact us within 7 days for a full refund.",
+    a: "We offer a 30-day money-back guarantee on all paid plans. If you're not satisfied, contact us within 30 days for a full refund.",
     category: "Billing",
   },
   {
@@ -370,7 +370,7 @@ const FAQ_ITEMS: { q: string; a: string; category: string }[] = [
 
 const TRUST_ITEMS = [
   { icon: Lock, label: "Secure Payments", color: "#2563EB" },
-  { icon: Shield, label: "Money Back Guarantee", color: "#10B981" },
+  { icon: Shield, label: "30-Day Money Back", color: "#10B981" },
   { icon: Zap, label: "Instant Activation", color: "#F59E0B" },
   { icon: Headphones, label: "Human Support", color: "#8B5CF6" },
   { icon: IndianRupee, label: "Made For India", color: "#EC4899" },
@@ -665,7 +665,7 @@ function PricingPage() {
                 { icon: Star, label: "4.9 Rating", sub: "10,000+ Learners" },
                 { icon: GraduationCap, label: "25,000+ Certificates", sub: "Issued & Verified" },
                 { icon: Briefcase, label: "Career Focused", sub: "Learning that leads to jobs" },
-                { icon: Users, label: `${learnerCount} Active`, sub: "Learners Online Now" },
+                { icon: Users, label: `🔥 ${learnerCount.toLocaleString("en-IN")} Active`, sub: "Students enrolled" },
               ].map(({ icon: Icon, label, sub }, i) => (
                 <div key={label} className="flex items-center gap-3 text-left">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 relative">
@@ -713,7 +713,7 @@ function PricingPage() {
               </div>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              No credit card required · Cancel anytime · 7-day guarantee
+              No credit card required · Cancel anytime · 30-day money-back guarantee
             </p>
           </div>
         </section>
@@ -770,12 +770,12 @@ function PricingPage() {
                 Try Learnify Risk-Free
               </h2>
               <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-                Start your 7-day free trial. No credit card required. Cancel anytime.
+                Start your 30-day money-back trial. Cancel anytime.
               </p>
               <div className="flex flex-wrap justify-center gap-6 mb-8">
                 {[
-                  { label: "7-Day Free Trial", desc: "Full access to all features" },
-                  { label: "No Credit Card", desc: "No payment info needed" },
+                  { label: "30-Day Money-Back", desc: "Full refund within 30 days" },
+                  { label: "No Credit Card", desc: "For free plan registration" },
                   { label: "Cancel Anytime", desc: "No questions asked" },
                   { label: "Instant Access", desc: "Start learning in seconds" },
                 ].map((item) => (
@@ -827,8 +827,8 @@ function PricingPage() {
                 }`}
               >
                 Yearly
-                <span className="ml-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full">
-                  Save 20%
+                <span className="ml-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full animate-bounce">
+                  Save 30%
                 </span>
               </button>
             </div>
@@ -1371,7 +1371,7 @@ function PricingPage() {
                 </div>
               </div>
               <p className="mt-6 text-sm text-white/60">
-                No Credit Card Required · Cancel Anytime · 7-Day Guarantee
+                Cancel Anytime · 30-Day Money-Back Guarantee
               </p>
             </div>
           </div>
@@ -1385,7 +1385,7 @@ function PricingPage() {
               <span className="text-sm font-semibold">Secure payments powered by Cashfree</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              All plans include a 7-day trial. No credit card required for Free.{" "}
+              All plans include a 30-day money-back guarantee. No credit card required for Free.{" "}
               <a
                 href="mailto:hello@learnify.ai"
                 className="text-primary underline underline-offset-2 hover:opacity-80 transition"
@@ -1452,7 +1452,7 @@ function PricingCard({
   onSubscribe: (id: string) => void;
   onCancel: () => void;
 }) {
-  const yearlyPrice = plan.yearly_price || Math.round(plan.price_inr * 12 * 0.8);
+  const yearlyPrice = plan.yearly_price || Math.round(plan.price_inr * 12 * 0.7);
   const monthlyEquiv = hasPrice && yearlyPrice > 0 ? Math.round(yearlyPrice / 12) : 0;
   const annualSaving = hasPrice ? Math.round(plan.price_inr * 12 - yearlyPrice) : 0;
   const monthlySavings = hasPrice ? Math.round((plan.price_inr * 12 - yearlyPrice) / 12) : 0;
