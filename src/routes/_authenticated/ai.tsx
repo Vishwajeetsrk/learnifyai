@@ -1,6 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Plus, Send, Sparkles, Trash2, MessageSquare, ImagePlus, X } from "lucide-react";
+import { Loader2, Plus, Send, Sparkles, Trash2, MessageSquare, ImagePlus, X, Zap } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
@@ -32,6 +32,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Sheet,
   SheetTrigger,
@@ -83,6 +91,7 @@ function AIPage() {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [attachedImage, setAttachedImage] = useState<string | null>(null);
   const [credits, setCredits] = useState<number | null>(null);
+  const [creditLimitModalOpen, setCreditLimitModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -290,7 +299,16 @@ function AIPage() {
 
       if (!resp.ok || !resp.body) {
         const errBody = await resp.text();
-        throw new Error(errBody || `Request failed (${resp.status})`);
+        let cleanMsg = errBody;
+        try {
+          const parsed = JSON.parse(errBody);
+          if (parsed.error) cleanMsg = parsed.error;
+        } catch {}
+
+        if (resp.status === 402 || cleanMsg.toLowerCase().includes("credits") || cleanMsg.toLowerCase().includes("limit")) {
+          setCreditLimitModalOpen(true);
+        }
+        throw new Error(cleanMsg || `Request failed (${resp.status})`);
       }
 
       const reader = resp.body.getReader();
@@ -345,6 +363,45 @@ function AIPage() {
 
   return (
     <AppShell>
+      <Dialog open={creditLimitModalOpen} onOpenChange={setCreditLimitModalOpen}>
+        <DialogContent className="max-w-md rounded-3xl p-6 text-center">
+          <DialogHeader className="flex flex-col items-center">
+            <div className="h-16 w-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-4">
+              <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+            </div>
+            <DialogTitle className="text-2xl font-bold tracking-tight">Out of AI Credits</DialogTitle>
+            <DialogDescription className="text-muted-foreground mt-2">
+              You've used all your complimentary AI credits for this month. Upgrade to Pro or Career Pro to get up to 25,000 credits/month and continue using our advanced AI tutor.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="bg-muted/50 rounded-2xl p-4 my-4 flex items-center gap-3 text-left">
+            <Zap className="h-5 w-5 text-amber-500 shrink-0" />
+            <div className="text-xs">
+              <span className="font-semibold block text-foreground">Pro plans start at just ₹199/month</span>
+              Get unlimited courses, verified certificates, and more.
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-2">
+            <Button
+              variant="outline"
+              className="rounded-xl flex-1"
+              onClick={() => setCreditLimitModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Link to="/pricing" className="flex-1">
+              <Button
+                className="rounded-xl w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg font-bold"
+              >
+                Upgrade Plan
+              </Button>
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex h-[calc(100dvh-4rem)] lg:h-screen">
         {/* Mobile conversation toggle */}
         <div className="lg:hidden fixed bottom-20 left-4 z-50">

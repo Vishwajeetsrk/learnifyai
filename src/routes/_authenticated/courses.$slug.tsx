@@ -39,6 +39,7 @@ import {
   Globe,
   Wrench,
   GraduationCap,
+  Zap,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -175,6 +176,7 @@ function CourseDetail() {
   const [enrollCelebration, setEnrollCelebration] = useState(false);
   const [playerRetry, setPlayerRetry] = useState(0);
   const [playerLoadFailed, setPlayerLoadFailed] = useState(false);
+  const [showCertNudge, setShowCertNudge] = useState(false);
 
   const courseQuery = useQuery({
     queryKey: ["course", slug],
@@ -469,6 +471,9 @@ function CourseDetail() {
           )
           .then(() => {
             qc.invalidateQueries({ queryKey: ["progress", course.id, user.id] });
+            if (completed.size === 2) {
+              setShowCertNudge(true);
+            }
             recompute({ data: { courseId: course.id } })
               .then(() => qc.invalidateQueries({ queryKey: ["enrollment", course.id, user.id] }))
               .catch(() => {});
@@ -551,6 +556,9 @@ function CourseDetail() {
     toast.success(!isDone ? "Lesson completed 🎉" : "Marked as not done");
 
     if (!isDone) {
+      if (completed.size === 2) {
+        setShowCertNudge(true);
+      }
       awardXPFn({ data: { userId: user.id, amount: 10 } })
         .then((res) => {
           if (res.success) {
@@ -606,6 +614,45 @@ function CourseDetail() {
 
   return (
     <AppShell>
+      <Dialog open={showCertNudge} onOpenChange={setShowCertNudge}>
+        <DialogContent className="max-w-md rounded-3xl p-6 text-center">
+          <DialogHeader className="flex flex-col items-center">
+            <div className="h-16 w-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-4">
+              <Award className="h-8 w-8 text-primary animate-pulse" />
+            </div>
+            <DialogTitle className="text-2xl font-bold tracking-tight">Ready to Get Certified?</DialogTitle>
+            <DialogDescription className="text-muted-foreground mt-2">
+              You've just completed your 3rd lesson! To earn official verifiable certificates with QR codes for this course and boost your CV, upgrade to a premium plan.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="bg-muted/50 rounded-2xl p-4 my-4 flex items-center gap-3 text-left">
+            <Trophy className="h-5 w-5 text-amber-500 shrink-0" />
+            <div className="text-xs">
+              <span className="font-semibold block text-foreground">Verified Certificates</span>
+              Stand out on LinkedIn and impress recruiters with verifiable achievements.
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-2">
+            <Button
+              variant="outline"
+              className="rounded-xl flex-1"
+              onClick={() => setShowCertNudge(false)}
+            >
+              Keep Learning
+            </Button>
+            <Link to="/pricing" className="flex-1">
+              <Button
+                className="rounded-xl w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg font-bold"
+              >
+                Upgrade Now
+              </Button>
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {course && (
         <script
           type="application/ld+json"
@@ -1400,16 +1447,25 @@ function LessonAiTabs({
 
 function LockedCourseTools() {
   return (
-    <div className="mt-4 rounded-lg border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground">
-      <div className="flex items-start gap-3">
-        <Lock className="h-4 w-4 mt-0.5 text-primary" />
-        <div>
-          <p className="font-medium text-foreground">Course tools unlock after access is active.</p>
-          <p className="mt-1">
-            Enroll or purchase the course to use Playground, AI hints, suggestions, solving help,
-            and lesson summaries.
-          </p>
+    <div className="mt-4 rounded-2xl border bg-gradient-to-br from-indigo-500/5 via-purple-500/5 to-transparent p-5 text-sm text-muted-foreground relative overflow-hidden shadow-sm group">
+      <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+        <div className="flex items-start gap-3">
+          <div className="h-10 w-10 rounded-xl bg-indigo-500/15 text-indigo-500 flex items-center justify-center shrink-0">
+            <Lock className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="font-semibold text-foreground text-base">Unlock AI Course Tools</p>
+            <p className="mt-1 text-xs text-muted-foreground max-w-md leading-relaxed">
+              Upgrade to a paid plan to unlock the full potential of Learnify AI: Playground, AI tutor chat, exercise generator, and visual learning blueprints.
+            </p>
+          </div>
         </div>
+        <Link to="/pricing" className="shrink-0 w-full sm:w-auto">
+          <Button size="sm" className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl shadow-md hover:scale-105 transition-all duration-200">
+            Upgrade to Pro
+          </Button>
+        </Link>
       </div>
     </div>
   );
