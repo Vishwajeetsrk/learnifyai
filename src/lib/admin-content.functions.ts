@@ -217,3 +217,114 @@ export const cleanupTestEvents = createServerFn({ method: "POST" })
     if (deleteError) throw deleteError;
     return { deleted: ids.length };
   });
+
+export const cleanDuplicateSiteSettings = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const userId = context.userId!;
+    await checkAdminRole(userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Fetch all current settings
+    const { data: settings, error } = await supabaseAdmin
+      .from("site_settings")
+      .select("key,value");
+
+    if (error) throw error;
+    if (!settings) return { success: true, message: "No settings to clean" };
+
+    const originalSettings = settings as { key: string; value: string | null }[];
+
+    // Map labels in SETTING_FIELDS to their correct keys
+    const labelToKeyMap: Record<string, string> = {
+      "Contact email": "contact_email",
+      "Careers email": "careers_email",
+      "Discord URL": "discord_url",
+      "Discord tagline": "discord_label",
+      "X (Twitter) URL": "twitter_url",
+      "X handle": "twitter_handle",
+      "GitHub URL": "github_url",
+      "LinkedIn URL": "linkedin_url",
+      "YouTube URL": "youtube_url",
+      "Auto-delete past events (true/false)": "events_auto_delete_enabled",
+      "Auto-delete events after (hours)": "events_auto_delete_hours",
+      "Auto-close jobs past close date (true/false)": "jobs_auto_close_enabled",
+      "Invoice company name": "invoice_company_name",
+      "Invoice legal name": "invoice_legal_name",
+      "Invoice GSTIN": "invoice_gstin",
+      "Invoice number prefix": "invoice_prefix",
+      "Invoice footer text": "invoice_footer",
+      "Invoice logo URL": "invoice_logo_url",
+      "Invoice contact (email/phone)": "invoice_contact",
+      "Tour / Demo video URL": "tour_video_url",
+      "Hero title": "hero_title",
+      "Hero subtitle": "hero_subtitle",
+    };
+
+    const mergedValues: Record<string, string> = {};
+    const keysToDelete: string[] = [];
+
+    for (const item of originalSettings) {
+      const origKey = item.key;
+      const val = item.value ?? "";
+
+      let cleanKey = origKey;
+
+      if (labelToKeyMap[origKey]) {
+        cleanKey = labelToKeyMap[origKey];
+      } else {
+        cleanKey = origKey
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "_")
+          .replace(/[^a-z0-9_]/g, "_")
+          .replace(/__+/g, "_");
+      }
+
+      if (cleanKey !== origKey) {
+        keysToDelete.push(origKey);
+
+        if (!mergedValues[cleanKey]) {
+          const existingCleanItem = originalSettings.find(s => s.key === cleanKey);
+          const existingCleanVal = existingCleanItem?.value ?? "";
+          mergedValues[cleanKey] = existingCleanVal || val;
+        } else if (val) {
+          mergedValues[cleanKey] = mergedValues[cleanKey] || val;
+        }
+      } else {
+        if (mergedValues[cleanKey] === undefined) {
+          mergedValues[cleanKey] = val;
+        }
+      }
+    }
+
+    // A. Delete duplicate/unclean keys
+    if (keysToDelete.length > 0) {
+      const { error: deleteError } = await supabaseAdmin
+        .from("site_settings")
+        .delete()
+        .in("key", keysToDelete);
+      if (deleteError) throw deleteError;
+    }
+
+    // B. Upsert merged clean keys
+    const upsertData = Object.entries(mergedValues).map(([key, value]) => ({
+      key,
+      value,
+    }));
+
+    if (upsertData.length > 0) {
+      const { error: upsertError } = await supabaseAdmin
+        .from("site_settings")
+        .upsert(upsertData, { onConflict: "key" });
+      if (upsertError) throw upsertError;
+    }
+
+    return {
+      success: true,
+      deletedKeys: keysToDelete,
+      updatedKeys: Object.keys(mergedValues),
+    };
+  });
+

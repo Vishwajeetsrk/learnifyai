@@ -59,6 +59,7 @@ import {
   adminContentUpsert,
   adminContentQuery,
   cleanupTestEvents,
+  cleanDuplicateSiteSettings,
 } from "@/lib/admin-content.functions";
 import {
   Select,
@@ -2209,6 +2210,22 @@ function SiteSettingsManager() {
       return m;
     },
   });
+
+  const doClean = useServerFn(cleanDuplicateSiteSettings);
+
+  useEffect(() => {
+    doClean()
+      .then((res) => {
+        if (res.deletedKeys && res.deletedKeys.length > 0) {
+          toast.success(`Merged and cleaned ${res.deletedKeys.length} duplicate settings`);
+          qc.invalidateQueries({ queryKey: ["admin-site-settings"] });
+          qc.invalidateQueries({ queryKey: ["site-settings"] });
+        }
+      })
+      .catch((err) => {
+        console.error("Site settings auto-clean error:", err);
+      });
+  }, []);
 
   useEffect(() => {
     if (data) setValues(data);
