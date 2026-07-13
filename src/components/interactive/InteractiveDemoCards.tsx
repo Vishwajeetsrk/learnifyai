@@ -1243,7 +1243,7 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
           <span className="text-muted-foreground/30">·</span>
           <span>Instant Access</span>
           <span className="text-muted-foreground/30">·</span>
-          <span>7-Day Guarantee</span>
+          <span>30-Day Guarantee</span>
         </div>
       </motion.div>
     </section>

@@ -338,7 +338,7 @@ const FAQ_ITEMS: { q: string; a: string; category: string }[] = [
   },
   {
     q: "Is there a free trial?",
-    a: "Yes! All paid plans come with a 7-day free trial. No credit card required for the Free plan — ever.",
+    a: "Yes! All paid plans come with a 30-day money-back guarantee. No credit card required for the Free plan — ever.",
     category: "Billing",
   },
   {

@@ -25,16 +25,16 @@ export const Route = createFileRoute("/refund-policy")({
       defaultContent={`<h2>1. Auto-Approved Refunds</h2>
 <p>Refunds meeting both criteria below are automatically approved without manual review:</p>
 <ul>
-  <li><strong>7-day window:</strong> Request submitted within 7 days of the original purchase or subscription start date.</li>
+  <li><strong>30-day window:</strong> Request submitted within 30 days of the original purchase or subscription start date.</li>
   <li><strong>Less than 30% course completion:</strong> Fewer than 30% of lessons marked completed for course purchases, or fewer than 500 AI credits consumed for subscription plans.</li>
 </ul>
 <p>Auto-approved refunds are processed within 5–7 business days and credited to the original payment method.</p>
 
 <h2>2. Subscription Refund Rules</h2>
-<p>A full refund is available within 7 days of the initial subscription purchase, provided the account has consumed less than 500 AI credits of the monthly allotment. Subsequent monthly subscription renewals are non-refundable.</p>
+<p>A full refund is available within 30 days of the initial subscription purchase, provided the account has consumed less than 500 AI credits of the monthly allotment. Subsequent monthly subscription renewals are non-refundable.</p>
 
 <h2>3. Course Refunds</h2>
-<p>Paid courses are eligible for a refund within 7 days of purchase if less than 30% of the lessons have been marked completed. Promotional purchases or custom enterprise courses are non-refundable.</p>
+<p>Paid courses are eligible for a refund within 30 days of purchase if less than 30% of the lessons have been marked completed. Promotional purchases or custom enterprise courses are non-refundable.</p>
 
 <h2>4. Wallet Top-Up Refunds</h2>
 <p>Wallet top-ups for creator/coach earnings are non-refundable once credited. Student wallet top-ups are not available on the platform.</p>

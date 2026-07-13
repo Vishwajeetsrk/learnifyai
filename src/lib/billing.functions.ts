@@ -397,8 +397,8 @@ export const processRefund = createServerFn({ method: "POST" })
     const createdAt = new Date(invoice.created_at);
     const daysSincePurchase = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
 
-    if (daysSincePurchase > 7) {
-      // Outside 7-day window — manual review required
+    if (daysSincePurchase > 30) {
+      // Outside 30-day window — manual review required
       const { error: refundErr } = await supabaseAdmin.from("billing_refunds").insert({
         invoice_id: data.invoice_id,
         amount_inr: data.amount_inr,
@@ -411,7 +411,7 @@ export const processRefund = createServerFn({ method: "POST" })
       return {
         ok: true,
         status: "pending",
-        note: "Refund outside 7-day window. Submitted for manual review.",
+        note: "Refund outside 30-day window. Submitted for manual review.",
       };
     }
 

@@ -3495,7 +3495,7 @@ function FaqsManager() {
       {
         question: "Is there a free trial?",
         answer:
-          "The Free plan is free forever with basic features. All premium plans come with a 7-day money-back guarantee so you can try risk-free.",
+          "The Free plan is free forever with basic features. All premium plans come with a 30-day money-back guarantee so you can try risk-free.",
         category: "Plans & Pricing",
         order_index: 20,
         published: true,
@@ -3536,7 +3536,7 @@ function FaqsManager() {
       {
         question: "Can I get a refund?",
         answer:
-          "Yes, we offer a 7-day money-back guarantee on all premium plans. Contact our support team within 7 days of purchase for a full refund.",
+          "Yes, we offer a 30-day money-back guarantee on all premium plans. Contact our support team within 30 days of purchase for a full refund.",
         category: "Billing",
         order_index: 70,
         published: true,
@@ -3735,7 +3735,7 @@ function FaqsManager() {
         await doAdminAction({
           data: {
             table: "faqs",
-            action: "create",
+            action: "insert",
             data: faq,
           },
         });
@@ -4045,7 +4045,7 @@ function SectionsManager() {
             },
             {
               q: "Is there a free trial?",
-              a: "The Free plan is free forever with basic features. Premium plans have a 7-day money-back guarantee.",
+              a: "The Free plan is free forever with basic features. Premium plans have a 30-day money-back guarantee.",
               category: "Plans",
             },
             {
@@ -4055,7 +4055,7 @@ function SectionsManager() {
             },
             {
               q: "Can I get a refund?",
-              a: "Yes, we offer a 7-day money-back guarantee on all premium plans. Contact support for assistance.",
+              a: "Yes, we offer a 30-day money-back guarantee on all premium plans. Contact support for assistance.",
               category: "Billing",
             },
             {
