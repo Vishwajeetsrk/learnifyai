@@ -123,6 +123,7 @@ import {
   adminSaveEmailTemplate,
   adminSendTestEmail,
 } from "@/lib/welcome-email.functions";
+import { getCoupons } from "@/lib/billing.functions";
 
 const APP_ROLES = ["super_admin", "admin", "creator", "student"] as const;
 type AppRole = (typeof APP_ROLES)[number];
@@ -228,6 +229,37 @@ function AdminOverview() {
   }, [loading, isAdmin]);
 
   // ───────── QUERIES ─────────
+  const fetchCoupons = useServerFn(getCoupons);
+  const couponsQuery = useQuery({
+    enabled: isAdmin && typeof window !== "undefined",
+    queryKey: ["admin-coupons"],
+    queryFn: () => fetchCoupons({ data: undefined }),
+  });
+
+  const coursesCountQuery = useQuery({
+    enabled: isAdmin && typeof window !== "undefined",
+    queryKey: ["admin", "courses-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("courses")
+        .select("id", { count: "exact", head: true });
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
+  const activeStudentsQuery = useQuery({
+    enabled: isAdmin && typeof window !== "undefined",
+    queryKey: ["admin", "active-students-count"],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("enrollments")
+        .select("user_id", { count: "exact", head: true });
+      if (error) throw error;
+      return count ?? 0;
+    },
+  });
+
   const aiReq24hQuery = useQuery({
     enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "ai24"],
@@ -1003,31 +1035,39 @@ function AdminOverview() {
     );
   }
 
+  const allTimeRevenue = useMemo(() => {
+    return tx
+      .filter((t) => t.status === "completed" && t.type === "credit")
+      .reduce((s, t) => s + Number(t.amount_inr), 0);
+  }, [tx]);
+
   const stats = [
     {
-      label: "Total users",
-      value: usersQuery.isLoading ? "…" : (usersQuery.data?.total ?? 0),
-      icon: Users,
-      tint: "from-primary/30 to-primary/0",
-    },
-    {
-      label: "AI requests (24h)",
-      value: aiReq24hQuery.isLoading ? "…" : (aiReq24hQuery.data ?? 0).toLocaleString("en-IN"),
-      icon: ActivityIcon,
-      tint: "from-violet-500/30 to-violet-500/0",
-    },
-    {
-      label: `Revenue · ${rangeLabel}`,
-      value: txQuery.isLoading ? "…" : inr(rangeRevenue),
+      label: "Total Revenue",
+      value: txQuery.isLoading ? "…" : inr(allTimeRevenue),
       icon: Wallet,
       tint: "from-emerald-500/30 to-emerald-500/0",
     },
     {
-      label: "Notifications sent",
-      value: notificationsQuery.isLoading
+      label: "Active Students",
+      value: activeStudentsQuery.isLoading ? "…" : (activeStudentsQuery.data ?? 0).toLocaleString("en-IN"),
+      icon: Users,
+      tint: "from-primary/30 to-primary/0",
+    },
+    {
+      label: "Courses Created",
+      value: coursesCountQuery.isLoading ? "…" : (coursesCountQuery.data ?? 0).toLocaleString("en-IN"),
+      icon: MonitorPlay,
+      tint: "from-sky-500/30 to-sky-500/0",
+    },
+    {
+      label: "Active Promos",
+      value: couponsQuery.isLoading
         ? "…"
-        : (notificationsQuery.data ?? 0).toLocaleString("en-IN"),
-      icon: Bell,
+        : (couponsQuery.data ?? []).filter(
+            (c: any) => !c.expires_at || new Date(c.expires_at) > new Date()
+          ).length.toLocaleString("en-IN"),
+      icon: Sparkles,
       tint: "from-amber-500/30 to-amber-500/0",
     },
   ];
@@ -1049,64 +1089,6 @@ function AdminOverview() {
             <Badge variant="secondary" className="gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
             </Badge>
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/content" })}>
-              <CalendarIcon className="h-4 w-4" /> Events & Jobs
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate({ to: "/admin/missing-videos" })}
-            >
-              <VideoOff className="h-4 w-4" /> Missing videos
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate({ to: "/admin/certificates" })}
-            >
-              <Award className="h-4 w-4" /> Certificates
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate({ to: "/admin/store" })}>
-              <ShoppingCart className="h-4 w-4" /> XP Store
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate({ to: "/admin/system-design" as any })}
-            >
-              <MonitorPlay className="h-4 w-4" /> System Design
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate({ to: "/admin/visual-learning" as any })}
-            >
-              <Brain className="h-4 w-4" /> Visual Learning
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate({ to: "/admin/audit-logs" })}
-            >
-              <ShieldAlert className="h-4 w-4" /> Audit Logs
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate({ to: "/admin/system-health" })}
-            >
-              <Activity className="h-4 w-4" /> System Health
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate({ to: "/admin/announcements" })}
-            >
-              <Megaphone className="h-4 w-4" /> Announce
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setShowEmailTemplates(true)}>
-              <Mail className="h-4 w-4" /> Email Templates
-            </Button>
             <Button variant="outline" size="sm" onClick={refreshAll}>
               <RefreshCw className={`h-4 w-4 ${adminFetching > 0 ? "animate-spin" : ""}`} /> Refresh
             </Button>
@@ -1116,6 +1098,94 @@ function AdminOverview() {
               </Button>
               <Button size="sm" variant="outline" onClick={() => handleExportCSV()}>
                 <Download className="h-4 w-4 mr-1.5" /> CSV
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Categorized Command Navigation Panel */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          {/* Content & Curriculum */}
+          <div className="rounded-2xl border bg-card p-5 shadow-card space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <MonitorPlay className="h-4 w-4 text-indigo-500" />
+              Content & Curriculum
+            </h3>
+            <div className="flex flex-col gap-1.5">
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/courses" as any })}>
+                <Compass className="h-3.5 w-3.5 mr-2 text-indigo-500" /> Courses CRUD
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/content" })}>
+                <CalendarIcon className="h-3.5 w-3.5 mr-2 text-indigo-500" /> Events & Jobs
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/system-design" as any })}>
+                <MonitorPlay className="h-3.5 w-3.5 mr-2 text-indigo-500" /> System Design
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/visual-learning" as any })}>
+                <Brain className="h-3.5 w-3.5 mr-2 text-indigo-500" /> Visual Learning
+              </Button>
+            </div>
+          </div>
+
+          {/* User Management */}
+          <div className="rounded-2xl border bg-card p-5 shadow-card space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Users className="h-4 w-4 text-blue-500" />
+              User Management
+            </h3>
+            <div className="flex flex-col gap-1.5">
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => setCreating(true)}>
+                <UserPlus className="h-3.5 w-3.5 mr-2 text-blue-500" /> Create User
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/announcements" })}>
+                <Megaphone className="h-3.5 w-3.5 mr-2 text-blue-500" /> Announcements
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => setShowEmailTemplates(true)}>
+                <Mail className="h-3.5 w-3.5 mr-2 text-blue-500" /> Email Templates
+              </Button>
+            </div>
+          </div>
+
+          {/* Billing & Stats */}
+          <div className="rounded-2xl border bg-card p-5 shadow-card space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Wallet className="h-4 w-4 text-emerald-500" />
+              Billing & Stats
+            </h3>
+            <div className="flex flex-col gap-1.5">
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/billing" as any })}>
+                <Wallet className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Wallet & Topups
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/subscriptions" as any })}>
+                <ShoppingCart className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Subscriptions
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/store" })}>
+                <ShoppingCart className="h-3.5 w-3.5 mr-2 text-emerald-500" /> XP Store admin
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/certificates" })}>
+                <Award className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Certificates
+              </Button>
+            </div>
+          </div>
+
+          {/* System & Health */}
+          <div className="rounded-2xl border bg-card p-5 shadow-card space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <ShieldAlert className="h-4 w-4 text-amber-500" />
+              System & Health
+            </h3>
+            <div className="flex flex-col gap-1.5">
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/system-health" })}>
+                <Activity className="h-3.5 w-3.5 mr-2 text-amber-500" /> System Health
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/missing-videos" })}>
+                <VideoOff className="h-3.5 w-3.5 mr-2 text-amber-500" /> Missing Videos
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/audit-logs" })}>
+                <ShieldAlert className="h-3.5 w-3.5 mr-2 text-amber-500" /> Audit Logs
+              </Button>
+              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/enrichment-runs" })}>
+                <Sparkles className="h-3.5 w-3.5 mr-2 text-amber-500" /> AI Enrichment
               </Button>
             </div>
           </div>
