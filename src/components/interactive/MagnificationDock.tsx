@@ -147,7 +147,7 @@ export function MagnificationDock({
   const isHovered = useMotionValue(0);
 
   return (
-    <motion.div className="flex max-w-full items-center justify-center">
+    <motion.div className="flex max-w-full items-center justify-start md:justify-center overflow-x-auto md:overflow-visible scrollbar-none px-4">
       <motion.div
         onMouseMove={({ pageX }) => {
           isHovered.set(1);
@@ -158,7 +158,7 @@ export function MagnificationDock({
           mouseX.set(Infinity);
         }}
         className={cn(
-          "flex items-end w-fit gap-3 rounded-3xl border border-border bg-card/50 backdrop-blur-md pb-2 px-4 shadow-xl",
+          "flex items-end w-max md:w-fit gap-3 rounded-3xl border border-border bg-card/50 backdrop-blur-md pb-2 px-4 shadow-xl md:overflow-visible",
           className,
         )}
         style={{ height: panelHeight }}

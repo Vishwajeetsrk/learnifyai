@@ -81,8 +81,10 @@ function DockItem({
       onFocus={() => isHovered.set(1)}
       onBlur={() => isHovered.set(0)}
       onClick={onClick}
-      className={`relative inline-flex items-center justify-center rounded-full bg-card border-border border shadow-lg cursor-pointer ${
-        isActive ? "ring-2 ring-primary border-primary bg-primary/10" : "hover:bg-muted/80"
+      className={`relative inline-flex items-center justify-center rounded-full border shadow-md cursor-pointer transition-all duration-300 ${
+        isActive
+          ? "bg-gradient-to-br from-blue-600 to-indigo-600 border-transparent ring-4 ring-blue-500/35 scale-110 shadow-lg shadow-blue-500/20"
+          : "bg-card border-border hover:bg-muted/80"
       } ${className}`}
       tabIndex={0}
       role="button"
@@ -172,7 +174,7 @@ export function MagnificationDock({
   return (
     <motion.div
       style={{ height, scrollbarWidth: "none" }}
-      className="flex max-w-full items-center justify-center overflow-visible"
+      className="flex max-w-full items-center justify-start md:justify-center overflow-x-auto md:overflow-visible scrollbar-none px-4"
     >
       <motion.div
         onMouseMove={({ pageX }) => {
@@ -183,7 +185,7 @@ export function MagnificationDock({
           isHovered.set(0);
           mouseX.set(Infinity);
         }}
-        className={`${className} flex items-end w-fit gap-2 sm:gap-3 rounded-2xl sm:rounded-3xl border-border border bg-card/65 backdrop-blur-xl pb-2 px-3 sm:px-4 shadow-xl overflow-visible`}
+        className={`${className} flex items-end w-max md:w-fit gap-2 sm:gap-3 rounded-2xl sm:rounded-3xl border-border border bg-card/65 backdrop-blur-xl pb-2 px-3 sm:px-4 shadow-xl md:overflow-visible`}
         style={{ height: panelHeight }}
         role="toolbar"
         aria-label="Application dock"

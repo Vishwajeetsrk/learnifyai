@@ -132,14 +132,24 @@ function CareerStudioHub() {
     return () => window.removeEventListener("resize", checkSize);
   }, []);
 
-  const dockItems = TABS.map((t) => ({
-    icon: <t.icon className="h-5 w-5 sm:h-6 sm:w-6 text-foreground" />,
-    label: t.label,
-    isActive: activeTab === t.id,
-    onClick: () => {
-      navigate({ to: "/career-studio" as any, search: { tab: t.id } as any, replace: true });
-    },
-  }));
+  const dockItems = TABS.map((t) => {
+    const isActive = activeTab === t.id;
+    return {
+      icon: (
+        <t.icon
+          className={cn(
+            "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-300",
+            isActive ? "text-white" : "text-stone-600 dark:text-stone-300"
+          )}
+        />
+      ),
+      label: t.label,
+      isActive,
+      onClick: () => {
+        navigate({ to: "/career-studio" as any, search: { tab: t.id } as any, replace: true });
+      },
+    };
+  });
 
   const dockProps = isMobile
     ? { panelHeight: 48, baseItemSize: 32, magnification: 42, distance: 80 }
@@ -170,8 +180,8 @@ function CareerStudioHub() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-bold text-xl text-white tracking-tight">Career Studio</h1>
-                <Badge className="bg-white/20 text-white border-white/30 text-[10px] px-2 py-0">
-                  <Sparkles className="h-3 w-3 mr-1 text-yellow-300" /> 12 Tools
+                <Badge className="bg-white/20 text-white border-white/30 text-[10px] px-2 py-0 animate-pulse duration-1000">
+                  <Sparkles className="h-3 w-3 mr-1 text-yellow-300 animate-spin [animation-duration:10s]" /> 12 Tools
                 </Badge>
               </div>
               <p className="text-xs text-blue-200 font-medium">
