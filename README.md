@@ -898,6 +898,15 @@ MIT License. See [LICENSE](LICENSE) for details.
   - Added smart hydration checks in the sign-in helper to prevent double submissions and native form submit page refreshes during React event attachment.
   - Set robust navigation timeouts (40s for login, 30s for other pages) to prevent flaky failures on high-concurrency dev servers.
 
+### v5.2.0 (July 2026) - Platform Audit, UX Optimizations & Command Center Overhaul
+
+- ✅ **Onboarding Sub-step Wizard**: Split the single overwhelming onboarding form into a premium 4-stage wizard (Goal → Experience Level → Interests → Learning Style) with animated dots and option limit validations.
+- ✅ **Personalized Learner Dashboard**: Added dynamic hour-based greetings, a weekly streak Orange Flame indicator, a custom "Start Here" workspace for first-time signups, and a glassmorphic sidebar Credit Meter to monitor AI credits.
+- ✅ **High-Conversion Pricing Page**: Upgraded Pro plan badge to "Most Popular" with animated glows, increased yearly plan savings to **30% savings** (adjusting yearly rates), and extended all guarantee and trial durations to **30-day money-back guarantee** throughout testimonials, secure payments, and FAQ elements. Mapped student online stats to a stylized fire emoji pill.
+- ✅ **Contextual Paywall Nudges**: Integrated a popup credit-upgrade nudge inside the AI Tutor chat on status 402/exhausted errors, built a certification-upgrade popup nudge upon completing the 3rd lesson of a course, and styled locked playground tools with premium dark-glass borders and a direct CTA to upgrade.
+- ✅ **AI Tools Suite & Library**: Grouped all AI tools into distinct filterable panels (Career, Learning, Code), added active usage counts, and introduced the **Library 📚** tab where users can view and manage their saved cheat sheets.
+- ✅ **Admin Command Center Overhaul**: Grouped the 16 scattered admin operations into 4 logical command panel grids (Content & Curriculum, User Management, Billing & Stats, System & Health) and mapped top indicators to show all-time platform-wide stats (Total Revenue, Active Students, Courses Created, Active Promos).
+
 ### v3.1.0 (June 2026) - Critical Fixes & Course Enrollment Logic
 
 - ✅ **Payment Auth Fixed**: Resolved "Unauthorized: Invalid token" error by improving auth middleware to handle multiple Supabase cookie names (`sb-access-token`, `sb-refresh-token`, `supabase-auth-token`, `sb-auth-token`, and any `sb-*` prefixed cookies) with robust fallback parsing.
