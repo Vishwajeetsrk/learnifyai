@@ -8,6 +8,7 @@ type CertificatePreviewProps = {
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   onUpdateElement: (id: string, updates: Partial<CertElement>) => void;
+  scale?: number;
 };
 
 export function CertificatePreview({
@@ -17,6 +18,7 @@ export function CertificatePreview({
   selectedId,
   onSelect,
   onUpdateElement,
+  scale = 1,
 }: CertificatePreviewProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const activeBgImage = design.show_bg_image !== false ? bgImageUrl : null;
@@ -152,6 +154,80 @@ export function CertificatePreview({
         const isLocked = el.locked === true;
         const rotation = el.rotation || 0;
 
+        const handleMouseDown = (e: React.MouseEvent) => {
+          if (isLocked) return;
+          e.stopPropagation();
+          onSelect(el.id);
+          
+          const startX = e.clientX;
+          const startY = e.clientY;
+          const elemX = el.x;
+          const elemY = el.y;
+
+          const handleMouseMove = (moveEvent: MouseEvent) => {
+            const dx = moveEvent.clientX - startX;
+            const dy = moveEvent.clientY - startY;
+            const nextX = elemX + dx / scale;
+            const nextY = elemY + dy / scale;
+            
+            const maxW = 842 - (el.width || 50);
+            const maxH = 595 - (el.height || 30);
+            const boundedX = Math.max(0, Math.min(maxW, nextX));
+            const boundedY = Math.max(0, Math.min(maxH, nextY));
+
+            onUpdateElement(el.id, {
+              x: Math.round(boundedX),
+              y: Math.round(boundedY),
+            });
+          };
+
+          const handleMouseUp = () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+          };
+
+          document.addEventListener("mousemove", handleMouseMove);
+          document.addEventListener("mouseup", handleMouseUp);
+        };
+
+        const handleTouchStart = (e: React.TouchEvent) => {
+          if (isLocked) return;
+          e.stopPropagation();
+          onSelect(el.id);
+          
+          const touch = e.touches[0];
+          const startX = touch.clientX;
+          const startY = touch.clientY;
+          const elemX = el.x;
+          const elemY = el.y;
+
+          const handleTouchMove = (moveEvent: TouchEvent) => {
+            const touchMove = moveEvent.touches[0];
+            const dx = touchMove.clientX - startX;
+            const dy = touchMove.clientY - startY;
+            const nextX = elemX + dx / scale;
+            const nextY = elemY + dy / scale;
+
+            const maxW = 842 - (el.width || 50);
+            const maxH = 595 - (el.height || 30);
+            const boundedX = Math.max(0, Math.min(maxW, nextX));
+            const boundedY = Math.max(0, Math.min(maxH, nextY));
+
+            onUpdateElement(el.id, {
+              x: Math.round(boundedX),
+              y: Math.round(boundedY),
+            });
+          };
+
+          const handleTouchEnd = () => {
+            document.removeEventListener("touchmove", handleTouchMove);
+            document.removeEventListener("touchend", handleTouchEnd);
+          };
+
+          document.addEventListener("touchmove", handleTouchMove, { passive: true });
+          document.addEventListener("touchend", handleTouchEnd);
+        };
+
         return (
           <div
             key={el.id}
@@ -165,9 +241,10 @@ export function CertificatePreview({
               cursor: isLocked ? "not-allowed" : "move",
               transform: rotation ? `rotate(${rotation}deg)` : undefined,
             }}
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
             onClick={(e) => {
               e.stopPropagation();
-              if (!isLocked) onSelect(el.id);
             }}
           >
             <div
@@ -309,8 +386,14 @@ export function CertificatePreview({
                 ))}
 
               {el.type === "qr" && (
-                <div className="w-full h-full bg-white border border-slate-200 shadow-sm flex flex-col items-center justify-center text-xs text-slate-400 rounded-md p-2">
-                  QR
+                <div className="w-full h-full bg-white p-1 rounded-md border border-slate-200 flex items-center justify-center shadow-sm">
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
+                      window.location.origin + "/verify/certificate/" + (el.content || "LAI-2026-000124")
+                    )}`}
+                    alt="QR Code"
+                    className="w-full h-full object-contain"
+                  />
                 </div>
               )}
 

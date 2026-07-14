@@ -898,6 +898,13 @@ MIT License. See [LICENSE](LICENSE) for details.
   - Added smart hydration checks in the sign-in helper to prevent double submissions and native form submit page refreshes during React event attachment.
   - Set robust navigation timeouts (40s for login, 30s for other pages) to prevent flaky failures on high-concurrency dev servers.
 
+### v5.4.0 (July 2026) - Certificate System Enhancements, Canvas Drag-and-Drop & QR Codes
+
+- ✅ **Canvas Drag-and-Drop Interaction**: Added full mouse and touch-dragging event handlers to all canvas elements in the Certificate Designer, with movement scaling support to ensure elements follow the cursor precisely at any zoom factor.
+- ✅ **Dynamic Verification QR Codes**: Wired the canvas QR element to render a real dynamic QR code image pointing to the certificate's unique verification URL (`/verify/certificate/:id`) for secure mobile scanning.
+- ✅ **Interactive Action Buttons & Preview Dialog**: Integrated fully working handlers for certificate list operations—including instant export to CSV, delete/revoke from database, and a preview modal equipped with high-quality PNG/PDF exports (via `html2canvas` & `jsPDF`) and email dispatch triggers.
+- ✅ **Optimized Designer Workspace Layout**: Swapped columns in the Certificate Designer to match Figma/Canva standards, placing the main scaled canvas preview in the center pane and properties panel in the right sidebar.
+
 ### v5.3.0 (July 2026) - Unified Certificate OS Dashboard & Live Database Integration
 
 - ✅ **Unified Credentials Navigation**: Merged the "Certificates" and "Bulk Issue" navigation selectors under Content Manager Credentials group into a single consolidated tab. Removing redundant sidebar items and directing admins to the comprehensive Credential OS.

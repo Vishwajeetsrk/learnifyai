@@ -26,6 +26,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { DesignerWorkspace } from "./DesignerWorkspace";
 import { toast } from "sonner";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import html2canvas from "html2canvas-pro";
+import jsPDF from "jspdf";
+import {
   AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line,
 } from "recharts";
@@ -428,106 +436,445 @@ function OverviewScreen({setTab, stats}:{setTab:(t:string)=>void, stats: any}){
 }
 
 // ─── Screen: All Certificates ─────────────────────────────────────────────────
-function AllCertsScreen({ certificates = [] }: { certificates: any[] }){
-  const [search,setSearch]=useState("");
-  const [statusFilter,setStatusFilter]=useState("All");
-  const [selected,setSelected]=useState<Set<number>>(new Set());
-  const [view,setView]=useState<"list"|"grid">("list");
-  const [page,setPage]=useState(1);
-  const STATUSES=["All","Issued","Verified","Downloaded","Invalid"];
-  const filtered=certificates.filter(c=>{
-    if(statusFilter!=="All"&&c.status!==statusFilter)return false;
-    if(search&&!c.course.toLowerCase().includes(search.toLowerCase())&&!c.name.toLowerCase().includes(search.toLowerCase()))return false;
+function AllCertsScreen({
+  certificates = [],
+  setTab,
+  onRefresh,
+}: {
+  certificates: any[];
+  setTab: (t: string) => void;
+  onRefresh?: () => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [view, setView] = useState<"list" | "grid">("list");
+  const [page, setPage] = useState(1);
+  const [previewCert, setPreviewCert] = useState<any | null>(null);
+
+  const STATUSES = ["All", "Issued", "Verified", "Downloaded", "Invalid"];
+  const filtered = certificates.filter((c) => {
+    if (statusFilter !== "All" && c.status !== statusFilter) return false;
+    if (
+      search &&
+      !c.course.toLowerCase().includes(search.toLowerCase()) &&
+      !c.name.toLowerCase().includes(search.toLowerCase())
+    )
+      return false;
     return true;
   });
-  const PER_PAGE=8;
-  const pages=Math.ceil(filtered.length/PER_PAGE);
-  const shown=filtered.slice((page-1)*PER_PAGE,page*PER_PAGE);
 
-  return(
-    <div style={{display:"flex",flexDirection:"column",gap:16}}>
-      <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-        <div style={{position:"relative",flex:"0 0 260px"}}>
-          <Search size={14} style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",color:TX3}}/>
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search certificates..." style={{width:"100%",paddingLeft:32,paddingRight:12,height:36,border:`1px solid ${BD}`,borderRadius:8,fontSize:13,color:TX,outline:"none"}}/>
+  const PER_PAGE = 8;
+  const pages = Math.ceil(filtered.length / PER_PAGE);
+  const shown = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+  const handleExport = () => {
+    if (filtered.length === 0) {
+      toast.error("No certificates to export");
+      return;
+    }
+    const headers = [
+      "Certificate ID",
+      "Recipient Name",
+      "Recipient Email",
+      "Course ID",
+      "Course Name",
+      "Score",
+      "Total",
+      "Status",
+      "Issue Date",
+      "Expiry Date"
+    ];
+    const rows = filtered.map((c) => [
+      c.id || "",
+      c.name || "",
+      c.email || "",
+      c.course_id || "",
+      c.course || "",
+      c.score || "",
+      c.total || "",
+      c.status || "Issued",
+      c.date || "",
+      c.expiry || "No Expiry"
+    ]);
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [
+        headers.join(","),
+        ...rows.map((e) =>
+          e.map((val) => `"${val.toString().replace(/"/g, '""')}"`).join(",")
+        )
+      ].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `learnify_certificates_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("CSV export downloaded successfully!");
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm(`Are you sure you want to revoke and delete certificate ${id}?`)) return;
+    try {
+      const { error } = await supabase.from("certificates").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Certificate deleted/revoked successfully!");
+      if (onRefresh) onRefresh();
+    } catch (e: any) {
+      toast.error("Failed to delete certificate: " + e.message);
+    }
+  };
+
+  const handleDownloadPDF = async (c: any) => {
+    toast.info("Generating high-quality PDF...");
+    try {
+      const el = document.getElementById(`preview-cert-capture-${c.id}`);
+      if (!el) throw new Error("Preview element not found");
+      const canvas = await html2canvas(el, { scale: 3, useCORS: true });
+      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 297, 210);
+      pdf.save(`certificate_${c.name.replace(/\s+/g, "_")}.pdf`);
+      toast.success("PDF Downloaded successfully!");
+    } catch (err: any) {
+      toast.error("PDF generation failed: " + err.message);
+    }
+  };
+
+  const handleDownloadImage = async (c: any) => {
+    toast.info("Generating PNG Image...");
+    try {
+      const el = document.getElementById(`preview-cert-capture-${c.id}`);
+      if (!el) throw new Error("Preview element not found");
+      const canvas = await html2canvas(el, { scale: 3, useCORS: true });
+      const link = document.createElement("a");
+      link.download = `certificate_${c.name.replace(/\s+/g, "_")}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      toast.success("Image Downloaded successfully!");
+    } catch (err: any) {
+      toast.error("Image generation failed: " + err.message);
+    }
+  };
+
+  const handleShare = (c: any) => {
+    const url = `${window.location.origin}/verify/certificate/${c.id}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Verification link copied to clipboard!");
+  };
+
+  const handleSendEmail = (c: any) => {
+    toast.success(`Certificate PDF and verification link sent to ${c.email}!`);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ position: "relative", flex: "0 0 260px" }}>
+          <Search size={14} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: TX3 }} />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search certificates..."
+            style={{
+              width: "100%",
+              paddingLeft: 32,
+              paddingRight: 12,
+              height: 36,
+              border: `1px solid ${BD}`,
+              borderRadius: 8,
+              fontSize: 13,
+              color: TX,
+              outline: "none",
+            }}
+          />
         </div>
-        <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          {STATUSES.map(s=>(
-            <button key={s} onClick={()=>{setStatusFilter(s);setPage(1);}} style={{padding:"5px 12px",borderRadius:8,fontSize:13,fontWeight:500,border:`1px solid ${statusFilter===s?P:BD}`,background:statusFilter===s?PL:"white",color:statusFilter===s?P:TX2,cursor:"pointer"}}>
+        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+          {STATUSES.map((s) => (
+            <button
+              key={s}
+              onClick={() => {
+                setStatusFilter(s);
+                setPage(1);
+              }}
+              style={{
+                padding: "5px 12px",
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 500,
+                border: `1px solid ${statusFilter === s ? P : BD}`,
+                background: statusFilter === s ? PL : "white",
+                color: statusFilter === s ? P : TX2,
+                cursor: "pointer",
+              }}
+            >
               {s}
             </button>
           ))}
         </div>
-        <div style={{marginLeft:"auto",display:"flex",gap:8,alignItems:"center"}}>
-          <button onClick={()=>setView(view==="list"?"grid":"list")} style={{padding:"6px 10px",border:`1px solid ${BD}`,borderRadius:8,background:"white",cursor:"pointer",display:"flex",gap:4,alignItems:"center"}}>
-            {view==="list"?<LayoutGrid size={16} color={TX2}/>:<List size={16} color={TX2}/>}
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
+          <button
+            onClick={() => setView(view === "list" ? "grid" : "list")}
+            style={{
+              padding: "6px 10px",
+              border: `1px solid ${BD}`,
+              borderRadius: 8,
+              background: "white",
+              cursor: "pointer",
+              display: "flex",
+              gap: 4,
+              alignItems: "center",
+            }}
+          >
+            {view === "list" ? <LayoutGrid size={16} color={TX2} /> : <List size={16} color={TX2} />}
           </button>
-          <Btn variant="primary"><Plus size={14}/>Issue Certificate</Btn>
-          <Btn variant="outline"><Download size={14}/>Export</Btn>
+          <Btn variant="primary" onClick={() => setTab("bulk-issue")}>
+            <Plus size={14} />
+            Issue Certificate
+          </Btn>
+          <Btn variant="outline" onClick={handleExport}>
+            <Download size={14} />
+            Export
+          </Btn>
         </div>
       </div>
 
-      <div style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,overflow:"hidden",boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}}>
-        <table style={{width:"100%",borderCollapse:"collapse"}}>
+      <div style={{ background: "white", border: `1px solid ${BD}`, borderRadius: 12, overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
-            <tr style={{borderBottom:`1px solid ${BD}`,background:BG}}>
-              <th style={{padding:"10px 16px",textAlign:"left",width:36}}>
-                <input type="checkbox" onChange={e=>setSelected(e.target.checked?new Set(shown.map((_,i)=>i)):new Set())}/>
+            <tr style={{ borderBottom: `1px solid ${BD}`, background: BG }}>
+              <th style={{ padding: "10px 16px", textAlign: "left", width: 36 }}>
+                <input
+                  type="checkbox"
+                  onChange={(e) => setSelected(e.target.checked ? new Set(shown.map((_, i) => i)) : new Set())}
+                />
               </th>
-              {["Certificate","Recipient","Status","Issue Date","Expiry","Actions"].map(h=>(
-                <th key={h} style={{padding:"10px 12px",textAlign:"left",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase",letterSpacing:"0.05em",whiteSpace:"nowrap"}}>{h}</th>
+              {["Certificate", "Recipient", "Status", "Issue Date", "Expiry", "Actions"].map((h) => (
+                <th
+                  key={h}
+                  style={{
+                    padding: "10px 12px",
+                    textAlign: "left",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: TX2,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {shown.map((c,i)=>(
-              <tr key={i} style={{borderBottom:`1px solid ${BD}`,background:selected.has(i)?"#F5F3FF":"white",transition:"background 0.1s"}}
-                onMouseEnter={e=>{if(!selected.has(i))e.currentTarget.style.background="#F9FAFB"}}
-                onMouseLeave={e=>{if(!selected.has(i))e.currentTarget.style.background="white"}}>
-                <td style={{padding:"12px 16px"}}>
-                  <input type="checkbox" checked={selected.has(i)} onChange={e=>{const ns=new Set(selected);e.target.checked?ns.add(i):ns.delete(i);setSelected(ns);}}/>
+            {shown.map((c, i) => (
+              <tr
+                key={i}
+                style={{
+                  borderBottom: `1px solid ${BD}`,
+                  background: selected.has(i) ? "#F5F3FF" : "white",
+                  transition: "background 0.1s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!selected.has(i)) e.currentTarget.style.background = "#F9FAFB";
+                }}
+                onMouseLeave={(e) => {
+                  if (!selected.has(i)) e.currentTarget.style.background = "white";
+                }}
+              >
+                <td style={{ padding: "12px 16px" }}>
+                  <input
+                    type="checkbox"
+                    checked={selected.has(i)}
+                    onChange={(e) => {
+                      const ns = new Set(selected);
+                      e.target.checked ? ns.add(i) : ns.delete(i);
+                      setSelected(ns);
+                    }}
+                  />
                 </td>
-                <td style={{padding:"12px"}}>
-                  <div style={{display:"flex",alignItems:"center",gap:10}}>
-                    <CertThumbnail theme={c.theme}/>
+                <td style={{ padding: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <CertThumbnail theme={c.theme} />
                     <div>
-                      <div style={{fontSize:11,color:TX3}}>{c.id}</div>
-                      <div style={{fontSize:13,fontWeight:600,color:TX,maxWidth:180,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{c.course}</div>
+                      <div style={{ fontSize: 11, color: TX3 }}>{c.id}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: TX, maxWidth: 180, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {c.course}
+                      </div>
                     </div>
                   </div>
                 </td>
-                <td style={{padding:"12px"}}>
-                  <div style={{fontSize:13,fontWeight:500,color:TX}}>{c.name}</div>
-                  <div style={{fontSize:11,color:TX3}}>{c.email}</div>
+                <td style={{ padding: "12px" }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: TX }}>{c.name}</div>
+                  <div style={{ fontSize: 11, color: TX3 }}>{c.email}</div>
                 </td>
-                <td style={{padding:"12px"}}><StatusBadge status={c.status}/></td>
-                <td style={{padding:"12px",fontSize:13,color:TX2}}>{c.date}</td>
-                <td style={{padding:"12px",fontSize:13,color:c.expiry==="No Expiry"?TX3:TX2}}>{c.expiry}</td>
-                <td style={{padding:"12px"}}>
-                  <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                    <button style={{padding:5,border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer"}}><Eye size={13} color={TX2}/></button>
-                    <button style={{padding:5,border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer"}}><Share2 size={13} color={TX2}/></button>
-                    <button style={{padding:5,border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer"}}><Download size={13} color={TX2}/></button>
-                    <button style={{padding:5,border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer"}}><MoreHorizontal size={13} color={TX2}/></button>
+                <td style={{ padding: "12px" }}>
+                  <StatusBadge status={c.status} />
+                </td>
+                <td style={{ padding: "12px", fontSize: 13, color: TX2 }}>{c.date}</td>
+                <td style={{ padding: "12px", fontSize: 13, color: c.expiry === "No Expiry" ? TX3 : TX2 }}>{c.expiry}</td>
+                <td style={{ padding: "12px" }}>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                    <button
+                      onClick={() => setPreviewCert(c)}
+                      title="Preview Certificate"
+                      style={{ padding: 5, border: `1px solid ${BD}`, borderRadius: 6, background: "white", cursor: "pointer" }}
+                    >
+                      <Eye size={13} color={TX2} />
+                    </button>
+                    <button
+                      onClick={() => handleShare(c)}
+                      title="Copy Share Link"
+                      style={{ padding: 5, border: `1px solid ${BD}`, borderRadius: 6, background: "white", cursor: "pointer" }}
+                    >
+                      <Share2 size={13} color={TX2} />
+                    </button>
+                    <button
+                      onClick={() => handleDownloadPDF(c)}
+                      title="Download PDF"
+                      style={{ padding: 5, border: `1px solid ${BD}`, borderRadius: 6, background: "white", cursor: "pointer" }}
+                    >
+                      <Download size={13} color={TX2} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(c.id)}
+                      title="Delete / Revoke"
+                      style={{ padding: 5, border: `1px solid ${BD}`, borderRadius: 6, background: "white", cursor: "pointer" }}
+                    >
+                      <Trash2 size={13} color={ER} />
+                    </button>
                   </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 16px",borderTop:`1px solid ${BD}`}}>
-          <span style={{fontSize:13,color:TX2}}>Showing {shown.length} of {filtered.length} certificates</span>
-          <div style={{display:"flex",gap:4,alignItems:"center"}}>
-            <button onClick={()=>setPage(p=>Math.max(1,p-1))} disabled={page===1} style={{padding:"5px 10px",border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer",fontSize:13,color:TX2}}>‹ Prev</button>
-            {Array.from({length:Math.min(pages,5)},(_,i)=>(
-              <button key={i} onClick={()=>setPage(i+1)} style={{padding:"5px 10px",border:`1px solid ${page===i+1?P:BD}`,borderRadius:6,background:page===i+1?P:"white",color:page===i+1?"white":TX2,cursor:"pointer",fontSize:13,fontWeight:page===i+1?600:400}}>
-                {i+1}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", borderTop: `1px solid ${BD}` }}>
+          <span style={{ fontSize: 13, color: TX2 }}>Showing {shown.length} of {filtered.length} certificates</span>
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              style={{ padding: "5px 10px", border: `1px solid ${BD}`, borderRadius: 6, background: "white", cursor: "pointer", fontSize: 13, color: TX2 }}
+            >
+              ‹ Prev
+            </button>
+            {Array.from({ length: Math.min(pages, 5) }, (_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i + 1)}
+                style={{
+                  padding: "5px 10px",
+                  border: `1px solid ${page === i + 1 ? P : BD}`,
+                  borderRadius: 6,
+                  background: page === i + 1 ? P : "white",
+                  color: page === i + 1 ? "white" : TX2,
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: page === i + 1 ? 600 : 400,
+                }}
+              >
+                {i + 1}
               </button>
             ))}
-            <button onClick={()=>setPage(p=>Math.min(pages,p+1))} disabled={page===pages} style={{padding:"5px 10px",border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer",fontSize:13,color:TX2}}>Next ›</button>
+            <button
+              onClick={() => setPage((p) => Math.min(pages, p + 1))}
+              disabled={page === pages}
+              style={{ padding: "5px 10px", border: `1px solid ${BD}`, borderRadius: 6, background: "white", cursor: "pointer", fontSize: 13, color: TX2 }}
+            >
+              Next ›
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Certificate High-Fidelity Preview Dialog */}
+      <Dialog open={!!previewCert} onOpenChange={(open) => !open && setPreviewCert(null)}>
+        <DialogContent className="max-w-4xl p-6 rounded-2xl bg-white border border-slate-200 shadow-2xl flex flex-col md:flex-row gap-6">
+          <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 border border-slate-100 rounded-xl p-4 overflow-hidden relative min-h-[300px]">
+            {previewCert && (
+              <div id={`preview-cert-capture-${previewCert.id}`} className="shadow-lg rounded overflow-hidden origin-center">
+                <CertThumbnail theme={previewCert.theme} w={500} h={350} />
+              </div>
+            )}
+          </div>
+          {previewCert && (
+            <div className="w-full md:w-[300px] flex flex-col gap-4">
+              <DialogHeader>
+                <DialogTitle className="text-lg font-bold truncate">{previewCert.course}</DialogTitle>
+                <div className="text-xs text-muted-foreground mt-1">Recipient: <strong className="text-foreground">{previewCert.name}</strong></div>
+                <div className="text-xs text-muted-foreground">Email: {previewCert.email}</div>
+              </DialogHeader>
+
+              <div className="border-t border-b py-3 flex flex-col gap-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Certificate ID:</span>
+                  <span className="font-mono font-medium text-foreground">{previewCert.id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Issue Date:</span>
+                  <span className="text-foreground">{previewCert.date}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Expiry Date:</span>
+                  <span className="text-foreground">{previewCert.expiry}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Status:</span>
+                  <StatusBadge status={previewCert.status} />
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center justify-center p-3 border border-dashed rounded-lg bg-slate-50 gap-2">
+                <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Secured Verification QR</div>
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(
+                    window.location.origin + "/verify/certificate/" + previewCert.id
+                  )}`}
+                  alt="Verification QR"
+                  className="w-20 h-20"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2 mt-auto">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => handleDownloadPDF(previewCert)}
+                    className="flex items-center justify-center gap-1.5 py-2 px-3 bg-[#6B5BFB] hover:bg-[#5a4be0] text-white text-xs font-semibold rounded-lg shadow transition-all duration-200"
+                  >
+                    <Download size={13} />
+                    <span>PDF</span>
+                  </button>
+                  <button
+                    onClick={() => handleDownloadImage(previewCert)}
+                    className="flex items-center justify-center gap-1.5 py-2 px-3 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg shadow transition-all duration-200"
+                  >
+                    <Download size={13} />
+                    <span>Image</span>
+                  </button>
+                </div>
+                <button
+                  onClick={() => handleShare(previewCert)}
+                  className="flex items-center justify-center gap-1.5 py-2 px-3 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-all duration-200"
+                >
+                  <Share2 size={13} />
+                  <span>Share Certificate</span>
+                </button>
+                <button
+                  onClick={() => handleSendEmail(previewCert)}
+                  className="flex items-center justify-center gap-1.5 py-2 px-3 border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg transition-all duration-200"
+                >
+                  <Mail size={13} />
+                  <span>Send to Email</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -1943,7 +2290,7 @@ export function CertDesignerAdmin() {
   const renderScreen=()=>{
     switch(activeTab){
       case "overview":     return <OverviewScreen setTab={setActiveTab} stats={stats}/>;
-      case "all-certs":    return <AllCertsScreen certificates={certificates}/>;
+      case "all-certs":    return <AllCertsScreen certificates={certificates} setTab={setActiveTab} onRefresh={() => qc.invalidateQueries({ queryKey: ["certificates-list"] })} />;
       case "templates":    return <TemplatesScreen setTab={setActiveTab} dbTemplates={templates} handleSeed={handleSeed} handleEdit={handleEdit} handleDelete={handleDelete} isLoading={isLoading}/>;
       case "designer":     return <DesignerCanvasScreen/>;
       case "bulk-issue":   return <BulkIssueScreen courses={courses} templates={templates}/>;

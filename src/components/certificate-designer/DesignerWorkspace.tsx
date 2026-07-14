@@ -1,4 +1,4 @@
-﻿import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import { toast } from "sonner";
@@ -461,24 +461,23 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
 
       {/* Split View */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        {/* Left: Preview */}
-        <div className="flex-1 md:flex-none md:w-[400px] bg-slate-100 border-r border-slate-200 overflow-auto">
-          <div className="flex justify-center p-8">
-            <div className="origin-top-left" style={{ transform: `scale(${scale})` }}>
-              <CertificatePreview
-                elements={elements}
-                design={design}
-                bgImageUrl={bgImageUrl}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-                onUpdateElement={onUpdateElement}
-              />
-            </div>
+        {/* Left: Preview (Centered & Scaled) */}
+        <div className="flex-1 bg-slate-100 overflow-auto flex items-center justify-center p-8">
+          <div style={{ transform: `scale(${scale})`, transformOrigin: "center center" }}>
+            <CertificatePreview
+              elements={elements}
+              design={design}
+              bgImageUrl={bgImageUrl}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              onUpdateElement={onUpdateElement}
+              scale={scale}
+            />
           </div>
         </div>
 
         {/* Right: Properties Panel */}
-        <div className="flex-1 overflow-auto">
+        <div className="w-full md:w-[380px] shrink-0 border-t md:border-t-0 md:border-l border-slate-200 bg-white overflow-auto">
           <PropertiesPanel
             elements={elements}
             design={design}
