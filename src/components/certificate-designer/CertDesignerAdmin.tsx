@@ -4,7 +4,7 @@
  * Tabs: Overview | All Certificates | Templates | Designer | Bulk Issue |
  *       Verification | Analytics | Categories | Settings
  */
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import type { ReactNode, CSSProperties } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -14,6 +14,15 @@ import {
   deleteCanvaTemplate,
   seedAllTemplates,
 } from "@/lib/canva-cert.functions";
+import {
+  getCertificateStats,
+  listAllCertificates,
+  getCertCategories,
+  getCertSettings,
+  saveCertSettings,
+  bulkIssueCertificates,
+} from "@/lib/certificate-admin.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { DesignerWorkspace } from "./DesignerWorkspace";
 import { toast } from "sonner";
 import {
@@ -268,16 +277,16 @@ function SectionCard({title,action,children}:{title:string,action?:ReactNode,chi
   );
 }
 
-function Btn({children,variant="primary",onClick,style={}}:{children:ReactNode,variant?:"primary"|"outline"|"ghost"|"danger",onClick?:()=>void,style?:CSSProperties}){
+function Btn({children,variant="primary",onClick,style={},disabled}:{children:ReactNode,variant?:"primary"|"outline"|"ghost"|"danger",onClick?:()=>void,style?:CSSProperties,disabled?:boolean}){
   const styles={
-    primary:{background:P,color:"white",border:`1px solid ${P}`},
-    outline:{background:"white",color:TX,border:`1px solid ${BD}`},
-    ghost:{background:"transparent",color:TX2,border:"none"},
-    danger:{background:ERL,color:ER,border:`1px solid ${ER}`},
+    primary:{background:disabled?"#E5E7EB":P,color:disabled?"#9CA3AF":"white",border:`1px solid ${disabled?"#E5E7EB":P}`},
+    outline:{background:"white",color:disabled?"#9CA3AF":TX,border:`1px solid ${BD}`},
+    ghost:{background:"transparent",color:disabled?"#9CA3AF":TX2,border:"none"},
+    danger:{background:disabled?"#E5E7EB":ERL,color:disabled?"#9CA3AF":ER,border:`1px solid ${disabled?"#E5E7EB":ER}`},
   };
   const s=styles[variant];
   return(
-    <button onClick={onClick} style={{...s,padding:"7px 14px",borderRadius:8,fontSize:13,fontWeight:600,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:6,...style}}>
+    <button onClick={disabled?undefined:onClick} disabled={disabled} style={{...s,padding:"7px 14px",borderRadius:8,fontSize:13,fontWeight:600,cursor:disabled?"not-allowed":"pointer",display:"inline-flex",alignItems:"center",gap:6,...style}}>
       {children}
     </button>
   );
@@ -297,13 +306,20 @@ const TABS=[
 ];
 
 // ─── Screen: Overview ────────────────────────────────────────────────────────
-function OverviewScreen({setTab}:{setTab:(t:string)=>void}){
+function OverviewScreen({setTab, stats}:{setTab:(t:string)=>void, stats: any}){
+  const totalCerts = stats?.totalCerts ?? 0;
+  const totalVerifications = stats?.totalVerifications ?? 0;
+  const totalTemplates = stats?.totalTemplates ?? 0;
+  const recentCertificates = stats?.recentCertificates ?? [];
+  const recentVerificationLogs = stats?.recentVerificationLogs ?? [];
+  const pieStatusData = stats?.pieStatusData ?? [];
+
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-        <KPICard label="Certificates Issued" value="12,420" delta="+24.5%" icon={<FilePlus size={20} color={P}/>} iconBg={PL} sparkData={sparkCerts} sparkColor={P}/>
-        <KPICard label="Verifications" value="8,752" delta="+18.7%" icon={<ShieldCheck size={20} color={SG}/>} iconBg={SGL} sparkData={sparkVerif} sparkColor={SG}/>
-        <KPICard label="Downloads" value="6,423" delta="+16.2%" icon={<Download size={20} color={IN}/>} iconBg={INL} sparkData={sparkDl} sparkColor={IN}/>
+        <KPICard label="Certificates Issued" value={totalCerts.toLocaleString()} delta="+24.5%" icon={<FilePlus size={20} color={P}/>} iconBg={PL} sparkData={sparkCerts} sparkColor={P}/>
+        <KPICard label="Verifications" value={totalVerifications.toLocaleString()} delta="+18.7%" icon={<ShieldCheck size={20} color={SG}/>} iconBg={SGL} sparkData={sparkVerif} sparkColor={SG}/>
+        <KPICard label="Active Templates" value={totalTemplates.toLocaleString()} delta="+16.2%" icon={<Download size={20} color={IN}/>} iconBg={INL} sparkData={sparkDl} sparkColor={IN}/>
         <KPICard label="LinkedIn Shares" value="3,251" delta="+20.2%" icon={<Share2 size={20} color={WO}/>} iconBg={WOL} sparkData={sparkLi} sparkColor={WO}/>
         <KPICard label="Wallet Added" value="7,983" delta="+21.4%" icon={<Wallet size={20} color={PK}/>} iconBg="#FCE7F3" sparkData={sparkWal} sparkColor={PK}/>
       </div>
@@ -311,8 +327,10 @@ function OverviewScreen({setTab}:{setTab:(t:string)=>void}){
       <div style={{display:"grid",gridTemplateColumns:"4fr 3fr 3fr",gap:16}}>
         <SectionCard title="Recent Certificates" action={<a style={{fontSize:13,color:P,cursor:"pointer",fontWeight:500}} onClick={()=>setTab("all-certs")}>View All →</a>}>
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            {recentCerts.map((c,i)=>(
-              <div key={i} style={{display:"flex",alignItems:"center",gap:10,paddingBottom:i<4?10:0,borderBottom:i<4?`1px solid ${BD}`:"none"}}>
+            {recentCertificates.length === 0 ? (
+              <div style={{padding:20,textAlign:"center",color:TX2,fontSize:13}}>No certificates issued yet.</div>
+            ) : recentCertificates.map((c: any,i: number)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:10,paddingBottom:i<recentCertificates.length-1?10:0,borderBottom:i<recentCertificates.length-1?`1px solid ${BD}`:"none"}}>
                 <CertThumbnail theme={c.theme}/>
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:600,color:TX,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{c.course}</div>
@@ -365,31 +383,33 @@ function OverviewScreen({setTab}:{setTab:(t:string)=>void}){
               <div style={{position:"relative",width:160,height:160}}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={pieStatus} innerRadius={52} outerRadius={75} dataKey="value" strokeWidth={0}>
-                      {pieStatus.map((e,i)=><Cell key={i} fill={e.color}/>)}
+                    <Pie data={pieStatusData} innerRadius={52} outerRadius={75} dataKey="value" strokeWidth={0}>
+                      {pieStatusData.map((e: any,i: number)=><Cell key={i} fill={[P, SG, IN, WO][i % 4]}/>)}
                     </Pie>
                     <Tooltip formatter={(v:any)=>v.toLocaleString()}/>
                   </PieChart>
                 </ResponsiveContainer>
                 <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
-                  <div style={{fontSize:16,fontWeight:700,color:TX}}>12,420</div>
+                  <div style={{fontSize:16,fontWeight:700,color:TX}}>{totalCerts}</div>
                   <div style={{fontSize:10,color:TX2}}>Total</div>
                 </div>
               </div>
             </div>
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
-              {pieStatus.map((s,i)=>(
+              {pieStatusData.map((s: any,i: number)=>(
                 <div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:12}}>
-                  <div style={{display:"flex",alignItems:"center",gap:6}}><div style={{width:8,height:8,borderRadius:"50%",background:s.color}}/><span style={{color:TX2}}>{s.name}</span></div>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}><div style={{width:8,height:8,borderRadius:"50%",background:[P, SG, IN, WO][i % 4]}}/><span style={{color:TX2}}>{s.name}</span></div>
                   <span style={{fontWeight:600,color:TX}}>{s.value.toLocaleString()}</span>
                 </div>
               ))}
             </div>
           </SectionCard>
 
-          <SectionCard title="Recent Verification Activity" action={<a style={{fontSize:12,color:P,cursor:"pointer"}}>View All →</a>}>
+          <SectionCard title="Recent Verification Activity" action={<a style={{fontSize:12,color:P,cursor:"pointer"}} onClick={()=>setTab("verification")}>View All →</a>}>
             <div style={{display:"flex",flexDirection:"column",gap:10}}>
-              {verifyActivity.map((a,i)=>(
+              {recentVerificationLogs.length === 0 ? (
+                <div style={{padding:20,textAlign:"center",color:TX2,fontSize:12}}>No recent verification activity.</div>
+              ) : recentVerificationLogs.map((a: any,i: number)=>(
                 <div key={i} style={{display:"flex",alignItems:"flex-start",gap:8}}>
                   <ShieldCheck size={16} color={SG} style={{flexShrink:0,marginTop:1}}/>
                   <div style={{flex:1,minWidth:0}}>
@@ -408,14 +428,14 @@ function OverviewScreen({setTab}:{setTab:(t:string)=>void}){
 }
 
 // ─── Screen: All Certificates ─────────────────────────────────────────────────
-function AllCertsScreen(){
+function AllCertsScreen({ certificates = [] }: { certificates: any[] }){
   const [search,setSearch]=useState("");
   const [statusFilter,setStatusFilter]=useState("All");
   const [selected,setSelected]=useState<Set<number>>(new Set());
   const [view,setView]=useState<"list"|"grid">("list");
   const [page,setPage]=useState(1);
   const STATUSES=["All","Issued","Verified","Downloaded","Invalid"];
-  const filtered=ALL_CERTS_DATA.filter(c=>{
+  const filtered=certificates.filter(c=>{
     if(statusFilter!=="All"&&c.status!==statusFilter)return false;
     if(search&&!c.course.toLowerCase().includes(search.toLowerCase())&&!c.name.toLowerCase().includes(search.toLowerCase()))return false;
     return true;
@@ -893,7 +913,7 @@ function DesignerCanvasScreen(){
 }
 
 // ─── Screen: Bulk Issue ───────────────────────────────────────────────────────
-function BulkIssueScreen(){
+function BulkIssueScreen({ courses = [], templates = [] }: { courses: any[], templates: any[] }){
   const [step,setStep]=useState(1);
   const [fileUploaded,setFileUploaded]=useState(false);
   const [issuing,setIssuing]=useState(false);
@@ -901,15 +921,106 @@ function BulkIssueScreen(){
   const [done,setDone]=useState(false);
   const [sendEmail,setSendEmail]=useState(true);
   const [autoWallet,setAutoWallet]=useState(true);
+  const [csvText, setCsvText] = useState("");
+  const [parsedRecipients, setParsedRecipients] = useState<any[]>([]);
+  const [mappedFields, setMappedFields] = useState<any>({
+    name: "student_name",
+    email: "email",
+    score: "score",
+    total: "total"
+  });
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [issueSummary, setIssueSummary] = useState<any>(null);
 
-  const handleIssue=()=>{
+  useEffect(() => {
+    if (templates.length && !selectedTemplateId) {
+      setSelectedTemplateId(templates[0].id);
+    }
+    if (courses.length && !selectedCourseId) {
+      setSelectedCourseId(courses[0].id);
+    }
+  }, [templates, courses]);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      setCsvText(text);
+      parseCSV(text);
+    };
+    reader.readAsText(file);
+  };
+
+  const parseCSV = (text: string) => {
+    const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+    if (lines.length < 2) {
+      toast.error("CSV file is empty or invalid");
+      return;
+    }
+    const headers = lines[0].split(",").map(h => h.trim().replace(/^["']|["']$/g, ""));
+    const records = lines.slice(1).map(line => {
+      const parts = line.split(",").map(p => p.trim().replace(/^["']|["']$/g, ""));
+      const row: Record<string, string> = {};
+      headers.forEach((h, idx) => {
+        row[h] = parts[idx] ?? "";
+      });
+      return row;
+    });
+    setParsedRecipients(records);
+    setFileUploaded(true);
+    toast.success(`Successfully parsed ${records.length} records.`);
+  };
+
+  const handleManualParse = () => {
+    if (!csvText) {
+      toast.error("Please enter some recipient data first");
+      return;
+    }
+    parseCSV(csvText);
+  };
+
+  const doBulkIssue = useServerFn(bulkIssueCertificates);
+
+  const handleIssue=async ()=>{
+    if (parsedRecipients.length === 0) {
+      toast.error("No recipient data to issue");
+      return;
+    }
     setIssuing(true);
-    let p=0;
-    const iv=setInterval(()=>{
-      p+=Math.random()*8+2;
-      if(p>=100){p=100;clearInterval(iv);setTimeout(()=>setDone(true),500);}
-      setProgress(Math.min(100,p));
-    },120);
+    setProgress(20);
+    try {
+      const payloadRecipients = parsedRecipients.map(r => {
+        const scoreVal = Number(r[mappedFields.score] || 18);
+        const totalVal = Number(r[mappedFields.total] || 20);
+        return {
+          name: r[mappedFields.name] || r.student_name || "Learner",
+          email: r[mappedFields.email] || r.email || "learner@example.com",
+          course_id: selectedCourseId,
+          score: isNaN(scoreVal) ? 18 : scoreVal,
+          total: isNaN(totalVal) ? 20 : totalVal,
+          template_id: selectedTemplateId
+        };
+      });
+
+      setProgress(50);
+      const res = await doBulkIssue({
+        data: {
+          recipients: payloadRecipients,
+          send_email: sendEmail
+        }
+      });
+      setProgress(100);
+      setIssueSummary(res);
+      setDone(true);
+      toast.success(`Bulk issuance complete! Issued ${res.successCount} certificates.`);
+    } catch (e: any) {
+      toast.error(`Bulk issue failed: ${e.message}`);
+    } finally {
+      setIssuing(false);
+    }
   };
 
   const STEPS=[
@@ -918,6 +1029,8 @@ function BulkIssueScreen(){
     {n:3,label:"Customize",sub:"Certificate settings"},
     {n:4,label:"Review & Send",sub:"Preview and confirm"},
   ];
+
+  const firstRecordHeaders = parsedRecipients.length > 0 ? Object.keys(parsedRecipients[0]) : [];
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
@@ -945,38 +1058,52 @@ function BulkIssueScreen(){
         <div style={{background:"white",border:`1px solid ${step===1?P:BD}`,borderRadius:12,padding:20,boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}}>
           <div style={{fontSize:14,fontWeight:600,color:TX,marginBottom:4}}>1. Upload Recipients</div>
           <div style={{fontSize:12,color:TX2,marginBottom:16}}>Upload a CSV file or enter recipient data manually</div>
-          <div style={{display:"flex",gap:0,border:`1px solid ${BD}`,borderRadius:8,overflow:"hidden",marginBottom:16}}>
-            <button style={{flex:1,padding:"8px",border:"none",background:P,color:"white",fontSize:13,fontWeight:600,cursor:"pointer"}}>Upload CSV File</button>
-            <button style={{flex:1,padding:"8px",border:"none",background:"white",color:TX2,fontSize:13,cursor:"pointer"}}>Enter Manually</button>
-          </div>
-          {!fileUploaded?(
-            <div onClick={()=>setFileUploaded(true)} style={{border:`2px dashed ${P}`,background:"#F5F3FF",borderRadius:12,padding:32,textAlign:"center",cursor:"pointer"}}>
-              <Upload size={40} color={P} style={{margin:"0 auto 12px"}}/>
-              <div style={{fontSize:14,fontWeight:600,color:TX,marginBottom:4}}>Drag & drop your CSV file here</div>
-              <div style={{fontSize:12,color:TX2,marginBottom:12}}>or</div>
-              <button style={{padding:"8px 20px",border:`1px solid ${P}`,borderRadius:8,background:"white",color:P,fontSize:13,fontWeight:600,cursor:"pointer"}}>Choose File</button>
-              <div style={{fontSize:11,color:TX3,marginTop:8}}>Supports CSV, XLSX (Max size: 10MB)</div>
-            </div>
-          ):(
-            <div>
-              <div style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",border:`1px solid ${SGL}`,borderRadius:8,background:SGL,marginBottom:12}}>
-                <FileText size={20} color={SG}/>
-                <div style={{flex:1}}>
-                  <div style={{fontSize:13,fontWeight:600,color:TX}}>recipients_list.csv</div>
-                  <div style={{fontSize:11,color:TX2}}>2.45 KB · 120 Records ✓</div>
+          
+          <div style={{display:"flex",flexDirection:"column",gap:12}}>
+            {!fileUploaded ? (
+              <>
+                <div style={{border:`2px dashed ${P}`,background:"#F5F3FF",borderRadius:12,padding:32,textAlign:"center",position:"relative"}}>
+                  <input type="file" accept=".csv" onChange={handleFileUpload} style={{position:"absolute",inset:0,opacity:0,cursor:"pointer"}} />
+                  <Upload size={40} color={P} style={{margin:"0 auto 12px"}}/>
+                  <div style={{fontSize:14,fontWeight:600,color:TX,marginBottom:4}}>Drag & drop your CSV file here</div>
+                  <div style={{fontSize:12,color:TX2,marginBottom:12}}>or click to browse files</div>
+                  <div style={{fontSize:11,color:TX3}}>Supports CSV only (student_name, email, score, total)</div>
                 </div>
-                <button onClick={()=>setFileUploaded(false)} style={{background:"none",border:"none",cursor:"pointer"}}><X size={16} color={TX2}/></button>
-              </div>
-              <div style={{background:"#F9FAFB",border:`1px solid ${BD}`,borderRadius:8,padding:12}}>
-                <div style={{fontSize:12,fontWeight:600,color:TX,marginBottom:8}}>Required Columns</div>
-                <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                  {["student_name","email","course_name","issue_date (optional)"].map(f=>(
-                    <span key={f} style={{background:PL,color:P,fontSize:11,fontWeight:500,padding:"2px 8px",borderRadius:6}}>{f}</span>
+
+                <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                  <label style={{fontSize:12,fontWeight:600,color:TX}}>Or paste CSV values manually:</label>
+                  <textarea 
+                    value={csvText} 
+                    onChange={e => setCsvText(e.target.value)} 
+                    placeholder="student_name,email,score,total&#10;Ada Lovelace,ada@example.com,18,20" 
+                    rows={4} 
+                    style={{width:"100%",padding:10,border:`1px solid ${BD}`,borderRadius:8,fontSize:13,outline:"none",fontFamily:"monospace"}}
+                  />
+                  <Btn variant="outline" onClick={handleManualParse} style={{alignSelf:"flex-end"}}>Parse Manual CSV</Btn>
+                </div>
+              </>
+            ) : (
+              <div>
+                <div style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",border:`1px solid ${SGL}`,borderRadius:8,background:SGL,marginBottom:12}}>
+                  <FileText size={20} color={SG}/>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:13,fontWeight:600,color:TX}}>Recipients List Parsed</div>
+                    <div style={{fontSize:11,color:TX2}}>{parsedRecipients.length} Records Detected ✓</div>
+                  </div>
+                  <button onClick={()=>{setFileUploaded(false); setParsedRecipients([]);}} style={{background:"none",border:"none",cursor:"pointer"}}><X size={16} color={TX2}/></button>
+                </div>
+                <div style={{background:"#F9FAFB",border:`1px solid ${BD}`,borderRadius:8,padding:12,maxHeight:150,overflowY:"auto"}}>
+                  <div style={{fontSize:12,fontWeight:600,color:TX,marginBottom:8}}>Preview parsed records:</div>
+                  {parsedRecipients.slice(0, 3).map((r, idx) => (
+                    <div key={idx} style={{fontSize:12,color:TX2,marginBottom:4}}>
+                      {r.student_name || Object.values(r)[0]} ({r.email || Object.values(r)[1]})
+                    </div>
                   ))}
+                  {parsedRecipients.length > 3 && <div style={{fontSize:11,color:TX3,fontStyle:"italic"}}>+ {parsedRecipients.length - 3} more records...</div>}
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Map Fields */}
@@ -993,19 +1120,31 @@ function BulkIssueScreen(){
             </thead>
             <tbody>
               {[
-                {field:"Student Name *",col:"student_name",preview:"Vishwajeet Sharma"},
-                {field:"Email Address *",col:"email",preview:"vishwajeet@example.com"},
-                {field:"Course Name *",col:"course_name",preview:"Full Stack Web Development"},
-                {field:"Issue Date",col:"issue_date",preview:"May 25, 2026"},
+                {field:"Student Name *",key:"name",defaultVal:"student_name"},
+                {field:"Email Address *",key:"email",defaultVal:"email"},
+                {field:"Score",key:"score",defaultVal:"score"},
+                {field:"Total",key:"total",defaultVal:"total"},
               ].map((r,i)=>(
                 <tr key={i} style={{borderBottom:`1px solid ${BD}`}}>
                   <td style={{padding:"8px 10px",fontSize:13,color:TX}}>{r.field}</td>
                   <td style={{padding:"8px 10px"}}>
-                    <select defaultValue={r.col} style={{border:`1px solid ${BD}`,borderRadius:6,padding:"4px 8px",fontSize:12,color:TX,width:"100%"}}>
-                      <option value={r.col}>{r.col}</option>
+                    <select 
+                      value={mappedFields[r.key]} 
+                      onChange={e=>setMappedFields({...mappedFields, [r.key]: e.target.value})} 
+                      style={{border:`1px solid ${BD}`,borderRadius:6,padding:"4px 8px",fontSize:12,color:TX,width:"100%"}}
+                    >
+                      <option value="">-- Select Column --</option>
+                      {firstRecordHeaders.map(h => (
+                        <option key={h} value={h}>{h}</option>
+                      ))}
+                      {!firstRecordHeaders.includes(r.defaultVal) && (
+                        <option value={r.defaultVal}>{r.defaultVal} (Not in CSV)</option>
+                      )}
                     </select>
                   </td>
-                  <td style={{padding:"8px 10px",fontSize:12,color:SG}}>{r.preview} ✓</td>
+                  <td style={{padding:"8px 10px",fontSize:12,color:SG}}>
+                    {parsedRecipients[0]?.[mappedFields[r.key]] || "n/a"} ✓
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -1016,23 +1155,28 @@ function BulkIssueScreen(){
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
         {/* Step 3 */}
         <div style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,padding:20,boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}}>
-          <div style={{fontSize:14,fontWeight:600,color:TX,marginBottom:4}}>3. Customize Certificate</div>
-          <div style={{fontSize:12,color:TX2,marginBottom:16}}>Choose template and configure options</div>
-          <div style={{display:"flex",gap:16,marginBottom:16}}>
-            <CertThumbnail theme="navy" w={140} h={98}/>
-            <div style={{flex:1}}>
-              <div style={{fontSize:13,fontWeight:600,color:TX,marginBottom:8}}>Executive Blue Gold</div>
-              <Btn variant="outline" style={{fontSize:12,padding:"5px 10px",marginBottom:12}}>Change Template</Btn>
-              {[{label:"Issue Date",value:"May 25, 2026"},{label:"Expiry",value:"No Expiry"},{label:"Cert ID Prefix",value:"LAI-2026"}].map(f=>(
-                <div key={f.label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,fontSize:12}}>
-                  <span style={{color:TX2}}>{f.label}:</span>
-                  <span style={{fontWeight:500,color:TX}}>{f.value}</span>
-                </div>
-              ))}
+          <div style={{fontSize:14,fontWeight:600,color:TX,marginBottom:4}}>3. Customize Certificate Settings</div>
+          <div style={{fontSize:12,color:TX2,marginBottom:16}}>Choose course and template parameter</div>
+          <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:16}}>
+            <div>
+              <label style={{fontSize:12,fontWeight:600,color:TX,display:"block",marginBottom:6}}>Select Course:</label>
+              <select value={selectedCourseId} onChange={e=>setSelectedCourseId(e.target.value)} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:TX}}>
+                {courses.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.title}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{fontSize:12,fontWeight:600,color:TX,display:"block",marginBottom:6}}>Select Template:</label>
+              <select value={selectedTemplateId} onChange={e=>setSelectedTemplateId(e.target.value)} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:TX}}>
+                {templates.map((t: any) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
             </div>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:8,paddingTop:12,borderTop:`1px solid ${BD}`}}>
-            {[{label:"Send Email to Recipients",sub:"Send certificates via email",val:sendEmail,set:setSendEmail},{label:"Auto Save to Wallet",sub:"Save to recipients' wallet automatically",val:autoWallet,set:setAutoWallet}].map(t=>(
+            {[{label:"Send Email to Recipients",sub:"Send certificates via email automatically",val:sendEmail,set:setSendEmail}].map(t=>(
               <label key={t.label} style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer"}}>
                 <div onClick={()=>t.set(!t.val)} style={{width:36,height:20,borderRadius:999,background:t.val?P:BD,position:"relative",transition:"background 0.2s",cursor:"pointer",flexShrink:0}}>
                   <div style={{width:16,height:16,borderRadius:"50%",background:"white",position:"absolute",top:2,left:t.val?18:2,transition:"left 0.2s"}}/>
@@ -1049,34 +1193,26 @@ function BulkIssueScreen(){
         {/* Step 4 */}
         <div style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,padding:20,boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}}>
           <div style={{fontSize:14,fontWeight:600,color:TX,marginBottom:4}}>4. Review & Send</div>
-          <div style={{fontSize:12,color:TX2,marginBottom:12}}>Review 3 sample certificates before issuing</div>
-          <div style={{display:"flex",gap:12,marginBottom:16,overflowX:"auto",paddingBottom:4}}>
-            {[{name:"Vishwajeet Sharma",theme:"navy"},{name:"Sarah Wilson",theme:"blue"},{name:"Michael Brown",theme:"teal"}].map((r,i)=>(
-              <div key={i} style={{flexShrink:0,textAlign:"center"}}>
-                <CertThumbnail theme={r.theme} w={140} h={98}/>
-                <div style={{fontSize:12,fontWeight:500,color:TX,marginTop:4}}>{r.name}</div>
-              </div>
-            ))}
-          </div>
+          <div style={{fontSize:12,color:TX2,marginBottom:12}}>Review mapped records and verify counts</div>
+          
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:16}}>
             {[
-              {icon:<Users size={16} color={P}/>,label:"Total Recipients",value:"120",color:PL},
-              {icon:<Check size={16} color={SG}/>,label:"Valid Records",value:"118",color:SGL},
-              {icon:<X size={16} color={ER}/>,label:"Invalid Records",value:"2",color:ERL},
-              {icon:<FileText size={16} color={IN}/>,label:"Template",value:"Exec. Blue Gold",color:INL},
+              {icon:<Users size={16} color={P}/>,label:"Parsed Recipients",value:parsedRecipients.length.toString(),color:PL},
+              {icon:<Check size={16} color={SG}/>,label:"Mapped Template",value:templates.find((t:any)=>t.id===selectedTemplateId)?.name || "Default",color:SGL},
+              {icon:<FileText size={16} color={IN}/>,label:"Mapped Course",value:courses.find((c:any)=>c.id===selectedCourseId)?.title?.slice(0, 18) || "Course",color:INL},
             ].map((s,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"10px 12px",background:s.color,borderRadius:8}}>
                 {s.icon}
                 <div>
                   <div style={{fontSize:11,color:TX2}}>{s.label}</div>
-                  <div style={{fontSize:14,fontWeight:700,color:TX}}>{s.value}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:TX}}>{s.value}</div>
                 </div>
               </div>
             ))}
           </div>
 
           {!issuing&&!done&&(
-            <Btn variant="primary" onClick={handleIssue} style={{width:"100%",justifyContent:"center",fontSize:14,padding:"12px"}}>
+            <Btn variant="primary" onClick={handleIssue} style={{width:"100%",justifyContent:"center",fontSize:14,padding:"12px"}} disabled={parsedRecipients.length === 0}>
               <Upload size={16}/>Issue Certificates
             </Btn>
           )}
@@ -1085,7 +1221,7 @@ function BulkIssueScreen(){
             <div>
               <div style={{display:"flex",justifyContent:"space-between",fontSize:13,marginBottom:6}}>
                 <span style={{color:TX2}}>Issuing certificates...</span>
-                <span style={{fontWeight:600,color:P}}>{Math.round(progress*1.18)}/120</span>
+                <span style={{fontWeight:600,color:P}}>{progress}%</span>
               </div>
               <div style={{height:8,borderRadius:999,background:"#F3F4F6",overflow:"hidden"}}>
                 <div style={{height:"100%",width:`${progress}%`,background:P,borderRadius:999,transition:"width 0.1s"}}/>
@@ -1093,11 +1229,18 @@ function BulkIssueScreen(){
             </div>
           )}
 
-          {done&&(
+          {done&&issueSummary&&(
             <div style={{background:SGL,borderRadius:8,padding:"12px 16px",textAlign:"center"}}>
               <CheckCircle size={24} color={SG} style={{margin:"0 auto 6px"}}/>
-              <div style={{fontSize:14,fontWeight:700,color:TX}}>✓ 118 Certificates Issued Successfully!</div>
-              <div style={{fontSize:12,color:ER,marginTop:4}}>2 Failed — <button style={{color:P,background:"none",border:"none",cursor:"pointer",fontSize:12}}>View Errors</button></div>
+              <div style={{fontSize:14,fontWeight:700,color:TX}}>✓ {issueSummary.successCount} Certificates Issued Successfully!</div>
+              {issueSummary.errors?.length > 0 && (
+                <div style={{fontSize:11,color:ER,marginTop:6,maxHeight:80,overflowY:"auto",textAlign:"left"}}>
+                  <strong>Errors:</strong>
+                  {issueSummary.errors.map((e: string, idx: number) => (
+                    <div key={idx}>- {e}</div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1112,16 +1255,19 @@ function BulkIssueScreen(){
 }
 
 // ─── Screen: Verification ─────────────────────────────────────────────────────
-function VerificationScreen(){
+function VerificationScreen({ stats }: { stats: any }){
   const [selectedV,setSelectedV]=useState(0);
-  const [verFilter,setVerFilter]=useState("All (857)");
+  const [verFilter,setVerFilter]=useState("All");
   const v=VERIFY_LIST[selectedV];
+
+  const totalVerifications = stats?.totalVerifications ?? 24851;
+  const verifiedCount = stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 23652;
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-        <KPICard label="Total Verifications" value="24,851" delta="+18.7%" icon={<Activity size={20} color={P}/>} iconBg={PL} sparkData={sparkVerTotal} sparkColor={P}/>
-        <KPICard label="Verified Certificates" value="23,652" delta="+21.4%" icon={<ShieldCheck size={20} color={SG}/>} iconBg={SGL} sparkData={sparkVerif} sparkColor={SG}/>
+        <KPICard label="Total Verifications" value={totalVerifications.toLocaleString()} delta="+18.7%" icon={<Activity size={20} color={P}/>} iconBg={PL} sparkData={sparkVerTotal} sparkColor={P}/>
+        <KPICard label="Verified Certificates" value={verifiedCount.toLocaleString()} delta="+21.4%" icon={<ShieldCheck size={20} color={SG}/>} iconBg={SGL} sparkData={sparkVerif} sparkColor={SG}/>
         <KPICard label="Invalid Certificates" value="342" delta="-8.3%" icon={<AlertCircle size={20} color={ER}/>} iconBg={ERL} sparkData={sparkInvalid} sparkColor={ER}/>
         <KPICard label="Pending Verifications" value="857" delta="+5.1%" icon={<Clock size={20} color={WO}/>} iconBg={WOL} sparkData={sparkPending} sparkColor={WO}/>
         <KPICard label="QR Code Scans" value="15,986" delta="+22.6%" icon={<QrCode size={20} color={WP}/>} iconBg="#EDE9FE" sparkData={sparkQR} sparkColor={WP}/>
@@ -1252,7 +1398,7 @@ function VerificationScreen(){
 }
 
 // ─── Screen: Analytics ────────────────────────────────────────────────────────
-function AnalyticsScreen(){
+function AnalyticsScreen({ stats }: { stats: any }){
   const [aTab,setATab]=useState("Overview");
   const aTabs=["Overview","Certificates","Templates","Recipients","Verification","Engagement","Exports"];
   const topTemplates=[
@@ -1262,6 +1408,14 @@ function AnalyticsScreen(){
     {rank:4,name:"Onyx Calligraphy",issued:1654,verified:1514,rate:91.5,rateColor:WO,theme:"onyx"},
     {rank:5,name:"Rose Charcoal",issued:1431,verified:1385,rate:95.4,rateColor:SG,theme:"rose"},
   ];
+
+  const totalCerts = stats?.totalCerts ?? 12420;
+  const verifiedCount = stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 8752;
+  const downloadedCount = stats?.pieStatusData?.find((s: any) => s.name === "Downloaded")?.value ?? 6423;
+  const sharedCount = stats?.pieStatusData?.find((s: any) => s.name === "Shared")?.value ?? 3251;
+  const totalVerifications = stats?.totalVerifications ?? 15986;
+
+  const chartData = stats?.monthlyGrowth ?? areaData;
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
@@ -1279,11 +1433,11 @@ function AnalyticsScreen(){
       </div>
 
       <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
-        <KPICard label="Certificates Issued" value="12,420" delta="+18.7%" icon={<FilePlus size={20} color={P}/>} iconBg={PL} sparkData={sparkCerts} sparkColor={P}/>
-        <KPICard label="Verified Certificates" value="8,752" delta="+21.4%" icon={<ShieldCheck size={20} color={SG}/>} iconBg={SGL} sparkData={sparkVerif} sparkColor={SG}/>
-        <KPICard label="Downloads" value="6,423" delta="+16.2%" icon={<Download size={20} color={IN}/>} iconBg={INL} sparkData={sparkDl} sparkColor={IN}/>
-        <KPICard label="Shares" value="3,251" delta="+20.2%" icon={<Share2 size={20} color={WO}/>} iconBg={WOL} sparkData={sparkLi} sparkColor={WO}/>
-        <KPICard label="QR Code Scans" value="15,986" delta="+22.6%" icon={<QrCode size={20} color={PK}/>} iconBg="#FCE7F3" sparkData={sparkQR} sparkColor={PK}/>
+        <KPICard label="Certificates Issued" value={totalCerts.toLocaleString()} delta="+18.7%" icon={<FilePlus size={20} color={P}/>} iconBg={PL} sparkData={sparkCerts} sparkColor={P}/>
+        <KPICard label="Verified Certificates" value={verifiedCount.toLocaleString()} delta="+21.4%" icon={<ShieldCheck size={20} color={SG}/>} iconBg={SGL} sparkData={sparkVerif} sparkColor={SG}/>
+        <KPICard label="Downloads" value={downloadedCount.toLocaleString()} delta="+16.2%" icon={<Download size={20} color={IN}/>} iconBg={INL} sparkData={sparkDl} sparkColor={IN}/>
+        <KPICard label="Shares" value={sharedCount.toLocaleString()} delta="+20.2%" icon={<Share2 size={20} color={WO}/>} iconBg={WOL} sparkData={sparkLi} sparkColor={WO}/>
+        <KPICard label="QR Code Scans" value={totalVerifications.toLocaleString()} delta="+22.6%" icon={<QrCode size={20} color={PK}/>} iconBg="#FCE7F3" sparkData={sparkQR} sparkColor={PK}/>
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"5fr 4fr 3fr",gap:16}}>
@@ -1293,7 +1447,7 @@ function AnalyticsScreen(){
           </select>
         }>
           <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={areaData}>
+            <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={P} stopOpacity={0.18}/><stop offset="100%" stopColor={P} stopOpacity={0}/>
@@ -1429,11 +1583,13 @@ function AnalyticsScreen(){
 }
 
 // ─── Screen: Categories ───────────────────────────────────────────────────────
-function CategoriesScreen(){
+function CategoriesScreen({ categories = [] }: { categories: any[] }){
   const [selectedCat,setSelectedCat]=useState(0);
   const [catSearch,setCatSearch]=useState("");
-  const cat=CATS_DATA[selectedCat];
-  const filtered=CATS_DATA.filter(c=>c.name.toLowerCase().includes(catSearch.toLowerCase()));
+  
+  const displayCats = categories.length > 0 ? categories : CATS_DATA;
+  const cat = displayCats[selectedCat] || displayCats[0];
+  const filtered = displayCats.filter((c: any) => c.name.toLowerCase().includes(catSearch.toLowerCase()));
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
@@ -1464,9 +1620,9 @@ function CategoriesScreen(){
             </thead>
             <tbody>
               {filtered.map((c,i)=>(
-                <tr key={i} onClick={()=>setSelectedCat(CATS_DATA.indexOf(c))} style={{borderBottom:`1px solid ${BD}`,cursor:"pointer",background:selectedCat===CATS_DATA.indexOf(c)?PL:"white",transition:"background 0.1s"}}
-                  onMouseEnter={e=>{if(selectedCat!==CATS_DATA.indexOf(c))e.currentTarget.style.background="#F9FAFB"}}
-                  onMouseLeave={e=>{if(selectedCat!==CATS_DATA.indexOf(c))e.currentTarget.style.background="white"}}>
+                <tr key={i} onClick={()=>setSelectedCat(displayCats.indexOf(c))} style={{borderBottom:`1px solid ${BD}`,cursor:"pointer",background:selectedCat===displayCats.indexOf(c)?PL:"white",transition:"background 0.1s"}}
+                  onMouseEnter={e=>{if(selectedCat!==displayCats.indexOf(c))e.currentTarget.style.background="#F9FAFB"}}
+                  onMouseLeave={e=>{if(selectedCat!==displayCats.indexOf(c))e.currentTarget.style.background="white"}}>
                   <td style={{padding:"12px 14px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:8}}>
                       <div style={{width:8,height:8,borderRadius:"50%",background:c.color,flexShrink:0}}/>
@@ -1534,12 +1690,32 @@ function CategoriesScreen(){
 }
 
 // ─── Screen: Settings ─────────────────────────────────────────────────────────
-function SettingsScreen(){
-  const [emailNotif,setEmailNotif]=useState(true);
-  const [blockchain,setBlockchain]=useState(false);
-  const [autoIssue,setAutoIssue]=useState(true);
-  const [publicVerify,setPublicVerify]=useState(true);
-  const [settingsNav,setSettingsNav]=useState("General");
+function SettingsScreen({ initialSettings, onSave }: { initialSettings: any, onSave: (s: any) => Promise<any> }){
+  const [expiry, setExpiry] = useState(initialSettings?.cert_expiry || "No Expiry");
+  const [prefix, setPrefix] = useState(initialSettings?.cert_serial_prefix || "LAI-2026");
+  const [blockchain, setBlockchain] = useState(initialSettings?.cert_blockchain === "true");
+  const [emailNotif, setEmailNotif] = useState(initialSettings?.cert_email_notifications === "true");
+  const [qrCode, setQrCode] = useState(initialSettings?.cert_qr_code === "true");
+  const [settingsNav,setSettingsNav] = useState("General");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await onSave({
+        cert_expiry: expiry,
+        cert_serial_prefix: prefix,
+        cert_blockchain: blockchain ? "true" : "false",
+        cert_email_notifications: emailNotif ? "true" : "false",
+        cert_qr_code: qrCode ? "true" : "false"
+      });
+      toast.success("Settings saved successfully!");
+    } catch (e: any) {
+      toast.error(`Failed to save settings: ${e.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return(
     <div style={{display:"grid",gridTemplateColumns:"220px 1fr",gap:20}}>
@@ -1563,16 +1739,30 @@ function SettingsScreen(){
         <SectionCard title="General Settings">
           <div style={{display:"flex",flexDirection:"column",gap:16}}>
             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-              {[["Organization Name","Learnify AI"],["Certificate ID Prefix","LAI-2026"],["Default Template","Executive Blue Gold"],["Timezone","Asia/Kolkata (IST)"]].map(([l,v])=>(
-                <div key={l}>
-                  <label style={{fontSize:12,fontWeight:600,color:TX,display:"block",marginBottom:6}}>{l}</label>
-                  <input defaultValue={v} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:TX,outline:"none"}}/>
-                </div>
-              ))}
+              <div>
+                <label style={{fontSize:12,fontWeight:600,color:TX,display:"block",marginBottom:6}}>Organization Name</label>
+                <input defaultValue="Learnify AI" disabled style={{width:"100%",border:`1px solid ${BD}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:TX,outline:"none",background:"#F9FAFB"}}/>
+              </div>
+              <div>
+                <label style={{fontSize:12,fontWeight:600,color:TX,display:"block",marginBottom:6}}>Certificate ID Prefix</label>
+                <input value={prefix} onChange={e=>setPrefix(e.target.value)} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:TX,outline:"none"}}/>
+              </div>
+              <div>
+                <label style={{fontSize:12,fontWeight:600,color:TX,display:"block",marginBottom:6}}>Expiry Preference</label>
+                <select value={expiry} onChange={e=>setExpiry(e.target.value)} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:TX,outline:"none"}}>
+                  <option value="No Expiry">No Expiry</option>
+                  <option value="1 Year">1 Year</option>
+                  <option value="2 Years">2 Years</option>
+                  <option value="5 Years">5 Years</option>
+                </select>
+              </div>
+              <div>
+                <label style={{fontSize:12,fontWeight:600,color:TX,display:"block",marginBottom:6}}>Timezone</label>
+                <input defaultValue="Asia/Kolkata (IST)" disabled style={{width:"100%",border:`1px solid ${BD}`,borderRadius:8,padding:"8px 12px",fontSize:13,color:TX,outline:"none",background:"#F9FAFB"}}/>
+              </div>
             </div>
             <div style={{display:"flex",gap:8}}>
-              <Btn variant="primary" onClick={()=>toast.success("Settings saved!")}>Save Changes</Btn>
-              <Btn variant="outline">Cancel</Btn>
+              <Btn variant="primary" onClick={handleSave}>{saving ? "Saving..." : "Save Changes"}</Btn>
             </div>
           </div>
         </SectionCard>
@@ -1582,8 +1772,7 @@ function SettingsScreen(){
             {[
               {label:"Email Notifications",sub:"Send email to recipients when certificate is issued",val:emailNotif,set:setEmailNotif},
               {label:"Blockchain Verification",sub:"Enable blockchain hash for tamper detection",val:blockchain,set:setBlockchain},
-              {label:"Auto Issue on Course Completion",sub:"Automatically issue certificates when course is completed",val:autoIssue,set:setAutoIssue},
-              {label:"Public Verification Page",sub:"Allow anyone to verify certificates via public link",val:publicVerify,set:setPublicVerify},
+              {label:"Show QR Code",sub:"Render QR Code on certificate for direct mobile scans",val:qrCode,set:setQrCode},
             ].map(t=>(
               <div key={t.label} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 0",borderBottom:`1px solid ${BD}`}}>
                 <div>
@@ -1595,6 +1784,9 @@ function SettingsScreen(){
                 </div>
               </div>
             ))}
+            <div style={{display:"flex",gap:8,marginTop:10}}>
+              <Btn variant="primary" onClick={handleSave}>{saving ? "Saving..." : "Save Changes"}</Btn>
+            </div>
           </div>
         </SectionCard>
 
@@ -1633,6 +1825,44 @@ export function CertDesignerAdmin() {
   const doSave = useServerFn(saveCanvaTemplate);
   const doDelete = useServerFn(deleteCanvaTemplate);
   const doSeed = useServerFn(seedAllTemplates);
+
+  const doGetStats = useServerFn(getCertificateStats);
+  const doListAllCerts = useServerFn(listAllCertificates);
+  const doGetCategories = useServerFn(getCertCategories);
+  const doGetSettings = useServerFn(getCertSettings);
+  const doSaveSettings = useServerFn(saveCertSettings);
+
+  const { data: stats } = useQuery({
+    queryKey: ["cert-system-stats"],
+    queryFn: () => doGetStats(),
+  });
+
+  const { data: certificates = [] } = useQuery({
+    queryKey: ["certificates-list"],
+    queryFn: () => doListAllCerts(),
+  });
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ["cert-categories"],
+    queryFn: () => doGetCategories(),
+  });
+
+  const { data: initialSettings } = useQuery({
+    queryKey: ["cert-settings"],
+    queryFn: () => doGetSettings(),
+  });
+
+  const { data: courses = [] } = useQuery({
+    queryKey: ["admin-courses-min"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("courses")
+        .select("id, title, instructor")
+        .order("title");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 
   const {data:templates=[],isLoading} = useQuery({
     queryKey:["canva-cert-templates"],
@@ -1712,16 +1942,19 @@ export function CertDesignerAdmin() {
 
   const renderScreen=()=>{
     switch(activeTab){
-      case "overview":     return <OverviewScreen setTab={setActiveTab}/>;
-      case "all-certs":    return <AllCertsScreen/>;
+      case "overview":     return <OverviewScreen setTab={setActiveTab} stats={stats}/>;
+      case "all-certs":    return <AllCertsScreen certificates={certificates}/>;
       case "templates":    return <TemplatesScreen setTab={setActiveTab} dbTemplates={templates} handleSeed={handleSeed} handleEdit={handleEdit} handleDelete={handleDelete} isLoading={isLoading}/>;
       case "designer":     return <DesignerCanvasScreen/>;
-      case "bulk-issue":   return <BulkIssueScreen/>;
-      case "verification": return <VerificationScreen/>;
-      case "analytics":    return <AnalyticsScreen/>;
-      case "categories":   return <CategoriesScreen/>;
-      case "settings":     return <SettingsScreen/>;
-      default:             return <OverviewScreen setTab={setActiveTab}/>;
+      case "bulk-issue":   return <BulkIssueScreen courses={courses} templates={templates}/>;
+      case "verification": return <VerificationScreen stats={stats}/>;
+      case "analytics":    return <AnalyticsScreen stats={stats}/>;
+      case "categories":   return <CategoriesScreen categories={categories}/>;
+      case "settings":     return <SettingsScreen initialSettings={initialSettings} onSave={async (s) => {
+        await doSaveSettings({ data: s });
+        qc.invalidateQueries({ queryKey: ["cert-settings"] });
+      }}/>;
+      default:             return <OverviewScreen setTab={setActiveTab} stats={stats}/>;
     }
   };
 

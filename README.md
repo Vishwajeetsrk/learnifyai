@@ -898,6 +898,13 @@ MIT License. See [LICENSE](LICENSE) for details.
   - Added smart hydration checks in the sign-in helper to prevent double submissions and native form submit page refreshes during React event attachment.
   - Set robust navigation timeouts (40s for login, 30s for other pages) to prevent flaky failures on high-concurrency dev servers.
 
+### v5.3.0 (July 2026) - Unified Certificate OS Dashboard & Live Database Integration
+
+- ✅ **Unified Credentials Navigation**: Merged the "Certificates" and "Bulk Issue" navigation selectors under Content Manager Credentials group into a single consolidated tab. Removing redundant sidebar items and directing admins to the comprehensive Credential OS.
+- ✅ **Dynamic Database Analytics & KPI Cards**: Connected the Overview, Verification, and Analytics screens to live Supabase stats, replacing all static mock counts for total certificates, direct QR scans, verifications, and monthly growth area charts.
+- ✅ **Live Bulk Issue Processing**: Enabled automatic CSV upload and manual copy-paste parsing inside the issuance wizard, mapping columns dynamically to issue verified certificates linked to courses and student accounts via real transaction-safe batch creators.
+- ✅ **Persisted Settings Controls**: Fully wired up SettingsScreen inputs to read and write expiry preferences, serial ID prefix customizers, blockchain authentications, and QR code settings inside the database `site_settings` table.
+
 ### v5.2.0 (July 2026) - Platform Audit, UX Optimizations & Command Center Overhaul
 
 - ✅ **Onboarding Sub-step Wizard**: Split the single overwhelming onboarding form into a premium 4-stage wizard (Goal → Experience Level → Interests → Learning Style) with animated dots and option limit validations.

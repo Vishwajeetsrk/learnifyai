@@ -33,17 +33,18 @@ For every feature, always flag if any of these are missing:
 - [ ] File upload: type + size validation before Supabase Storage
 
 ### 3. 🎨 UI/UX STANDARDS
-Always enforce these design standards:
-- **Premium feel**: Gradients, glassmorphism, subtle animations — never plain/flat
-- **Micro-animations**: Hover `scale`, `ring` glow, smooth transitions `duration-200`
+Always enforce these design standards (see `DESIGN.md` for the full source of truth):
+- **Premium feel**: Subtle gradients, refined shadows — never plain/flat, no neon glows, no rainbow animations
+- **Micro-animations**: Hover `scale(1.02)`, focus ring in indigo, `translateY(-1px)` on active
 - **Dark mode first**: All components must work in dark mode
-- **Mobile responsive**: `sm:` / `md:` / `lg:` breakpoints on every layout
-- **Loading states**: Skeletons or spinners on every async operation
-- **Empty states**: Always show a helpful message when no data
+- **Mobile responsive**: `sm:` / `md:` / `lg:` breakpoints on every layout; single column collapse <768px
+- **Loading states**: Skeletal shimmer matching layout — never circular spinners for content areas
+- **Empty states**: Always show a helpful message with a CTA — never just "No data"
 - **Toast feedback**: Every user action must have `toast.success()` or `toast.error()`
-- **Typography**: Use `font-semibold` for headings, `text-muted-foreground` for secondary text
+- **Typography**: `font-display` (Space Grotesk) for headings, `font-sans` (DM Sans) for body. Weight-driven hierarchy, not just size.
 - **Icons**: Always use Lucide icons — never emoji as icons in production UI
-- **Accessibility**: `aria-label` on icon-only buttons, `alt` on all images
+- **Accessibility**: `aria-label` on icon-only buttons, `alt` on all images; 44px minimum tap targets
+- **Banned patterns**: No `h-screen` (use `min-h-[100dvh]`). No custom cursors. No 3-column equal card grids. No fake statistics/metrics. No AI copywriting clichés. No emojis. No neon glows.
 
 ### 4. ⚙️ ADMIN PANEL REQUIREMENTS
 For any new feature, always ask: "Does admin need to manage this?"

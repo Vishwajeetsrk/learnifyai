@@ -102,6 +102,7 @@ import BlogManager from "@/components/admin/BlogManager";
 const DesignProjectsManager = lazy(() => import("@/components/admin/DesignProjectsManager"));
 const CouponManager = lazy(() => import("@/components/admin/CouponManager"));
 const InvoiceDesigner = lazy(() => import("@/components/admin/InvoiceDesigner"));
+import { CertDesignerAdmin } from "@/components/certificate-designer/CertDesignerAdmin";
 
 const AVATAR_URLS = {
   rishabh: "/avatars/Rishabh-Sharma.png",
@@ -400,7 +401,6 @@ export default function AdminContentPage() {
                     <SelectItem value="site">Site Settings</SelectItem>
                     <SelectItem value="demo-video">Demo Video</SelectItem>
                     <SelectItem value="cert-templates">Certificates</SelectItem>
-                    <SelectItem value="issue-cert">Bulk Issue</SelectItem>
                     <SelectItem value="faqs">FAQs</SelectItem>
                     <SelectItem value="pages">Pages</SelectItem>
                     <SelectItem value="roadmap">Roadmap</SelectItem>
@@ -504,7 +504,6 @@ export default function AdminContentPage() {
                   <div className="flex flex-col gap-0.5">
                     {[
                       { id: "cert-templates", label: "Certificates", icon: Award },
-                      { id: "issue-cert", label: "Bulk Issue", icon: Upload },
                       { id: "invoice-designer", label: "Invoice Designer", icon: FileText },
                     ].map((item) => {
                       const Icon = item.icon;
@@ -592,12 +591,7 @@ export default function AdminContentPage() {
                 <DemoVideoManager />
               </TabsContent>
               <TabsContent value="cert-templates" className="mt-0">
-                <CertTemplatesManager />
-              </TabsContent>
-              <TabsContent value="issue-cert" className="mt-0">
-                <Suspense fallback={<LazyFallback />}>
-                  <IssueCertificate />
-                </Suspense>
+                <CertDesignerAdmin />
               </TabsContent>
               <TabsContent value="faqs" className="mt-0">
                 <FaqsManager />
