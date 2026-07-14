@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS public.xp_purchases (
   user_id     UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   perk_id     TEXT NOT NULL,
   perk_name   TEXT NOT NULL,
-  cost        INTEGER NOT NULL CHECK (cost > 0),
+  cost        INTEGER NOT NULL CHECK (cost >= 0),
   status      TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'revoked', 'expired')),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at  TIMESTAMPTZ

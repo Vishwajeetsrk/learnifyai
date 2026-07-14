@@ -125,6 +125,7 @@ function CareerStudioHub() {
   const activeTab = search.tab || "resume";
 
   const [isMobile, setIsMobile] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     const checkSize = () => setIsMobile(window.innerWidth < 768);
     checkSize();
@@ -151,9 +152,7 @@ function CareerStudioHub() {
     };
   });
 
-  const dockProps = isMobile
-    ? { panelHeight: 48, baseItemSize: 32, magnification: 42, distance: 80 }
-    : { panelHeight: 64, baseItemSize: 48, magnification: 72, distance: 150 };
+  const dockProps = { panelHeight: 64, baseItemSize: 48, magnification: 58, distance: 100 };
 
   return (
     <AppShell>
@@ -217,14 +216,67 @@ function CareerStudioHub() {
         </AnimatePresence>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 25 }}
-        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-[95%]"
-      >
-        <MagnificationDock items={dockItems} {...dockProps} />
-      </motion.div>
+      {isMobile ? (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
+          <Dialog open={menuOpen} onOpenChange={setMenuOpen}>
+            <DialogTrigger asChild>
+              <button className="flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm shadow-xl shadow-blue-500/25 ring-2 ring-white/20 active:scale-95 transition-transform backdrop-blur-md">
+                <Briefcase className="h-4 w-4 animate-bounce" />
+                <span>Career Menu (12 Tools)</span>
+                <ChevronUp className="h-4 w-4 opacity-70" />
+              </button>
+            </DialogTrigger>
+            <DialogContent className="w-[92%] max-w-sm rounded-2xl p-5 bg-card/95 backdrop-blur-xl border border-border">
+              <DialogHeader className="pb-3 border-b border-border/50">
+                <DialogTitle className="text-base font-bold flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                  <span>AI Career Studio</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-3 gap-3 py-4 max-h-[60vh] overflow-y-auto pr-1">
+                {TABS.map((t) => {
+                  const isActive = activeTab === t.id;
+                  const Icon = t.icon;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        navigate({ to: "/career-studio" as any, search: { tab: t.id } as any, replace: true });
+                        setMenuOpen(false);
+                      }}
+                      className={cn(
+                        "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all duration-200 active:scale-95",
+                        isActive
+                          ? "bg-primary/10 border-primary text-primary font-bold shadow-sm shadow-primary/5"
+                          : "bg-muted/40 border-border/50 hover:bg-muted/70 text-foreground"
+                      )}
+                    >
+                      <div className={cn(
+                        "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
+                        isActive ? "bg-primary text-white" : "bg-muted text-muted-foreground"
+                      )}>
+                        <Icon className="h-4.5 w-4.5" />
+                      </div>
+                      <span className="text-[10px] text-center font-medium leading-tight truncate max-w-[80px]">
+                        {t.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 25 }}
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-[95%]"
+        >
+          <MagnificationDock items={dockItems} {...dockProps} />
+        </motion.div>
+      )}
     </AppShell>
   );
 }

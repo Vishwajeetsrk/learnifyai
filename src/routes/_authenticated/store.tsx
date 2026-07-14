@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { AppShell } from "@/components/AppShell";
 import { cn } from "@/lib/utils";
+import { InteractiveAvatar } from "@/components/InteractiveAvatar";
 import {
   ShoppingCart,
   Star,
@@ -395,12 +396,21 @@ function StorePage() {
                         }
                       }}
                     >
-                      <img
-                        src={item.image_url || "/avatars/avatar-m1.svg"}
-                        alt={item.name}
-                        className="w-full h-full object-cover select-none transition-transform duration-200 group-hover:scale-110"
-                        draggable={false}
-                      />
+                      {item.name === "Avatar M1" ? (
+                        <InteractiveAvatar
+                          src={item.image_url || "/avatars/avatar-m1.svg"}
+                          name={item.name}
+                          size={96}
+                          className="w-full h-full"
+                        />
+                      ) : (
+                        <img
+                          src={item.image_url || "/avatars/avatar-m1.svg"}
+                          alt={item.name}
+                          className="w-full h-full object-cover select-none transition-transform duration-200 group-hover:scale-110"
+                          draggable={false}
+                        />
+                      )}
                       {/* Hover overlay */}
                       {!owned && (
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
@@ -597,13 +607,21 @@ function StorePage() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">
-            <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-primary/20 shadow-xl">
-              <img
-                src={avatarPurchaseItem?.image_url || "/avatars/avatar-m1.svg"}
-                alt={avatarPurchaseItem?.name || "Avatar"}
-                className="w-full h-full object-cover"
-                draggable={false}
-              />
+            <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-primary/20 shadow-xl flex items-center justify-center bg-card">
+              {avatarPurchaseItem?.name === "Avatar M1" ? (
+                <InteractiveAvatar
+                  src={avatarPurchaseItem.image_url || "/avatars/avatar-m1.svg"}
+                  name={avatarPurchaseItem.name}
+                  size={128}
+                />
+              ) : (
+                <img
+                  src={avatarPurchaseItem?.image_url || "/avatars/avatar-m1.svg"}
+                  alt={avatarPurchaseItem?.name || "Avatar"}
+                  className="w-full h-full object-cover"
+                  draggable={false}
+                />
+              )}
             </div>
             <p className="text-sm text-muted-foreground text-center">
               {avatarPurchaseItem?.description || "A professional 3D avatar for your Learnify profile."}
