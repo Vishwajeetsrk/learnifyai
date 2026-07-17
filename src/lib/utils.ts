@@ -20,3 +20,22 @@ export function getCleanBannerUrl(url: string | null): string | null {
   }
   return url;
 }
+
+export function optimizeAvatarUrl(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  try {
+    if (url.includes("api.dicebear.com")) {
+      let style = "avataaars";
+      const match = url.match(/api\.dicebear\.com\/[^/]+\/([^/]+)/);
+      if (match && match[1]) {
+        style = match[1];
+      }
+      const urlObj = new URL(url);
+      const seed = urlObj.searchParams.get("seed") || "Learnify";
+      return `https://api.dicebear.com/10.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+    }
+  } catch {
+    // not a valid URL
+  }
+  return url;
+}

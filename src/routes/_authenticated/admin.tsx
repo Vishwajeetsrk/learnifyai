@@ -380,13 +380,28 @@ function AdminOverview() {
     enabled: isAdmin && typeof window !== "undefined",
     queryKey: ["admin", "creator-apps"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: apps, error: appErr } = await supabase
         .from("creator_applications")
-        .select("*, profiles:user_id(id, full_name, email, avatar_url)")
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(100);
-      if (error) throw error;
-      return data ?? [];
+      if (appErr) throw appErr;
+
+      if (!apps || apps.length === 0) return [];
+
+      const userIds = Array.from(new Set(apps.map(a => a.user_id)));
+      const { data: profiles, error: profErr } = await supabase
+        .from("profiles")
+        .select("id, full_name, email, avatar_url")
+        .in("id", userIds);
+
+      if (profErr) throw profErr;
+
+      const profileMap = new Map(profiles?.map(p => [p.id, p]));
+      return apps.map(app => ({
+        ...app,
+        profiles: profileMap.get(app.user_id) || null
+      }));
     },
   });
 

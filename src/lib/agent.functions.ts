@@ -56,7 +56,8 @@ const AGENT_SYSTEM = `You are a senior coding mentor AI. Your job is to help stu
 - Always wrap code in proper language blocks when explaining.
 - Show the output of every code execution.
 - Be concise but thorough — students need to understand both what and why.
-- If you need current info (APIs, docs, errors), use web_search.`;
+- If you need current info (APIs, docs, errors), use web_search.
+- CRITICAL: Do NOT use any emojis under any circumstances.`;
 
 const MessageSchema = z.object({
   content: z.string().min(1).max(50000),

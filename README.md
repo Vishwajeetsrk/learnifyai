@@ -505,6 +505,14 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v5.1.0 (July 2026) — Route Overhaul, PostgREST Fix, Global Avatar Normalization & Emoji-Free AI
+- ✅ **Dynamic Routing Fix**: Renamed layout route `courses.tsx` to index route `courses.index.tsx` so TanStack Router can properly separate the index directory from dynamic `$slug` matching.
+- ✅ **Global Avatar Normalization**: Added `optimizeAvatarUrl` in `src/lib/utils.ts` and integrated it directly into `<AvatarImage>` to dynamically clean up legacy Dicebear v7 URLs and upgrade them to v10.x formats to avoid 400 Bad Request errors.
+- ✅ **PostgREST Query Fix**: Refactored `creator_applications` queries in `src/routes/_authenticated/admin.tsx` to query applications and profiles separately, bypassing the missing foreign-key join constraints in PostgREST that caused 400 errors.
+- ✅ **Emoji-Free AI Prompts**: Modified system prompts for all 10 platform AI assistants (`support-agent`, `resume`, `playground-ai`, `playground/ai`, `onboarding`, `market-intel`, `learning-assistant`, `career-coach`, `ai-tools`, `agent`) to strictly enforce that no emojis are generated in response contents.
+- ✅ **Lucide SVG replacements in AI Tools**: Cleaned up the `ai-tools.tsx` tab headers and filter chips, swapping out emojis for premium Lucide vector SVGs (`Zap`, `BookOpen`, `Briefcase`, `Code2`).
+- ✅ **Cheat Sheet Emoji Cleanup**: Removed emoji indicators from headings, gotcha badges (`❌ Bad` / `✅ Good` to `Incorrect` / `Correct`), and card headers in `CheatSheetGenerator.tsx`, ensuring a premium vector-driven appearance.
+
 ### v5.0.0 (July 2026) — Enterprise Invoice 2.0, Cheat Sheet Overhaul, Avatar System Fix
 
 - ✅ **Enterprise Invoice Designer 2.0**: Built a Canva-like dual-pane invoice designer in Admin → Content Manager. Features: 5 templates (Modern, Minimal, Corporate, Luxury, Dark), live canvas preview, logo + digital signature upload to Supabase Storage, GSTIN/address/colors/watermark/QR toggle/terms settings, saved to `site_settings` table, full audit logging via `admin_audit_logs`.

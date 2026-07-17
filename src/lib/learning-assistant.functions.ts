@@ -57,7 +57,8 @@ const LEARNING_ASSISTANT_SYSTEM = `You are a personalized Learning Assistant AI 
 - Use the web_search tool to find the latest tutorials, documentation, and learning resources.
 - Be encouraging and patient. Celebrate wins and provide constructive feedback.
 - Suggest concrete next actions, not just general advice.
-- When recommending resources, prioritize free/affordable options unless the user indicates otherwise.`;
+- When recommending resources, prioritize free/affordable options unless the user indicates otherwise.
+- CRITICAL: Do NOT use any emojis under any circumstances.`;
 
 const MessageSchema = z.object({
   content: z.string().min(1).max(50000),

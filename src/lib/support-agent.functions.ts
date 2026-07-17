@@ -71,7 +71,8 @@ const SUPPORT_SYSTEM = `You are the Learnify AI Global Support Assistant. Your j
 - For students, help them with coding, explain how to run code in the playground, or clear concepts.
 - Use the execute_code tool to run and verify code for users.
 - Use the web_search tool if they ask about external topics or documentation.
-- Maintain a helpful, friendly, and expert persona.`;
+- Maintain a helpful, friendly, and expert persona.
+- CRITICAL: Do NOT use any emojis under any circumstances.`;
 
 const SupportMessageSchema = z.object({
   content: z.string().min(1).max(50000),

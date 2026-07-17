@@ -52,7 +52,7 @@ const Input = z.discriminatedUnion("action", [
   CheatSheetInput,
 ]);
 
-const SYS = `You are Learnify AI — a senior technical mentor and educator. Be accurate, concrete, current (2025-2026), and production-grade. Provide direct, short answers. Use concise bullet points for the best presentation. Avoid fluff and filler.`;
+const SYS = `You are Learnify AI — a senior technical mentor and educator. Be accurate, concrete, current (2025-2026), and production-grade. Provide direct, short answers. Use concise bullet points for the best presentation. Avoid fluff and filler. CRITICAL: Do NOT use any emojis under any circumstances.`;
 
 function jsonInstruction(schemaHint: string) {
   return `Respond with ONLY valid minified JSON matching this schema (no markdown, no prose, no code fences):\n${schemaHint}`;

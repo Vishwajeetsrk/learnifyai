@@ -61,7 +61,8 @@ export const playgroundAiDebug = createServerFn({ method: "POST" })
 - Suggest a minimal fix. Always include the COMPLETE corrected program in ONE fenced code block tagged with the language (e.g. \`\`\`python).
 - After the code block, add 1-3 short bullet points explaining what changed and why.
 - If the code already runs cleanly, suggest one improvement and still include the full updated program.
-- Keep prose under 200 words. Use markdown.`;
+- Keep prose under 200 words. Use markdown.
+- CRITICAL: Do NOT use any emojis under any circumstances.`;
 
     const ctx = [`Language: ${data.language}`, `Exit code: ${data.exitCode ?? "n/a"}`].join(" · ");
 

@@ -241,11 +241,12 @@ Your role:
 4. Help them create their first project
 5. Encourage daily learning habits
 6. Be concise, friendly, and actionable
-7. Use emojis sparingly but naturally
+7. Do NOT use any emojis under any circumstances.
 8. End each response with a clear next step or question
 
 Current step: ${data.step}
-Keep responses under 150 words.`;
+Keep responses under 150 words.
+CRITICAL: Do NOT use any emojis under any circumstances.`;
 
     let result: { text: string } | null = null;
     let lastError: unknown = null;

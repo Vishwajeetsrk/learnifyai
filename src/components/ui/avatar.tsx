@@ -3,7 +3,7 @@
 import * as React from "react";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 
-import { cn } from "@/lib/utils";
+import { cn, optimizeAvatarUrl } from "@/lib/utils";
 
 export function getProfileBorderClass(url: string | null | undefined): string {
   if (!url) return "";
@@ -131,11 +131,12 @@ const AvatarImage = React.forwardRef<
       : imgError
         ? undefined
         : src;
+  const optimizedSrc = React.useMemo(() => optimizeAvatarUrl(cleanSrc), [cleanSrc]);
   return (
     <AvatarPrimitive.Image
       ref={ref}
       className={cn("aspect-square h-full w-full rounded-full object-cover", className)}
-      src={cleanSrc}
+      src={optimizedSrc}
       onError={(event) => {
         setImgError(true);
         onError?.(event);

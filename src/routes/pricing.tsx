@@ -419,7 +419,7 @@ function PricingPage() {
         AVATAR_MAP[item.name] ||
         (typeof item.avatar === "string" && item.avatar.startsWith("http") ? item.avatar : null) ||
         (typeof item.avatar === "string" && item.avatar.startsWith("data:") ? item.avatar : null) ||
-        `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(item.name || "Student")}`,
+        `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(item.name || "Student")}`,
     }));
   }, [rawTestimonials]);
   const cmsHeroContent = cmsHero?.content;
@@ -1043,7 +1043,7 @@ function PricingPage() {
                     className="h-10 w-10 rounded-full object-cover shrink-0 border border-primary/20 shadow-sm"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(t.name || "Student")}`;
+                      target.src = `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(t.name || "Student")}`;
                     }}
                   />
                   <div className="min-w-0">
@@ -1097,7 +1097,7 @@ function PricingPage() {
                   className="h-12 w-12 rounded-full object-cover shrink-0 border border-primary/20 shadow-sm"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(selectedTestimonial.name || "Student")}`;
+                    target.src = `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(selectedTestimonial.name || "Student")}`;
                   }}
                 />
                 <div>

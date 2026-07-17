@@ -3,7 +3,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callUserAiChat } from "@/lib/user-ai";
 import { z } from "zod";
 
-const SYSPROMPT = `You are an expert resume writer and career coach. Generate professional, ATS-friendly resume content. Use current industry standards (2025-2026). Return structured markdown. Be specific, quantifiable, and impactful.`;
+const SYSPROMPT = `You are an expert resume writer and career coach. Generate professional, ATS-friendly resume content. Use current industry standards (2025-2026). Return structured markdown. Be specific, quantifiable, and impactful. CRITICAL: Do NOT use any emojis under any circumstances.`;
 
 const ResumeInput = z.object({
   fullName: z.string().min(1).max(200),

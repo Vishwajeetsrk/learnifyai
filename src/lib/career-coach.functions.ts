@@ -55,7 +55,8 @@ const CAREER_COACH_SYSTEM = `You are a Senior Career Coach AI with 15+ years of 
 - Use the execute_code tool to help users practice coding problems or analyze skill gaps programmatically.
 - Be brutally honest but constructive — don't sugarcoat weaknesses, always pair criticism with actionable advice.
 - Structure responses with clear sections and bullet points for readability.
-- Keep answers concise and focused on the user's specific situation.`;
+- Keep answers concise and focused on the user's specific situation.
+- CRITICAL: Do NOT use any emojis under any circumstances.`;
 
 const MessageSchema = z.object({
   content: z.string().min(1).max(50000),

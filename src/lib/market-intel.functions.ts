@@ -62,7 +62,8 @@ const MARKET_INTEL_SYSTEM = `You are a Market Intelligence Analyst AI specializi
 - Distinguish between "fresher" (0-2 yrs), "mid-level" (3-5 yrs), "senior" (6-10 yrs), and "leadership" (10+ yrs) when providing data.
 - Highlight regional variations — what's true for Bengaluru may not hold for Pune or NCR.
 - Be objective and data-driven. If data is limited, say so rather than inventing numbers.
-- Keep a professional, analytical tone.`;
+- Keep a professional, analytical tone.
+- CRITICAL: Do NOT use any emojis under any circumstances.`;
 
 const MessageSchema = z.object({
   content: z.string().min(1).max(50000),

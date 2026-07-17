@@ -21,6 +21,9 @@ import {
   GitFork,
   Save,
   FileText,
+  Zap,
+  BookOpen,
+  Code2,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -179,7 +182,7 @@ function AIToolsPage() {
               <Sparkles className="h-3.5 w-3.5" /> Tools
             </TabsTrigger>
             <TabsTrigger value="library">
-              <Layers className="h-3.5 w-3.5" /> Library 📚
+              <Layers className="h-3.5 w-3.5" /> Library
             </TabsTrigger>
             <TabsTrigger value="history">
               <History className="h-3.5 w-3.5" /> History
@@ -190,10 +193,10 @@ function AIToolsPage() {
             {/* Category Filter Chips */}
             <div className="flex items-center gap-1.5 flex-wrap mb-5 bg-muted/40 p-1 rounded-xl max-w-md">
               {[
-                { id: "all", label: "All Tools", emoji: "⚡" },
-                { id: "learning", label: "Learning", emoji: "📚" },
-                { id: "career", label: "Career", emoji: "💼" },
-                { id: "code", label: "Code", emoji: "💻" },
+                { id: "all", label: "All Tools", icon: Zap },
+                { id: "learning", label: "Learning", icon: BookOpen },
+                { id: "career", label: "Career", icon: Briefcase },
+                { id: "code", label: "Code", icon: Code2 },
               ].map((c) => (
                 <button
                   key={c.id}
@@ -205,7 +208,7 @@ function AIToolsPage() {
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <span>{c.emoji}</span>
+                  <c.icon className="h-3.5 w-3.5" />
                   <span>{c.label}</span>
                 </button>
               ))}
@@ -351,8 +354,8 @@ function SavedLibraryPanel() {
         >
           <div className="flex items-start justify-between gap-3 w-full">
             <div className="flex items-center gap-3">
-              <span className="h-11 w-11 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center text-2xl font-bold shrink-0">
-                {s.data.emoji || "📋"}
+              <span className="h-11 w-11 rounded-xl bg-violet-500/10 text-violet-500 flex items-center justify-center shrink-0">
+                <FileText className="h-5 w-5" />
               </span>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">

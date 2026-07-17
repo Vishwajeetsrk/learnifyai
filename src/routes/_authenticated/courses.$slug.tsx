@@ -735,7 +735,7 @@ function CourseDetail() {
                       <img
                         src={
                           l.avatar_url ||
-                          `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`
+                          `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`
                         }
                         alt=""
                         className="h-full w-full object-cover"

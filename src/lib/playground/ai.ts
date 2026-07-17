@@ -34,7 +34,7 @@ export const aiCodeAssistant = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("OPENROUTER_API_KEY not configured");
 
     const prompt = AI_ACTIONS[data.action] || AI_ACTIONS.explain;
-    let systemPrompt = `You are an expert programming mentor. Your job is to help developers understand and improve their code.`;
+    let systemPrompt = `You are an expert programming mentor. Your job is to help developers understand and improve their code. CRITICAL: Do NOT use any emojis under any circumstances.`;
 
     let userPrompt = `${prompt}\n\nLanguage: ${data.language || "unknown"}\n\nCode:\n\`\`\`\n${data.code}\n\`\`\``;
 
