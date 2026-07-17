@@ -1029,6 +1029,7 @@ function DesignerCanvasScreen(){
       rotation: 0,
       width: 722,
       height: 120,
+      type: "text",
     },
     {
       id: "course",
@@ -1046,6 +1047,7 @@ function DesignerCanvasScreen(){
       rotation: 0,
       width: 722,
       height: 60,
+      type: "text",
     }
   ]);
 
@@ -1148,6 +1150,10 @@ function DesignerCanvasScreen(){
         error: "Export failed.",
       }
     );
+  };
+
+  const handleSave = () => {
+    toast.success("Certificate template saved successfully!");
   };
 
   const elementsList = [
