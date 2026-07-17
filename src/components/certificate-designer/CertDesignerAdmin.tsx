@@ -174,7 +174,23 @@ const VERIFY_LIST=[
 
 // ─── Shared Components ───────────────────────────────────────────────────────
 
-function CertThumbnail({theme="navy",w=48,h=36}:{theme?:string,w?:number,h?:number}){
+function CertThumbnail({
+  theme = "navy",
+  w = 48,
+  h = 36,
+  name,
+  course,
+  date,
+  certId,
+}: {
+  theme?: string;
+  w?: number;
+  h?: number;
+  name?: string;
+  course?: string;
+  date?: string;
+  certId?: string;
+}) {
   type TC={bg1:string;bg2:string;bd:string;bd2:string;title:string;accent:string;name:string;sub:string;seal:string;light:boolean};
   const T:Record<string,TC>={
     navy:    {bg1:"#0a0a2e",bg2:"#12124e",bd:"#C9A227",bd2:"rgba(201,162,39,0.35)",title:"#C9A227",accent:"rgba(201,162,39,0.25)",name:"#ffffff",sub:"#C9A227",seal:"#C9A227",light:false},
@@ -196,11 +212,11 @@ function CertThumbnail({theme="navy",w=48,h=36}:{theme?:string,w?:number,h?:numb
     <div style={{width:w,height:h,flexShrink:0,borderRadius:4,overflow:"hidden",border:"1px solid #E5E7EB"}}>
       <svg width={w} height={h} viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
         <defs>
-          <linearGradient id={`bg-${theme}-${w}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={`bg-${theme}-${w}-${name?.replace(/\s+/g, "") || "def"}`} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor={c.bg1}/><stop offset="100%" stopColor={c.bg2}/>
           </linearGradient>
         </defs>
-        <rect width="400" height="280" fill={`url(#bg-${theme}-${w})`}/>
+        <rect width="400" height="280" fill={`url(#bg-${theme}-${w}-${name?.replace(/\s+/g, "") || "def"})`}/>
         <rect x="10" y="10" width="380" height="260" fill="none" stroke={c.bd} strokeWidth="2"/>
         <rect x="16" y="16" width="368" height="248" fill="none" stroke={c.bd2} strokeWidth="1"/>
         <rect x="10" y="10" width="380" height="36" fill={c.accent}/>
@@ -209,15 +225,15 @@ function CertThumbnail({theme="navy",w=48,h=36}:{theme?:string,w?:number,h?:numb
         <text x="200" y="87" textAnchor="middle" fill={c.sub} fontSize="8" letterSpacing="5" fontFamily="sans-serif">OF COMPLETION</text>
         <line x1="70" y1="96" x2="330" y2="96" stroke={c.bd} strokeWidth="0.8"/>
         <text x="200" y="118" textAnchor="middle" fill={lt?"rgba(0,0,0,0.45)":"rgba(255,255,255,0.55)"} fontSize="8" fontFamily="sans-serif">This is to certify that</text>
-        <text x="200" y="154" textAnchor="middle" fill={c.name} fontSize="28" fontFamily="Great Vibes,Georgia,serif" fontStyle="italic">Vishwajeet</text>
+        <text x="200" y="154" textAnchor="middle" fill={c.name} fontSize="22" fontFamily="Great Vibes,Georgia,serif" fontStyle="italic">{name || "Vishwajeet"}</text>
         <line x1="70" y1="165" x2="330" y2="165" stroke={c.bd2} strokeWidth="0.6"/>
         <text x="200" y="182" textAnchor="middle" fill={lt?"rgba(0,0,0,0.45)":"rgba(255,255,255,0.55)"} fontSize="7.5" fontFamily="sans-serif">has successfully completed</text>
-        <text x="200" y="200" textAnchor="middle" fill={c.sub} fontSize="10.5" fontFamily="Playfair Display,Georgia,serif" fontWeight="700">Full Stack Web Development</text>
+        <text x="200" y="200" textAnchor="middle" fill={c.sub} fontSize="10.5" fontFamily="Playfair Display,Georgia,serif" fontWeight="700">{course || "Full Stack Web Development"}</text>
         <circle cx="200" cy="240" r="20" fill={c.accent} stroke={c.bd} strokeWidth="1.2"/>
         <circle cx="200" cy="240" r="15" fill="none" stroke={c.bd2} strokeWidth="0.8"/>
         <text x="200" y="244" textAnchor="middle" fill={c.seal} fontSize="12" fontFamily="serif">✦</text>
-        <text x="100" y="228" textAnchor="middle" fill={lt?"rgba(0,0,0,0.4)":"rgba(255,255,255,0.4)"} fontSize="6" fontFamily="sans-serif">May 25, 2026</text>
-        <text x="300" y="228" textAnchor="middle" fill={lt?"rgba(0,0,0,0.4)":"rgba(255,255,255,0.4)"} fontSize="6" fontFamily="sans-serif">LAI-2026-000124</text>
+        <text x="100" y="228" textAnchor="middle" fill={lt?"rgba(0,0,0,0.4)":"rgba(255,255,255,0.4)"} fontSize="6" fontFamily="sans-serif">{date || "May 25, 2026"}</text>
+        <text x="300" y="228" textAnchor="middle" fill={lt?"rgba(0,0,0,0.4)":"rgba(255,255,255,0.4)"} fontSize="6" fontFamily="sans-serif">{certId || "LAI-2026-000124"}</text>
         <rect x="352" y="248" width="22" height="22" fill={lt?"rgba(0,0,0,0.08)":"rgba(255,255,255,0.08)"} stroke={c.bd2} strokeWidth="0.5" rx="2"/>
         <text x="363" y="263" textAnchor="middle" fill={c.bd2} fontSize="7">QR</text>
       </svg>
@@ -339,7 +355,7 @@ function OverviewScreen({setTab, stats}:{setTab:(t:string)=>void, stats: any}){
               <div style={{padding:20,textAlign:"center",color:TX2,fontSize:13}}>No certificates issued yet.</div>
             ) : recentCertificates.map((c: any,i: number)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:10,paddingBottom:i<recentCertificates.length-1?10:0,borderBottom:i<recentCertificates.length-1?`1px solid ${BD}`:"none"}}>
-                <CertThumbnail theme={c.theme}/>
+                <CertThumbnail theme={c.theme} name={c.name} course={c.course} date={c.date} certId={c.id} />
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{fontSize:13,fontWeight:600,color:TX,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{c.course}</div>
                   <div style={{fontSize:12,color:TX2}}>Issued to {c.name}</div>
@@ -451,6 +467,7 @@ function AllCertsScreen({
   const [view, setView] = useState<"list" | "grid">("list");
   const [page, setPage] = useState(1);
   const [previewCert, setPreviewCert] = useState<any | null>(null);
+  const [exportCert, setExportCert] = useState<any | null>(null);
 
   const STATUSES = ["All", "Issued", "Verified", "Downloaded", "Invalid"];
   const filtered = certificates.filter((c) => {
@@ -530,22 +547,47 @@ function AllCertsScreen({
   const handleDownloadPDF = async (c: any) => {
     toast.info("Generating high-quality PDF...");
     try {
-      const el = document.getElementById(`preview-cert-capture-${c.id}`);
+      let el = document.getElementById(`preview-cert-capture-${c.id}`);
+      let tempMounted = false;
+      
+      if (!el) {
+        setExportCert(c);
+        tempMounted = true;
+        // Wait for React to render the component to the DOM
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        el = document.getElementById(`export-cert-capture-${c.id}`);
+      }
+      
       if (!el) throw new Error("Preview element not found");
       const canvas = await html2canvas(el, { scale: 3, useCORS: true });
       const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
       pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 297, 210);
       pdf.save(`certificate_${c.name.replace(/\s+/g, "_")}.pdf`);
       toast.success("PDF Downloaded successfully!");
+      
+      if (tempMounted) {
+        setExportCert(null);
+      }
     } catch (err: any) {
       toast.error("PDF generation failed: " + err.message);
+      setExportCert(null);
     }
   };
 
   const handleDownloadImage = async (c: any) => {
     toast.info("Generating PNG Image...");
     try {
-      const el = document.getElementById(`preview-cert-capture-${c.id}`);
+      let el = document.getElementById(`preview-cert-capture-${c.id}`);
+      let tempMounted = false;
+      
+      if (!el) {
+        setExportCert(c);
+        tempMounted = true;
+        // Wait for React to render the component to the DOM
+        await new Promise((resolve) => setTimeout(resolve, 200));
+        el = document.getElementById(`export-cert-capture-${c.id}`);
+      }
+      
       if (!el) throw new Error("Preview element not found");
       const canvas = await html2canvas(el, { scale: 3, useCORS: true });
       const link = document.createElement("a");
@@ -553,8 +595,13 @@ function AllCertsScreen({
       link.href = canvas.toDataURL("image/png");
       link.click();
       toast.success("Image Downloaded successfully!");
+      
+      if (tempMounted) {
+        setExportCert(null);
+      }
     } catch (err: any) {
       toast.error("Image generation failed: " + err.message);
+      setExportCert(null);
     }
   };
 
@@ -698,7 +745,7 @@ function AllCertsScreen({
                 </td>
                 <td style={{ padding: "12px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <CertThumbnail theme={c.theme} />
+                    <CertThumbnail theme={c.theme} name={c.name} course={c.course} date={c.date} certId={c.id} />
                     <div>
                       <div style={{ fontSize: 11, color: TX3 }}>{c.id}</div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: TX, maxWidth: 180, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -797,7 +844,7 @@ function AllCertsScreen({
           <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 border border-slate-100 rounded-xl p-4 overflow-hidden relative min-h-[300px]">
             {previewCert && (
               <div id={`preview-cert-capture-${previewCert.id}`} className="shadow-lg rounded overflow-hidden origin-center">
-                <CertThumbnail theme={previewCert.theme} w={500} h={350} />
+                <CertThumbnail theme={previewCert.theme} w={500} h={350} name={previewCert.name} course={previewCert.course} date={previewCert.date} certId={previewCert.id} />
               </div>
             )}
           </div>
@@ -875,6 +922,14 @@ function AllCertsScreen({
           )}
         </DialogContent>
       </Dialog>
+      {exportCert && (
+        <div 
+          id={`export-cert-capture-${exportCert.id}`} 
+          style={{ position: "fixed", left: "-9999px", top: "-9999px", width: "800px", height: "560px", zIndex: -1000 }}
+        >
+          <CertThumbnail theme={exportCert.theme} w={800} h={560} />
+        </div>
+      )}
     </div>
   );
 }
@@ -1928,7 +1983,7 @@ function VerificationScreen({ stats }: { stats: any }){
             {VERIFY_LIST.map((item,i)=>(
               <div key={i} onClick={()=>setSelectedV(i)} style={{padding:"12px 16px",borderBottom:`1px solid ${BD}`,cursor:"pointer",background:selectedV===i?"#F5F3FF":"white",borderLeft:selectedV===i?`4px solid ${P}`:"4px solid transparent",transition:"background 0.1s"}}>
                 <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
-                  <CertThumbnail theme={item.theme} w={42} h={30}/>
+                  <CertThumbnail theme={item.theme} w={42} h={30} name={item.name} course="Full Stack Web Development" date="May 25, 2026" certId={item.id} />
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:13,fontWeight:600,color:TX}}>{item.name}</div>
                     <div style={{fontSize:11,color:TX3}}>{item.email}</div>
@@ -1959,7 +2014,7 @@ function VerificationScreen({ stats }: { stats: any }){
           </div>
 
           <div style={{display:"flex",gap:16,marginBottom:16,padding:"16px",background:SGL,borderRadius:10}}>
-            <CertThumbnail theme={v.theme} w={100} h={70}/>
+            <CertThumbnail theme={v.theme} w={100} h={70} name={v.name} course="Full Stack Web Development" date="May 25, 2026" certId={v.id} />
             <div style={{flex:1}}>
               <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:4}}>
                 <CheckCircle size={18} color={SG}/>
