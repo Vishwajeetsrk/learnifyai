@@ -2034,6 +2034,7 @@ function VerificationScreen({ stats }: { stats: any }){
 // ─── Screen: Analytics ────────────────────────────────────────────────────────
 function AnalyticsScreen({ stats }: { stats: any }){
   const [aTab,setATab]=useState("Overview");
+  const [hoveredCountry,setHoveredCountry]=useState<string|null>(null);
   const aTabs=["Overview","Certificates","Templates","Recipients","Verification","Engagement","Exports"];
   const topTemplates=[
     {rank:1,name:"Executive Blue Gold",issued:2856,verified:2712,rate:95.0,rateColor:SG,theme:"navy"},
@@ -2191,52 +2192,77 @@ function AnalyticsScreen({ stats }: { stats: any }){
         <SectionCard title="Geographic Distribution" action={<select style={{border:`1px solid ${BD}`,borderRadius:6,padding:"4px 8px",fontSize:12,color:TX2}}><option>This Week</option></select>}>
           <div style={{height:180,background:"linear-gradient(135deg,#0a0a23,#15153c)",borderRadius:8,position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
             {/* Minimalist World Map Vector Outline */}
-            <svg width="100%" height="100%" viewBox="0 0 800 360" style={{position:"absolute",top:0,left:0,opacity:0.25}}>
-              <path d="M 50 150 Q 80 80 120 70 T 200 60 T 280 80 T 320 120 T 300 200 T 250 250 T 150 260 T 80 220 Z" fill="#ffffff" opacity="0.15" />
-              <path d="M 230 240 Q 250 290 280 340 T 300 350 T 270 300 Z" fill="#ffffff" opacity="0.1" />
-              <path d="M 430 70 Q 480 50 530 60 T 600 70 T 650 90 T 700 80 T 760 120 T 720 200 T 650 230 Z" fill="#ffffff" opacity="0.15" />
-              <path d="M 450 150 Q 490 200 500 280 T 550 300 T 560 250 T 500 180 Z" fill="#ffffff" opacity="0.1" />
-              <path d="M 680 240 Q 720 250 750 290 T 710 320 T 670 280 Z" fill="#ffffff" opacity="0.1" />
-            </svg>
-            
-            {/* Geographic Distribution Markers */}
-            <div style={{position:"absolute",width:"100%",height:"100%",top:0,left:0}}>
-              {/* USA (New York) Marker */}
-              <div className="absolute group cursor-pointer" style={{left:"28%",top:"35%"}}>
-                <span className="flex h-3 w-3 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-500"></span>
-                </span>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-50">
-                  <div className="font-semibold">United States</div>
-                  <div className="text-violet-300">2,100 Verified</div>
-                </div>
-              </div>
+            <svg width="100%" height="100%" viewBox="0 0 800 360" style={{position:"absolute",top:0,left:0}}>
+              <path d="M 50 150 Q 80 80 120 70 T 200 60 T 280 80 T 320 120 T 300 200 T 250 250 T 150 260 T 80 220 Z" fill="#ffffff" opacity="0.08" />
+              <path d="M 230 240 Q 250 290 280 340 T 300 350 T 270 300 Z" fill="#ffffff" opacity="0.06" />
+              <path d="M 430 70 Q 480 50 530 60 T 600 70 T 650 90 T 700 80 T 760 120 T 720 200 T 650 230 Z" fill="#ffffff" opacity="0.08" />
+              <path d="M 450 150 Q 490 200 500 280 T 550 300 T 560 250 T 500 180 Z" fill="#ffffff" opacity="0.06" />
+              <path d="M 680 240 Q 720 250 750 290 T 710 320 T 670 280 Z" fill="#ffffff" opacity="0.06" />
 
-              {/* UK (London) Marker */}
-              <div className="absolute group cursor-pointer" style={{left:"48%",top:"30%"}}>
-                <span className="flex h-3 w-3 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-500"></span>
-                </span>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-50">
-                  <div className="font-semibold">United Kingdom</div>
-                  <div className="text-violet-300">1,230 Verified</div>
-                </div>
-              </div>
+              {/* USA Marker */}
+              <g 
+                onMouseEnter={() => setHoveredCountry("US")} 
+                onMouseLeave={() => setHoveredCountry(null)}
+                style={{cursor:"pointer"}}
+              >
+                <circle cx="224" cy="126" r="14" fill="#a78bfa" opacity="0.2">
+                  <animate attributeName="r" values="6;16;6" dur="2.5s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.3;0;0.3" dur="2.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="224" cy="126" r="4" fill="#a78bfa" />
+              </g>
+
+              {/* UK Marker */}
+              <g 
+                onMouseEnter={() => setHoveredCountry("UK")} 
+                onMouseLeave={() => setHoveredCountry(null)}
+                style={{cursor:"pointer"}}
+              >
+                <circle cx="384" cy="108" r="14" fill="#a78bfa" opacity="0.2">
+                  <animate attributeName="r" values="6;16;6" dur="2.5s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.3;0;0.3" dur="2.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="384" cy="108" r="4" fill="#a78bfa" />
+              </g>
 
               {/* India Marker */}
-              <div className="absolute group cursor-pointer" style={{left:"67%",top:"55%"}}>
-                <span className="flex h-3.5 w-3.5 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
-                </span>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-50">
-                  <div className="font-semibold">India (Primary Hub)</div>
-                  <div className="text-emerald-300">3,521 Verified</div>
-                </div>
-              </div>
-            </div>
+              <g 
+                onMouseEnter={() => setHoveredCountry("IN")} 
+                onMouseLeave={() => setHoveredCountry(null)}
+                style={{cursor:"pointer"}}
+              >
+                <circle cx="536" cy="198" r="16" fill="#34d399" opacity="0.25">
+                  <animate attributeName="r" values="8;20;8" dur="2s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="536" cy="198" r="5" fill="#34d399" />
+              </g>
+
+              {/* SVG Tooltips */}
+              {hoveredCountry === "US" && (
+                <g transform="translate(124, 56)">
+                  <rect width="200" height="50" rx="6" fill="#0f172a" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                  <text x="100" y="20" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif">United States</text>
+                  <text x="100" y="38" textAnchor="middle" fill="#c084fc" fontSize="12" fontWeight="bold" fontFamily="sans-serif">2,100 Verified</text>
+                </g>
+              )}
+
+              {hoveredCountry === "UK" && (
+                <g transform="translate(284, 38)">
+                  <rect width="200" height="50" rx="6" fill="#0f172a" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                  <text x="100" y="20" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif">United Kingdom</text>
+                  <text x="100" y="38" textAnchor="middle" fill="#c084fc" fontSize="12" fontWeight="bold" fontFamily="sans-serif">1,230 Verified</text>
+                </g>
+              )}
+
+              {hoveredCountry === "IN" && (
+                <g transform="translate(436, 128)">
+                  <rect width="200" height="50" rx="6" fill="#0f172a" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                  <text x="100" y="20" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif">India (Primary Hub)</text>
+                  <text x="100" y="38" textAnchor="middle" fill="#34d399" fontSize="12" fontWeight="bold" fontFamily="sans-serif">3,521 Verified</text>
+                </g>
+              )}
+            </svg>
             
             {/* Real Data Overlay Summary */}
             <div style={{position:"absolute",bottom:8,left:12,right:12,display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(10,10,35,0.75)",backdropFilter:"blur(4px)",border:"1px solid rgba(255,255,255,0.08)",padding:"6px 12px",borderRadius:6}}>
