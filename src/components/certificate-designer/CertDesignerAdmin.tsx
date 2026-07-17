@@ -1522,8 +1522,8 @@ function DesignerCanvasScreen(){
         <span style={{color:SG,fontWeight:500}}>✓ Interactive Mode Active</span>
         <div style={{display:"flex",gap:8}}>
           <Btn variant="outline" onClick={() => setCanvasElements([
-            { id: "recipient", text: "Vishwajeet Sharma", fontFamily: "Great Vibes", fontSize: 80, fontColor: "#ffffff", bold: false, italic: true, underline: false, align: "center", opacity: 100, x: 561, y: 450, rotation: 0, width: 722, height: 120 },
-            { id: "course", text: "Full Stack Web Development", fontFamily: "Playfair Display", fontSize: 34, fontColor: "#C9A227", bold: true, italic: false, underline: false, align: "center", opacity: 100, x: 561, y: 570, rotation: 0, width: 722, height: 60 }
+            { id: "recipient", text: "Vishwajeet Sharma", fontFamily: "Great Vibes", fontSize: 80, fontColor: "#ffffff", bold: false, italic: true, underline: false, align: "center", opacity: 100, x: 561, y: 450, rotation: 0, width: 722, height: 120, type: "text" },
+            { id: "course", text: "Full Stack Web Development", fontFamily: "Playfair Display", fontSize: 34, fontColor: "#C9A227", bold: true, italic: false, underline: false, align: "center", opacity: 100, x: 561, y: 570, rotation: 0, width: 722, height: 60, type: "text" }
           ])}>Reset</Btn>
           <Btn variant="primary" onClick={handleSave} style={{fontSize:12,padding:"4px 10px"}}><Save size={12}/>Save Changes</Btn>
         </div>
