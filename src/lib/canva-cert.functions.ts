@@ -859,7 +859,7 @@ export const aiOptimizeDesign = createServerFn({ method: "POST" })
       )
       .join("\n");
 
-    const prompt = `You are a professional certificate designer. Given the following certificate elements and design, suggest specific improvements to make it look more premium and professional.
+    const prompt = `You are a professional certificate designer. Given the following certificate elements and design, suggest specific improvements to make it look more premium and professional. CRITICAL: Do NOT use any emojis under any circumstances.
 
 Current design:
 - Border style: ${data.design?.border_style || "none"}

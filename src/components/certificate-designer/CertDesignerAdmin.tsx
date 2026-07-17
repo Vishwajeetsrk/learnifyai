@@ -1009,17 +1009,148 @@ function DesignerCanvasScreen(){
   const [zoom,setZoom]=useState(65);
   const [showGrid,setShowGrid]=useState(false);
   const [device,setDevice]=useState("desktop");
-  const [fontFamily,setFontFamily]=useState("Great Vibes");
-  const [fontSize,setFontSize]=useState(72);
-  const [fontColor,setFontColor]=useState("#1a1a2e");
-  const [bold,setBold]=useState(false);
-  const [italic,setItalic]=useState(false);
-  const [underline,setUnderline]=useState(false);
-  const [align,setAlign]=useState("center");
-  const [opacity,setOpacity]=useState(100);
   const [designTab,setDesignTab]=useState("Design");
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  const elements=[
+  const [canvasElements, setCanvasElements] = useState([
+    {
+      id: "recipient",
+      text: "Vishwajeet Sharma",
+      fontFamily: "Great Vibes",
+      fontSize: 80,
+      fontColor: "#ffffff",
+      bold: false,
+      italic: true,
+      underline: false,
+      align: "center",
+      opacity: 100,
+      x: 561,
+      y: 450,
+      rotation: 0,
+      width: 722,
+      height: 120,
+    },
+    {
+      id: "course",
+      text: "Full Stack Web Development",
+      fontFamily: "Playfair Display",
+      fontSize: 34,
+      fontColor: "#C9A227",
+      bold: true,
+      italic: false,
+      underline: false,
+      align: "center",
+      opacity: 100,
+      x: 561,
+      y: 570,
+      rotation: 0,
+      width: 722,
+      height: 60,
+    }
+  ]);
+
+  const activeEl = canvasElements.find(el => el.id === selectedEl);
+
+  const updateActiveEl = (updates: Partial<typeof canvasElements[0]>) => {
+    if (!selectedEl) return;
+    setCanvasElements(prev => prev.map(el => el.id === selectedEl ? { ...el, ...updates } : el));
+  };
+
+  const handleDragStart = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setSelectedEl(id);
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const initialEl = canvasElements.find(el => el.id === id);
+    if (!initialEl) return;
+    const initialX = initialEl.x;
+    const initialY = initialEl.y;
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+      const zoomFactor = zoom / 100;
+      setCanvasElements(prev => prev.map(el => el.id === id ? {
+        ...el,
+        x: Math.round(initialX + dx / zoomFactor),
+        y: Math.round(initialY + dy / zoomFactor),
+      } : el));
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleAddElement = (type: string) => {
+    const newId = `element-${Date.now()}`;
+    const newEl = {
+      id: newId,
+      text: `New ${type.toUpperCase()}`,
+      fontFamily: "Inter",
+      fontSize: 24,
+      fontColor: "#ffffff",
+      bold: false,
+      italic: false,
+      underline: false,
+      align: "center" as const,
+      opacity: 100,
+      x: 561,
+      y: 300,
+      rotation: 0,
+      width: 200,
+      height: 60,
+      type: type,
+    };
+    setCanvasElements(prev => [...prev, newEl]);
+    setSelectedEl(newId);
+    toast.success(`Added new ${type} element!`);
+  };
+
+  const handleDeleteActive = () => {
+    if (!selectedEl) return;
+    if (selectedEl === "recipient" || selectedEl === "course") {
+      toast.error("Primary elements cannot be deleted");
+      return;
+    }
+    setCanvasElements(prev => prev.filter(el => el.id !== selectedEl));
+    setSelectedEl(null);
+    toast.success("Element deleted");
+  };
+
+  const handleDuplicateActive = () => {
+    if (!selectedEl) return;
+    const src = canvasElements.find(el => el.id === selectedEl);
+    if (!src) return;
+    const newId = `element-${Date.now()}`;
+    const copy = {
+      ...src,
+      id: newId,
+      text: `${src.text} (Copy)`,
+      x: src.x + 20,
+      y: src.y + 20,
+    };
+    setCanvasElements(prev => [...prev, copy]);
+    setSelectedEl(newId);
+    toast.success("Element duplicated");
+  };
+
+  const handleDownload = (format: "png" | "pdf") => {
+    toast.promise(
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+      {
+        loading: `Generating high-resolution ${format.toUpperCase()}...`,
+        success: `Successfully downloaded certificate ${format.toUpperCase()}!`,
+        error: "Export failed.",
+      }
+    );
+  };
+
+  const elementsList = [
     {id:"text",label:"Text",icon:<Type size={18} color={P}/>},
     {id:"image",label:"Image",icon:<Image size={18} color={IN}/>},
     {id:"shape",label:"Shape",icon:<Square size={18} color={SG}/>},
@@ -1032,13 +1163,159 @@ function DesignerCanvasScreen(){
 
   const dynamicFields=["Student Name","Course Name","Issue Date","Expiry Date","Certificate ID","Score","Grade","Instructor"];
 
+  const renderCertificateSvg = (isModal = false) => {
+    const recipient = canvasElements.find(el => el.id === "recipient")!;
+    const course = canvasElements.find(el => el.id === "course")!;
+
+    return (
+      <svg width="100%" height="100%" viewBox="0 0 1122 794" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style={{display:"block"}}>
+        <defs>
+          <linearGradient id="canvasBg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#0a0a2e"/><stop offset="100%" stopColor="#1a1a4e"/>
+          </linearGradient>
+        </defs>
+        <rect width="1122" height="794" fill="url(#canvasBg)"/>
+        
+        {!isModal && showGrid && (
+          <g>
+            {Array.from({length: 40}).map((_, i) => (
+              <line key={`v-${i}`} x1={i * 30} y1={0} x2={i * 30} y2={794} stroke="rgba(255,255,255,0.05)" strokeWidth={1}/>
+            ))}
+            {Array.from({length: 30}).map((_, i) => (
+              <line key={`h-${i}`} x1={0} y1={i * 30} x2={1122} y2={i * 30} stroke="rgba(255,255,255,0.05)" strokeWidth={1}/>
+            ))}
+          </g>
+        )}
+
+        <rect x="28" y="28" width="1066" height="738" fill="none" stroke="#C9A227" strokeWidth="5"/>
+        <rect x="42" y="42" width="1038" height="710" fill="none" stroke="rgba(201,162,39,0.4)" strokeWidth="2"/>
+        <path d="M28,28 L140,28 L140,38 L38,38 L38,140 L28,140Z" fill="#C9A227" opacity="0.85"/>
+        <path d="M1094,28 L982,28 L982,38 L1084,38 L1084,140 L1094,140Z" fill="#C9A227" opacity="0.85"/>
+        <path d="M28,766 L140,766 L140,756 L38,756 L38,654 L28,654Z" fill="#C9A227" opacity="0.85"/>
+        <path d="M1094,766 L982,766 L982,756 L1084,756 L1084,654 L1094,654Z" fill="#C9A227" opacity="0.85"/>
+        
+        {/* Graduation cap Logo */}
+        <g transform="translate(435, 95)" fill="#C9A227">
+          <path d="M 12 2 L 2 7 L 12 12 L 22 7 Z" />
+          <path d="M 2 17 L 12 22 L 22 17" fill="none" stroke="#C9A227" strokeWidth="2" strokeLinecap="round" />
+          <path d="M 7 14.5 L 7 18.5 C 7 19.5, 17 19.5, 17 18.5 L 17 14.5" fill="none" stroke="#C9A227" strokeWidth="2" strokeLinecap="round" />
+          <path d="M 22 7 L 22 15 L 21 15 L 21 8" />
+        </g>
+        <text x="585" y="120" textAnchor="middle" fill="#C9A227" fontSize="22" fontFamily="serif" letterSpacing="8" fontWeight="700">LEARNIFY AI</text>
+        
+        <text x="561" y="210" textAnchor="middle" fill="white" fontSize="80" fontFamily="Playfair Display,Georgia,serif" fontWeight="700" letterSpacing="16">CERTIFICATE</text>
+        <text x="561" y="260" textAnchor="middle" fill="#C9A227" fontSize="26" letterSpacing="18" fontFamily="sans-serif">OF COMPLETION</text>
+        <text x="561" y="340" textAnchor="middle" fill="rgba(255,255,255,0.65)" fontSize="22" fontFamily="sans-serif">This is to certify that</text>
+        
+        {/* Recipient Text */}
+        <g transform={`rotate(${recipient.rotation || 0}, ${recipient.x}, ${recipient.y})`} style={{opacity: (recipient.opacity ?? 100) / 100}}>
+          {!isModal && (
+            <rect x={recipient.x - recipient.width/2} y={recipient.y - 70} width={recipient.width} height={recipient.height} fill={selectedEl==="recipient"?"rgba(107,91,251,0.1)":"transparent"} stroke={selectedEl==="recipient"?"#6B5BFB":"transparent"} strokeWidth="2" strokeDasharray="8 4" rx="4" onClick={()=>setSelectedEl("recipient")} onMouseDown={(e)=>handleDragStart(e, "recipient")} style={{cursor:"move"}}/>
+          )}
+          <text x={recipient.x} y={recipient.y} textAnchor={recipient.align === "left" ? "start" : recipient.align === "right" ? "end" : "middle"} fill={recipient.fontColor} fontSize={recipient.fontSize} fontFamily={`${recipient.fontFamily},Georgia,serif`} fontStyle={recipient.italic?"italic":"normal"} fontWeight={recipient.bold?"bold":"normal"} textDecoration={recipient.underline?"underline":"none"} onClick={()=>setSelectedEl("recipient")} onMouseDown={(e)=>!isModal ? handleDragStart(e, "recipient") : undefined} style={{cursor:!isModal ? "move" : "default", userSelect:"none"}}>{recipient.text}</text>
+        </g>
+        
+        <line x1="200" y1="476" x2="922" y2="476" stroke="rgba(201,162,39,0.45)" strokeWidth="1.5"/>
+        <text x="561" y="516" textAnchor="middle" fill="rgba(255,255,255,0.7)" fontSize="20" fontFamily="sans-serif">has successfully completed the course</text>
+        
+        {/* Course Text */}
+        <g transform={`rotate(${course.rotation || 0}, ${course.x}, ${course.y})`} style={{opacity: (course.opacity ?? 100) / 100}}>
+          {!isModal && (
+            <rect x={course.x - course.width/2} y={course.y - 45} width={course.width} height={course.height} fill={selectedEl==="course"?"rgba(107,91,251,0.1)":"transparent"} stroke={selectedEl==="course"?"#6B5BFB":"transparent"} strokeWidth="1.5" strokeDasharray="6 3" rx="4" onClick={()=>setSelectedEl("course")} onMouseDown={(e)=>handleDragStart(e, "course")} style={{cursor:"move"}}/>
+          )}
+          <text x={course.x} y={course.y} textAnchor={course.align === "left" ? "start" : course.align === "right" ? "end" : "middle"} fill={course.fontColor} fontSize={course.fontSize} fontFamily={`${course.fontFamily},Georgia,serif`} fontStyle={course.italic?"italic":"normal"} fontWeight={course.bold?"bold":"normal"} textDecoration={course.underline?"underline":"none"} onClick={()=>setSelectedEl("course")} onMouseDown={(e)=>!isModal ? handleDragStart(e, "course") : undefined} style={{cursor:!isModal ? "move" : "default", userSelect:"none"}}>{course.text}</text>
+        </g>
+        
+        <line x1="150" y1="640" x2="430" y2="640" stroke="rgba(201,162,39,0.45)" strokeWidth="1"/>
+        <line x1="692" y1="640" x2="972" y2="640" stroke="rgba(201,162,39,0.45)" strokeWidth="1"/>
+        <text x="290" y="660" textAnchor="middle" fill="rgba(255,255,255,0.55)" fontSize="18" fontFamily="sans-serif">May 25, 2026</text>
+        <text x="290" y="682" textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="14" fontFamily="sans-serif">Date of Completion</text>
+        <text x="832" y="660" textAnchor="middle" fill="rgba(255,255,255,0.55)" fontSize="18" fontFamily="sans-serif">Vishwajeet S.</text>
+        <text x="832" y="682" textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="14" fontFamily="sans-serif">Founder & CEO, Learnify AI</text>
+        
+        <circle cx="561" cy="660" r="56" fill="rgba(201,162,39,0.12)" stroke="#C9A227" strokeWidth="3"/>
+        <circle cx="561" cy="660" r="42" fill="none" stroke="rgba(201,162,39,0.4)" strokeWidth="1.5"/>
+        <text x="561" y="672" textAnchor="middle" fill="#C9A227" fontSize="36" fontFamily="serif">✦</text>
+        
+        {/* Beautiful high-tech vector QR Code */}
+        <g transform="translate(996, 700)">
+          <rect width="80" height="80" fill="white" rx="6" stroke="#C9A227" strokeWidth="1"/>
+          <rect x="6" y="6" width="18" height="18" fill="#0F172A" rx="2"/>
+          <rect x="8" y="8" width="14" height="14" fill="white" rx="1"/>
+          <rect x="10" y="10" width="10" height="10" fill="#0F172A" rx="0.5"/>
+
+          <rect x="56" y="6" width="18" height="18" fill="#0F172A" rx="2"/>
+          <rect x="58" y="8" width="14" height="14" fill="white" rx="1"/>
+          <rect x="60" y="10" width="10" height="10" fill="#0F172A" rx="0.5"/>
+
+          <rect x="6" y="56" width="18" height="18" fill="#0F172A" rx="2"/>
+          <rect x="8" y="58" width="14" height="14" fill="white" rx="1"/>
+          <rect x="10" y="60" width="10" height="10" fill="#0F172A" rx="0.5"/>
+
+          <rect x="30" y="10" width="6" height="6" fill="#0F172A" rx="1"/>
+          <rect x="40" y="16" width="10" height="6" fill="#0F172A" rx="1"/>
+          <rect x="30" y="30" width="12" height="6" fill="#0F172A" rx="1"/>
+          <rect x="16" y="38" width="6" height="12" fill="#0F172A" rx="1"/>
+          <rect x="32" y="44" width="8" height="8" fill="#0F172A" rx="1"/>
+          <rect x="48" y="36" width="12" height="12" fill="#0F172A" rx="1"/>
+          <rect x="56" y="56" width="8" height="8" fill="#0F172A" rx="1"/>
+        </g>
+        
+        {/* Dynamic elements rendering */}
+        {canvasElements.map(el => {
+          if (el.id === "recipient" || el.id === "course") return null;
+          const isSelected = selectedEl === el.id;
+          return (
+            <g key={el.id} transform={`rotate(${el.rotation || 0}, ${el.x}, ${el.y})`} style={{opacity: (el.opacity ?? 100) / 100}}>
+              {!isModal && (
+                <rect x={el.x - el.width/2} y={el.y - el.height/2} width={el.width} height={el.height} fill={isSelected?"rgba(107,91,251,0.1)":"transparent"} stroke={isSelected?"#6B5BFB":"transparent"} strokeWidth="2" strokeDasharray="8 4" rx="4" onClick={()=>setSelectedEl(el.id)} onMouseDown={(e)=>handleDragStart(e, el.id)} style={{cursor:"move"}}/>
+              )}
+              
+              {el.type === "qrcode" ? (
+                <g transform={`translate(${el.x - el.width/2}, ${el.y - el.height/2})`}>
+                  <rect width={el.width} height={el.height} fill="white" rx={4}/>
+                  <rect x={6} y={6} width={18} height={18} fill="#0F172A"/>
+                  <rect x={8} y={8} width={14} height={14} fill="white"/>
+                  <rect x={10} y={10} width={10} height={10} fill="#0F172A"/>
+
+                  <rect x={el.width - 24} y={6} width={18} height={18} fill="#0F172A"/>
+                  <rect x={el.width - 22} y={8} width={14} height={14} fill="white"/>
+                  <rect x={el.width - 20} y={10} width={10} height={10} fill="#0F172A"/>
+
+                  <rect x={6} y={el.height - 24} width={18} height={18} fill="#0F172A"/>
+                  <rect x={8} y={el.height - 22} width={14} height={14} fill="white"/>
+                  <rect x={10} y={el.height - 20} width={10} height={10} fill="#0F172A"/>
+
+                  <rect x={30} y={10} width={6} height={6} fill="#0F172A"/>
+                  <rect x={40} y={15} width={12} height={4} fill="#0F172A"/>
+                  <rect x={35} y={25} width={8} height={8} fill="#0F172A"/>
+                  <rect x={15} y={35} width={12} height={6} fill="#0F172A"/>
+                  <rect x={45} y={35} width={6} height={12} fill="#0F172A"/>
+                </g>
+              ) : el.type === "signature" ? (
+                <g transform={`translate(${el.x - el.width/2}, ${el.y - el.height/2})`}>
+                  <text x={el.width/2} y={el.height - 15} textAnchor="middle" fill="#C9A227" fontSize="28" fontFamily="Great Vibes,cursive">{el.text}</text>
+                  <line x1={10} y1={el.height - 10} x2={el.width - 10} y2={el.height - 10} stroke="rgba(255,255,255,0.3)" strokeWidth="1"/>
+                </g>
+              ) : el.type === "shape" ? (
+                <rect x={el.x - el.width/2} y={el.y - el.height/2} width={el.width} height={el.height} fill="none" stroke="#C9A227" strokeWidth="2" rx={4}/>
+              ) : (
+                <text x={el.x} y={el.y + el.height/4} textAnchor={el.align === "left" ? "start" : el.align === "right" ? "end" : "middle"} fill={el.fontColor} fontSize={el.fontSize} fontFamily={`${el.fontFamily},sans-serif`} fontStyle={el.italic?"italic":"normal"} fontWeight={el.bold?"bold":"normal"} textDecoration={el.underline?"underline":"none"} onClick={()=>setSelectedEl(el.id)} onMouseDown={(e)=>!isModal ? handleDragStart(e, el.id) : undefined} style={{cursor:!isModal ? "move" : "default", userSelect:"none"}}>{el.text}</text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    );
+  };
+
   return(
     <div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 200px)",background:"white",border:`1px solid ${BD}`,borderRadius:12,overflow:"hidden"}}>
       {/* Toolbar */}
       <div style={{borderBottom:`1px solid ${BD}`,padding:"10px 16px",display:"flex",alignItems:"center",gap:12,flexWrap:"wrap",flexShrink:0}}>
         <div style={{display:"flex",gap:6}}>
-          <button style={{padding:5,border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer"}}><RotateCcw size={14} color={TX2}/></button>
-          <button style={{padding:5,border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer"}}><RotateCw size={14} color={TX2}/></button>
+          <button onClick={() => updateActiveEl({ rotation: Math.max(0, (activeEl?.rotation || 0) - 15) })} style={{padding:5,border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer"}} title="Rotate Left"><RotateCcw size={14} color={TX2}/></button>
+          <button onClick={() => updateActiveEl({ rotation: Math.min(360, (activeEl?.rotation || 0) + 15) })} style={{padding:5,border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer"}} title="Rotate Right"><RotateCw size={14} color={TX2}/></button>
         </div>
         <div style={{width:1,height:20,background:BD}}/>
         <div style={{display:"flex",gap:4,alignItems:"center"}}>
@@ -1052,13 +1329,20 @@ function DesignerCanvasScreen(){
             {d.icon}
           </button>
         ))}
+        <div style={{width:1,height:20,background:BD}}/>
         <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize:13,color:TX2}}>
           <input type="checkbox" checked={showGrid} onChange={e=>setShowGrid(e.target.checked)} style={{accentColor:P}}/> Grid
         </label>
         <div style={{marginLeft:"auto",display:"flex",gap:8}}>
-          <Btn variant="outline"><Eye size={14}/>Preview</Btn>
-          <Btn variant="outline"><Save size={14}/>Save</Btn>
-          <Btn variant="primary"><Download size={14}/>Download ▾</Btn>
+          <Btn variant="outline" onClick={() => setIsPreviewOpen(true)}><Eye size={14}/>Preview</Btn>
+          <Btn variant="outline" onClick={handleSave}><Save size={14}/>Save</Btn>
+          <div style={{position:"relative",display:"inline-block"}} className="group">
+            <Btn variant="primary"><Download size={14}/>Download ▾</Btn>
+            <div className="absolute right-0 top-full mt-1 hidden group-hover:flex flex-col bg-white border border-slate-200 rounded-lg shadow-xl py-1 z-50 min-w-[120px]">
+              <button onClick={() => handleDownload("png")} className="px-3 py-1.5 text-xs text-left text-slate-700 hover:bg-slate-50 w-full font-medium">Export PNG</button>
+              <button onClick={() => handleDownload("pdf")} className="px-3 py-1.5 text-xs text-left text-slate-700 hover:bg-slate-50 w-full font-medium">Export PDF</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1067,8 +1351,8 @@ function DesignerCanvasScreen(){
         <div style={{width:180,borderRight:`1px solid ${BD}`,padding:12,overflowY:"auto",flexShrink:0,background:"#FAFAFA"}}>
           <div style={{fontSize:11,fontWeight:700,color:TX2,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:10}}>Add Elements</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-            {elements.map(el=>(
-              <button key={el.id} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 6px",border:`1px solid ${BD}`,borderRadius:8,background:"white",cursor:"pointer",fontSize:11,fontWeight:500,color:TX}}
+            {elementsList.map(el=>(
+              <button key={el.id} onClick={() => handleAddElement(el.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:"10px 6px",border:`1px solid ${BD}`,borderRadius:8,background:"white",cursor:"pointer",fontSize:11,fontWeight:500,color:TX}}
                 onMouseEnter={e=>{e.currentTarget.style.background=PL;e.currentTarget.style.borderColor=P}}
                 onMouseLeave={e=>{e.currentTarget.style.background="white";e.currentTarget.style.borderColor=BD}}>
                 {el.icon}{el.label}
@@ -1090,53 +1374,21 @@ function DesignerCanvasScreen(){
             overflow:"hidden",
             flexShrink:0,
           }}>
-            <svg width="100%" height="100%" viewBox="0 0 1122 794" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" style={{display:"block"}}>
-              <defs>
-                <linearGradient id="canvasBg" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#0a0a2e"/><stop offset="100%" stopColor="#1a1a4e"/>
-                </linearGradient>
-              </defs>
-              <rect width="1122" height="794" fill="url(#canvasBg)"/>
-              <rect x="28" y="28" width="1066" height="738" fill="none" stroke="#C9A227" strokeWidth="5"/>
-              <rect x="42" y="42" width="1038" height="710" fill="none" stroke="rgba(201,162,39,0.4)" strokeWidth="2"/>
-              <path d="M28,28 L140,28 L140,38 L38,38 L38,140 L28,140Z" fill="#C9A227" opacity="0.85"/>
-              <path d="M1094,28 L982,28 L982,38 L1084,38 L1084,140 L1094,140Z" fill="#C9A227" opacity="0.85"/>
-              <path d="M28,766 L140,766 L140,756 L38,756 L38,654 L28,654Z" fill="#C9A227" opacity="0.85"/>
-              <path d="M1094,766 L982,766 L982,756 L1084,756 L1084,654 L1094,654Z" fill="#C9A227" opacity="0.85"/>
-              <text x="561" y="120" textAnchor="middle" fill="#C9A227" fontSize="22" fontFamily="serif" letterSpacing="8" fontWeight="700">LEARNIFY AI</text>
-              <text x="561" y="210" textAnchor="middle" fill="white" fontSize="80" fontFamily="Playfair Display,Georgia,serif" fontWeight="700" letterSpacing="16">CERTIFICATE</text>
-              <text x="561" y="260" textAnchor="middle" fill="#C9A227" fontSize="26" letterSpacing="18" fontFamily="sans-serif">OF COMPLETION</text>
-              <text x="561" y="340" textAnchor="middle" fill="rgba(255,255,255,0.65)" fontSize="22" fontFamily="sans-serif">This is to certify that</text>
-              <rect x="200" y="350" width="722" height="120" fill={selectedEl==="recipient"?"rgba(107,91,251,0.1)":"transparent"} stroke={selectedEl==="recipient"?"#6B5BFB":"transparent"} strokeWidth="2" strokeDasharray="8 4" rx="4" onClick={()=>setSelectedEl("recipient")} style={{cursor:"pointer"}}/>
-              <text x="561" y="450" textAnchor="middle" fill="white" fontSize="90" fontFamily="Great Vibes,Georgia,serif" fontStyle="italic" onClick={()=>setSelectedEl("recipient")} style={{cursor:"pointer"}}>Vishwajeet Sharma</text>
-              <line x1="200" y1="476" x2="922" y2="476" stroke="rgba(201,162,39,0.45)" strokeWidth="1.5"/>
-              <text x="561" y="516" textAnchor="middle" fill="rgba(255,255,255,0.7)" fontSize="20" fontFamily="sans-serif">has successfully completed the course</text>
-              <rect x="200" y="528" width="722" height="60" fill={selectedEl==="course"?"rgba(107,91,251,0.1)":"transparent"} stroke={selectedEl==="course"?"#6B5BFB":"transparent"} strokeWidth="1.5" strokeDasharray="6 3" rx="4" onClick={()=>setSelectedEl("course")} style={{cursor:"pointer"}}/>
-              <text x="561" y="570" textAnchor="middle" fill="#C9A227" fontSize="34" fontFamily="Playfair Display,Georgia,serif" fontWeight="700" onClick={()=>setSelectedEl("course")} style={{cursor:"pointer"}}>Full Stack Web Development</text>
-              <line x1="150" y1="640" x2="430" y2="640" stroke="rgba(201,162,39,0.45)" strokeWidth="1"/>
-              <line x1="692" y1="640" x2="972" y2="640" stroke="rgba(201,162,39,0.45)" strokeWidth="1"/>
-              <text x="290" y="660" textAnchor="middle" fill="rgba(255,255,255,0.55)" fontSize="18" fontFamily="sans-serif">May 25, 2026</text>
-              <text x="290" y="682" textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="14" fontFamily="sans-serif">Date of Completion</text>
-              <text x="832" y="660" textAnchor="middle" fill="rgba(255,255,255,0.55)" fontSize="18" fontFamily="sans-serif">Vishwajeet S.</text>
-              <text x="832" y="682" textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="14" fontFamily="sans-serif">Founder & CEO, Learnify AI</text>
-              <circle cx="561" cy="660" r="56" fill="rgba(201,162,39,0.12)" stroke="#C9A227" strokeWidth="3"/>
-              <circle cx="561" cy="660" r="42" fill="none" stroke="rgba(201,162,39,0.4)" strokeWidth="1.5"/>
-              <text x="561" y="672" textAnchor="middle" fill="#C9A227" fontSize="36" fontFamily="serif">✦</text>
-              <rect x="996" y="700" width="80" height="80" fill="rgba(255,255,255,0.08)" stroke="rgba(201,162,39,0.4)" strokeWidth="1" rx="4"/>
-              <text x="1036" y="748" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="18">QR</text>
-              {selectedEl==="recipient"&&<>
-                <rect x="198" y="348" width="10" height="10" fill={P} rx="2"/><rect x="908" y="348" width="10" height="10" fill={P} rx="2"/>
-                <rect x="198" y="460" width="10" height="10" fill={P} rx="2"/><rect x="908" y="460" width="10" height="10" fill={P} rx="2"/>
-                <rect x="548" y="348" width="10" height="10" fill={P} rx="2"/><rect x="548" y="460" width="10" height="10" fill={P} rx="2"/>
-              </>}
-            </svg>
+            {renderCertificateSvg(false)}
           </div>
 
           {/* Dynamic Fields Bar */}
           <div style={{position:"absolute",bottom:0,left:0,right:0,background:"white",borderTop:`1px solid ${BD}`,padding:"8px 16px",display:"flex",gap:6,alignItems:"center",overflowX:"auto"}}>
             <span style={{fontSize:11,fontWeight:600,color:TX2,flexShrink:0}}>Dynamic Fields:</span>
             {dynamicFields.map(f=>(
-              <button key={f} style={{padding:"3px 10px",border:`1px solid ${BD}`,borderRadius:999,fontSize:12,fontWeight:500,background:"white",cursor:"pointer",flexShrink:0,color:TX}}
+              <button key={f} onClick={() => {
+                if (selectedEl) {
+                  updateActiveEl({ text: f });
+                  toast.success(`Set active element text to: ${f}`);
+                } else {
+                  toast.info("Select a text element first to inject field");
+                }
+              }} style={{padding:"3px 10px",border:`1px solid ${BD}`,borderRadius:999,fontSize:12,fontWeight:500,background:"white",cursor:"pointer",flexShrink:0,color:TX}}
                 onMouseEnter={e=>{e.currentTarget.style.background=PL;e.currentTarget.style.borderColor=P;e.currentTarget.style.color=P}}
                 onMouseLeave={e=>{e.currentTarget.style.background="white";e.currentTarget.style.borderColor=BD;e.currentTarget.style.color=TX}}>
                 {f}
@@ -1148,99 +1400,111 @@ function DesignerCanvasScreen(){
         {/* Right Properties Panel */}
         <div style={{width:260,borderLeft:`1px solid ${BD}`,padding:16,overflowY:"auto",flexShrink:0,background:"#FAFAFA"}}>
           <div style={{display:"flex",gap:0,marginBottom:16,border:`1px solid ${BD}`,borderRadius:8,overflow:"hidden"}}>
-            {["Design","Style","Arrange"].map(t=>(
+            {["Design","Arrange"].map(t=>(
               <button key={t} onClick={()=>setDesignTab(t)} style={{flex:1,padding:"7px 4px",border:"none",background:designTab===t?P:"white",color:designTab===t?"white":TX2,fontSize:12,fontWeight:designTab===t?600:400,cursor:"pointer"}}>
                 {t}
               </button>
             ))}
           </div>
 
-          {designTab==="Design"&&(
+          {activeEl ? (
             <>
-              <div style={{marginBottom:16}}>
-                <div style={{fontSize:11,fontWeight:700,color:TX2,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Text Properties</div>
-                <div style={{marginBottom:8}}>
-                  <label style={{fontSize:12,color:TX2,display:"block",marginBottom:4}}>Font Family</label>
-                  <select value={fontFamily} onChange={e=>setFontFamily(e.target.value)} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:6,padding:"6px 10px",fontSize:13,color:TX}}>
-                    <option>Great Vibes</option><option>Playfair Display</option><option>Inter</option>
-                  </select>
-                </div>
-                <div style={{display:"flex",gap:8,marginBottom:8}}>
-                  <div style={{flex:1}}>
-                    <label style={{fontSize:12,color:TX2,display:"block",marginBottom:4}}>Size</label>
-                    <input type="number" value={fontSize} onChange={e=>setFontSize(+e.target.value)} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:6,padding:"6px 10px",fontSize:13,color:TX}}/>
-                  </div>
-                  <div style={{flex:1}}>
-                    <label style={{fontSize:12,color:TX2,display:"block",marginBottom:4}}>Color</label>
-                    <div style={{border:`1px solid ${BD}`,borderRadius:6,padding:"4px 8px",display:"flex",gap:6,alignItems:"center"}}>
-                      <div style={{width:18,height:18,borderRadius:3,background:fontColor,flexShrink:0}}/>
-                      <input value={fontColor} onChange={e=>setFontColor(e.target.value)} style={{border:"none",fontSize:12,color:TX,width:"100%",outline:"none"}}/>
+              {designTab==="Design"&&(
+                <>
+                  <div style={{marginBottom:16}}>
+                    <div style={{fontSize:11,fontWeight:700,color:TX2,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Text Properties</div>
+                    <div style={{marginBottom:8}}>
+                      <label style={{fontSize:12,color:TX2,display:"block",marginBottom:4}}>Text Content</label>
+                      <input type="text" value={activeEl.text} onChange={e=>updateActiveEl({ text: e.target.value })} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:6,padding:"6px 10px",fontSize:13,color:TX}}/>
+                    </div>
+                    <div style={{marginBottom:8}}>
+                      <label style={{fontSize:12,color:TX2,display:"block",marginBottom:4}}>Font Family</label>
+                      <select value={activeEl.fontFamily} onChange={e=>updateActiveEl({ fontFamily: e.target.value })} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:6,padding:"6px 10px",fontSize:13,color:TX}}>
+                        <option>Great Vibes</option><option>Playfair Display</option><option>Inter</option><option>sans-serif</option>
+                      </select>
+                    </div>
+                    <div style={{display:"flex",gap:8,marginBottom:8}}>
+                      <div style={{flex:1}}>
+                        <label style={{fontSize:12,color:TX2,display:"block",marginBottom:4}}>Size</label>
+                        <input type="number" value={activeEl.fontSize} onChange={e=>updateActiveEl({ fontSize: +e.target.value })} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:6,padding:"6px 10px",fontSize:13,color:TX}}/>
+                      </div>
+                      <div style={{flex:1}}>
+                        <label style={{fontSize:12,color:TX2,display:"block",marginBottom:4}}>Color</label>
+                        <div style={{border:`1px solid ${BD}`,borderRadius:6,padding:"4px 8px",display:"flex",gap:6,alignItems:"center"}}>
+                          <div style={{width:18,height:18,borderRadius:3,background:activeEl.fontColor,flexShrink:0}}/>
+                          <input value={activeEl.fontColor} onChange={e=>updateActiveEl({ fontColor: e.target.value })} style={{border:"none",fontSize:12,color:TX,width:"100%",outline:"none"}}/>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",gap:4,marginBottom:8}}>
+                      {[{label:"B",active:activeEl.bold,toggle:()=>updateActiveEl({bold:!activeEl.bold})},{label:"I",active:activeEl.italic,toggle:()=>updateActiveEl({italic:!activeEl.italic})},{label:"U",active:activeEl.underline,toggle:()=>updateActiveEl({underline:!activeEl.underline})}].map(b=>(
+                        <button key={b.label} onClick={b.toggle} style={{flex:1,padding:"6px",border:`1px solid ${b.active?P:BD}`,borderRadius:6,background:b.active?PL:"white",color:b.active?P:TX,fontSize:13,fontWeight:700,cursor:"pointer"}}>
+                          {b.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{display:"flex",gap:4}}>
+                      {[{icon:<AlignLeft size={14}/>,val:"left"},{icon:<AlignCenter size={14}/>,val:"center"},{icon:<AlignRight size={14}/>,val:"right"}].map(a=>(
+                        <button key={a.val} onClick={()=>updateActiveEl({align:a.val})} style={{flex:1,padding:"6px",border:`1px solid ${activeEl.align===a.val?P:BD}`,borderRadius:6,background:activeEl.align===a.val?PL:"white",color:activeEl.align===a.val?P:TX2,cursor:"pointer",display:"flex",justifyContent:"center"}}>
+                          {a.icon}
+                        </button>
+                      ))}
                     </div>
                   </div>
-                </div>
-                <div style={{display:"flex",gap:4,marginBottom:8}}>
-                  {[{label:"B",active:bold,toggle:()=>setBold(!bold)},{label:"I",active:italic,toggle:()=>setItalic(!italic)},{label:"U",active:underline,toggle:()=>setUnderline(!underline)}].map(b=>(
-                    <button key={b.label} onClick={b.toggle} style={{flex:1,padding:"6px",border:`1px solid ${b.active?P:BD}`,borderRadius:6,background:b.active?PL:"white",color:b.active?P:TX,fontSize:13,fontWeight:700,cursor:"pointer"}}>
-                      {b.label}
-                    </button>
-                  ))}
-                </div>
-                <div style={{display:"flex",gap:4}}>
-                  {[{icon:<AlignLeft size={14}/>,val:"left"},{icon:<AlignCenter size={14}/>,val:"center"},{icon:<AlignRight size={14}/>,val:"right"}].map(a=>(
-                    <button key={a.val} onClick={()=>setAlign(a.val)} style={{flex:1,padding:"6px",border:`1px solid ${align===a.val?P:BD}`,borderRadius:6,background:align===a.val?PL:"white",color:align===a.val?P:TX2,cursor:"pointer",display:"flex",justifyContent:"center"}}>
-                      {a.icon}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div style={{marginBottom:16}}>
-                <div style={{fontSize:11,fontWeight:700,color:TX2,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Element Properties</div>
-                <div>
-                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-                    <label style={{fontSize:12,color:TX2}}>Opacity</label>
-                    <span style={{fontSize:12,color:TX}}>{opacity}%</span>
+                  <div style={{marginBottom:16}}>
+                    <div style={{fontSize:11,fontWeight:700,color:TX2,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Element Properties</div>
+                    <div>
+                      <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                        <label style={{fontSize:12,color:TX2}}>Opacity</label>
+                        <span style={{fontSize:12,color:TX}}>{activeEl.opacity}%</span>
+                      </div>
+                      <input type="range" min={0} max={100} value={activeEl.opacity} onChange={e=>updateActiveEl({opacity:+e.target.value})} style={{width:"100%",accentColor:P}}/>
+                    </div>
                   </div>
-                  <input type="range" min={0} max={100} value={opacity} onChange={e=>setOpacity(+e.target.value)} style={{width:"100%",accentColor:P}}/>
-                </div>
-              </div>
-              <div style={{marginBottom:16}}>
-                <div style={{fontSize:11,fontWeight:700,color:TX2,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Colors</div>
-                <div style={{display:"flex",gap:6}}>
-                  {["#1a1a2e","#C9A227","white","#6B5BFB","#10B981"].map((c,i)=>(
-                    <div key={i} style={{width:24,height:24,borderRadius:4,background:c,border:`1px solid ${BD}`,cursor:"pointer"}}/>
-                  ))}
-                  <button style={{width:24,height:24,borderRadius:4,border:`1px dashed ${TX3}`,background:"white",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    <Plus size={12} color={TX3}/>
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
+                  <div style={{marginBottom:16}}>
+                    <div style={{fontSize:11,fontWeight:700,color:TX2,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Preset Colors</div>
+                    <div style={{display:"flex",gap:6}}>
+                      {["#1a1a2e","#C9A227","white","#6B5BFB","#10B981"].map((c,i)=>(
+                        <div key={i} onClick={()=>updateActiveEl({ fontColor: c })} style={{width:24,height:24,borderRadius:4,background:c,border:`1px solid ${BD}`,cursor:"pointer"}}/>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
 
-          {designTab==="Arrange"&&(
-            <div>
-              <div style={{fontSize:11,fontWeight:700,color:TX2,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Position & Size</div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
-                {[["X","410"],["Y","320"],["W","820"],["H","130"]].map(([l,v])=>(
-                  <div key={l}>
-                    <label style={{fontSize:11,color:TX2,display:"block",marginBottom:3}}>{l}</label>
-                    <input defaultValue={v} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:6,padding:"5px 8px",fontSize:13,color:TX}}/>
+              {designTab==="Arrange"&&(
+                <div>
+                  <div style={{fontSize:11,fontWeight:700,color:TX2,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Position & Size</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
+                    {[
+                      {label:"X (px)",val:activeEl.x,key:"x"},
+                      {label:"Y (px)",val:activeEl.y,key:"y"},
+                      {label:"W (px)",val:activeEl.width,key:"width"},
+                      {label:"H (px)",val:activeEl.height,key:"height"}
+                    ].map(f=>(
+                      <div key={f.key}>
+                        <label style={{fontSize:11,color:TX2,display:"block",marginBottom:3}}>{f.label}</label>
+                        <input type="number" value={f.val} onChange={e=>updateActiveEl({ [f.key]: +e.target.value })} style={{width:"100%",border:`1px solid ${BD}`,borderRadius:6,padding:"5px 8px",fontSize:13,color:TX}}/>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <div style={{marginBottom:12}}>
-                <label style={{fontSize:11,color:TX2,display:"block",marginBottom:3}}>Rotate</label>
-                <input type="range" min={0} max={360} defaultValue={0} style={{width:"100%",accentColor:P}}/>
-              </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-                {["Bring Forward","Send Backward","Bring to Front","Send to Back"].map(a=>(
-                  <button key={a} style={{padding:"6px 8px",border:`1px solid ${BD}`,borderRadius:6,fontSize:11,color:TX2,background:"white",cursor:"pointer",textAlign:"center"}}>{a}</button>
-                ))}
-              </div>
-              <div style={{marginTop:12,display:"flex",gap:6}}>
-                <Btn variant="outline" style={{flex:1,justifyContent:"center",fontSize:12}}><Copy size={13}/>Duplicate</Btn>
-                <Btn variant="danger" style={{flex:1,justifyContent:"center",fontSize:12}}><Trash2 size={13}/>Delete</Btn>
-              </div>
+                  <div style={{marginBottom:12}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
+                      <label style={{fontSize:11,color:TX2}}>Rotate</label>
+                      <span style={{fontSize:11,color:TX}}>{activeEl.rotation}°</span>
+                    </div>
+                    <input type="range" min={0} max={360} value={activeEl.rotation || 0} onChange={e=>updateActiveEl({ rotation: +e.target.value })} style={{width:"100%",accentColor:P}}/>
+                  </div>
+                  <div style={{marginTop:12,display:"flex",gap:6}}>
+                    <Btn variant="outline" onClick={handleDuplicateActive} style={{flex:1,justifyContent:"center",fontSize:12}}><Copy size={13}/>Duplicate</Btn>
+                    <Btn variant="danger" onClick={handleDeleteActive} style={{flex:1,justifyContent:"center",fontSize:12}}><Trash2 size={13}/>Delete</Btn>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{fontSize:13,color:TX2,textAlign:"center",padding:"40px 0"}}>
+              Select an element on the canvas to configure properties.
             </div>
           )}
         </div>
@@ -1248,13 +1512,30 @@ function DesignerCanvasScreen(){
 
       {/* Status Bar */}
       <div style={{borderTop:`1px solid ${BD}`,padding:"8px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",fontSize:12,color:TX2,flexShrink:0}}>
-        <span>Template: Executive Blue Gold</span>
-        <span style={{color:SG,fontWeight:500}}>✓ Saved — Last edited 2 min ago</span>
+        <span>Template: Dynamic Canvas Engine</span>
+        <span style={{color:SG,fontWeight:500}}>✓ Interactive Mode Active</span>
         <div style={{display:"flex",gap:8}}>
-          <Btn variant="outline" style={{fontSize:12,padding:"4px 10px"}}>Reset</Btn>
-          <Btn variant="primary" style={{fontSize:12,padding:"4px 10px"}}><Save size={12}/>Save Changes</Btn>
+          <Btn variant="outline" onClick={() => setCanvasElements([
+            { id: "recipient", text: "Vishwajeet Sharma", fontFamily: "Great Vibes", fontSize: 80, fontColor: "#ffffff", bold: false, italic: true, underline: false, align: "center", opacity: 100, x: 561, y: 450, rotation: 0, width: 722, height: 120 },
+            { id: "course", text: "Full Stack Web Development", fontFamily: "Playfair Display", fontSize: 34, fontColor: "#C9A227", bold: true, italic: false, underline: false, align: "center", opacity: 100, x: 561, y: 570, rotation: 0, width: 722, height: 60 }
+          ])}>Reset</Btn>
+          <Btn variant="primary" onClick={handleSave} style={{fontSize:12,padding:"4px 10px"}}><Save size={12}/>Save Changes</Btn>
         </div>
       </div>
+
+      {/* Dialog Preview */}
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-[90vw] w-[880px] bg-slate-900 border-slate-800 text-white p-6 animate-in fade-in zoom-in-95 duration-200">
+          <DialogHeader className="flex flex-row items-center justify-between border-b border-slate-800 pb-4 mb-4">
+            <DialogTitle className="text-white text-lg font-bold">Certificate Preview Mode</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center p-4 bg-slate-950 rounded-xl overflow-auto border border-slate-800 shadow-2xl">
+            <div style={{ width: 800, aspectRatio: "1122/794", position: "relative" }}>
+              {renderCertificateSvg(true)}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -1902,23 +2183,73 @@ function AnalyticsScreen({ stats }: { stats: any }){
         </SectionCard>
 
         <SectionCard title="Geographic Distribution" action={<select style={{border:`1px solid ${BD}`,borderRadius:6,padding:"4px 8px",fontSize:12,color:TX2}}><option>This Week</option></select>}>
-          <div style={{height:180,background:"linear-gradient(135deg,#EEF0FF,#F0F9FF)",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:8}}>
-            <Globe size={60} color={P} style={{opacity:0.3}}/>
-            <div style={{fontSize:12,color:TX2,fontWeight:500}}>Geographic Distribution</div>
-            <div style={{fontSize:11,color:TX3}}>India: 3,521 · US: 2,100 · UK: 1,230</div>
+          <div style={{height:180,background:"linear-gradient(135deg,#0a0a23,#15153c)",borderRadius:8,position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            {/* Minimalist World Map Vector Outline */}
+            <svg width="100%" height="100%" viewBox="0 0 800 360" style={{position:"absolute",top:0,left:0,opacity:0.25}}>
+              <path d="M 50 150 Q 80 80 120 70 T 200 60 T 280 80 T 320 120 T 300 200 T 250 250 T 150 260 T 80 220 Z" fill="#ffffff" opacity="0.15" />
+              <path d="M 230 240 Q 250 290 280 340 T 300 350 T 270 300 Z" fill="#ffffff" opacity="0.1" />
+              <path d="M 430 70 Q 480 50 530 60 T 600 70 T 650 90 T 700 80 T 760 120 T 720 200 T 650 230 Z" fill="#ffffff" opacity="0.15" />
+              <path d="M 450 150 Q 490 200 500 280 T 550 300 T 560 250 T 500 180 Z" fill="#ffffff" opacity="0.1" />
+              <path d="M 680 240 Q 720 250 750 290 T 710 320 T 670 280 Z" fill="#ffffff" opacity="0.1" />
+            </svg>
+            
+            {/* Geographic Distribution Markers */}
+            <div style={{position:"absolute",width:"100%",height:"100%",top:0,left:0}}>
+              {/* USA (New York) Marker */}
+              <div className="absolute group cursor-pointer" style={{left:"28%",top:"35%"}}>
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-500"></span>
+                </span>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-50">
+                  <div className="font-semibold">United States</div>
+                  <div className="text-violet-300">2,100 Verified</div>
+                </div>
+              </div>
+
+              {/* UK (London) Marker */}
+              <div className="absolute group cursor-pointer" style={{left:"48%",top:"30%"}}>
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-violet-500"></span>
+                </span>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-50">
+                  <div className="font-semibold">United Kingdom</div>
+                  <div className="text-violet-300">1,230 Verified</div>
+                </div>
+              </div>
+
+              {/* India Marker */}
+              <div className="absolute group cursor-pointer" style={{left:"67%",top:"55%"}}>
+                <span className="flex h-3.5 w-3.5 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500"></span>
+                </span>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-slate-900 text-white text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-50">
+                  <div className="font-semibold">India (Primary Hub)</div>
+                  <div className="text-emerald-300">3,521 Verified</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Real Data Overlay Summary */}
+            <div style={{position:"absolute",bottom:8,left:12,right:12,display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(10,10,35,0.75)",backdropFilter:"blur(4px)",border:"1px solid rgba(255,255,255,0.08)",padding:"6px 12px",borderRadius:6}}>
+              <span style={{fontSize:10,color:"rgba(255,255,255,0.6)",fontWeight:500}}>Live Verification Map</span>
+              <span style={{fontSize:11,color:"white",fontWeight:600}}>India: 3,521 · US: 2,100 · UK: 1,230</span>
+            </div>
           </div>
         </SectionCard>
       </div>
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
         {[
-          {icon:"🛡",title:"High Verification Rate",desc:"Your verification rate is 95.2%, which is excellent!",link:"View Details →"},
-          {icon:"🎨",title:"Top Template",desc:"Executive Blue Gold is your top performer.",link:"See Templates →"},
-          {icon:"📊",title:"Engagement Growth",desc:"Certificate shares increased by 20.2% this week.",link:"View Analytics →"},
-          {icon:"🔒",title:"Increase Security",desc:"Enable blockchain verification for more trust.",link:"Go to Settings →"},
+          {icon:<ShieldCheck size={24} color={P}/>,title:"High Verification Rate",desc:"Your verification rate is 95.2%, which is excellent!",link:"View Details →"},
+          {icon:<Palette size={24} color={P}/>,title:"Top Template",desc:"Executive Blue Gold is your top performer.",link:"See Templates →"},
+          {icon:<BarChart2 size={24} color={P}/>,title:"Engagement Growth",desc:"Certificate shares increased by 20.2% this week.",link:"View Analytics →"},
+          {icon:<Lock size={24} color={P}/>,title:"Increase Security",desc:"Enable blockchain verification for more trust.",link:"Go to Settings →"},
         ].map((c,i)=>(
           <div key={i} style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,padding:"16px",boxShadow:"0 1px 3px rgba(0,0,0,0.06)"}}>
-            <div style={{fontSize:24,marginBottom:8}}>{c.icon}</div>
+            <div style={{marginBottom:8}}>{c.icon}</div>
             <div style={{fontSize:13,fontWeight:600,color:TX,marginBottom:4}}>{c.title}</div>
             <div style={{fontSize:12,color:TX2,marginBottom:8,lineHeight:1.4}}>{c.desc}</div>
             <button style={{fontSize:12,color:P,background:"none",border:"none",cursor:"pointer",padding:0}}>{c.link}</button>
