@@ -2086,6 +2086,294 @@ function VerificationScreen({ stats }: { stats: any }){
   );
 }
 
+// ─── Analytics Tab Components ────────────────────────────────────────────────
+function AnalyticsCertificates({ BD, TX, TX2, TX3, P, SGL, SG, ER }: any) {
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+        <h3 style={{fontSize:15,fontWeight:700,color:TX}}>All Issued Certificates</h3>
+        <div style={{display:"flex",gap:8}}>
+          <input 
+            type="text" 
+            placeholder="Search certificates or recipients..." 
+            style={{padding:"6px 12px",border:`1px solid ${BD}`,borderRadius:8,fontSize:13,width:260}}
+          />
+          <button style={{padding:"6px 12px",background:P,color:"white",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:"pointer"}}>Search</button>
+        </div>
+      </div>
+      <div style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,overflow:"hidden",boxShadow:"0 1px 3px rgba(0,0,0,0.05)"}}>
+        <table style={{width:"100%",borderCollapse:"collapse",textAlign:"left"}}>
+          <thead>
+            <tr style={{background:"#F8FAFC",borderBottom:`1px solid ${BD}`}}>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Recipient</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Course Name</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Issue Date</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>ID</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Status</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase",textAlign:"right"}}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              {name:"Vishwajeet SRK",email:"vishwajeetsrk@gmail.com",course:"Full Stack Web Development",date:"May 25, 2026",id:"LAI-2026-000124",status:"Verified"},
+              {name:"Aditya Kumar",email:"aditya@learnify.ai",course:"Advanced Machine Learning",date:"May 24, 2026",id:"LAI-2026-000125",status:"Verified"},
+              {name:"Neha Sharma",email:"neha@learnify.ai",course:"Product Management Suite",date:"May 22, 2026",id:"LAI-2026-000126",status:"Pending"},
+              {name:"Rohan Verma",email:"rohan@gmail.com",course:"UI/UX Design Masterclass",date:"May 19, 2026",id:"LAI-2026-000127",status:"Verified"},
+              {name:"Priya Patel",email:"priya@outlook.com",course:"Data Structures & Algorithms",date:"May 15, 2026",id:"LAI-2026-000128",status:"Invalid"},
+            ].map((c,i)=>(
+              <tr key={i} style={{borderBottom:i===4?"none":`1px solid ${BD}`,background:i%2===0?"white":"#F9FAFB"}}>
+                <td style={{padding:"12px 16px"}}>
+                  <div style={{fontSize:13,fontWeight:600,color:TX}}>{c.name}</div>
+                  <div style={{fontSize:11,color:TX3}}>{c.email}</div>
+                </td>
+                <td style={{padding:"12px 16px",fontSize:13,color:TX2}}>{c.course}</td>
+                <td style={{padding:"12px 16px",fontSize:12,color:TX3}}>{c.date}</td>
+                <td style={{padding:"12px 16px",fontSize:12,fontFamily:"monospace",color:TX2}}>{c.id}</td>
+                <td style={{padding:"12px 16px"}}>
+                  <span style={{
+                    fontSize:11,fontWeight:600,padding:"2px 8px",borderRadius:12,
+                    background:c.status==="Verified"?SGL:c.status==="Pending"?"#FEF3C7":"#FEE2E2",
+                    color:c.status==="Verified"?SG:c.status==="Pending"?"#D97706":ER
+                  }}>{c.status}</span>
+                </td>
+                <td style={{padding:"12px 16px",textAlign:"right"}}>
+                  <button style={{fontSize:12,color:P,background:"none",border:"none",cursor:"pointer",marginRight:12,fontWeight:500}}>View</button>
+                  <button style={{fontSize:12,color:P,background:"none",border:"none",cursor:"pointer",fontWeight:500}}>Download</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsTemplates({ BD, TX, TX2, SG, SGL, P }: any) {
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <h3 style={{fontSize:15,fontWeight:700,color:TX}}>Certificate Templates</h3>
+        <button style={{padding:"6px 12px",background:P,color:"white",border:"none",borderRadius:8,fontSize:13,fontWeight:500,cursor:"pointer"}}>+ Create New Template</button>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
+        {[
+          {name:"Executive Blue Gold",issued:2856,verified:2712,rate:"95.0%",status:"Active",theme:"navy"},
+          {name:"Skyline Tech",issued:2341,verified:2189,rate:"93.5%",status:"Active",theme:"blue"},
+          {name:"Ivory Academic",issued:1987,verified:1872,rate:"94.2%",status:"Active",theme:"ivory"},
+          {name:"Onyx Calligraphy",issued:1654,verified:1514,rate:"91.5%",status:"Active",theme:"onyx"},
+          {name:"Rose Charcoal",issued:1431,verified:1385,rate:"95.4%",status:"Active",theme:"rose"},
+          {name:"Clean Corporate Minimalist",issued:502,verified:482,rate:"96.0%",status:"Draft",theme:"navy"},
+        ].map((t,i)=>(
+          <div key={i} style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,overflow:"hidden",boxShadow:"0 1px 3px rgba(0,0,0,0.06)",display:"flex",flexDirection:"column"}}>
+            <div style={{height:120,background:"#F1F5F9",display:"flex",alignItems:"center",justifyContent:"center",padding:16,borderBottom:`1px solid ${BD}`}}>
+              <CertThumbnail theme={t.theme} w={140} h={100}/>
+            </div>
+            <div style={{padding:16,flex:1,display:"flex",flexDirection:"column",gap:8}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{fontSize:13,fontWeight:700,color:TX}}>{t.name}</span>
+                <span style={{fontSize:10,fontWeight:600,padding:"1px 6px",borderRadius:10,background:t.status==="Active"?SGL:BD,color:t.status==="Active"?SG:TX2}}>{t.status}</span>
+              </div>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:TX2,marginTop:4}}>
+                <span>Issued: <b>{t.issued}</b></span>
+                <span>Verification Rate: <b style={{color:SG}}>{t.rate}</b></span>
+              </div>
+              <div style={{display:"flex",gap:8,marginTop:12,borderTop:`1px solid ${BD}`,paddingTop:12}}>
+                <button style={{flex:1,padding:"6px 0",borderRadius:6,border:`1px solid ${BD}`,background:"white",fontSize:12,color:TX2,cursor:"pointer",fontWeight:500}}>Edit Template</button>
+                <button style={{flex:1,padding:"6px 0",borderRadius:6,border:"none",background:`${P}15`,fontSize:12,color:P,cursor:"pointer",fontWeight:500}}>Duplicate</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsRecipients({ BD, TX, TX2, TX3, P }: any) {
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+        <h3 style={{fontSize:15,fontWeight:700,color:TX}}>Recipients List</h3>
+        <input 
+          type="text" 
+          placeholder="Search students by name or email..." 
+          style={{padding:"6px 12px",border:`1px solid ${BD}`,borderRadius:8,fontSize:13,width:260}}
+        />
+      </div>
+      <div style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,overflow:"hidden",boxShadow:"0 1px 3px rgba(0,0,0,0.05)"}}>
+        <table style={{width:"100%",borderCollapse:"collapse",textAlign:"left"}}>
+          <thead>
+            <tr style={{background:"#F8FAFC",borderBottom:`1px solid ${BD}`}}>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Student</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Active Certificates</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Courses Enrolled</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Last Earned Date</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase",textAlign:"right"}}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              {name:"Vishwajeet SRK",email:"vishwajeetsrk@gmail.com",count:4,enrolled:6,lastDate:"May 25, 2026"},
+              {name:"Aditya Kumar",email:"aditya@learnify.ai",count:2,enrolled:3,lastDate:"May 24, 2026"},
+              {name:"Neha Sharma",email:"neha@learnify.ai",count:1,enrolled:2,lastDate:"May 22, 2026"},
+              {name:"Rohan Verma",email:"rohan@gmail.com",count:3,enrolled:5,lastDate:"May 19, 2026"},
+              {name:"Priya Patel",email:"priya@outlook.com",count:5,enrolled:7,lastDate:"May 15, 2026"},
+            ].map((r,i)=>(
+              <tr key={i} style={{borderBottom:i===4?"none":`1px solid ${BD}`,background:i%2===0?"white":"#F9FAFB"}}>
+                <td style={{padding:"12px 16px"}}>
+                  <div style={{fontSize:13,fontWeight:600,color:TX}}>{r.name}</div>
+                  <div style={{fontSize:11,color:TX3}}>{r.email}</div>
+                </td>
+                <td style={{padding:"12px 16px",fontSize:13,fontWeight:600,color:TX}}>{r.count} Certificates</td>
+                <td style={{padding:"12px 16px",fontSize:13,color:TX2}}>{r.enrolled} Courses</td>
+                <td style={{padding:"12px 16px",fontSize:12,color:TX3}}>{r.lastDate}</td>
+                <td style={{padding:"12px 16px",textAlign:"right"}}>
+                  <button style={{fontSize:12,color:P,background:"none",border:"none",cursor:"pointer",fontWeight:500}}>View Portfolio</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsVerification({ BD, TX, TX2, TX3, SGL, SG, ER }: any) {
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <h3 style={{fontSize:15,fontWeight:700,color:TX}}>Live Verification Logs</h3>
+      <div style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,overflow:"hidden",boxShadow:"0 1px 3px rgba(0,0,0,0.05)"}}>
+        <table style={{width:"100%",borderCollapse:"collapse",textAlign:"left"}}>
+          <thead>
+            <tr style={{background:"#F8FAFC",borderBottom:`1px solid ${BD}`}}>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Timestamp</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>IP Address</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Location</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Certificate ID</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase"}}>Method</th>
+              <th style={{padding:"12px 16px",fontSize:11,fontWeight:600,color:TX2,textTransform:"uppercase",textAlign:"right"}}>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              {time:"Just Now",ip:"192.168.1.45",loc:"Mumbai, India",id:"LAI-2026-000124",method:"QR Scan",status:"Success"},
+              {time:"2 mins ago",ip:"104.244.75.12",loc:"San Francisco, US",id:"LAI-2026-000125",method:"Direct Link",status:"Success"},
+              {time:"12 mins ago",ip:"82.165.122.90",loc:"London, UK",id:"LAI-2026-000124",method:"Manual Verification",status:"Success"},
+              {time:"45 mins ago",ip:"203.0.113.195",loc:"Bengaluru, India",id:"LAI-2026-000999",method:"QR Scan",status:"Failed"},
+              {time:"1 hour ago",ip:"198.51.100.72",loc:"New York, US",id:"LAI-2026-000126",method:"Email Hook",status:"Success"},
+            ].map((l,i)=>(
+              <tr key={i} style={{borderBottom:i===4?"none":`1px solid ${BD}`,background:i%2===0?"white":"#F9FAFB"}}>
+                <td style={{padding:"12px 16px",fontSize:12,color:TX2}}>{l.time}</td>
+                <td style={{padding:"12px 16px",fontSize:12,fontFamily:"monospace",color:TX3}}>{l.ip}</td>
+                <td style={{padding:"12px 16px",fontSize:12,color:TX}}>{l.loc}</td>
+                <td style={{padding:"12px 16px",fontSize:12,fontFamily:"monospace",color:TX2}}>{l.id}</td>
+                <td style={{padding:"12px 16px",fontSize:12,color:TX2}}>{l.method}</td>
+                <td style={{padding:"12px 16px",textAlign:"right"}}>
+                  <span style={{
+                    fontSize:11,fontWeight:600,padding:"2px 8px",borderRadius:12,
+                    background:l.status==="Success"?SGL:"#FEE2E2",
+                    color:l.status==="Success"?SG:ER
+                  }}>{l.status}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsEngagement({ BD, TX, TX2, TX3, P, PL, IN, INL, SG, SGL, WO, barData }: any) {
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:20}}>
+      <h3 style={{fontSize:15,fontWeight:700,color:TX}}>Social Sharing & Engagement</h3>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
+        {[
+          {label:"LinkedIn Shares",value:"2,450 Shares",delta:"+28.4% growth",icon:<Share2 size={22} color={P}/>,iconBg:PL},
+          {label:"Twitter / X Posts",value:"801 Shares",delta:"+12.5% growth",icon:<Share2 size={22} color={IN}/>,iconBg:INL},
+          {label:"In-App Downloads",value:"6,423 Downloads",delta:"+16.2% growth",icon:<Download size={22} color={SG}/>,iconBg:SGL},
+        ].map((s,i)=>(
+          <div key={i} style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,padding:16,boxShadow:"0 1px 3px rgba(0,0,0,0.06)",display:"flex",alignItems:"center",gap:16}}>
+            <div style={{width:44,height:44,borderRadius:10,background:s.iconBg,display:"flex",alignItems:"center",justifyContent:"center"}}>{s.icon}</div>
+            <div>
+              <div style={{fontSize:11,color:TX3,textTransform:"uppercase",letterSpacing:"0.05em"}}>{s.label}</div>
+              <div style={{fontSize:18,fontWeight:700,color:TX,marginTop:2}}>{s.value}</div>
+              <div style={{fontSize:11,color:SG,fontWeight:600,marginTop:2}}>{s.delta}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+        <SectionCard title="Referral Enrolments generated by Certificate Shares">
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={barData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false}/>
+              <XAxis dataKey="date" tick={{fontSize:10,fill:TX3}} axisLine={false} tickLine={false}/>
+              <YAxis tick={{fontSize:10,fill:TX3}} axisLine={false} tickLine={false}/>
+              <Tooltip/>
+              <Bar dataKey="shares" fill={P} radius={[3,3,0,0]} name="New Signups"/>
+            </BarChart>
+          </ResponsiveContainer>
+        </SectionCard>
+        <SectionCard title="Click-Through-Rate (CTR) from LinkedIn profiles">
+          <div style={{display:"flex",flexDirection:"column",justifyContent:"center",height:"100%",padding:"12px 0",gap:16}}>
+            {[
+              {name:"Profile views from Cert link",val:88.4,color:P},
+              {name:"Course sales referral CTR",val:4.8,color:WO},
+              {name:"Job verification webhook CTR",val:6.8,color:SG},
+            ].map((item,i)=>(
+              <div key={i}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:12,fontWeight:600,color:TX,marginBottom:4}}>
+                  <span>{item.name}</span>
+                  <span>{item.val}%</span>
+                </div>
+                <div style={{width:"100%",height:8,background:"#F1F5F9",borderRadius:4,overflow:"hidden"}}>
+                  <div style={{width:`${item.val}%`,height:"100%",background:item.color,borderRadius:4}}/>
+                </div>
+              </div>
+            ))}
+          </div>
+        </SectionCard>
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsExports({ BD, TX, TX2, P, toast }: any) {
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+      <h3 style={{fontSize:15,fontWeight:700,color:TX}}>Export Reports</h3>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16}}>
+        {[
+          {title:"CSV Data Export",desc:"Complete log of all issued certificates, verification states, and date issued.",action:"Export CSV"},
+          {title:"JSON Registry Dump",desc:"Standardized JSON schema registry containing verifiable blockchain hashes.",action:"Export JSON"},
+          {title:"Analytics PDF Report",desc:"High fidelity executive summary containing charts, tables, and statistics.",action:"Generate PDF"},
+        ].map((ex,i)=>(
+          <div key={i} style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,padding:16,boxShadow:"0 1px 3px rgba(0,0,0,0.06)",display:"flex",flexDirection:"column",justifyContent:"space-between",height:140}}>
+            <div>
+              <div style={{fontSize:13,fontWeight:700,color:TX,marginBottom:4}}>{ex.title}</div>
+              <div style={{fontSize:12,color:TX2,lineHeight:1.4}}>{ex.desc}</div>
+            </div>
+            <button 
+              onClick={() => {
+                toast.info(`Generating ${ex.action}...`);
+                setTimeout(() => toast.success(`${ex.action} downloaded!`), 1200);
+              }}
+              style={{width:"100%",padding:"8px 0",borderRadius:6,border:"none",background:P,color:"white",fontSize:12,fontWeight:600,cursor:"pointer",marginTop:12}}
+            >
+              {ex.action}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Screen: Analytics ────────────────────────────────────────────────────────
 function AnalyticsScreen({ stats }: { stats: any }){
   const [aTab,setATab]=useState("Overview");
@@ -2134,7 +2422,9 @@ function AnalyticsScreen({ stats }: { stats: any }){
         <KPICard label="QR Code Scans" value={totalVerifications.toLocaleString()} delta="+22.6%" icon={<QrCode size={20} color={PK}/>} iconBg="#FCE7F3" sparkData={sparkQR} sparkColor={PK}/>
       </div>
 
-      <div style={{display:"grid",gridTemplateColumns:"5fr 4fr 3fr",gap:16}}>
+      {aTab === "Overview" && (
+        <>
+          <div style={{display:"grid",gridTemplateColumns:"5fr 4fr 3fr",gap:16}}>
         <SectionCard title="Certificates Issued Over Time" action={
           <select style={{border:`1px solid ${BD}`,borderRadius:6,padding:"4px 8px",fontSize:12,color:TX2}}>
             <option>Daily</option><option>Weekly</option><option>Monthly</option>
@@ -2384,6 +2674,15 @@ function AnalyticsScreen({ stats }: { stats: any }){
           </div>
         ))}
       </div>
+        </>
+      )}
+
+      {aTab === "Certificates" && <AnalyticsCertificates BD={BD} TX={TX} TX2={TX2} TX3={TX3} P={P} SGL={SGL} SG={SG} ER={ER} />}
+      {aTab === "Templates" && <AnalyticsTemplates BD={BD} TX={TX} TX2={TX2} SG={SG} SGL={SGL} P={P} />}
+      {aTab === "Recipients" && <AnalyticsRecipients BD={BD} TX={TX} TX2={TX2} TX3={TX3} P={P} />}
+      {aTab === "Verification" && <AnalyticsVerification BD={BD} TX={TX} TX2={TX2} TX3={TX3} SGL={SGL} SG={SG} ER={ER} />}
+      {aTab === "Engagement" && <AnalyticsEngagement BD={BD} TX={TX} TX2={TX2} TX3={TX3} P={P} PL={PL} IN={IN} INL={INL} SG={SG} SGL={SGL} WO={WO} barData={barData} />}
+      {aTab === "Exports" && <AnalyticsExports BD={BD} TX={TX} TX2={TX2} P={P} toast={toast} />}
     </div>
   );
 }

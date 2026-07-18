@@ -74,6 +74,11 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   const [history, setHistory] = useState<{ elements: CertElement[]; design: CertDesign }[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
+  // Element operations
+  const onUpdateElement = useCallback((id: string, updates: Partial<CertElement>) => {
+    setElements((prev) => prev.map((el) => (el.id === id ? { ...el, ...updates } : el)));
+  }, []);
+
   const saveHistory = useCallback(
     (newElements: CertElement[], newDesign: CertDesign) => {
       setHistory((prev) => {
@@ -159,10 +164,6 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedId, historyIndex, undo, redo, elements, onUpdateElement]);
 
-  // Element operations
-  const onUpdateElement = useCallback((id: string, updates: Partial<CertElement>) => {
-    setElements((prev) => prev.map((el) => (el.id === id ? { ...el, ...updates } : el)));
-  }, []);
 
   const onUpdateDesign = useCallback(
     (updates: Partial<CertDesign>) => {
