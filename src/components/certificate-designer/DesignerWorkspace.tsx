@@ -50,6 +50,21 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   const [isSaving, setIsSaving] = useState(false);
   const [scale, setScale] = useState(0.75);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const { width } = entry.contentRect;
+        const availableWidth = width - 64;
+        const newScale = Math.min(1, Math.max(0.2, availableWidth / 842));
+        setScale(newScale);
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Canvas dimensions (A4 landscape)
   const CANVAS_WIDTH = 842;
@@ -116,10 +131,33 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
           onDeleteElement(selectedId);
         }
       }
+      // Nudge arrow keys shortcut
+      if (selectedId && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+        const tag = document.activeElement?.tagName;
+        if (tag !== "INPUT" && tag !== "TEXTAREA") {
+          e.preventDefault();
+          const target = elements.find((el) => el.id === selectedId);
+          if (target) {
+            const nudge = e.shiftKey ? 10 : 1;
+            if (e.key === "ArrowLeft") {
+              onUpdateElement(selectedId, { x: Math.max(0, target.x - nudge) });
+            }
+            if (e.key === "ArrowRight") {
+              onUpdateElement(selectedId, { x: Math.min(842 - (target.width || 50), target.x + nudge) });
+            }
+            if (e.key === "ArrowUp") {
+              onUpdateElement(selectedId, { y: Math.max(0, target.y - nudge) });
+            }
+            if (e.key === "ArrowDown") {
+              onUpdateElement(selectedId, { y: Math.min(595 - (target.height || 30), target.y + nudge) });
+            }
+          }
+        }
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedId, historyIndex, undo, redo]);
+  }, [selectedId, historyIndex, undo, redo, elements, onUpdateElement]);
 
   // Element operations
   const onUpdateElement = useCallback((id: string, updates: Partial<CertElement>) => {
@@ -229,10 +267,13 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     try {
       toast.info("Generating PNG...");
       setSelectedId(null);
-      await new Promise((r) => setTimeout(r, 100));
+      const prevScale = scale;
+      setScale(1);
+      await new Promise((r) => setTimeout(r, 150));
       const el = document.getElementById("certificate-preview-export");
       if (!el) throw new Error("Canvas not found");
       const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: null });
+      setScale(prevScale);
       const link = document.createElement("a");
       link.download = `${templateName || "certificate"}.png`;
       link.href = canvas.toDataURL("image/png");
@@ -247,10 +288,13 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     try {
       toast.info("Generating PDF...");
       setSelectedId(null);
-      await new Promise((r) => setTimeout(r, 100));
+      const prevScale = scale;
+      setScale(1);
+      await new Promise((r) => setTimeout(r, 150));
       const el = document.getElementById("certificate-preview-export");
       if (!el) throw new Error("Canvas not found");
       const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: null });
+      setScale(prevScale);
       const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
       pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 297, 210);
       pdf.save(`${templateName || "certificate"}.pdf`);
@@ -462,8 +506,8 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       {/* Split View */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left: Preview (Centered & Scaled) */}
-        <div className="flex-1 bg-slate-100 overflow-auto flex items-center justify-center p-8">
-          <div style={{ transform: `scale(${scale})`, transformOrigin: "center center" }}>
+        <div ref={containerRef} className="flex-1 bg-slate-100 overflow-hidden flex items-center justify-center p-8 min-h-[300px] md:min-h-0">
+          <div style={{ transform: `scale(${scale})`, transformOrigin: "center center", transition: "transform 0.1s ease-out" }}>
             <CertificatePreview
               elements={elements}
               design={design}
@@ -472,6 +516,8 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
               onSelect={setSelectedId}
               onUpdateElement={onUpdateElement}
               scale={scale}
+              onDeleteElement={onDeleteElement}
+              onDuplicateElement={onDuplicateElement}
             />
           </div>
         </div>

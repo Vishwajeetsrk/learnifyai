@@ -2090,6 +2090,10 @@ function VerificationScreen({ stats }: { stats: any }){
 function AnalyticsScreen({ stats }: { stats: any }){
   const [aTab,setATab]=useState("Overview");
   const [hoveredCountry,setHoveredCountry]=useState<string|null>(null);
+  const [mapZoom, setMapZoom] = useState(1);
+  const [mapPan, setMapPan] = useState({ x: 0, y: 0 });
+  const [isMapDragging, setIsMapDragging] = useState(false);
+  const [mapDragStart, setMapDragStart] = useState({ x: 0, y: 0 });
   const aTabs=["Overview","Certificates","Templates","Recipients","Verification","Engagement","Exports"];
   const topTemplates=[
     {rank:1,name:"Executive Blue Gold",issued:2856,verified:2712,rate:95.0,rateColor:SG,theme:"navy"},
@@ -2245,78 +2249,115 @@ function AnalyticsScreen({ stats }: { stats: any }){
         </SectionCard>
 
         <SectionCard title="Geographic Distribution" action={<select style={{border:`1px solid ${BD}`,borderRadius:6,padding:"4px 8px",fontSize:12,color:TX2}}><option>This Week</option></select>}>
-          <div style={{height:180,background:"linear-gradient(135deg,#0a0a23,#15153c)",borderRadius:8,position:"relative",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <div 
+            style={{
+              height: 180,
+              background: "linear-gradient(135deg,#0a0a23,#15153c)",
+              borderRadius: 8,
+              position: "relative",
+              overflow: "hidden",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: isMapDragging ? "grabbing" : "grab"
+            }}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              setIsMapDragging(true);
+              setMapDragStart({ x: e.clientX - mapPan.x, y: e.clientY - mapPan.y });
+            }}
+            onMouseMove={(e) => {
+              if (!isMapDragging) return;
+              const newX = e.clientX - mapDragStart.x;
+              const newY = e.clientY - mapDragStart.y;
+              // Keep pan boundaries bounded based on zoom level
+              const boundX = Math.max(-400 * (mapZoom - 1), Math.min(400 * (mapZoom - 1), newX));
+              const boundY = Math.max(-180 * (mapZoom - 1), Math.min(180 * (mapZoom - 1), newY));
+              setMapPan({ x: boundX, y: boundY });
+            }}
+            onMouseUp={() => setIsMapDragging(false)}
+            onMouseLeave={() => setIsMapDragging(false)}
+          >
+            {/* Map Zoom Controls */}
+            <div style={{position:"absolute",top:10,right:10,display:"flex",flexDirection:"column",gap:4,zIndex:10}}>
+              <button onClick={(e) => { e.stopPropagation(); setMapZoom(z => Math.min(4, z + 0.25)); }} style={{width:24,height:24,borderRadius:4,background:"rgba(15,23,42,0.85)",color:"white",border:"1px solid rgba(255,255,255,0.1)",fontSize:14,fontWeight:"bold",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}} title="Zoom In">+</button>
+              <button onClick={(e) => { e.stopPropagation(); setMapZoom(z => Math.max(1, z - 0.25)); }} style={{width:24,height:24,borderRadius:4,background:"rgba(15,23,42,0.85)",color:"white",border:"1px solid rgba(255,255,255,0.1)",fontSize:14,fontWeight:"bold",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}} title="Zoom Out">−</button>
+              <button onClick={(e) => { e.stopPropagation(); setMapZoom(1); setMapPan({ x: 0, y: 0 }); }} style={{width:24,height:24,borderRadius:4,background:"rgba(15,23,42,0.85)",color:"white",border:"1px solid rgba(255,255,255,0.1)",fontSize:10,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}} title="Reset Zoom">⟲</button>
+            </div>
+
             {/* Minimalist World Map Vector Outline */}
             <svg width="100%" height="100%" viewBox="0 0 800 360" style={{position:"absolute",top:0,left:0}}>
-              <path d="M 50 150 Q 80 80 120 70 T 200 60 T 280 80 T 320 120 T 300 200 T 250 250 T 150 260 T 80 220 Z" fill="#ffffff" opacity="0.08" />
-              <path d="M 230 240 Q 250 290 280 340 T 300 350 T 270 300 Z" fill="#ffffff" opacity="0.06" />
-              <path d="M 430 70 Q 480 50 530 60 T 600 70 T 650 90 T 700 80 T 760 120 T 720 200 T 650 230 Z" fill="#ffffff" opacity="0.08" />
-              <path d="M 450 150 Q 490 200 500 280 T 550 300 T 560 250 T 500 180 Z" fill="#ffffff" opacity="0.06" />
-              <path d="M 680 240 Q 720 250 750 290 T 710 320 T 670 280 Z" fill="#ffffff" opacity="0.06" />
+              <g transform={`translate(${mapPan.x}, ${mapPan.y}) scale(${mapZoom})`} style={{transformOrigin:"center center"}}>
+                <path d="M 50 150 Q 80 80 120 70 T 200 60 T 280 80 T 320 120 T 300 200 T 250 250 T 150 260 T 80 220 Z" fill="#ffffff" opacity="0.08" />
+                <path d="M 230 240 Q 250 290 280 340 T 300 350 T 270 300 Z" fill="#ffffff" opacity="0.06" />
+                <path d="M 430 70 Q 480 50 530 60 T 600 70 T 650 90 T 700 80 T 760 120 T 720 200 T 650 230 Z" fill="#ffffff" opacity="0.08" />
+                <path d="M 450 150 Q 490 200 500 280 T 550 300 T 560 250 T 500 180 Z" fill="#ffffff" opacity="0.06" />
+                <path d="M 680 240 Q 720 250 750 290 T 710 320 T 670 280 Z" fill="#ffffff" opacity="0.06" />
 
-              {/* USA Marker */}
-              <g 
-                onMouseEnter={() => setHoveredCountry("US")} 
-                onMouseLeave={() => setHoveredCountry(null)}
-                style={{cursor:"pointer"}}
-              >
-                <circle cx="224" cy="126" r="14" fill="#a78bfa" opacity="0.2">
-                  <animate attributeName="r" values="6;16;6" dur="2.5s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.3;0;0.3" dur="2.5s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="224" cy="126" r="4" fill="#a78bfa" />
-              </g>
-
-              {/* UK Marker */}
-              <g 
-                onMouseEnter={() => setHoveredCountry("UK")} 
-                onMouseLeave={() => setHoveredCountry(null)}
-                style={{cursor:"pointer"}}
-              >
-                <circle cx="384" cy="108" r="14" fill="#a78bfa" opacity="0.2">
-                  <animate attributeName="r" values="6;16;6" dur="2.5s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.3;0;0.3" dur="2.5s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="384" cy="108" r="4" fill="#a78bfa" />
-              </g>
-
-              {/* India Marker */}
-              <g 
-                onMouseEnter={() => setHoveredCountry("IN")} 
-                onMouseLeave={() => setHoveredCountry(null)}
-                style={{cursor:"pointer"}}
-              >
-                <circle cx="536" cy="198" r="16" fill="#34d399" opacity="0.25">
-                  <animate attributeName="r" values="8;20;8" dur="2s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="536" cy="198" r="5" fill="#34d399" />
-              </g>
-
-              {/* SVG Tooltips */}
-              {hoveredCountry === "US" && (
-                <g transform="translate(124, 56)">
-                  <rect width="200" height="50" rx="6" fill="#0f172a" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
-                  <text x="100" y="20" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif">United States</text>
-                  <text x="100" y="38" textAnchor="middle" fill="#c084fc" fontSize="12" fontWeight="bold" fontFamily="sans-serif">2,100 Verified</text>
+                {/* USA Marker */}
+                <g 
+                  onMouseEnter={() => setHoveredCountry("US")} 
+                  onMouseLeave={() => setHoveredCountry(null)}
+                  style={{cursor:"pointer"}}
+                >
+                  <circle cx="224" cy="126" r="14" fill="#a78bfa" opacity="0.2">
+                    <animate attributeName="r" values="6;16;6" dur="2.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.3;0;0.3" dur="2.5s" repeatCount="indefinite" />
+                  </circle>
+                  <circle cx="224" cy="126" r="4" fill="#a78bfa" />
                 </g>
-              )}
 
-              {hoveredCountry === "UK" && (
-                <g transform="translate(284, 38)">
-                  <rect width="200" height="50" rx="6" fill="#0f172a" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
-                  <text x="100" y="20" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif">United Kingdom</text>
-                  <text x="100" y="38" textAnchor="middle" fill="#c084fc" fontSize="12" fontWeight="bold" fontFamily="sans-serif">1,230 Verified</text>
+                {/* UK Marker */}
+                <g 
+                  onMouseEnter={() => setHoveredCountry("UK")} 
+                  onMouseLeave={() => setHoveredCountry(null)}
+                  style={{cursor:"pointer"}}
+                >
+                  <circle cx="384" cy="108" r="14" fill="#a78bfa" opacity="0.2">
+                    <animate attributeName="r" values="6;16;6" dur="2.5s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.3;0;0.3" dur="2.5s" repeatCount="indefinite" />
+                  </circle>
+                  <circle cx="384" cy="108" r="4" fill="#a78bfa" />
                 </g>
-              )}
 
-              {hoveredCountry === "IN" && (
-                <g transform="translate(436, 128)">
-                  <rect width="200" height="50" rx="6" fill="#0f172a" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
-                  <text x="100" y="20" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif">India (Primary Hub)</text>
-                  <text x="100" y="38" textAnchor="middle" fill="#34d399" fontSize="12" fontWeight="bold" fontFamily="sans-serif">3,521 Verified</text>
+                {/* India Marker */}
+                <g 
+                  onMouseEnter={() => setHoveredCountry("IN")} 
+                  onMouseLeave={() => setHoveredCountry(null)}
+                  style={{cursor:"pointer"}}
+                >
+                  <circle cx="536" cy="198" r="16" fill="#34d399" opacity="0.25">
+                    <animate attributeName="r" values="8;20;8" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite" />
+                  </circle>
+                  <circle cx="536" cy="198" r="5" fill="#34d399" />
                 </g>
-              )}
+
+                {/* SVG Tooltips */}
+                {hoveredCountry === "US" && (
+                  <g transform="translate(124, 56)">
+                    <rect width="200" height="50" rx="6" fill="#0f172a" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                    <text x="100" y="20" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif">United States</text>
+                    <text x="100" y="38" textAnchor="middle" fill="#c084fc" fontSize="12" fontWeight="bold" fontFamily="sans-serif">2,100 Verified</text>
+                  </g>
+                )}
+
+                {hoveredCountry === "UK" && (
+                  <g transform="translate(284, 38)">
+                    <rect width="200" height="50" rx="6" fill="#0f172a" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                    <text x="100" y="20" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif">United Kingdom</text>
+                    <text x="100" y="38" textAnchor="middle" fill="#c084fc" fontSize="12" fontWeight="bold" fontFamily="sans-serif">1,230 Verified</text>
+                  </g>
+                )}
+
+                {hoveredCountry === "IN" && (
+                  <g transform="translate(436, 128)">
+                    <rect width="200" height="50" rx="6" fill="#0f172a" stroke="rgba(255,255,255,0.1)" strokeWidth="1"/>
+                    <text x="100" y="20" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" fontFamily="sans-serif">India (Primary Hub)</text>
+                    <text x="100" y="38" textAnchor="middle" fill="#34d399" fontSize="12" fontWeight="bold" fontFamily="sans-serif">3,521 Verified</text>
+                  </g>
+                )}
+              </g>
             </svg>
             
             {/* Real Data Overlay Summary */}

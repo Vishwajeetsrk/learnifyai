@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { CertElement, CertDesign } from "./types";
+import { Lock, Unlock, ChevronRight, Copy, Trash2 } from "lucide-react";
 
 type CertificatePreviewProps = {
   elements: CertElement[];
@@ -9,6 +10,8 @@ type CertificatePreviewProps = {
   onSelect: (id: string | null) => void;
   onUpdateElement: (id: string, updates: Partial<CertElement>) => void;
   scale?: number;
+  onDeleteElement: (id: string) => void;
+  onDuplicateElement: (id: string) => void;
 };
 
 export function CertificatePreview({
@@ -19,6 +22,8 @@ export function CertificatePreview({
   onSelect,
   onUpdateElement,
   scale = 1,
+  onDeleteElement,
+  onDuplicateElement,
 }: CertificatePreviewProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const activeBgImage = design.show_bg_image !== false ? bgImageUrl : null;
@@ -228,6 +233,63 @@ export function CertificatePreview({
           document.addEventListener("touchend", handleTouchEnd);
         };
 
+        const handleResizeStart = (e: React.MouseEvent, direction: string) => {
+          e.stopPropagation();
+          e.preventDefault();
+          const startX = e.clientX;
+          const startY = e.clientY;
+          const startW = el.width || 100;
+          const startH = el.height || 40;
+          const startXPos = el.x;
+          const startYPos = el.y;
+
+          const handleResizeMove = (moveEvent: MouseEvent) => {
+            const dx = (moveEvent.clientX - startX) / scale;
+            const dy = (moveEvent.clientY - startY) / scale;
+
+            let nextW = startW;
+            let nextH = startH;
+            let nextX = startXPos;
+            let nextY = startYPos;
+
+            if (direction.includes("right")) {
+              nextW = Math.max(20, startW + dx);
+            }
+            if (direction.includes("left")) {
+              const possibleW = startW - dx;
+              if (possibleW > 20) {
+                nextW = possibleW;
+                nextX = startXPos + dx;
+              }
+            }
+            if (direction.includes("bottom")) {
+              nextH = Math.max(20, startH + dy);
+            }
+            if (direction.includes("top")) {
+              const possibleH = startH - dy;
+              if (possibleH > 20) {
+                nextH = possibleH;
+                nextY = startYPos + dy;
+              }
+            }
+
+            onUpdateElement(el.id, {
+              width: Math.round(nextW),
+              height: Math.round(nextH),
+              x: Math.round(nextX),
+              y: Math.round(nextY),
+            });
+          };
+
+          const handleResizeUp = () => {
+            document.removeEventListener("mousemove", handleResizeMove);
+            document.removeEventListener("mouseup", handleResizeUp);
+          };
+
+          document.addEventListener("mousemove", handleResizeMove);
+          document.addEventListener("mouseup", handleResizeUp);
+        };
+
         return (
           <div
             key={el.id}
@@ -247,6 +309,78 @@ export function CertificatePreview({
               e.stopPropagation();
             }}
           >
+            {/* FLOATING CONTEXT TOOLBAR */}
+            {isSelected && (
+              <div 
+                className="absolute left-1/2 -translate-x-1/2 -top-11 bg-slate-900/95 text-white rounded-lg shadow-xl px-2 py-1 flex items-center gap-1.5 z-[100] backdrop-blur-sm border border-slate-700/50 scale-75 origin-bottom"
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <button 
+                  onClick={() => onUpdateElement(el.id, { locked: !isLocked })} 
+                  className={`p-1 hover:bg-slate-800 rounded transition-colors ${isLocked ? "text-amber-400" : "text-slate-300"}`}
+                  title={isLocked ? "Unlock Element" : "Lock Element"}
+                >
+                  {isLocked ? <Lock size={12} /> : <Unlock size={12} />}
+                </button>
+                <div className="w-px h-3 bg-slate-700" />
+                <button 
+                  onClick={() => onUpdateElement(el.id, { zIndex: (el.zIndex ?? 10) + 1 })} 
+                  className="p-1 hover:bg-slate-800 rounded transition-colors text-slate-300"
+                  title="Bring Forward"
+                >
+                  <ChevronRight size={12} className="-rotate-90" />
+                </button>
+                <button 
+                  onClick={() => onUpdateElement(el.id, { zIndex: Math.max(0, (el.zIndex ?? 10) - 1) })} 
+                  className="p-1 hover:bg-slate-800 rounded transition-colors text-slate-300"
+                  title="Send Backward"
+                >
+                  <ChevronRight size={12} className="rotate-90" />
+                </button>
+                <div className="w-px h-3 bg-slate-700" />
+                <button 
+                  onClick={() => onDuplicateElement(el.id)} 
+                  className="p-1 hover:bg-slate-800 rounded transition-colors text-slate-300"
+                  title="Duplicate"
+                >
+                  <Copy size={12} />
+                </button>
+                <button 
+                  onClick={() => onDeleteElement(el.id)} 
+                  className="p-1 hover:bg-slate-800 text-red-400 rounded transition-colors"
+                  title="Delete"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            )}
+
+            {/* RESIZE HANDLES */}
+            {isSelected && !isLocked && (
+              <>
+                <div 
+                  className="absolute w-2.5 h-2.5 bg-white border-2 border-blue-600 rounded-full z-[60] cursor-nwse-resize"
+                  style={{ top: -4, left: -4 }}
+                  onMouseDown={(e) => handleResizeStart(e, "top-left")}
+                />
+                <div 
+                  className="absolute w-2.5 h-2.5 bg-white border-2 border-blue-600 rounded-full z-[60] cursor-nesw-resize"
+                  style={{ top: -4, right: -4 }}
+                  onMouseDown={(e) => handleResizeStart(e, "top-right")}
+                />
+                <div 
+                  className="absolute w-2.5 h-2.5 bg-white border-2 border-blue-600 rounded-full z-[60] cursor-nesw-resize"
+                  style={{ bottom: -4, left: -4 }}
+                  onMouseDown={(e) => handleResizeStart(e, "bottom-left")}
+                />
+                <div 
+                  className="absolute w-2.5 h-2.5 bg-white border-2 border-blue-600 rounded-full z-[60] cursor-nwse-resize"
+                  style={{ bottom: -4, right: -4 }}
+                  onMouseDown={(e) => handleResizeStart(e, "bottom-right")}
+                />
+              </>
+            )}
+
             <div
               className="w-full h-full"
               style={{
