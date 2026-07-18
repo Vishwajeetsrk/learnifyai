@@ -2354,7 +2354,7 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }){
   
   const displayCats = categories.length > 0 ? categories : CATS_DATA;
   const cat = displayCats[selectedCat] || displayCats[0];
-  const filtered = displayCats.filter((c: any) => c.name.toLowerCase().includes(catSearch.toLowerCase()));
+  const filtered = displayCats.filter((c: any) => c.name?.toLowerCase().includes(catSearch.toLowerCase()));
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:20}}>
@@ -2390,20 +2390,20 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }){
                   onMouseLeave={e=>{if(selectedCat!==displayCats.indexOf(c))e.currentTarget.style.background="white"}}>
                   <td style={{padding:"12px 14px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:8}}>
-                      <div style={{width:8,height:8,borderRadius:"50%",background:c.color,flexShrink:0}}/>
+                      <div style={{width:8,height:8,borderRadius:"50%",background:c.color || P,flexShrink:0}}/>
                       <span style={{fontSize:13,fontWeight:600,color:TX}}>{c.name}</span>
                     </div>
                   </td>
-                  <td style={{padding:"12px 14px",fontSize:13,color:TX2}}>{c.type}</td>
-                  <td style={{padding:"12px 14px",fontSize:13,fontWeight:600,color:TX}}>{c.certs.toLocaleString()}</td>
-                  <td style={{padding:"12px 14px",fontSize:13,color:TX}}>{c.templates}</td>
+                  <td style={{padding:"12px 14px",fontSize:13,color:TX2}}>{c.type || "Professional"}</td>
+                  <td style={{padding:"12px 14px",fontSize:13,fontWeight:600,color:TX}}>{(c.certs ?? 0).toLocaleString()}</td>
+                  <td style={{padding:"12px 14px",fontSize:13,color:TX}}>{c.templates ?? 0}</td>
                   <td style={{padding:"12px 14px"}}>
                     <div style={{display:"flex",alignItems:"center",gap:4}}>
                       <Star size={12} fill={WO} color={WO}/>
-                      <span style={{fontSize:13,fontWeight:500,color:TX}}>{c.rating}</span>
+                      <span style={{fontSize:13,fontWeight:500,color:TX}}>{c.rating ?? 0}</span>
                     </div>
                   </td>
-                  <td style={{padding:"12px 14px"}}><StatusBadge status={c.status}/></td>
+                  <td style={{padding:"12px 14px"}}><StatusBadge status={c.status || "Active"}/></td>
                   <td style={{padding:"12px 14px"}}>
                     <div style={{display:"flex",gap:4}}>
                       <button style={{padding:5,border:`1px solid ${BD}`,borderRadius:6,background:"white",cursor:"pointer"}}><Eye size={12} color={TX2}/></button>
@@ -2419,16 +2419,16 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }){
 
         <div style={{background:"white",border:`1px solid ${BD}`,borderRadius:12,padding:20,boxShadow:"0 1px 3px rgba(0,0,0,0.08)",height:"fit-content"}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
-            <div style={{width:10,height:10,borderRadius:"50%",background:cat.color}}/>
-            <span style={{fontSize:14,fontWeight:700,color:TX}}>{cat.name}</span>
+            <div style={{width:10,height:10,borderRadius:"50%",background:cat?.color || P}}/>
+            <span style={{fontSize:14,fontWeight:700,color:TX}}>{cat?.name}</span>
           </div>
           <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:16}}>
             {[
-              {label:"Type",value:cat.type},
-              {label:"Certificates",value:cat.certs.toLocaleString()},
-              {label:"Templates",value:cat.templates},
-              {label:"Avg Rating",value:`${cat.rating} ⭐`},
-              {label:"Status",value:<StatusBadge status={cat.status}/>},
+              {label:"Type",value:cat?.type || "Professional"},
+              {label:"Certificates",value:(cat?.certs ?? 0).toLocaleString()},
+              {label:"Templates",value:cat?.templates ?? 0},
+              {label:"Avg Rating",value:`${cat?.rating ?? 0} ⭐`},
+              {label:"Status",value:<StatusBadge status={cat?.status || "Active"}/>},
             ].map(r=>(
               <div key={r.label} style={{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:13}}>
                 <span style={{color:TX2}}>{r.label}</span>
