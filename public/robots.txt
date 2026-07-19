@@ -16,4 +16,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://learnifyaitool.vercel.app/sitemap.xml
+Sitemap: https://www.learnifyai.in/sitemap.xml
