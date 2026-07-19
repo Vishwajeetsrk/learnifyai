@@ -40,7 +40,7 @@ export const Route = createFileRoute("/refund-policy")({
 <p>Wallet top-ups for creator/coach earnings are non-refundable once credited. Student wallet top-ups are not available on the platform.</p>
 
 <h2>5. How to Request</h2>
-<p>Submit a refund request via the Billing Dashboard or email <a href="mailto:hello@learnify.ai">hello@learnify.ai</a> with your registered email, plan/course name, and reason for the request.</p>
+<p>Submit a refund request via the Billing Dashboard or email <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> with your registered email, plan/course name, and reason for the request.</p>
 
 <h2>6. Processing Time</h2>
 <p>Approved refunds are processed within 5–7 business days and credited to your original payment method. You will receive a confirmation email once processed.</p>`}

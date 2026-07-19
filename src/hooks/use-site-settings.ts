@@ -14,8 +14,8 @@ export type SiteSettings = {
 };
 
 const defaults: SiteSettings = {
-  contact_email: "hello@learnify.ai",
-  careers_email: "careers@learnify.ai",
+  contact_email: "support.learnifyai@gmail.com",
+  careers_email: "support.learnifyai@gmail.com",
   discord_url: "https://discord.gg/learnify",
   discord_label: "Chat with the community in real time.",
   twitter_url: "https://x.com/learnifyai",

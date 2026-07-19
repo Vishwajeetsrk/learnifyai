@@ -56,10 +56,10 @@ function NotFoundComponent() {
         <p className="text-xs text-muted-foreground">
           If you think this is a mistake, contact{" "}
           <a
-            href="mailto:support@learnify.ai"
+            href="mailto:support.learnifyai@gmail.com"
             className="text-primary underline underline-offset-2"
           >
-            support@learnify.ai
+            support.learnifyai@gmail.com
           </a>
         </p>
       </div>
@@ -231,7 +231,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           contactPoint: {
             "@type": "ContactPoint",
             contactType: "customer service",
-            email: "hello@learnifyai.in",
+            email: "support.learnifyai@gmail.com",
           },
         }),
       },

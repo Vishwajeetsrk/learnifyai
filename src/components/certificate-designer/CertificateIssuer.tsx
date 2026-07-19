@@ -267,7 +267,7 @@ export function CertificateIssuer({
           {/* Help */}
           <p className="text-[10px] text-slate-400 text-center">
             Need help?{" "}
-            <a href="mailto:support@learnify.ai" className="text-[#6B5BFB] hover:underline">
+            <a href="mailto:support.learnifyai@gmail.com" className="text-[#6B5BFB] hover:underline">
               Contact Learnify Support
             </a>
           </p>

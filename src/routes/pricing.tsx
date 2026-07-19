@@ -1387,7 +1387,7 @@ function PricingPage() {
             <p className="text-sm text-muted-foreground">
               All plans include a 30-day money-back guarantee. No credit card required for Free.{" "}
               <a
-                href="mailto:hello@learnify.ai"
+                href="mailto:support.learnifyai@gmail.com"
                 className="text-primary underline underline-offset-2 hover:opacity-80 transition"
               >
                 Contact us
