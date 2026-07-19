@@ -42,7 +42,7 @@ import {
   Download, Share2, BarChart2, Mail, Eye, Copy, Heart, MoreHorizontal,
   Search, ChevronDown, Star, Trash2, Edit, RotateCcw, RotateCw,
   Monitor, Tablet, Smartphone, Save, X, Check, AlertCircle, Clock,
-  Users, Settings, Tag, Zap, Lock, Globe, QrCode, Type, RefreshCw,
+  Users, Settings, Tag, Zap, Lock, Globe, QrCode, Type, RefreshCw, ExternalLink,
   Award, List, LayoutGrid, User, Calendar, Hash, AlignLeft, AlignCenter,
   AlignRight, CheckCircle, Wallet, Activity, Pen, FolderOpen, Palette,
   Bell, Phone, GraduationCap, Image, Square, FileUp,
