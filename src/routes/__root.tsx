@@ -76,8 +76,14 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     if (
       error?.message?.includes("Failed to fetch dynamically imported module") ||
       error?.message?.includes("Importing a module script failed") ||
-      error?.name === "ChunkLoadError"
+      error?.message?.includes("Cannot access") ||
+      error?.message?.includes("before initialization") ||
+      error?.name === "ChunkLoadError" ||
+      (error?.name === "ReferenceError" && error?.message?.includes("before initialization"))
     ) {
+      if (typeof window !== "undefined" && "caches" in window) {
+        caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
+      }
       window.location.reload();
     }
   }, [error]);
