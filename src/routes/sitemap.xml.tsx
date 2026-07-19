@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const BASE_URL = "https://learnifyaitool.vercel.app";
+const BASE_URL = "https://www.learnifyai.in";
 
 const PUBLIC_ROUTES = [
   { path: "/", changefreq: "daily", priority: "1.0" },

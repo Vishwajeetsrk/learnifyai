@@ -11,11 +11,11 @@ function escapeHtml(s: string): string {
 
 function resolveOrigin(): string {
   const origin =
-    process.env.APP_URL || process.env.VITE_APP_URL || "https://learnifyaitool.vercel.app";
+    process.env.APP_URL || process.env.VITE_APP_URL || "https://www.learnifyai.in";
   return origin.replace(/[^a-zA-Z0-9:/.\-_]/g, "");
 }
 
-const LOGO_URL = "https://learnifyaitool.vercel.app/favicon.ico";
+const LOGO_URL = "https://www.learnifyai.in/logo.png";
 
 function buildCertEmailHtml({
   recipientName,

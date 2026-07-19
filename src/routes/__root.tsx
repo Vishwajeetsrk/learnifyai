@@ -154,14 +154,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       {
         property: "og:image",
-        content: "https://learnifyaitool.vercel.app/assets/learnify-logo-DVspKPzy.png",
+        content: "https://www.learnifyai.in/logo.png",
       },
-      { property: "og:url", content: "https://learnifyaitool.vercel.app" },
+      { property: "og:url", content: "https://www.learnifyai.in" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@LearnifyAI" },
       {
         name: "twitter:image",
-        content: "https://learnifyaitool.vercel.app/assets/learnify-logo-DVspKPzy.png",
+        content: "https://www.learnifyai.in/logo.png",
       },
     ],
     links: [
@@ -204,10 +204,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "EducationalOrganization",
-          "@id": "https://learnifyaitool.vercel.app/#organization",
+          "@id": "https://www.learnifyai.in/#organization",
           name: "Learnify AI",
-          url: "https://learnifyaitool.vercel.app",
-          logo: "https://learnifyaitool.vercel.app/logo.png",
+          url: "https://www.learnifyai.in",
+          logo: "https://www.learnifyai.in/logo.png",
           description:
             "Learnify AI is the intelligent Career Operating System offering AI-driven learning, verified credentials, and career placement roadmaps.",
           sameAs: [
@@ -223,15 +223,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "Learnify AI",
-          url: "https://learnifyaitool.vercel.app",
-          logo: "https://learnifyaitool.vercel.app/assets/learnify-logo-DVspKPzy.png",
+          url: "https://www.learnifyai.in",
+          logo: "https://www.learnifyai.in/logo.png",
           description:
             "The AI-native learning OS: intelligent tutoring, creator economy, gamification, and career growth.",
           sameAs: [],
           contactPoint: {
             "@type": "ContactPoint",
             contactType: "customer service",
-            email: "hello@learnify.ai",
+            email: "hello@learnifyai.in",
           },
         }),
       },
@@ -241,10 +241,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "Learnify AI",
-          url: "https://learnifyaitool.vercel.app",
+          url: "https://www.learnifyai.in",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://learnifyaitool.vercel.app/courses?search={search_term_string}",
+            target: "https://www.learnifyai.in/courses?search={search_term_string}",
             "query-input": "required name=search_term_string",
           },
         }),

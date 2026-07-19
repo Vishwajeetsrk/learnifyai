@@ -16,11 +16,11 @@ function resolveOrigin(): string {
     process.env.APP_URL ||
     getRequestHeader("origin") ||
     getRequestHeader("referer")?.replace(/^(https?:\/\/[^/]+).*/, "$1") ||
-    "https://learnifyaitool.vercel.app";
+    "https://www.learnifyai.in";
   return origin.replace(/[^a-zA-Z0-9:/.\-_]/g, "");
 }
 
-const LOGO_URL = "https://learnifyaitool.vercel.app/favicon.ico";
+const LOGO_URL = "https://www.learnifyai.in/logo.png";
 
 export function buildHtml({
   courseTitle,

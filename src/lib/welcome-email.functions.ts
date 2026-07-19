@@ -176,7 +176,7 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
 <tr><td align="center" style="padding:48px 16px;">
 <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
 <tr><td style="background:linear-gradient(135deg,#1e1b4b,#312e81,#1e1b4b);border-radius:16px 16px 0 0;padding:40px;text-align:center;">
-<img src="https://learnifyaitool.vercel.app/logo.png" alt="Learnify AI" width="120" style="display:block;margin:0 auto 16px;"/>
+<img src="https://www.learnifyai.in/logo.png" alt="Learnify AI" width="120" style="display:block;margin:0 auto 16px;"/>
 <h1 style="margin:0;color:#fff;font-size:28px;font-weight:700;">Welcome to Learnify AI</h1>
 <p style="margin:8px 0 0;color:#a5b4fc;font-size:16px;">Your AI-Powered Learning Journey Starts Now</p>
 </td></tr>
@@ -184,11 +184,11 @@ export const sendWelcomeEmail = createServerFn({ method: "POST" })
 <p style="margin:0 0 20px;color:#e2e8f0;font-size:18px;font-weight:600;">Hello, ${escapeHtml(name)}! 👋</p>
 <p style="margin:0 0 20px;color:#94a3b8;font-size:15px;line-height:1.7;">We're thrilled to have you join <strong style="color:#6366f1;">Learnify AI</strong> — the AI-native learning platform built for modern learners.</p>
 <div style="text-align:center;margin-top:32px;">
-<a href="https://learnifyaitool.vercel.app/dashboard" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:15px;font-weight:600;text-decoration:none;padding:14px 40px;border-radius:50px;">Start Learning Now →</a>
+<a href="https://www.learnifyai.in/dashboard" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:15px;font-weight:600;text-decoration:none;padding:14px 40px;border-radius:50px;">Start Learning Now →</a>
 </div>
 </td></tr>
 <tr><td style="background:#0f172a;border-radius:0 0 16px 16px;padding:24px 40px;text-align:center;border-top:1px solid #1e293b;">
-<p style="margin:0;color:#475569;font-size:12px;">© ${new Date().getFullYear()} Learnify AI · <a href="https://learnifyaitool.vercel.app" style="color:#6366f1;text-decoration:none;">learnifyaitool.vercel.app</a></p>
+<p style="margin:0;color:#475569;font-size:12px;">© ${new Date().getFullYear()} Learnify AI · <a href="https://www.learnifyai.in" style="color:#6366f1;text-decoration:none;">www.learnifyai.in</a></p>
 </td></tr>
 </table></td></tr></table>
 </body></html>`;
