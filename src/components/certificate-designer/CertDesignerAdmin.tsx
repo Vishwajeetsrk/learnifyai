@@ -2951,22 +2951,26 @@ export function CertDesignerAdmin() {
 
   const { data: stats } = useQuery({
     queryKey: ["cert-system-stats"],
-    queryFn: () => doGetStats(),
+    queryFn: () => doGetStats().catch(() => null),
+    staleTime: 60_000,
   });
 
   const { data: certificates = [] } = useQuery({
     queryKey: ["certificates-list"],
-    queryFn: () => doListAllCerts(),
+    queryFn: () => doListAllCerts().catch(() => []),
+    staleTime: 60_000,
   });
 
   const { data: categories = [] } = useQuery({
     queryKey: ["cert-categories"],
-    queryFn: () => doGetCategories(),
+    queryFn: () => doGetCategories().catch(() => []),
+    staleTime: 60_000,
   });
 
   const { data: initialSettings } = useQuery({
     queryKey: ["cert-settings"],
-    queryFn: () => doGetSettings(),
+    queryFn: () => doGetSettings().catch(() => null),
+    staleTime: 60_000,
   });
 
   const { data: courses = [] } = useQuery({
@@ -2976,17 +2980,23 @@ export function CertDesignerAdmin() {
         .from("courses")
         .select("id, title, instructor")
         .order("title");
-      if (error) throw error;
+      if (error) return [];
       return data ?? [];
     },
+    staleTime: 60_000,
   });
 
   const {data:templates=[],isLoading} = useQuery({
     queryKey:["canva-cert-templates"],
     queryFn:async()=>{
-      const r=await doList();
-      return (r??[]) as CanvaTemplate[];
+      try {
+        const r=await doList();
+        return (r??[]) as CanvaTemplate[];
+      } catch {
+        return [];
+      }
     },
+    staleTime: 60_000,
   });
 
   const handleSeed = async()=>{
