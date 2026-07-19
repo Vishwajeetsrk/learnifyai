@@ -13,7 +13,7 @@
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Vishwajeetsrk/learnifyai)
 [![License](https://img.shields.io/badge/License-MIT-6366f1?style=for-the-badge)](LICENSE)
 
-[🚀 Live Demo](https://learnifyaitool.vercel.app/) · [🐛 Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues) · [✨ Request Feature](https://github.com/Vishwajeetsrk/learnifyai/issues/new?template=feature_request.md)
+[🚀 Live Demo](https://www.learnifyai.in/) · [🐛 Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues) · [✨ Request Feature](https://github.com/Vishwajeetsrk/learnifyai/issues/new?template=feature_request.md)
 
 </div>
 
@@ -26,7 +26,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 ### 🎥 Platform Demo
 
 <div align="center">
-  <a href="https://learnifyaitool.vercel.app/" target="_blank">
+  <a href"https://www.learnifyai.in/" target="_blank">
     <img src="src/assets/learnify_demo.gif" alt="Learnify AI Platform Demo — Click to open Live Demo" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);" />
   </a>
   <p><em>👆 Click to open the live demo</em></p>
