@@ -330,7 +330,7 @@ const TABS=[
 ];
 
 // ─── Screen: Overview ────────────────────────────────────────────────────────
-function OverviewScreen({setTab, stats}:{setTab:(t:string)=>void, stats: any}){
+function OverviewScreen({setTab, stats, onOpenAiModal}:{setTab:(t:string)=>void, stats: any, onOpenAiModal?: ()=>void}){
   const totalCerts = stats?.totalCerts ?? 0;
   const totalVerifications = stats?.totalVerifications ?? 0;
   const totalTemplates = stats?.totalTemplates ?? 0;
@@ -354,18 +354,24 @@ function OverviewScreen({setTab, stats}:{setTab:(t:string)=>void, stats: any}){
             {recentCertificates.length === 0 ? (
               <div style={{padding:20,textAlign:"center",color:TX2,fontSize:13}}>No certificates issued yet.</div>
             ) : recentCertificates.map((c: any,i: number)=>(
-              <div key={i} style={{display:"flex",alignItems:"center",gap:10,paddingBottom:i<recentCertificates.length-1?10:0,borderBottom:i<recentCertificates.length-1?`1px solid ${BD}`:"none"}}>
+              <a 
+                key={i} 
+                href={`/verify/${c.id}`}
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{display:"flex",alignItems:"center",gap:10,textDecoration:"none",color:"inherit",paddingBottom:i<recentCertificates.length-1?10:0,borderBottom:i<recentCertificates.length-1?`1px solid ${BD}`:"none"}}
+              >
                 <CertThumbnail theme={c.theme} name={c.name} course={c.course} date={c.date} certId={c.id} />
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:13,fontWeight:600,color:TX,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{c.course}</div>
+                  <div style={{fontSize:13,fontWeight:600,color:TX,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{c.course} ↗</div>
                   <div style={{fontSize:12,color:TX2}}>Issued to {c.name}</div>
                 </div>
                 <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:4,flexShrink:0}}>
                   <StatusBadge status={c.status}/>
                   <span style={{fontSize:11,color:TX3}}>{c.time}</span>
                 </div>
-                <MoreHorizontal size={15} color={TX3} style={{cursor:"pointer",flexShrink:0}}/>
-              </div>
+                <ExternalLink size={14} color={TX3} style={{flexShrink:0}}/>
+              </a>
             ))}
           </div>
         </SectionCard>
@@ -373,14 +379,14 @@ function OverviewScreen({setTab, stats}:{setTab:(t:string)=>void, stats: any}){
         <SectionCard title="Quick Actions">
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
             {[
-              {label:"Create Certificate",sub:"Create a new certificate manually",icon:<FilePlus size={22} color={P}/>,iconBg:PL,tab:"all-certs"},
-              {label:"AI Designer",sub:"Generate certificates with AI",icon:<Sparkles size={22} color="#7C3AED"/>,iconBg:"#EDE9FE",tab:"designer"},
-              {label:"Bulk Issue",sub:"Upload CSV and issue in bulk",icon:<Upload size={22} color={SG}/>,iconBg:SGL,tab:"bulk-issue"},
-              {label:"Template Library",sub:"Browse 50+ professional templates",icon:<LayoutGrid size={22} color={IN}/>,iconBg:INL,tab:"templates"},
-              {label:"Verification Center",sub:"Verify any certificate",icon:<ShieldCheck size={22} color={WP}/>,iconBg:"#EDE9FE",tab:"verification"},
-              {label:"Analytics Dashboard",sub:"View detailed reports",icon:<BarChart2 size={22} color={WO}/>,iconBg:WOL,tab:"analytics"},
+              {label:"Create Certificate",sub:"Create a new certificate manually",icon:<FilePlus size={22} color={P}/>,iconBg:PL,action:()=>setTab("all-certs")},
+              {label:"AI Designer",sub:"Generate certificates with AI",icon:<Sparkles size={22} color="#7C3AED"/>,iconBg:"#EDE9FE",action:()=>onOpenAiModal?onOpenAiModal():setTab("designer")},
+              {label:"Bulk Issue",sub:"Upload CSV and issue in bulk",icon:<Upload size={22} color={SG}/>,iconBg:SGL,action:()=>setTab("bulk-issue")},
+              {label:"Template Library",sub:"Browse 50+ professional templates",icon:<LayoutGrid size={22} color={IN}/>,iconBg:INL,action:()=>setTab("templates")},
+              {label:"Verification Center",sub:"Verify any certificate",icon:<ShieldCheck size={22} color={WP}/>,iconBg:"#EDE9FE",action:()=>setTab("verification")},
+              {label:"Analytics Dashboard",sub:"View detailed reports",icon:<BarChart2 size={22} color={WO}/>,iconBg:WOL,action:()=>setTab("analytics")},
             ].map((a,i)=>(
-              <div key={i} onClick={()=>setTab(a.tab)} style={{border:`1px solid ${BD}`,borderRadius:12,padding:14,cursor:"pointer",transition:"box-shadow 0.15s"}}
+              <div key={i} onClick={a.action} style={{border:`1px solid ${BD}`,borderRadius:12,padding:14,cursor:"pointer",transition:"box-shadow 0.15s"}}
                 onMouseEnter={e=>(e.currentTarget.style.boxShadow="0 4px 12px rgba(0,0,0,0.10)")}
                 onMouseLeave={e=>(e.currentTarget.style.boxShadow="none")}>
                 <div style={{width:36,height:36,borderRadius:8,background:a.iconBg,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:8}}>{a.icon}</div>
@@ -744,15 +750,20 @@ function AllCertsScreen({
                   />
                 </td>
                 <td style={{ padding: "12px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <a 
+                    href={`/verify/${c.id}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "inherit" }}
+                  >
                     <CertThumbnail theme={c.theme} name={c.name} course={c.course} date={c.date} certId={c.id} />
                     <div>
-                      <div style={{ fontSize: 11, color: TX3 }}>{c.id}</div>
+                      <div style={{ fontSize: 11, color: P, fontWeight: 600 }}>{c.id} ↗</div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: TX, maxWidth: 180, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                         {c.course}
                       </div>
                     </div>
-                  </div>
+                  </a>
                 </td>
                 <td style={{ padding: "12px" }}>
                   <div style={{ fontSize: 13, fontWeight: 500, color: TX }}>{c.name}</div>
@@ -2934,9 +2945,109 @@ function SettingsScreen({ initialSettings, onSave }: { initialSettings: any, onS
 export function CertDesignerAdmin() {
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
-  const [designerTemplate, setDesignerTemplate] = useState<CanvaTemplate|null>(null);
-  const [showDesignerWorkspace, setShowDesignerWorkspace] = useState(false);
-  const [deleteId, setDeleteId] = useState<string|null>(null);
+  const [showAiModal, setShowAiModal] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiStyle, setAiStyle] = useState("w3schools");
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+
+  const handleAiGenerate = async () => {
+    if (!aiPrompt.trim()) return toast.error("Please enter a prompt for the AI Designer.");
+    setIsGeneratingAi(true);
+
+    try {
+      const stylesMap: Record<string, any> = {
+        w3schools: {
+          name: "W3Schools Web Developer AI Edition",
+          primary: "#04aa6d",
+          accent: "#282a35",
+          bg: "#ffffff",
+          fontTitle: "Space Grotesk, sans-serif",
+          fontName: "Space Grotesk, sans-serif",
+          sub: "INTERNATIONAL WEB DEVELOPMENT CERTIFICATION",
+        },
+        coursera: {
+          name: "Coursera Honors AI Edition",
+          primary: "#d4af37",
+          accent: "#8a6d2b",
+          bg: "#fdfaf4",
+          fontTitle: "Cinzel, serif",
+          fontName: "Playfair Display, serif",
+          sub: "HONORS CERTIFICATE OF ACCOMPLISHMENT",
+        },
+        executive: {
+          name: "Executive Post-Graduate AI Edition",
+          primary: "#003b73",
+          accent: "#d4af37",
+          bg: "#001f3f",
+          fontTitle: "Cinzel, serif",
+          fontName: "Playfair Display, serif",
+          sub: "POST GRADUATE EXECUTIVE DIPLOMA",
+        },
+        cyber: {
+          name: "Cyber Security Specialist AI Edition",
+          primary: "#00f2fe",
+          accent: "#fe007c",
+          bg: "#080a13",
+          fontTitle: "monospace",
+          fontName: "monospace",
+          sub: "ADVANCED CYBER SECURITY CERTIFICATION",
+        },
+      };
+
+      const selected = stylesMap[aiStyle] || stylesMap.w3schools;
+      const titleText = aiPrompt.length < 40 ? aiPrompt.toUpperCase() : "CERTIFICATE OF EXCELLENCE";
+
+      const generatedTemplate: CanvaTemplate = {
+        id: "new_ai_" + Date.now(),
+        name: `${selected.name} (${aiPrompt.slice(0, 20)})`,
+        category: "AI Generated",
+        bg_image_url: "",
+        thumbnail_url: null,
+        theme_colors: {
+          primary: selected.primary,
+          accent: selected.accent,
+          background: selected.bg,
+          text: selected.bg === "#ffffff" ? "#1a1a2e" : "#ffffff",
+        },
+        fields_json: {
+          ...SVG_DEFAULT_FIELDS,
+          title: {
+            ...SVG_DEFAULT_FIELDS.title,
+            text: titleText,
+            fontFamily: selected.fontTitle,
+            color: selected.primary,
+          },
+          subtitle: {
+            ...SVG_DEFAULT_FIELDS.subtitle,
+            text: selected.sub,
+            fontFamily: "Inter, sans-serif",
+          },
+          studentName: {
+            ...SVG_DEFAULT_FIELDS.studentName,
+            fontFamily: selected.fontName,
+            color: selected.bg === "#ffffff" ? "#1a1a2e" : "#ffffff",
+          },
+          courseName: {
+            ...SVG_DEFAULT_FIELDS.courseName,
+            text: aiPrompt,
+            color: selected.primary,
+          },
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        created_by: null,
+      };
+
+      setDesignerTemplate(generatedTemplate);
+      setShowAiModal(false);
+      setShowDesignerWorkspace(true);
+      toast.success("AI Certificate generated! Customize it on the canvas.");
+    } catch (e: any) {
+      toast.error(e?.message || "AI Generation failed.");
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  };
 
   const doList = useServerFn(listCanvaTemplates);
   const doSave = useServerFn(saveCanvaTemplate);
@@ -3069,7 +3180,7 @@ export function CertDesignerAdmin() {
 
   const renderScreen=()=>{
     switch(activeTab){
-      case "overview":     return <OverviewScreen setTab={setActiveTab} stats={stats}/>;
+      case "overview":     return <OverviewScreen setTab={setActiveTab} stats={stats} onOpenAiModal={()=>setShowAiModal(true)}/>;
       case "all-certs":    return <AllCertsScreen certificates={certificates} setTab={setActiveTab} onRefresh={() => qc.invalidateQueries({ queryKey: ["certificates-list"] })} />;
       case "templates":    return <TemplatesScreen setTab={setActiveTab} dbTemplates={templates} handleSeed={handleSeed} handleEdit={handleEdit} handleDelete={handleDelete} isLoading={isLoading}/>;
       case "designer":     return <DesignerCanvasScreen/>;
@@ -3081,7 +3192,7 @@ export function CertDesignerAdmin() {
         await doSaveSettings({ data: s });
         qc.invalidateQueries({ queryKey: ["cert-settings"] });
       }}/>;
-      default:             return <OverviewScreen setTab={setActiveTab} stats={stats}/>;
+      default:             return <OverviewScreen setTab={setActiveTab} stats={stats} onOpenAiModal={()=>setShowAiModal(true)}/>;
     }
   };
 
@@ -3097,12 +3208,15 @@ export function CertDesignerAdmin() {
             <h1 style={{fontSize:20,fontWeight:700,color:TX,margin:0,lineHeight:1.2}}>{info.title}</h1>
             <p style={{fontSize:13,color:TX2,margin:0}}>{info.subtitle}</p>
           </div>
-          {activeTab==="templates"&&(
-            <div style={{display:"flex",gap:8}}>
-              <Btn variant="outline" onClick={handleSeed}><RefreshCw size={13}/>Seed Templates</Btn>
-              <Btn variant="primary" onClick={handleNew}><Plus size={14}/>New Template</Btn>
-            </div>
-          )}
+          <div style={{display:"flex",gap:8}}>
+            <Btn variant="outline" onClick={()=>setShowAiModal(true)} style={{borderColor:"#7C3AED",color:"#7C3AED"}}><Sparkles size={14}/>AI Designer</Btn>
+            {activeTab==="templates"&&(
+              <>
+                <Btn variant="outline" onClick={handleSeed}><RefreshCw size={13}/>Seed Templates</Btn>
+                <Btn variant="primary" onClick={handleNew}><Plus size={14}/>New Template</Btn>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Tab Navigation */}
@@ -3134,6 +3248,75 @@ export function CertDesignerAdmin() {
       }}>
         {renderScreen()}
       </div>
+
+      {/* AI Certificate Generator Modal */}
+      {showAiModal && (
+        <div style={{position:"fixed",inset:0,background:"rgba(15,23,42,0.65)",backdropFilter:"blur(6px)",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+          <div style={{background:"white",borderRadius:16,width:"100%",maxWidth:520,padding:24,boxShadow:"0 20px 40px rgba(0,0,0,0.2)",border:"1px solid #E2E8F0"}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}}>
+              <div style={{display:"flex",alignItems:"center",gap:10}}>
+                <div style={{width:36,height:36,borderRadius:10,background:"#EDE9FE",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  <Sparkles size={20} color="#7C3AED"/>
+                </div>
+                <div>
+                  <h3 style={{fontSize:16,fontWeight:700,color:"#0F172A",margin:0}}>AI Certificate Designer</h3>
+                  <p style={{fontSize:12,color:"#64748B",margin:0}}>Generate customized certificate templates with AI</p>
+                </div>
+              </div>
+              <button onClick={()=>setShowAiModal(false)} style={{background:"none",border:"none",cursor:"pointer",fontSize:18,color:"#64748B"}}>✕</button>
+            </div>
+
+            <div style={{marginBottom:16}}>
+              <label style={{display:"block",fontSize:12,fontWeight:600,color:"#334155",marginBottom:6}}>Certificate Prompt / Course Title</label>
+              <textarea
+                rows={3}
+                value={aiPrompt}
+                onChange={(e)=>setAiPrompt(e.target.value)}
+                placeholder="e.g. Full Stack Web Development Certificate in Emerald W3Schools Style with Gold Seal"
+                style={{width:"100%",borderRadius:8,border:"1px solid #CBD5E1",padding:10,fontSize:13,color:"#0F172A",outline:"none",resize:"none"}}
+              />
+            </div>
+
+            <div style={{marginBottom:20}}>
+              <label style={{display:"block",fontSize:12,fontWeight:600,color:"#334155",marginBottom:6}}>Style Preset</label>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
+                {[
+                  {id:"w3schools",name:"W3Schools Tech",color:"#04aa6d"},
+                  {id:"coursera",name:"Coursera Academic",color:"#d4af37"},
+                  {id:"executive",name:"Executive Navy",color:"#003b73"},
+                  {id:"cyber",name:"Cyber Dark Tech",color:"#00f2fe"},
+                ].map(s=>(
+                  <div
+                    key={s.id}
+                    onClick={()=>setAiStyle(s.id)}
+                    style={{
+                      border:`2px solid ${aiStyle===s.id?s.color:"#E2E8F0"}`,
+                      borderRadius:8,
+                      padding:"8px 12px",
+                      cursor:"pointer",
+                      display:"flex",
+                      alignItems:"center",
+                      gap:8,
+                      background:aiStyle===s.id?"#F8FAFC":"white",
+                    }}
+                  >
+                    <div style={{width:12,height:12,borderRadius:"50%",background:s.color}}/>
+                    <span style={{fontSize:12,fontWeight:aiStyle===s.id?600:400,color:"#0F172A"}}>{s.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{display:"flex",gap:10,justifyContent:"flex-end"}}>
+              <Btn variant="outline" onClick={()=>setShowAiModal(false)}>Cancel</Btn>
+              <Btn variant="primary" onClick={handleAiGenerate} disabled={isGeneratingAi}>
+                {isGeneratingAi ? <RefreshCw size={14} className="animate-spin"/> : <Sparkles size={14}/>}
+                Generate with AI
+              </Btn>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}

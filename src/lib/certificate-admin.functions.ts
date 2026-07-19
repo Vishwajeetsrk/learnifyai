@@ -333,9 +333,9 @@ export const bulkIssueCertificates = createServerFn({ method: "POST" })
         if (profile) {
           profileId = profile.id;
         } else {
-          // Skip or create dummy? Skipping with error notification is safer
-          errors.push(`Learner email ${rec.email} not registered in database.`);
-          continue;
+          // Allow issuing to unregistered emails by using issuer ID as placeholder
+          // Certificate will be sent via email and linked when the user signs up
+          profileId = issuerId;
         }
 
         const code = `LRN-${Math.random().toString(36).slice(2, 8).toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
