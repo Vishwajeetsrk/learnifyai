@@ -72,6 +72,14 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    // Auto-reload on stale build chunk error (when a new deployment replaces old JS chunks)
+    if (
+      error?.message?.includes("Failed to fetch dynamically imported module") ||
+      error?.message?.includes("Importing a module script failed") ||
+      error?.name === "ChunkLoadError"
+    ) {
+      window.location.reload();
+    }
   }, [error]);
 
   return (
@@ -123,10 +131,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="text-xs text-muted-foreground">
           If this keeps happening, contact{" "}
           <a
-            href="mailto:support@learnify.ai"
+            href="mailto:support.learnifyai@gmail.com"
             className="text-primary underline underline-offset-2"
           >
-            support@learnify.ai
+            support.learnifyai@gmail.com
           </a>
         </p>
       </div>
@@ -211,6 +219,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         children: `if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){})});}`,
+      },
+      {
+        children: `window.addEventListener('vite:preloadError',function(){window.location.reload()});`,
       },
       {
         type: "application/ld+json",
