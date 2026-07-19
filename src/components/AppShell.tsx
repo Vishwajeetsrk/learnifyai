@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -212,7 +213,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const UserFooter = () => (
     <div className="border-t p-3 flex items-center gap-2">
       <UserAvatarMenu showName />
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-1">
+        <LanguageSwitcher />
         <ThemeToggle />
       </div>
     </div>
