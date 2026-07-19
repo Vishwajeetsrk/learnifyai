@@ -73,6 +73,16 @@ export default defineConfig({
             if (id.includes("cmdk")) return "vendor-cmdk";
             if (id.includes("vaul")) return "vendor-vaul";
             if (id.includes("sonner")) return "vendor-sonner";
+            // Additional heavy libraries — split for faster initial load
+            if (id.includes("konva") || id.includes("react-konva")) return "vendor-konva";
+            if (id.includes("@codesandbox") || id.includes("sandpack")) return "vendor-sandpack";
+            if (id.includes("sql.js")) return "vendor-sql";
+            if (id.includes("@xyflow") || id.includes("xyflow")) return "vendor-xyflow";
+            if (id.includes("exceljs")) return "vendor-excel";
+            if (id.includes("@ai-sdk") || id.includes("ai")) return "vendor-ai";
+            if (id.includes("html-to-image") || id.includes("html2canvas")) return "vendor-canvas";
+            if (id.includes("react-rnd") || id.includes("react-resizable")) return "vendor-resize";
+            if (id.includes("@tanstack")) return "vendor-tanstack";
           },
         },
       },

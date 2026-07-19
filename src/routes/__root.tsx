@@ -163,6 +163,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "twitter:image",
         content: "https://www.learnifyai.in/logo.png",
       },
+      // Google Search Console verification
+      {
+        name: "google-site-verification",
+        content: "Db6NEdI6bZznQUQMkJ78jEPpWnrob9JXegQ99O7s3z0",
+      },
+      // Theme color
+      { name: "theme-color", content: "#0f172a" },
     ],
     links: [
       {
@@ -191,6 +198,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "manifest",
         href: "/manifest.json",
       },
+      // Performance: DNS preconnect for critical third-party origins
+      { rel: "preconnect", href: "https://gnvsqwyexjuuwkjibxrr.supabase.co" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "dns-prefetch", href: "https://sdk.cashfree.com" },
+      { rel: "dns-prefetch", href: "https://api.cashfree.com" },
     ],
     scripts: [
       {
