@@ -53,7 +53,7 @@ async function sendEmail(data: {
   }
 }
 
-const BASE_URL = process.env.VITE_APP_URL || "https://learnifyaitool.vercel.app";
+const BASE_URL = process.env.VITE_APP_URL || "https://www.learnifyai.in";
 
 function emailWrapper(content: string): string {
   return `

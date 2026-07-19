@@ -216,7 +216,7 @@ export const createSubscription = createServerFn({ method: "POST" })
 
     const { appId, secretKey } = getCreds();
     const subId = `sub_${uid.slice(0, 8)}_${Date.now()}`;
-    const baseUrl = process.env.VITE_APP_URL || "https://learnifyaitool.vercel.app";
+    const baseUrl = process.env.VITE_APP_URL || "https://www.learnifyai.in";
     const returnUrl = `${baseUrl}/pricing?subscribe=ok`;
     const notifyUrl = `${baseUrl}/api/webhooks/cashfree-subscription`;
     const idempotencyKey = `sub_create_${uid}_${data.planId}_${Date.now()}`;

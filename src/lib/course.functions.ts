@@ -435,7 +435,7 @@ async function sendEnrollmentEmails(
     const courseList = courses
       .map(
         (c) =>
-          `<li style="padding:6px 0;color:#334155"><strong>${escapeHtml(c.title)}</strong>${c.slug ? ` — <a href="${process.env.VITE_APP_URL || "https://learnifyaitool.vercel.app"}/courses/${c.slug}" style="color:#4f46e5">View Course</a>` : ""}</li>`,
+          `<li style="padding:6px 0;color:#334155"><strong>${escapeHtml(c.title)}</strong>${c.slug ? ` — <a href="${process.env.VITE_APP_URL || "https://www.learnifyai.in"}/courses/${c.slug}" style="color:#4f46e5">View Course</a>` : ""}</li>`,
       )
       .join("");
 
@@ -452,11 +452,11 @@ async function sendEnrollmentEmails(
       html = render(tpl.html_body, {
         name,
         course_title: courses[0]?.title || "Course",
-        course_url: `${process.env.VITE_APP_URL || "https://learnifyaitool.vercel.app"}/courses/${courses[0]?.slug || ""}`,
+        course_url: `${process.env.VITE_APP_URL || "https://www.learnifyai.in"}/courses/${courses[0]?.slug || ""}`,
       });
     } else {
       subject = `You're enrolled! ${courses.length > 1 ? `${courses.length} courses` : courses[0]?.title}`;
-      html = `<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#f4f5fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0f172a"><table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5fb;padding:32px 12px"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:18px;overflow:hidden"><tr><td style="background:linear-gradient(135deg,#0f1b3d,#1e3a8a,#4f46e5);padding:32px;text-align:center"><div style="color:#fde68a;font-size:11px;letter-spacing:.35em;text-transform:uppercase;font-weight:700">Learnify AI</div></td></tr><tr><td style="padding:36px 32px"><h1 style="margin:0 0 12px;font-size:24px;color:#0f172a">You're enrolled! 🎉</h1><p style="margin:0 0 20px;color:#475569;font-size:15px;line-height:1.6">Hi ${escapeHtml(name)}, you've been enrolled in:</p><ul style="list-style:none;padding:0;margin:0 0 24px">${courseList}</ul><div style="text-align:center;margin-top:28px"><a href="${process.env.VITE_APP_URL || "https://learnifyaitool.vercel.app"}/dashboard" style="display:inline-block;background:#4f46e5;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px">Go to Dashboard</a></div></td></tr><tr><td style="padding:20px 32px;text-align:center;color:#94a3b8;font-size:12px;border-top:1px solid #f1f5f9">© ${new Date().getFullYear()} Learnify AI</td></tr></table></td></tr></table></body></html>`;
+      html = `<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#f4f5fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0f172a"><table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f5fb;padding:32px 12px"><tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;border-radius:18px;overflow:hidden"><tr><td style="background:linear-gradient(135deg,#0f1b3d,#1e3a8a,#4f46e5);padding:32px;text-align:center"><div style="color:#fde68a;font-size:11px;letter-spacing:.35em;text-transform:uppercase;font-weight:700">Learnify AI</div></td></tr><tr><td style="padding:36px 32px"><h1 style="margin:0 0 12px;font-size:24px;color:#0f172a">You're enrolled! 🎉</h1><p style="margin:0 0 20px;color:#475569;font-size:15px;line-height:1.6">Hi ${escapeHtml(name)}, you've been enrolled in:</p><ul style="list-style:none;padding:0;margin:0 0 24px">${courseList}</ul><div style="text-align:center;margin-top:28px"><a href="${process.env.VITE_APP_URL || "https://www.learnifyai.in"}/dashboard" style="display:inline-block;background:#4f46e5;color:#fff;padding:14px 28px;border-radius:12px;text-decoration:none;font-weight:700;font-size:15px">Go to Dashboard</a></div></td></tr><tr><td style="padding:20px 32px;text-align:center;color:#94a3b8;font-size:12px;border-top:1px solid #f1f5f9">© ${new Date().getFullYear()} Learnify AI</td></tr></table></td></tr></table></body></html>`;
     }
 
     // Fire-and-forget — don't block enrollment on email
