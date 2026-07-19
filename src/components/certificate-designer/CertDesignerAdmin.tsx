@@ -2578,11 +2578,23 @@ function AnalyticsScreen({ stats }: { stats: any }){
             {/* Minimalist World Map Vector Outline */}
             <svg width="100%" height="100%" viewBox="0 0 800 360" style={{position:"absolute",top:0,left:0}}>
               <g transform={`translate(${mapPan.x}, ${mapPan.y}) scale(${mapZoom})`} style={{transformOrigin:"center center"}}>
-                <path d="M 50 150 Q 80 80 120 70 T 200 60 T 280 80 T 320 120 T 300 200 T 250 250 T 150 260 T 80 220 Z" fill="#ffffff" opacity="0.08" />
-                <path d="M 230 240 Q 250 290 280 340 T 300 350 T 270 300 Z" fill="#ffffff" opacity="0.06" />
-                <path d="M 430 70 Q 480 50 530 60 T 600 70 T 650 90 T 700 80 T 760 120 T 720 200 T 650 230 Z" fill="#ffffff" opacity="0.08" />
-                <path d="M 450 150 Q 490 200 500 280 T 550 300 T 560 250 T 500 180 Z" fill="#ffffff" opacity="0.06" />
-                <path d="M 680 240 Q 720 250 750 290 T 710 320 T 670 280 Z" fill="#ffffff" opacity="0.06" />
+                {/* High-Fidelity SVG Continents Map Outline */}
+                {/* North America */}
+                <path d="M 120,45 L 140,40 L 180,48 L 220,42 L 260,55 L 290,50 L 305,65 L 295,85 L 265,95 L 255,115 L 245,145 L 235,155 L 210,165 L 190,145 L 165,150 L 145,135 L 130,110 L 115,95 L 105,75 Z" fill="#ffffff" opacity="0.12" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
+                {/* South America */}
+                <path d="M 235,165 L 260,170 L 285,185 L 315,210 L 320,240 L 300,285 L 280,320 L 265,335 L 255,325 L 260,280 L 250,230 L 235,195 Z" fill="#ffffff" opacity="0.12" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
+                {/* Europe */}
+                <path d="M 380,60 L 410,50 L 435,55 L 450,75 L 440,95 L 420,105 L 400,115 L 385,100 L 370,85 Z" fill="#ffffff" opacity="0.14" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
+                {/* Africa */}
+                <path d="M 375,120 L 415,115 L 460,135 L 485,160 L 480,200 L 465,245 L 440,280 L 415,285 L 405,250 L 380,210 L 365,170 L 365,140 Z" fill="#ffffff" opacity="0.12" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
+                {/* Asia & Middle East */}
+                <path d="M 450,70 L 490,50 L 560,45 L 640,40 L 710,55 L 730,85 L 715,115 L 675,130 L 640,150 L 600,175 L 565,180 L 540,155 L 500,140 L 465,120 Z" fill="#ffffff" opacity="0.13" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
+                {/* India Subcontinent */}
+                <path d="M 535,145 L 565,140 L 585,165 L 575,200 L 555,215 L 540,185 Z" fill="#ffffff" opacity="0.18" stroke="rgba(255,255,255,0.3)" strokeWidth="0.75" />
+                {/* Australia & Oceania */}
+                <path d="M 645,235 L 685,225 L 725,240 L 730,275 L 705,305 L 660,300 L 640,270 Z" fill="#ffffff" opacity="0.12" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
+                {/* Japan & East Asian Islands */}
+                <path d="M 715,95 L 725,115 L 710,135 L 700,110 Z" fill="#ffffff" opacity="0.15" />
 
                 {/* USA Marker */}
                 <g 

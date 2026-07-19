@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import logoUrl from "@/assets/learnify-logo.png?url";
+import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Sign in — Learnify AI" }] }),
@@ -68,10 +68,12 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-hero flex items-center justify-center px-4">
+    <div className="min-h-screen bg-hero flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center justify-center mb-8" aria-label="Learnify AI">
-          <img src={logoUrl} alt="Learnify AI" className="h-12 w-auto" loading="lazy" />
+        <Link to="/" className="flex items-center justify-center mb-8 group" aria-label="Learnify AI">
+          <div className="p-3 rounded-2xl bg-background/80 backdrop-blur-md border border-border/50 shadow-md group-hover:scale-105 transition-all">
+            <Logo height="h-14" />
+          </div>
         </Link>
         <div className="bg-card border rounded-2xl p-8 shadow-card">
           <h1 className="text-2xl font-display font-semibold mb-1">Welcome back</h1>
