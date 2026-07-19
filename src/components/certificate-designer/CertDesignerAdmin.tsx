@@ -2941,10 +2941,28 @@ function SettingsScreen({ initialSettings, onSave }: { initialSettings: any, onS
   );
 }
 
+const DEFAULT_FIELDS = {
+  title: { x: 50, y: 12, fontSize: 48, fontFamily: "Playfair Display, serif", color: "#1a1a2e", fontWeight: "bold", text: "CERTIFICATE", align: "center" },
+  subtitle: { x: 50, y: 18, fontSize: 14, fontFamily: "Inter, sans-serif", color: "#666666", fontWeight: "600", letterSpacing: "0.25em", text: "OF COMPLETION", align: "center" },
+  certifyText: { x: 50, y: 24, fontSize: 12, fontFamily: "Inter, sans-serif", color: "#888888", fontWeight: "normal", text: "This is to certify that", align: "center" },
+  studentName: { x: 50, y: 32, fontSize: 42, fontFamily: "Great Vibes, cursive", color: "#1a1a2e", fontWeight: "normal", variable: "{{student_name}}", align: "center" },
+  completeText: { x: 50, y: 40, fontSize: 12, fontFamily: "Inter, sans-serif", color: "#888888", fontWeight: "normal", text: "has successfully completed the course", align: "center" },
+  courseName: { x: 50, y: 46, fontSize: 22, fontFamily: "Inter, sans-serif", color: "#1a1a2e", fontWeight: "bold", variable: "{{course_name}}", align: "center" },
+  description: { x: 50, y: 52, fontSize: 11, fontFamily: "Inter, sans-serif", color: "#666666", fontWeight: "normal", text: "and has demonstrated the knowledge and skills required", align: "center" },
+  signatureName: { x: 22, y: 68, fontSize: 20, fontFamily: "Great Vibes, cursive", color: "#1a1a2e", fontWeight: "normal", variable: "{{signature_name}}", align: "center" },
+  signatureTitle: { x: 22, y: 72, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#888888", fontWeight: "normal", variable: "{{signature_title}}", align: "center" },
+  date: { x: 78, y: 68, fontSize: 12, fontFamily: "Inter, sans-serif", color: "#1a1a2e", fontWeight: "600", variable: "{{issue_date}}", align: "center" },
+  dateLabel: { x: 78, y: 72, fontSize: 10, fontFamily: "Inter, sans-serif", color: "#888888", fontWeight: "normal", text: "Date of Issuance", align: "center" },
+  certId: { x: 50, y: 88, fontSize: 10, fontFamily: "monospace", color: "#999999", fontWeight: "normal", variable: "{{cert_id}}", align: "center" },
+};
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export function CertDesignerAdmin() {
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
+  const [designerTemplate, setDesignerTemplate] = useState<CanvaTemplate|null>(null);
+  const [showDesignerWorkspace, setShowDesignerWorkspace] = useState(false);
+  const [deleteId, setDeleteId] = useState<string|null>(null);
   const [showAiModal, setShowAiModal] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiStyle, setAiStyle] = useState("w3schools");
@@ -3010,25 +3028,25 @@ export function CertDesignerAdmin() {
           text: selected.bg === "#ffffff" ? "#1a1a2e" : "#ffffff",
         },
         fields_json: {
-          ...SVG_DEFAULT_FIELDS,
+          ...DEFAULT_FIELDS,
           title: {
-            ...SVG_DEFAULT_FIELDS.title,
+            ...DEFAULT_FIELDS.title,
             text: titleText,
             fontFamily: selected.fontTitle,
             color: selected.primary,
           },
           subtitle: {
-            ...SVG_DEFAULT_FIELDS.subtitle,
+            ...DEFAULT_FIELDS.subtitle,
             text: selected.sub,
             fontFamily: "Inter, sans-serif",
           },
           studentName: {
-            ...SVG_DEFAULT_FIELDS.studentName,
+            ...DEFAULT_FIELDS.studentName,
             fontFamily: selected.fontName,
             color: selected.bg === "#ffffff" ? "#1a1a2e" : "#ffffff",
           },
           courseName: {
-            ...SVG_DEFAULT_FIELDS.courseName,
+            ...DEFAULT_FIELDS.courseName,
             text: aiPrompt,
             color: selected.primary,
           },
