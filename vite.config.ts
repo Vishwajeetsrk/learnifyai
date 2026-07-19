@@ -53,13 +53,7 @@ export default defineConfig({
             if (!id.includes("node_modules")) return;
             if (id.includes("xlsx")) return "vendor-xlsx";
             if (id.includes("jspdf") || id.includes("html2canvas-pro")) return "vendor-pdf";
-            if (
-              id.includes("recharts") ||
-              id.includes("d3-") ||
-              id.includes("react-smooth") ||
-              id.includes("victory-vendor")
-            )
-              return "vendor-charts";
+
             if (id.includes("highlight.js")) return "vendor-highlight";
             if (id.includes("@tiptap")) return "vendor-editor";
             if (id.includes("monaco-editor")) return "vendor-monaco";

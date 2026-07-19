@@ -553,7 +553,9 @@ function CoursesPage() {
                       4.8
                     </span>
                     <span className="font-semibold text-foreground ml-auto">
-                      {inr(Number(c.price_inr))}
+                      {enrollmentsQuery.data?.[c.id]
+                        ? "Purchased"
+                        : inr(Number(c.price_inr))}
                     </span>
                   </div>
                   {(() => {
@@ -633,7 +635,9 @@ function MiniCourseCard({
         </h3>
         <div className="flex items-center justify-between mt-1.5">
           <span className="text-[10px] text-muted-foreground">{course.level}</span>
-          <span className="text-[10px] font-semibold">{inr(Number(course.price_inr))}</span>
+          <span className="text-[10px] font-semibold">
+            {enrollments?.[course.id] ? "Purchased" : inr(Number(course.price_inr))}
+          </span>
         </div>
       </div>
     </Link>

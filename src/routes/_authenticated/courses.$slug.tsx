@@ -368,7 +368,7 @@ function CourseDetail() {
 
   // Lesson-locking logic:
   // - If hasFullAccess (free course OR enrolled in paid course): all lessons unlocked
-  // - If paid course and NOT enrolled: only first lesson + preview lessons unlocked
+  // - If paid course and NOT enrolled: only preview lessons (or 1st lesson if marked preview) unlocked
   const unlocked = useMemo(() => {
     const set = new Set<string>();
     if (hasFullAccess) {
@@ -376,12 +376,13 @@ function CourseDetail() {
     } else {
       for (let i = 0; i < lessons.length; i++) {
         const l = lessons[i];
-        if (i === 0 || l.is_preview) set.add(l.id);
-        else if (completed.has(lessons[i - 1].id)) set.add(l.id);
+        if (l.is_preview || (i === 0 && (l.is_preview ?? true))) {
+          set.add(l.id);
+        }
       }
     }
     return set;
-  }, [lessons, completed, hasFullAccess]);
+  }, [lessons, hasFullAccess]);
 
   // Default active lesson = first unlocked lesson with a playable video, otherwise normal resume fallback
   useEffect(() => {
@@ -695,7 +696,11 @@ function CourseDetail() {
           <span className="text-xs text-muted-foreground flex items-center gap-1">
             <Clock className="h-3 w-3" /> {formatDuration(course.duration_minutes)}
           </span>
-          <span className="text-xs font-semibold ml-auto">{inr(Number(course.price_inr))}</span>
+          <span className="text-xs font-semibold ml-auto">
+            {isEnrolled || isEnrollmentActive
+              ? "Purchased"
+              : inr(Number(course.price_inr))}
+          </span>
         </div>
 
         <h1 className="mt-2 text-2xl sm:text-3xl font-display font-semibold tracking-tight">
@@ -830,7 +835,7 @@ function CourseDetail() {
             {active && (
               <div className="flex items-center gap-2">
                 <h2 className="font-semibold text-base truncate">{active.title}</h2>
-                {active.is_preview && (
+                {active.is_preview && !hasFullAccess && (
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium shrink-0">
                     Preview
                   </span>
@@ -923,7 +928,7 @@ function CourseDetail() {
                   <div className="min-w-0">
                     <p className="text-xs text-muted-foreground">
                       {formatLessonTime(active.duration_minutes)}
-                      {active.is_preview ? " · Free preview" : ""}
+                      {active.is_preview && !hasFullAccess ? " · Free preview" : ""}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1031,7 +1036,7 @@ function CourseDetail() {
                           </div>
                           <div className="text-[11px] text-muted-foreground flex items-center gap-2">
                             <Clock className="h-3 w-3" /> {formatLessonTime(l.duration_minutes)}
-                            {l.is_preview && (
+                            {l.is_preview && !hasFullAccess && (
                               <Badge variant="outline" className="text-[9px] py-0">
                                 Preview
                               </Badge>

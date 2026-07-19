@@ -6,7 +6,7 @@
 - **Stack**: TanStack Start + React 19 + Supabase + Tailwind v4 + Shadcn UI + Vercel + pnpm
 - **Admin**: `vishwajeetsrk@gmail.com` / `12345678`
 - **Repo**: `github.com/Vishwajeetsrk/learnifyai`
-- **Live**: `https://learnifyaitool.vercel.app/`
+- **Live**: `https://learnifyaitool.vercel.app/` ; 'https://www.learnifyai.in/' 
 
 ---
 
