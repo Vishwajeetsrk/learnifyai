@@ -10,6 +10,15 @@ import {
 export const Route = createFileRoute("/api/webhooks/cashfree-subscription")({
   server: {
     handlers: {
+      GET: async () => {
+        return new Response(
+          JSON.stringify({ status: "ok", endpoint: "cashfree-subscription", message: "Webhook active" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      },
+      HEAD: async () => {
+        return new Response(null, { status: 200 });
+      },
       POST: async ({ request }) => {
         const requestId = request.headers.get("x-request-id") || `wh_${Date.now()}`;
         try {

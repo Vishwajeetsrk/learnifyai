@@ -18,6 +18,15 @@ function verifySignature(rawBody: string, signature: string | null): boolean {
 export const Route = createFileRoute("/api/webhooks/cashfree")({
   server: {
     handlers: {
+      GET: async () => {
+        return new Response(
+          JSON.stringify({ status: "ok", endpoint: "cashfree", message: "Webhook active" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      },
+      HEAD: async () => {
+        return new Response(null, { status: 200 });
+      },
       POST: async ({ request }) => {
         const rawBody = await request.clone().text();
         const signature = request.headers.get("x-webhook-signature");
