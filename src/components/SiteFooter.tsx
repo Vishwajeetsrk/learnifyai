@@ -70,7 +70,7 @@ export function SiteFooter() {
             Learn smarter. Grow faster. The intelligent learning OS.
           </p>
           <div className="flex items-center gap-3 pt-2">
-            {s?.github_url && s.github_url !== "#" && (
+            {s?.github_url && s.github_url !== "#" && s.github_url.trim() !== "" && (
               <a
                 href={s.github_url}
                 target="_blank"
@@ -81,7 +81,7 @@ export function SiteFooter() {
                 <Github className="h-4 w-4" />
               </a>
             )}
-            {s?.discord_url && (
+            {s?.discord_url && s.discord_url !== "#" && s.discord_url.trim() !== "" && (
               <a
                 href={s.discord_url}
                 target="_blank"
@@ -92,7 +92,7 @@ export function SiteFooter() {
                 <MessageSquare className="h-4 w-4" />
               </a>
             )}
-            {s?.linkedin_url && s.linkedin_url !== "#" && (
+            {s?.linkedin_url && s.linkedin_url !== "#" && s.linkedin_url.trim() !== "" && (
               <a
                 href={s.linkedin_url}
                 target="_blank"
@@ -103,7 +103,7 @@ export function SiteFooter() {
                 <Linkedin className="h-4 w-4" />
               </a>
             )}
-            {s?.twitter_url && (
+            {s?.twitter_url && s.twitter_url !== "#" && s.twitter_url.trim() !== "" && (
               <a
                 href={s.twitter_url}
                 target="_blank"
@@ -114,7 +114,7 @@ export function SiteFooter() {
                 <Twitter className="h-4 w-4" />
               </a>
             )}
-            {s?.youtube_url && s.youtube_url !== "#" && (
+            {s?.youtube_url && s.youtube_url !== "#" && s.youtube_url.trim() !== "" && (
               <a
                 href={s.youtube_url}
                 target="_blank"
@@ -125,7 +125,7 @@ export function SiteFooter() {
                 <Youtube className="h-4 w-4" />
               </a>
             )}
-            {s?.instagram_url && s.instagram_url !== "#" && (
+            {s?.instagram_url && s.instagram_url !== "#" && s.instagram_url.trim() !== "" && (
               <a
                 href={s.instagram_url}
                 target="_blank"
