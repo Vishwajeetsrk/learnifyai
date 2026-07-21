@@ -553,7 +553,19 @@ function PricingPage() {
         qc.invalidateQueries({ queryKey: ["my-subscription"] });
       }
     } catch (e: any) {
-      toast.error(e?.message || "Subscription failed");
+      const msg = e?.message || "Subscription failed";
+      if (msg.toLowerCase().includes("whitelis") || msg.toLowerCase().includes("not enabled or approved")) {
+        toast.error("Cashfree Domain Approval Needed", {
+          description: "Domain 'https://www.learnifyai.in/' must be whitelisted in Cashfree Merchant Dashboard > Developers > Whitelisting.",
+          action: {
+            label: "Open Cashfree",
+            onClick: () => window.open("https://merchant.cashfree.com/merchants/pg/whitelisting", "_blank"),
+          },
+          duration: 10000,
+        });
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setLoadingPlan(null);
     }

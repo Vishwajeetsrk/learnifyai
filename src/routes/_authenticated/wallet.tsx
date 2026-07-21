@@ -207,12 +207,23 @@ function WalletPage() {
       } catch (e) {
         // Not JSON
       }
-      toast.error(
-        <div className="flex flex-col gap-1">
-          <span className="font-semibold text-sm">Payment Failed</span>
-          <span className="text-xs opacity-90">{msg}</span>
-        </div>,
-      );
+      if (msg.toLowerCase().includes("whitelis") || msg.toLowerCase().includes("not enabled or approved")) {
+        toast.error("Cashfree Domain Approval Needed", {
+          description: "Domain 'https://www.learnifyai.in/' must be whitelisted in Cashfree Merchant Dashboard > Developers > Whitelisting.",
+          action: {
+            label: "Open Cashfree",
+            onClick: () => window.open("https://merchant.cashfree.com/merchants/pg/whitelisting", "_blank"),
+          },
+          duration: 10000,
+        });
+      } else {
+        toast.error(
+          <div className="flex flex-col gap-1">
+            <span className="font-semibold text-sm">Payment Failed</span>
+            <span className="text-xs opacity-90">{msg}</span>
+          </div>,
+        );
+      }
     } finally {
       setSubmitting(false);
     }
