@@ -52,30 +52,25 @@ export default defineConfig({
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
 
-            // Standalone heavy document / file export tools
-            if (id.includes("xlsx") || id.includes("exceljs")) return "vendor-excel";
+            // Strict package directory matching only — avoids loose substring collisions
+            // (e.g. id.includes("ai") matching lucide-react's activity.js or tailwind)
+            if (id.includes("/node_modules/monaco-editor/") || id.includes("/node_modules/@monaco-editor/"))
+              return "vendor-monaco";
+            if (id.includes("/node_modules/pdfjs-dist/")) return "vendor-pdfjs";
+            if (id.includes("/node_modules/xlsx/") || id.includes("/node_modules/exceljs/"))
+              return "vendor-excel";
             if (
-              id.includes("jspdf") ||
-              id.includes("html2canvas") ||
-              id.includes("html-to-image") ||
-              id.includes("pdf-lib")
+              id.includes("/node_modules/jspdf/") ||
+              id.includes("/node_modules/html2canvas/") ||
+              id.includes("/node_modules/html2canvas-pro/") ||
+              id.includes("/node_modules/html-to-image/")
             )
               return "vendor-pdf";
-            if (id.includes("pdfjs-dist")) return "vendor-pdfjs";
-            if (id.includes("mammoth") || id.includes("jszip")) return "vendor-docs";
-
-            // Heavy interactive editors and code execution components
-            if (id.includes("@monaco-editor") || id.includes("monaco-editor")) return "vendor-monaco";
-            if (id.includes("@tiptap")) return "vendor-editor";
-            if (id.includes("@codesandbox") || id.includes("sandpack")) return "vendor-sandpack";
-            if (id.includes("highlight.js")) return "vendor-highlight";
-            if (id.includes("sql.js") || id.includes("sql-formatter")) return "vendor-sql";
-
-            // Heavy graphics, charts and diagramming tools
-            if (id.includes("konva") || id.includes("react-konva")) return "vendor-konva";
-            if (id.includes("@xyflow") || id.includes("xyflow")) return "vendor-xyflow";
-            if (id.includes("recharts")) return "vendor-charts";
-            if (id.includes("@ai-sdk") || id.includes("ai")) return "vendor-ai";
+            if (id.includes("/node_modules/sql.js/")) return "vendor-sql";
+            if (id.includes("/node_modules/highlight.js/")) return "vendor-highlight";
+            if (id.includes("/node_modules/@tiptap/")) return "vendor-editor";
+            if (id.includes("/node_modules/@codesandbox/") || id.includes("/node_modules/sandpack"))
+              return "vendor-sandpack";
           },
         },
       },
