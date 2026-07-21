@@ -1952,6 +1952,7 @@ const SETTING_FIELDS: { key: string; label: string; placeholder: string }[] = [
   { key: "github_url", label: "GitHub URL", placeholder: "https://github.com/..." },
   { key: "linkedin_url", label: "LinkedIn URL", placeholder: "https://linkedin.com/company/..." },
   { key: "youtube_url", label: "YouTube URL", placeholder: "https://youtube.com/@..." },
+  { key: "instagram_url", label: "Instagram URL", placeholder: "https://instagram.com/..." },
   {
     key: "events_auto_delete_enabled",
     label: "Auto-delete past events (true/false)",

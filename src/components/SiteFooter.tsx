@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Twitter, Github, MessageSquare, Linkedin, Youtube } from "lucide-react";
+import { Twitter, Github, MessageSquare, Linkedin, Youtube, Instagram } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
@@ -123,6 +123,17 @@ export function SiteFooter() {
                 className="h-9 w-9 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition"
               >
                 <Youtube className="h-4 w-4" />
+              </a>
+            )}
+            {s?.instagram_url && s.instagram_url !== "#" && (
+              <a
+                href={s.instagram_url}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram"
+                className="h-9 w-9 rounded-full border border-border/60 flex items-center justify-center hover:border-primary/40 hover:text-primary transition"
+              >
+                <Instagram className="h-4 w-4" />
               </a>
             )}
           </div>

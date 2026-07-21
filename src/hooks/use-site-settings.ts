@@ -11,6 +11,7 @@ export type SiteSettings = {
   github_url: string;
   linkedin_url: string;
   youtube_url: string;
+  instagram_url: string;
 };
 
 const defaults: SiteSettings = {
@@ -23,6 +24,7 @@ const defaults: SiteSettings = {
   github_url: "https://github.com/Vishwajeetsrk/learnifyai",
   linkedin_url: "",
   youtube_url: "",
+  instagram_url: "https://instagram.com/learnifyai",
 };
 
 export function useSiteSettings() {

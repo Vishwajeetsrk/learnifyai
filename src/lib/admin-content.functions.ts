@@ -247,6 +247,7 @@ export const cleanDuplicateSiteSettings = createServerFn({ method: "POST" })
       "GitHub URL": "github_url",
       "LinkedIn URL": "linkedin_url",
       "YouTube URL": "youtube_url",
+      "Instagram URL": "instagram_url",
       "Auto-delete past events (true/false)": "events_auto_delete_enabled",
       "Auto-delete events after (hours)": "events_auto_delete_hours",
       "Auto-close jobs past close date (true/false)": "jobs_auto_close_enabled",
