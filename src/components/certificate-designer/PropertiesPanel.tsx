@@ -208,13 +208,43 @@ export function PropertiesPanel({
               {selectedEl.type === "text" && (
                 <div className="space-y-3">
                   <div>
-                    <Label className="text-xs text-slate-500">Content</Label>
+                    <div className="flex items-center justify-between mb-1">
+                      <Label className="text-xs text-slate-500">Content</Label>
+                      <span className="text-[10px] text-primary font-semibold flex items-center gap-0.5">
+                        <Sparkles className="h-3 w-3" /> Dynamic Fields
+                      </span>
+                    </div>
                     <Textarea
                       value={selectedEl.content || ""}
                       onChange={(e) => onUpdateElement(selectedEl.id, { content: e.target.value })}
-                      className="mt-1 text-xs min-h-[60px]"
+                      className="text-xs min-h-[60px]"
                       rows={3}
                     />
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {[
+                        { tag: "{student_name}", label: "Student Name" },
+                        { tag: "{course_name}", label: "Course Name" },
+                        { tag: "{issue_date}", label: "Issue Date" },
+                        { tag: "{expiry_date}", label: "Expiry Date" },
+                        { tag: "{certificate_id}", label: "Cert ID" },
+                        { tag: "{score}", label: "Score" },
+                        { tag: "{grade}", label: "Grade" },
+                        { tag: "{instructor_name}", label: "Instructor" },
+                      ].map((item) => (
+                        <button
+                          key={item.tag}
+                          type="button"
+                          onClick={() =>
+                            onUpdateElement(selectedEl.id, {
+                              content: (selectedEl.content || "") + " " + item.tag,
+                            })
+                          }
+                          className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors border border-primary/20"
+                        >
+                          + {item.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <Label className="text-xs text-slate-500">Font Family</Label>

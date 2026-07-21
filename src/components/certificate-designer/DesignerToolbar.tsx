@@ -191,6 +191,40 @@ export function DesignerToolbar({
           </DropdownMenuContent>
         </DropdownMenu>
 
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs font-semibold text-primary">
+              <Sparkles className="h-3.5 w-3.5 mr-1" /> Dynamic Fields
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-52">
+            <DropdownMenuItem onClick={() => onAddElement("text")}>
+              Student Name ({`{student_name}`})
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("text")}>
+              Course Name ({`{course_name}`})
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("date")}>
+              Issue Date ({`{issue_date}`})
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("text")}>
+              Expiry Date ({`{expiry_date}`})
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("qr")}>
+              Certificate ID ({`{certificate_id}`})
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("text")}>
+              Score ({`{score}`})
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("text")}>
+              Grade ({`{grade}`})
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAddElement("signature")}>
+              Instructor ({`{instructor_name}`})
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         {selectedId && (
           <>
             <div className="h-5 w-px bg-border shrink-0" />

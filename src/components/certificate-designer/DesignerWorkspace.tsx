@@ -271,7 +271,9 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       const prevScale = scale;
       setScale(1);
       await new Promise((r) => setTimeout(r, 150));
-      const el = document.getElementById("certificate-preview-export");
+      const el =
+        document.getElementById("certificate-preview-export") ||
+        document.getElementById("certificate-canvas-export");
       if (!el) throw new Error("Canvas not found");
       const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: null });
       setScale(prevScale);
@@ -279,7 +281,7 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       link.download = `${templateName || "certificate"}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
-      toast.success("Downloaded!");
+      toast.success("Downloaded PNG!");
     } catch (e: any) {
       toast.error("Export failed: " + e.message);
     }
@@ -292,7 +294,9 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       const prevScale = scale;
       setScale(1);
       await new Promise((r) => setTimeout(r, 150));
-      const el = document.getElementById("certificate-preview-export");
+      const el =
+        document.getElementById("certificate-preview-export") ||
+        document.getElementById("certificate-canvas-export");
       if (!el) throw new Error("Canvas not found");
       const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: null });
       setScale(prevScale);

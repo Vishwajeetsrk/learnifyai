@@ -131,13 +131,25 @@ export type EditorHistory = {
   future: { elements: CertElement[]; design: CertDesign }[];
 };
 
+export const DYNAMIC_FIELD_PLACEHOLDERS = [
+  { tag: "{student_name}", label: "Student Name", sample: "Vishwajeet S." },
+  { tag: "{course_name}", label: "Course Name", sample: "Full Stack AI Engineering" },
+  { tag: "{issue_date}", label: "Issue Date", sample: "May 25, 2026" },
+  { tag: "{expiry_date}", label: "Expiry Date", sample: "Lifetime" },
+  { tag: "{certificate_id}", label: "Certificate ID", sample: "LAI-2026-000128" },
+  { tag: "{score}", label: "Score", sample: "98%" },
+  { tag: "{grade}", label: "Grade", sample: "Distinction" },
+  { tag: "{instructor_name}", label: "Instructor Name", sample: "Dr. Alex Morgan" },
+  { tag: "{organization_name}", label: "Organization Name", sample: "Learnify AI" },
+];
+
 export const DEFAULT_DESIGN: CertDesign = {
-  accent_color: "#c9a84c",
-  bg_color: "#fdfbf5",
-  text_color: "#0f1b3d",
+  accent_color: "#D4AF37",
+  bg_color: "#FAF8F5",
+  text_color: "#0F172A",
   font_family: "Playfair Display",
   border_style: "double",
-  border_width: 10,
+  border_width: 8,
   corner_style: "diagonal",
   background_pattern: "none",
   layout: "classic",

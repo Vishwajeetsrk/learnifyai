@@ -244,7 +244,19 @@ export function DesignerCanvas({
             >
               {el.type === "text" && (
                 <span
-                  dangerouslySetInnerHTML={{ __html: (el.content || "").replace(/\n/g, "<br/>") }}
+                  dangerouslySetInnerHTML={{
+                    __html: (el.content || "")
+                      .replace(/\{student_name\}/g, "Vishwajeet S.")
+                      .replace(/\{course_name\}/g, "Full Stack AI Engineering")
+                      .replace(/\{issue_date\}/g, "May 25, 2026")
+                      .replace(/\{expiry_date\}/g, "Lifetime")
+                      .replace(/\{certificate_id\}/g, "LAI-2026-000128")
+                      .replace(/\{score\}/g, "98%")
+                      .replace(/\{grade\}/g, "Distinction")
+                      .replace(/\{instructor_name\}/g, "Vishwajeet S.")
+                      .replace(/\{organization_name\}/g, "Learnify AI")
+                      .replace(/\n/g, "<br/>"),
+                  }}
                 />
               )}
 
