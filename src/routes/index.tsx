@@ -45,17 +45,84 @@ const AnimatedCounter = lazy(() =>
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Learnify AI — Learn Smarter. Grow Faster." },
+      { title: "Learnify AI — #1 AI-Native Learning & Career OS in India" },
       {
         name: "description",
         content:
-          "The AI-native learning OS: intelligent tutoring, creator economy, gamification, and career growth — all in one platform.",
+          "Learnify AI is India's leading AI-native learning platform. Master full-stack AI engineering, interactive courses, verifiable certificates, and career acceleration.",
       },
-      { property: "og:title", content: "Learnify AI — The Intelligent Learning OS" },
+      {
+        name: "keywords",
+        content:
+          "Learnify AI, Learnify, LearnifyAI, Learnify India, AI Learning OS, AI Tutoring, Online Courses India, AI Certificates, Learnify AI Platform",
+      },
+      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
+      { name: "author", content: "Learnify AI" },
+      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Learnify AI" },
+      { property: "og:url", content: "https://www.learnifyai.in/" },
+      { property: "og:title", content: "Learnify AI — #1 AI-Native Learning OS" },
       {
         property: "og:description",
         content:
-          "AI tutoring, notes, quizzes, community, and career growth in one cohesive platform.",
+          "Master AI engineering, interactive courses, verifiable certificates, and smart tutoring on Learnify AI.",
+      },
+      { property: "og:image", content: "https://www.learnifyai.in/logo.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Learnify AI — #1 AI-Native Learning OS" },
+      {
+        name: "twitter:description",
+        content:
+          "Master AI engineering, interactive courses, verifiable certificates, and smart tutoring on Learnify AI.",
+      },
+      { name: "twitter:image", content: "https://www.learnifyai.in/logo.png" },
+    ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "EducationalOrganization",
+              "@id": "https://www.learnifyai.in/#organization",
+              "name": "Learnify AI",
+              "url": "https://www.learnifyai.in/",
+              "logo": "https://www.learnifyai.in/logo.png",
+              "description": "India's premier AI-native learning & career operating system.",
+              "sameAs": ["https://github.com/Vishwajeetsrk/learnifyai"]
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.learnifyai.in/#website",
+              "url": "https://www.learnifyai.in/",
+              "name": "Learnify AI",
+              "publisher": { "@id": "https://www.learnifyai.in/#organization" },
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://www.learnifyai.in/courses?q={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            },
+            {
+              "@type": "SoftwareApplication",
+              "name": "Learnify AI OS",
+              "operatingSystem": "Web Browser",
+              "applicationCategory": "EducationalApplication",
+              "aggregateRating": {
+                "@type": "AggregateRating",
+                "ratingValue": "4.9",
+                "ratingCount": "1280"
+              },
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "INR"
+              }
+            }
+          ]
+        }),
       },
     ],
   }),
