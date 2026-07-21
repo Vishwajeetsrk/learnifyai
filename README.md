@@ -980,6 +980,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.
 - ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Free plan at ₹0 (Acquisition), Pro at ₹199/mo (casual learners), Career Pro at ₹499/mo (job-seekers), Enterprise (Custom) replaces old Team plan.
 
+### v1.3.3 (July 2026)
+
+- 🎨 **CANVA-STYLE CERTIFICATE DESIGNER OVERHAUL**: Built an interactive drag-and-drop certificate designer with `react-rnd` canvas handles, exact position X, Y, Width, Height, Rotate, and Opacity controls, 1-click dynamic field tag insertion (`{student_name}`, `{course_name}`, `{issue_date}`, `{expiry_date}`, `{certificate_id}`, `{score}`, `{grade}`, `{instructor_name}`), and 3x DPI high-res PDF and PNG exports.
+- 🛡️ **SMART FOOTER SOCIAL LINKS HIDING**: Configured `SiteFooter.tsx` and `use-site-settings.ts` so unconfigured social handles (Twitter/X, Discord, Instagram, etc.) are automatically hidden unless explicitly set by Content Managers in Site Settings.
+- 🎓 **INTERACTIVE COURSE & STUDIO ENGINE**: Upgraded Course Studio at `/studio` with audio voice support, text-to-speech lesson narration, code execution playground, and downloadable interactive project files.
+
 ### v1.3.2 (July 2026)
 
 - 🚀 **SEO & SEARCH RANK OVERHAUL**: Added canonical URLs, Search Engine keywords, `SoftwareApplication` JSON-LD schema, and `BreadcrumbList` schema to achieve top Google search rankings for "Learnify AI".
