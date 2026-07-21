@@ -177,6 +177,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "twitter:image",
         content: "https://www.learnifyai.in/logo.png",
       },
+      // Keywords for Search Engines
+      {
+        name: "keywords",
+        content:
+          "Learnify AI, Learnify, LearnifyAI, AI Learning OS, Career OS, AI Tutor, Career Roadmap, Resume Builder, ATS Checker, Online Courses India",
+      },
       // Google Search Console verification
       {
         name: "google-site-verification",
@@ -186,6 +192,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#0f172a" },
     ],
     links: [
+      {
+        rel: "canonical",
+        href: "https://www.learnifyai.in",
+      },
       {
         rel: "icon",
         href: "/favicon.ico",
@@ -228,6 +238,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       {
         children: `window.addEventListener('vite:preloadError',function(){window.location.reload()});`,
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "Learnify AI",
+          operatingSystem: "Web",
+          applicationCategory: "EducationalApplication",
+          url: "https://www.learnifyai.in",
+          image: "https://www.learnifyai.in/logo.png",
+          description:
+            "Learnify AI is the intelligent Career Operating System offering AI-driven learning, verified credentials, and career placement roadmaps.",
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "INR",
+          },
+        }),
       },
       {
         type: "application/ld+json",
