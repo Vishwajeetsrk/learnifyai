@@ -980,6 +980,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.
 - ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Free plan at ₹0 (Acquisition), Pro at ₹199/mo (casual learners), Career Pro at ₹499/mo (job-seekers), Enterprise (Custom) replaces old Team plan.
 
+### v1.3.4 (July 2026)
+
+- 💳 **CASHFREE DOMAIN WHITELISTING & ERROR GUIDANCE**: Parsed Cashfree payment domain approval errors into clear actionable notifications and added step-by-step Cashfree Merchant Dashboard Whitelisting guide to `MASTER_SETUP_AND_SEO_GUIDE.md`.
+- 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
+- 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
+
 ### v1.3.3 (July 2026)
 
 - 🎨 **CANVA-STYLE CERTIFICATE DESIGNER OVERHAUL**: Built an interactive drag-and-drop certificate designer with `react-rnd` canvas handles, exact position X, Y, Width, Height, Rotate, and Opacity controls, 1-click dynamic field tag insertion (`{student_name}`, `{course_name}`, `{issue_date}`, `{expiry_date}`, `{certificate_id}`, `{score}`, `{grade}`, `{instructor_name}`), and 3x DPI high-res PDF and PNG exports.
