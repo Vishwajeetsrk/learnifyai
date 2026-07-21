@@ -980,6 +980,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.
 - ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Free plan at ₹0 (Acquisition), Pro at ₹199/mo (casual learners), Career Pro at ₹499/mo (job-seekers), Enterprise (Custom) replaces old Team plan.
 
+### v1.3.1 (July 2026)
+
+- 🔴 **CRITICAL FIX**: Resolved production bundle TDZ issue (`Uncaught ReferenceError: Cannot access 'M' before initialization`) caused by over-fragmented vendor manualChunks splitting core runtime packages (`@tanstack`, `@supabase`, `zod`, `@radix-ui`, `framer-motion`).
+- ⚡ **LOAD TIME & PERFORMANCE**: Restored instant page loading and React hydration on `https://www.learnifyai.in/`.
+- 🔒 **AUTH & SIGN-IN RECOVERY**: Added 3-second timeout protection to `fetchRoles` in `useAuth` and safe try/catch error handling in `login.tsx` to ensure smooth password and Google OAuth authentication.
+
 ### v1.3.0 (June 2026)
 
 - 🔴 **CRITICAL FIX**: Resolved fatal JS bundle crash (`Cannot set properties of undefined — Activity`) that prevented React from hydrating on production, making all interactive elements non-functional

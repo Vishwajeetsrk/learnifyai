@@ -51,38 +51,31 @@ export default defineConfig({
         output: {
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
-            if (id.includes("xlsx")) return "vendor-xlsx";
-            if (id.includes("jspdf") || id.includes("html2canvas-pro")) return "vendor-pdf";
 
-            if (id.includes("highlight.js")) return "vendor-highlight";
-            if (id.includes("@tiptap")) return "vendor-editor";
-            if (id.includes("monaco-editor")) return "vendor-monaco";
-            if (id.includes("@supabase")) return "vendor-supabase";
+            // Standalone heavy document / file export tools
+            if (id.includes("xlsx") || id.includes("exceljs")) return "vendor-excel";
+            if (
+              id.includes("jspdf") ||
+              id.includes("html2canvas") ||
+              id.includes("html-to-image") ||
+              id.includes("pdf-lib")
+            )
+              return "vendor-pdf";
             if (id.includes("pdfjs-dist")) return "vendor-pdfjs";
-            if (id.includes("framer-motion") || id.includes("motion-")) return "vendor-motion";
-            if (id.includes("lucide-react") || id.includes("lucide-static")) return "vendor-icons";
-            if (id.includes("@radix-ui")) return "vendor-radix";
-            if (id.includes("@hookform/resolvers") || id.includes("react-hook-form"))
-              return "vendor-forms";
-            if (id.includes("date-fns") || id.includes("dayjs")) return "vendor-dates";
-            if (id.includes("react-markdown") || id.includes("rehype") || id.includes("remark"))
-              return "vendor-markdown";
-            if (id.includes("@hello-pangea/dnd")) return "vendor-dnd";
-            if (id.includes("zod")) return "vendor-validation";
             if (id.includes("mammoth") || id.includes("jszip")) return "vendor-docs";
-            if (id.includes("cmdk")) return "vendor-cmdk";
-            if (id.includes("vaul")) return "vendor-vaul";
-            if (id.includes("sonner")) return "vendor-sonner";
-            // Additional heavy libraries — split for faster initial load
-            if (id.includes("konva") || id.includes("react-konva")) return "vendor-konva";
+
+            // Heavy interactive editors and code execution components
+            if (id.includes("@monaco-editor") || id.includes("monaco-editor")) return "vendor-monaco";
+            if (id.includes("@tiptap")) return "vendor-editor";
             if (id.includes("@codesandbox") || id.includes("sandpack")) return "vendor-sandpack";
-            if (id.includes("sql.js")) return "vendor-sql";
+            if (id.includes("highlight.js")) return "vendor-highlight";
+            if (id.includes("sql.js") || id.includes("sql-formatter")) return "vendor-sql";
+
+            // Heavy graphics, charts and diagramming tools
+            if (id.includes("konva") || id.includes("react-konva")) return "vendor-konva";
             if (id.includes("@xyflow") || id.includes("xyflow")) return "vendor-xyflow";
-            if (id.includes("exceljs")) return "vendor-excel";
+            if (id.includes("recharts")) return "vendor-charts";
             if (id.includes("@ai-sdk") || id.includes("ai")) return "vendor-ai";
-            if (id.includes("html-to-image") || id.includes("html2canvas")) return "vendor-canvas";
-            if (id.includes("react-rnd") || id.includes("react-resizable")) return "vendor-resize";
-            if (id.includes("@tanstack")) return "vendor-tanstack";
           },
         },
       },

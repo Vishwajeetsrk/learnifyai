@@ -28,8 +28,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchRoles = async (userId: string) => {
     setRolesLoading(true);
     try {
-      const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-      setRoles((data ?? []).map((r) => r.role) as AppRole[]);
+      const rolesPromise = supabase.from("user_roles").select("role").eq("user_id", userId);
+      const timeoutPromise = new Promise<{ data: null }>((resolve) =>
+        setTimeout(() => resolve({ data: null }), 3000),
+      );
+      const res = (await Promise.race([rolesPromise, timeoutPromise])) as {
+        data: { role: string }[] | null;
+      };
+      setRoles((res?.data ?? []).map((r) => r.role) as AppRole[]);
     } catch (error) {
       console.error("Failed to load user roles", error);
       setRoles([]);

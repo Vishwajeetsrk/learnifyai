@@ -36,11 +36,19 @@ function LoginPage() {
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setSubmitting(false);
-    if (error) return toast.error(error.message);
-    toast.success("Welcome back!");
-    navigate({ to: "/dashboard", replace: true });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      toast.success("Welcome back!");
+      navigate({ to: "/dashboard", replace: true });
+    } catch (err: any) {
+      toast.error(err?.message || "Sign in failed. Please check your credentials.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleGoogle = async () => {
