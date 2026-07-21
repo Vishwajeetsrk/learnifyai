@@ -980,6 +980,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.
 - ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Free plan at ₹0 (Acquisition), Pro at ₹199/mo (casual learners), Career Pro at ₹499/mo (job-seekers), Enterprise (Custom) replaces old Team plan.
 
+### v1.3.2 (July 2026)
+
+- 🚀 **SEO & SEARCH RANK OVERHAUL**: Added canonical URLs, Search Engine keywords, `SoftwareApplication` JSON-LD schema, and `BreadcrumbList` schema to achieve top Google search rankings for "Learnify AI".
+- 📝 **BLOG RELATED ARTICLES SYSTEM**: Built dynamic **Related Articles** recommendation module on every blog post page for internal search link networks.
+- 🗺️ **DYNAMIC XML SITEMAP**: Upgraded `/sitemap.xml` to dynamically query and include published blog posts from Supabase for automatic search engine indexing.
+- 📸 **INSTAGRAM FOOTER & ADMIN SITE SETTINGS**: Integrated Instagram social button in footer, completely configurable via Admin Content Manager Site Settings.
+
 ### v1.3.1 (July 2026)
 
 - 🔴 **CRITICAL FIX**: Resolved production bundle TDZ issue (`Uncaught ReferenceError: Cannot access 'M' before initialization`) caused by over-fragmented vendor manualChunks splitting core runtime packages (`@tanstack`, `@supabase`, `zod`, `@radix-ui`, `framer-motion`).

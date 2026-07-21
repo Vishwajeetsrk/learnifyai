@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 
 const BASE_URL = "https://www.learnifyai.in";
 
@@ -6,6 +7,7 @@ const PUBLIC_ROUTES = [
   { path: "/", changefreq: "daily", priority: "1.0" },
   { path: "/features", changefreq: "weekly", priority: "0.9" },
   { path: "/pricing", changefreq: "weekly", priority: "0.9" },
+  { path: "/blog", changefreq: "daily", priority: "0.9" },
   { path: "/login", changefreq: "monthly", priority: "0.7" },
   { path: "/signup", changefreq: "monthly", priority: "0.7" },
   { path: "/courses", changefreq: "daily", priority: "0.9" },
@@ -29,7 +31,32 @@ export const Route = createFileRoute("/sitemap/xml")({
       GET: async () => {
         const today = new Date().toISOString().split("T")[0];
 
-        const urls = PUBLIC_ROUTES.map(
+        // Fetch published blog posts dynamically
+        let blogUrls = "";
+        try {
+          const { data: posts } = await supabase
+            .from("blog_posts")
+            .select("slug, published_at, created_at")
+            .eq("published", true);
+
+          if (posts && posts.length > 0) {
+            blogUrls = posts
+              .map((p) => {
+                const date = (p.published_at || p.created_at || "").split("T")[0] || today;
+                return `  <url>
+    <loc>${BASE_URL}/blog/${p.slug}</loc>
+    <lastmod>${date}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`;
+              })
+              .join("\n");
+          }
+        } catch (e) {
+          console.error("Failed to fetch blog posts for sitemap", e);
+        }
+
+        const staticUrls = PUBLIC_ROUTES.map(
           (r) => `  <url>
     <loc>${BASE_URL}${r.path}</loc>
     <lastmod>${today}</lastmod>
@@ -40,7 +67,8 @@ export const Route = createFileRoute("/sitemap/xml")({
 
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls}
+${staticUrls}
+${blogUrls}
 </urlset>`;
 
         return new Response(xml, {

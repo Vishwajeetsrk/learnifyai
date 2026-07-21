@@ -17,20 +17,29 @@ export const Route = createFileRoute("/blog/$slug")({
     const post = (loaderData as any)?.post;
     if (!post) return { meta: [{ title: "Blog Post — Learnify AI" }] };
 
+    const canonicalUrl = `https://www.learnifyai.in/blog/${post.slug}`;
+    const imageUrl = post.featured_image || "https://www.learnifyai.in/logo.png";
+
     return {
       meta: [
         { title: `${post.title} — Learnify AI Blog` },
         { name: "description", content: post.excerpt || "Read our latest article on Learnify AI." },
+        { name: "keywords", content: `${post.title}, Learnify AI, Learnify, AI Learning, Career OS, EdTech` },
         { property: "og:title", content: `${post.title} — Learnify AI Blog` },
         {
           property: "og:description",
           content: post.excerpt || "Read our latest article on Learnify AI.",
         },
-        {
-          property: "og:image",
-          content: post.featured_image || "https://learnifyaitool.vercel.app/logo.png",
-        },
+        { property: "og:image", content: imageUrl },
+        { property: "og:url", content: canonicalUrl },
         { property: "og:type", content: "article" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: `${post.title} — Learnify AI Blog` },
+        { name: "twitter:description", content: post.excerpt || "Read our latest article on Learnify AI." },
+        { name: "twitter:image", content: imageUrl },
+      ],
+      links: [
+        { rel: "canonical", href: canonicalUrl }
       ],
       scripts: [
         {
@@ -38,17 +47,53 @@ export const Route = createFileRoute("/blog/$slug")({
           children: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "BlogPosting",
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": canonicalUrl,
+            },
             headline: post.title,
-            image: post.featured_image
-              ? [post.featured_image]
-              : ["https://learnifyaitool.vercel.app/logo.png"],
+            image: [imageUrl],
             datePublished: post.published_at || post.created_at,
             dateModified: post.published_at || post.created_at,
             description: post.excerpt || "",
-            author: [
+            author: {
+              "@type": "Organization",
+              name: post.profiles?.full_name || "Learnify AI Editorial Team",
+              url: "https://www.learnifyai.in",
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "Learnify AI",
+              logo: {
+                "@type": "ImageObject",
+                url: "https://www.learnifyai.in/logo.png",
+              },
+            },
+          }),
+        },
+        {
+          type: "application/ld+json",
+          children: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
               {
-                "@type": "Person",
-                name: post.profiles?.full_name || "Learnify AI Author",
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: "https://www.learnifyai.in",
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Blog",
+                item: "https://www.learnifyai.in/blog",
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: post.title,
+                item: canonicalUrl,
               },
             ],
           }),
@@ -238,6 +283,7 @@ function BlogPostPage() {
             </span>
           </div>
 
+          {/* Comments Section */}
           <div className="mt-10">
             <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
               <MessageCircle className="h-5 w-5" />
@@ -302,8 +348,74 @@ function BlogPostPage() {
               </p>
             )}
           </div>
+
+          {/* Related Articles (SEO Internal Link Network) */}
+          <RelatedArticles currentPostId={post.id} />
         </div>
       </div>
     </AppShell>
+  );
+}
+
+function RelatedArticles({ currentPostId }: { currentPostId: string }) {
+  const { data: related = [] } = useQuery({
+    queryKey: ["related-blog-posts", currentPostId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("blog_posts")
+        .select("id, title, slug, excerpt, featured_image, published_at, created_at")
+        .eq("published", true)
+        .neq("id", currentPostId)
+        .order("published_at", { ascending: false })
+        .limit(3);
+      return data ?? [];
+    },
+    enabled: !!currentPostId,
+  });
+
+  if (related.length === 0) return null;
+
+  return (
+    <div className="mt-16 pt-12 border-t">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h3 className="text-2xl font-bold tracking-tight">Related Articles</h3>
+          <p className="text-sm text-muted-foreground">Expand your knowledge with more posts from Learnify AI.</p>
+        </div>
+        <Link to="/blog" className="text-sm font-semibold text-primary hover:underline">
+          View all blog posts →
+        </Link>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        {related.map((rel: any) => (
+          <Link
+            key={rel.id}
+            to="/blog/$slug"
+            params={{ slug: rel.slug }}
+            className="group flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-4 transition-all hover:border-primary/40 hover:shadow-lg"
+          >
+            {rel.featured_image && (
+              <div className="relative h-36 overflow-hidden rounded-xl mb-3 bg-muted">
+                <img
+                  src={rel.featured_image}
+                  alt={rel.title}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+            )}
+            <span className="text-[11px] text-muted-foreground mb-1">
+              {format(new Date(rel.published_at || rel.created_at), "MMM d, yyyy")}
+            </span>
+            <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-2">
+              {rel.title}
+            </h4>
+            {rel.excerpt && (
+              <p className="text-xs text-muted-foreground line-clamp-2">{rel.excerpt}</p>
+            )}
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }
