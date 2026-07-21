@@ -71,8 +71,13 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
     });
 
     if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Cashfree order failed: ${err}`);
+      const errText = await res.text();
+      if (errText.includes("not enabled or approved") || errText.includes("whitelist")) {
+        throw new Error(
+          "Cashfree Domain Whitelisting Required: Domain 'https://www.learnifyai.in/' is pending approval. Please whitelist it in Cashfree Merchant Dashboard > Developers > Whitelisting.",
+        );
+      }
+      throw new Error(`Cashfree order failed: ${errText}`);
     }
 
     const data = await res.json();

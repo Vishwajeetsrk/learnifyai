@@ -128,6 +128,20 @@ Learnify AI includes full Indian payment gateway (Cashfree) & GST compliance pag
 - 📞 **Contact Us**: [https://www.learnifyai.in/contact](https://www.learnifyai.in/contact)
 - 🍪 **Cookie Banner**: Built directly into `src/routes/__root.tsx` (`<CookieConsent />`).
 
+### 5.3 Cashfree Merchant Domain Whitelisting (Crucial Step)
+Direct Dashboard Link: [Cashfree Merchant Whitelisting](https://merchant.cashfree.com/merchants/pg/whitelisting) (or shortcut: [https://bit.ly/3Xkt3RJ](https://bit.ly/3Xkt3RJ))
+
+If Cashfree payment fails with error `"https://www.learnifyai.in/ is not enabled or approved. Please whitelist your domain..."`:
+
+1. Log into your [Cashfree Merchant Dashboard](https://merchant.cashfree.com/).
+2. In the left navigation, go to **Developers** -> **Whitelisting** (or open: [https://merchant.cashfree.com/merchants/pg/whitelisting](https://merchant.cashfree.com/merchants/pg/whitelisting)).
+3. Click **+ Add Domain / Package** (or Add Web Domain).
+4. Enter your production domains:
+   - `https://www.learnifyai.in/`
+   - `https://learnifyai.in/`
+   - `https://learnifyaitool.vercel.app/`
+5. Click **Submit**. Cashfree will verify and approve domain whitelisting automatically in 5–15 minutes.
+
 ---
 
 ## 6. Analytics & Fixing Google Search Indexing
