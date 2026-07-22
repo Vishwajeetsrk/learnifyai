@@ -41,12 +41,12 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: profile } = await supabaseAdmin
+    const { data: profile } = await (supabaseAdmin as any)
       .from("profiles")
-      .select("phone, full_name, email")
+      .select("*")
       .eq("id", context.userId)
       .maybeSingle();
-    const customerPhone = (profile as any)?.phone || "9918231234";
+    const customerPhone = (profile as any)?.phone || (profile as any)?.phone_number || "9918231234";
     const customerName = (profile as any)?.full_name || "Vishwajeet Kumar";
     const customerEmail = email || (profile as any)?.email || "vishwajeetsrk@gmail.com";
 

@@ -206,14 +206,14 @@ export const createSubscription = createServerFn({ method: "POST" })
       }
     }
 
-    const { data: profile } = await supabaseAdmin
+    const { data: profile } = await (supabaseAdmin as any)
       .from("profiles")
-      .select("full_name, email, phone")
+      .select("*")
       .eq("id", uid)
-      .single();
-    const realName = profile?.full_name || "Vishwajeet Kumar";
-    const realEmail = profile?.email || "vishwajeetsrk@gmail.com";
-    const realPhone = (profile as any)?.phone || "9918231234";
+      .maybeSingle();
+    const realName = (profile as any)?.full_name || "Vishwajeet Kumar";
+    const realEmail = (profile as any)?.email || "vishwajeetsrk@gmail.com";
+    const realPhone = (profile as any)?.phone || (profile as any)?.phone_number || "9918231234";
 
     const { appId, secretKey } = getCreds();
     const subId = `sub_${uid.slice(0, 8)}_${Date.now()}`;
