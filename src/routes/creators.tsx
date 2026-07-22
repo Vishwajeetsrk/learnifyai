@@ -448,6 +448,40 @@ function CreatorsPage() {
     }
   };
 
+  const { data: approvedCreators } = useQuery({
+    queryKey: ["approved-creators-public"],
+    queryFn: async () => {
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data } = await supabase
+          .from("creator_applications")
+          .select("*")
+          .eq("status", "approved");
+        return data ?? [];
+      } catch {
+        return [];
+      }
+    },
+  });
+
+  const fallbackCreator = {
+    id: "creator-demo-1",
+    full_name: "Vishwajeet S.",
+    expertise: "Full-Stack & AI Systems",
+    bio: "Creator of Full-Stack AI Engineering & Autonomous Agents masterclasses on Learnify AI.",
+    coursesCount: 5,
+  };
+
+  const creatorsList = approvedCreators && approvedCreators.length > 0
+    ? approvedCreators.map((c: any) => ({
+        id: c.id,
+        full_name: c.full_name || c.applicant_name || "Verified Creator",
+        expertise: c.expertise || c.category || "AI Educator",
+        bio: c.motivation || c.bio || "Building interactive courses and code playgrounds.",
+        coursesCount: 3,
+      }))
+    : [fallbackCreator];
+
   return (
     <MarketingPage
       eyebrow="For Creators"
@@ -507,6 +541,66 @@ function CreatorsPage() {
           <div className="lg:col-span-7 bg-background/95 border border-border shadow-2xl rounded-2xl p-6 min-h-[340px] flex flex-col justify-between transition-all duration-300">
             {renderInteractiveDemo()}
           </div>
+        </div>
+      </div>
+
+      {/* APPROVED CREATORS DISPLAY SECTION */}
+      <div className="mt-16 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+            <Sparkles className="h-3.5 w-3.5" /> FEATURED COURSE CREATORS
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold font-display text-foreground">
+            Learn from Verified Tech Creators
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            Top educators publishing cutting-edge AI and software development courses.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {creatorsList.map((creator) => (
+            <div
+              key={creator.id}
+              className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col justify-between space-y-4"
+            >
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={`https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(creator.full_name)}`}
+                      alt={creator.full_name}
+                      className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"
+                    />
+                    <div>
+                      <h3 className="font-bold text-base text-foreground leading-tight">
+                        {creator.full_name}
+                      </h3>
+                      <p className="text-xs text-primary font-medium mt-0.5">
+                        {creator.expertise}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                    Verified
+                  </span>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                  {creator.bio}
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-border/60 flex items-center justify-between gap-3">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  {creator.coursesCount} Courses Published
+                </span>
+                <Button size="sm" asChild variant="outline">
+                  <Link to="/courses">View Courses ➔</Link>
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

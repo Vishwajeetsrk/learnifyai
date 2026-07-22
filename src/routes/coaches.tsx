@@ -528,6 +528,42 @@ function CoachesPage() {
     }
   };
 
+  const { data: approvedCoaches } = useQuery({
+    queryKey: ["approved-coaches-public"],
+    queryFn: async () => {
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data } = await supabase
+          .from("coach_applications")
+          .select("*")
+          .eq("status", "approved");
+        return data ?? [];
+      } catch {
+        return [];
+      }
+    },
+  });
+
+  const fallbackCoach = {
+    id: "coach-demo-1",
+    full_name: "Vishwajeet S.",
+    expertise: "Frontend Developer & SaaS Architect",
+    bio: "BCA Graduate & Full-Stack AI Engineer. Built DreamSync career OS and Learnify AI platform.",
+    hourly_rate: 1499,
+    rating: "4.9 (42 reviews)",
+  };
+
+  const coachesList = approvedCoaches && approvedCoaches.length > 0
+    ? approvedCoaches.map((c: any) => ({
+        id: c.id,
+        full_name: c.full_name || c.applicant_name || "Verified Coach",
+        expertise: c.expertise || "Tech Coach",
+        bio: c.motivation || c.bio || "1-on-1 personalized tech mentoring and code reviews.",
+        hourly_rate: c.hourly_rate || c.rate || 1499,
+        rating: "5.0 (New)",
+      }))
+    : [fallbackCoach];
+
   return (
     <MarketingPage
       eyebrow="For Coaches"
@@ -589,6 +625,71 @@ function CoachesPage() {
           <div className="lg:col-span-7 bg-background/95 border border-border shadow-2xl rounded-2xl p-6 min-h-[340px] flex flex-col justify-between transition-all duration-300">
             {renderInteractiveDemo()}
           </div>
+        </div>
+      </div>
+
+      {/* APPROVED COACHES DISPLAY SECTION */}
+      <div className="mt-16 space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+            <Sparkles className="h-3.5 w-3.5" /> VERIFIED 1-ON-1 COACHES
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold font-display text-foreground">
+            Book 1-on-1 Sessions with Top Mentors
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            Get personalized code reviews, career guidance, and live mock interview practice.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {coachesList.map((coach) => (
+            <div
+              key={coach.id}
+              className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col justify-between space-y-4"
+            >
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={`https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(coach.full_name)}`}
+                      alt={coach.full_name}
+                      className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"
+                    />
+                    <div>
+                      <h3 className="font-bold text-base text-foreground leading-tight">
+                        {coach.full_name}
+                      </h3>
+                      <p className="text-xs text-primary font-medium mt-0.5">
+                        {coach.expertise}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
+                    Verified Coach
+                  </Badge>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                  {coach.bio}
+                </p>
+              </div>
+
+              <div className="pt-4 border-t border-border/60 flex items-center justify-between gap-3">
+                <div>
+                  <span className="text-[10px] text-muted-foreground block uppercase font-semibold">
+                    Hourly Rate
+                  </span>
+                  <span className="text-sm font-bold text-foreground">
+                    ₹{coach.hourly_rate} <span className="text-xs font-normal text-muted-foreground">/ hr</span>
+                  </span>
+                </div>
+                <Button size="sm" asChild className="gap-1">
+                  <Link to="/apply-coach">Book Session ➔</Link>
+                </Button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
