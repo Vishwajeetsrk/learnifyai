@@ -24,6 +24,10 @@ import {
   ChevronRight,
   Trophy,
   Calendar,
+  BarChart3,
+  Brain,
+  Eye,
+  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -19,6 +19,9 @@ import {
   Users,
   ExternalLink,
   Flame,
+  Target,
+  BarChart3,
+  Brain,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
