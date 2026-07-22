@@ -432,6 +432,134 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
     toast.success("Portfolio HTML exported!");
   };
 
+  const handleExportZip = async () => {
+    try {
+      const JSZip = (await import("jszip")).default;
+      const zip = new JSZip();
+
+      const skills = form.skills
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const projectCards = projects
+        .filter((p) => p.name)
+        .map((p) => `
+        <div class="project-card border border-slate-800 bg-slate-900/80 p-6 rounded-2xl shadow-lg hover:border-indigo-500/50 transition duration-300">
+          ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" class="w-full h-48 object-cover rounded-xl mb-4" />` : ''}
+          <h3 class="text-xl font-bold text-slate-100 mb-2">${p.name}</h3>
+          <p class="text-sm text-slate-400 mb-4 leading-relaxed">${p.description || ""}</p>
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            ${p.techStack ? p.techStack.split(',').map(t => `<span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${t.trim()}</span>`).join('') : ''}
+          </div>
+          ${p.githubUrl ? `<a href="${p.githubUrl}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-400 hover:underline">View Source Code &rarr;</a>` : ''}
+        </div>
+      `).join("\n");
+
+      const skillsHtml = skills.map(s => `
+        <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-sm font-semibold text-slate-200 hover:border-indigo-500/50 transition">
+          <span>${s}</span>
+        </div>
+      `).join("\n");
+
+      const indexHtml = `<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${form.fullName || "Portfolio"} | Developer Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
+  <div class="max-w-5xl mx-auto px-6 py-12">
+    <!-- HERO HEADER -->
+    <header class="text-center py-16 space-y-4">
+      ${photoPreview ? `<img src="./assets/avatar.png" alt="${form.fullName}" class="w-28 h-28 rounded-full mx-auto object-cover border-4 border-indigo-500/30 shadow-xl" />` : `<div class="w-28 h-28 rounded-full bg-indigo-600/20 border-2 border-indigo-500 flex items-center justify-center text-4xl font-extrabold text-indigo-400 mx-auto">${(form.fullName?.charAt(0) || "P")}</div>`}
+      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">${form.fullName || "Your Name"}</h1>
+      <p class="text-lg text-indigo-300 font-semibold max-w-xl mx-auto">${form.tagline || "Software Engineer & Builder"}</p>
+      <p class="text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">${form.bio || ""}</p>
+    </header>
+
+    <!-- SKILLS SECTION -->
+    ${skills.length > 0 ? `
+    <section className="py-10">
+      <h2 className="text-xl font-bold text-slate-200 mb-6 flex items-center gap-2"><span className="text-indigo-500">#</span> Technical Skills</h2>
+      <div className="flex flex-wrap gap-3">${skillsHtml}</div>
+    </section>` : ''}
+
+    <!-- PROJECTS SECTION -->
+    ${projectCards ? `
+    <section className="py-10">
+      <h2 className="text-xl font-bold text-slate-200 mb-6 flex items-center gap-2"><span className="text-indigo-500">#</span> Featured Projects</h2>
+      <div className="grid sm:grid-cols-2 gap-6">${projectCards}</div>
+    </section>` : ''}
+
+    <!-- EXPERIENCE SECTION -->
+    ${form.experience ? `
+    <section className="py-10">
+      <h2 className="text-xl font-bold text-slate-200 mb-6 flex items-center gap-2"><span className="text-indigo-500">#</span> Experience</h2>
+      <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">${form.experience}</div>
+    </section>` : ''}
+
+    <!-- FOOTER -->
+    <footer class="text-center py-12 border-t border-slate-900 text-xs text-slate-500">
+      &copy; ${new Date().getFullYear()} ${form.fullName}. Built with Learnify AI Portfolio Builder.
+    </footer>
+  </div>
+  <script src="./js/script.js"></script>
+</body>
+</html>`;
+
+      const styleCss = `/* Custom Portfolio CSS */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap');
+body { font-family: 'Space Grotesk', sans-serif; }
+.project-card:hover { transform: translateY(-4px); }
+`;
+
+      const scriptJs = `// Interactive Scroll Reveal & Animations
+console.log("Loaded ${form.fullName} Portfolio!");
+`;
+
+      const readmeMd = `# ${form.fullName} — Portfolio Website
+
+This portfolio website was generated with Learnify AI Portfolio Builder.
+
+## Folder Structure
+- \`index.html\` - Primary portfolio webpage
+- \`css/style.css\` - Custom styling
+- \`js/script.js\` - Interactivity script
+- \`assets/\` - Portfolio assets
+
+## How to Deploy
+1. **GitHub Pages**: Upload all files to a repository named \`username.github.io\`.
+2. **Vercel / Netlify**: Drag & drop this folder directly to Vercel dashboard.
+`;
+
+      zip.file("index.html", indexHtml);
+      zip.folder("css")?.file("style.css", styleCss);
+      zip.folder("js")?.file("script.js", scriptJs);
+      zip.file("README.md", readmeMd);
+
+      if (photoPreview) {
+        const base64Data = photoPreview.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
+        zip.folder("assets")?.file("avatar.png", base64Data, { base64: true });
+      }
+
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${form.fullName.replace(/\s+/g, "_")}_Portfolio_Website.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Full Website ZIP with Folders downloaded!");
+    } catch (err: any) {
+      console.error("ZIP creation failed:", err);
+      toast.error(err.message || "Failed to generate ZIP");
+    }
+  };
+
   const handlePublish = () => {
     if (!form.fullName.trim()) {
       toast.error("Enter your name first");
@@ -1106,16 +1234,19 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
                 </div>
               )}
 
-              <div className="flex justify-center gap-3 pt-6 border-t mt-8">
-                <Button variant="outline" size="sm" onClick={handleExportHtml} className="gap-2">
+              <div className="flex flex-wrap justify-center gap-3 pt-6 border-t mt-8">
+                <Button size="sm" onClick={handleExportZip} className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md cursor-pointer">
+                  <Download className="h-4 w-4" /> Download Full Website (ZIP)
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExportHtml} className="gap-2 font-bold rounded-xl cursor-pointer">
                   <Download className="h-4 w-4" /> Export HTML
                 </Button>
                 <Button
                   size="sm"
                   onClick={handlePublish}
-                  className="gap-2 bg-gradient-to-r from-primary to-primary/80"
+                  className="gap-2 font-bold rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md cursor-pointer"
                 >
-                  <Send className="h-4 w-4" /> {published ? "Update Publish" : "Publish Portfolio"}
+                  <Send className="h-4 w-4" /> {published ? "Update Publish" : "Publish Live URL"}
                 </Button>
               </div>
             </div>
