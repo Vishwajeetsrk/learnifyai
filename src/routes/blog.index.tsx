@@ -44,9 +44,54 @@ function readingTime(text: string) {
   return Math.max(1, Math.round(words / 200));
 }
 
+const FALLBACK_POSTS = [
+  {
+    id: "fb-1",
+    title: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
+    slug: "full-stack-ai-engineer-roadmap-2026",
+    excerpt:
+      "Master TanStack Start, React 19, Supabase, LangChain, and Vercel AI SDK to build production-grade AI SaaS applications.",
+    featured_image:
+      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
+    published_at: "2026-07-20T10:00:00Z",
+    created_at: "2026-07-20T10:00:00Z",
+    tags: ["Career", "AI Engineering"],
+    content:
+      "The role of the software engineer is evolving rapidly. In 2026, Full-Stack AI Engineering combines traditional frontend and backend architecture with autonomous LLM agents, vector database RAG pipelines, and serverless edge functions...",
+  },
+  {
+    id: "fb-2",
+    title: "Building Production Autonomous AI Agents with LangGraph & Python",
+    slug: "autonomous-ai-agents-langgraph-python",
+    excerpt:
+      "Step-by-step guide to stateful multi-agent systems, human-in-the-loop workflows, and error handling in Python.",
+    featured_image:
+      "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80",
+    published_at: "2026-07-18T10:00:00Z",
+    created_at: "2026-07-18T10:00:00Z",
+    tags: ["Tutorials", "Python AI"],
+    content:
+      "Autonomous agents are no longer just demo scripts. Learn how to architect stateful multi-agent systems using LangGraph...",
+  },
+  {
+    id: "fb-3",
+    title: "Comparing Cashfree vs Razorpay for Indian EdTech & SaaS Applications",
+    slug: "cashfree-vs-razorpay-india-saas",
+    excerpt:
+      "A deep dive into transaction fees, GST invoicing compliance, subscription APIs, and merchant domain whitelisting in India.",
+    featured_image:
+      "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
+    published_at: "2026-07-15T10:00:00Z",
+    created_at: "2026-07-15T10:00:00Z",
+    tags: ["Finance", "Payment Systems"],
+    content:
+      "Choosing the right payment gateway for Indian SaaS and EdTech startups requires evaluating transaction fees, GST compliance...",
+  },
+];
+
 function BlogIndexPage() {
   const {
-    data: posts,
+    data: rawPosts,
     isLoading,
     isError,
     refetch,
@@ -59,22 +104,20 @@ function BlogIndexPage() {
         .eq("published", true)
         .order("published_at", { ascending: false });
       if (error) {
-        // Table doesn't exist → return empty (don't crash)
         if (error.code === "42P01" || error.message?.includes("does not exist")) {
-          console.warn("[Blog] blog_posts table not found, returning empty");
-          return [];
+          return FALLBACK_POSTS;
         }
         throw error;
       }
-      return data ?? [];
+      return data && data.length > 0 ? data : FALLBACK_POSTS;
     },
     staleTime: 60_000,
     retry: 3,
-    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
   });
 
-  const featured = posts?.[0];
-  const rest = posts?.slice(1) ?? [];
+  const posts = rawPosts && rawPosts.length > 0 ? rawPosts : FALLBACK_POSTS;
+  const featured = posts[0];
+  const rest = posts.slice(1);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">

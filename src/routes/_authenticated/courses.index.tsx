@@ -13,6 +13,15 @@ import {
   TrendingUp,
   Flame,
   Layers,
+  Target,
+  Globe,
+  Cog,
+  RefreshCw,
+  BarChart3,
+  Bot,
+  ShieldCheck,
+  Zap,
+  Smartphone,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
@@ -95,15 +104,15 @@ const FIXED_CATEGORIES = [
 ] as const;
 
 const CAREER_PATHS = [
-  { id: "all", label: "All Paths", icon: "🎯" },
-  { id: "frontend", label: "Frontend Developer", icon: "🌐" },
-  { id: "backend", label: "Backend Developer", icon: "⚙️" },
-  { id: "fullstack", label: "Full Stack", icon: "🔄" },
-  { id: "data-science", label: "Data Scientist", icon: "📊" },
-  { id: "ai-ml", label: "AI/ML Engineer", icon: "🤖" },
-  { id: "cybersecurity", label: "Security Engineer", icon: "🔒" },
-  { id: "devops", label: "DevOps/SRE", icon: "🚀" },
-  { id: "mobile", label: "Mobile Developer", icon: "📱" },
+  { id: "all", label: "All Paths", icon: Target },
+  { id: "frontend", label: "Frontend Developer", icon: Globe },
+  { id: "backend", label: "Backend Developer", icon: Cog },
+  { id: "fullstack", label: "Full Stack", icon: RefreshCw },
+  { id: "data-science", label: "Data Scientist", icon: BarChart3 },
+  { id: "ai-ml", label: "AI/ML Engineer", icon: Bot },
+  { id: "cybersecurity", label: "Security Engineer", icon: ShieldCheck },
+  { id: "devops", label: "DevOps/SRE", icon: Zap },
+  { id: "mobile", label: "Mobile Developer", icon: Smartphone },
 ] as const;
 
 type PriceFilter = "all" | "free" | "paid";
@@ -310,21 +319,25 @@ function CoursesPage() {
               Career Path
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {CAREER_PATHS.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => setCareerPath(p.id)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-full text-[10px] font-medium border transition",
-                    careerPath === p.id
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "border-border text-muted-foreground hover:border-foreground/30",
-                  )}
-                  aria-pressed={careerPath === p.id}
-                >
-                  {p.label}
-                </button>
-              ))}
+              {CAREER_PATHS.map((p) => {
+                const IconComp = p.icon;
+                return (
+                  <button
+                    key={p.id}
+                    onClick={() => setCareerPath(p.id)}
+                    className={cn(
+                      "px-2.5 py-1 rounded-full text-[10px] font-medium border transition inline-flex items-center gap-1.5",
+                      careerPath === p.id
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-border text-muted-foreground hover:border-foreground/30",
+                    )}
+                    aria-pressed={careerPath === p.id}
+                  >
+                    <IconComp className="h-3 w-3" />
+                    <span>{p.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
