@@ -107,11 +107,22 @@ export const getAuditSummary = createServerFn({ method: "GET" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: actionCounts } = await supabaseAdmin
+    const { data: logsForSummary } = await supabaseAdmin
       .from("admin_audit_logs")
-      .select("action, count:action.count()")
-      .order("count", { ascending: false })
-      .limit(20);
+      .select("action")
+      .order("created_at", { ascending: false })
+      .limit(300);
+
+    const actionCountsMap: Record<string, number> = {};
+    (logsForSummary ?? []).forEach((l: any) => {
+      if (l.action) {
+        actionCountsMap[l.action] = (actionCountsMap[l.action] || 0) + 1;
+      }
+    });
+
+    const topActions = Object.entries(actionCountsMap)
+      .map(([action, count]) => ({ action, count }))
+      .sort((a, b) => b.count - a.count);
 
     const { data: recentActivity } = await supabaseAdmin
       .from("admin_audit_logs")

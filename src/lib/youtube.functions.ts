@@ -178,6 +178,32 @@ async function aiSummarizeTranscript(
   }
 }
 
+async function aiGenerateLessonNotesNoTranscript(
+  chapterTitle: string,
+  courseTitle: string,
+): Promise<string | null> {
+  try {
+    const r = await callUserAiChat({
+      messages: [
+        {
+          role: "system",
+          content:
+            "You write concise, technically accurate chapter notes for software engineering lessons. Output clean HTML tags only. Do NOT use markdown symbols like **, ##, ### or bullet dashes. Use HTML lists, paragraphs, headers, and colored spans for visual styling.",
+        },
+        {
+          role: "user",
+          content: `Lesson title: "${chapterTitle}". Course context: "${courseTitle}".\nProduce a highly professional chapter summary formatted as clean HTML:\n1. "Key takeaways" (use a styled header <h3 style="color: #a78bfa; font-size: 1.125rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem;"> and a bulleted <ul> list)\n2. "Detailed notes" (use a styled header <h3> and 3-6 short paragraphs with <p style="line-height: 1.625; margin-bottom: 0.75rem; color: #cbd5e1;">)\n3. "Glossary" (use a styled header <h3> and a <ul> list defining 3-6 important terms)`,
+        },
+      ],
+    });
+    if (!r.ok) return null;
+    const j: any = await r.json();
+    return (j.choices?.[0]?.message?.content as string) ?? null;
+  } catch {
+    return null;
+  }
+}
+
 /* ---------- public server functions ---------- */
 
 export const verifyYoutubeKey = createServerFn({ method: "POST" })
@@ -385,12 +411,15 @@ async function runEnrichment(
             }
           }
 
+          if (!summary) {
+            await setProgress(lesson.id, "summarizing", "Generating AI lesson notes");
+            summary = await aiGenerateLessonNotesNoTranscript(lesson.title, courseTitle);
+          }
+
           if (summary) {
             usedCache = hadCachedSummary || hadCachedTranscript;
             newContent = `<h2 style="color: #8b5cf6; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem;">${lesson.title}</h2>\n\n<p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">${lesson.description ?? ""}</p>\n\n<h4 style="color: #6366f1; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem;">Recommended video</h4>\n<p style="margin-bottom: 1.5rem;"><a href="${videoUrl}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: underline; font-weight: 500;">${hit.title} — ${hit.channelTitle}</a></p>\n\n${summary}\n`;
             updatedTranscripts++;
-          } else if (!transcript) {
-            warnings.push(`No captions available for "${lesson.title}".`);
           }
         }
 

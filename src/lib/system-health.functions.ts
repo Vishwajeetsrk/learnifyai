@@ -63,13 +63,13 @@ export const getSystemHealth = createServerFn({ method: "GET" })
         name === "Groq"
           ? process.env.GROQ_API_KEY
           : name === "Gemini"
-            ? process.env.GEMINI_API_KEY
+            ? (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY)
             : process.env.OPENROUTER_API_KEY;
       const url =
         name === "Groq"
           ? "https://api.groq.com/openai/v1/models"
           : name === "Gemini"
-            ? "https://generativelanguage.googleapis.com/v1beta/models"
+            ? `https://generativelanguage.googleapis.com/v1beta/models?key=${key}`
             : "https://openrouter.ai/api/v1/models";
 
       if (!key?.trim()) {
@@ -79,8 +79,9 @@ export const getSystemHealth = createServerFn({ method: "GET" })
 
       try {
         const start = Date.now();
+        const headers: Record<string, string> = name === "Gemini" ? {} : { Authorization: `Bearer ${key}` };
         const res = await fetch(url, {
-          headers: { Authorization: `Bearer ${key}` },
+          headers,
           signal: AbortSignal.timeout(5000),
         });
         results[name] = {
