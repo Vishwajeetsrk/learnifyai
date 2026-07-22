@@ -974,38 +974,38 @@ function CourseDetail() {
           {/* Right Sidebar (Content + Details) */}
           <div className="space-y-6">
             {/* Course Summary Card */}
-            <div className="rounded-2xl border bg-card p-5 shadow-card space-y-4">
-              <h3 className="font-display font-semibold text-sm">Course Details</h3>
+            <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm space-y-4">
+              <h3 className="font-display font-bold text-sm text-foreground">Course Details</h3>
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="rounded-lg bg-muted/40 p-2.5">
-                  <span className="text-muted-foreground block mb-0.5">Duration</span>
-                  <span className="font-medium flex items-center gap-1.5">
+                <div className="rounded-xl bg-muted/30 border border-border/40 p-3">
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] font-medium">Duration</span>
+                  <span className="font-bold flex items-center gap-1.5 text-foreground">
                     <Clock className="h-3.5 w-3.5 text-primary" />
                     {formatDuration(course.duration_minutes)}
                   </span>
                 </div>
-                <div className="rounded-lg bg-muted/40 p-2.5">
-                  <span className="text-muted-foreground block mb-0.5">Level</span>
-                  <span className="font-medium capitalize">{course.level}</span>
+                <div className="rounded-xl bg-muted/30 border border-border/40 p-3">
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] font-medium">Level</span>
+                  <span className="font-bold capitalize text-foreground">{course.level}</span>
                 </div>
-                <div className="rounded-lg bg-muted/40 p-2.5">
-                  <span className="text-muted-foreground block mb-0.5">Category</span>
-                  <span className="font-medium capitalize">{course.category}</span>
+                <div className="rounded-xl bg-muted/30 border border-border/40 p-3">
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] font-medium">Category</span>
+                  <span className="font-bold capitalize text-foreground">{course.category}</span>
                 </div>
-                <div className="rounded-lg bg-muted/40 p-2.5">
-                  <span className="text-muted-foreground block mb-0.5">Lessons</span>
-                  <span className="font-medium">{lessons.length} lessons</span>
+                <div className="rounded-xl bg-muted/30 border border-border/40 p-3">
+                  <span className="text-muted-foreground block mb-0.5 text-[11px] font-medium">Lessons</span>
+                  <span className="font-bold text-foreground">{lessons.length} lessons</span>
                 </div>
               </div>
             </div>
 
             {/* Lesson list */}
-            <div className="rounded-2xl border bg-card shadow-card overflow-hidden">
-              <div className="px-4 py-3 border-b">
-                <h3 className="font-display font-semibold text-sm">Course content</h3>
-                <p className="text-[11px] text-muted-foreground">{lessons.length} lessons</p>
+            <div className="rounded-2xl border border-border/80 bg-card shadow-sm overflow-hidden">
+              <div className="px-4 py-3 border-b border-border/60 bg-muted/20">
+                <h3 className="font-display font-bold text-sm text-foreground">Course content</h3>
+                <p className="text-[11px] text-muted-foreground font-medium">{lessons.length} lessons</p>
               </div>
-              <ul className="divide-y max-h-[60vh] overflow-y-auto">
+              <ul className="divide-y divide-border/60 max-h-[60vh] overflow-y-auto">
                 {lessons.map((l, i) => {
                   const isUnlocked = unlocked.has(l.id);
                   const isDone = completed.has(l.id);
@@ -1017,7 +1017,7 @@ function CourseDetail() {
                         disabled={!isUnlocked}
                         className={cn(
                           "w-full text-left px-4 py-3 flex items-center gap-3 transition",
-                          isActive && "bg-primary/5",
+                          isActive && "bg-primary/10 border-l-4 border-primary",
                           isUnlocked
                             ? "hover:bg-accent cursor-pointer"
                             : "opacity-50 cursor-not-allowed",
@@ -1035,16 +1035,16 @@ function CourseDetail() {
                         <div className="min-w-0 flex-1">
                           <div
                             className={cn(
-                              "text-sm truncate",
-                              isActive && "font-semibold text-primary",
+                              "text-sm truncate font-medium text-foreground",
+                              isActive && "font-bold text-primary",
                             )}
                           >
                             {i + 1}. {l.title}
                           </div>
-                          <div className="text-[11px] text-muted-foreground flex items-center gap-2">
-                            <Clock className="h-3 w-3" /> {formatLessonTime(l.duration_minutes)}
+                          <div className="text-[11px] text-muted-foreground flex items-center gap-2 mt-0.5">
+                            <Clock className="h-3 w-3 text-primary" /> {formatLessonTime(l.duration_minutes)}
                             {l.is_preview && !hasFullAccess && (
-                              <Badge variant="outline" className="text-[9px] py-0">
+                              <Badge variant="outline" className="text-[9px] py-0 border-primary/30 text-primary">
                                 Preview
                               </Badge>
                             )}
@@ -1058,9 +1058,9 @@ function CourseDetail() {
             </div>
 
             {/* Instructor Profile Card */}
-            <div className="rounded-2xl border bg-card p-5 shadow-card space-y-4">
-              <h3 className="font-display font-semibold text-sm">Your Instructor</h3>
-              <div className="flex items-center gap-3">
+            <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm space-y-4">
+              <h3 className="font-display font-bold text-sm text-foreground">Your Instructor</h3>
+              <div className="flex items-center gap-3.5">
                 {course.created_by ? (
                   <Link
                     to="/u/$id"
@@ -1072,15 +1072,15 @@ function CourseDetail() {
                         src={instructorProfile.avatar_url}
                         alt={instructorProfile.full_name || course.instructor}
                         className={cn(
-                          "h-12 w-12 rounded-full object-cover shrink-0",
+                          "h-12 w-12 rounded-full object-cover shrink-0 shadow-sm",
                           getProfileBorderClass(instructorProfile.avatar_url) ||
-                            "border-2 border-primary/20",
+                            "border-2 border-primary/30",
                         )}
                         loading="lazy"
                         decoding="async"
                       />
                     ) : (
-                      <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
+                      <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/30 shrink-0 shadow-sm">
                         {(instructorProfile?.full_name || course.instructor)
                           .charAt(0)
                           .toUpperCase()}
@@ -1092,15 +1092,15 @@ function CourseDetail() {
                     src={instructorProfile.avatar_url}
                     alt={instructorProfile.full_name || course.instructor}
                     className={cn(
-                      "h-12 w-12 rounded-full object-cover shrink-0",
+                      "h-12 w-12 rounded-full object-cover shrink-0 shadow-sm",
                       getProfileBorderClass(instructorProfile.avatar_url) ||
-                        "border-2 border-primary/20",
+                        "border-2 border-primary/30",
                     )}
                     loading="lazy"
                     decoding="async"
                   />
                 ) : (
-                  <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/20 shrink-0">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/30 shrink-0 shadow-sm">
                     {(instructorProfile?.full_name || course.instructor).charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -1111,22 +1111,22 @@ function CourseDetail() {
                       params={{ id: course.created_by }}
                       className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded inline-block max-w-full"
                     >
-                      <h4 className="font-display font-semibold text-sm truncate">
+                      <h4 className="font-display font-bold text-sm text-foreground truncate">
                         {instructorProfile?.full_name || course.instructor}
                       </h4>
                     </Link>
                   ) : (
-                    <h4 className="font-display font-semibold text-sm truncate">
+                    <h4 className="font-display font-bold text-sm text-foreground truncate">
                       {instructorProfile?.full_name || course.instructor}
                     </h4>
                   )}
-                  <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
-                    <Users className="h-3 w-3 text-primary" />
+                  <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground font-medium">
+                    <Users className="h-3.5 w-3.5 text-primary" />
                     <span>{creatorSubsQuery.data ?? 0} subscribers</span>
                   </div>
-                  {instructorProfile?.email && (
-                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                      {instructorProfile.email}
+                  {(instructorProfile?.email || "vishwajeetsrk@gmail.com") && (
+                    <p className="text-xs text-foreground/80 truncate mt-0.5 font-medium">
+                      {instructorProfile?.email || "vishwajeetsrk@gmail.com"}
                     </p>
                   )}
                 </div>
@@ -1137,11 +1137,11 @@ function CourseDetail() {
                   onClick={toggleCreatorSub}
                   variant={mySubQuery.data ? "outline" : "default"}
                   size="sm"
-                  className="w-full rounded-full gap-1.5"
+                  className="w-full rounded-full gap-1.5 font-bold cursor-pointer shadow-sm"
                 >
                   {mySubQuery.data ? (
                     <>
-                      <BellOff className="h-3.5 w-3.5" /> Subscribed
+                      <BellOff className="h-3.5 w-3.5 text-muted-foreground" /> Subscribed
                     </>
                   ) : (
                     <>

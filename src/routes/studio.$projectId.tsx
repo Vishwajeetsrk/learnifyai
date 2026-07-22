@@ -325,8 +325,8 @@ function StudioClassroomPage() {
       </AnimatePresence>
 
       {/* Top Navbar */}
-      <header className="h-14 border-b border-border bg-card flex items-center justify-between px-4 shrink-0 z-10">
-        <div className="flex items-center gap-4">
+      <header className="h-14 border-b border-border/80 bg-card/90 backdrop-blur-md flex items-center justify-between px-4 shrink-0 z-10 shadow-sm">
+        <div className="flex items-center gap-3">
           <Link
             to="/course/$projectId"
             params={{ projectId: project.id }}
@@ -335,25 +335,25 @@ function StudioClassroomPage() {
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div className="flex items-center gap-3">
-            <div className="h-6 w-6 rounded-md bg-primary/20 text-primary flex items-center justify-center border border-primary/30">
-              <Monitor className="h-3.5 w-3.5" />
+            <div className="h-7 w-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-sm">
+              <Monitor className="h-4 w-4" />
             </div>
-            <h1 className="font-display font-semibold text-sm">{project.title}</h1>
+            <h1 className="font-display font-bold text-sm text-foreground truncate max-w-[200px] sm:max-w-md">{project.title}</h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-3 mr-4">
-            <div className="flex items-center gap-1.5 bg-accent px-3 py-1.5 rounded-full border border-border">
-              <Flame className="h-4 w-4 text-orange-500" />
-              <span className="text-xs font-bold">{streak} Day Streak</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full border border-orange-500/30 text-xs font-bold shadow-sm">
+              <Flame className="h-3.5 w-3.5 fill-orange-500" />
+              <span>{streak} Day Streak</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-accent px-3 py-1.5 rounded-full border border-border">
-              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-              <span className="text-xs font-bold">{xp} XP</span>
+            <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1 rounded-full border border-amber-500/30 text-xs font-bold shadow-sm">
+              <Star className="h-3.5 w-3.5 fill-amber-500" />
+              <span>{xp} XP</span>
             </div>
           </div>
-          <div className="text-xs font-medium text-muted-foreground bg-accent px-3 py-1.5 rounded-full border border-border">
+          <div className="text-xs font-bold text-foreground bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
             Step {activeStep + 1} of {modules.length || 1}
           </div>
         </div>
@@ -382,8 +382,8 @@ function StudioClassroomPage() {
         {/* Left Sidebar: Curriculum & Instructions */}
         <aside
           className={cn(
-            "bg-card flex flex-col shrink-0 border-border z-40 transition-transform duration-300",
-            "fixed inset-x-0 bottom-0 h-[85vh] rounded-t-3xl border-t shadow-[0_-10px_40px_rgba(0,0,0,0.5)] lg:static lg:h-auto lg:w-80 lg:rounded-none lg:border-r lg:border-t-0 lg:shadow-none lg:translate-y-0",
+            "bg-card flex flex-col shrink-0 border-border/80 z-40 transition-transform duration-300",
+            "fixed inset-x-0 bottom-0 h-[85vh] rounded-t-3xl border-t shadow-[0_-10px_40px_rgba(0,0,0,0.5)] lg:static lg:h-auto lg:w-84 lg:rounded-none lg:border-r lg:border-t-0 lg:shadow-none lg:translate-y-0",
             isMobileMenuOpen ? "translate-y-0" : "translate-y-full",
           )}
         >
@@ -396,17 +396,17 @@ function StudioClassroomPage() {
           </div>
 
           {/* Sidebar Toggle Header */}
-          <div className="flex items-center p-2 border-b border-border bg-muted/20">
-            <div className="flex bg-accent/50 p-1 rounded-xl w-full">
+          <div className="flex items-center p-2.5 border-b border-border/60 bg-muted/20">
+            <div className="flex bg-muted/60 p-1 rounded-xl w-full">
               <button
                 onClick={() => setSidebarMode("curriculum")}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${sidebarMode === "curriculum" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all ${sidebarMode === "curriculum" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
                 <BookOpen className="h-3.5 w-3.5" /> Curriculum
               </button>
               <button
                 onClick={() => setSidebarMode("architecture")}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg transition-all ${sidebarMode === "architecture" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-bold rounded-lg transition-all ${sidebarMode === "architecture" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
               >
                 <Box className="h-3.5 w-3.5" /> Blueprint
               </button>
@@ -416,16 +416,16 @@ function StudioClassroomPage() {
           {sidebarMode === "curriculum" ? (
             <>
               {/* Progress / Step Nav */}
-              <div className="p-4 border-b border-border space-y-4">
+              <div className="p-4 border-b border-border/60 space-y-3 bg-muted/10">
                 <div className="flex items-center justify-between">
                   <button
                     onClick={() => setActiveStep((prev) => Math.max(0, prev - 1))}
                     disabled={activeStep === 0}
-                    className="p-1.5 rounded-lg bg-accent text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition"
+                    className="p-1.5 rounded-lg bg-card border border-border/60 text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent transition shadow-sm"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
-                  <span className="text-xs font-semibold text-muted-foreground">
+                  <span className="text-xs font-bold tracking-wider uppercase text-primary">
                     MODULE {activeStep + 1}
                   </span>
                   <button
@@ -433,7 +433,7 @@ function StudioClassroomPage() {
                     disabled={
                       activeStep === modules.length - 1 || (!isStepCompleted && currentModule?.quiz)
                     }
-                    className="p-1.5 rounded-lg bg-accent text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/80 transition"
+                    className="p-1.5 rounded-lg bg-card border border-border/60 text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent transition shadow-sm"
                     title={
                       !isStepCompleted && currentModule?.quiz
                         ? "Complete the quiz to unlock the next step!"
@@ -445,9 +445,9 @@ function StudioClassroomPage() {
                 </div>
 
                 {/* Progress Bar */}
-                <div className="h-1.5 w-full bg-accent rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-primary"
+                    className="h-full bg-gradient-to-r from-primary to-primary/70"
                     initial={{ width: 0 }}
                     animate={{
                       width: `${((activeStep + 1) / Math.max(1, modules.length)) * 100}%`,
@@ -457,7 +457,7 @@ function StudioClassroomPage() {
               </div>
 
               {/* Lesson Content */}
-              <div className="flex-1 overflow-y-auto p-5 space-y-6">
+              <div className="flex-1 overflow-y-auto p-5 space-y-5">
                 {currentModule ? (
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -467,19 +467,19 @@ function StudioClassroomPage() {
                       exit={{ opacity: 0, x: -20 }}
                       className="space-y-4"
                     >
-                      <h2 className="text-lg font-display font-semibold leading-snug">
+                      <h2 className="text-base sm:text-lg font-bold text-foreground leading-snug">
                         {currentModule.title}
                       </h2>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
+                      <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed font-medium">
                         {currentModule.text}
                       </p>
 
                       {/* Voice Player */}
                       {currentModule.voice_script && (
-                        <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 flex items-start gap-4 mt-6">
+                        <div className="p-4 rounded-2xl border border-primary/30 bg-primary/10 flex items-center gap-3.5 shadow-sm">
                           <button
                             onClick={toggleVoice}
-                            className="shrink-0 h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:scale-105 transition-all shadow-glow"
+                            className="shrink-0 h-10 w-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:scale-105 transition-all shadow-md cursor-pointer"
                           >
                             {isPlayingVoice ? (
                               <Pause className="h-4 w-4" />
@@ -487,12 +487,12 @@ function StudioClassroomPage() {
                               <Play className="h-4 w-4 ml-0.5" />
                             )}
                           </button>
-                          <div className="space-y-1">
-                            <p className="text-xs font-semibold text-primary">
+                          <div className="space-y-0.5 min-w-0 flex-1">
+                            <p className="text-xs font-bold text-primary">
                               Listen to the Breakdown
                             </p>
-                            <p className="text-[11px] text-muted-foreground italic leading-tight">
-                              "{currentModule.voice_script.substring(0, 60)}..."
+                            <p className="text-[11px] text-foreground/80 italic leading-tight truncate">
+                              "{currentModule.voice_script}"
                             </p>
                           </div>
                         </div>
@@ -500,20 +500,21 @@ function StudioClassroomPage() {
 
                       {/* Quiz Knowledge Check */}
                       {currentModule.quiz && (
-                        <div className="mt-8 bg-card border border-border rounded-xl p-5 shadow-sm">
-                          <div className="flex items-center gap-2 mb-4">
-                            <div className="bg-primary/20 p-1.5 rounded-md">
-                              <CheckCircle2 className="h-4 w-4 text-primary" />
+                        <div className="mt-6 bg-card border border-border/80 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+                          <div className="flex items-center gap-2 pb-2 border-b border-border/60">
+                            <div className="bg-primary/15 p-1.5 rounded-lg text-primary">
+                              <CheckCircle2 className="h-4 w-4" />
                             </div>
-                            <h3 className="text-sm font-semibold">Knowledge Check</h3>
+                            <h3 className="text-xs sm:text-sm font-bold text-foreground">Knowledge Check</h3>
                           </div>
-                          <p className="text-sm text-foreground mb-4">
+                          <p className="text-xs sm:text-sm font-bold text-foreground leading-relaxed">
                             {currentModule.quiz.question}
                           </p>
                           <div className="space-y-2">
                             {currentModule.quiz.options.map((option: string, index: number) => {
+                              const correctIdx = currentModule.quiz.correct_index ?? currentModule.quiz.correct ?? 0;
                               const isSelected = selectedAnswer === index;
-                              const isCorrect = index === currentModule.quiz.correct_index;
+                              const isCorrect = index === correctIdx;
                               const showCorrect = selectedAnswer !== null && isCorrect;
                               const showWrong = isSelected && !isCorrect;
 
@@ -521,20 +522,20 @@ function StudioClassroomPage() {
                                 <button
                                   key={index}
                                   onClick={() =>
-                                    handleQuizAnswer(index, currentModule.quiz.correct_index)
+                                    handleQuizAnswer(index, correctIdx)
                                   }
                                   disabled={selectedAnswer !== null}
-                                  className={`w-full text-left p-3 rounded-lg border text-sm transition-all flex items-center justify-between ${
+                                  className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
                                     showCorrect
-                                      ? "border-green-500/50 bg-green-500/10 text-green-700"
+                                      ? "border-emerald-500 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold"
                                       : showWrong
-                                        ? "border-red-500/50 bg-red-500/10 text-red-700"
-                                        : "border-border hover:border-primary/50 hover:bg-accent"
+                                        ? "border-rose-500 bg-rose-500/15 text-rose-700 dark:text-rose-300 font-bold"
+                                        : "border-border/80 bg-card text-foreground hover:border-primary/60 hover:bg-primary/5"
                                   }`}
                                 >
                                   <span>{option}</span>
                                   {showCorrect && (
-                                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                    <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                                   )}
                                 </button>
                               );
@@ -544,10 +545,10 @@ function StudioClassroomPage() {
                             <motion.div
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: "auto" }}
-                              className="mt-4 text-xs text-muted-foreground bg-accent/50 p-3 rounded-lg"
+                              className="mt-3 text-xs text-foreground bg-accent/60 p-3 rounded-xl border border-border/60 font-medium"
                             >
-                              <span className="font-semibold text-foreground">Explanation:</span>{" "}
-                              {currentModule.quiz.explanation}
+                              <span className="font-bold text-primary">Explanation:</span>{" "}
+                              {currentModule.quiz.explanation || "Correct answer! You've unlocked +50 XP and the next module."}
                             </motion.div>
                           )}
                         </div>
