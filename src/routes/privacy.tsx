@@ -14,21 +14,21 @@ export const Route = createFileRoute("/privacy")({
     <CustomPageContent
       pageKey="privacy"
       title="Your data, your control."
-      subtitle="Last updated: June 21, 2026."
-      defaultContent={`<h2>1. Data We Collect</h2>
-<p>We collect account credentials (name, email, avatar seed), transaction histories, subscription statuses, billing info (GSTIN, legal name for team accounts), course progress, playground code snippets, and workspace metadata. We do not store credit card credentials; all payments are processed securely by Cashfree.</p>
+      subtitle="Last updated: July 2026. Fully compliant with India DPDP Act 2023 & Information Technology Act 2000."
+      defaultContent={`<h2>1. Data We Collect & DPDP Act 2023 Compliance</h2>
+<p>In compliance with the Digital Personal Data Protection Act 2023 (DPDP Act 2023) and Information Technology Act 2000 of India, Learnify AI collects account credentials (name, email address, profile avatar), transaction histories, GSTIN details, course progress, AI prompt logs, and technical telemetry. Payments are processed securely via RBI-compliant Cashfree Payment Gateway; no raw credit/debit card numbers are stored on our servers.</p>
 
-<h2>2. How We Use Your Data</h2>
-<p>To personalize learning paths, run automated code playground executions, issue certificates, process Cashfree subscription renewals, verify payment webhooks, and provide fallback AI queries. AI prompts sent to Groq, Gemini, or OpenRouter are not used for third-party training.</p>
+<h2>2. Purpose of Data Processing</h2>
+<p>We process personal data solely for providing online education services (SAC Code 998431), generating verifiable digital certificates, executing interactive code playgrounds, managing Cashfree subscription mandates, and issuing GST-compliant tax invoices.</p>
 
-<h2>3. Sharing with Third Parties</h2>
-<p>We share necessary transactional and subscription tokens with Cashfree to manage mandates and renewals. We do not sell or lease user data to third-party advertisers.</p>
+<h2>3. User Data Rights</h2>
+<p>Under the DPDP Act 2023, users retain the right to: (a) Access and export personal data, (b) Correct, update, or complete inaccurate data, (c) Withdraw consent and request data erasure, and (d) Seek grievance redressal.</p>
 
-<h2>4. Storage & Security</h2>
-<p>Data is stored in encrypted databases with row-level security. Files live in private buckets accessible only to you and authorized admins.</p>
+<h2>4. Data Sharing & Third-Party Fiduciaries</h2>
+<p>Data is shared only with verified infrastructure providers required for operation: Supabase (Encrypted Database & Auth), Cashfree (RBI Authorized Payment Aggregator), and Cloudflare (Edge Security). We do not sell or monetize personal data to third-party advertisers.</p>
 
-<h2>5. Your Rights</h2>
-<p>You can export, edit, or delete your data at any time from Settings. Email <a href="mailto:privacy@learnify.ai">privacy@learnify.ai</a> for any data request.</p>`}
+<h2>5. Grievance Officer & Contact</h2>
+<p>For data inquiries, consent revocation, or privacy grievances, contact our designated Grievance Redressal Officer at <a href="mailto:support@learnifyai.in">support@learnifyai.in</a>. Grievances are acknowledged within 24 hours and resolved within 15 days as required by Indian regulations.</p>`}
     />
   ),
 });

@@ -21,29 +21,23 @@ export const Route = createFileRoute("/refund-policy")({
     <CustomPageContent
       pageKey="refund"
       title="Refund Policy"
-      subtitle="Last updated: July 3, 2026. Auto-approved refunds are processed within 5–7 business days."
-      defaultContent={`<h2>1. Auto-Approved Refunds</h2>
-<p>Refunds meeting both criteria below are automatically approved without manual review:</p>
+      subtitle="Last updated: July 2026. Auto-approved refunds are processed within 5–7 business days via Cashfree PG."
+      defaultContent={`<h2>1. Auto-Approved Refund Eligibility</h2>
+<p>In accordance with Indian Consumer Protection (E-Commerce) Rules 2020, refund requests meeting both conditions below are auto-approved:</p>
 <ul>
-  <li><strong>30-day window:</strong> Request submitted within 30 days of the original purchase or subscription start date.</li>
-  <li><strong>Less than 30% course completion:</strong> Fewer than 30% of lessons marked completed for course purchases, or fewer than 500 AI credits consumed for subscription plans.</li>
+  <li><strong>30-Day Money-Back Guarantee:</strong> Request submitted within 30 days of the purchase date.</li>
+  <li><strong>Consumption Threshold:</strong> Less than 30% course completion or fewer than 500 AI credits consumed.</li>
 </ul>
-<p>Auto-approved refunds are processed within 5–7 business days and credited to the original payment method.</p>
+<p>Approved refunds are credited to the original payment method (UPI, Bank Account, or Card) via Cashfree within 5–7 business days.</p>
 
-<h2>2. Subscription Refund Rules</h2>
-<p>A full refund is available within 30 days of the initial subscription purchase, provided the account has consumed less than 500 AI credits of the monthly allotment. Subsequent monthly subscription renewals are non-refundable.</p>
+<h2>2. Cashfree Mandate Cancellations</h2>
+<p>Users may cancel recurring subscription mandates at any time via the Billing Dashboard. Cancellation prevents future auto-debits; access continues until the end of the current paid billing cycle.</p>
 
-<h2>3. Course Refunds</h2>
-<p>Paid courses are eligible for a refund within 30 days of purchase if less than 30% of the lessons have been marked completed. Promotional purchases or custom enterprise courses are non-refundable.</p>
+<h2>3. Refund Request Process</h2>
+<p>To request a refund, submit a request via your Billing Dashboard or email our support team at <a href="mailto:support@learnifyai.in">support@learnifyai.in</a> with your Order ID, registered email, and reason for refund.</p>
 
-<h2>4. Wallet Top-Up Refunds</h2>
-<p>Wallet top-ups for creator/coach earnings are non-refundable once credited. Student wallet top-ups are not available on the platform.</p>
-
-<h2>5. How to Request</h2>
-<p>Submit a refund request via the Billing Dashboard or email <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> with your registered email, plan/course name, and reason for the request.</p>
-
-<h2>6. Processing Time</h2>
-<p>Approved refunds are processed within 5–7 business days and credited to your original payment method. You will receive a confirmation email once processed.</p>`}
+<h2>4. Processing & Confirmation</h2>
+<p>Once initiated, Cashfree issues an automated refund reference number (RRN). An instant email notification with tax adjustment details will be dispatched to your registered address.</p>`}
     />
   ),
 });
