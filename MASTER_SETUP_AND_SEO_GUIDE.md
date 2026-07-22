@@ -240,6 +240,29 @@ The codebase has been updated with:
 
 ---
 
+## 8. Custom Google OAuth 2.0 Client & Supabase Branding Setup
+
+To display **Learnify AI** and your official logo on the Google Login prompt instead of raw Supabase URLs:
+
+1. Open [Google Cloud Credentials](https://console.cloud.google.com/apis/credentials).
+2. Under **OAuth 2.0 Client IDs** -> Create Web Application:
+   - Name: `Learnify AI`
+   - **Authorized JavaScript origins**:
+     - `https://www.learnifyai.in`
+     - `https://learnifyai.in`
+     - `https://gnvsqwyexjuuwkjibxrr.supabase.co`
+     - `https://learnifyaitool.vercel.app`
+   - **Authorized redirect URIs**:
+     - `https://gnvsqwyexjuuwkjibxrr.supabase.co/auth/v1/callback`
+     - `https://www.learnifyai.in`
+     - `https://learnifyai.in`
+3. Paste generated credentials into [Supabase Auth Providers](https://supabase.com/dashboard/project/gnvsqwyexjuuwkjibxrr/auth/providers) -> **Google**:
+   - Client ID: `<YOUR_GOOGLE_CLIENT_ID>` (from Google Cloud Console)
+   - Client Secret: `<YOUR_GOOGLE_CLIENT_SECRET>` (from Google Cloud Console)
+4. Click **Save**.
+
+---
+
 ## 7. Local Testing & Performance Commands
 
 Run these terminal commands locally to verify TypeScript types, production builds, and fast performance before deploying updates:

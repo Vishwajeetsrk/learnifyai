@@ -980,6 +980,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.
 - ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Free plan at ₹0 (Acquisition), Pro at ₹199/mo (casual learners), Career Pro at ₹499/mo (job-seekers), Enterprise (Custom) replaces old Team plan.
 
+### v1.3.6 (July 2026)
+
+- 🔐 **OFFICIAL GOOGLE OAUTH 2.0 CLIENT BRANDING**: Configured custom Google Cloud OAuth 2.0 Client credentials with official `Learnify AI` app name, logo, domain verification, and custom Supabase provider callback endpoints (`/auth/v1/callback`).
+- 📜 **PUBLIC CERTIFICATE VERIFICATION PORTAL (`/verify/$id`)**: Built an immutable credential verification route allowing recruiters and students to verify course certificates via unique Certificate ID or QR code lookup.
+- 🎙️ **MULTI-LANGUAGE WEB SPEECH VOICE AI NARRATOR**: Integrated browser Web Speech API narrator supporting 7 languages (`en-US`, `en-IN`, `hi-IN`, `es-ES`, `fr-FR`, `de-DE`, `ja-JP`) with speed and pitch controls.
+- 🎯 **SVG CARRIER PATH NAVIGATION & SEO BLOG EXPANSION**: Replaced emoji icons with modern Lucide SVG components across course marketplaces and published high-authority SEO technical articles.
+
 ### v1.3.5 (July 2026)
 
 - ✉️ **100% FREE BUSINESS EMAIL ROUTING**: Activated Cloudflare Email Routing for official domain addresses (`support@learnifyai.in`, `hello@learnifyai.in`, `admin@learnifyai.in`, `careers@learnifyai.in`) with zero-cost forwarding to personal Gmail and updated website default email addresses across the codebase.
