@@ -39,17 +39,17 @@ const DEFAULT_INVOICE_SETTINGS: Record<string, string> = {
   invoice_legal_name: "Learnify EdTech Pvt. Ltd.",
   invoice_gstin: "29XXXXX1234X1Z5",
   invoice_prefix: "INV",
-  invoice_footer: "Thank you for supporting Learnify AI! For queries, contact support.",
+  invoice_footer: "Thank you for supporting Learnify AI! For queries, contact support@learnifyai.in.",
   invoice_logo_url: "/logo.png",
-  invoice_contact: "support@learnifyai.com · +91 98765 43210",
+  invoice_contact: "support@learnifyai.in · +91 99182 31234",
   invoice_address: "102, Innovation Hub, Outer Ring Road, Bangalore, KA, 560103",
-  invoice_website: "https://learnifyai.com",
+  invoice_website: "https://www.learnifyai.in",
   invoice_primary_color: "#4f46e5",
   invoice_secondary_color: "#7c3aed",
   invoice_watermark: "PAID",
   invoice_signature: "",
-  invoice_terms: "1. Fees paid are non-refundable. 2. Subscriptions auto-renew until cancelled.",
-  invoice_refund_policy: "Refunds are processed within 5-7 working days under special circumstances.",
+  invoice_terms: "1. Fees paid are governed under Consumer Protection (E-Commerce) Rules 2020. 2. Subscriptions auto-renew until cancelled.",
+  invoice_refund_policy: "Auto-approved refunds are processed within 5-7 working days via Cashfree.",
   invoice_template: "modern",
   invoice_qr_enabled: "true",
 };
@@ -604,7 +604,7 @@ export default function InvoiceDesigner() {
                   GSTIN: <strong>{settings.invoice_gstin}</strong>
                 </span>
                 <span className="text-[10px] text-muted-foreground block">
-                  Support: {settings.invoice_contact}
+                  Support: {settings.invoice_contact || "support@learnifyai.in"}
                 </span>
               </div>
 
