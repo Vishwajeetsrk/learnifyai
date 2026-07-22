@@ -844,7 +844,7 @@ function CourseDetail() {
                   )}
                 </div>
                 <VoiceNarrationPlayer
-                  text={`${active.title}. ${active.summary || active.content || ""}`}
+                  text={`${active.title}. ${active.description || active.content_md || ""}`}
                   title={active.title}
                 />
               </div>
