@@ -506,12 +506,12 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
                       {/* Active Status Badge */}
                       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap bg-slate-900/90 text-indigo-300 border border-indigo-500/30 text-[9px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md">
                         {evaluating
-                          ? "🧠 Evaluating Answer..."
+                          ? "Evaluating Answer..."
                           : isRecording
-                            ? "👂 Listening to Candidate..."
+                            ? "Listening to Candidate..."
                             : loading
-                              ? "✨ Formulating Question..."
-                              : "🗣️ Asking Question..."}
+                              ? "Formulating Question..."
+                              : "Asking Question..."}
                       </div>
                     </div>
 

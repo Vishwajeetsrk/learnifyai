@@ -75,6 +75,7 @@ import {
   Cpu,
   Network,
   Loader2,
+  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MagnificationDock } from "@/components/ui/MagnificationDock";
@@ -422,37 +423,37 @@ function LinkedInOptimizerView() {
     setSelectedPostTopic(topicKey);
     if (topicKey === "agentic") {
       setGeneratedPost(
-        `🤖 Agentic AI Engineer Roadmap 2026\n\n` +
+        `Agentic AI Engineer Roadmap 2026\n\n` +
         `We're entering a new era of AI. The future is no longer just about prompting AI — it's about building AI systems that reason, plan, use tools, remember context, and execute workflows autonomously.\n\n` +
-        `📚 Core Focus Areas:\n` +
-        `✅ Python Programming & Async APIs\n` +
-        `✅ LangChain, LangGraph, CrewAI & AutoGen\n` +
-        `✅ RAG & Vector Databases (Pinecone, Qdrant)\n` +
-        `✅ Multi-Agent Orchestration & Tool Calling\n\n` +
+        `Core Focus Areas:\n` +
+        `[x] Python Programming & Async APIs\n` +
+        `[x] LangChain, LangGraph, CrewAI & AutoGen\n` +
+        `[x] RAG & Vector Databases (Pinecone, Qdrant)\n` +
+        `[x] Multi-Agent Orchestration & Tool Calling\n\n` +
         `The biggest opportunity in 2026? AI Agents are becoming the new software layer.\n\n` +
         `#AgenticAI #AIAgents #ArtificialIntelligence #AIEngineer #GenerativeAI #BuildInPublic #LearnifyAI`
       );
     } else if (topicKey === "fullstack") {
       setGeneratedPost(
-        `🚀 Full Stack Developer Roadmap 2026\n\n` +
+        `Full Stack Developer Roadmap 2026\n\n` +
         `A modern Full Stack Developer is no longer just someone who knows frontend and backend. In 2026, Full Stack Developers are expected to understand UI/UX, Cloud Infrastructure, and AI Integration.\n\n` +
-        `✅ TypeScript & React 19 / Next.js App Router\n` +
-        `✅ Tailwind CSS & Framer Motion\n` +
-        `✅ Node.js, Express & PostgreSQL / Supabase\n` +
-        `✅ Docker & Cloud Deployment\n` +
-        `✅ AI-Powered Application APIs\n\n` +
+        `[x] TypeScript & React 19 / Next.js App Router\n` +
+        `[x] Tailwind CSS & Framer Motion\n` +
+        `[x] Node.js, Express & PostgreSQL / Supabase\n` +
+        `[x] Docker & Cloud Deployment\n` +
+        `[x] AI-Powered Application APIs\n\n` +
         `#FullStackDeveloper #ReactJS #NextJS #TypeScript #WebDevelopment #TechCareers`
       );
     } else if (topicKey === "summit") {
       setGeneratedPost(
-        `✨ Mentoring Summit India 2025 @ Bangalore International Centre ✨\n\n` +
+        `Mentoring Summit India 2025 @ Bangalore International Centre\n\n` +
         `I started my day with an insightful session titled "Rock Your Profile" delivered by Anuradha Kundu from LinkedIn. She shared practical strategies on building a strong LinkedIn presence and improving visibility for career growth.\n\n` +
         `Grateful to WeLive Foundation, Rainbow Foundation, and Mentor Together for creating meaningful impact through mentorship!\n\n` +
         `#MentoringSummitIndia2025 #RockYourProfile #LinkedIn #ProfessionalDevelopment #WeLiveFoundation`
       );
     } else {
       setGeneratedPost(
-        `🏆 Excited to share that I won #1st Prize in the Web Design Competition at NEURO2026!\n\n` +
+        `Excited to share that I won #1st Prize in the Web Design Competition at NEURO2026!\n\n` +
         `Developed a responsive YouTube Website Clone focusing on modern UI/UX design, component architecture, and clean HTML/CSS/JS execution.\n\n` +
         `Grateful to my mentors and the BCA Department for the constant support!\n\n` +
         `#1stPrize #WebDesign #FrontendDevelopment #BCA #NEURO2026 #CodingJourney`
@@ -624,10 +625,10 @@ function LinkedInOptimizerView() {
 
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           {[
-            { id: "agentic", label: "🤖 Agentic AI Roadmap 2026" },
-            { id: "fullstack", label: "🚀 Full Stack Roadmap 2026" },
-            { id: "summit", label: "✨ Mentoring Summit India" },
-            { id: "award", label: "🏆 NEURO2026 1st Prize Winner" },
+            { id: "agentic", label: "Agentic AI Roadmap 2026" },
+            { id: "fullstack", label: "Full Stack Roadmap 2026" },
+            { id: "summit", label: "Mentoring Summit India" },
+            { id: "award", label: "NEURO2026 1st Prize Winner" },
           ].map((t) => (
             <button
               key={t.id}
