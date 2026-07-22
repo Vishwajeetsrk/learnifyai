@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -533,7 +534,7 @@ function CoachesPage() {
     queryFn: async () => {
       try {
         const { supabase } = await import("@/integrations/supabase/client");
-        const { data } = await supabase
+        const { data } = await (supabase as any)
           .from("coach_applications")
           .select("*")
           .eq("status", "approved");
@@ -643,7 +644,7 @@ function CoachesPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {coachesList.map((coach) => (
+          {coachesList.map((coach: any) => (
             <div
               key={coach.id}
               className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col justify-between space-y-4"

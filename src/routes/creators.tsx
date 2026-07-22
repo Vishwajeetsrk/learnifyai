@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Sparkles, DollarSign, Megaphone, Users, Check, Loader2, Send, Video } from "lucide-react";
@@ -453,7 +454,7 @@ function CreatorsPage() {
     queryFn: async () => {
       try {
         const { supabase } = await import("@/integrations/supabase/client");
-        const { data } = await supabase
+        const { data } = await (supabase as any)
           .from("creator_applications")
           .select("*")
           .eq("status", "approved");
@@ -559,7 +560,7 @@ function CreatorsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {creatorsList.map((creator) => (
+          {creatorsList.map((creator: any) => (
             <div
               key={creator.id}
               className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col justify-between space-y-4"
