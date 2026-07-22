@@ -50,12 +50,21 @@ async function doSyncPlan(planId: string): Promise<string> {
   const { appId, secretKey } = getCreds();
   const cfPlanId = `plan_${p.id.slice(0, 8)}`;
 
+  const cleanPlanName = (p.name || "Pro Plan")
+    .replace(/[^a-zA-Z0-9\s_-]/g, "")
+    .trim()
+    .slice(0, 50);
+  const cleanPlanNote = (p.description || "Learnify AI Subscription Plan")
+    .replace(/[^a-zA-Z0-9\s_-]/g, "")
+    .trim()
+    .slice(0, 100);
+
   const res = await fetch(`${getCashfreeApi()}/plans`, {
     method: "POST",
     headers: cfHeaders(appId, secretKey),
     body: JSON.stringify({
       plan_id: cfPlanId,
-      plan_name: p.name,
+      plan_name: cleanPlanName,
       plan_type: "PERIODIC",
       plan_currency: "INR",
       plan_recurring_amount: p.price_inr,
@@ -63,7 +72,7 @@ async function doSyncPlan(planId: string): Promise<string> {
       plan_max_cycles: 0,
       plan_intervals: 1,
       plan_interval_type: p.interval?.startsWith("month") ? "MONTH" : "YEAR",
-      plan_note: p.description || "",
+      plan_note: cleanPlanNote,
     }),
   });
 

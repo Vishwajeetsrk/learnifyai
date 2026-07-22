@@ -179,7 +179,7 @@ function CareerStudioHub() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-bold text-xl text-white tracking-tight">Career Studio</h1>
-                <Badge className="bg-white/20 text-white border-white/30 text-[10px] px-2 py-0 animate-pulse duration-1000">
+                <Badge className="bg-white/20 text-white border border-white/30 text-[10px] px-2.5 py-0.5 font-bold shadow-sm">
                   <Sparkles className="h-3 w-3 mr-1 text-yellow-300 animate-spin [animation-duration:10s]" /> 12 Tools
                 </Badge>
               </div>
@@ -188,6 +188,59 @@ function CareerStudioHub() {
               </p>
             </div>
           </div>
+
+          <Dialog open={menuOpen} onOpenChange={setMenuOpen}>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-white/10 hover:bg-white/20 text-white border-white/30 font-bold rounded-full gap-2 cursor-pointer shadow-sm"
+              >
+                <Briefcase className="h-4 w-4" />
+                <span>Switch Tool (12)</span>
+                <ChevronDown className="h-3.5 w-3.5 opacity-80" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="w-[94%] max-w-lg rounded-2xl p-5 bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl">
+              <DialogHeader className="pb-3 border-b border-border/50">
+                <DialogTitle className="text-base font-bold flex items-center gap-2 text-foreground">
+                  <Sparkles className="h-4.5 w-4.5 text-primary" />
+                  <span>AI Career Studio (12 Tools)</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 py-4 max-h-[65vh] overflow-y-auto pr-1">
+                {TABS.map((t) => {
+                  const isActive = activeTab === t.id;
+                  const Icon = t.icon;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        navigate({ to: "/career-studio" as any, search: { tab: t.id } as any, replace: true });
+                        setMenuOpen(false);
+                      }}
+                      className={cn(
+                        "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all duration-200 cursor-pointer active:scale-95",
+                        isActive
+                          ? "bg-primary/10 border-primary text-primary font-bold shadow-sm"
+                          : "bg-muted/30 border-border/60 hover:bg-muted/60 text-foreground"
+                      )}
+                    >
+                      <div className={cn(
+                        "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
+                        isActive ? "bg-primary text-white" : "bg-muted text-muted-foreground"
+                      )}>
+                        <Icon className="h-4.5 w-4.5" />
+                      </div>
+                      <span className="text-xs text-center font-bold leading-tight truncate max-w-[120px]">
+                        {t.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </motion.div>
 

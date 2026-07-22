@@ -112,13 +112,15 @@ export function ROISavingsSection() {
           </div>
 
           <Button
-            asChild
-            className="w-full h-12 rounded-xl font-semibold text-base bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25"
+            className="w-full h-12 rounded-xl font-bold text-base bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25 cursor-pointer"
+            onClick={() => {
+              const el = document.getElementById("build-your-plan") || document.getElementById("interactive-demo");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+              else window.location.href = "/pricing#build-your-plan";
+            }}
           >
-            <Link to="/signup">
-              Get Everything In One Platform
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Link>
+            Get Everything In One Platform
+            <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </motion.div>
       </div>
