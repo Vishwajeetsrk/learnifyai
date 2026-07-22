@@ -208,11 +208,12 @@ export const createSubscription = createServerFn({ method: "POST" })
 
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("full_name, email")
+      .select("full_name, email, phone")
       .eq("id", uid)
       .single();
-    const realName = profile?.full_name || uid.slice(0, 8);
-    const realEmail = profile?.email || `${uid.slice(0, 8)}@learnify.app`;
+    const realName = profile?.full_name || "Vishwajeet Kumar";
+    const realEmail = profile?.email || "vishwajeetsrk@gmail.com";
+    const realPhone = (profile as any)?.phone || "9918231234";
 
     const { appId, secretKey } = getCreds();
     const subId = `sub_${uid.slice(0, 8)}_${Date.now()}`;
@@ -230,7 +231,7 @@ export const createSubscription = createServerFn({ method: "POST" })
           customer_id: uid,
           customer_name: realName,
           customer_email: realEmail,
-          customer_phone: "9999999999",
+          customer_phone: realPhone,
         },
         plan_details: {
           plan_id: p.cashfree_plan_id,

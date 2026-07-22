@@ -43,10 +43,12 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: profile } = await supabaseAdmin
       .from("profiles")
-      .select("phone")
+      .select("phone, full_name, email")
       .eq("id", context.userId)
       .maybeSingle();
-    const customerPhone = (profile as any)?.phone || "9999999999";
+    const customerPhone = (profile as any)?.phone || "9918231234";
+    const customerName = (profile as any)?.full_name || "Vishwajeet Kumar";
+    const customerEmail = email || (profile as any)?.email || "vishwajeetsrk@gmail.com";
 
     const orderId = `ord_${context.userId}_${Date.now()}`;
 
@@ -64,7 +66,8 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
         order_currency: "INR",
         customer_details: {
           customer_id: context.userId,
-          customer_email: email || `${context.userId.slice(0, 8)}@learnify.app`,
+          customer_name: customerName,
+          customer_email: customerEmail,
           customer_phone: customerPhone,
         },
       }),
