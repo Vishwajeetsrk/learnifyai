@@ -998,6 +998,14 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v4.0.0 (July 2026) — Major Release
+
+- 💼 **CAREER STUDIO 12-TOOL SUITE**: Upgraded career tools with Google's X-Y-Z formula bullet point generator (`Accomplished X, as measured by Y, by doing Z`), 4 ATS-compliant templates, 1-click **Standalone Portfolio Website ZIP Export** with folders (`index.html`, `css`, `js`, `assets`, `README`), and live desktop tool switcher.
+- 📹 **LIVE VIDEO MOCK INTERVIEW & AI HUMAN AVATAR**: Practice interviews for standard or custom job roles with **Sarah Jenkins** (Senior Tech Lead) AI Interactor avatar, audio waveform bars, and live candidate webcam stream capture (`LIVE CAMERA FEED`).
+- 💳 **BILLING & REVENUE OS & SUBSCRIPTION ANALYTICS**: Full-spectrum billing operations with Cashfree gateway status, live webhook test connection for `/api/webhooks/cashfree`, date range selector (*Today* to *All*), 13 database metric categories (*Revenue, Subscriptions, AI Usage, Courses, ATS, Interviews*), and CSV exports.
+- 🤖 **AI TUTOR & AI AGENTS HISTORY & BOOKMARKS**: Saved session history in `localStorage`, 📌 **Save Insight** response bookmarking with dedicated drawer, credit balance meter, vision multi-modal attachment, and model selector (*Gemini Flash / Pro / Vision*).
+- 🎨 **100% SVG ICON STANDARD & FULL RESPONSIVENESS**: Replaced all raw emojis across onboarding, dashboard, verification, and chat flows with Lucide SVG icons. Verified mobile, tablet, and PC desktop layouts.
+
 ### v1.3.3 (July 2026)
 
 - 🎨 **CANVA-STYLE CERTIFICATE DESIGNER OVERHAUL**: Built an interactive drag-and-drop certificate designer with `react-rnd` canvas handles, exact position X, Y, Width, Height, Rotate, and Opacity controls, 1-click dynamic field tag insertion (`{student_name}`, `{course_name}`, `{issue_date}`, `{expiry_date}`, `{certificate_id}`, `{score}`, `{grade}`, `{instructor_name}`), and 3x DPI high-res PDF and PNG exports.
