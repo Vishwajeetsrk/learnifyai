@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { adminContentAction, adminContentQuery } from "@/lib/admin-content.functions";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { Loader2, Plus, Pencil, Trash2, Eye, EyeOff, ExternalLink, RefreshCw, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
