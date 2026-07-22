@@ -891,6 +891,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                       onChange={(e) => update("education", e.target.value)}
                     />
                   </div>
+                </div>
                 <div className="space-y-3 pt-2">
                   <Label className="flex items-center justify-between">
                     <span className="font-bold text-sm">Select Design Template or Create Your Own</span>
