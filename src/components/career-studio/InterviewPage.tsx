@@ -458,62 +458,118 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
               {/* Human AI Interviewer Avatar & Live Video Feed Grid */}
               {(mode === "video" || mode === "voice") && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Human AI Interviewer Avatar */}
-                  <div className="rounded-2xl border border-primary/30 bg-card p-4 flex flex-col items-center text-center justify-center relative overflow-hidden shadow-md">
-                    <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
-                      <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                  {/* Human AI Interviewer Sarah Avatar Component */}
+                  <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 via-card to-purple-950/30 p-5 flex flex-col items-center text-center justify-center relative overflow-hidden shadow-lg min-h-[220px]">
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md">
+                      <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
                       AI Interactor: Sarah (Senior Tech Lead)
                     </div>
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 border-2 border-primary p-1 shadow-lg my-3 relative">
-                      <img
-                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
-                        alt="AI Interviewer"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                      {loading && (
-                        <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
-                          <Loader2 className="h-6 w-6 text-white animate-spin" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="text-xs font-bold text-foreground">Sarah Jenkins</div>
-                    <div className="text-[10px] text-muted-foreground font-medium">Senior Engineering Interviewer</div>
 
-                    {/* Audio wave animation */}
-                    <div className="flex items-center gap-1 mt-2 h-4">
-                      {[12, 20, 8, 16, 24, 10, 18].map((h, i) => (
+                    {/* Interactive Animated Avatar Face */}
+                    <div className="relative my-4">
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-1 shadow-xl relative flex items-center justify-center">
+                        <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center overflow-hidden relative">
+                          <img
+                            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+                            alt="Sarah Jenkins AI"
+                            className={cn(
+                              "w-full h-full object-cover transition-all duration-300",
+                              isRecording ? "scale-105 filter brightness-110" : "scale-100"
+                            )}
+                          />
+                          {/* Lip sync animation overlay when speaking/listening */}
+                          {loading && (
+                            <div className="absolute inset-0 bg-indigo-950/70 backdrop-blur-xs flex flex-col items-center justify-center">
+                              <Loader2 className="h-7 w-7 text-indigo-400 animate-spin" />
+                              <span className="text-[10px] text-indigo-200 font-bold mt-1">Generating Question...</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Active Status Badge */}
+                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap bg-slate-900/90 text-indigo-300 border border-indigo-500/30 text-[9px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md">
+                        {evaluating
+                          ? "🧠 Evaluating Answer..."
+                          : isRecording
+                            ? "👂 Listening to Candidate..."
+                            : loading
+                              ? "✨ Formulating Question..."
+                              : "🗣️ Asking Question..."}
+                      </div>
+                    </div>
+
+                    <div className="text-sm font-bold text-foreground">Sarah Jenkins</div>
+                    <div className="text-[11px] text-indigo-400 font-semibold">Senior Engineering Interviewer</div>
+
+                    {/* Animated Audio Spectrum Bars */}
+                    <div className="flex items-center gap-1 mt-3 h-5">
+                      {[14, 24, 10, 28, 18, 26, 12, 22].map((h, i) => (
                         <div
                           key={i}
-                          className="w-1 bg-primary rounded-full transition-all duration-300 animate-pulse"
-                          style={{ height: `${h}px`, animationDelay: `${i * 0.1}s` }}
+                          className={cn(
+                            "w-1 rounded-full transition-all duration-300",
+                            isRecording
+                              ? "bg-emerald-400 animate-bounce"
+                              : "bg-indigo-500 animate-pulse"
+                          )}
+                          style={{
+                            height: isRecording ? `${(i % 4 + 2) * 6}px` : `${h}px`,
+                            animationDelay: `${i * 0.12}s`,
+                          }}
                         />
                       ))}
                     </div>
                   </div>
 
-                  {/* Candidate Live Webcam Camera Stream */}
-                  <div className="rounded-2xl border border-border/80 bg-slate-950 p-2 flex flex-col items-center justify-center relative overflow-hidden shadow-md min-h-[160px]">
-                    <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-red-500/80 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md">
-                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                      {mode === "video" ? "LIVE CAMERA FEED" : "MICROPHONE ACTIVE"}
+                  {/* Candidate Live Webcam Video Feed & Mic Meter */}
+                  <div className="rounded-2xl border border-slate-800 bg-slate-950 p-3 flex flex-col items-center justify-between relative overflow-hidden shadow-lg min-h-[220px]">
+                    <div className="w-full flex items-center justify-between z-10">
+                      <div className="flex items-center gap-1.5 bg-red-500/90 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md">
+                        <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                        {mode === "video" ? "LIVE CAMERA FEED" : "CANDIDATE MIC ACTIVE"}
+                      </div>
+                      <Badge variant="outline" className="text-[10px] border-slate-700 text-slate-300">
+                        {isRecording ? "🔴 RECORDING ANSWER" : "STANDBY"}
+                      </Badge>
                     </div>
 
-                    {mode === "video" && (
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        className="w-full h-full object-cover rounded-xl border border-slate-800"
-                      />
-                    )}
+                    <div className="w-full flex-1 flex flex-col items-center justify-center my-2 relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+                      {mode === "video" && (
+                        <video
+                          ref={videoRef}
+                          autoPlay
+                          playsInline
+                          muted
+                          className="w-full h-44 object-cover rounded-xl"
+                        />
+                      )}
 
-                    {(!cameraActive || mode !== "video") && (
-                      <div className="flex flex-col items-center justify-center py-6 text-slate-400">
-                        <Video className="h-8 w-8 mb-2 opacity-50" />
-                        <span className="text-xs font-medium">Candidate Audio/Video Feed Active</span>
-                      </div>
-                    )}
+                      {(!cameraActive || mode !== "video") && (
+                        <div className="flex flex-col items-center justify-center py-8 text-slate-400">
+                          <Video className="h-10 w-10 mb-2 text-indigo-400 opacity-80" />
+                          <span className="text-xs font-bold text-slate-200">Candidate Video Feed Stream Active</span>
+                          <span className="text-[10px] text-slate-400">Webcam & Microphone connected</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Candidate Interactive Controls Bar */}
+                    <div className="w-full flex items-center justify-between pt-1 text-xs">
+                      <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
+                        <Mic className={cn("h-3 w-3", isRecording ? "text-emerald-400 animate-pulse" : "text-slate-400")} />
+                        {isRecording ? "Mic Input Level: 84%" : "Mic Ready"}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant={isRecording ? "destructive" : "default"}
+                        className="h-7 text-xs font-bold rounded-lg px-3"
+                        onClick={isRecording ? stopVoiceRecognition : startVoiceRecognition}
+                      >
+                        {isRecording ? <MicOff className="h-3.5 w-3.5 mr-1" /> : <Mic className="h-3.5 w-3.5 mr-1" />}
+                        {isRecording ? "Stop Recording" : "Start Answer"}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               )}
