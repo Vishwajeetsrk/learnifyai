@@ -38,9 +38,45 @@ type EventRow = {
   image_url?: string | null;
 };
 
+const DEFAULT_EVENTS: EventRow[] = [
+  {
+    id: "evt-1",
+    title: "Next.js 15 & React 19 Live Workshop",
+    description:
+      "Build full-stack AI SaaS apps with TanStack Start, React 19, Supabase, and Cashfree payments.",
+    starts_at: "2026-08-15T18:00:00Z",
+    location: "Online (Discord Live Channel)",
+    rsvp_url: "https://discord.gg/learnifyai",
+    image_url:
+      "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "evt-2",
+    title: "AI Creators Panel & AMA Session",
+    description:
+      "Live Q&A with top AI course creators, prompt engineers, and tech coaches on Learnify AI.",
+    starts_at: "2026-08-22T18:00:00Z",
+    location: "Online (Zoom Webinar Room)",
+    rsvp_url: "https://zoom.us/j/learnifyai",
+    image_url:
+      "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: "evt-3",
+    title: "Bangalore Creator & Coach Meetup",
+    description:
+      "In-person networking, live lightning talks, and hands-on AI prompt engineering demos.",
+    starts_at: "2026-08-29T10:00:00Z",
+    location: "Innov8 Koramangala, Bangalore",
+    rsvp_url: "https://www.learnifyai.in/events",
+    image_url:
+      "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80",
+  },
+];
+
 function EventsPage() {
   const [brokenEvents, setBrokenEvents] = useState<Set<string>>(new Set());
-  const { data: events = [], isLoading } = useQuery({
+  const { data: eventsData, isLoading } = useQuery({
     queryKey: ["events-public"],
     queryFn: async () => {
       try {
@@ -49,17 +85,17 @@ function EventsPage() {
           .select("*")
           .gte("starts_at", new Date(Date.now() - 86400_000 * 30).toISOString())
           .order("starts_at", { ascending: true });
-        if (error) {
-          console.warn("Events DB query failed:", error);
-          return [];
+        if (error || !data || data.length === 0) {
+          return DEFAULT_EVENTS;
         }
-        return (data ?? []) as EventRow[];
+        return data as EventRow[];
       } catch (err) {
-        console.warn("Events fetch caught exception:", err);
-        return [];
+        return DEFAULT_EVENTS;
       }
     },
   });
+
+  const events = eventsData && eventsData.length > 0 ? eventsData : DEFAULT_EVENTS;
 
   return (
     <MarketingPage

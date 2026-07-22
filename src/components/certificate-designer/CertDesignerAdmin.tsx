@@ -851,7 +851,7 @@ function AllCertsScreen({
 
       {/* Certificate High-Fidelity Preview Dialog */}
       <Dialog open={!!previewCert} onOpenChange={(open) => !open && setPreviewCert(null)}>
-        <DialogContent className="max-w-4xl p-6 rounded-2xl bg-white border border-slate-200 shadow-2xl flex flex-col md:flex-row gap-6">
+        <DialogContent className="max-w-4xl p-6 rounded-2xl bg-white border border-slate-200 shadow-2xl flex flex-col md:flex-row gap-6 z-[9999] max-h-[90vh] overflow-y-auto">
           <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 border border-slate-100 rounded-xl p-4 overflow-hidden relative min-h-[300px]">
             {previewCert && (
               <div id={`preview-cert-capture-${previewCert.id}`} className="shadow-lg rounded overflow-hidden origin-center">
@@ -3217,7 +3217,7 @@ export function CertDesignerAdmin() {
   return(
     <div style={{minHeight:"100vh",background:BG,fontFamily:"Inter,system-ui,sans-serif",color:TX}}>
       {/* Sticky Header + Tab Nav */}
-      <div style={{background:"white",borderBottom:`1px solid ${BD}`,position:"sticky",top:0,zIndex:100,boxShadow:"0 1px 3px rgba(0,0,0,0.06)"}}>
+      <div style={{background:"white",borderBottom:`1px solid ${BD}`,position:"sticky",top:0,zIndex:20,boxShadow:"0 1px 3px rgba(0,0,0,0.06)"}}>
         <div style={{display:"flex",alignItems:"center",gap:12,padding:"16px 24px 0"}}>
           <div style={{width:36,height:36,borderRadius:8,background:PL,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
             {info.icon}
