@@ -39,7 +39,7 @@ export default defineConfig({
       external: ["nodemailer"],
     },
     build: {
-      chunkSizeWarningLimit: 500,
+      chunkSizeWarningLimit: 2500,
       rollupOptions: {
         external: ["nodemailer", "nodemailer/lib/mailer/index.js"],
         onwarn(warning, warn) {

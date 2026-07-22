@@ -138,16 +138,63 @@ export default function BlogManager() {
     }
   };
 
+  const seedDefaultPosts = async () => {
+    const defaults = [
+      {
+        title: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
+        slug: "full-stack-ai-engineer-roadmap-2026",
+        excerpt: "Master TanStack Start, React 19, Supabase, LangChain, and Vercel AI SDK to build production-grade AI SaaS applications.",
+        featured_image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
+        published: true,
+        content: "<h2>The Shift in Modern Software Engineering</h2><p>In 2026, Full-Stack AI Engineering combines React 19, Supabase pgvector, and LLM agent pipelines.</p>",
+      },
+      {
+        title: "Building Production Autonomous AI Agents with LangGraph & Python",
+        slug: "autonomous-ai-agents-langgraph-python",
+        excerpt: "Step-by-step guide to stateful multi-agent systems, human-in-the-loop workflows, and error handling in Python.",
+        featured_image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80",
+        published: true,
+        content: "<h2>Multi-Agent Graph State Machines</h2><p>Pass typed state dictionaries between node agents with persistence checkpoints.</p>",
+      },
+      {
+        title: "Comparing Cashfree vs Razorpay for Indian EdTech & SaaS Applications",
+        slug: "cashfree-vs-razorpay-india-saas",
+        excerpt: "A deep dive into transaction fees, GST invoicing compliance, subscription APIs, and merchant domain whitelisting in India.",
+        featured_image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
+        published: true,
+        content: "<h2>Indian Payment Gateway Comparison</h2><p>Cashfree offers 1.9% rates with native 18% GST SAC 998431 tax breakdown on invoices.</p>",
+      },
+    ];
+
+    try {
+      for (const d of defaults) {
+        await doAdminAction({ data: { table: "blog_posts", action: "insert", data: d } });
+      }
+      toast.success("Default blog posts seeded!");
+      qc.invalidateQueries({ queryKey: ["blog-posts"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Seeding failed");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <p className="text-sm text-muted-foreground">
           Create and manage blog posts with the rich text editor.
         </p>
-        <Button onClick={openNew}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Post
-        </Button>
+        <div className="flex gap-2">
+          {!posts?.length && (
+            <Button variant="outline" size="sm" onClick={seedDefaultPosts}>
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+              Seed Default Posts
+            </Button>
+          )}
+          <Button onClick={openNew}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Post
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -155,7 +202,16 @@ export default function BlogManager() {
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
       ) : !posts?.length ? (
-        <p className="text-sm text-muted-foreground text-center py-10">No posts yet.</p>
+        <div className="text-center py-12 border border-dashed rounded-xl space-y-3">
+          <FileText className="h-8 w-8 text-muted-foreground mx-auto" />
+          <p className="text-sm font-semibold">No blog posts in database yet</p>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+            Click 'Seed Default Posts' to populate initial articles into your database.
+          </p>
+          <Button size="sm" onClick={seedDefaultPosts}>
+            Seed Default Posts
+          </Button>
+        </div>
       ) : (
         <div className="space-y-2">
           {posts.map((post: BlogPost) => (

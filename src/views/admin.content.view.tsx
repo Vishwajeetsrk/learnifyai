@@ -737,28 +737,77 @@ function EventsManager() {
     setOpen(true);
   };
 
+  const seedDefaultEvents = async () => {
+    const defaults = [
+      {
+        title: "Next.js 15 & React 19 Live Workshop",
+        description: "Build full-stack AI SaaS apps with TanStack Start, React 19, Supabase, and Cashfree payments.",
+        starts_at: new Date("2026-08-15T18:00:00Z").toISOString(),
+        location: "Online (Discord Live Channel)",
+        rsvp_url: "https://discord.gg/learnifyai",
+        image_url: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80",
+      },
+      {
+        title: "AI Creators Panel & AMA Session",
+        description: "Live Q&A with top AI course creators, prompt engineers, and tech coaches on Learnify AI.",
+        starts_at: new Date("2026-08-22T18:00:00Z").toISOString(),
+        location: "Online (Zoom Webinar Room)",
+        rsvp_url: "https://zoom.us/j/learnifyai",
+        image_url: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
+      },
+      {
+        title: "Bangalore Creator & Coach Meetup",
+        description: "In-person networking, live lightning talks, and hands-on AI prompt engineering demos.",
+        starts_at: new Date("2026-08-29T10:00:00Z").toISOString(),
+        location: "Innov8 Koramangala, Bangalore",
+        rsvp_url: "https://www.learnifyai.in/events",
+        image_url: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80",
+      },
+    ];
+
+    try {
+      for (const d of defaults) {
+        await doAdminAction({ data: { table: "events", action: "insert", data: d } });
+      }
+      toast.success("Default events seeded successfully!");
+      qc.invalidateQueries({ queryKey: ["admin-events"] });
+      qc.invalidateQueries({ queryKey: ["events-public"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Seeding failed");
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-end gap-2">
-        {events.some((e) => e.title?.startsWith("Test Event")) && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={async () => {
-              const result = await doCleanupTestEvents({ data: undefined });
-              if (result?.deleted) {
-                toast.success(`Deleted ${result.deleted} test events`);
-                qc.invalidateQueries({ queryKey: ["admin-events"] });
-              }
-            }}
-          >
-            Clean up test events
+      <div className="flex justify-between items-center">
+        <p className="text-xs text-muted-foreground">Manage live workshops, AMAs, and tech meetups.</p>
+        <div className="flex gap-2">
+          {events.length === 0 && (
+            <Button variant="outline" size="sm" onClick={seedDefaultEvents}>
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+              Seed Default Events
+            </Button>
+          )}
+          {events.some((e) => e.title?.startsWith("Test Event")) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                const result = await doCleanupTestEvents({ data: undefined });
+                if (result?.deleted) {
+                  toast.success(`Deleted ${result.deleted} test events`);
+                  qc.invalidateQueries({ queryKey: ["admin-events"] });
+                }
+              }}
+            >
+              Clean up test events
+            </Button>
+          )}
+          <Button onClick={newEvent}>
+            <Plus className="h-4 w-4 mr-2" />
+            New event
           </Button>
-        )}
-        <Button onClick={newEvent}>
-          <Plus className="h-4 w-4 mr-2" />
-          New event
-        </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -766,7 +815,16 @@ function EventsManager() {
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
       ) : events.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-10">No events yet.</p>
+        <div className="text-center py-12 border border-dashed rounded-xl space-y-3">
+          <CalendarIcon className="h-8 w-8 text-muted-foreground mx-auto" />
+          <p className="text-sm font-semibold">No events in database yet</p>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+            Click 'Seed Default Events' to populate initial live workshops and meetups.
+          </p>
+          <Button size="sm" onClick={seedDefaultEvents}>
+            Seed Default Events
+          </Button>
+        </div>
       ) : (
         <div className="space-y-2">
           {events.map((e) => (
@@ -1069,13 +1127,62 @@ function JobsManager() {
     qc.invalidateQueries({ queryKey: ["jobs-public"] });
   };
 
+  const seedDefaultJobs = async () => {
+    const defaults = [
+      {
+        title: "Senior Full-Stack AI Engineer",
+        team: "Engineering",
+        location: "Remote · India / Global",
+        description: "Build production AI agent orchestration platforms, Supabase real-time pipelines, and TanStack Start UI features.",
+        apply_url: "https://www.learnifyai.in/careers",
+        active: true,
+      },
+      {
+        title: "AI Course Creator & Technical Educator",
+        team: "Content & Curriculum",
+        location: "Remote · India",
+        description: "Design cutting-edge course curriculum, code playgrounds, and interactive workshops for modern software engineers.",
+        apply_url: "https://www.learnifyai.in/apply-creator",
+        active: true,
+      },
+      {
+        title: "Developer Relations & Community Advocate",
+        team: "Community",
+        location: "Bangalore, KA / Hybrid",
+        description: "Engage with educators, host live Discord webinars, run hackathons, and support creator growth on Learnify AI.",
+        apply_url: "https://www.learnifyai.in/community",
+        active: true,
+      },
+    ];
+
+    try {
+      for (const d of defaults) {
+        await doAdminAction({ data: { table: "job_postings", action: "insert", data: d } });
+      }
+      toast.success("Default job postings seeded!");
+      qc.invalidateQueries({ queryKey: ["admin-jobs"] });
+      qc.invalidateQueries({ queryKey: ["jobs-public"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Seeding failed");
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button onClick={newJob}>
-          <Plus className="h-4 w-4 mr-2" />
-          New job
-        </Button>
+      <div className="flex justify-between items-center">
+        <p className="text-xs text-muted-foreground">Manage open career roles and job postings.</p>
+        <div className="flex gap-2">
+          {jobs.length === 0 && (
+            <Button variant="outline" size="sm" onClick={seedDefaultJobs}>
+              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+              Seed Default Jobs
+            </Button>
+          )}
+          <Button onClick={newJob}>
+            <Plus className="h-4 w-4 mr-2" />
+            New job
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -1083,7 +1190,16 @@ function JobsManager() {
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
       ) : jobs.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-10">No jobs yet.</p>
+        <div className="text-center py-12 border border-dashed rounded-xl space-y-3">
+          <Briefcase className="h-8 w-8 text-muted-foreground mx-auto" />
+          <p className="text-sm font-semibold">No open jobs in database yet</p>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+            Click 'Seed Default Jobs' to populate initial career roles.
+          </p>
+          <Button size="sm" onClick={seedDefaultJobs}>
+            Seed Default Jobs
+          </Button>
+        </div>
       ) : (
         <div className="space-y-2">
           {jobs.map((j) => (
