@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { generateResume, extractResumeFields } from "@/lib/resume.functions";
 import { ResumeFileUpload } from "@/components/ResumeFileUpload";
 
