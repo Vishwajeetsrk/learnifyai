@@ -133,11 +133,42 @@ Go to **Email Routing** -> **Routing Rules** -> Click **Create address**:
 ---
 
 ### 📩 How to Reply as `support@learnifyai.in` from Gmail (100% Free):
-1. Open Gmail -> Settings (Gear Icon) -> **See all settings** -> **Accounts and Import**.
-2. Under **Send mail as**, click **Add another email address**.
-3. Enter Name: `Learnify AI Support` & Email: `support@learnifyai.in`.
-4. SMTP Server: `smtp.gmail.com`, Port: `587`.
-5. Username: `vishwajeetsrk@gmail.com`, Password: Use a free **Google App Password**.
+
+#### STEP 1: Generate a Google App Password
+1. Enable **2-Step Verification** on your Google Account:
+   - Open [Google Security Settings](https://myaccount.google.com/security).
+   - Ensure **2-Step Verification** is turned **ON**.
+2. Create an App Password:
+   - Open [Google App Passwords](https://myaccount.google.com/apppasswords).
+   - Type `Learnify Support Email` under App Name and click **Create**.
+   - Copy the 16-character generated password (e.g. `axek lfjb twih xaqr`).
+
+#### STEP 2: Open Gmail Settings
+1. Open [Gmail](https://mail.google.com/).
+2. Click the **Gear Icon ⚙️** (top right) -> Select **See all settings**.
+3. Click the **Accounts and Import** tab at the top.
+4. Scroll down to **Send mail as:** -> Click **Add another email address**.
+
+#### STEP 3: Enter Email & SMTP Details
+In the pop-up window:
+- **Window 1 (Email Details)**:
+  - **Name**: `Learnify AI Support` *(or `Learnify AI`)*
+  - **Email Address**: `support@learnifyai.in`
+  - Keep **"Treat as an alias"** checked ✅ -> Click **Next Step >>**.
+- **Window 2 (Server Credentials)**:
+  - **SMTP Server**: `smtp.gmail.com`
+  - **Port**: `587`
+  - **Username**: `vishwajeetsrk@gmail.com`
+  - **Password**: Paste the 16-character App Password generated in Step 1.
+  - Select **Secured connection using TLS (recommended)** -> Click **Add Account**.
+
+#### STEP 4: Confirm Verification Link
+1. Check your Gmail Inbox (`vishwajeetsrk@gmail.com`) for the email titled: `"Gmail Confirmation - Send Mail as support@learnifyai.in"`.
+2. Click the confirmation link inside the email.
+3. You will see: **"Confirmation Success! The Gmail user may now send mail as support@learnifyai.in."** 🎉
+
+#### 🌟 How to Use It:
+Whenever composing or replying to emails in Gmail, click the **From:** dropdown line and select **`support@learnifyai.in`**! Recipients will see your official business domain email with zero costs.
 
 ---
 
