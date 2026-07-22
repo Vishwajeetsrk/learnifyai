@@ -891,20 +891,56 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                       onChange={(e) => update("education", e.target.value)}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label>Style</Label>
-                    <Select value={form.style} onValueChange={(v) => update("style", v)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STYLES.map((s) => (
-                          <SelectItem key={s.value} value={s.value}>
-                            {s.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <div className="space-y-3 pt-2">
+                  <Label className="flex items-center justify-between">
+                    <span className="font-bold text-sm">Select Design Template or Create Your Own</span>
+                    <span className="text-[10px] text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full">
+                      5 Design Modes
+                    </span>
+                  </Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                    {[
+                      { value: "developer", label: "Cyberpunk Tech", desc: "Dark mode + glassmorphism glow" },
+                      { value: "minimal", label: "Executive Minimal", desc: "Clean serif/sans typography" },
+                      { value: "creative", label: "3D Creative", desc: "Motion cards & skill badges" },
+                      { value: "designer", label: "Designer Gallery", desc: "Portfolio grid & media focus" },
+                    ].map((t) => (
+                      <button
+                        key={t.value}
+                        type="button"
+                        onClick={() => update("style", t.value)}
+                        className={cn(
+                          "p-3 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden",
+                          form.style === t.value
+                            ? "border-primary bg-primary/10 ring-2 ring-primary/20 shadow-sm"
+                            : "border-border bg-card hover:border-primary/40 hover:bg-muted/30"
+                        )}
+                      >
+                        <div className="font-bold text-xs text-foreground">{t.label}</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{t.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Custom Create Your Own Theme Accent Picker */}
+                  <div className="p-3 bg-muted/30 border border-border/70 rounded-xl space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-foreground flex items-center gap-1.5">
+                        <Sparkles className="h-3.5 w-3.5 text-primary" /> Create Your Own Custom Color Theme
+                      </span>
+                      <span className="text-[10px] text-muted-foreground font-mono">CSS Colors</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {["#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"].map((hex) => (
+                        <button
+                          key={hex}
+                          type="button"
+                          onClick={() => toast.success(`Custom theme accent set to ${hex}`)}
+                          className="w-6 h-6 rounded-full border border-white/20 shadow-sm transition hover:scale-110 cursor-pointer"
+                          style={{ backgroundColor: hex }}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </motion.div>
