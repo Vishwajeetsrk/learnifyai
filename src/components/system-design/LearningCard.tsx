@@ -72,7 +72,7 @@ export function LearningCard({ section, isOpen, onToggle }: LearningCardProps) {
                 <span className="font-bold text-amber-600 dark:text-amber-400">Context:</span> {section.story.context}
               </p>
               <p className="text-xs text-foreground/90">
-                <span className="font-bold text-amber-600 dark:text-amber-400">Takeaway:</span> {section.story.takeaway}
+                <span className="font-bold text-amber-600 dark:text-amber-400">Lesson:</span> {(section.story as any).takeaway || section.story.transition}
               </p>
             </div>
           )}
