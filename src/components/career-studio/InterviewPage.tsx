@@ -443,9 +443,24 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
                 style={{ width: `${((questionIndex + 1) / totalQuestions) * 100}%` }}
               />
             </div>
-            <span className="text-sm text-muted-foreground font-medium">
+            <span className="text-xs sm:text-sm text-muted-foreground font-bold shrink-0">
               {questionIndex + 1} / {totalQuestions}
             </span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 text-xs font-bold gap-1 text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20 shrink-0 cursor-pointer"
+              onClick={() => {
+                if (confirm("Are you sure you want to exit this interview session? Your progress will be reset.")) {
+                  stopVoiceRecognition();
+                  handleRestart();
+                  toast.success("Interview session cancelled");
+                }
+              }}
+            >
+              <XCircle className="h-3.5 w-3.5" />
+              <span>Exit / Cancel</span>
+            </Button>
           </div>
 
           {loading ? (
