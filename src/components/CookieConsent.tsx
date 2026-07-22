@@ -23,6 +23,14 @@ export function CookieConsent() {
   const accept = () => {
     try {
       localStorage.setItem(COOKIE_CONSENT_KEY, "accepted");
+      if (typeof window !== "undefined" && typeof (window as any).gtag === "function") {
+        (window as any).gtag("consent", "update", {
+          ad_storage: "granted",
+          ad_user_data: "granted",
+          ad_personalization: "granted",
+          analytics_storage: "granted",
+        });
+      }
     } catch {
       // ignore
     }
@@ -32,6 +40,14 @@ export function CookieConsent() {
   const reject = () => {
     try {
       localStorage.setItem(COOKIE_CONSENT_KEY, "rejected");
+      if (typeof window !== "undefined" && typeof (window as any).gtag === "function") {
+        (window as any).gtag("consent", "update", {
+          ad_storage: "denied",
+          ad_user_data: "denied",
+          ad_personalization: "denied",
+          analytics_storage: "denied",
+        });
+      }
     } catch {
       // ignore
     }

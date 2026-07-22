@@ -236,7 +236,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         async: true,
       },
       {
-        children: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-8GJS0MXEMJ');`,
+        children: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}var consentChoice=localStorage.getItem('learnify_cookie_consent');var isGranted=consentChoice==='accepted';gtag('consent','default',{'ad_storage':isGranted?'granted':'denied','ad_user_data':isGranted?'granted':'denied','ad_personalization':isGranted?'granted':'denied','analytics_storage':isGranted?'granted':'denied'});gtag('js',new Date());gtag('config','G-8GJS0MXEMJ');`,
       },
       {
         children: `(function(){try{var m=localStorage.getItem('ui.mode')||'system';var c=localStorage.getItem('ui.color')||'indigo';var d=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;if(d)r.classList.add('dark');if(c&&c!=='indigo')r.setAttribute('data-theme',c);r.classList.add('no-theme-transition');setTimeout(function(){r.classList.remove('no-theme-transition')},0);}catch(e){}})();`,
