@@ -980,6 +980,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.
 - ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Free plan at ₹0 (Acquisition), Pro at ₹199/mo (casual learners), Career Pro at ₹499/mo (job-seekers), Enterprise (Custom) replaces old Team plan.
 
+### v1.3.5 (July 2026)
+
+- ✉️ **100% FREE BUSINESS EMAIL ROUTING**: Activated Cloudflare Email Routing for official domain addresses (`support@learnifyai.in`, `hello@learnifyai.in`, `admin@learnifyai.in`, `careers@learnifyai.in`) with zero-cost forwarding to personal Gmail and updated website default email addresses across the codebase.
+- ⚡ **VERCEL ANALYTICS & SPEED INSIGHTS INTEGRATION**: Integrated `@vercel/speed-insights` & `@vercel/analytics` directly into `__root.tsx` for real-time Core Web Vitals performance tracking and user traffic diagnostics.
+
 ### v1.3.4 (July 2026)
 
 - 💳 **CASHFREE DOMAIN WHITELISTING & ERROR GUIDANCE**: Parsed Cashfree payment domain approval errors into clear actionable notifications and added step-by-step Cashfree Merchant Dashboard Whitelisting guide to `MASTER_SETUP_AND_SEO_GUIDE.md`.
