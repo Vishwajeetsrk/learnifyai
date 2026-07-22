@@ -344,6 +344,8 @@ import { InteractiveCursor } from "../components/ui/InteractiveCursor";
 import { CookieConsent } from "../components/CookieConsent";
 import { TourProvider, TourTrigger } from "../components/ProductTour";
 import { HelmetProvider } from "react-helmet-async";
+import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -367,6 +369,8 @@ function RootComponent() {
                     <TourTrigger />
                     <Toaster richColors position="top-right" />
                     <CookieConsent />
+                    <SpeedInsights />
+                    <Analytics />
                   </TourProvider>
                 </FeatureProvider>
               </AuthProvider>
