@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, Play, Layout, Code2, BookOpen, Volume2, Lock, X, VideoOff } from "lucide-react";
+import { ArrowLeft, Play, Layout, Code2, BookOpen, Volume2, Lock, X, Sparkles } from "lucide-react";
 import projectsData from "@/data/projects.json";
 import { extractYouTubeVideoId } from "@/lib/course-player";
 
@@ -186,11 +186,11 @@ function CourseDetailPage() {
                           </>
                         ) : (
                           <>
-                            <div className="h-16 w-16 bg-muted/80 text-muted-foreground rounded-full flex items-center justify-center">
-                              <VideoOff className="h-6 w-6" />
+                            <div className="h-16 w-16 bg-primary/90 text-primary-foreground rounded-full flex items-center justify-center group-hover:scale-110 transition-all shadow-glow">
+                              <Sparkles className="h-6 w-6 text-primary-foreground" />
                             </div>
-                            <span className="text-sm font-medium text-white/70 drop-shadow-md">
-                              No teaser video available
+                            <span className="text-sm font-semibold text-white/95 drop-shadow-md">
+                              Interactive Project Preview
                             </span>
                           </>
                         )}
