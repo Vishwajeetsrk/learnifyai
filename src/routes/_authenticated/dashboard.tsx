@@ -195,9 +195,9 @@ function DashboardPage() {
 
   const greetingText = (() => {
     const hr = new Date().getHours();
-    if (hr >= 5 && hr < 12) return "Good morning, " + name + "! 🌅";
-    if (hr >= 12 && hr < 17) return "Good afternoon, " + name + "! ☀️";
-    return "Good evening, " + name + "! 🌌";
+    if (hr >= 5 && hr < 12) return "Good morning, " + name + "!";
+    if (hr >= 12 && hr < 17) return "Good afternoon, " + name + "!";
+    return "Good evening, " + name + "!";
   })();
 
   return (
@@ -295,18 +295,21 @@ function DashboardPage() {
                         {/* Onboarding Summary Badges */}
                         <div className="flex flex-wrap gap-2 pt-1">
                           {aiProfile.goals?.[0] && (
-                            <div className="px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 shadow-sm">
-                              🎯 Goal: {aiProfile.goals[0]}
+                            <div className="px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-500/25 border border-indigo-400/40 text-indigo-200 shadow-sm flex items-center gap-1.5">
+                              <Target className="h-3.5 w-3.5 text-indigo-400" />
+                              <span>Goal: {aiProfile.goals[0]}</span>
                             </div>
                           )}
                           {aiProfile.experience && (
-                            <div className="px-3 py-1.5 rounded-full text-xs font-semibold bg-violet-500/25 border border-violet-400/40 text-violet-200 capitalize shadow-sm">
-                              📊 {aiProfile.experience}
+                            <div className="px-3 py-1.5 rounded-full text-xs font-semibold bg-violet-500/25 border border-violet-400/40 text-violet-200 capitalize shadow-sm flex items-center gap-1.5">
+                              <BarChart3 className="h-3.5 w-3.5 text-violet-400" />
+                              <span>{aiProfile.experience}</span>
                             </div>
                           )}
                           {aiProfile.learning_style && (
-                            <div className="px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-500/25 border border-purple-400/40 text-purple-200 capitalize shadow-sm">
-                              🧠 {aiProfile.learning_style} Style
+                            <div className="px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-500/25 border border-purple-400/40 text-purple-200 capitalize shadow-sm flex items-center gap-1.5">
+                              <Brain className="h-3.5 w-3.5 text-purple-400" />
+                              <span>{aiProfile.learning_style} Style</span>
                             </div>
                           )}
                         </div>

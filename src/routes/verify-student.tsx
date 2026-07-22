@@ -143,7 +143,8 @@ function VerifyStudentPage() {
               <GraduationCap className="h-8 w-8 text-violet-600 dark:text-violet-400" />
             </div>
             <div className="inline-flex items-center gap-1.5 bg-violet-500/10 text-violet-600 dark:text-violet-400 px-3 py-1 rounded-full text-xs font-bold border border-violet-500/30 mx-auto mb-2">
-              <span>🎓 20% Student Discount</span>
+              <GraduationCap className="h-3.5 w-3.5" />
+              <span>20% Student Discount</span>
             </div>
             <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">Student Verification</CardTitle>
             <CardDescription className="text-xs sm:text-sm font-medium text-muted-foreground mt-1">

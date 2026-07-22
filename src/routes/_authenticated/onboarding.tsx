@@ -393,7 +393,9 @@ function OnboardingPage() {
             {aiSubStep === 0 && (
               <div className="space-y-6 text-center animate-in fade-in-0 slide-in-from-right-4">
                 <div>
-                  <div className="text-5xl mb-4">🎯</div>
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4 text-primary">
+                    <Target className="h-8 w-8" />
+                  </div>
                   <h2 className="text-2xl sm:text-3xl font-bold font-display mb-2">What's your main goal?</h2>
                   <p className="text-muted-foreground text-sm">Pick one — you can always change this later.</p>
                 </div>
@@ -402,7 +404,7 @@ function OnboardingPage() {
                     <button
                       key={g}
                       className={cn(
-                        "p-4 rounded-2xl border-2 text-sm font-medium text-left transition-all duration-200 hover:scale-105 hover:shadow-md",
+                        "p-4 rounded-2xl border-2 text-sm font-medium text-left transition-all duration-200 hover:scale-105 hover:shadow-md cursor-pointer",
                         (aiProfile.goals ?? []).includes(g)
                           ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
                           : "border-border bg-card hover:border-primary/40"
@@ -429,7 +431,9 @@ function OnboardingPage() {
             {aiSubStep === 1 && (
               <div className="space-y-6 text-center animate-in fade-in-0 slide-in-from-right-4">
                 <div>
-                  <div className="text-5xl mb-4">📊</div>
+                  <div className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mx-auto mb-4 text-violet-500">
+                    <BarChart3 className="h-8 w-8" />
+                  </div>
                   <h2 className="text-2xl sm:text-3xl font-bold font-display mb-2">What's your experience level?</h2>
                   <p className="text-muted-foreground text-sm">Be honest — we'll tailor content just for you.</p>
                 </div>
@@ -438,7 +442,7 @@ function OnboardingPage() {
                     <button
                       key={lvl.value}
                       className={cn(
-                        "p-5 rounded-2xl border-2 text-left transition-all duration-200 hover:scale-105 hover:shadow-md",
+                        "p-5 rounded-2xl border-2 text-left transition-all duration-200 hover:scale-105 hover:shadow-md cursor-pointer",
                         aiProfile.experience === lvl.value
                           ? "border-primary bg-primary/10 ring-2 ring-primary/20"
                           : "border-border bg-card hover:border-primary/40"
@@ -464,7 +468,9 @@ function OnboardingPage() {
             {aiSubStep === 2 && (
               <div className="space-y-6 animate-in fade-in-0 slide-in-from-right-4">
                 <div className="text-center">
-                  <div className="text-5xl mb-4">💡</div>
+                  <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-4 text-amber-500">
+                    <Lightbulb className="h-8 w-8" />
+                  </div>
                   <h2 className="text-2xl sm:text-3xl font-bold font-display mb-2">What topics interest you?</h2>
                   <p className="text-muted-foreground text-sm">Pick up to 4 — we'll recommend courses and tools for these.</p>
                 </div>
@@ -477,7 +483,7 @@ function OnboardingPage() {
                         key={interest}
                         disabled={maxReached && !selected}
                         className={cn(
-                          "px-4 py-2 rounded-full border-2 text-sm font-medium transition-all duration-200",
+                          "px-4 py-2 rounded-full border-2 text-sm font-medium transition-all duration-200 cursor-pointer",
                           selected
                             ? "border-primary bg-primary text-primary-foreground scale-105"
                             : maxReached
@@ -522,45 +528,52 @@ function OnboardingPage() {
             {aiSubStep === 3 && (
               <div className="space-y-6 text-center animate-in fade-in-0 slide-in-from-right-4">
                 <div>
-                  <div className="text-5xl mb-4">🧠</div>
+                  <div className="w-16 h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 text-purple-500">
+                    <Brain className="h-8 w-8" />
+                  </div>
                   <h2 className="text-2xl sm:text-3xl font-bold font-display mb-2">How do you learn best?</h2>
                   <p className="text-muted-foreground text-sm">We'll prioritize this format in your recommendations.</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
                   {[
-                    { value: "visual", label: "Visual", desc: "Videos & diagrams", emoji: "👁️" },
-                    { value: "hands-on", label: "Hands-on", desc: "Learn by doing", emoji: "🛠️" },
-                    { value: "reading", label: "Reading", desc: "Articles & docs", emoji: "📖" },
-                    { value: "mixed", label: "Mixed", desc: "A bit of everything", emoji: "🎯" },
-                  ].map((s) => (
-                    <button
-                      key={s.value}
-                      className={cn(
-                        "p-5 rounded-2xl border-2 text-center transition-all duration-200 hover:scale-105 hover:shadow-md",
-                        aiProfile.learning_style === s.value
-                          ? "border-primary bg-primary/10 ring-2 ring-primary/20"
-                          : "border-border bg-card hover:border-primary/40"
-                      )}
-                      onClick={async () => {
-                        const updated = { ...aiProfile, learning_style: s.value };
-                        setAiProfile(updated);
-                        if (updated.goals.length === 0) { toast.error("Select a goal first"); setAiSubStep(0); return; }
-                        if (!updated.experience) { toast.error("Select experience level"); setAiSubStep(1); return; }
-                        if (updated.interests.length === 0) { toast.error("Select interests"); setAiSubStep(2); return; }
-                        try {
-                          await saveProfileFn({ data: updated });
-                          toast.success("Profile saved! 🎉");
-                          await completeAndNext();
-                        } catch {
-                          toast.error("Save failed — please try again");
-                        }
-                      }}
-                    >
-                      <div className="text-3xl mb-2">{s.emoji}</div>
-                      <div className="font-semibold text-sm">{s.label}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">{s.desc}</div>
-                    </button>
-                  ))}
+                    { value: "visual", label: "Visual", desc: "Videos & diagrams", icon: Eye },
+                    { value: "hands-on", label: "Hands-on", desc: "Learn by doing", icon: Wrench },
+                    { value: "reading", label: "Reading", desc: "Articles & docs", icon: BookOpen },
+                    { value: "mixed", label: "Mixed", desc: "A bit of everything", icon: Sparkles },
+                  ].map((s) => {
+                    const Icon = s.icon;
+                    return (
+                      <button
+                        key={s.value}
+                        className={cn(
+                          "p-5 rounded-2xl border-2 text-center transition-all duration-200 hover:scale-105 hover:shadow-md cursor-pointer flex flex-col items-center justify-center",
+                          aiProfile.learning_style === s.value
+                            ? "border-primary bg-primary/10 ring-2 ring-primary/20"
+                            : "border-border bg-card hover:border-primary/40"
+                        )}
+                        onClick={async () => {
+                          const updated = { ...aiProfile, learning_style: s.value };
+                          setAiProfile(updated);
+                          if (updated.goals.length === 0) { toast.error("Select a goal first"); setAiSubStep(0); return; }
+                          if (!updated.experience) { toast.error("Select experience level"); setAiSubStep(1); return; }
+                          if (updated.interests.length === 0) { toast.error("Select interests"); setAiSubStep(2); return; }
+                          try {
+                            await saveProfileFn({ data: updated });
+                            toast.success("Profile saved!");
+                            await completeAndNext();
+                          } catch {
+                            toast.error("Save failed — please try again");
+                          }
+                        }}
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary mb-2">
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="font-semibold text-sm">{s.label}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{s.desc}</div>
+                      </button>
+                    );
+                  })}
                 </div>
                 <Button variant="ghost" size="sm" onClick={() => setAiSubStep(2)}>
                   <ArrowLeft className="mr-1 h-3 w-3" /> Back
