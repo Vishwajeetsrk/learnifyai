@@ -89,32 +89,55 @@ Direct Dashboard Link: [Vercel Project Settings](https://vercel.com/dashboard)
 
 ---
 
-## 4. Professional Business Email (`@learnifyai.in`)
+## 4. Professional Business Email (`@learnifyai.in`) — 100% Free Forever
 
-Create professional addresses:
+The best, 100% free solution for custom domain email is **Cloudflare Email Routing**. It has **zero cost, zero expiration, and no credit card required**.
+
+Incoming emails to your custom addresses:
 - `support@learnifyai.in`
 - `hello@learnifyai.in`
 - `admin@learnifyai.in`
 - `careers@learnifyai.in`
 
-### Option A: Free Forever Setup via Zoho Mail (Recommended)
-Direct Link: [Zoho Mail Forever Free Signup](https://www.zoho.com/mail/zohomail-pricing.html)
+will automatically forward straight to your personal Gmail inbox (`vishwajeetsrk@gmail.com`).
 
-1. Register at [Zoho Mail Forever Free Plan](https://www.zoho.com/mail/zohomail-pricing.html) (Free for up to 5 users, 5GB/user).
-2. Enter your domain: `learnifyai.in`.
-3. Add the required MX & TXT verification records in Cloudflare DNS:
+---
 
-| Record Type | Name | Value / Destination | Priority |
-| :--- | :--- | :--- | :--- |
-| **MX** | `@` | `mx.zoho.in` | `10` |
-| **MX** | `@` | `mx2.zoho.in` | `20` |
-| **MX** | `@` | `mx3.zoho.in` | `50` |
-| **TXT (SPF)** | `@` | `v=spf1 include:zoho.in ~all` | Auto |
-| **TXT (DKIM)** | `zoho._domainkey` | *(Copy unique key generated inside Zoho Admin)* | Auto |
+### 🚀 100% Free Setup via Cloudflare Email Routing
 
-### Option B: Google Workspace (Paid ₹136/user/month)
-Direct Link: [Google Workspace Signup](https://workspace.google.com/)
-- Register at [Google Workspace](https://workspace.google.com/) to link Gmail directly to `support@learnifyai.in`.
+Direct Link: [Cloudflare Email Routing Dashboard](https://dash.cloudflare.com/?to=/:account/:zone/email/routing/routes)
+
+#### Step 1: Enable Email Routing in Cloudflare
+1. Log into [Cloudflare Dashboard](https://dash.cloudflare.com/) -> Select `learnifyai.in`.
+2. In the left navigation, click **Email** -> **Email Routing**.
+3. Click **Get Started** -> Click **Enable Email Routing**.
+
+#### Step 2: Add DNS Records Automatically
+1. Cloudflare will prompt you to add 4 DNS records (MX & SPF records).
+2. Click **Add records automatically** (Cloudflare adds `isaac.mx.cloudflare.net`, `linda.mx.cloudflare.net`, `amir.mx.cloudflare.net`, and SPF `v=spf1 include:_spf.cloudflare.com ~all`).
+
+#### Step 3: Create Custom Email Routing Aliases
+Go to **Email Routing** -> **Routing Rules** -> Click **Create address**:
+
+| Custom Address | Action | Destination Address |
+| :--- | :--- | :--- |
+| `support` `@learnifyai.in` | Send to | `vishwajeetsrk@gmail.com` |
+| `hello` `@learnifyai.in` | Send to | `vishwajeetsrk@gmail.com` |
+| `admin` `@learnifyai.in` | Send to | `vishwajeetsrk@gmail.com` |
+| `careers` `@learnifyai.in` | Send to | `vishwajeetsrk@gmail.com` |
+
+#### Step 4: Verify Destination Email
+1. Check your Gmail inbox (`vishwajeetsrk@gmail.com`) for a verification email from Cloudflare.
+2. Click **Verify Email Address**.
+
+---
+
+### 📩 How to Reply as `support@learnifyai.in` from Gmail (100% Free):
+1. Open Gmail -> Settings (Gear Icon) -> **See all settings** -> **Accounts and Import**.
+2. Under **Send mail as**, click **Add another email address**.
+3. Enter Name: `Learnify AI Support` & Email: `support@learnifyai.in`.
+4. SMTP Server: `smtp.gmail.com`, Port: `587`.
+5. Username: `vishwajeetsrk@gmail.com`, Password: Use a free **Google App Password**.
 
 ---
 
