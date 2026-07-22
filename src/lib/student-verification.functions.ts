@@ -135,3 +135,65 @@ export const getStudentVerificationStatus = createServerFn({ method: "GET" })
       email: data?.student_email ?? null,
     };
   });
+
+export const adminListStudents = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Verify admin role
+    const { data: userRole } = await (supabaseAdmin as any)
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .in("role", ["admin", "super_admin"])
+      .maybeSingle();
+
+    if (!userRole) throw new Error("Unauthorized: Admin access required");
+
+    const { data, error } = await (supabaseAdmin as any)
+      .from("profiles")
+      .select("id, full_name, email, student_email, student_verified, updated_at, created_at")
+      .not("student_email", "is", null)
+      .order("updated_at", { ascending: false });
+
+    if (error) throw error;
+    return data ?? [];
+  });
+
+export const adminToggleStudentVerification = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) =>
+    z
+      .object({
+        userId: z.string().uuid(),
+        verified: z.boolean(),
+        studentEmail: z.string().optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: userRole } = await (supabaseAdmin as any)
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .in("role", ["admin", "super_admin"])
+      .maybeSingle();
+
+    if (!userRole) throw new Error("Unauthorized: Admin access required");
+
+    const updates: any = { student_verified: data.verified };
+    if (data.studentEmail !== undefined) {
+      updates.student_email = data.studentEmail;
+    }
+
+    const { error } = await (supabaseAdmin as any)
+      .from("profiles")
+      .update(updates)
+      .eq("id", data.userId);
+
+    if (error) throw error;
+    return { success: true };
+  });

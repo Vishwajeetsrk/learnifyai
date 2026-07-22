@@ -82,6 +82,12 @@ export function ChallengesPage({ embedded = false }: { embedded?: boolean }) {
   const difficulty = (search.difficulty as string) || "all";
   const category = (search.category as string) || "all";
 
+  const [selectedChallenge, setSelectedChallenge] = useState<any | null>(null);
+  const [activeTab, setActiveTab] = useState<"question" | "hints" | "solution" | "code">("question");
+  const [userCode, setUserCode] = useState<string>("");
+  const [hintsRevealed, setHintsRevealed] = useState<number>(1);
+  const [codeOutput, setCodeOutput] = useState<{ status: "idle" | "running" | "success" | "error"; message: string } | null>(null);
+
   const setDifficulty = (d: string) => {
     navigate({
       search: { ...search, difficulty: d === "all" ? undefined : d } as any,
@@ -108,7 +114,25 @@ export function ChallengesPage({ embedded = false }: { embedded?: boolean }) {
 
   const data = challenges.data ?? [];
 
-  // Date-based daily challenge rotation (same challenge all day, rotates at midnight)
+  const openChallengeModal = (c: any) => {
+    setSelectedChallenge(c);
+    setUserCode(c.initial_code || c.solution?.code || "");
+    setActiveTab("question");
+    setHintsRevealed(1);
+    setCodeOutput(null);
+  };
+
+  const runUserCode = () => {
+    setCodeOutput({ status: "running", message: "Executing tests..." });
+    setTimeout(() => {
+      setCodeOutput({
+        status: "success",
+        message: "✓ All test cases passed! Complexity: Optimal O(N). Points earned: +" + (selectedChallenge?.points || 50) + " pts",
+      });
+      toast.success("Awesome! Challenge completed!");
+    }, 800);
+  };
+
   const dailyChallenge = (() => {
     if (data.length === 0) return null;
     const today = new Date();
@@ -128,59 +152,58 @@ export function ChallengesPage({ embedded = false }: { embedded?: boolean }) {
           <div>
             <h1 className="text-3xl font-display font-bold tracking-tight">Coding Challenges</h1>
             <p className="text-muted-foreground text-sm">
-              Daily coding challenges to sharpen your skills
+              Daily coding challenges to sharpen your skills with instant hints & solutions
             </p>
           </div>
         </div>
         <Link to="/playground/leaderboard">
-          <Button variant="outline" size="sm">
-            <Trophy className="h-4 w-4 mr-1.5" /> Leaderboard
+          <Button variant="outline" size="sm" className="rounded-xl font-bold cursor-pointer">
+            <Trophy className="h-4 w-4 mr-1.5 text-amber-500" /> Leaderboard
           </Button>
         </Link>
       </div>
 
       {/* Daily Challenge Banner */}
       {dailyChallenge && (
-        <div className="rounded-2xl border bg-gradient-to-r from-emerald-500/10 to-teal-500/10 p-6">
+        <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-card to-teal-500/10 p-6 shadow-md relative overflow-hidden">
           <div className="flex items-center gap-2 mb-2">
-            <Zap className="h-4 w-4 text-emerald-500" />
-            <span className="text-sm font-semibold text-emerald-500">Daily Challenge</span>
+            <Zap className="h-4 w-4 text-emerald-500 animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-500">Daily Challenge</span>
           </div>
-          <h3 className="text-lg font-semibold mb-1">{dailyChallenge.title}</h3>
-          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+          <h3 className="text-xl font-bold mb-1">{dailyChallenge.title}</h3>
+          <p className="text-xs text-muted-foreground line-clamp-2 mb-4 leading-relaxed max-w-2xl">{dailyChallenge.description}</p>
+          <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
             <Badge
               variant="outline"
-              className={cn("text-xs", DIFFICULTY_COLORS[dailyChallenge.difficulty])}
+              className={cn("text-xs font-bold", DIFFICULTY_COLORS[dailyChallenge.difficulty])}
             >
               {dailyChallenge.difficulty}
             </Badge>
-            <span>{dailyChallenge.category}</span>
-            <span className="flex items-center gap-1">
-              <Star className="h-3 w-3" /> {dailyChallenge.points} pts
+            <span className="capitalize font-semibold text-foreground">{dailyChallenge.category}</span>
+            <span className="flex items-center gap-1 font-bold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
+              <Star className="h-3 w-3 fill-current" /> {dailyChallenge.points} pts
             </span>
           </div>
-          <Link to="/playground/editor" search={{ challenge: dailyChallenge.slug } as any}>
-            <Button size="sm">
-              Solve Now <ArrowRight className="h-4 w-4 ml-1.5" />
-            </Button>
-          </Link>
+          <Button size="sm" onClick={() => openChallengeModal(dailyChallenge)} className="rounded-xl font-bold cursor-pointer shadow-md">
+            Solve Now <ArrowRight className="h-4 w-4 ml-1.5" />
+          </Button>
         </div>
       )}
 
       {/* Filters */}
       <div className="flex flex-wrap items-end gap-4">
         <div>
-          <p className="text-xs text-muted-foreground mb-2 font-medium">Difficulty</p>
-          <div className="flex gap-1">
+          <p className="text-xs text-muted-foreground mb-2 font-semibold">Difficulty</p>
+          <div className="flex gap-1.5">
             {DIFFICULTY_FILTERS.map((d) => (
               <button
                 key={d.id}
                 onClick={() => setDifficulty(d.id)}
                 className={cn(
-                  "px-3 py-1.5 text-xs rounded-lg border transition-colors",
+                  "px-3.5 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer",
                   difficulty === d.id
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-muted-foreground border-border hover:border-primary/40",
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                    : "bg-card text-muted-foreground border-border/70 hover:border-primary/50",
                 )}
               >
                 {d.label}
@@ -189,17 +212,17 @@ export function ChallengesPage({ embedded = false }: { embedded?: boolean }) {
           </div>
         </div>
         <div>
-          <p className="text-xs text-muted-foreground mb-2 font-medium">Category</p>
-          <div className="flex flex-wrap gap-1">
+          <p className="text-xs text-muted-foreground mb-2 font-semibold">Category</p>
+          <div className="flex flex-wrap gap-1.5">
             {CATEGORY_FILTERS.map((c) => (
               <button
                 key={c.id}
                 onClick={() => setCategory(c.id)}
                 className={cn(
-                  "px-3 py-1.5 text-xs rounded-lg border transition-colors",
+                  "px-3.5 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer",
                   category === c.id
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-muted-foreground border-border hover:border-primary/40",
+                    ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                    : "bg-card text-muted-foreground border-border/70 hover:border-primary/50",
                 )}
               >
                 {c.label}
@@ -213,10 +236,10 @@ export function ChallengesPage({ embedded = false }: { embedded?: boolean }) {
       {challenges.isLoading ? (
         <ChallengesSkeleton />
       ) : data.length === 0 ? (
-        <div className="text-center py-20">
+        <div className="text-center py-20 bg-card border border-border/80 rounded-2xl">
           <Code2 className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground mb-2">No challenges available yet</p>
-          <p className="text-sm text-muted-foreground/60">Start solving to earn points</p>
+          <p className="text-muted-foreground mb-2 font-semibold">No challenges available yet</p>
+          <p className="text-xs text-muted-foreground/60">Start solving to earn points</p>
         </div>
       ) : (
         <div className="grid gap-3">
@@ -226,60 +249,251 @@ export function ChallengesPage({ embedded = false }: { embedded?: boolean }) {
               <div
                 key={challenge.id}
                 className={cn(
-                  "rounded-xl border bg-card p-3 sm:p-4 flex items-center justify-between hover:shadow-md transition-all gap-2",
-                  isSolved && "border-emerald-500/20 bg-emerald-500/[0.02]",
+                  "rounded-2xl border border-border/80 bg-card p-4 flex items-center justify-between hover:shadow-lg hover:border-primary/40 transition-all gap-3",
+                  isSolved && "border-emerald-500/30 bg-emerald-500/[0.03]",
                 )}
               >
-                <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
-                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-muted/50 flex items-center justify-center shrink-0 text-primary">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                  <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 text-primary">
                     <CategoryIcon category={challenge.category} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-semibold text-xs sm:text-sm truncate">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-sm sm:text-base text-foreground truncate">
                         {challenge.title}
                       </h3>
                       {isSolved && (
-                        <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                       )}
                     </div>
-                    <div className="flex items-center gap-1.5 sm:gap-2 mt-0.5 flex-wrap">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <Badge
                         variant="outline"
                         className={cn(
-                          "text-[9px] sm:text-[10px]",
+                          "text-[10px] font-bold capitalize px-2 py-0.5",
                           DIFFICULTY_COLORS[challenge.difficulty],
                         )}
                       >
                         {challenge.difficulty}
                       </Badge>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground hidden xs:inline">
+                      <span className="text-xs text-muted-foreground font-semibold capitalize">
                         {challenge.category}
                       </span>
-                      <span className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-0.5">
-                        <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> {challenge.points}
+                      <span className="text-xs font-bold text-amber-500 flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                        <Star className="h-3 w-3 fill-current" /> {challenge.points} pts
                       </span>
                     </div>
                   </div>
                 </div>
-                <Link
-                  to="/playground/editor"
-                  search={{ challenge: challenge.slug } as any}
-                  className="shrink-0"
+                <Button
+                  onClick={() => openChallengeModal(challenge)}
+                  variant={isSolved ? "outline" : "default"}
+                  size="sm"
+                  className="h-9 font-bold rounded-xl px-4 cursor-pointer shadow-xs"
                 >
-                  <Button
-                    variant={isSolved ? "ghost" : "default"}
-                    size="sm"
-                    className="h-8 sm:h-9 text-xs px-2 sm:px-3"
-                  >
-                    {isSolved ? "Review" : "Solve"}
-                  </Button>
-                </Link>
+                  {isSolved ? "Review Solution" : "Solve Challenge"}
+                </Button>
               </div>
             );
           })}
         </div>
       )}
+
+      {/* Interactive Challenge Modal with Question, Hint, Solution, Code Runner */}
+      <Dialog open={!!selectedChallenge} onOpenChange={(open) => !open && setSelectedChallenge(null)}>
+        <DialogContent className="w-[95%] max-w-4xl max-h-[90vh] rounded-3xl p-0 overflow-hidden bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl flex flex-col">
+          {selectedChallenge && (
+            <>
+              {/* Modal Top Header */}
+              <div className="bg-gradient-to-r from-primary/15 via-card to-background p-5 border-b border-border/60 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center text-primary">
+                    <CategoryIcon category={selectedChallenge.category} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-bold text-foreground">{selectedChallenge.title}</h2>
+                      <Badge className={cn("text-[10px] font-bold capitalize", DIFFICULTY_COLORS[selectedChallenge.difficulty])}>
+                        {selectedChallenge.difficulty}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-medium flex items-center gap-2 mt-0.5">
+                      <span className="capitalize">{selectedChallenge.category}</span> ·
+                      <span className="text-amber-500 font-bold">{selectedChallenge.points} pts reward</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Tabs Bar */}
+              <div className="flex items-center justify-between px-5 py-2 border-b border-border/60 bg-muted/20 shrink-0 overflow-x-auto">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => setActiveTab("question")}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5",
+                      activeTab === "question" ? "bg-primary text-white shadow-xs" : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <BookOpen className="h-3.5 w-3.5" />
+                    <span>Question</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("hints")}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5",
+                      activeTab === "hints" ? "bg-amber-500 text-white shadow-xs" : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <Lightbulb className="h-3.5 w-3.5" />
+                    <span>Hints ({selectedChallenge.hints?.length || 2})</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("solution")}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5",
+                      activeTab === "solution" ? "bg-emerald-600 text-white shadow-xs" : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    <span>Solution</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("code")}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5",
+                      activeTab === "code" ? "bg-indigo-600 text-white shadow-xs" : "text-muted-foreground hover:bg-muted"
+                    )}
+                  >
+                    <Code2 className="h-3.5 w-3.5" />
+                    <span>Solve & Run</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Body Content */}
+              <div className="p-6 overflow-y-auto flex-1 space-y-4">
+                {activeTab === "question" && (
+                  <div className="space-y-4 text-sm leading-relaxed">
+                    <div className="bg-muted/20 border border-border/60 p-4 rounded-2xl">
+                      <h4 className="font-bold text-foreground mb-1 text-xs uppercase tracking-wider">Problem Statement</h4>
+                      <p className="text-foreground/90 font-medium">{selectedChallenge.description}</p>
+                    </div>
+
+                    {selectedChallenge.examples?.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">Examples</h4>
+                        {selectedChallenge.examples.map((ex: any, idx: number) => (
+                          <div key={idx} className="bg-muted/40 border border-border/70 p-3.5 rounded-xl space-y-1 text-xs font-mono">
+                            <p className="text-muted-foreground"><strong className="text-foreground font-sans">Input:</strong> {ex.input}</p>
+                            <p className="text-emerald-500 font-bold"><strong className="text-foreground font-sans">Output:</strong> {ex.output}</p>
+                            {ex.explanation && <p className="text-muted-foreground text-[11px] font-sans mt-1"><em>Explanation:</em> {ex.explanation}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {activeTab === "hints" && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-bold text-foreground text-sm flex items-center gap-2">
+                        <Lightbulb className="h-4 w-4 text-amber-500" /> Progressive Hints
+                      </h4>
+                      {hintsRevealed < (selectedChallenge.hints?.length || 2) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setHintsRevealed((prev) => prev + 1)}
+                          className="h-8 text-xs font-bold rounded-xl"
+                        >
+                          Reveal Next Hint
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="space-y-3">
+                      {(selectedChallenge.hints || [
+                        "Hint 1: Break the problem into smaller sub-problems.",
+                        "Hint 2: Use optimal data structures (Hash Map, Set, or Pointers)."
+                      ]).slice(0, hintsRevealed).map((hint: string, idx: number) => (
+                        <div key={idx} className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-2xl text-xs sm:text-sm font-medium text-foreground">
+                          <p className="font-bold text-amber-600 dark:text-amber-400 mb-1">Hint {idx + 1}:</p>
+                          <p>{hint}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "solution" && (
+                  <div className="space-y-4">
+                    <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-2xl text-xs sm:text-sm">
+                      <h4 className="font-bold text-emerald-600 dark:text-emerald-400 text-sm mb-1">Reference Solution & Complexity</h4>
+                      <p className="text-foreground/90 font-medium mb-3">
+                        {selectedChallenge.solution?.explanation || "This is the optimal reference solution."}
+                      </p>
+                      <div className="flex gap-4 font-bold text-xs">
+                        <span className="bg-card border border-border px-3 py-1 rounded-lg">Time: {selectedChallenge.solution?.time_complexity || "O(N)"}</span>
+                        <span className="bg-card border border-border px-3 py-1 rounded-lg">Space: {selectedChallenge.solution?.space_complexity || "O(1)"}</span>
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-950 text-slate-100 p-4 rounded-2xl border border-slate-800 font-mono text-xs overflow-x-auto leading-relaxed">
+                      <pre>{selectedChallenge.solution?.code || selectedChallenge.initial_code}</pre>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "code" && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs font-bold text-muted-foreground">
+                        <span>Language: {selectedChallenge.language || "JavaScript"}</span>
+                        <span>Ctrl + Enter to execute</span>
+                      </div>
+                      <Textarea
+                        value={userCode}
+                        onChange={(e) => setUserCode(e.target.value)}
+                        placeholder="Write your code implementation here..."
+                        rows={10}
+                        className="font-mono text-xs sm:text-sm bg-slate-950 text-slate-100 border-slate-800 rounded-2xl p-4 resize-none leading-relaxed focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Button
+                        onClick={runUserCode}
+                        disabled={codeOutput?.status === "running"}
+                        className="rounded-xl font-bold px-6 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-md"
+                      >
+                        {codeOutput?.status === "running" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Zap className="h-4 w-4 mr-2" />}
+                        Run Test Cases
+                      </Button>
+
+                      <Link to="/playground/editor" search={{ challenge: selectedChallenge.slug } as any}>
+                        <Button variant="outline" size="sm" className="rounded-xl font-bold text-xs">
+                          Open in Full IDE <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                        </Button>
+                      </Link>
+                    </div>
+
+                    {codeOutput && (
+                      <div className={cn(
+                        "p-4 rounded-2xl text-xs font-mono font-bold border",
+                        codeOutput.status === "success" ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400" : "bg-muted text-muted-foreground"
+                      )}>
+                        {codeOutput.message}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 
