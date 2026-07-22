@@ -88,7 +88,7 @@ const FALLBACK_POSTS: Record<string, any> = {
       <ul>
         <li><strong>Transaction Fees:</strong> Cashfree offers competitive 1.9% rates for UPI and Credit/Debit cards vs Razorpay's 2.0%.</li>
         <li><strong>GST Invoicing:</strong> Cashfree provides native SAC 998431 tax breakdown (CGST 9% + SGST 9% or IGST 18%) on all payment receipts.</li>
-        <li><strong>Domain Whitelisting:</strong> Cashfree features streamlined domain verification for custom `.in` and `.com` domains.</li>
+        <li><strong>Domain Whitelisting:</strong> Cashfree features streamlined domain verification for custom '.in' and '.com' domains.</li>
         <li><strong>RBI e-Mandates:</strong> Both support recurring subscription mandates for monthly EdTech plans.</li>
       </ul>
     `,
