@@ -145,6 +145,6 @@ export const getAuditSummary = createServerFn({ method: "GET" })
       totalLogs: totalLogs ?? 0,
       todayCount: todayCount ?? 0,
       lastActivity: (recentActivity as any)?.created_at || null,
-      topActions: actionCounts ?? [],
+      topActions: topActions ?? [],
     };
   });
