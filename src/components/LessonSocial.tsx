@@ -102,47 +102,64 @@ export function LessonSocial({ lessonId }: { lessonId: string }) {
   };
 
   return (
-    <div className="border-t pt-4 mt-2 space-y-4">
-      <div className="flex items-center gap-3">
-        <Button
-          size="sm"
-          variant={likesQuery.data?.liked ? "default" : "outline"}
-          onClick={toggleLike}
-          aria-pressed={!!likesQuery.data?.liked}
-          aria-label={likesQuery.data?.liked ? "Unlike lesson" : "Like lesson"}
-          className="rounded-full"
-        >
-          <Heart className={cn("h-4 w-4", likesQuery.data?.liked && "fill-current")} />
-          {likesQuery.data?.count ?? 0}
-        </Button>
-        <span className="text-xs text-muted-foreground flex items-center gap-1">
-          <MessageSquare className="h-3.5 w-3.5" /> {commentsQuery.data?.length ?? 0} comments
-        </span>
+    <div className="border-t border-border/60 pt-5 mt-4 space-y-5">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button
+            size="sm"
+            variant={likesQuery.data?.liked ? "default" : "outline"}
+            onClick={toggleLike}
+            aria-pressed={!!likesQuery.data?.liked}
+            aria-label={likesQuery.data?.liked ? "Unlike lesson" : "Like lesson"}
+            className={cn(
+              "rounded-full gap-1.5 font-bold cursor-pointer transition-all shadow-xs",
+              likesQuery.data?.liked && "bg-rose-500 hover:bg-rose-600 text-white border-rose-500 shadow-md shadow-rose-500/20"
+            )}
+          >
+            <Heart className={cn("h-4 w-4 transition-transform active:scale-125", likesQuery.data?.liked && "fill-current")} />
+            <span>{likesQuery.data?.count ?? 0}</span>
+          </Button>
+          <span className="text-xs font-bold text-foreground flex items-center gap-1.5 bg-muted/30 px-3 py-1.5 rounded-full border border-border/40">
+            <MessageSquare className="h-3.5 w-3.5 text-primary" />
+            <span>{commentsQuery.data?.length ?? 0} comments</span>
+          </span>
+        </div>
       </div>
 
       {user && (
-        <div className="flex gap-2">
-          <Textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Add a public comment…"
-            rows={2}
-            maxLength={4000}
-            className="flex-1 resize-none"
-            aria-label="Write a comment"
-          />
-          <Button
-            onClick={postComment}
-            disabled={posting || !body.trim()}
-            size="sm"
-            className="self-end"
-          >
-            {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </Button>
+        <div className="flex items-start gap-3 bg-card border border-border/80 p-3.5 rounded-2xl shadow-xs">
+          <Avatar className="h-9 w-9 shrink-0 border border-primary/30">
+            <AvatarImage src={user.user_metadata?.avatar_url || ""} />
+            <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
+              {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 space-y-2">
+            <Textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Add a public comment…"
+              rows={2}
+              maxLength={4000}
+              className="resize-none text-xs sm:text-sm border-border/60 bg-muted/10 rounded-xl focus:ring-1 focus:ring-primary"
+              aria-label="Write a comment"
+            />
+            <div className="flex justify-end">
+              <Button
+                onClick={postComment}
+                disabled={posting || !body.trim()}
+                size="sm"
+                className="rounded-xl font-bold cursor-pointer px-4 gap-1.5 shadow-xs"
+              >
+                {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                <span>Comment</span>
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
-      <ul className="space-y-3">
+      <ul className="space-y-3.5">
         {(commentsQuery.data ?? []).map((c) => {
           const name = c.profile?.full_name ?? "User";
           const initials = name
@@ -152,34 +169,36 @@ export function LessonSocial({ lessonId }: { lessonId: string }) {
             .join("")
             .toUpperCase();
           return (
-            <li key={c.id} className="flex gap-3">
-              <Avatar className="h-8 w-8">
+            <li key={c.id} className="flex gap-3 bg-muted/20 border border-border/50 p-3 rounded-2xl">
+              <Avatar className="h-9 w-9 shrink-0 border border-border/80">
                 {c.profile?.avatar_url && <AvatarImage src={c.profile.avatar_url} alt="" />}
-                <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">{initials}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium truncate">{name}</span>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-xs sm:text-sm font-bold text-foreground truncate">{name}</span>
+                  <span className="text-[10px] text-muted-foreground font-medium">
                     {formatRelative(c.created_at)}
                   </span>
                   {user?.id === c.user_id && (
                     <button
                       onClick={() => deleteComment(c.id)}
-                      className="ml-auto text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1"
+                      className="ml-auto text-muted-foreground hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-1 cursor-pointer transition"
                       aria-label="Delete comment"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
-                <p className="text-sm whitespace-pre-wrap break-words">{c.body}</p>
+                <p className="text-xs sm:text-sm text-foreground/90 whitespace-pre-wrap break-words mt-1 leading-relaxed font-medium">{c.body}</p>
               </div>
             </li>
           );
         })}
         {commentsQuery.data && commentsQuery.data.length === 0 && (
-          <li className="text-xs text-muted-foreground">Be the first to comment.</li>
+          <li className="text-xs text-muted-foreground italic text-center py-6 border border-dashed border-border/60 rounded-2xl bg-muted/10 font-medium">
+            Be the first to comment on this lesson!
+          </li>
         )}
       </ul>
     </div>
