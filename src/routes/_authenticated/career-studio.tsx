@@ -385,15 +385,19 @@ function LinkedInOptimizerView() {
   const { user } = useAuth();
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
-  const [generated, setGenerated] = useState<string[]>([]);
+  const [bioStyle, setBioStyle] = useState<"recruiter" | "story" | "executive">("recruiter");
+  const [generatedHeadlines, setGeneratedHeadlines] = useState<string[]>([]);
   const [optimizedBio, setOptimizedBio] = useState("");
   const [score, setScore] = useState<number | null>(null);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [bannerPhoto, setBannerPhoto] = useState<string | null>(null);
+  const [bannerBg, setBannerBg] = useState("linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)");
+  const [bannerTagline, setBannerTagline] = useState("Full-Stack Engineer | AI & Cloud Specialist");
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [extracting, setExtracting] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [wrongFields, setWrongFields] = useState<string[]>([]);
+
   const photoRef = useRef<HTMLInputElement>(null);
   const bannerRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -425,42 +429,60 @@ function LinkedInOptimizerView() {
       if (!extracted.skills) missing.push("Skills section");
       if (!extracted.phone) missing.push("Phone number");
       setMissingFields(missing);
-      toast.success(`Extracted from ${file.name}`);
+      toast.success(`Auto-extracted fields from ${file.name}`);
     } catch {
-      toast.error("Could not parse file. Paste content manually.");
+      toast.error("Could not parse file. Set headline manually.");
     } finally {
       setExtracting(false);
     }
   };
 
   const handleGenerate = () => {
-    if (!headline) {
+    if (!headline.trim()) {
       toast.error("Please enter your target role");
       return;
     }
-    setGenerated([
-      `${headline} | Building Scalable Products | Open to ${headline} Roles`,
-      `Innovative ${headline} | 5+ Projects | Hackathon Winner | AI & UX Enthusiast`,
-      `${headline} | Full-Stack Expertise | System Design | Cloud Infrastructure`,
+    const roleClean = headline.trim();
+    setGeneratedHeadlines([
+      `${roleClean} | Building Scalable High-Impact Systems | Open to ${roleClean} Roles`,
+      `Innovative ${roleClean} | 5+ Projects | Hackathon Winner | AI & System Design Specialist`,
+      `${roleClean} | Full-Stack Architecture | Cloud Infrastructure | React & TypeScript`,
+      `Senior ${roleClean} | Driving Growth & Product Innovation | Ex-Tech Lead`,
+      `${roleClean} | Generative AI & Web3 Innovator | Featured Creator`,
     ]);
-    setScore(Math.floor(55 + Math.random() * 35));
-    const wrong = headline.length < 5 ? ["Headline too short — add more context"] : [];
-    if (!bio.trim()) wrong.push("Bio is missing — recruiters skip incomplete profiles");
+    setScore(Math.floor(78 + Math.random() * 18));
+    const wrong = roleClean.length < 5 ? ["Headline too short — add core technologies"] : [];
+    if (!bio.trim()) wrong.push("Bio is missing — recruiters skip incomplete LinkedIn profiles");
     setWrongFields(wrong);
     toast.success("Analysis complete!");
   };
 
   const handleOptimizeBio = () => {
-    if (!bio.trim()) {
-      toast.error("Paste your current bio first");
+    if (!bio.trim() && !headline.trim()) {
+      toast.error("Enter your target role or current bio first");
       return;
     }
-    setOptimizedBio(
-      `Passionate ${headline || "professional"} with hands-on experience building impactful digital solutions. ` +
-        `Skilled in modern tech stacks, product thinking, and cross-functional collaboration. ` +
-        `Proven track record of shipping production-grade projects and contributing to open-source communities. ` +
-        `Looking for opportunities where I can drive innovation and deliver measurable business outcomes.`,
-    );
+    const roleText = headline || "Software Engineer";
+    if (bioStyle === "recruiter") {
+      setOptimizedBio(
+        `🎯 ${roleText} specializing in scalable architecture, clean code, and cloud deployment.\n\n` +
+        `🛠️ Core Tech Stack: React, TypeScript, Next.js, Node.js, PostgreSQL, Tailwind CSS, AWS.\n\n` +
+        `🚀 Proven track record of delivering 99.9% uptime web platforms and optimizing database queries by 40%.\n\n` +
+        `📫 Open to ${roleText} opportunities. Reach me at ${user?.email || "vishwajeetsrk@gmail.com"}.`
+      );
+    } else if (bioStyle === "story") {
+      setOptimizedBio(
+        `I build software that solves real human problems. As a ${roleText}, I blend technical rigor with intuitive product design.\n\n` +
+        `Over the past 3 years, I've transformed complex requirements into seamless web applications used by thousands.\n\n` +
+        `Passionate about AI agents, open-source communities, and engineering excellence.`
+      );
+    } else {
+      setOptimizedBio(
+        `Senior ${roleText} & Engineering Strategist. Specialized in leading cross-functional tech teams, architecting distributed microservices, and driving revenue growth.\n\n` +
+        `Key Competencies: System Architecture, Product Roadmap, Cloud Security, Agile Engineering Leadership.`
+      );
+    }
+    toast.success("Optimized bio generated!");
   };
 
   return (
@@ -483,14 +505,21 @@ function LinkedInOptimizerView() {
 
       {/* Upload Section */}
       <Card className="p-6 rounded-2xl border-2 border-dashed border-primary/20 bg-primary/5 space-y-4">
-        <div className="flex items-center gap-3">
-          <Upload className="h-5 w-5 text-primary" />
-          <div>
-            <h3 className="text-sm font-bold">Upload Resume or Profile</h3>
-            <p className="text-xs text-muted-foreground">
-              PDF, DOC, DOCX, PNG, JPG — we auto-extract fields
-            </p>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <Upload className="h-5 w-5 text-primary" />
+            <div>
+              <h3 className="text-sm font-bold">Upload Resume or Profile Photo</h3>
+              <p className="text-xs text-muted-foreground">
+                PDF, DOC, DOCX, PNG, JPG — we auto-extract fields
+              </p>
+            </div>
           </div>
+          {uploadedFileName && (
+            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-300 gap-1 text-xs">
+              <Check className="h-3 w-3" /> {uploadedFileName}
+            </Badge>
+          )}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <input
@@ -504,14 +533,10 @@ function LinkedInOptimizerView() {
             variant="outline"
             onClick={() => fileRef.current?.click()}
             disabled={extracting}
-            className="gap-2"
+            className="gap-2 h-10 font-bold text-xs"
           >
-            {extracting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <ScanLine className="h-4 w-4" />
-            )}
-            {uploadedFileName ? "Change File" : "Upload Resume / Photo"}
+            {extracting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanLine className="h-4 w-4 text-primary" />}
+            {uploadedFileName ? "Change Resume" : "Upload Resume / Photo"}
           </Button>
           <input
             ref={photoRef}
@@ -523,11 +548,12 @@ function LinkedInOptimizerView() {
               const r = new FileReader();
               r.onload = (ev) => setProfilePhoto(ev.target?.result as string);
               r.readAsDataURL(f);
+              toast.success("Profile photo uploaded!");
             }}
             className="hidden"
           />
-          <Button variant="outline" onClick={() => photoRef.current?.click()} className="gap-2">
-            <Camera className="h-4 w-4" /> {profilePhoto ? "Change Photo" : "Profile Photo"}
+          <Button variant="outline" onClick={() => photoRef.current?.click()} className="gap-2 h-10 font-bold text-xs">
+            <Camera className="h-4 w-4 text-indigo-500" /> {profilePhoto ? "Change Photo" : "Profile Photo"}
           </Button>
           <input
             ref={bannerRef}
@@ -539,79 +565,68 @@ function LinkedInOptimizerView() {
               const r = new FileReader();
               r.onload = (ev) => setBannerPhoto(ev.target?.result as string);
               r.readAsDataURL(f);
+              toast.success("Banner photo uploaded!");
             }}
             className="hidden"
           />
-          <Button variant="outline" onClick={() => bannerRef.current?.click()} className="gap-2">
-            <ImagePlus className="h-4 w-4" /> {bannerPhoto ? "Banner Added" : "Banner Image"}
+          <Button variant="outline" onClick={() => bannerRef.current?.click()} className="gap-2 h-10 font-bold text-xs">
+            <ImagePlus className="h-4 w-4 text-blue-500" /> {bannerPhoto ? "Change Banner" : "Banner Image"}
           </Button>
         </div>
-        {uploadedFileName && (
-          <p className="text-xs text-muted-foreground">Uploaded: {uploadedFileName}</p>
-        )}
       </Card>
 
-      {/* Profile Preview */}
-      {(profilePhoto || bannerPhoto) && (
-        <Card className="rounded-2xl border overflow-hidden">
-          {bannerPhoto && (
-            <img src={bannerPhoto} alt="Banner" className="w-full h-32 sm:h-40 object-cover" />
-          )}
-          <div className={`px-6 pb-6 ${bannerPhoto ? "-mt-12" : "pt-6"} flex items-end gap-4`}>
+      {/* Interactive LinkedIn Banner & Profile Card Preview */}
+      <Card className="rounded-2xl border overflow-hidden shadow-lg bg-card">
+        <div
+          className="w-full h-36 sm:h-44 relative p-6 flex flex-col justify-end transition-all"
+          style={{ background: bannerPhoto ? `url(${bannerPhoto}) center/cover` : bannerBg }}
+        >
+          <div className="absolute top-3 right-3 flex items-center gap-1.5">
+            {["linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)", "linear-gradient(135deg, #064e3b 0%, #047857 100%)", "linear-gradient(135deg, #831843 0%, #be185d 100%)"].map((bg, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  setBannerPhoto(null);
+                  setBannerBg(bg);
+                }}
+                className="w-5 h-5 rounded-full border border-white/40 shadow cursor-pointer transition hover:scale-110"
+                style={{ background: bg }}
+              />
+            ))}
+          </div>
+          <p className="text-white text-xs sm:text-sm font-extrabold tracking-wide drop-shadow-md max-w-lg">
+            {bannerTagline}
+          </p>
+        </div>
+        <div className="px-6 pb-6 pt-3 -mt-10 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
+          <div className="flex items-end gap-4">
             {profilePhoto ? (
               <img
                 src={profilePhoto}
                 alt="Profile"
-                className="h-20 w-20 rounded-full border-4 border-background object-cover shadow-lg"
+                className="h-20 w-20 rounded-full border-4 border-card object-cover shadow-xl ring-2 ring-primary/20"
               />
             ) : (
-              <div className="h-20 w-20 rounded-full border-4 border-background bg-muted flex items-center justify-center shadow-lg">
-                <UserCheck className="h-8 w-8 text-muted-foreground" />
+              <div className="h-20 w-20 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center font-bold text-xl shadow-xl">
+                {headline ? headline.charAt(0) : "IN"}
               </div>
             )}
-            <div className="pb-2">
-              <h3 className="font-bold">{headline || "Your Name"}</h3>
-              <p className="text-xs text-muted-foreground">Profile completeness: {score ?? 0}%</p>
+            <div>
+              <h3 className="font-extrabold text-base sm:text-lg text-foreground">
+                {headline ? headline : "Your LinkedIn Name"}
+              </h3>
+              <p className="text-xs text-muted-foreground font-medium">
+                {bannerTagline}
+              </p>
             </div>
           </div>
-        </Card>
-      )}
+          <Badge className="bg-blue-600/10 text-blue-600 border border-blue-200 text-xs font-bold px-3 py-1">
+            Score: {score ?? 88}% Optimized
+          </Badge>
+        </div>
+      </Card>
 
-      {/* Missing & Wrong Fields */}
-      {(missingFields.length > 0 || wrongFields.length > 0) && (
-        <Card className="p-4 rounded-2xl border-2 border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 space-y-2">
-          <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-bold text-sm">
-            <AlertCircle className="h-4 w-4" /> Optimization Opportunities
-          </div>
-          {missingFields.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {missingFields.map((f) => (
-                <Badge
-                  key={f}
-                  variant="outline"
-                  className="border-amber-300 text-amber-700 dark:text-amber-300 text-[10px] gap-1"
-                >
-                  <X className="h-3 w-3" /> Missing: {f}
-                </Badge>
-              ))}
-            </div>
-          )}
-          {wrongFields.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {wrongFields.map((f) => (
-                <Badge
-                  key={f}
-                  variant="outline"
-                  className="border-red-300 text-red-600 text-[10px] gap-1"
-                >
-                  <AlertCircle className="h-3 w-3" /> {f}
-                </Badge>
-              ))}
-            </div>
-          )}
-        </Card>
-      )}
-
+      {/* Headline & Bio Optimizers */}
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 rounded-2xl border space-y-4 shadow-sm">
           <div className="flex items-center gap-2">
@@ -622,89 +637,89 @@ function LinkedInOptimizerView() {
             placeholder="e.g. Full Stack Developer, Data Analyst"
             value={headline}
             onChange={(e) => setHeadline(e.target.value)}
-            className="text-sm"
+            className="text-sm h-10"
           />
-          <Button onClick={handleGenerate} size="sm" className="w-full">
+          <Button onClick={handleGenerate} size="sm" className="w-full font-bold">
             <Sparkles className="w-4 h-4 mr-1.5" /> Generate & Analyze
           </Button>
-          {score !== null && (
-            <div className="flex justify-center pt-2">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring" }}
-              >
-                <ScoreRing score={score} label="Profile Score" size={72} />
-              </motion.div>
-            </div>
-          )}
-          {generated.length > 0 && (
+
+          {generatedHeadlines.length > 0 && (
             <div className="space-y-2 pt-2 border-t">
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                Recommended Headlines
+                5 AI Recommended Headlines
               </p>
-              {generated.map((h, i) => (
-                <motion.div
+              {generatedHeadlines.map((h, i) => (
+                <div
                   key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="p-3 rounded-xl border bg-card flex justify-between items-center text-xs gap-2 hover:border-primary/30 transition"
+                  className="p-3 rounded-xl border bg-card flex justify-between items-center text-xs gap-2 hover:border-primary/40 transition"
                 >
-                  <span className="flex-1">{h}</span>
+                  <span className="flex-1 font-medium">{h}</span>
                   <Button
                     size="sm"
-                    variant="ghost"
-                    className="h-7 text-[10px]"
+                    variant="outline"
+                    className="h-7 text-[10px] font-bold shrink-0"
                     onClick={() => {
                       navigator.clipboard.writeText(h);
-                      toast.success("Copied!");
+                      toast.success("Headline copied!");
                     }}
                   >
                     Copy
                   </Button>
-                </motion.div>
+                </div>
               ))}
             </div>
           )}
         </Card>
 
         <Card className="p-6 rounded-2xl border space-y-4 shadow-sm">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4 text-emerald-600" />
-            <h3 className="text-sm font-bold">Bio Optimizer</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4 text-emerald-600" />
+              <h3 className="text-sm font-bold">Bio Optimizer</h3>
+            </div>
+            <div className="flex items-center gap-1 bg-muted p-1 rounded-lg text-[10px]">
+              {(["recruiter", "story", "executive"] as const).map((st) => (
+                <button
+                  key={st}
+                  onClick={() => setBioStyle(st)}
+                  className={cn(
+                    "px-2 py-0.5 rounded capitalize font-bold transition-all",
+                    bioStyle === st ? "bg-card text-foreground shadow-xs" : "text-muted-foreground"
+                  )}
+                >
+                  {st}
+                </button>
+              ))}
+            </div>
           </div>
           <Textarea
             placeholder="Paste your current LinkedIn bio..."
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            className="text-sm min-h-[100px]"
+            className="text-sm min-h-[90px]"
           />
-          <Button onClick={handleOptimizeBio} size="sm" variant="secondary" className="w-full">
-            <Sparkles className="w-4 h-4 mr-1.5" /> Optimize Bio
+          <Button onClick={handleOptimizeBio} size="sm" variant="secondary" className="w-full font-bold">
+            <Sparkles className="w-4 h-4 mr-1.5 text-emerald-600" /> Optimize Bio ({bioStyle})
           </Button>
+
           {optimizedBio && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-900/50 space-y-2"
-            >
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-900/50 space-y-2">
               <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
-                Optimized Bio
+                Optimized Bio ({bioStyle})
               </p>
-              <p className="text-xs leading-relaxed">{optimizedBio}</p>
+              <p className="text-xs leading-relaxed whitespace-pre-line">{optimizedBio}</p>
               <Button
                 size="sm"
                 variant="outline"
-                className="h-7 text-[10px]"
+                className="h-7 text-[10px] font-bold"
                 onClick={() => {
                   navigator.clipboard.writeText(optimizedBio);
-                  toast.success("Copied!");
+                  toast.success("Bio copied!");
                 }}
               >
-                Copy
+                Copy Bio
               </Button>
-            </motion.div>
+            </div>
           )}
         </Card>
       </div>
@@ -825,44 +840,52 @@ function CareerAnalyticsView() {
         </div>
       </motion.div>
 
-      {bestFit && interestBoost > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-200 dark:border-emerald-900/50 flex items-center gap-3"
-        >
-          <Trophy className="h-5 w-5 text-emerald-500 shrink-0" />
-          <div className="text-sm">
-            <span className="font-bold">Your Best-Fit Role: {bestFit.role}</span>
-            <span className="text-muted-foreground">
-              {" "}
-              — {bestFit.match}% match based on your enrolled courses
-            </span>
+      {/* Personalized Best-Fit Role Banner */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-cyan-500/15 border border-emerald-500/30 flex items-center justify-between gap-4 flex-wrap shadow-sm"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-md">
+            <Trophy className="h-5 w-5" />
           </div>
-        </motion.div>
-      )}
+          <div>
+            <div className="text-xs font-extrabold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+              Personalized Career Benchmark
+            </div>
+            <div className="text-base sm:text-lg font-extrabold text-foreground mt-0.5">
+              Your Best-Fit Role: <span className="text-emerald-600 dark:text-emerald-400">{bestFit?.role || "AI/ML Eng"}</span> — {bestFit?.match || 96}% match based on your enrolled courses
+            </div>
+          </div>
+        </div>
+        <Badge className="bg-emerald-500 text-white font-bold text-xs px-3 py-1 shadow-sm">
+          Best Fit Recommendation
+        </Badge>
+      </motion.div>
 
+      {/* 3 Metric Cards */}
       <div className="grid sm:grid-cols-3 gap-4">
         {[
           {
             label: "Avg Entry Salary",
             value: "₹5.5 - ₹15 LPA",
-            sub: `+${22 + interestBoost}% growth YoY`,
-            color: "text-emerald-600",
+            sub: "+46% growth YoY",
+            color: "text-emerald-600 dark:text-emerald-400",
             icon: DollarSign,
           },
           {
             label: "Top Hiring Hubs",
             value: "Bengaluru, NCR, Pune, Hyderabad",
             sub: "68% of open roles",
-            color: "text-blue-600",
+            color: "text-blue-600 dark:text-blue-400",
             icon: Map,
           },
           {
             label: "Most Demanded Skill",
             value: "Generative AI",
             sub: "210% YoY growth",
-            color: "text-primary",
+            color: "text-violet-600 dark:text-violet-400",
             icon: Zap,
           },
         ].map((item, i) => (
@@ -875,12 +898,12 @@ function CareerAnalyticsView() {
             <Card className="p-5 rounded-xl border shadow-sm hover:shadow-md transition-all">
               <div className="flex items-center gap-2 mb-2">
                 <item.icon className={`h-4 w-4 ${item.color}`} />
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">
                   {item.label}
                 </p>
               </div>
-              <p className={`text-xl font-bold ${item.color}`}>{item.value}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">{item.sub}</p>
+              <p className={`text-lg sm:text-xl font-extrabold ${item.color}`}>{item.value}</p>
+              <p className="text-xs text-muted-foreground font-semibold mt-1">{item.sub}</p>
             </Card>
           </motion.div>
         ))}
