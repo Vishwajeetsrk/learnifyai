@@ -80,6 +80,8 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
 
   const [step, setStep] = useState<"setup" | "interview" | "results">("setup");
   const [role, setRole] = useState("");
+  const [customRole, setCustomRole] = useState("");
+  const [avatarModel, setAvatarModel] = useState<"sarah" | "alex" | "nova">("sarah");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
   const [mode, setMode] = useState<"chat" | "voice" | "video">("chat");
 
@@ -94,12 +96,38 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showTips, setShowTips] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
 
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<any>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const totalQuestions = 10;
+
+  // Initialize camera stream for video mode
+  useEffect(() => {
+    if (step === "interview" && mode === "video" && typeof window !== "undefined") {
+      navigator.mediaDevices
+        ?.getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          setCameraActive(true);
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        })
+        .catch((err) => {
+          console.warn("Webcam camera access error:", err);
+          setCameraActive(false);
+        });
+      return () => {
+        if (videoRef.current && videoRef.current.srcObject) {
+          const stream = videoRef.current.srcObject as MediaStream;
+          stream.getTracks().forEach((track) => track.stop());
+        }
+      };
+    }
+  }, [step, mode]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -302,8 +330,8 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
 
       {step === "setup" && (
         <div className="space-y-6">
-          <div className="rounded-2xl border bg-card p-6">
-            <h2 className="font-semibold mb-4 flex items-center gap-2">
+          <div className="rounded-2xl border bg-card p-6 space-y-4">
+            <h2 className="font-semibold flex items-center gap-2">
               <Briefcase className="h-4 w-4 text-primary" /> Select Job Role
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -312,24 +340,41 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
                 return (
                   <button
                     key={r.id}
-                    onClick={() => setRole(r.id)}
+                    onClick={() => {
+                      setRole(r.id);
+                      setCustomRole("");
+                    }}
                     className={cn(
-                      "p-4 rounded-xl border text-left transition-all",
+                      "p-4 rounded-xl border text-left transition-all cursor-pointer",
                       role === r.id
-                        ? "border-primary bg-primary/5 shadow-sm"
+                        ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary"
                         : "border-border hover:border-primary/40 hover:bg-muted/30",
                     )}
                   >
                     <Icon className="h-6 w-6 mb-2 text-primary" />
-                    <span className="text-sm font-medium block">{r.label}</span>
+                    <span className="text-xs sm:text-sm font-bold block truncate">{r.label}</span>
                   </button>
                 );
               })}
             </div>
+
+            {/* Custom Any Role Input */}
+            <div className="pt-2">
+              <label className="text-xs font-bold text-muted-foreground mb-1 block">Or type ANY custom role for interview preparation:</label>
+              <Input
+                placeholder="e.g. Cloud Solutions Architect, Blockchain Developer, Quant Analyst..."
+                value={customRole}
+                onChange={(e) => {
+                  setCustomRole(e.target.value);
+                  setRole(e.target.value);
+                }}
+                className="h-10 text-xs sm:text-sm font-semibold rounded-xl"
+              />
+            </div>
           </div>
 
-          <div className="rounded-2xl border bg-card p-6">
-            <h2 className="font-semibold mb-4 flex items-center gap-2">
+          <div className="rounded-2xl border bg-card p-6 space-y-4">
+            <h2 className="font-semibold flex items-center gap-2">
               <MessageSquare className="h-4 w-4 text-primary" /> Select Mode
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -340,9 +385,9 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
                     key={m.id}
                     onClick={() => setMode(m.id as any)}
                     className={cn(
-                      "p-4 rounded-xl border text-center transition-all",
+                      "p-4 rounded-xl border text-center transition-all cursor-pointer",
                       mode === m.id
-                        ? "border-primary bg-primary/5 shadow-sm"
+                        ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary"
                         : "border-border hover:border-primary/40 hover:bg-muted/30",
                     )}
                   >
@@ -352,7 +397,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
                         mode === m.id ? "text-primary" : "text-muted-foreground",
                       )}
                     />
-                    <span className="text-sm font-medium block">{m.label}</span>
+                    <span className="text-sm font-bold block">{m.label}</span>
                     <span className="text-xs text-muted-foreground">{m.desc}</span>
                   </button>
                 );
@@ -409,6 +454,69 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
             </div>
           ) : currentQuestion ? (
             <div className="space-y-4">
+              {/* Human AI Interviewer Avatar & Live Video Feed Grid */}
+              {(mode === "video" || mode === "voice") && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Human AI Interviewer Avatar */}
+                  <div className="rounded-2xl border border-primary/30 bg-card p-4 flex flex-col items-center text-center justify-center relative overflow-hidden shadow-md">
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-primary/10 text-primary border border-primary/20 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                      <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                      AI Interactor: Sarah (Senior Tech Lead)
+                    </div>
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 border-2 border-primary p-1 shadow-lg my-3 relative">
+                      <img
+                        src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80"
+                        alt="AI Interviewer"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                      {loading && (
+                        <div className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center">
+                          <Loader2 className="h-6 w-6 text-white animate-spin" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-xs font-bold text-foreground">Sarah Jenkins</div>
+                    <div className="text-[10px] text-muted-foreground font-medium">Senior Engineering Interviewer</div>
+
+                    {/* Audio wave animation */}
+                    <div className="flex items-center gap-1 mt-2 h-4">
+                      {[12, 20, 8, 16, 24, 10, 18].map((h, i) => (
+                        <div
+                          key={i}
+                          className="w-1 bg-primary rounded-full transition-all duration-300 animate-pulse"
+                          style={{ height: `${h}px`, animationDelay: `${i * 0.1}s` }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Candidate Live Webcam Camera Stream */}
+                  <div className="rounded-2xl border border-border/80 bg-slate-950 p-2 flex flex-col items-center justify-center relative overflow-hidden shadow-md min-h-[160px]">
+                    <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-red-500/80 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md">
+                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                      {mode === "video" ? "LIVE CAMERA FEED" : "MICROPHONE ACTIVE"}
+                    </div>
+
+                    {mode === "video" && (
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="w-full h-full object-cover rounded-xl border border-slate-800"
+                      />
+                    )}
+
+                    {(!cameraActive || mode !== "video") && (
+                      <div className="flex flex-col items-center justify-center py-6 text-slate-400">
+                        <Video className="h-8 w-8 mb-2 opacity-50" />
+                        <span className="text-xs font-medium">Candidate Audio/Video Feed Active</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="rounded-2xl border bg-card p-6">
                 <div className="flex items-start justify-between mb-3">
                   <Badge variant="outline" className="text-xs capitalize">
