@@ -45,6 +45,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { LessonSocial } from "@/components/LessonSocial";
+import { VoiceNarrationPlayer } from "@/components/VoiceNarrationPlayer";
 
 import { CoursePlayer } from "@/components/CoursePlayer";
 import { AppShell } from "@/components/AppShell";
@@ -833,13 +834,19 @@ function CourseDetail() {
           {/* Player */}
           <div className="space-y-4 min-w-0">
             {active && (
-              <div className="flex items-center gap-2">
-                <h2 className="font-semibold text-base truncate">{active.title}</h2>
-                {active.is_preview && !hasFullAccess && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium shrink-0">
-                    Preview
-                  </span>
-                )}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <h2 className="font-semibold text-base truncate">{active.title}</h2>
+                  {active.is_preview && !hasFullAccess && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary font-medium shrink-0">
+                      Preview
+                    </span>
+                  )}
+                </div>
+                <VoiceNarrationPlayer
+                  text={`${active.title}. ${active.summary || active.content || ""}`}
+                  title={active.title}
+                />
               </div>
             )}
             <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
