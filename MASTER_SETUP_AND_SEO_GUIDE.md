@@ -256,10 +256,15 @@ To display **Learnify AI** and your official logo on the Google Login prompt ins
      - `https://gnvsqwyexjuuwkjibxrr.supabase.co/auth/v1/callback`
      - `https://www.learnifyai.in`
      - `https://learnifyai.in`
-3. Paste generated credentials into [Supabase Auth Providers](https://supabase.com/dashboard/project/gnvsqwyexjuuwkjibxrr/auth/providers) -> **Google**:
+3. In **OAuth Consent Screen -> Scopes**, verify only **Non-sensitive Scopes** are selected:
+   - `.../auth/userinfo.email` (Google Account email address)
+   - `.../auth/userinfo.profile` (Personal info and profile photo)
+   - `openid` (Personal info association)
+   - *(No sensitive or restricted scopes required — zero verification fees)*
+4. Paste generated credentials into [Supabase Auth Providers](https://supabase.com/dashboard/project/gnvsqwyexjuuwkjibxrr/auth/providers) -> **Google**:
    - Client ID: `<YOUR_GOOGLE_CLIENT_ID>` (from Google Cloud Console)
    - Client Secret: `<YOUR_GOOGLE_CLIENT_SECRET>` (from Google Cloud Console)
-4. Click **Save**.
+5. Click **Save**.
 
 ---
 
