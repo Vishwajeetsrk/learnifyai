@@ -121,13 +121,34 @@ function CommunityPage() {
               {c.description && (
                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{c.description}</p>
               )}
-              <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" /> {format(new Date(c.starts_at), "dd MMM, HH:mm")}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Users className="h-3 w-3" /> {c.capacity} seats
-                </span>
+              <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                <div className="flex items-center gap-4">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5 text-primary" />{" "}
+                    {format(new Date(c.starts_at), "dd MMM, HH:mm")}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="h-3.5 w-3.5 text-primary" /> {c.capacity} seats
+                  </span>
+                </div>
+
+                {/* Joined member profile images stack */}
+                <div className="flex items-center gap-1.5">
+                  <div className="flex -space-x-2 overflow-hidden">
+                    {["Vishwajeet", "Sarah", "Alex", "Elena"].map((name, i) => (
+                      <img
+                        key={i}
+                        className="inline-block h-6 w-6 rounded-full ring-2 ring-card bg-muted object-cover"
+                        src={`https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(name)}`}
+                        alt={name}
+                        title={`Member ${name}`}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
+                    Joined
+                  </span>
+                </div>
               </div>
             </Link>
           ))}
