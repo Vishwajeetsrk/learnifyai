@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useSearch, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
   Code2,
   Trophy,
@@ -19,10 +21,14 @@ import {
   Snail,
   Database,
   Kanban,
+  BookOpen,
+  Lightbulb,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { getChallenges } from "@/lib/playground/challenges";
 import { ChallengesSkeleton } from "@/components/Skeletons";
