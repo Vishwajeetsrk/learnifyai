@@ -264,21 +264,96 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Template Style</Label>
-                <Select value={form.template} onValueChange={(v) => update("template", v)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TEMPLATES.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>
-                        {t.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="flex items-center justify-between">
+                  <span>Template Style</span>
+                  <span className="text-[10px] text-primary font-bold">100% ATS-Compliant</span>
+                </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: "modern", label: "Modern Tech", desc: "Clean Indigo accent, high readability" },
+                    { value: "classic", label: "Executive Classic", desc: "Serif headers, formal structure" },
+                    { value: "minimal", label: "Minimal ATS (100%)", desc: "Monochrome, max parse rate" },
+                    { value: "creative", label: "Creative Showcase", desc: "Emerald accents, skill badges" },
+                  ].map((t) => (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => update("template", t.value)}
+                      className={cn(
+                        "p-3 rounded-xl border text-left transition-all cursor-pointer",
+                        form.template === t.value
+                          ? "border-primary bg-primary/10 ring-1 ring-primary"
+                          : "border-border/70 bg-card hover:bg-muted/40"
+                      )}
+                    >
+                      <div className="font-bold text-xs text-foreground">{t.label}</div>
+                      <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{t.desc}</div>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
+          </div>
+
+          {/* Google X-Y-Z Formula Bullet Generator */}
+          <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 via-card to-purple-500/10 p-5 space-y-4 shadow-sm">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-indigo-500" />
+                <h3 className="text-sm font-bold text-foreground">Google X-Y-Z Resume Bullet Generator</h3>
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 px-2.5 py-0.5 rounded-full border border-indigo-500/30">
+                Formula: Accomplished X, as measured by Y, by doing Z
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+              <div className="space-y-1">
+                <Label className="text-[11px] font-bold text-foreground">1. [X] What did you accomplish?</Label>
+                <Input
+                  id="xyz-x"
+                  placeholder="e.g. Reduced API error rate & downtime"
+                  className="h-9 text-xs bg-card"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[11px] font-bold text-foreground">2. [Y] What was the metric (%/₹)?</Label>
+                <Input
+                  id="xyz-y"
+                  placeholder="e.g. From 12% to 0.1% (saved 40 hrs/mo)"
+                  className="h-9 text-xs bg-card"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[11px] font-bold text-foreground">3. [Z] How did you do it (Tech)?</Label>
+                <Input
+                  id="xyz-z"
+                  placeholder="e.g. By implementing Redis caching & retry logic"
+                  className="h-9 text-xs bg-card"
+                />
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs font-bold rounded-xl bg-card hover:bg-accent border-indigo-500/30"
+              onClick={() => {
+                const x = (document.getElementById("xyz-x") as HTMLInputElement)?.value || "";
+                const y = (document.getElementById("xyz-y") as HTMLInputElement)?.value || "";
+                const z = (document.getElementById("xyz-z") as HTMLInputElement)?.value || "";
+                if (!x || !y || !z) {
+                  return toast.error("Fill in X, Y, and Z fields to generate formula bullet");
+                }
+                const bullet = `• ${x} as measured by ${y}, by doing ${z}.`;
+                update("experience", form.experience ? `${form.experience}\n${bullet}` : bullet);
+                toast.success("Google X-Y-Z bullet added to Work Experience!");
+              }}
+            >
+              <Sparkles className="h-3.5 w-3.5 mr-1.5 text-indigo-500" />
+              Generate & Append Bullet to Experience
+            </Button>
           </div>
 
           <Button

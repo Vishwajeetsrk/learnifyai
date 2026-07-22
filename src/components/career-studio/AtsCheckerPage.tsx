@@ -345,6 +345,42 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
                 </div>
               </div>
 
+              {/* Google X-Y-Z Formula Compliance Card */}
+              <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 via-card to-purple-500/10 p-5 space-y-3 shadow-sm">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <h3 className="font-bold text-sm flex items-center gap-2 text-foreground">
+                    <Sparkles className="h-4 w-4 text-indigo-500" />
+                    Google X-Y-Z Formula Optimization
+                  </h3>
+                  <span className="text-[10px] font-bold uppercase tracking-widest bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/30">
+                    Formula: Accomplished X, as measured by Y, by doing Z
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Google's recruiting standard recommends structuring accomplishments with quantifiable metrics (%) and action verbs.
+                </p>
+
+                <div className="space-y-2 pt-1">
+                  <div className="p-3 bg-card border border-border/80 rounded-xl space-y-1 text-xs">
+                    <p className="font-bold text-foreground">Example Recommended Rewrite:</p>
+                    <p className="text-muted-foreground italic font-mono">
+                      "• Increased user retention by 42% (Y) by optimizing React server components and database queries (Z), serving 100,000+ active monthly learners (X)."
+                    </p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-500/10 px-2 mt-1"
+                      onClick={() => {
+                        navigator.clipboard.writeText("Increased user retention by 42% (Y) by optimizing React server components and database queries (Z), serving 100,000+ active monthly learners (X).");
+                        toast.success("Google X-Y-Z bullet copied to clipboard!");
+                      }}
+                    >
+                      Copy Google X-Y-Z Bullet
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
               <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-5 space-y-2">
                 <h3 className="font-semibold text-sm flex items-center gap-2 text-amber-800 dark:text-amber-200">
                   <Sparkles className="h-4 w-4" /> Improvement Suggestions
