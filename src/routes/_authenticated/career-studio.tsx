@@ -1358,8 +1358,7 @@ function InternshipTrackerView() {
 function SkillGapView() {
   const { user } = useAuth();
   const [selectedRole, setSelectedRole] = useState("Full Stack AI Engineer");
-  const [savedRoles, setSavedRoles] = useState<string[]>([]);
-  const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [savedRoles, setSavedRoles] = useState<string[]>(["Full Stack AI Engineer"]);
 
   const ROLE_REQUIREMENTS: Record<
     string,
@@ -1394,88 +1393,18 @@ function SkillGapView() {
       { skill: "Linux", weight: 18, desc: "Bash scripting & system admin" },
       { skill: "Terraform", weight: 17, desc: "Infrastructure as Code" },
     ],
-    "Data Scientist": [
-      { skill: "Python", weight: 30, desc: "Data processing & statistical modeling" },
-      { skill: "Pandas", weight: 20, desc: "DataFrames & data cleaning" },
-      { skill: "SQL", weight: 20, desc: "Complex joins & data aggregation" },
-      { skill: "NumPy", weight: 15, desc: "Array operations & math matrix" },
-      { skill: "TensorFlow", weight: 15, desc: "Machine learning model training" },
-    ],
-    "AI/ML Engineer": [
-      { skill: "Python", weight: 25, desc: "ML pipelines & data processing" },
-      { skill: "PyTorch", weight: 20, desc: "Deep learning model building" },
-      { skill: "RAG", weight: 20, desc: "Retrieval-augmented generation" },
-      { skill: "Docker", weight: 15, desc: "Model deployment & serving" },
-      { skill: "SQL", weight: 20, desc: "Feature engineering & ETL" },
-    ],
-    "Product Manager": [
-      { skill: "Strategy", weight: 25, desc: "Product vision & roadmap planning" },
-      { skill: "Analytics", weight: 20, desc: "Data-driven decision making" },
-      { skill: "UX Design", weight: 20, desc: "User research & wireframing" },
-      { skill: "Tech", weight: 18, desc: "API design & system architecture" },
-      { skill: "Leadership", weight: 17, desc: "Team management & stakeholder comms" },
-    ],
-    "Cybersecurity Analyst": [
-      { skill: "Network", weight: 25, desc: "TCP/IP, firewalls, VPNs" },
-      { skill: "Linux", weight: 20, desc: "System admin & security hardening" },
-      { skill: "Python", weight: 20, desc: "Security scripting & automation" },
-      { skill: "Cloud", weight: 18, desc: "AWS security, IAM policies" },
-      { skill: "Compliance", weight: 17, desc: "SOC2, ISO 27001, GDPR" },
-    ],
-    "Mobile Developer": [
-      { skill: "React Native", weight: 30, desc: "Cross-platform mobile apps" },
-      { skill: "TypeScript", weight: 20, desc: "Type-safe mobile code" },
-      { skill: "Firebase", weight: 20, desc: "Auth, Firestore, push notifications" },
-      { skill: "Node.js", weight: 15, desc: "Backend API for mobile" },
-      { skill: "Swift/Kotlin", weight: 15, desc: "Native platform fundamentals" },
-    ],
   };
 
-  useEffect(() => {
-    const saved = localStorage.getItem("learnify_skillgap_roles");
-    if (saved)
-      try {
-        setSavedRoles(JSON.parse(saved));
-      } catch {}
-  }, []);
-
-  const toggleSaveRole = (role: string) => {
-    setSavedRoles((prev) => {
-      const next = prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role];
-      localStorage.setItem("learnify_skillgap_roles", JSON.stringify(next));
-      toast(next.includes(role) ? "Role saved!" : "Role removed");
-      return next;
-    });
-  };
-
-  const roleKeys = showSavedOnly
-    ? Object.keys(ROLE_REQUIREMENTS).filter((r) => savedRoles.includes(r))
-    : Object.keys(ROLE_REQUIREMENTS);
-  const currentReqs =
-    ROLE_REQUIREMENTS[selectedRole] || ROLE_REQUIREMENTS["Full Stack AI Engineer"];
-
-  const { data: userEnrollments } = useQuery({
-    queryKey: ["user-skills-gap", user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data } = await supabase
-        .from("enrollments")
-        .select("courses:course_id(title, category)")
-        .eq("user_id", user.id);
-      return data || [];
-    },
-    enabled: !!user,
-  });
+  const currentReqs = ROLE_REQUIREMENTS[selectedRole] || ROLE_REQUIREMENTS["Full Stack AI Engineer"];
 
   const [masteredSkills, setMasteredSkills] = useState<string[]>([
     "React",
     "TypeScript",
-    "Tailwind CSS",
   ]);
 
   const toggleSkill = (skill: string) => {
     setMasteredSkills((prev) =>
-      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill],
+      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
     );
   };
 
@@ -1507,68 +1436,49 @@ function SkillGapView() {
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Button
-            variant={showSavedOnly ? "default" : "outline"}
-            size="sm"
-            onClick={() => setShowSavedOnly(!showSavedOnly)}
-            className="text-xs h-8 gap-1"
-          >
-            <Star className={`h-3.5 w-3.5 ${showSavedOnly ? "fill-current" : ""}`} /> Saved
-          </Button>
-          <div className="w-full sm:w-52">
+          <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-300 font-bold text-xs gap-1">
+            <Check className="h-3 w-3" /> Saved
+          </Badge>
+          <div className="w-full sm:w-56">
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full text-xs font-bold h-8 px-3 rounded-xl border border-input bg-card shadow-sm focus:ring-2 focus:ring-primary"
+              className="w-full text-xs font-bold h-9 px-3 rounded-xl border border-input bg-card shadow-sm focus:ring-2 focus:ring-primary"
             >
-              {roleKeys.map((role) => (
+              {Object.keys(ROLE_REQUIREMENTS).map((role) => (
                 <option key={role} value={role}>
-                  {role} {savedRoles.includes(role) ? "⭐" : ""}
+                  {role}
                 </option>
               ))}
             </select>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => toggleSaveRole(selectedRole)}
-            className="h-8 w-8 p-0"
-          >
-            <Star
-              className={`h-4 w-4 ${savedRoles.includes(selectedRole) ? "fill-amber-400 text-amber-400" : ""}`}
-            />
-          </Button>
         </div>
       </motion.div>
 
       <Card className="p-4 sm:p-6 rounded-2xl border shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 dark:bg-blue-950/40 rounded-xl">
+            <div className="p-2.5 bg-blue-50 dark:bg-blue-950/40 rounded-xl">
               <TargetIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h3 className="font-bold text-base">{selectedRole} Readiness</h3>
-              <p className="text-xs text-muted-foreground">
+              <h3 className="font-extrabold text-base sm:text-lg">{selectedRole} Readiness</h3>
+              <p className="text-xs text-muted-foreground font-semibold">
                 {masteredSkills.length}/{currentReqs.length} skills mastered
               </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={selectAll} className="text-xs h-7 gap-1">
-              <Check className="h-3 w-3" /> All
+            <Button variant="outline" size="sm" onClick={selectAll} className="text-xs h-8 font-bold gap-1">
+              <Check className="h-3.5 w-3.5 text-emerald-500" /> All
             </Button>
-            <Button variant="ghost" size="sm" onClick={clearAll} className="text-xs h-7 gap-1">
-              <X className="h-3 w-3" /> Clear
+            <Button variant="outline" size="sm" onClick={clearAll} className="text-xs h-8 font-bold gap-1">
+              <X className="h-3.5 w-3.5 text-rose-500" /> Clear
             </Button>
-            <motion.div
-              key={overallScore}
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring" }}
-            >
-              <ScoreRing score={overallScore} label="Readiness" size={64} />
-            </motion.div>
+            <div className="px-4 py-2 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl text-center">
+              <div className="text-xl font-black text-indigo-600 dark:text-indigo-400">{overallScore}/100</div>
+              <div className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider">Readiness</div>
+            </div>
           </div>
         </div>
 
@@ -1586,11 +1496,12 @@ function SkillGapView() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.05 }}
                   onClick={() => toggleSkill(item.skill)}
-                  className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
+                  className={cn(
+                    "p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all shadow-xs",
                     isMastered
-                      ? "bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-500/30 shadow-sm"
-                      : "bg-card hover:bg-muted/50 border-border"
-                  }`}
+                      ? "bg-emerald-500/10 border-emerald-500/40 ring-1 ring-emerald-500/20"
+                      : "bg-card hover:bg-muted/40 border-border"
+                  )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <SkillBadge
@@ -1598,15 +1509,19 @@ function SkillGapView() {
                       size="md"
                       variant={isMastered ? "default" : "outline"}
                     />
-                    <div className="hidden sm:block">
-                      <p className="text-xs text-muted-foreground truncate max-w-[300px]">
+                    <div>
+                      <p className="text-sm font-bold text-foreground">{item.skill}</p>
+                      <p className="text-xs text-muted-foreground truncate max-w-[280px] sm:max-w-[400px]">
                         {item.desc}
                       </p>
                     </div>
                   </div>
                   <Badge
                     variant={isMastered ? "default" : "outline"}
-                    className={`text-[10px] shrink-0 ${isMastered ? "bg-emerald-600 text-white" : ""}`}
+                    className={cn(
+                      "text-xs font-bold shrink-0 px-3 py-1",
+                      isMastered ? "bg-emerald-500 text-white" : "border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10"
+                    )}
                   >
                     {isMastered ? "Mastered" : `Gap (+${item.weight}%)`}
                   </Badge>
