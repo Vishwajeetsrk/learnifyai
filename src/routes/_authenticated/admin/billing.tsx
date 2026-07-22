@@ -1723,6 +1723,8 @@ function BillingOSPage() {
                 </div>
               </>
             )}
+          </TabsContent>
+
           {/* ============ SUBSCRIPTION ANALYTICS ============ */}
           <TabsContent value="analytics" className="space-y-6">
             <div className="rounded-2xl border bg-card p-6 space-y-6 shadow-sm">
