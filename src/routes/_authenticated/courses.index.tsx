@@ -312,6 +312,29 @@ function CoursesPage() {
           </div>
         </div>
 
+        {/* Featured System Design Academy Banner */}
+        <div className="mt-6 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-card to-background p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-primary text-primary-foreground grid place-items-center shrink-0 shadow-lg shadow-primary/20">
+              <Bot className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-foreground">System Design Academy</h2>
+                <Badge className="bg-primary/20 text-primary hover:bg-primary/30 border-0 text-[10px]">
+                  10 Topics
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Master Netflix, Uber, WhatsApp, YouTube, Amazon, and Google Search architectures.
+              </p>
+            </div>
+          </div>
+          <Button asChild size="sm" className="gap-1.5 shrink-0 shadow-md">
+            <Link to="/system-design">Explore System Design ➔</Link>
+          </Button>
+        </div>
+
         <div className="mt-6 space-y-4">
           {/* Top filters row */}
           <div className="flex flex-wrap items-center gap-3">

@@ -22,6 +22,7 @@ export function SiteHeader() {
 
   const fallbackNav = [
     { label: tr("nav.features", "Features"), url: "/features" },
+    { label: tr("nav.systemDesign", "System Design"), url: "/system-design" },
     { label: tr("nav.aiTools", "AI Tools"), url: "/features#ai-tools" },
     { label: tr("nav.creators", "Creators"), url: "/creators" },
     { label: tr("nav.coaches", "Coaches"), url: "/coaches" },

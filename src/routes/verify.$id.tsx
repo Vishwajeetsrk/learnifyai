@@ -122,15 +122,22 @@ function CertificateVerificationPage() {
             </div>
 
             {/* Certificate Preview Card */}
-            <Card className="overflow-hidden border-2 border-primary/20 bg-gradient-to-b from-card to-background shadow-xl">
-              <CardHeader className="text-center border-b border-border/60 bg-muted/30 pb-6">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mx-auto mb-2">
+            <Card className="overflow-hidden border-2 border-primary/30 bg-gradient-to-b from-card via-background to-muted/20 shadow-2xl relative">
+              <CardHeader className="text-center border-b border-border/60 bg-muted/40 pb-6 pt-8 space-y-3">
+                <div className="flex justify-center mb-1">
+                  <img
+                    src="/logo.png"
+                    alt="Learnify AI Logo"
+                    className="h-10 w-auto object-contain dark:brightness-0 dark:invert"
+                  />
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold tracking-wider uppercase mx-auto">
                   <Sparkles className="h-3.5 w-3.5" /> LEARNIFY AI VERIFIED CREDENTIAL
                 </div>
-                <CardTitle className="text-2xl font-display font-bold">
+                <CardTitle className="text-3xl font-display font-extrabold text-foreground tracking-tight">
                   Certificate of Completion
                 </CardTitle>
-                <CardDescription className="text-xs font-mono mt-1">
+                <CardDescription className="text-xs font-mono text-primary font-semibold mt-1">
                   Credential ID: {cert.certificate_number || cert.id}
                 </CardDescription>
               </CardHeader>
