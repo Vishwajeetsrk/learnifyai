@@ -115,10 +115,10 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
         </div>
 
         {/* Question */}
-        <p className="text-sm font-medium leading-relaxed">{current.question}</p>
+        <p className="text-sm sm:text-base font-bold text-foreground leading-relaxed">{current.question}</p>
 
         {/* Options */}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           {current.options.map((option, i) => {
             const isSelected = i === selectedIndex;
             const isOptionCorrect = i === current.correctIndex;
@@ -129,49 +129,49 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
                 onClick={() => handleSelect(i)}
                 disabled={hasAnswered}
                 className={cn(
-                  "w-full text-left px-3 py-2.5 rounded-lg text-xs border transition-all",
-                  !hasAnswered && "border-border hover:border-primary/50 hover:bg-muted/50",
+                  "w-full text-left px-3.5 py-3 rounded-xl text-xs sm:text-sm border transition-all cursor-pointer font-semibold",
+                  !hasAnswered && "border-border/80 text-foreground bg-card hover:border-primary/60 hover:bg-primary/5 shadow-sm",
                   hasAnswered &&
                     isSelected &&
                     isCorrect &&
-                    "border-green-500 bg-green-500/10 text-green-500",
+                    "border-emerald-500 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-bold",
                   hasAnswered &&
                     isSelected &&
                     !isCorrect &&
-                    "border-red-500 bg-red-500/10 text-red-500",
+                    "border-rose-500 bg-rose-500/15 text-rose-700 dark:text-rose-300 font-bold",
                   hasAnswered &&
                     !isSelected &&
                     isOptionCorrect &&
-                    "border-green-500/50 bg-green-500/5 text-green-400",
-                  hasAnswered && !isSelected && !isOptionCorrect && "border-border opacity-60",
+                    "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold",
+                  hasAnswered && !isSelected && !isOptionCorrect && "border-border/50 text-muted-foreground opacity-70",
                 )}
                 aria-label={`Option ${i + 1}: ${option}`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <span
                     className={cn(
-                      "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium shrink-0",
-                      !hasAnswered && "border border-border text-muted-foreground",
-                      hasAnswered && isSelected && isCorrect && "bg-green-500 text-white",
-                      hasAnswered && isSelected && !isCorrect && "bg-red-500 text-white",
+                      "w-5 h-5 rounded-full flex items-center justify-center text-xs font-extrabold shrink-0",
+                      !hasAnswered && "border border-border text-foreground bg-muted/40",
+                      hasAnswered && isSelected && isCorrect && "bg-emerald-600 text-white",
+                      hasAnswered && isSelected && !isCorrect && "bg-rose-600 text-white",
                       hasAnswered &&
                         !isSelected &&
                         isOptionCorrect &&
-                        "bg-green-500/20 text-green-500 border border-green-500/50",
+                        "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/50",
                       hasAnswered &&
                         !isSelected &&
                         !isOptionCorrect &&
-                        "border border-border text-muted-foreground/50",
+                        "border border-border/50 text-muted-foreground/60",
                     )}
                   >
                     {String.fromCharCode(65 + i)}
                   </span>
-                  <span className="flex-1">{option}</span>
+                  <span className="flex-1 text-foreground font-semibold">{option}</span>
                   {hasAnswered && isSelected && isCorrect && (
-                    <Check className="h-3.5 w-3.5 text-green-500" />
+                    <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                   )}
                   {hasAnswered && isSelected && !isCorrect && (
-                    <X className="h-3.5 w-3.5 text-red-500" />
+                    <X className="h-4 w-4 text-rose-600 dark:text-rose-400" />
                   )}
                 </div>
               </button>

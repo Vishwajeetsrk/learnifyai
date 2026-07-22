@@ -176,10 +176,10 @@ export function ArchitectureVisualizer({
           x={p.x}
           y={p.y + 3}
           textAnchor="middle"
-          fill={isHovered ? color : "#e5e7eb"}
+          fill={isHovered ? color : "currentColor"}
           fontSize={fontSize}
-          fontWeight={isHovered ? "bold" : "medium"}
-          className="transition-all duration-300 pointer-events-none"
+          fontWeight={isHovered ? "bold" : "600"}
+          className="transition-all duration-300 pointer-events-none fill-slate-900 dark:fill-slate-100 text-[11px]"
         >
           {label.length > 12 ? label.slice(0, 11) + "…" : label}
         </text>
@@ -188,9 +188,9 @@ export function ArchitectureVisualizer({
             x={p.x}
             y={p.y + r + 14}
             textAnchor="middle"
-            fill="#9ca3af"
-            fontSize={7}
-            className="pointer-events-none"
+            fill="currentColor"
+            fontSize={8}
+            className="pointer-events-none fill-slate-500 dark:fill-slate-400 font-semibold"
           >
             {type}
           </text>

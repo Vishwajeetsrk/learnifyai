@@ -251,10 +251,10 @@ export function KnowledgeGraph({ onTopicClick, onClose, compact = false }: Knowl
                 x={node.x}
                 y={node.y + 3}
                 textAnchor="middle"
-                fill={isSelected ? color : "#e5e7eb"}
-                fontSize={isSelected ? 8 : 7}
-                fontWeight={isSelected ? "bold" : "normal"}
-                className="pointer-events-none transition-all duration-300"
+                fill={isSelected ? color : "currentColor"}
+                fontSize={isSelected ? 9 : 8}
+                fontWeight={isSelected ? "bold" : "600"}
+                className="pointer-events-none transition-all duration-300 fill-slate-900 dark:fill-slate-100 font-semibold"
               >
                 {node.label.length > 10 ? node.label.slice(0, 9) + "…" : node.label}
               </text>
@@ -263,9 +263,9 @@ export function KnowledgeGraph({ onTopicClick, onClose, compact = false }: Knowl
                   x={node.x}
                   y={node.y + r + 12}
                   textAnchor="middle"
-                  fill="#9ca3af"
-                  fontSize={6}
-                  className="pointer-events-none"
+                  fill="currentColor"
+                  fontSize={7}
+                  className="pointer-events-none fill-slate-500 dark:fill-slate-400 font-medium"
                 >
                   Click to learn
                 </text>

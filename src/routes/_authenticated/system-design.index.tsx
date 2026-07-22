@@ -238,20 +238,20 @@ function DifficultySection({
   if (topics.length === 0) return null;
   const borderColor =
     color === "green"
-      ? "border-green-500/30"
+      ? "border-emerald-500"
       : color === "yellow"
-        ? "border-yellow-500/30"
-        : "border-red-500/30";
+        ? "border-amber-500"
+        : "border-purple-500";
   const textColor =
-    color === "green" ? "text-green-500" : color === "yellow" ? "text-yellow-500" : "text-red-500";
+    color === "green" ? "text-emerald-600 dark:text-emerald-400" : color === "yellow" ? "text-amber-600 dark:text-amber-400" : "text-purple-600 dark:text-purple-400";
 
   return (
     <section className="space-y-3">
-      <div className={cn("border-l-2 pl-3", borderColor)}>
-        <h2 className={cn("text-sm font-semibold", textColor)}>{title}</h2>
-        <p className="text-xs text-muted-foreground">{subtitle}</p>
+      <div className={cn("border-l-3 pl-3", borderColor)}>
+        <h2 className={cn("text-base font-bold tracking-tight", textColor)}>{title}</h2>
+        <p className="text-xs text-muted-foreground font-medium">{subtitle}</p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
         {topics.map((topic) => (
           <TopicCard key={topic.id} topic={topic} onClick={() => onTopicClick(topic.id)} />
         ))}
@@ -261,40 +261,52 @@ function DifficultySection({
 }
 
 function TopicCard({ topic, onClick }: { topic: (typeof TOPICS)[number]; onClick: () => void }) {
+  const isBeginner = topic.difficulty === "beginner";
+  const isIntermediate = topic.difficulty === "intermediate";
+
   return (
     <button
       onClick={onClick}
-      className="group text-left rounded-xl border border-border bg-card p-4 hover:border-primary/30 hover:shadow-lg transition-all duration-200 space-y-3"
+      className="group text-left rounded-xl border border-border/80 bg-card p-4 hover:border-primary/50 hover:shadow-lg transition-all duration-200 space-y-3 cursor-pointer flex flex-col justify-between"
     >
-      <div className="flex items-start justify-between">
-        <div
-          className={cn(
-            "h-8 w-8 rounded-lg flex items-center justify-center",
-            "bg-primary/5 text-primary group-hover:bg-primary/10 transition-colors",
-          )}
-        >
-          {TOPIC_ICONS[topic.icon] || <BookOpen className="h-4 w-4" />}
+      <div className="space-y-3">
+        <div className="flex items-start justify-between gap-2">
+          <div
+            className={cn(
+              "h-9 w-9 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+              "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground",
+            )}
+          >
+            {TOPIC_ICONS[topic.icon] || <BookOpen className="h-4.5 w-4.5" />}
+          </div>
+          <Badge
+            variant="outline"
+            className={cn(
+              "text-[10px] uppercase tracking-wider font-bold shrink-0 px-2 py-0.5 border",
+              isBeginner && "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+              isIntermediate && "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
+              !isBeginner && !isIntermediate && "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30",
+            )}
+          >
+            {topic.difficulty}
+          </Badge>
         </div>
-        <Badge
-          variant="outline"
-          className={cn("text-[10px] capitalize font-normal", DIFFICULTY_COLORS[topic.difficulty])}
-        >
-          {topic.difficulty}
-        </Badge>
+        <div>
+          <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+            {topic.title}
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed font-medium">
+            {topic.subtitle}
+          </p>
+        </div>
       </div>
-      <div>
-        <h3 className="text-sm font-medium group-hover:text-primary transition-colors">
-          {topic.title}
-        </h3>
-        <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">{topic.subtitle}</p>
-      </div>
-      <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
-        <span className="flex items-center gap-1">
-          <Clock className="h-3 w-3" />
+
+      <div className="pt-3 border-t border-border/60 flex items-center justify-between gap-2 text-xs font-semibold text-muted-foreground">
+        <span className="flex items-center gap-1.5 text-foreground/80">
+          <Clock className="h-3.5 w-3.5 text-primary" />
           {topic.duration}
         </span>
-        <span className="flex items-center gap-1">
-          <Shuffle className="h-3 w-3" />
+        <span className="truncate text-[11px] text-muted-foreground max-w-[140px]">
           {topic.companies.slice(0, 2).join(", ")}
         </span>
       </div>

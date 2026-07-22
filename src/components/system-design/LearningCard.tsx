@@ -52,24 +52,27 @@ export function LearningCard({ section, isOpen, onToggle }: LearningCardProps) {
       </button>
 
       {isOpen && (
-        <div className="px-4 pb-4 space-y-4 animate-in slide-in-from-top-1 duration-200">
-          <p className="text-sm text-muted-foreground leading-relaxed">{section.content}</p>
+        <div className="px-4 pb-4 space-y-4 animate-in slide-in-from-top-1 duration-200 border-t border-border/40 pt-3">
+          <p className="text-sm text-foreground leading-relaxed font-medium whitespace-pre-line">{section.content}</p>
 
-          {section.visual && <ArchitectureVisualizer diagram={section.visual} compact />}
+          {section.visual && (
+            <div className="rounded-xl border border-border/60 bg-background/80 p-3 shadow-inner">
+              <ArchitectureVisualizer diagram={section.visual} compact />
+            </div>
+          )}
 
           {section.story && (
-            <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-4 space-y-2">
-              <p className="text-xs font-medium text-amber-500 uppercase tracking-wider">
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 space-y-2.5">
+              <p className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
                 The Story
               </p>
-              <p className="text-sm text-muted-foreground italic">{section.story.analogy}</p>
+              <p className="text-sm text-foreground italic font-medium leading-relaxed">{section.story.analogy}</p>
               <div className="h-px bg-amber-500/20" />
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium text-amber-400">Context:</span> {section.story.context}
+              <p className="text-xs text-foreground/90">
+                <span className="font-bold text-amber-600 dark:text-amber-400">Context:</span> {section.story.context}
               </p>
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium text-amber-400">Lesson:</span>{" "}
-                {section.story.transition}
+              <p className="text-xs text-foreground/90">
+                <span className="font-bold text-amber-600 dark:text-amber-400">Takeaway:</span> {section.story.takeaway}
               </p>
             </div>
           )}
