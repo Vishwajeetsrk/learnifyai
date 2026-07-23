@@ -100,6 +100,25 @@ function ScoreRing({ score, size = 64 }: { score: number; size?: number }) {
   );
 }
 
+function CompanyLogo({ domain, name, color }: { domain: string; name: string; color: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) {
+    return (
+      <div className="h-10 w-10 rounded-xl flex items-center justify-center font-black text-white text-sm shadow-sm shrink-0" style={{ backgroundColor: color }}>
+        {name.slice(0, 2).toUpperCase()}
+      </div>
+    );
+  }
+  return (
+    <img
+      src={`https://logo.clearbit.com/${domain}`}
+      alt={name}
+      className="h-10 w-10 rounded-xl object-contain bg-white border p-0.5 shadow-sm shrink-0"
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
 export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
   const checkFn   = useServerFn(checkAtsScore);
   const extractFn = useServerFn(extractResumeFields);
@@ -386,11 +405,7 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
                 return (
                   <Card key={i} className="p-4 rounded-2xl border shadow-sm hover:shadow-md transition space-y-3">
                     <div className="flex items-center gap-3">
-                      <div className="relative shrink-0 h-10 w-10">
-                        <img src={`https://logo.clearbit.com/${co.domain}`} alt={co.name} className="h-10 w-10 rounded-xl object-contain bg-white border p-0.5 shadow-sm"
-                          onError={(e) => { const t = e.currentTarget; t.style.display = "none"; const fb = t.nextSibling as HTMLElement | null; if (fb) fb.style.display = "flex"; }} />
-                        <div className="absolute inset-0 rounded-xl items-center justify-center font-black text-white text-sm" style={{ display: "none", background: co.color }}>{co.name.slice(0, 2).toUpperCase()}</div>
-                      </div>
+                      <CompanyLogo domain={co.domain} name={co.name} color={co.color} />
                       <div className="flex-1 min-w-0">
                         <p className="font-bold text-sm truncate">{co.name}</p>
                         <p className="text-[11px] text-muted-foreground truncate">{co.role}</p>
