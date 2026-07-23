@@ -1,4 +1,4 @@
-﻿import { createFileRoute, useSearch, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useSearch, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { ResumeBuilderPage } from "@/components/career-studio/ResumeBuilderPage";
 import { AtsCheckerPage } from "@/components/career-studio/AtsCheckerPage";
@@ -124,92 +124,49 @@ function CareerStudioHub() {
   const search: { tab?: string } = useSearch({ strict: false });
   const navigate = useNavigate();
   const activeTab = search.tab || "resume";
-
-  const [isMobile, setIsMobile] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  useEffect(() => {
-    const checkSize = () => setIsMobile(window.innerWidth < 768);
-    checkSize();
-    window.addEventListener("resize", checkSize);
-    return () => window.removeEventListener("resize", checkSize);
-  }, []);
 
-  const dockItems = TABS.map((t) => {
-    const isActive = activeTab === t.id;
-    return {
-      icon: (
-        <t.icon
-          className={cn(
-            "h-5 w-5 sm:h-6 sm:w-6 transition-colors duration-300",
-            isActive ? "text-white" : "text-stone-600 dark:text-stone-300"
-          )}
-        />
-      ),
-      label: t.label,
-      isActive,
-      onClick: () => {
-        navigate({ to: "/career-studio" as any, search: { tab: t.id } as any, replace: true });
-      },
-    };
-  });
-
-  const dockProps = { panelHeight: 64, baseItemSize: 48, magnification: 58, distance: 100 };
+  const activeTabInfo = TABS.find((t) => t.id === activeTab) || TABS[0];
+  const ActiveIcon = activeTabInfo.icon;
 
   return (
     <AppShell>
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-4 md:px-10 py-6 overflow-hidden"
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.08),transparent_60%)] pointer-events-none" />
+      {/* ── Header ── */}
+      <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-4 md:px-8 py-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(255,255,255,0.07),transparent_60%)] pointer-events-none" />
         <div className="max-w-7xl mx-auto flex items-center justify-between relative">
-          <div className="flex items-center gap-4">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="h-10 w-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center shadow-lg"
-            >
-              <img
-                src="/mockup/images/learnify-logo.png"
-                alt="Learnify AI"
-                className="h-7 w-7 object-contain"
-              />
-            </motion.div>
+          {/* Current tool indicator */}
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-white/20 flex items-center justify-center">
+              <ActiveIcon className="h-5 w-5 text-white" />
+            </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-bold text-xl text-white tracking-tight">Career Studio</h1>
-                <Badge className="bg-white/20 text-white border border-white/30 text-[10px] px-2.5 py-0.5 font-bold shadow-sm">
-                  <Sparkles className="h-3 w-3 mr-1 text-yellow-300 animate-spin [animation-duration:10s]" /> 12 Tools
-                </Badge>
-              </div>
-              <p className="text-xs text-blue-200 font-medium">
-                AI-powered career development suite
-              </p>
+              <h1 className="font-bold text-lg text-white leading-tight">Career Studio</h1>
+              <p className="text-[11px] text-blue-200 font-medium">{activeTabInfo.label}</p>
             </div>
           </div>
 
+          {/* Single unified menu button — same on all screen sizes */}
           <Dialog open={menuOpen} onOpenChange={setMenuOpen}>
             <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                className="bg-white/10 hover:bg-white/20 text-white border-white/30 font-bold rounded-full gap-2 cursor-pointer shadow-sm"
+              <button
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-sm border border-white/20 transition-colors backdrop-blur-sm"
+                aria-label="Open Career Studio menu"
               >
-                <Briefcase className="h-4 w-4" />
-                <span>Switch Tool (12)</span>
-                <ChevronDown className="h-3.5 w-3.5 opacity-80" />
-              </Button>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <span className="hidden sm:inline">All Tools</span>
+              </button>
             </DialogTrigger>
-            <DialogContent className="w-[94%] max-w-lg rounded-2xl p-5 bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl">
+            <DialogContent className="w-[94%] max-w-md rounded-2xl p-5 bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl">
               <DialogHeader className="pb-3 border-b border-border/50">
-                <DialogTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-                  <Sparkles className="h-4.5 w-4.5 text-primary" />
-                  <span>AI Career Studio (12 Tools)</span>
+                <DialogTitle className="text-sm font-bold flex items-center gap-2 text-foreground">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  Career Studio — 12 AI Tools
                 </DialogTitle>
               </DialogHeader>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 py-4 max-h-[65vh] overflow-y-auto pr-1">
+              <div className="grid grid-cols-3 gap-2.5 py-3 max-h-[70vh] overflow-y-auto">
                 {TABS.map((t) => {
                   const isActive = activeTab === t.id;
                   const Icon = t.icon;
@@ -221,21 +178,16 @@ function CareerStudioHub() {
                         setMenuOpen(false);
                       }}
                       className={cn(
-                        "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all duration-200 cursor-pointer active:scale-95",
+                        "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all active:scale-95",
                         isActive
-                          ? "bg-primary/10 border-primary text-primary font-bold shadow-sm"
+                          ? "bg-primary/10 border-primary text-primary shadow-sm"
                           : "bg-muted/30 border-border/60 hover:bg-muted/60 text-foreground"
                       )}
                     >
-                      <div className={cn(
-                        "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
-                        isActive ? "bg-primary text-white" : "bg-muted text-muted-foreground"
-                      )}>
-                        <Icon className="h-4.5 w-4.5" />
+                      <div className={cn("h-8 w-8 rounded-lg flex items-center justify-center", isActive ? "bg-primary text-white" : "bg-muted text-muted-foreground")}>
+                        <Icon className="h-4 w-4" />
                       </div>
-                      <span className="text-xs text-center font-bold leading-tight truncate max-w-[120px]">
-                        {t.label}
-                      </span>
+                      <span className="text-[10px] text-center font-semibold leading-tight">{t.label}</span>
                     </button>
                   );
                 })}
@@ -243,97 +195,28 @@ function CareerStudioHub() {
             </DialogContent>
           </Dialog>
         </div>
-      </motion.div>
-
-      <div className="min-h-[calc(100vh-8rem)] pb-28">
-        <AnimatePresence mode="popLayout">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
-          >
-            {activeTab === "resume" && <ResumeBuilderPage embedded />}
-            {activeTab === "ats" && <AtsCheckerPage embedded />}
-            {activeTab === "interview" && <InterviewPage embedded />}
-            {activeTab === "roadmap" && <CareerRoadmapPage embedded />}
-            {activeTab === "portfolio" && <PortfolioBuilderPage embedded />}
-            {activeTab === "linkedin" && <LinkedInOptimizerView />}
-            {activeTab === "analytics" && <CareerAnalyticsView />}
-            {activeTab === "internships" && <InternshipTrackerView />}
-            {activeTab === "skillgap" && <SkillGapView />}
-            {activeTab === "ikigai" && <CareerFinderView />}
-            {activeTab === "guides" && <GuidesDocsView />}
-            {activeTab === "agents" && <AgentHub />}
-          </motion.div>
-        </AnimatePresence>
       </div>
 
-      {isMobile ? (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-          <Dialog open={menuOpen} onOpenChange={setMenuOpen}>
-            <DialogTrigger asChild>
-              <button className="flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm shadow-xl shadow-blue-500/25 ring-2 ring-white/20 active:scale-95 transition-transform backdrop-blur-md">
-                <Briefcase className="h-4 w-4 animate-bounce" />
-                <span>Career Menu (12 Tools)</span>
-                <ChevronUp className="h-4 w-4 opacity-70" />
-              </button>
-            </DialogTrigger>
-            <DialogContent className="w-[92%] max-w-sm rounded-2xl p-5 bg-card/95 backdrop-blur-xl border border-border">
-              <DialogHeader className="pb-3 border-b border-border/50">
-                <DialogTitle className="text-base font-bold flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary animate-pulse" />
-                  <span>AI Career Studio</span>
-                </DialogTitle>
-              </DialogHeader>
-              <div className="grid grid-cols-3 gap-3 py-4 max-h-[60vh] overflow-y-auto pr-1">
-                {TABS.map((t) => {
-                  const isActive = activeTab === t.id;
-                  const Icon = t.icon;
-                  return (
-                    <button
-                      key={t.id}
-                      onClick={() => {
-                        navigate({ to: "/career-studio" as any, search: { tab: t.id } as any, replace: true });
-                        setMenuOpen(false);
-                      }}
-                      className={cn(
-                        "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all duration-200 active:scale-95",
-                        isActive
-                          ? "bg-primary/10 border-primary text-primary font-bold shadow-sm shadow-primary/5"
-                          : "bg-muted/40 border-border/50 hover:bg-muted/70 text-foreground"
-                      )}
-                    >
-                      <div className={cn(
-                        "h-8 w-8 rounded-lg flex items-center justify-center transition-colors",
-                        isActive ? "bg-primary text-white" : "bg-muted text-muted-foreground"
-                      )}>
-                        <Icon className="h-4.5 w-4.5" />
-                      </div>
-                      <span className="text-[10px] text-center font-medium leading-tight truncate max-w-[80px]">
-                        {t.label}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 25 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-[95%]"
-        >
-          <MagnificationDock items={dockItems} {...dockProps} />
-        </motion.div>
-      )}
+      {/* ── Content ── */}
+      <div className="min-h-[calc(100dvh-8rem)] pb-10">
+        {activeTab === "resume" && <ResumeBuilderPage embedded />}
+        {activeTab === "ats" && <AtsCheckerPage embedded />}
+        {activeTab === "interview" && <InterviewPage embedded />}
+        {activeTab === "roadmap" && <CareerRoadmapPage embedded />}
+        {activeTab === "portfolio" && <PortfolioBuilderPage embedded />}
+        {activeTab === "linkedin" && <LinkedInOptimizerView />}
+        {activeTab === "analytics" && <CareerAnalyticsView />}
+        {activeTab === "internships" && <InternshipTrackerView />}
+        {activeTab === "skillgap" && <SkillGapView />}
+        {activeTab === "ikigai" && <CareerFinderView />}
+        {activeTab === "guides" && <GuidesDocsView />}
+        {activeTab === "agents" && <AgentHub />}
+      </div>
     </AppShell>
   );
 }
+
+
 
 function ScoreRing({
   score,
