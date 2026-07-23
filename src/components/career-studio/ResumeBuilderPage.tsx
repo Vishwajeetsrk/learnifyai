@@ -40,6 +40,24 @@ const LEARNIFY_COURSES = [
   { name: "Cloud & DevOps with AWS",       category: "Infrastructure",     match: 82 },
 ];
 
+function markdownToHtml(md: string) {
+  let html = md
+    .replace(/\r\n/g, "\n")
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^\* (.*$)/gim, '<li>$1</li>')
+    .replace(/^- (.*$)/gim, '<li>$1</li>');
+  
+  html = html.replace(/(<li>.*?<\/li>)+/gs, (match) => `<ul>${match}</ul>`);
+  
+  return html.split("\n\n").map(p => {
+    if (p.trim().startsWith("<h") || p.trim().startsWith("<ul")) return p;
+    return `<p>${p.replace(/\n/g, "<br/>")}</p>`;
+  }).join("\n");
+}
+
 const KEYWORD_BANK: Record<string, string[]> = {
   general: ["Problem-solving","Collaboration","Leadership","Agile","Scrum","Git","REST APIs","Microservices","CI/CD","Communication"],
   tech:    ["React","TypeScript","Python","Node.js","PostgreSQL","Docker","Kubernetes","AWS","GraphQL","Redis"],
@@ -139,18 +157,66 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   };
 
   const handleDownloadWord = () => {
-    if (!result) return;
-    const docHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><title>Resume</title><style>body { font-family: Calibri, Arial, sans-serif; line-height: 1.4; color: #333; margin: 1in; } h2 { font-family: Garamond, Georgia, serif; color: ${selectedTpl.accent}; border-bottom: 2px solid ${selectedTpl.accent}; padding-bottom: 4px; font-size: 16pt; margin-top: 18pt; } p { font-size: 11pt; margin-bottom: 6pt; } ul { margin-top: 0; } li { font-size: 11pt; margin-bottom: 4pt; } .header { text-align: center; margin-bottom: 20pt; } .name { font-size: 24pt; font-weight: bold; color: ${selectedTpl.accent}; } .title { font-size: 14pt; font-style: italic; color: #555; }</style></head><body><div class="header"><div class="name">${form.fullName}</div><div class="title">${form.targetRole}</div><p>${form.email} | ${form.phone} | ${form.linkedin}</p></div><div><h2>Summary</h2><p>${form.summary}</p><h2>Experience</h2><p style="white-space: pre-wrap;">${form.experience}</p><h2>Education</h2><p style="white-space: pre-wrap;">${form.education}</p><h2>Skills</h2><p>${form.skills}</p><h2>Projects</h2><p style="white-space: pre-wrap;">${form.projects}</p><h2>Certifications</h2><p>${form.certifications}</p></div></body></html>`;
-    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob(['\ufeff' + docHtml], { type: "application/msword" })), download: `${form.fullName.replace(/\s+/g,"_")}_Resume.doc` });
+    let bodyHtml = "";
+    if (result) {
+      bodyHtml = markdownToHtml(result);
+    } else {
+      bodyHtml = `
+        <div class="header">
+          <div class="name">${form.fullName || "Your Name"}</div>
+          <div class="title">${form.targetRole || ""}</div>
+          <p>${form.email} | ${form.phone} | ${form.linkedin}</p>
+        </div>
+        <div>
+          <h2>Professional Summary</h2>
+          <p>${form.summary}</p>
+          <h2>Experience</h2>
+          <p style="white-space: pre-wrap;">${form.experience}</p>
+          <h2>Education</h2>
+          <p style="white-space: pre-wrap;">${form.education}</p>
+          <h2>Skills</h2>
+          <p>${form.skills}</p>
+          <h2>Projects</h2>
+          <p style="white-space: pre-wrap;">${form.projects}</p>
+          <h2>Certifications</h2>
+          <p>${form.certifications}</p>
+        </div>
+      `;
+    }
+
+    const docHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><title>Resume</title><style>body { font-family: Calibri, Arial, sans-serif; line-height: 1.4; color: #333; margin: 1in; } h2 { font-family: Garamond, Georgia, serif; color: ${selectedTpl.accent}; border-bottom: 2px solid ${selectedTpl.accent}; padding-bottom: 4px; font-size: 16pt; margin-top: 18pt; } p { font-size: 11pt; margin-bottom: 6pt; } ul { margin-top: 0; } li { font-size: 11pt; margin-bottom: 4pt; } .header { text-align: center; margin-bottom: 20pt; } .name { font-size: 24pt; font-weight: bold; color: ${selectedTpl.accent}; } .title { font-size: 14pt; font-style: italic; color: #555; }</style></head><body>${bodyHtml}</body></html>`;
+    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob(['\ufeff' + docHtml], { type: "application/msword" })), download: `${(form.fullName || "Resume").replace(/\s+/g,"_")}_Resume.doc` });
     a.click(); toast.success("Word Document downloaded!");
   };
 
   const handleDownloadPdf = () => {
-    if (!result) return;
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return toast.error("Pop-up blocked. Enable pop-ups to print/download PDF.");
-    const pdfHtml = `<html><head><title>${form.fullName} - Resume</title><style>body { font-family: sans-serif; max-width: 800px; margin: 40px auto; padding: 0 24px; color: #1e293b; line-height: 1.5; } h2 { color: ${selectedTpl.accent}; border-bottom: 2px solid ${selectedTpl.accent}; padding-bottom: 4px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; margin-top: 24px; } p { font-size: 13px; color: #334155; } pre { white-space: pre-wrap; font-family: inherit; font-size: 13px; color: #334155; } .header { margin-bottom: 24px; text-align: center; } .name { font-size: 28px; font-weight: 800; color: ${selectedTpl.accent}; } .title { font-size: 16px; font-weight: 500; margin-top: 4px; } .contact { font-size: 12px; opacity: 0.8; margin-top: 8px; } @media print { body { margin: 0; padding: 10px; } }</style></head><body onload="window.print();window.close()"><div class="header"><div class="name">${form.fullName}</div><div class="title">${form.targetRole}</div><div class="contact">${form.email} &bull; ${form.phone} &bull; ${form.linkedin}</div></div><div><h2>Professional Summary</h2><p>${form.summary}</p><h2>Work Experience</h2><pre>${form.experience}</pre><h2>Education</h2><pre>${form.education}</pre><h2>Key Skills</h2><p>${form.skills}</p><h2>Key Projects</h2><pre>${form.projects}</pre><h2>Certifications</h2><p>${form.certifications}</p></div></body></html>`;
-    printWindow.document.write(pdfHtml); printWindow.document.close();
+    const style = document.createElement("style");
+    style.id = "print-override-style";
+    style.textContent = `
+      @media print {
+        body * {
+          visibility: hidden !important;
+        }
+        #resume-preview-container, #resume-preview-container * {
+          visibility: visible !important;
+        }
+        #resume-preview-container {
+          position: absolute !important;
+          left: 0 !important;
+          top: 0 !important;
+          width: 100% !important;
+          border: none !important;
+          box-shadow: none !important;
+          background: white !important;
+          color: black !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    window.print();
+    setTimeout(() => {
+      document.getElementById("print-override-style")?.remove();
+    }, 500);
   };
 
   const addKw = (kw: string) => { update("skills", form.skills ? form.skills + ", " + kw : kw); toast.success(`Added "${kw}"`); };
@@ -205,7 +271,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             ))}
           </div>
 
-          {result && (
+          {(result || form.fullName.trim()) && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground font-bold">Download format:</span>
               <button onClick={handleDownloadWord} className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm"><Download className="h-3 w-3" /> Word (.doc)</button>
@@ -241,13 +307,15 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             ) : (
               <div className="space-y-3">
                 {result ? (
-                  <Card className="p-6 rounded-2xl border shadow-sm overflow-auto max-h-[70vh]">
+                  <Card id="resume-preview-container" className="p-6 rounded-2xl border shadow-sm overflow-auto max-h-[70vh]">
                     <div className="prose prose-sm dark:prose-invert max-w-none">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
                     </div>
                   </Card>
                 ) : (
-                  <ResumePreview form={form} template={selectedTpl} />
+                  <div id="resume-preview-container">
+                    <ResumePreview form={form} template={selectedTpl} />
+                  </div>
                 )}
               </div>
             )}

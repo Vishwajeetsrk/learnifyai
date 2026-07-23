@@ -157,11 +157,21 @@ const DEFAULT_PRESET: Question = {
 };
 
 /* ── Interactive SVG Talking Avatar ── */
-function SVGAvatar({ speaking, avatarModel }: { speaking: boolean; avatarModel: string }) {
+function SVGAvatar({ viseme, avatarModel }: { viseme: string; avatarModel: string }) {
   const isSarah = avatarModel === "sarah";
   const name = isSarah ? "Sarah Jenkins" : "Alex Rivera";
   const role = isSarah ? "Senior Engineering Interviewer" : "Technical Recruitment Lead";
   
+  const VISEMES: Record<string, string> = {
+    X: "M45 56 Q50 59 55 56", // closed smile
+    A: "M44 56 Q50 61 56 56 Q50 58 44 56 Z", // slightly open
+    B: "M43 56 Q50 63 57 56 Q50 57 43 56 Z", // more open
+    C: "M44 56 Q50 65 56 56 Q50 59 44 56 Z", // wide open vertical
+    D: "M42 56 Q50 68 58 56 Q50 58 42 56 Z", // very wide open
+    E: "M45 55 Q50 58 55 55 Q50 61 45 55 Z", // wide horizontal narrow vertical
+    O: "M46 56 Q50 62 54 56 Q50 51 46 56 Z", // rounded circle
+  };
+
   return (
     <div className="flex flex-col items-center justify-center p-4">
       <svg className="w-24 h-24 drop-shadow-xl" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -195,11 +205,11 @@ function SVGAvatar({ speaking, avatarModel }: { speaking: boolean; avatarModel: 
         <path d="M39 41 C41 40 44 41 45 42" stroke={isSarah ? "#451a03" : "#1e293b"} strokeWidth="1.5" strokeLinecap="round" />
         <path d="M61 41 C59 40 56 41 55 42" stroke={isSarah ? "#451a03" : "#1e293b"} strokeWidth="1.5" strokeLinecap="round" />
 
-        {/* Mouth (Talking / Lip Sync CSS Animation) */}
-        {speaking ? (
-          <path d="M45 56 Q50 62 55 56 Q50 64 45 56 Z" fill="#be123c" className="animate-talk" style={{ transformOrigin: "50px 58px" }} />
+        {/* Mouth (Talking / Lip Sync viseme Morphing) */}
+        {viseme === "X" ? (
+          <path d={VISEMES.X} stroke="#be123c" strokeWidth="2.5" strokeLinecap="round" fill="none" />
         ) : (
-          <path d="M45 56 Q50 59 55 56" stroke="#be123c" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          <path d={VISEMES[viseme] || VISEMES.X} fill="#be123c" />
         )}
 
         {/* Glasses for Sarah */}
@@ -258,6 +268,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const [cameraActive, setCameraActive] = useState(false);
   const [micActive, setMicActive] = useState(true);
   const [aiSpeaking, setAiSpeaking] = useState(false);
+  const [viseme, setViseme] = useState("X");
 
   const recognitionRef = useRef<any>(null);
   const synthRef = useRef<any>(null);
@@ -309,6 +320,19 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
       };
     }
   }, [step, mode]);
+
+  useEffect(() => {
+    if (!aiSpeaking) {
+      setViseme("X");
+      return;
+    }
+    const visemeKeys = ["A", "B", "C", "D", "E", "O"];
+    const timer = setInterval(() => {
+      const nextViseme = visemeKeys[Math.floor(Math.random() * visemeKeys.length)];
+      setViseme(nextViseme);
+    }, 100);
+    return () => clearInterval(timer);
+  }, [aiSpeaking]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -662,7 +686,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
                     AI Interactor: {avatarModel === "sarah" ? "Sarah (Senior Tech Lead)" : "Alex (Recruitment Lead)"}
                   </div>
 
-                  <SVGAvatar speaking={aiSpeaking} avatarModel={avatarModel} />
+                  <SVGAvatar viseme={viseme} avatarModel={avatarModel} />
 
                   <div className="absolute bottom-3 whitespace-nowrap bg-slate-900/90 text-indigo-300 border border-indigo-500/30 text-[9px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md">
                     {evaluating ? "Evaluating..." : aiSpeaking ? "Sarah is Speaking..." : isRecording ? "Listening..." : "Standing By..."}
