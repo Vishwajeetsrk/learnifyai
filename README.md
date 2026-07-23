@@ -1044,6 +1044,19 @@ MIT License. See [LICENSE](LICENSE) for details.
 - Super admin can delete any post
 - AI Toolkit generate buttons work without requiring user input
 
+### v4.2.0 (July 2026)
+
+- **LinkedIn Profile Optimizer complete rebuild**: Full section editor (Headline, About, Skills, Experience, Projects, Education, Featured) with live LinkedIn-style Preview and AI Posts generator
+- **3-tab UI**: Edit Profile → Live Preview → AI Posts (4 personalized posts generated from your actual profile data)
+- **AI Headline Generator**: 5 role-tailored suggestions based on skills, experience, education
+- **About Optimizer**: Story and Recruiter modes with one-click apply
+- **Zero TypeScript errors**: Full tsc --noEmit pass with clean JSX structure after fixing corrupted merge artifacts
+- **Career Studio fixes**: Resolved all broken JSX merge artifacts across LinkedInOptimizerView (905 lines of corrupt code replaced with clean 424-line function)
+- **Interview Prep**: Exit/Cancel button, animated AI avatar (Sarah Jenkins), video feed panel, progress counter
+- **Portfolio Builder**: Template gallery, live preview, ZIP download with full file/folder structure
+- **All emoji removed**: Replaced with Lucide SVG icons throughout Career Studio
+
+
 ### v1.1.0 (June 2026)
 
 - Complete UI overhaul with glassmorphism design
