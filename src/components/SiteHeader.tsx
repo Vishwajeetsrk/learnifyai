@@ -22,7 +22,7 @@ export function SiteHeader() {
 
   const fallbackNav = [
     { label: tr("nav.features", "Features"), url: "/features" },
-    { label: tr("nav.systemDesign", "System Design"), url: "/system-design", isHighlighted: true },
+    { label: tr("nav.systemDesign", "System Design"), url: "/system-design" },
     { label: tr("nav.aiTools", "AI Tools"), url: "/features#ai-tools" },
     { label: tr("nav.creators", "Creators"), url: "/creators" },
     { label: tr("nav.coaches", "Coaches"), url: "/coaches" },
@@ -50,24 +50,16 @@ export function SiteHeader() {
                   key={item.id || item.label}
                   to={item.url || "/"}
                   preload="intent"
-                  className={
-                    isSystemDesign
-                      ? "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition font-semibold text-xs shadow-xs"
-                      : "hover:text-foreground transition"
-                  }
+                  className="hover:text-foreground transition inline-flex items-center gap-1.5 font-medium"
                 >
                   {isSystemDesign && <Cpu className="h-3.5 w-3.5 text-primary" />}
-                  {item.label}
-                  {isSystemDesign && (
-                    <span className="bg-primary text-primary-foreground text-[9px] px-1.5 py-0.2 rounded-full font-bold uppercase tracking-wider">
-                      Demo
-                    </span>
-                  )}
+                  <span>{item.label}</span>
                 </Link>
               );
             })
           )}
         </nav>
+
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <LanguageSwitcher />
