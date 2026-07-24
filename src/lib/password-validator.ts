@@ -1,4 +1,6 @@
-export const validatePasswordStrength = (password: string): { isValid: boolean; error?: string } => {
+export const validatePasswordStrength = (
+  password: string,
+): { isValid: boolean; error?: string } => {
   const minLength = 12;
   const hasUpperCase = /[A-Z]/.test(password);
   const hasLowerCase = /[a-z]/.test(password);

@@ -163,7 +163,7 @@ export function CertificatePreview({
           if (isLocked) return;
           e.stopPropagation();
           onSelect(el.id);
-          
+
           const startX = e.clientX;
           const startY = e.clientY;
           const elemX = el.x;
@@ -174,7 +174,7 @@ export function CertificatePreview({
             const dy = moveEvent.clientY - startY;
             const nextX = elemX + dx / scale;
             const nextY = elemY + dy / scale;
-            
+
             const maxW = 842 - (el.width || 50);
             const maxH = 595 - (el.height || 30);
             const boundedX = Math.max(0, Math.min(maxW, nextX));
@@ -199,7 +199,7 @@ export function CertificatePreview({
           if (isLocked) return;
           e.stopPropagation();
           onSelect(el.id);
-          
+
           const touch = e.touches[0];
           const startX = touch.clientX;
           const startY = touch.clientY;
@@ -311,42 +311,44 @@ export function CertificatePreview({
           >
             {/* FLOATING CONTEXT TOOLBAR */}
             {isSelected && (
-              <div 
+              <div
                 className="absolute left-1/2 -translate-x-1/2 -top-11 bg-slate-900/95 text-white rounded-lg shadow-xl px-2 py-1 flex items-center gap-1.5 z-[100] backdrop-blur-sm border border-slate-700/50 scale-75 origin-bottom"
                 onMouseDown={(e) => e.stopPropagation()}
               >
-                <button 
-                  onClick={() => onUpdateElement(el.id, { locked: !isLocked })} 
+                <button
+                  onClick={() => onUpdateElement(el.id, { locked: !isLocked })}
                   className={`p-1 hover:bg-slate-800 rounded transition-colors ${isLocked ? "text-amber-400" : "text-slate-300"}`}
                   title={isLocked ? "Unlock Element" : "Lock Element"}
                 >
                   {isLocked ? <Lock size={12} /> : <Unlock size={12} />}
                 </button>
                 <div className="w-px h-3 bg-slate-700" />
-                <button 
-                  onClick={() => onUpdateElement(el.id, { zIndex: (el.zIndex ?? 10) + 1 })} 
+                <button
+                  onClick={() => onUpdateElement(el.id, { zIndex: (el.zIndex ?? 10) + 1 })}
                   className="p-1 hover:bg-slate-800 rounded transition-colors text-slate-300"
                   title="Bring Forward"
                 >
                   <ChevronRight size={12} className="-rotate-90" />
                 </button>
-                <button 
-                  onClick={() => onUpdateElement(el.id, { zIndex: Math.max(0, (el.zIndex ?? 10) - 1) })} 
+                <button
+                  onClick={() =>
+                    onUpdateElement(el.id, { zIndex: Math.max(0, (el.zIndex ?? 10) - 1) })
+                  }
                   className="p-1 hover:bg-slate-800 rounded transition-colors text-slate-300"
                   title="Send Backward"
                 >
                   <ChevronRight size={12} className="rotate-90" />
                 </button>
                 <div className="w-px h-3 bg-slate-700" />
-                <button 
-                  onClick={() => onDuplicateElement(el.id)} 
+                <button
+                  onClick={() => onDuplicateElement(el.id)}
                   className="p-1 hover:bg-slate-800 rounded transition-colors text-slate-300"
                   title="Duplicate"
                 >
                   <Copy size={12} />
                 </button>
-                <button 
-                  onClick={() => onDeleteElement(el.id)} 
+                <button
+                  onClick={() => onDeleteElement(el.id)}
                   className="p-1 hover:bg-slate-800 text-red-400 rounded transition-colors"
                   title="Delete"
                 >
@@ -358,22 +360,22 @@ export function CertificatePreview({
             {/* RESIZE HANDLES */}
             {isSelected && !isLocked && (
               <>
-                <div 
+                <div
                   className="absolute w-2.5 h-2.5 bg-white border-2 border-blue-600 rounded-full z-[60] cursor-nwse-resize"
                   style={{ top: -4, left: -4 }}
                   onMouseDown={(e) => handleResizeStart(e, "top-left")}
                 />
-                <div 
+                <div
                   className="absolute w-2.5 h-2.5 bg-white border-2 border-blue-600 rounded-full z-[60] cursor-nesw-resize"
                   style={{ top: -4, right: -4 }}
                   onMouseDown={(e) => handleResizeStart(e, "top-right")}
                 />
-                <div 
+                <div
                   className="absolute w-2.5 h-2.5 bg-white border-2 border-blue-600 rounded-full z-[60] cursor-nesw-resize"
                   style={{ bottom: -4, left: -4 }}
                   onMouseDown={(e) => handleResizeStart(e, "bottom-left")}
                 />
-                <div 
+                <div
                   className="absolute w-2.5 h-2.5 bg-white border-2 border-blue-600 rounded-full z-[60] cursor-nwse-resize"
                   style={{ bottom: -4, right: -4 }}
                   onMouseDown={(e) => handleResizeStart(e, "bottom-right")}
@@ -523,7 +525,9 @@ export function CertificatePreview({
                 <div className="w-full h-full bg-white p-1 rounded-md border border-slate-200 flex items-center justify-center shadow-sm">
                   <img
                     src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(
-                      window.location.origin + "/verify/certificate/" + (el.content || "LAI-2026-000124")
+                      window.location.origin +
+                        "/verify/certificate/" +
+                        (el.content || "LAI-2026-000124"),
                     )}`}
                     alt="QR Code"
                     className="w-full h-full object-contain"

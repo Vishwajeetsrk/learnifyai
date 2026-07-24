@@ -39,7 +39,8 @@ const DEFAULT_INVOICE_SETTINGS: Record<string, string> = {
   invoice_legal_name: "Learnify EdTech Pvt. Ltd.",
   invoice_gstin: "29XXXXX1234X1Z5",
   invoice_prefix: "INV",
-  invoice_footer: "Thank you for supporting Learnify AI! For queries, contact support@learnifyai.in.",
+  invoice_footer:
+    "Thank you for supporting Learnify AI! For queries, contact support@learnifyai.in.",
   invoice_logo_url: "/logo.png",
   invoice_contact: "support@learnifyai.in · +91 99182 31234",
   invoice_address: "102, Innovation Hub, Outer Ring Road, Bangalore, KA, 560103",
@@ -48,8 +49,10 @@ const DEFAULT_INVOICE_SETTINGS: Record<string, string> = {
   invoice_secondary_color: "#7c3aed",
   invoice_watermark: "PAID",
   invoice_signature: "",
-  invoice_terms: "1. Fees paid are governed under Consumer Protection (E-Commerce) Rules 2020. 2. Subscriptions auto-renew until cancelled.",
-  invoice_refund_policy: "Auto-approved refunds are processed within 5-7 working days via Cashfree.",
+  invoice_terms:
+    "1. Fees paid are governed under Consumer Protection (E-Commerce) Rules 2020. 2. Subscriptions auto-renew until cancelled.",
+  invoice_refund_policy:
+    "Auto-approved refunds are processed within 5-7 working days via Cashfree.",
   invoice_template: "modern",
   invoice_qr_enabled: "true",
 };
@@ -176,9 +179,7 @@ export default function InvoiceDesigner() {
       amount_inr: 4999.0,
       tax_inr: 899.82,
       total_inr: 5898.82,
-      line_items: [
-        { name: "Premium SaaS Accelerator Program", quantity: 1, amount: 4999.0 },
-      ],
+      line_items: [{ name: "Premium SaaS Accelerator Program", quantity: 1, amount: 4999.0 }],
       payment_method: "UPI (Cashfree)",
       paid_at: new Date().toISOString(),
       cashfree_order_id: "CF_ORDER_9918231",
@@ -237,9 +238,15 @@ export default function InvoiceDesigner() {
 
             <Tabs defaultValue="company" className="w-full">
               <TabsList className="grid grid-cols-3 mb-4 h-9">
-                <TabsTrigger value="company" className="text-xs">Company</TabsTrigger>
-                <TabsTrigger value="design" className="text-xs">Aesthetics</TabsTrigger>
-                <TabsTrigger value="compliance" className="text-xs">Policies</TabsTrigger>
+                <TabsTrigger value="company" className="text-xs">
+                  Company
+                </TabsTrigger>
+                <TabsTrigger value="design" className="text-xs">
+                  Aesthetics
+                </TabsTrigger>
+                <TabsTrigger value="compliance" className="text-xs">
+                  Policies
+                </TabsTrigger>
               </TabsList>
 
               {/* Company Info tab */}
@@ -319,7 +326,10 @@ export default function InvoiceDesigner() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="flex items-center gap-1.5">
-                      <span className="w-3 h-3 rounded-full border" style={{ backgroundColor: primaryColor }} />
+                      <span
+                        className="w-3 h-3 rounded-full border"
+                        style={{ backgroundColor: primaryColor }}
+                      />
                       Primary Theme Color
                     </Label>
                     <Input
@@ -331,7 +341,10 @@ export default function InvoiceDesigner() {
                   </div>
                   <div className="space-y-2">
                     <Label className="flex items-center gap-1.5">
-                      <span className="w-3 h-3 rounded-full border" style={{ backgroundColor: secondaryColor }} />
+                      <span
+                        className="w-3 h-3 rounded-full border"
+                        style={{ backgroundColor: secondaryColor }}
+                      />
                       Secondary Color
                     </Label>
                     <Input
@@ -377,7 +390,11 @@ export default function InvoiceDesigner() {
                       disabled={logoUploading}
                       onClick={() => document.getElementById("invoice-logo-uploader")?.click()}
                     >
-                      {logoUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {logoUploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -407,7 +424,11 @@ export default function InvoiceDesigner() {
                       disabled={sigUploading}
                       onClick={() => document.getElementById("invoice-sig-uploader")?.click()}
                     >
-                      {sigUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {sigUploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -418,11 +439,15 @@ export default function InvoiceDesigner() {
                 <div className="flex items-center justify-between py-2 border-b">
                   <div className="space-y-0.5">
                     <Label className="cursor-pointer">QR Verification Link</Label>
-                    <p className="text-[10px] text-muted-foreground">Draws a verification QR code leading to verify page.</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Draws a verification QR code leading to verify page.
+                    </p>
                   </div>
                   <Switch
                     checked={qrEnabled}
-                    onCheckedChange={(checked) => handleChange("invoice_qr_enabled", checked ? "true" : "false")}
+                    onCheckedChange={(checked) =>
+                      handleChange("invoice_qr_enabled", checked ? "true" : "false")
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -464,7 +489,11 @@ export default function InvoiceDesigner() {
 
             <div className="flex gap-2 pt-4 border-t">
               <Button className="flex-1" onClick={handleSave} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
                 Save Settings
               </Button>
               <Button variant="outline" onClick={triggerDownloadTest}>
@@ -480,9 +509,13 @@ export default function InvoiceDesigner() {
         <div className="sticky top-6">
           <div className="flex justify-between items-center mb-3">
             <h4 className="font-semibold text-sm text-muted-foreground flex items-center gap-1.5">
-              <FileText className="h-4 w-4" /> Live Invoice Canvas Preview ({templateStyle.toUpperCase()})
+              <FileText className="h-4 w-4" /> Live Invoice Canvas Preview (
+              {templateStyle.toUpperCase()})
             </h4>
-            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]">
+            <Badge
+              variant="outline"
+              className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]"
+            >
               PAID Live Render
             </Badge>
           </div>
@@ -513,8 +546,12 @@ export default function InvoiceDesigner() {
               <div className="space-y-4">
                 <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4">
                   <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">{settings.invoice_company_name}</h1>
-                    <p className="text-xs text-muted-foreground mt-1">{settings.invoice_legal_name}</p>
+                    <h1 className="text-2xl font-semibold tracking-tight">
+                      {settings.invoice_company_name}
+                    </h1>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {settings.invoice_legal_name}
+                    </p>
                   </div>
                   <div className="text-right">
                     <h2 className="text-lg font-bold">TAX INVOICE</h2>
@@ -527,13 +564,19 @@ export default function InvoiceDesigner() {
                 <div className="flex justify-between items-center border-b border-[#d4af37] pb-4">
                   <div className="flex items-center gap-3">
                     {settings.invoice_logo_url && (
-                      <img src={settings.invoice_logo_url} alt="Logo" className="w-12 h-12 object-contain" />
+                      <img
+                        src={settings.invoice_logo_url}
+                        alt="Logo"
+                        className="w-12 h-12 object-contain"
+                      />
                     )}
                     <div>
                       <h1 className="text-xl font-bold tracking-widest text-[#0f1b3d] font-serif">
                         {settings.invoice_company_name.toUpperCase()}
                       </h1>
-                      <p className="text-[10px] text-muted-foreground">{settings.invoice_legal_name}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {settings.invoice_legal_name}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -555,7 +598,11 @@ export default function InvoiceDesigner() {
               >
                 <div className="flex items-center gap-3 z-10">
                   {settings.invoice_logo_url && (
-                    <img src={settings.invoice_logo_url} alt="Logo" className="w-12 h-12 bg-white/10 rounded p-1 object-contain" />
+                    <img
+                      src={settings.invoice_logo_url}
+                      alt="Logo"
+                      className="w-12 h-12 bg-white/10 rounded p-1 object-contain"
+                    />
                   )}
                   <div>
                     <h1 className="text-xl font-bold">{settings.invoice_company_name}</h1>
@@ -577,17 +624,23 @@ export default function InvoiceDesigner() {
             {/* Invoice Info block */}
             <div className="grid grid-cols-3 gap-4 mt-6 text-[10px] border-b pb-4">
               <div>
-                <span className="text-muted-foreground uppercase block font-semibold">Invoice Date</span>
+                <span className="text-muted-foreground uppercase block font-semibold">
+                  Invoice Date
+                </span>
                 <strong className="text-xs block mt-0.5">12 Jul 2026</strong>
               </div>
               <div>
-                <span className="text-muted-foreground uppercase block font-semibold">Payment Status</span>
+                <span className="text-muted-foreground uppercase block font-semibold">
+                  Payment Status
+                </span>
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 mt-0.5">
                   {settings.invoice_watermark || "PAID"}
                 </span>
               </div>
               <div>
-                <span className="text-muted-foreground uppercase block font-semibold">Place of Supply</span>
+                <span className="text-muted-foreground uppercase block font-semibold">
+                  Place of Supply
+                </span>
                 <strong className="text-xs block mt-0.5">Karnataka (Code: 29)</strong>
               </div>
             </div>
@@ -595,7 +648,9 @@ export default function InvoiceDesigner() {
             {/* Bill Info grid */}
             <div className="grid grid-cols-2 gap-6 mt-5 text-[11px]">
               <div className="space-y-1">
-                <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase block">From</span>
+                <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase block">
+                  From
+                </span>
                 <strong className="block text-xs">{settings.invoice_company_name}</strong>
                 <p className="text-[10px] text-muted-foreground leading-relaxed whitespace-pre-line">
                   {settings.invoice_address || "Innovation Hub, Bangalore, India"}
@@ -609,10 +664,13 @@ export default function InvoiceDesigner() {
               </div>
 
               <div className="space-y-1">
-                <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase block">Bill To</span>
+                <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase block">
+                  Bill To
+                </span>
                 <strong className="block text-xs">Vishwajeet Kumar</strong>
                 <p className="text-[10px] text-muted-foreground leading-relaxed">
-                  vishwajeetsrk@gmail.com · +91 99182 31234<br />
+                  vishwajeetsrk@gmail.com · +91 99182 31234
+                  <br />
                   H.No. 405, Sector 4, HSR Layout, Bangalore, Karnataka, 560102
                 </p>
                 <span className="text-[10px] text-muted-foreground block mt-1">
@@ -637,7 +695,9 @@ export default function InvoiceDesigner() {
                 </thead>
                 <tbody className="divide-y divide-border">
                   <tr>
-                    <td className="py-3 font-medium">Premium SaaS Accelerator Program (Course Access)</td>
+                    <td className="py-3 font-medium">
+                      Premium SaaS Accelerator Program (Course Access)
+                    </td>
                     <td className="py-3 text-center text-muted-foreground">1</td>
                     <td className="py-3 text-right">₹4,999.00</td>
                     <td className="py-3 text-right">₹4,999.00</td>
@@ -649,10 +709,14 @@ export default function InvoiceDesigner() {
             {/* Total breakdown block */}
             <div className="mt-4 flex justify-between items-start text-[11px] border-t pt-4">
               <div className="space-y-1">
-                <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase block">Payment Details</span>
+                <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase block">
+                  Payment Details
+                </span>
                 <p className="text-[10px] text-muted-foreground">
-                  Gateway: <strong>Cashfree Payments</strong><br />
-                  Transaction ID: <strong>TXN_CF_881923</strong><br />
+                  Gateway: <strong>Cashfree Payments</strong>
+                  <br />
+                  Transaction ID: <strong>TXN_CF_881923</strong>
+                  <br />
                   Method: <strong>UPI (GPay)</strong>
                 </p>
               </div>
@@ -689,28 +753,40 @@ export default function InvoiceDesigner() {
                       <QrCode className="w-full h-full text-slate-800" />
                     </div>
                     <div>
-                      <strong className="block text-[8px] uppercase tracking-wider text-muted-foreground">Scan to Verify</strong>
+                      <strong className="block text-[8px] uppercase tracking-wider text-muted-foreground">
+                        Scan to Verify
+                      </strong>
                       <span className="text-[8px] text-muted-foreground block leading-tight mt-0.5">
                         Secured & tamper-proof validation on learnifyai.com.
                       </span>
                     </div>
                   </div>
                 ) : (
-                  <span className="text-[8px] text-muted-foreground italic">QR Verification is disabled.</span>
+                  <span className="text-[8px] text-muted-foreground italic">
+                    QR Verification is disabled.
+                  </span>
                 )}
               </div>
 
               <div className="text-right space-y-1">
                 {settings.invoice_signature ? (
                   <div className="h-10 flex justify-end">
-                    <img src={settings.invoice_signature} alt="Signature" className="h-full object-contain max-w-[120px]" />
+                    <img
+                      src={settings.invoice_signature}
+                      alt="Signature"
+                      className="h-full object-contain max-w-[120px]"
+                    />
                   </div>
                 ) : (
                   <div className="h-10 flex items-center justify-end">
-                    <span className="text-[8px] text-muted-foreground italic border-b border-dashed">Digitally Signed</span>
+                    <span className="text-[8px] text-muted-foreground italic border-b border-dashed">
+                      Digitally Signed
+                    </span>
                   </div>
                 )}
-                <span className="text-[9px] font-bold text-muted-foreground block">Authorized Signatory</span>
+                <span className="text-[9px] font-bold text-muted-foreground block">
+                  Authorized Signatory
+                </span>
               </div>
             </div>
 

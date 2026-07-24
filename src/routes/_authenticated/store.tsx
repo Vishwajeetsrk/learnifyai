@@ -21,7 +21,12 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { deductXP, recordPurchase, getUserPurchases, purchaseWithWallet } from "@/lib/gamification.functions";
+import {
+  deductXP,
+  recordPurchase,
+  getUserPurchases,
+  purchaseWithWallet,
+} from "@/lib/gamification.functions";
 import { saveProfileField } from "@/lib/profile-save.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -39,7 +44,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
 
 export const Route = createFileRoute("/_authenticated/store")({
   component: StorePage,
@@ -172,7 +176,11 @@ function StorePage() {
   const { data: profile } = useQuery({
     queryKey: ["my-profile", user?.id],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("xp, avatar_url").eq("id", user!.id).single();
+      const { data } = await supabase
+        .from("profiles")
+        .select("xp, avatar_url")
+        .eq("id", user!.id)
+        .single();
       return data;
     },
     enabled: !!user,
@@ -199,7 +207,8 @@ function StorePage() {
   const walletBalance = walletTxs
     .filter((t: any) => t.status === "completed")
     .reduce(
-      (s: number, t: any) => s + (t.type === "credit" ? Number(t.amount_inr) : -Number(t.amount_inr)),
+      (s: number, t: any) =>
+        s + (t.type === "credit" ? Number(t.amount_inr) : -Number(t.amount_inr)),
       0,
     );
 
@@ -261,7 +270,8 @@ function StorePage() {
         await recordFn({ data: { userId: user.id, perkId, perkName: name, cost: 1 } });
       } else {
         const costInr = avatarPurchaseItem.prime_price || 1;
-        if (walletBalance < costInr) throw new Error("Insufficient wallet balance. Please top up your wallet.");
+        if (walletBalance < costInr)
+          throw new Error("Insufficient wallet balance. Please top up your wallet.");
         await purchaseWalletFn({ data: { userId: user.id, perkId, perkName: name, costInr } });
       }
 
@@ -269,8 +279,8 @@ function StorePage() {
       const currentAvatarUrl = (profile as any)?.avatar_url || "";
       const borderMatch = currentAvatarUrl.match(/[?&]profile_border=([^&]+)/);
       const activeBorder = borderMatch ? borderMatch[1] : "";
-      const nextUrl = activeBorder 
-        ? `${avatarPurchaseItem.image_url}?profile_border=${activeBorder}` 
+      const nextUrl = activeBorder
+        ? `${avatarPurchaseItem.image_url}?profile_border=${activeBorder}`
         : avatarPurchaseItem.image_url;
       await saveFieldFn({ data: { field: "avatar_url", value: nextUrl } });
 
@@ -357,10 +367,10 @@ function StorePage() {
                   <div key={item.id} className="flex flex-col items-center gap-2">
                     <div
                       className={`relative rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer group ${
-                        isActive 
-                          ? "ring-4 ring-primary shadow-lg shadow-primary/20 scale-105" 
-                          : owned 
-                            ? "ring-2 ring-emerald-500 hover:ring-emerald-400 hover:shadow-lg hover:shadow-emerald-500/20" 
+                        isActive
+                          ? "ring-4 ring-primary shadow-lg shadow-primary/20 scale-105"
+                          : owned
+                            ? "ring-2 ring-emerald-500 hover:ring-emerald-400 hover:shadow-lg hover:shadow-emerald-500/20"
                             : "ring-2 ring-border hover:ring-primary/50 hover:shadow-xl hover:scale-105"
                       }`}
                       style={{ width: 96, height: 96 }}
@@ -377,14 +387,14 @@ function StorePage() {
                         try {
                           const borderMatch = currentAvatarUrl.match(/[?&]profile_border=([^&]+)/);
                           const activeBorder = borderMatch ? borderMatch[1] : "";
-                          const nextUrl = activeBorder 
-                            ? `${item.image_url}?profile_border=${activeBorder}` 
+                          const nextUrl = activeBorder
+                            ? `${item.image_url}?profile_border=${activeBorder}`
                             : item.image_url;
-                          
+
                           setPurchasing(item.id);
                           await saveFieldFn({ data: { field: "avatar_url", value: nextUrl } });
                           toast.success(`${item.name} set as active avatar!`);
-                          
+
                           qc.invalidateQueries({ queryKey: ["my-profile", user?.id] });
                           qc.invalidateQueries({ queryKey: ["profile-full"] });
                           qc.invalidateQueries({ queryKey: ["profile-mini"] });
@@ -418,12 +428,16 @@ function StorePage() {
                         </div>
                       )}
                       {owned && (
-                        <div className={`absolute top-1.5 right-1.5 rounded-full p-1 shadow-md ${isActive ? "bg-primary text-white" : "bg-emerald-500 text-white"}`}>
+                        <div
+                          className={`absolute top-1.5 right-1.5 rounded-full p-1 shadow-md ${isActive ? "bg-primary text-white" : "bg-emerald-500 text-white"}`}
+                        >
                           <Check className="h-3 w-3" />
                         </div>
                       )}
                     </div>
-                    <p className={`text-xs font-semibold text-center truncate max-w-[96px] ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                    <p
+                      className={`text-xs font-semibold text-center truncate max-w-[96px] ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                    >
                       {item.name}
                     </p>
                     <div className="flex items-center gap-1 text-[10px]">
@@ -540,7 +554,10 @@ function StorePage() {
                 ) : (
                   <div className="border rounded-2xl overflow-hidden bg-card divide-y divide-border">
                     {(serverPurchases as any[]).map((p) => (
-                      <div key={p.id} className="p-4 flex items-center justify-between hover:bg-muted/10 transition-colors">
+                      <div
+                        key={p.id}
+                        className="p-4 flex items-center justify-between hover:bg-muted/10 transition-colors"
+                      >
                         <div>
                           <p className="font-semibold text-sm">{p.perk_name}</p>
                           <p className="text-[10px] text-muted-foreground">
@@ -548,7 +565,10 @@ function StorePage() {
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="bg-primary/5 text-primary text-[10px]">
+                          <Badge
+                            variant="outline"
+                            className="bg-primary/5 text-primary text-[10px]"
+                          >
                             {p.cost} XP
                           </Badge>
                           <Badge className="bg-emerald-500/10 text-emerald-600 text-[10px] hover:bg-emerald-500/10">
@@ -567,29 +587,45 @@ function StorePage() {
                   </div>
                 ) : (
                   <div className="border rounded-2xl overflow-hidden bg-card divide-y divide-border">
-                    {[...walletTxs].sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()).map((tx: any, idx: number) => (
-                      <div key={idx} className="p-4 flex items-center justify-between hover:bg-muted/10 transition-colors">
-                        <div>
-                          <p className="font-semibold text-sm">
-                            {tx.description || (tx.type === "credit" ? "Wallet Topup" : "Store Purchase")}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">
-                            {tx.created_at ? new Date(tx.created_at).toLocaleString() : ""}
-                          </p>
+                    {[...walletTxs]
+                      .sort(
+                        (a: any, b: any) =>
+                          new Date(b.created_at || 0).getTime() -
+                          new Date(a.created_at || 0).getTime(),
+                      )
+                      .map((tx: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="p-4 flex items-center justify-between hover:bg-muted/10 transition-colors"
+                        >
+                          <div>
+                            <p className="font-semibold text-sm">
+                              {tx.description ||
+                                (tx.type === "credit" ? "Wallet Topup" : "Store Purchase")}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {tx.created_at ? new Date(tx.created_at).toLocaleString() : ""}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`font-mono text-xs font-bold ${tx.type === "credit" ? "text-emerald-500" : "text-destructive"}`}
+                            >
+                              {tx.type === "credit" ? "+" : "-"}₹{tx.amount_inr}
+                            </span>
+                            <Badge
+                              className={cn(
+                                "text-[10px] capitalize",
+                                tx.status === "completed"
+                                  ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10"
+                                  : "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/10",
+                              )}
+                            >
+                              {tx.status}
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`font-mono text-xs font-bold ${tx.type === "credit" ? "text-emerald-500" : "text-destructive"}`}>
-                            {tx.type === "credit" ? "+" : "-"}₹{tx.amount_inr}
-                          </span>
-                          <Badge className={cn(
-                            "text-[10px] capitalize",
-                            tx.status === "completed" ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/10" : "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/10"
-                          )}>
-                            {tx.status}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 )}
               </TabsContent>
@@ -598,7 +634,10 @@ function StorePage() {
         )}
       </div>
 
-      <Dialog open={!!avatarPurchaseItem} onOpenChange={(open) => !open && setAvatarPurchaseItem(null)}>
+      <Dialog
+        open={!!avatarPurchaseItem}
+        onOpenChange={(open) => !open && setAvatarPurchaseItem(null)}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Unlock {avatarPurchaseItem?.name}</DialogTitle>
@@ -624,13 +663,16 @@ function StorePage() {
               )}
             </div>
             <p className="text-sm text-muted-foreground text-center">
-              {avatarPurchaseItem?.description || "A professional 3D avatar for your Learnify profile."}
+              {avatarPurchaseItem?.description ||
+                "A professional 3D avatar for your Learnify profile."}
             </p>
           </div>
           <DialogFooter>
             <Button
               className="w-full flex items-center justify-center gap-1.5 h-11"
-              disabled={walletBalance < (avatarPurchaseItem?.prime_price || 1) || purchasing !== null}
+              disabled={
+                walletBalance < (avatarPurchaseItem?.prime_price || 1) || purchasing !== null
+              }
               onClick={() => handleAvatarPurchase("wallet")}
             >
               <CreditCard className="h-4 w-4" />

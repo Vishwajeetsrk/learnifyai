@@ -113,10 +113,16 @@ export function LessonSocial({ lessonId }: { lessonId: string }) {
             aria-label={likesQuery.data?.liked ? "Unlike lesson" : "Like lesson"}
             className={cn(
               "rounded-full gap-1.5 font-bold cursor-pointer transition-all shadow-xs",
-              likesQuery.data?.liked && "bg-rose-500 hover:bg-rose-600 text-white border-rose-500 shadow-md shadow-rose-500/20"
+              likesQuery.data?.liked &&
+                "bg-rose-500 hover:bg-rose-600 text-white border-rose-500 shadow-md shadow-rose-500/20",
             )}
           >
-            <Heart className={cn("h-4 w-4 transition-transform active:scale-125", likesQuery.data?.liked && "fill-current")} />
+            <Heart
+              className={cn(
+                "h-4 w-4 transition-transform active:scale-125",
+                likesQuery.data?.liked && "fill-current",
+              )}
+            />
             <span>{likesQuery.data?.count ?? 0}</span>
           </Button>
           <span className="text-xs font-bold text-foreground flex items-center gap-1.5 bg-muted/30 px-3 py-1.5 rounded-full border border-border/40">
@@ -151,7 +157,11 @@ export function LessonSocial({ lessonId }: { lessonId: string }) {
                 size="sm"
                 className="rounded-xl font-bold cursor-pointer px-4 gap-1.5 shadow-xs"
               >
-                {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {posting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
                 <span>Comment</span>
               </Button>
             </div>
@@ -169,14 +179,21 @@ export function LessonSocial({ lessonId }: { lessonId: string }) {
             .join("")
             .toUpperCase();
           return (
-            <li key={c.id} className="flex gap-3 bg-muted/20 border border-border/50 p-3 rounded-2xl">
+            <li
+              key={c.id}
+              className="flex gap-3 bg-muted/20 border border-border/50 p-3 rounded-2xl"
+            >
               <Avatar className="h-9 w-9 shrink-0 border border-border/80">
                 {c.profile?.avatar_url && <AvatarImage src={c.profile.avatar_url} alt="" />}
-                <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">{initials}</AvatarFallback>
+                <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm font-bold text-foreground truncate">{name}</span>
+                  <span className="text-xs sm:text-sm font-bold text-foreground truncate">
+                    {name}
+                  </span>
                   <span className="text-[10px] text-muted-foreground font-medium">
                     {formatRelative(c.created_at)}
                   </span>
@@ -190,7 +207,9 @@ export function LessonSocial({ lessonId }: { lessonId: string }) {
                     </button>
                   )}
                 </div>
-                <p className="text-xs sm:text-sm text-foreground/90 whitespace-pre-wrap break-words mt-1 leading-relaxed font-medium">{c.body}</p>
+                <p className="text-xs sm:text-sm text-foreground/90 whitespace-pre-wrap break-words mt-1 leading-relaxed font-medium">
+                  {c.body}
+                </p>
               </div>
             </li>
           );

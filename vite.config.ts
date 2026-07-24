@@ -54,7 +54,10 @@ export default defineConfig({
 
             // Strict package directory matching only — avoids loose substring collisions
             // (e.g. id.includes("ai") matching lucide-react's activity.js or tailwind)
-            if (id.includes("/node_modules/monaco-editor/") || id.includes("/node_modules/@monaco-editor/"))
+            if (
+              id.includes("/node_modules/monaco-editor/") ||
+              id.includes("/node_modules/@monaco-editor/")
+            )
               return "vendor-monaco";
             if (id.includes("/node_modules/pdfjs-dist/")) return "vendor-pdfjs";
             if (id.includes("/node_modules/xlsx/") || id.includes("/node_modules/exceljs/"))

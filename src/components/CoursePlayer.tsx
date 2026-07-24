@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { AdvancedVideoPlayer } from "./video-player/AdvancedVideoPlayer";
 import { CustomVideoPlayer } from "./CustomVideoPlayer";
-import type { TranscriptEntry, SubtitleTrack } from "./video-player/types";
+import type { LessonSlide, TranscriptEntry, SubtitleTrack } from "./video-player/types";
 
 interface CoursePlayerProps {
   url: string;
@@ -30,6 +30,7 @@ interface CoursePlayerProps {
   onComplete?: (lessonId: string) => void;
   transcriptEntries?: TranscriptEntry[];
   subtitleTracks?: SubtitleTrack[];
+  slides?: LessonSlide[];
 }
 
 export function CoursePlayer({
@@ -51,6 +52,7 @@ export function CoursePlayer({
   onComplete,
   transcriptEntries = [],
   subtitleTracks = [],
+  slides = [],
 }: CoursePlayerProps) {
   // Basic mode: use the existing CustomVideoPlayer
   if (mode === "basic") {
@@ -84,6 +86,7 @@ export function CoursePlayer({
       onComplete={onComplete}
       transcriptEntries={transcriptEntries}
       subtitleTracks={subtitleTracks}
+      slides={slides}
       isYouTube={isYouTube}
     />
   );

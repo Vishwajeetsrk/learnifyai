@@ -381,8 +381,8 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
             type: "image",
             src: "/templates/Logo Learnify AI.svg",
             align: "center",
-          }
-        }
+          },
+        },
       },
       {
         name: "Microsoft Technical Specialist",
@@ -444,8 +444,8 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
             type: "image",
             src: "/templates/Logo Learnify AI.svg",
             align: "center",
-          }
-        }
+          },
+        },
       },
       {
         name: "Coursera Honors Specialization",
@@ -507,8 +507,8 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
             type: "image",
             src: "/templates/Logo Learnify AI.svg",
             align: "center",
-          }
-        }
+          },
+        },
       },
       {
         name: "Claude AI Prompt Engineer",
@@ -570,8 +570,8 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
             type: "image",
             src: "/templates/Logo Learnify AI.svg",
             align: "center",
-          }
-        }
+          },
+        },
       },
       {
         name: "Codex Advanced Developer",
@@ -665,8 +665,8 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
             type: "image",
             src: "/templates/Logo Learnify AI.svg",
             align: "center",
-          }
-        }
+          },
+        },
       },
       {
         name: "W3Schools Certified Web Developer",
@@ -730,8 +730,8 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
             type: "image",
             src: "/templates/Logo Learnify AI.svg",
             align: "center",
-          }
-        }
+          },
+        },
       },
       {
         name: "Great Learning Executive Diploma",
@@ -794,9 +794,9 @@ export const seedAllTemplates = createServerFn({ method: "POST" })
             type: "image",
             src: "/templates/Logo Learnify AI.svg",
             align: "center",
-          }
-        }
-      }
+          },
+        },
+      },
     ];
 
     // Seed premium templates first

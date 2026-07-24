@@ -56,7 +56,10 @@ export const Route = createFileRoute("/")({
         content:
           "Learnify AI, Learnify, LearnifyAI, Learnify India, AI Learning OS, AI Tutoring, Online Courses India, AI Certificates, Learnify AI Platform",
       },
-      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
+      {
+        name: "robots",
+        content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+      },
       { name: "author", content: "Learnify AI" },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Learnify AI" },
@@ -87,41 +90,41 @@ export const Route = createFileRoute("/")({
             {
               "@type": "EducationalOrganization",
               "@id": "https://www.learnifyai.in/#organization",
-              "name": "Learnify AI",
-              "url": "https://www.learnifyai.in/",
-              "logo": "https://www.learnifyai.in/logo.png",
-              "description": "India's premier AI-native learning & career operating system.",
-              "sameAs": ["https://github.com/Vishwajeetsrk/learnifyai"]
+              name: "Learnify AI",
+              url: "https://www.learnifyai.in/",
+              logo: "https://www.learnifyai.in/logo.png",
+              description: "India's premier AI-native learning & career operating system.",
+              sameAs: ["https://github.com/Vishwajeetsrk/learnifyai"],
             },
             {
               "@type": "WebSite",
               "@id": "https://www.learnifyai.in/#website",
-              "url": "https://www.learnifyai.in/",
-              "name": "Learnify AI",
-              "publisher": { "@id": "https://www.learnifyai.in/#organization" },
-              "potentialAction": {
+              url: "https://www.learnifyai.in/",
+              name: "Learnify AI",
+              publisher: { "@id": "https://www.learnifyai.in/#organization" },
+              potentialAction: {
                 "@type": "SearchAction",
-                "target": "https://www.learnifyai.in/courses?q={search_term_string}",
-                "query-input": "required name=search_term_string"
-              }
+                target: "https://www.learnifyai.in/courses?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
             },
             {
               "@type": "SoftwareApplication",
-              "name": "Learnify AI OS",
-              "operatingSystem": "Web Browser",
-              "applicationCategory": "EducationalApplication",
-              "aggregateRating": {
+              name: "Learnify AI OS",
+              operatingSystem: "Web Browser",
+              applicationCategory: "EducationalApplication",
+              aggregateRating: {
                 "@type": "AggregateRating",
-                "ratingValue": "4.9",
-                "ratingCount": "1280"
+                ratingValue: "4.9",
+                ratingCount: "1280",
               },
-              "offers": {
+              offers: {
                 "@type": "Offer",
-                "price": "0",
-                "priceCurrency": "INR"
-              }
-            }
-          ]
+                price: "0",
+                priceCurrency: "INR",
+              },
+            },
+          ],
         }),
       },
     ],

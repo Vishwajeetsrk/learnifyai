@@ -2342,7 +2342,10 @@ export type Database = {
           is_preview: boolean;
           module_id: string | null;
           order_index: number;
+          audio_tracks: Json;
+          subtitle_tracks: Json;
           title: string;
+          video_slides: Json;
           video_channel_id: string | null;
           video_url: string | null;
         };
@@ -2356,7 +2359,10 @@ export type Database = {
           is_preview?: boolean;
           module_id?: string | null;
           order_index?: number;
+          audio_tracks?: Json;
+          subtitle_tracks?: Json;
           title: string;
+          video_slides?: Json;
           video_channel_id?: string | null;
           video_url?: string | null;
         };
@@ -2370,7 +2376,10 @@ export type Database = {
           is_preview?: boolean;
           module_id?: string | null;
           order_index?: number;
+          audio_tracks?: Json;
+          subtitle_tracks?: Json;
           title?: string;
+          video_slides?: Json;
           video_channel_id?: string | null;
           video_url?: string | null;
         };

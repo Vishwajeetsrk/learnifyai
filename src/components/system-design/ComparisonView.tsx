@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, X, Info, ChevronRight } from "lucide-react";
+import { Check, X, Target, ArrowRight } from "lucide-react";
 import type { Comparison } from "./types";
 import { cn } from "@/lib/utils";
 
@@ -32,13 +32,16 @@ export function ComparisonView({ comparison }: ComparisonViewProps) {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer",
+              "flex-1 py-2.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer inline-flex items-center justify-center gap-1.5",
               activeTab === tab
                 ? "text-primary border-b-2 border-primary bg-primary/5"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
             )}
           >
-            {tab === "pros" ? "✅ Pros" : tab === "cons" ? "❌ Cons" : "🎯 Use Cases"}
+            {tab === "pros" && <Check className="h-3.5 w-3.5 text-emerald-500" />}
+            {tab === "cons" && <X className="h-3.5 w-3.5 text-rose-500" />}
+            {tab === "useCases" && <Target className="h-3.5 w-3.5 text-sky-500" />}
+            <span>{tab === "pros" ? "Pros" : tab === "cons" ? "Cons" : "Use Cases"}</span>
           </button>
         ))}
       </div>
@@ -55,12 +58,15 @@ export function ComparisonView({ comparison }: ComparisonViewProps) {
                 <span
                   className={cn(
                     "mt-0.5 shrink-0 h-4 w-4 rounded-full flex items-center justify-center text-[10px] font-extrabold",
-                    activeTab === "pros" && "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+                    activeTab === "pros" &&
+                      "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
                     activeTab === "cons" && "bg-rose-500/15 text-rose-600 dark:text-rose-400",
                     activeTab === "useCases" && "bg-sky-500/15 text-sky-600 dark:text-sky-400",
                   )}
                 >
-                  {activeTab === "pros" ? "✓" : activeTab === "cons" ? "✗" : "→"}
+                  {activeTab === "pros" && <Check className="h-2.5 w-2.5" />}
+                  {activeTab === "cons" && <X className="h-2.5 w-2.5" />}
+                  {activeTab === "useCases" && <ArrowRight className="h-2.5 w-2.5" />}
                 </span>
                 <span className="flex-1">{text}</span>
               </div>

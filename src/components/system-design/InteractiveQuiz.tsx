@@ -115,7 +115,9 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
         </div>
 
         {/* Question */}
-        <p className="text-sm sm:text-base font-bold text-foreground leading-relaxed">{current.question}</p>
+        <p className="text-sm sm:text-base font-bold text-foreground leading-relaxed">
+          {current.question}
+        </p>
 
         {/* Options */}
         <div className="space-y-2">
@@ -130,7 +132,8 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
                 disabled={hasAnswered}
                 className={cn(
                   "w-full text-left px-3.5 py-3 rounded-xl text-xs sm:text-sm border transition-all cursor-pointer font-semibold",
-                  !hasAnswered && "border-border/80 text-foreground bg-card hover:border-primary/60 hover:bg-primary/5 shadow-sm",
+                  !hasAnswered &&
+                    "border-border/80 text-foreground bg-card hover:border-primary/60 hover:bg-primary/5 shadow-sm",
                   hasAnswered &&
                     isSelected &&
                     isCorrect &&
@@ -143,7 +146,10 @@ export function InteractiveQuiz({ questions, onComplete }: InteractiveQuizProps)
                     !isSelected &&
                     isOptionCorrect &&
                     "border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold",
-                  hasAnswered && !isSelected && !isOptionCorrect && "border-border/50 text-muted-foreground opacity-70",
+                  hasAnswered &&
+                    !isSelected &&
+                    !isOptionCorrect &&
+                    "border-border/50 text-muted-foreground opacity-70",
                 )}
                 aria-label={`Option ${i + 1}: ${option}`}
               >

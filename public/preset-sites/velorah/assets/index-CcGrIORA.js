@@ -20309,21 +20309,19 @@ class sg {
     return { remuxResult: this.remuxer.remux(a, o, u, f, t, i, !1, this.id), chunkMeta: s };
   }
   transmuxSampleAes(e, t, i, s, a) {
-    return this.demuxer
-      .demuxSampleAes(e, t, i)
-      .then((o) => ({
-        remuxResult: this.remuxer.remux(
-          o.audioTrack,
-          o.videoTrack,
-          o.id3Track,
-          o.textTrack,
-          i,
-          s,
-          !1,
-          this.id,
-        ),
-        chunkMeta: a,
-      }));
+    return this.demuxer.demuxSampleAes(e, t, i).then((o) => ({
+      remuxResult: this.remuxer.remux(
+        o.audioTrack,
+        o.videoTrack,
+        o.id3Track,
+        o.textTrack,
+        i,
+        s,
+        !1,
+        this.id,
+      ),
+      chunkMeta: a,
+    }));
   }
   configureTransmuxer(e) {
     const { config: t, observer: i, typeSupported: s } = this;

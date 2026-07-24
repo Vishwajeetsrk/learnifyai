@@ -26051,21 +26051,19 @@ class Ty {
     return { remuxResult: this.remuxer.remux(o, a, u, d, t, n, !1, this.id), chunkMeta: s };
   }
   transmuxSampleAes(e, t, n, s, o) {
-    return this.demuxer
-      .demuxSampleAes(e, t, n)
-      .then((a) => ({
-        remuxResult: this.remuxer.remux(
-          a.audioTrack,
-          a.videoTrack,
-          a.id3Track,
-          a.textTrack,
-          n,
-          s,
-          !1,
-          this.id,
-        ),
-        chunkMeta: o,
-      }));
+    return this.demuxer.demuxSampleAes(e, t, n).then((a) => ({
+      remuxResult: this.remuxer.remux(
+        a.audioTrack,
+        a.videoTrack,
+        a.id3Track,
+        a.textTrack,
+        n,
+        s,
+        !1,
+        this.id,
+      ),
+      chunkMeta: o,
+    }));
   }
   configureTransmuxer(e) {
     const { config: t, observer: n, typeSupported: s } = this;

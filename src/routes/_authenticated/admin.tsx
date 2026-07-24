@@ -389,7 +389,7 @@ function AdminOverview() {
 
       if (!apps || apps.length === 0) return [];
 
-      const userIds = Array.from(new Set(apps.map(a => a.user_id)));
+      const userIds = Array.from(new Set(apps.map((a) => a.user_id)));
       const { data: profiles, error: profErr } = await supabase
         .from("profiles")
         .select("id, full_name, email, avatar_url")
@@ -397,10 +397,10 @@ function AdminOverview() {
 
       if (profErr) throw profErr;
 
-      const profileMap = new Map(profiles?.map(p => [p.id, p]));
-      return apps.map(app => ({
+      const profileMap = new Map(profiles?.map((p) => [p.id, p]));
+      return apps.map((app) => ({
         ...app,
-        profiles: profileMap.get(app.user_id) || null
+        profiles: profileMap.get(app.user_id) || null,
       }));
     },
   });
@@ -1065,13 +1065,17 @@ function AdminOverview() {
     },
     {
       label: "Active Students",
-      value: activeStudentsQuery.isLoading ? "…" : (activeStudentsQuery.data ?? 0).toLocaleString("en-IN"),
+      value: activeStudentsQuery.isLoading
+        ? "…"
+        : (activeStudentsQuery.data ?? 0).toLocaleString("en-IN"),
       icon: Users,
       tint: "from-primary/30 to-primary/0",
     },
     {
       label: "Courses Created",
-      value: coursesCountQuery.isLoading ? "…" : (coursesCountQuery.data ?? 0).toLocaleString("en-IN"),
+      value: coursesCountQuery.isLoading
+        ? "…"
+        : (coursesCountQuery.data ?? 0).toLocaleString("en-IN"),
       icon: MonitorPlay,
       tint: "from-sky-500/30 to-sky-500/0",
     },
@@ -1079,9 +1083,9 @@ function AdminOverview() {
       label: "Active Promos",
       value: couponsQuery.isLoading
         ? "…"
-        : (couponsQuery.data ?? []).filter(
-            (c: any) => !c.expires_at || new Date(c.expires_at) > new Date()
-          ).length.toLocaleString("en-IN"),
+        : (couponsQuery.data ?? [])
+            .filter((c: any) => !c.expires_at || new Date(c.expires_at) > new Date())
+            .length.toLocaleString("en-IN"),
       icon: Sparkles,
       tint: "from-amber-500/30 to-amber-500/0",
     },
@@ -1127,16 +1131,36 @@ function AdminOverview() {
               Content & Curriculum
             </h3>
             <div className="flex flex-col gap-1.5">
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/courses" as any })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/courses" as any })}
+              >
                 <Compass className="h-3.5 w-3.5 mr-2 text-indigo-500" /> Courses CRUD
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/content" })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/content" })}
+              >
                 <CalendarIcon className="h-3.5 w-3.5 mr-2 text-indigo-500" /> Events & Jobs
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/system-design" as any })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/system-design" as any })}
+              >
                 <MonitorPlay className="h-3.5 w-3.5 mr-2 text-indigo-500" /> System Design
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/visual-learning" as any })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/visual-learning" as any })}
+              >
                 <Brain className="h-3.5 w-3.5 mr-2 text-indigo-500" /> Visual Learning
               </Button>
             </div>
@@ -1149,13 +1173,28 @@ function AdminOverview() {
               User Management
             </h3>
             <div className="flex flex-col gap-1.5">
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => setCreating(true)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => setCreating(true)}
+              >
                 <UserPlus className="h-3.5 w-3.5 mr-2 text-blue-500" /> Create User
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/announcements" })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/announcements" })}
+              >
                 <Megaphone className="h-3.5 w-3.5 mr-2 text-blue-500" /> Announcements
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => setShowEmailTemplates(true)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => setShowEmailTemplates(true)}
+              >
                 <Mail className="h-3.5 w-3.5 mr-2 text-blue-500" /> Email Templates
               </Button>
             </div>
@@ -1168,16 +1207,36 @@ function AdminOverview() {
               Billing & Stats
             </h3>
             <div className="flex flex-col gap-1.5">
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/billing" as any })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/billing" as any })}
+              >
                 <Wallet className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Wallet & Topups
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/subscriptions" as any })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/subscriptions" as any })}
+              >
                 <ShoppingCart className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Subscriptions
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/store" })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/store" })}
+              >
                 <ShoppingCart className="h-3.5 w-3.5 mr-2 text-emerald-500" /> XP Store admin
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/certificates" })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/certificates" })}
+              >
                 <Award className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Certificates
               </Button>
             </div>
@@ -1190,16 +1249,36 @@ function AdminOverview() {
               System & Health
             </h3>
             <div className="flex flex-col gap-1.5">
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/system-health" })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/system-health" })}
+              >
                 <Activity className="h-3.5 w-3.5 mr-2 text-amber-500" /> System Health
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/missing-videos" })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/missing-videos" })}
+              >
                 <VideoOff className="h-3.5 w-3.5 mr-2 text-amber-500" /> Missing Videos
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/audit-logs" })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/audit-logs" })}
+              >
                 <ShieldAlert className="h-3.5 w-3.5 mr-2 text-amber-500" /> Audit Logs
               </Button>
-              <Button variant="ghost" size="sm" className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted" onClick={() => navigate({ to: "/admin/enrichment-runs" })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/enrichment-runs" })}
+              >
                 <Sparkles className="h-3.5 w-3.5 mr-2 text-amber-500" /> AI Enrichment
               </Button>
             </div>

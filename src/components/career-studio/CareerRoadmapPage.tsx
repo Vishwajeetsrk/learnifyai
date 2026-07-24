@@ -269,7 +269,8 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
           </TabsTrigger>
           {savedRoadmaps.length > 0 && (
             <TabsTrigger value="saved">
-              <Bookmark className="h-3.5 w-3.5 mr-1.5 text-amber-500" /> Saved ({savedRoadmaps.length})
+              <Bookmark className="h-3.5 w-3.5 mr-1.5 text-amber-500" /> Saved (
+              {savedRoadmaps.length})
             </TabsTrigger>
           )}
         </TabsList>

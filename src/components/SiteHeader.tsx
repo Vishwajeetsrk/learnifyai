@@ -6,7 +6,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { useAuth } from "@/hooks/use-auth";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
-import { Loader2, Menu } from "lucide-react";
+import { Loader2, Menu, Cpu } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
@@ -22,7 +22,7 @@ export function SiteHeader() {
 
   const fallbackNav = [
     { label: tr("nav.features", "Features"), url: "/features" },
-    { label: tr("nav.systemDesign", "System Design"), url: "/system-design" },
+    { label: tr("nav.systemDesign", "System Design"), url: "/system-design", isHighlighted: true },
     { label: tr("nav.aiTools", "AI Tools"), url: "/features#ai-tools" },
     { label: tr("nav.creators", "Creators"), url: "/creators" },
     { label: tr("nav.coaches", "Coaches"), url: "/coaches" },
@@ -39,20 +39,33 @@ export function SiteHeader() {
           <Logo height="h-10" />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
+        <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
           {menuLoading && menuItems.length === 0 ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
-            navItems.map((item: any) => (
-              <Link
-                key={item.id || item.label}
-                to={item.url || "/"}
-                preload="intent"
-                className="hover:text-foreground transition"
-              >
-                {item.label}
-              </Link>
-            ))
+            navItems.map((item: any) => {
+              const isSystemDesign = item.url === "/system-design" || item.label?.includes("System Design");
+              return (
+                <Link
+                  key={item.id || item.label}
+                  to={item.url || "/"}
+                  preload="intent"
+                  className={
+                    isSystemDesign
+                      ? "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition font-semibold text-xs shadow-xs"
+                      : "hover:text-foreground transition"
+                  }
+                >
+                  {isSystemDesign && <Cpu className="h-3.5 w-3.5 text-primary" />}
+                  {item.label}
+                  {isSystemDesign && (
+                    <span className="bg-primary text-primary-foreground text-[9px] px-1.5 py-0.2 rounded-full font-bold uppercase tracking-wider">
+                      Demo
+                    </span>
+                  )}
+                </Link>
+              );
+            })
           )}
         </nav>
         <div className="flex items-center gap-2">

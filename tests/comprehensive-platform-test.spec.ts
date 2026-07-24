@@ -41,7 +41,10 @@ async function signIn(page: Page): Promise<boolean> {
   }
   await emailInput.fill(ADMIN_EMAIL);
   await page.locator("input#password").fill(ADMIN_PASSWORD);
-  await page.getByRole("button", { name: /sign in/i }).first().click({ force: true });
+  await page
+    .getByRole("button", { name: /sign in/i })
+    .first()
+    .click({ force: true });
   await page.waitForURL(/\/dashboard|\/onboarding/, { timeout: 30000 }).catch(() => {});
   const authed = !page.url().includes("/login");
   console.log(authed ? "Signed in successfully" : "Sign-in failed: " + page.url());
@@ -91,7 +94,9 @@ test.describe("Public Marketing Pages", () => {
     await page.waitForLoadState("domcontentloaded");
     await expect(page.locator("body")).toBeVisible();
     const pricingText = page.getByText(/starter|pro|free|plan|month/i).first();
-    await expect(pricingText).toBeVisible({ timeout: 10000 }).catch(() => null);
+    await expect(pricingText)
+      .toBeVisible({ timeout: 10000 })
+      .catch(() => null);
   });
 
   test("Pricing page works with coupon param", async ({ page }) => {
@@ -128,8 +133,15 @@ test.describe("Authentication", () => {
   test("Sign-up page renders registration form", async ({ page }) => {
     await page.goto("/signup");
     await expect(page.locator("body")).toBeVisible();
-    const hasForm = await page.locator("form, input[type=email]").first().isVisible({ timeout: 8000 }).catch(() => false);
-    const hasGoogle = await page.getByRole("button", { name: /google/i }).isVisible({ timeout: 5000 }).catch(() => false);
+    const hasForm = await page
+      .locator("form, input[type=email]")
+      .first()
+      .isVisible({ timeout: 8000 })
+      .catch(() => false);
+    const hasGoogle = await page
+      .getByRole("button", { name: /google/i })
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
     expect(hasForm || hasGoogle).toBe(true);
   });
 
@@ -147,7 +159,10 @@ test.describe("Authentication", () => {
     }
     await emailInput.fill("wrong@test.com");
     await page.locator("input#password").fill("wrongpassword123");
-    await page.getByRole("button", { name: /sign in/i }).first().click();
+    await page
+      .getByRole("button", { name: /sign in/i })
+      .first()
+      .click();
     await page.waitForTimeout(3000);
     const isStillOnLogin = page.url().includes("/login");
     expect(isStillOnLogin).toBe(true);
@@ -378,7 +393,10 @@ test.describe("AI Features", () => {
   test("AI Chat page has chat input", async ({ page }) => {
     await page.goto("/ai");
     await page.waitForLoadState("domcontentloaded").catch(() => {});
-    if (page.url().includes("/login")) { test.skip(); return; }
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
     const chatInput = page.getByPlaceholder(/ask|message|type|chat|question/i).first();
     const isVisible = await chatInput.isVisible({ timeout: 12000 }).catch(() => false);
     console.log(`  AI Chat input visible: ${isVisible}`);
@@ -388,24 +406,35 @@ test.describe("AI Features", () => {
   test("AI Tools page has tool categories", async ({ page }) => {
     await page.goto("/ai-tools");
     await page.waitForLoadState("domcontentloaded").catch(() => {});
-    if (page.url().includes("/login")) { test.skip(); return; }
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
     await expect(page.locator("body")).toBeVisible();
   });
 
   test("Playground editor renders Monaco editor", async ({ page }) => {
     await page.goto("/playground/editor");
     await page.waitForLoadState("domcontentloaded").catch(() => {});
-    if (page.url().includes("/login")) { test.skip(); return; }
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
     const editor = page.locator(".monaco-editor").first();
-    await expect(editor).toBeVisible({ timeout: 20000 }).catch(() => {
-      console.log("  Monaco editor not visible (may need language selection)");
-    });
+    await expect(editor)
+      .toBeVisible({ timeout: 20000 })
+      .catch(() => {
+        console.log("  Monaco editor not visible (may need language selection)");
+      });
   });
 
   test("Interview AI page renders", async ({ page }) => {
     await page.goto("/interview");
     await page.waitForLoadState("domcontentloaded").catch(() => {});
-    if (page.url().includes("/login")) { test.skip(); return; }
+    if (page.url().includes("/login")) {
+      test.skip();
+      return;
+    }
     await expect(page.locator("body")).toBeVisible();
   });
 });
@@ -527,7 +556,10 @@ test.describe("Navigation and Smoke Test", () => {
     await page.waitForLoadState("domcontentloaded").catch(() => {});
     await page.waitForTimeout(2000);
     const criticalErrors = errors.filter(
-      (e) => !e.includes("ResizeObserver") && !e.includes("Non-Error promise rejection") && !e.includes("Failed to fetch"),
+      (e) =>
+        !e.includes("ResizeObserver") &&
+        !e.includes("Non-Error promise rejection") &&
+        !e.includes("Failed to fetch"),
     );
     if (criticalErrors.length > 0) {
       console.log("  JS Errors:", criticalErrors);

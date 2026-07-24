@@ -77,11 +77,7 @@
   --gradient-hero:
     radial-gradient(ellipse at top, oklch(0.52 0.16 265 / 0.08), transparent 60%),
     linear-gradient(180deg, oklch(0.99 0.005 250), oklch(0.97 0.01 255));
-  --gradient-brand: linear-gradient(
-    135deg,
-    oklch(0.2 0.05 265),
-    oklch(0.52 0.16 265) 60%
-  );
+  --gradient-brand: linear-gradient(135deg, oklch(0.2 0.05 265), oklch(0.52 0.16 265) 60%);
   --gradient-glow: radial-gradient(circle, oklch(0.52 0.16 265 / 0.12), transparent 70%);
   --shadow-glow: 0 8px 32px -8px oklch(0.52 0.16 265 / 0.2);
   --shadow-card: 0 4px 12px -4px oklch(0.2 0.05 265 / 0.08);
@@ -109,11 +105,7 @@
   --gradient-hero:
     radial-gradient(ellipse at top, oklch(0.65 0.14 260 / 0.1), transparent 60%),
     linear-gradient(180deg, oklch(0.13 0.04 265), oklch(0.1 0.03 260));
-  --gradient-brand: linear-gradient(
-    135deg,
-    oklch(0.65 0.14 260),
-    oklch(0.5 0.16 265) 60%
-  );
+  --gradient-brand: linear-gradient(135deg, oklch(0.65 0.14 260), oklch(0.5 0.16 265) 60%);
 }
 
 /* Color Theme Overrides */
@@ -231,11 +223,7 @@ html[data-theme="sunset"] {
   --primary: oklch(0.62 0.17 40);
   --primary-glow: oklch(0.62 0.17 40 / 0.15);
   --ring: oklch(0.62 0.17 40);
-  --gradient-brand: linear-gradient(
-    135deg,
-    oklch(0.25 0.08 40),
-    oklch(0.62 0.17 40) 60%
-  );
+  --gradient-brand: linear-gradient(135deg, oklch(0.25 0.08 40), oklch(0.62 0.17 40) 60%);
 }
 html.dark[data-theme="sunset"] {
   --primary: oklch(0.76 0.18 45);
@@ -276,11 +264,7 @@ html[data-theme="rose"] {
   --primary: oklch(0.58 0.16 5);
   --primary-glow: oklch(0.58 0.16 5 / 0.15);
   --ring: oklch(0.58 0.16 5);
-  --gradient-brand: linear-gradient(
-    135deg,
-    oklch(0.22 0.06 5),
-    oklch(0.58 0.16 5) 60%
-  );
+  --gradient-brand: linear-gradient(135deg, oklch(0.22 0.06 5), oklch(0.58 0.16 5) 60%);
 }
 html.dark[data-theme="rose"] {
   --primary: oklch(0.74 0.18 5);
@@ -412,6 +396,3 @@ html.dark[data-theme="noir"] {
     box-shadow: var(--shadow-card);
   }
 }
-
-
-

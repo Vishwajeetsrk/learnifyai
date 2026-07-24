@@ -146,7 +146,9 @@ function VerifyStudentPage() {
               <GraduationCap className="h-3.5 w-3.5" />
               <span>20% Student Discount</span>
             </div>
-            <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">Student Verification</CardTitle>
+            <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">
+              Student Verification
+            </CardTitle>
             <CardDescription className="text-xs sm:text-sm font-medium text-muted-foreground mt-1">
               Verify your student email to get 20% off all paid plans on Learnify AI.
             </CardDescription>

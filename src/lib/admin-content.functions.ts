@@ -227,9 +227,7 @@ export const cleanDuplicateSiteSettings = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Fetch all current settings
-    const { data: settings, error } = await supabaseAdmin
-      .from("site_settings")
-      .select("key,value");
+    const { data: settings, error } = await supabaseAdmin.from("site_settings").select("key,value");
 
     if (error) throw error;
     if (!settings) return { success: true, message: "No settings to clean" };
@@ -287,7 +285,7 @@ export const cleanDuplicateSiteSettings = createServerFn({ method: "POST" })
         keysToDelete.push(origKey);
 
         if (!mergedValues[cleanKey]) {
-          const existingCleanItem = originalSettings.find(s => s.key === cleanKey);
+          const existingCleanItem = originalSettings.find((s) => s.key === cleanKey);
           const existingCleanVal = existingCleanItem?.value ?? "";
           mergedValues[cleanKey] = existingCleanVal || val;
         } else if (val) {
@@ -328,4 +326,3 @@ export const cleanDuplicateSiteSettings = createServerFn({ method: "POST" })
       updatedKeys: Object.keys(mergedValues),
     };
   });
-

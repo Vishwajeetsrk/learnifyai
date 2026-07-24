@@ -386,7 +386,7 @@ export default function AdminContentPage() {
               <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-2">
                 Content Menu
               </h2>
-              
+
               {/* Mobile quick-select dropdown */}
               <div className="block md:hidden">
                 <Select value={tab} onValueChange={setTab}>
@@ -448,7 +448,7 @@ export default function AdminContentPage() {
                             "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
                             isActive
                               ? "bg-primary text-primary-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted",
                           )}
                         >
                           <Icon className="h-3.5 w-3.5" />
@@ -484,7 +484,7 @@ export default function AdminContentPage() {
                             "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
                             isActive
                               ? "bg-primary text-primary-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted",
                           )}
                         >
                           <Icon className="h-3.5 w-3.5" />
@@ -517,7 +517,7 @@ export default function AdminContentPage() {
                             "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
                             isActive
                               ? "bg-primary text-primary-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted",
                           )}
                         >
                           <Icon className="h-3.5 w-3.5" />
@@ -555,7 +555,7 @@ export default function AdminContentPage() {
                             "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
                             isActive
                               ? "bg-primary text-primary-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted",
                           )}
                         >
                           <Icon className="h-3.5 w-3.5" />
@@ -741,27 +741,33 @@ function EventsManager() {
     const defaults = [
       {
         title: "Next.js 15 & React 19 Live Workshop",
-        description: "Build full-stack AI SaaS apps with TanStack Start, React 19, Supabase, and Cashfree payments.",
+        description:
+          "Build full-stack AI SaaS apps with TanStack Start, React 19, Supabase, and Cashfree payments.",
         starts_at: new Date("2026-08-15T18:00:00Z").toISOString(),
         location: "Online (Discord Live Channel)",
         rsvp_url: "https://discord.gg/learnifyai",
-        image_url: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80",
       },
       {
         title: "AI Creators Panel & AMA Session",
-        description: "Live Q&A with top AI course creators, prompt engineers, and tech coaches on Learnify AI.",
+        description:
+          "Live Q&A with top AI course creators, prompt engineers, and tech coaches on Learnify AI.",
         starts_at: new Date("2026-08-22T18:00:00Z").toISOString(),
         location: "Online (Zoom Webinar Room)",
         rsvp_url: "https://zoom.us/j/learnifyai",
-        image_url: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
       },
       {
         title: "Bangalore Creator & Coach Meetup",
-        description: "In-person networking, live lightning talks, and hands-on AI prompt engineering demos.",
+        description:
+          "In-person networking, live lightning talks, and hands-on AI prompt engineering demos.",
         starts_at: new Date("2026-08-29T10:00:00Z").toISOString(),
         location: "Innov8 Koramangala, Bangalore",
         rsvp_url: "https://www.learnifyai.in/events",
-        image_url: "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80",
       },
     ];
 
@@ -780,7 +786,9 @@ function EventsManager() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <p className="text-xs text-muted-foreground">Manage live workshops, AMAs, and tech meetups.</p>
+        <p className="text-xs text-muted-foreground">
+          Manage live workshops, AMAs, and tech meetups.
+        </p>
         <div className="flex gap-2">
           {events.length === 0 && (
             <Button variant="outline" size="sm" onClick={seedDefaultEvents}>
@@ -1133,7 +1141,8 @@ function JobsManager() {
         title: "Senior Full-Stack AI Engineer",
         team: "Engineering",
         location: "Remote · India / Global",
-        description: "Build production AI agent orchestration platforms, Supabase real-time pipelines, and TanStack Start UI features.",
+        description:
+          "Build production AI agent orchestration platforms, Supabase real-time pipelines, and TanStack Start UI features.",
         apply_url: "https://www.learnifyai.in/careers",
         active: true,
       },
@@ -1141,7 +1150,8 @@ function JobsManager() {
         title: "AI Course Creator & Technical Educator",
         team: "Content & Curriculum",
         location: "Remote · India",
-        description: "Design cutting-edge course curriculum, code playgrounds, and interactive workshops for modern software engineers.",
+        description:
+          "Design cutting-edge course curriculum, code playgrounds, and interactive workshops for modern software engineers.",
         apply_url: "https://www.learnifyai.in/apply-creator",
         active: true,
       },
@@ -1149,7 +1159,8 @@ function JobsManager() {
         title: "Developer Relations & Community Advocate",
         team: "Community",
         location: "Bangalore, KA / Hybrid",
-        description: "Engage with educators, host live Discord webinars, run hackathons, and support creator growth on Learnify AI.",
+        description:
+          "Engage with educators, host live Discord webinars, run hackathons, and support creator growth on Learnify AI.",
         apply_url: "https://www.learnifyai.in/community",
         active: true,
       },

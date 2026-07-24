@@ -8984,21 +8984,19 @@ function ud() {
                       }),
                   ],
                 }),
-                od
-                  .slice(1)
-                  .map((F) =>
-                    g.jsx(
-                      "button",
-                      {
-                        type: "button",
-                        onClick: () => D(F.id),
-                        className:
-                          "rounded-full px-3 py-2 text-sm text-white/80 transition hover:bg-white/5 hover:text-white",
-                        children: F.label,
-                      },
-                      F.id,
-                    ),
+                od.slice(1).map((F) =>
+                  g.jsx(
+                    "button",
+                    {
+                      type: "button",
+                      onClick: () => D(F.id),
+                      className:
+                        "rounded-full px-3 py-2 text-sm text-white/80 transition hover:bg-white/5 hover:text-white",
+                      children: F.label,
+                    },
+                    F.id,
                   ),
+                ),
               ],
             }),
             g.jsxs("div", {

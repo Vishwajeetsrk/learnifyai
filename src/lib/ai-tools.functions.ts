@@ -84,9 +84,10 @@ function buildMessages(d: z.infer<typeof Input>, ragContext?: string) {
     };
   }
   if (d.action === "cheatsheet") {
-    const levelNote = d.level === "advanced"
-      ? "Include advanced internals, performance optimizations, security considerations, and production-grade advice."
-      : "Keep it beginner-friendly, explain concepts simply, include analogies and starter code snippets.";
+    const levelNote =
+      d.level === "advanced"
+        ? "Include advanced internals, performance optimizations, security considerations, and production-grade advice."
+        : "Keep it beginner-friendly, explain concepts simply, include analogies and starter code snippets.";
     return {
       json: true,
       messages: [

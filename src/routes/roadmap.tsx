@@ -285,7 +285,6 @@ function RoadmapPage() {
       title="Built in the open."
       subtitle="A living view of what we're shipping next."
     >
-
       {/* Roadmap Timeline */}
       {q.isLoading ? (
         <div className="py-16 grid place-items-center">

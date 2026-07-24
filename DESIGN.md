@@ -18,6 +18,7 @@ A restrained, confident learning platform with generous whitespace and controlle
 - **Error Rose** (#DC2626) — Destructive actions, error states
 
 Dark mode:
+
 - **Deep Surface** (#0F0F11) — Primary dark background
 - **Card Dark** (#1A1A1E) — Dark card fill
 - **Light Text** (#F4F4F5) — Primary text in dark mode

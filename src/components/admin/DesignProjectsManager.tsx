@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Plus, Pencil, Trash2, LayoutTemplate, Loader2, Sparkles, ExternalLink } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  LayoutTemplate,
+  Loader2,
+  Sparkles,
+  ExternalLink,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { adminContentAction, adminContentQuery } from "@/lib/admin-content.functions";
@@ -150,12 +158,7 @@ export default function DesignProjectsManager() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  asChild
-                  title="Preview Project Course Page"
-                >
+                <Button size="sm" variant="outline" asChild title="Preview Project Course Page">
                   <a href={`/course/${p.slug}`} target="_blank" rel="noreferrer">
                     <ExternalLink className="h-3.5 w-3.5 mr-1" />
                     Preview

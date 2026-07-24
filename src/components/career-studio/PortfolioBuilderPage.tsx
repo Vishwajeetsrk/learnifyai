@@ -444,23 +444,40 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
 
       const projectCards = projects
         .filter((p) => p.name)
-        .map((p) => `
+        .map(
+          (p) => `
         <div class="project-card border border-slate-800 bg-slate-900/80 p-6 rounded-2xl shadow-lg hover:border-indigo-500/50 transition duration-300">
-          ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" class="w-full h-48 object-cover rounded-xl mb-4" />` : ''}
+          ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" class="w-full h-48 object-cover rounded-xl mb-4" />` : ""}
           <h3 class="text-xl font-bold text-slate-100 mb-2">${p.name}</h3>
           <p class="text-sm text-slate-400 mb-4 leading-relaxed">${p.description || ""}</p>
           <div class="flex flex-wrap gap-1.5 mb-4">
-            ${p.techStack ? p.techStack.split(',').map(t => `<span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${t.trim()}</span>`).join('') : ''}
+            ${
+              p.techStack
+                ? p.techStack
+                    .split(",")
+                    .map(
+                      (t) =>
+                        `<span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${t.trim()}</span>`,
+                    )
+                    .join("")
+                : ""
+            }
           </div>
-          ${p.githubUrl ? `<a href="${p.githubUrl}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-400 hover:underline">View Source Code &rarr;</a>` : ''}
+          ${p.githubUrl ? `<a href="${p.githubUrl}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-400 hover:underline">View Source Code &rarr;</a>` : ""}
         </div>
-      `).join("\n");
+      `,
+        )
+        .join("\n");
 
-      const skillsHtml = skills.map(s => `
+      const skillsHtml = skills
+        .map(
+          (s) => `
         <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-sm font-semibold text-slate-200 hover:border-indigo-500/50 transition">
           <span>${s}</span>
         </div>
-      `).join("\n");
+      `,
+        )
+        .join("\n");
 
       const indexHtml = `<!DOCTYPE html>
 <html lang="en" class="dark">
@@ -475,32 +492,44 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
   <div class="max-w-5xl mx-auto px-6 py-12">
     <!-- HERO HEADER -->
     <header class="text-center py-16 space-y-4">
-      ${photoPreview ? `<img src="./assets/avatar.png" alt="${form.fullName}" class="w-28 h-28 rounded-full mx-auto object-cover border-4 border-indigo-500/30 shadow-xl" />` : `<div class="w-28 h-28 rounded-full bg-indigo-600/20 border-2 border-indigo-500 flex items-center justify-center text-4xl font-extrabold text-indigo-400 mx-auto">${(form.fullName?.charAt(0) || "P")}</div>`}
+      ${photoPreview ? `<img src="./assets/avatar.png" alt="${form.fullName}" class="w-28 h-28 rounded-full mx-auto object-cover border-4 border-indigo-500/30 shadow-xl" />` : `<div class="w-28 h-28 rounded-full bg-indigo-600/20 border-2 border-indigo-500 flex items-center justify-center text-4xl font-extrabold text-indigo-400 mx-auto">${form.fullName?.charAt(0) || "P"}</div>`}
       <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">${form.fullName || "Your Name"}</h1>
       <p class="text-lg text-indigo-300 font-semibold max-w-xl mx-auto">${form.tagline || "Software Engineer & Builder"}</p>
       <p class="text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">${form.bio || ""}</p>
     </header>
 
     <!-- SKILLS SECTION -->
-    ${skills.length > 0 ? `
+    ${
+      skills.length > 0
+        ? `
     <section className="py-10">
       <h2 className="text-xl font-bold text-slate-200 mb-6 flex items-center gap-2"><span className="text-indigo-500">#</span> Technical Skills</h2>
       <div className="flex flex-wrap gap-3">${skillsHtml}</div>
-    </section>` : ''}
+    </section>`
+        : ""
+    }
 
     <!-- PROJECTS SECTION -->
-    ${projectCards ? `
+    ${
+      projectCards
+        ? `
     <section className="py-10">
       <h2 className="text-xl font-bold text-slate-200 mb-6 flex items-center gap-2"><span className="text-indigo-500">#</span> Featured Projects</h2>
       <div className="grid sm:grid-cols-2 gap-6">${projectCards}</div>
-    </section>` : ''}
+    </section>`
+        : ""
+    }
 
     <!-- EXPERIENCE SECTION -->
-    ${form.experience ? `
+    ${
+      form.experience
+        ? `
     <section className="py-10">
       <h2 className="text-xl font-bold text-slate-200 mb-6 flex items-center gap-2"><span className="text-indigo-500">#</span> Experience</h2>
       <div className="p-6 rounded-2xl bg-slate-900 border border-slate-800 text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">${form.experience}</div>
-    </section>` : ''}
+    </section>`
+        : ""
+    }
 
     <!-- FOOTER -->
     <footer class="text-center py-12 border-t border-slate-900 text-xs text-slate-500">
@@ -894,17 +923,35 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                 </div>
                 <div className="space-y-3 pt-2">
                   <Label className="flex items-center justify-between">
-                    <span className="font-bold text-sm">Select Design Template or Create Your Own</span>
+                    <span className="font-bold text-sm">
+                      Select Design Template or Create Your Own
+                    </span>
                     <span className="text-[10px] text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full">
                       5 Design Modes
                     </span>
                   </Label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     {[
-                      { value: "developer", label: "Cyberpunk Tech", desc: "Dark mode + glassmorphism glow" },
-                      { value: "minimal", label: "Executive Minimal", desc: "Clean serif/sans typography" },
-                      { value: "creative", label: "3D Creative", desc: "Motion cards & skill badges" },
-                      { value: "designer", label: "Designer Gallery", desc: "Portfolio grid & media focus" },
+                      {
+                        value: "developer",
+                        label: "Cyberpunk Tech",
+                        desc: "Dark mode + glassmorphism glow",
+                      },
+                      {
+                        value: "minimal",
+                        label: "Executive Minimal",
+                        desc: "Clean serif/sans typography",
+                      },
+                      {
+                        value: "creative",
+                        label: "3D Creative",
+                        desc: "Motion cards & skill badges",
+                      },
+                      {
+                        value: "designer",
+                        label: "Designer Gallery",
+                        desc: "Portfolio grid & media focus",
+                      },
                     ].map((t) => (
                       <button
                         key={t.value}
@@ -914,11 +961,13 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                           "p-3 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden",
                           form.style === t.value
                             ? "border-primary bg-primary/10 ring-2 ring-primary/20 shadow-sm"
-                            : "border-border bg-card hover:border-primary/40 hover:bg-muted/30"
+                            : "border-border bg-card hover:border-primary/40 hover:bg-muted/30",
                         )}
                       >
                         <div className="font-bold text-xs text-foreground">{t.label}</div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{t.desc}</div>
+                        <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">
+                          {t.desc}
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -927,20 +976,25 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                   <div className="p-3 bg-muted/30 border border-border/70 rounded-xl space-y-2 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-foreground flex items-center gap-1.5">
-                        <Sparkles className="h-3.5 w-3.5 text-primary" /> Create Your Own Custom Color Theme
+                        <Sparkles className="h-3.5 w-3.5 text-primary" /> Create Your Own Custom
+                        Color Theme
                       </span>
-                      <span className="text-[10px] text-muted-foreground font-mono">CSS Colors</span>
+                      <span className="text-[10px] text-muted-foreground font-mono">
+                        CSS Colors
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      {["#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"].map((hex) => (
-                        <button
-                          key={hex}
-                          type="button"
-                          onClick={() => toast.success(`Custom theme accent set to ${hex}`)}
-                          className="w-6 h-6 rounded-full border border-white/20 shadow-sm transition hover:scale-110 cursor-pointer"
-                          style={{ backgroundColor: hex }}
-                        />
-                      ))}
+                      {["#6366f1", "#06b6d4", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"].map(
+                        (hex) => (
+                          <button
+                            key={hex}
+                            type="button"
+                            onClick={() => toast.success(`Custom theme accent set to ${hex}`)}
+                            className="w-6 h-6 rounded-full border border-white/20 shadow-sm transition hover:scale-110 cursor-pointer"
+                            style={{ backgroundColor: hex }}
+                          />
+                        ),
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1272,10 +1326,19 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
               )}
 
               <div className="flex flex-wrap justify-center gap-3 pt-6 border-t mt-8">
-                <Button size="sm" onClick={handleExportZip} className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md cursor-pointer">
+                <Button
+                  size="sm"
+                  onClick={handleExportZip}
+                  className="gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md cursor-pointer"
+                >
                   <Download className="h-4 w-4" /> Download Full Website (ZIP)
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleExportHtml} className="gap-2 font-bold rounded-xl cursor-pointer">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportHtml}
+                  className="gap-2 font-bold rounded-xl cursor-pointer"
+                >
                   <Download className="h-4 w-4" /> Export HTML
                 </Button>
                 <Button

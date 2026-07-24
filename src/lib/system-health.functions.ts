@@ -63,7 +63,7 @@ export const getSystemHealth = createServerFn({ method: "GET" })
         name === "Groq"
           ? process.env.GROQ_API_KEY
           : name === "Gemini"
-            ? (process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY)
+            ? process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY
             : process.env.OPENROUTER_API_KEY;
       const url =
         name === "Groq"
@@ -79,7 +79,8 @@ export const getSystemHealth = createServerFn({ method: "GET" })
 
       try {
         const start = Date.now();
-        const headers: Record<string, string> = name === "Gemini" ? {} : { Authorization: `Bearer ${key}` };
+        const headers: Record<string, string> =
+          name === "Gemini" ? {} : { Authorization: `Bearer ${key}` };
         const res = await fetch(url, {
           headers,
           signal: AbortSignal.timeout(5000),

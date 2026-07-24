@@ -20801,25 +20801,21 @@ function vN({ children: s }) {
           "span",
           {
             style: { display: "block" },
-            children: i
-              .split(" ")
-              .map((a, o, u) =>
-                mt.jsxs(
-                  "span",
-                  {
-                    style: { display: "inline-block", whiteSpace: "nowrap" },
-                    children: [
-                      a
-                        .split("")
-                        .map((h, f) => mt.jsx("span", { className: "char", children: h }, f)),
-                      o < u.length - 1
-                        ? mt.jsx("span", { className: "char", children: " " })
-                        : null,
-                    ],
-                  },
-                  o,
-                ),
+            children: i.split(" ").map((a, o, u) =>
+              mt.jsxs(
+                "span",
+                {
+                  style: { display: "inline-block", whiteSpace: "nowrap" },
+                  children: [
+                    a
+                      .split("")
+                      .map((h, f) => mt.jsx("span", { className: "char", children: h }, f)),
+                    o < u.length - 1 ? mt.jsx("span", { className: "char", children: " " }) : null,
+                  ],
+                },
+                o,
               ),
+            ),
           },
           n,
         ),
@@ -32178,21 +32174,19 @@ class wb {
     return { remuxResult: this.remuxer.remux(a, o, u, h, e, i, !1, this.id), chunkMeta: n };
   }
   transmuxSampleAes(t, e, i, n, a) {
-    return this.demuxer
-      .demuxSampleAes(t, e, i)
-      .then((o) => ({
-        remuxResult: this.remuxer.remux(
-          o.audioTrack,
-          o.videoTrack,
-          o.id3Track,
-          o.textTrack,
-          i,
-          n,
-          !1,
-          this.id,
-        ),
-        chunkMeta: a,
-      }));
+    return this.demuxer.demuxSampleAes(t, e, i).then((o) => ({
+      remuxResult: this.remuxer.remux(
+        o.audioTrack,
+        o.videoTrack,
+        o.id3Track,
+        o.textTrack,
+        i,
+        n,
+        !1,
+        this.id,
+      ),
+      chunkMeta: a,
+    }));
   }
   configureTransmuxer(t) {
     const { config: e, observer: i, typeSupported: n } = this;

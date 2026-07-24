@@ -10,8 +10,7 @@ function escapeHtml(s: string): string {
 }
 
 function resolveOrigin(): string {
-  const origin =
-    process.env.APP_URL || process.env.VITE_APP_URL || "https://www.learnifyai.in";
+  const origin = process.env.APP_URL || process.env.VITE_APP_URL || "https://www.learnifyai.in";
   return origin.replace(/[^a-zA-Z0-9:/.\-_]/g, "");
 }
 

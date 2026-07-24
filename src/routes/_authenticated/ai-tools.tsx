@@ -54,7 +54,10 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { runAiTool } from "@/lib/ai-tools.functions";
-import { CheatSheetRenderer, type CheatSheetData } from "@/components/cheat-sheet/CheatSheetGenerator";
+import {
+  CheatSheetRenderer,
+  type CheatSheetData,
+} from "@/components/cheat-sheet/CheatSheetGenerator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -137,15 +140,15 @@ const TOOLS: {
 function AIToolsPage() {
   const { user } = useAuth();
   const [open, setOpen] = useState<ToolId | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<"all" | "career" | "learning" | "code">("all");
+  const [categoryFilter, setCategoryFilter] = useState<"all" | "career" | "learning" | "code">(
+    "all",
+  );
 
   const usageQuery = useQuery({
     enabled: !!user,
     queryKey: ["ai-tools-usage", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("ai_outputs")
-        .select("tool");
+      const { data, error } = await supabase.from("ai_outputs").select("tool");
       if (error) throw error;
       const map: Record<string, number> = {};
       (data ?? []).forEach((row: any) => {
@@ -156,7 +159,7 @@ function AIToolsPage() {
   });
 
   const filteredTools = TOOLS.filter(
-    (t) => categoryFilter === "all" || t.category === categoryFilter
+    (t) => categoryFilter === "all" || t.category === categoryFilter,
   );
 
   return (
@@ -205,7 +208,7 @@ function AIToolsPage() {
                     "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer",
                     categoryFilter === c.id
                       ? "bg-background text-foreground shadow-sm font-bold"
-                      : "text-muted-foreground hover:text-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                   )}
                 >
                   <c.icon className="h-3.5 w-3.5" />
@@ -241,7 +244,9 @@ function AIToolsPage() {
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-normal">{t.tagline}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-normal">
+                          {t.tagline}
+                        </p>
                       </div>
                       <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition shrink-0" />
                     </div>
@@ -272,7 +277,9 @@ function AIToolsPage() {
 
 /* ---------------- Saved Cheat Sheet Library ---------------- */
 function SavedLibraryPanel() {
-  const [sheets, setSheets] = useState<{ key: string; data: CheatSheetData; savedAt: string }[]>([]);
+  const [sheets, setSheets] = useState<{ key: string; data: CheatSheetData; savedAt: string }[]>(
+    [],
+  );
   const [activeSheet, setActiveSheet] = useState<CheatSheetData | null>(null);
 
   const loadSheets = () => {
@@ -337,7 +344,8 @@ function SavedLibraryPanel() {
         <div>
           <p className="font-semibold text-foreground">No saved cheat sheets</p>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto mt-1 leading-relaxed">
-            Generate a cheat sheet in the Tools tab and click "Save" to build your personal reference library.
+            Generate a cheat sheet in the Tools tab and click "Save" to build your personal
+            reference library.
           </p>
         </div>
       </div>
@@ -740,7 +748,9 @@ function ToolDialog({ tool, onClose }: { tool: ToolId; onClose: () => void }) {
   const isCheatsheet = tool === "cheatsheet";
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className={cn("max-h-[90vh] overflow-y-auto", isCheatsheet ? "max-w-5xl" : "max-w-3xl")}>
+      <DialogContent
+        className={cn("max-h-[90vh] overflow-y-auto", isCheatsheet ? "max-w-5xl" : "max-w-3xl")}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Icon className="h-5 w-5 text-primary" /> {meta.title}
@@ -1419,8 +1429,8 @@ function CheatSheetTool() {
   return (
     <div className="space-y-4 py-2">
       <p className="text-sm text-muted-foreground">
-        Enter any topic — HTML, Firebase, React, Docker, SQL — and get a fully structured cheat sheet
-        with quick reference, comparison tables, gotchas, and interview Q&amp;A.
+        Enter any topic — HTML, Firebase, React, Docker, SQL — and get a fully structured cheat
+        sheet with quick reference, comparison tables, gotchas, and interview Q&amp;A.
       </p>
       <div className="flex flex-col gap-2">
         <Input
@@ -1456,11 +1466,7 @@ function CheatSheetTool() {
               Advanced
             </Button>
           </div>
-          <Button
-            onClick={generate}
-            disabled={loading || !topic.trim()}
-            className="flex-1"
-          >
+          <Button onClick={generate} disabled={loading || !topic.trim()} className="flex-1">
             {loading ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : (

@@ -108,8 +108,12 @@ function CertificateVerificationPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h1 className="text-lg font-bold text-foreground">Authentic Credential Verified</h1>
-                    <Badge className="bg-emerald-500 text-white hover:bg-emerald-500">Official</Badge>
+                    <h1 className="text-lg font-bold text-foreground">
+                      Authentic Credential Verified
+                    </h1>
+                    <Badge className="bg-emerald-500 text-white hover:bg-emerald-500">
+                      Official
+                    </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Verified on Learnify AI Immutable Credential Registry

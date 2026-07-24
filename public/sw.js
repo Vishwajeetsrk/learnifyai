@@ -73,7 +73,9 @@ self.addEventListener("fetch", (event) => {
           }
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || new Response("", { status: 404 }))),
+        .catch(() =>
+          caches.match(request).then((cached) => cached || new Response("", { status: 404 })),
+        ),
     );
     return;
   }

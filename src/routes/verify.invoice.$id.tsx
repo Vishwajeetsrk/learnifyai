@@ -76,7 +76,9 @@ function VerifyInvoicePage() {
         {q.isLoading ? (
           <div className="py-16 text-center space-y-3">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-sm text-muted-foreground">Verifying signature on blockchain registry...</p>
+            <p className="text-sm text-muted-foreground">
+              Verifying signature on blockchain registry...
+            </p>
           </div>
         ) : q.isError ? (
           <div className="text-center py-10 space-y-4">
@@ -86,7 +88,8 @@ function VerifyInvoicePage() {
             <div>
               <h2 className="text-xl font-bold text-foreground">Invalid Invoice Token</h2>
               <p className="text-sm text-muted-foreground mt-1.5 max-w-md mx-auto">
-                The requested invoice ID <strong>{id}</strong> could not be verified. It may have been modified or deleted.
+                The requested invoice ID <strong>{id}</strong> could not be verified. It may have
+                been modified or deleted.
               </p>
             </div>
             <div className="pt-4">
@@ -103,7 +106,8 @@ function VerifyInvoicePage() {
             <div>
               <h2 className="text-xl font-bold text-foreground">Invalid Invoice Token</h2>
               <p className="text-sm text-muted-foreground mt-1.5 max-w-md mx-auto">
-                The requested invoice ID <strong>{id}</strong> could not be verified. It may have been modified or deleted.
+                The requested invoice ID <strong>{id}</strong> could not be verified. It may have
+                been modified or deleted.
               </p>
             </div>
           </div>
@@ -127,18 +131,28 @@ function VerifyInvoicePage() {
                 <div className="flex gap-2 items-start">
                   <User className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                   <div>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Customer</span>
-                    <strong className="text-foreground">{(q.data.profiles as any)?.full_name || "Premium Learner"}</strong>
-                    <span className="text-xs text-muted-foreground block">{(q.data.profiles as any)?.email || q.data.user_id}</span>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">
+                      Customer
+                    </span>
+                    <strong className="text-foreground">
+                      {(q.data.profiles as any)?.full_name || "Premium Learner"}
+                    </strong>
+                    <span className="text-xs text-muted-foreground block">
+                      {(q.data.profiles as any)?.email || q.data.user_id}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex gap-2 items-start">
                   <Calendar className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                   <div>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Issue Date</span>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">
+                      Issue Date
+                    </span>
                     <strong className="text-foreground">
-                      {q.data.created_at ? format(new Date(q.data.created_at), "dd MMMM yyyy, hh:mm a") : "N/A"}
+                      {q.data.created_at
+                        ? format(new Date(q.data.created_at), "dd MMMM yyyy, hh:mm a")
+                        : "N/A"}
                     </strong>
                   </div>
                 </div>
@@ -148,10 +162,16 @@ function VerifyInvoicePage() {
                 <div className="flex gap-2 items-start">
                   <CreditCard className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                   <div>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Amount Paid</span>
-                    <strong className="text-lg text-primary block">₹{Number(q.data.total_inr).toFixed(2)}</strong>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">
+                      Amount Paid
+                    </span>
+                    <strong className="text-lg text-primary block">
+                      ₹{Number(q.data.total_inr).toFixed(2)}
+                    </strong>
                     {q.data.tax_inr ? (
-                      <span className="text-xs text-muted-foreground block">Includes ₹{Number(q.data.tax_inr).toFixed(2)} GST</span>
+                      <span className="text-xs text-muted-foreground block">
+                        Includes ₹{Number(q.data.tax_inr).toFixed(2)} GST
+                      </span>
                     ) : null}
                   </div>
                 </div>
@@ -159,7 +179,9 @@ function VerifyInvoicePage() {
                 <div className="flex gap-2 items-start">
                   <Building className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
                   <div>
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">Transaction ID</span>
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider block">
+                      Transaction ID
+                    </span>
                     <strong className="text-foreground font-mono text-xs block">
                       {q.data.cashfree_order_id || "TXN_N/A"}
                     </strong>
@@ -194,7 +216,12 @@ function VerifyInvoicePage() {
               </Button>
               {q.data.pdf_url && (
                 <Button variant="outline" asChild>
-                  <a href={q.data.pdf_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1">
+                  <a
+                    href={q.data.pdf_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1"
+                  >
                     <ExternalLink className="h-4 w-4" /> Original PDF
                   </a>
                 </Button>

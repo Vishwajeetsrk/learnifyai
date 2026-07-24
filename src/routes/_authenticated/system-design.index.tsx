@@ -243,7 +243,11 @@ function DifficultySection({
         ? "border-amber-500"
         : "border-purple-500";
   const textColor =
-    color === "green" ? "text-emerald-600 dark:text-emerald-400" : color === "yellow" ? "text-amber-600 dark:text-amber-400" : "text-purple-600 dark:text-purple-400";
+    color === "green"
+      ? "text-emerald-600 dark:text-emerald-400"
+      : color === "yellow"
+        ? "text-amber-600 dark:text-amber-400"
+        : "text-purple-600 dark:text-purple-400";
 
   return (
     <section className="space-y-3">
@@ -283,9 +287,13 @@ function TopicCard({ topic, onClick }: { topic: (typeof TOPICS)[number]; onClick
             variant="outline"
             className={cn(
               "text-[10px] uppercase tracking-wider font-bold shrink-0 px-2 py-0.5 border",
-              isBeginner && "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
-              isIntermediate && "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
-              !isBeginner && !isIntermediate && "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30",
+              isBeginner &&
+                "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30",
+              isIntermediate &&
+                "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30",
+              !isBeginner &&
+                !isIntermediate &&
+                "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30",
             )}
           >
             {topic.difficulty}

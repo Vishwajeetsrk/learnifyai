@@ -1,5 +1,15 @@
 import { useState } from "react";
-import { ChevronLeft, Check, Camera, Type, Palette, Monitor, Settings, X, Globe } from "lucide-react";
+import {
+  ChevronLeft,
+  Check,
+  Camera,
+  Type,
+  Palette,
+  Monitor,
+  Settings,
+  X,
+  Globe,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -143,7 +153,9 @@ export function AdvancedSettingsPanel({
       {view === "language" && (
         <div className="p-3 space-y-4 overflow-y-auto max-h-[350px]">
           <div>
-            <p className="text-[10px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">AI Audio Track</p>
+            <p className="text-[10px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
+              AI Audio Track
+            </p>
             <div className="space-y-1">
               {[
                 { code: "original", label: "Original Audio (English)" },
@@ -170,9 +182,11 @@ export function AdvancedSettingsPanel({
               ))}
             </div>
           </div>
-          
+
           <div className="border-t border-border pt-3">
-            <p className="text-[10px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">CC Translation</p>
+            <p className="text-[10px] font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
+              CC Translation
+            </p>
             <div className="space-y-1">
               {[
                 { code: "off", label: "Original (English)" },

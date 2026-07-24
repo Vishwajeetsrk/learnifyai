@@ -247,17 +247,32 @@ export function KnowledgeGraph({ onTopicClick, onClose, compact = false }: Knowl
                 strokeWidth={isSelected ? 3 : isHovered ? 2 : 1}
                 className="transition-all duration-300"
               />
-              <text
-                x={node.x}
-                y={node.y + 3}
-                textAnchor="middle"
-                fill={isSelected ? color : "currentColor"}
-                fontSize={isSelected ? 9 : 8}
-                fontWeight={isSelected ? "bold" : "600"}
-                className="pointer-events-none transition-all duration-300 fill-slate-900 dark:fill-slate-100 font-semibold"
-              >
-                {node.label.length > 10 ? node.label.slice(0, 9) + "…" : node.label}
-              </text>
+              {node.label.includes(" ") ? (
+                <text
+                  x={node.x}
+                  y={node.y - 2}
+                  textAnchor="middle"
+                  fill={isSelected ? color : "currentColor"}
+                  fontSize={isSelected ? 9 : 8}
+                  fontWeight={isSelected ? "bold" : "600"}
+                  className="pointer-events-none transition-all duration-300 fill-slate-900 dark:fill-slate-100 font-semibold"
+                >
+                  <tspan x={node.x} dy="0">{node.label.split(" ")[0]}</tspan>
+                  <tspan x={node.x} dy="1.1em">{node.label.split(" ").slice(1).join(" ")}</tspan>
+                </text>
+              ) : (
+                <text
+                  x={node.x}
+                  y={node.y + 3}
+                  textAnchor="middle"
+                  fill={isSelected ? color : "currentColor"}
+                  fontSize={isSelected ? 9 : 8}
+                  fontWeight={isSelected ? "bold" : "600"}
+                  className="pointer-events-none transition-all duration-300 fill-slate-900 dark:fill-slate-100 font-semibold"
+                >
+                  {node.label}
+                </text>
+              )}
               {isHovered && !compact && (
                 <text
                   x={node.x}

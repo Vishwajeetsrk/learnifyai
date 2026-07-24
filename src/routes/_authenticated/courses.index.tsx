@@ -22,6 +22,8 @@ import {
   ShieldCheck,
   Zap,
   Smartphone,
+  ArrowRight,
+  Cpu,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
@@ -320,7 +322,7 @@ function CoursesPage() {
         <div className="rounded-2xl border border-primary/40 bg-gradient-to-r from-primary/15 via-card to-background p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg hover:border-primary/60 transition-all">
           <div className="flex items-center gap-4">
             <div className="h-12 w-12 rounded-2xl bg-primary text-primary-foreground grid place-items-center shrink-0 shadow-md shadow-primary/30">
-              <Bot className="h-6 w-6" />
+              <Cpu className="h-6 w-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -334,8 +336,15 @@ function CoursesPage() {
               </p>
             </div>
           </div>
-          <Button asChild size="sm" className="gap-1.5 shrink-0 shadow-md font-bold rounded-full px-5 cursor-pointer">
-            <Link to="/system-design">Explore System Design ➔</Link>
+          <Button
+            asChild
+            size="sm"
+            className="gap-2 shrink-0 shadow-md font-bold rounded-full px-5 cursor-pointer"
+          >
+            <Link to="/system-design" className="inline-flex items-center gap-2">
+              <span>Explore System Design</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </Button>
         </div>
 
@@ -507,7 +516,9 @@ function CoursesPage() {
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4.5 w-4.5 text-amber-500" />
                 <h2 className="text-base font-bold text-foreground">Recommended for You</h2>
-                <span className="text-xs text-muted-foreground font-medium">Beginner-friendly picks</span>
+                <span className="text-xs text-muted-foreground font-medium">
+                  Beginner-friendly picks
+                </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
                 {recommended.map((c) => (
@@ -546,7 +557,9 @@ function CoursesPage() {
         ) : filtered.length === 0 ? (
           <div className="rounded-2xl border border-border/80 bg-card p-12 grid place-items-center text-center shadow-sm">
             <GraduationCap className="h-12 w-12 text-primary mb-3" />
-            <p className="font-display text-lg font-bold text-foreground">No courses match your search</p>
+            <p className="font-display text-lg font-bold text-foreground">
+              No courses match your search
+            </p>
             <p className="text-sm text-muted-foreground mt-1 font-medium">
               Try a different keyword or category.
             </p>
@@ -576,17 +589,24 @@ function CoursesPage() {
                   </div>
                   <div className="p-4 space-y-3">
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+                      <Badge
+                        variant="secondary"
+                        className="text-[10px] font-bold bg-primary/10 text-primary border border-primary/20"
+                      >
                         {c.category}
                       </Badge>
                       <span className="text-muted-foreground text-xs">·</span>
-                      <span className="text-xs font-semibold text-muted-foreground capitalize">{c.level}</span>
+                      <span className="text-xs font-semibold text-muted-foreground capitalize">
+                        {c.level}
+                      </span>
                     </div>
                     <div>
                       <h3 className="font-display font-bold text-sm text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                         {c.title}
                       </h3>
-                      <p className="mt-1 text-xs text-muted-foreground line-clamp-2 font-medium leading-relaxed">{c.description}</p>
+                      <p className="mt-1 text-xs text-muted-foreground line-clamp-2 font-medium leading-relaxed">
+                        {c.description}
+                      </p>
                     </div>
                     <CourseCardLearners courseId={c.id} />
                   </div>
@@ -601,13 +621,15 @@ function CoursesPage() {
                       <Star className="h-3.5 w-3.5 fill-amber-500" />
                       4.8
                     </span>
-                    <span className={cn(
-                      "font-extrabold text-sm ml-auto",
-                      Number(c.price_inr) === 0 ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"
-                    )}>
-                      {enrollmentsQuery.data?.[c.id]
-                        ? "Purchased"
-                        : inr(Number(c.price_inr))}
+                    <span
+                      className={cn(
+                        "font-extrabold text-sm ml-auto",
+                        Number(c.price_inr) === 0
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-foreground",
+                      )}
+                    >
+                      {enrollmentsQuery.data?.[c.id] ? "Purchased" : inr(Number(c.price_inr))}
                     </span>
                   </div>
 
@@ -688,10 +710,14 @@ function MiniCourseCard({
         </h3>
         <div className="flex items-center justify-between pt-1 text-[11px] font-semibold">
           <span className="text-muted-foreground capitalize">{course.level}</span>
-          <span className={cn(
-            "font-extrabold",
-            Number(course.price_inr) === 0 ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"
-          )}>
+          <span
+            className={cn(
+              "font-extrabold",
+              Number(course.price_inr) === 0
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-foreground",
+            )}
+          >
             {enrollments?.[course.id] ? "Purchased" : inr(Number(course.price_inr))}
           </span>
         </div>

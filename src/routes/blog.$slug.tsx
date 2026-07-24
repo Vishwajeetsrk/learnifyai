@@ -107,7 +107,10 @@ export const Route = createFileRoute("/blog/$slug")({
       meta: [
         { title: `${post.title} — Learnify AI Blog` },
         { name: "description", content: post.excerpt || "Read our latest article on Learnify AI." },
-        { name: "keywords", content: `${post.title}, Learnify AI, Learnify, AI Learning, Career OS, EdTech` },
+        {
+          name: "keywords",
+          content: `${post.title}, Learnify AI, Learnify, AI Learning, Career OS, EdTech`,
+        },
         { property: "og:title", content: `${post.title} — Learnify AI Blog` },
         {
           property: "og:description",
@@ -118,12 +121,13 @@ export const Route = createFileRoute("/blog/$slug")({
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: `${post.title} — Learnify AI Blog` },
-        { name: "twitter:description", content: post.excerpt || "Read our latest article on Learnify AI." },
+        {
+          name: "twitter:description",
+          content: post.excerpt || "Read our latest article on Learnify AI.",
+        },
         { name: "twitter:image", content: imageUrl },
       ],
-      links: [
-        { rel: "canonical", href: canonicalUrl }
-      ],
+      links: [{ rel: "canonical", href: canonicalUrl }],
       scripts: [
         {
           type: "application/ld+json",
@@ -486,7 +490,9 @@ function RelatedArticles({ currentPostId }: { currentPostId: string }) {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h3 className="text-2xl font-bold tracking-tight">Related Articles</h3>
-          <p className="text-sm text-muted-foreground">Expand your knowledge with more posts from Learnify AI.</p>
+          <p className="text-sm text-muted-foreground">
+            Expand your knowledge with more posts from Learnify AI.
+          </p>
         </div>
         <Link to="/blog" className="text-sm font-semibold text-primary hover:underline">
           View all blog posts →

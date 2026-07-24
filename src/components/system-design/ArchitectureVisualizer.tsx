@@ -172,17 +172,32 @@ export function ArchitectureVisualizer({
         className="cursor-pointer"
       >
         {shapeEl}
-        <text
-          x={p.x}
-          y={p.y + 3}
-          textAnchor="middle"
-          fill={isHovered ? color : "currentColor"}
-          fontSize={fontSize}
-          fontWeight={isHovered ? "bold" : "600"}
-          className="transition-all duration-300 pointer-events-none fill-slate-900 dark:fill-slate-100 text-[11px]"
-        >
-          {label.length > 12 ? label.slice(0, 11) + "…" : label}
-        </text>
+        {label.includes(" ") ? (
+          <text
+            x={p.x}
+            y={p.y - 2}
+            textAnchor="middle"
+            fill={isHovered ? color : "currentColor"}
+            fontSize={fontSize}
+            fontWeight={isHovered ? "bold" : "600"}
+            className="transition-all duration-300 pointer-events-none fill-slate-900 dark:fill-slate-100 text-[10px]"
+          >
+            <tspan x={p.x} dy="0">{label.split(" ")[0]}</tspan>
+            <tspan x={p.x} dy="1.1em">{label.split(" ").slice(1).join(" ")}</tspan>
+          </text>
+        ) : (
+          <text
+            x={p.x}
+            y={p.y + 3}
+            textAnchor="middle"
+            fill={isHovered ? color : "currentColor"}
+            fontSize={fontSize}
+            fontWeight={isHovered ? "bold" : "600"}
+            className="transition-all duration-300 pointer-events-none fill-slate-900 dark:fill-slate-100 text-[11px]"
+          >
+            {label}
+          </text>
+        )}
         {isHovered && (
           <text
             x={p.x}

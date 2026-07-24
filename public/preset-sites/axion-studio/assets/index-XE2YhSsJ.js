@@ -26278,20 +26278,18 @@ class cP extends hx {
         e.mul(R).mul($y({ N: m, V: g, P: _, mInv: w, p0: u, p1: d, p2: h, p3: p })),
       ),
       s.directDiffuse.addAssign(
-        e
-          .mul(qu)
-          .mul(
-            $y({
-              N: m,
-              V: g,
-              P: _,
-              mInv: di(1, 0, 0, 0, 1, 0, 0, 0, 1),
-              p0: u,
-              p1: d,
-              p2: h,
-              p3: p,
-            }),
-          ),
+        e.mul(qu).mul(
+          $y({
+            N: m,
+            V: g,
+            P: _,
+            mInv: di(1, 0, 0, 0, 1, 0, 0, 0, 1),
+            p0: u,
+            p1: d,
+            p2: h,
+            p3: p,
+          }),
+        ),
       ),
       this.clearcoat === !0)
     ) {
@@ -26576,11 +26574,28 @@ const Nw = I(1),
       const g = K().toVar();
       return (
         g.addAssign(
-          i
-            .element(0)
-            .mul(
+          i.element(0).mul(
+            Yy({
+              theta: 0,
+              axis: m,
+              outputDirection: n,
+              mipInt: o,
+              envMap: u,
+              CUBEUV_TEXEL_WIDTH: d,
+              CUBEUV_TEXEL_HEIGHT: h,
+              CUBEUV_MAX_MIP: p,
+            }),
+          ),
+        ),
+        Xn({ start: X(1), end: r }, ({ i: _ }) => {
+          Ft(_.greaterThanEqual(s), () => {
+            $3();
+          });
+          const v = I(a.mul(I(_))).toVar();
+          (g.addAssign(
+            i.element(_).mul(
               Yy({
-                theta: 0,
+                theta: v.mul(-1),
                 axis: m,
                 outputDirection: n,
                 mipInt: o,
@@ -26590,18 +26605,11 @@ const Nw = I(1),
                 CUBEUV_MAX_MIP: p,
               }),
             ),
-        ),
-        Xn({ start: X(1), end: r }, ({ i: _ }) => {
-          Ft(_.greaterThanEqual(s), () => {
-            $3();
-          });
-          const v = I(a.mul(I(_))).toVar();
-          (g.addAssign(
-            i
-              .element(_)
-              .mul(
+          ),
+            g.addAssign(
+              i.element(_).mul(
                 Yy({
-                  theta: v.mul(-1),
+                  theta: v,
                   axis: m,
                   outputDirection: n,
                   mipInt: o,
@@ -26611,22 +26619,6 @@ const Nw = I(1),
                   CUBEUV_MAX_MIP: p,
                 }),
               ),
-          ),
-            g.addAssign(
-              i
-                .element(_)
-                .mul(
-                  Yy({
-                    theta: v,
-                    axis: m,
-                    outputDirection: n,
-                    mipInt: o,
-                    envMap: u,
-                    CUBEUV_TEXEL_WIDTH: d,
-                    CUBEUV_TEXEL_HEIGHT: h,
-                    CUBEUV_MAX_MIP: p,
-                  }),
-                ),
             ));
         }),
         Nt(g, 1)

@@ -408,7 +408,9 @@ export const purchaseWithWallet = createServerFn({ method: "POST" })
       );
 
     if (data.costInr > balance) {
-      throw new Error(`Insufficient wallet balance. Need ₹${data.costInr}, have ₹${balance}. Please top up.`);
+      throw new Error(
+        `Insufficient wallet balance. Need ₹${data.costInr}, have ₹${balance}. Please top up.`,
+      );
     }
 
     // 2. Insert debit transaction

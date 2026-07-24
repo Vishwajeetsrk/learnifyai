@@ -221,10 +221,11 @@ function DashboardPage() {
               {latestCourse ? (
                 <div className="bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/15 mt-4 sm:mt-8">
                   <div className="text-[11px] font-bold uppercase tracking-widest mb-3 text-indigo-300 flex items-center gap-2">
-                    <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" /> Resume Learning
+                    <Sparkles className="h-3.5 w-3.5 text-amber-400 animate-pulse" /> Resume
+                    Learning
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                     <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-lg line-clamp-1 text-white">
                         {latestCourse.courses?.title}
                       </h3>
@@ -269,7 +270,8 @@ function DashboardPage() {
                               Unlock Personalized Learning
                             </h3>
                             <p className="text-slate-300 text-sm mt-1">
-                              Complete your AI Onboarding to receive custom course and career suggestions.
+                              Complete your AI Onboarding to receive custom course and career
+                              suggestions.
                             </p>
                           </div>
                           <Link to="/onboarding">
@@ -277,7 +279,8 @@ function DashboardPage() {
                               variant="secondary"
                               className="rounded-full shadow-lg text-slate-950 font-bold bg-white hover:bg-slate-100 hover:scale-105 transition duration-200"
                             >
-                              Complete AI Setup <Sparkles className="h-3.5 w-3.5 text-indigo-600 ml-1.5" />
+                              Complete AI Setup{" "}
+                              <Sparkles className="h-3.5 w-3.5 text-indigo-600 ml-1.5" />
                             </Button>
                           </Link>
                         </div>
@@ -319,10 +322,15 @@ function DashboardPage() {
 
                         {aiProfile.interests?.length > 0 && (
                           <div className="space-y-2">
-                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Target Areas:</span>
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide">
+                              Target Areas:
+                            </span>
                             <div className="flex flex-wrap gap-1.5">
                               {aiProfile.interests.map((interest: string) => (
-                                <span key={interest} className="px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-white/10 text-slate-200 border border-white/5">
+                                <span
+                                  key={interest}
+                                  className="px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-white/10 text-slate-200 border border-white/5"
+                                >
                                   {interest}
                                 </span>
                               ))}
@@ -413,8 +421,11 @@ function DashboardPage() {
                   <Sparkles className="h-4 w-4 text-indigo-500 group-hover:animate-bounce" />
                   <h3 className="font-semibold text-sm text-card-foreground">AI Credits Usage</h3>
                 </div>
-                {creditsQ.data && ((creditsQ.data.credits_remaining ?? 500) < 100) && (
-                  <Badge variant="outline" className="text-amber-500 border-amber-500/30 bg-amber-500/10 text-[10px] animate-pulse">
+                {creditsQ.data && (creditsQ.data.credits_remaining ?? 500) < 100 && (
+                  <Badge
+                    variant="outline"
+                    className="text-amber-500 border-amber-500/30 bg-amber-500/10 text-[10px] animate-pulse"
+                  >
                     Running Low
                   </Badge>
                 )}
@@ -432,7 +443,12 @@ function DashboardPage() {
                     <span className="text-2xl font-bold font-display text-foreground">
                       {(creditsQ.data?.credits_used ?? 0).toLocaleString("en-IN")}
                       <span className="text-xs font-normal text-muted-foreground ml-1">
-                        / {((creditsQ.data?.credits_used ?? 0) + (creditsQ.data?.credits_remaining ?? 500)).toLocaleString("en-IN")} used
+                        /{" "}
+                        {(
+                          (creditsQ.data?.credits_used ?? 0) +
+                          (creditsQ.data?.credits_remaining ?? 500)
+                        ).toLocaleString("en-IN")}{" "}
+                        used
                       </span>
                     </span>
                     <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
@@ -443,14 +459,19 @@ function DashboardPage() {
                   <Progress
                     value={
                       ((creditsQ.data?.credits_used ?? 0) /
-                      (Math.max((creditsQ.data?.credits_used ?? 0) + (creditsQ.data?.credits_remaining ?? 500), 1))) * 100
+                        Math.max(
+                          (creditsQ.data?.credits_used ?? 0) +
+                            (creditsQ.data?.credits_remaining ?? 500),
+                          1,
+                        )) *
+                      100
                     }
                     className="h-2 bg-muted-foreground/10"
                   />
 
                   <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground">
                     <span>Resets monthly</span>
-                    {creditsQ.data && ((creditsQ.data.credits_remaining ?? 500) < 100) ? (
+                    {creditsQ.data && (creditsQ.data.credits_remaining ?? 500) < 100 ? (
                       <Link to="/pricing" className="text-primary font-bold hover:underline">
                         Upgrade →
                       </Link>

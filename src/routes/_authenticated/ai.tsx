@@ -1,6 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Plus, Send, Sparkles, Trash2, MessageSquare, ImagePlus, X, Zap } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Send,
+  Sparkles,
+  Trash2,
+  MessageSquare,
+  ImagePlus,
+  X,
+  Zap,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
@@ -305,7 +315,11 @@ function AIPage() {
           if (parsed.error) cleanMsg = parsed.error;
         } catch {}
 
-        if (resp.status === 402 || cleanMsg.toLowerCase().includes("credits") || cleanMsg.toLowerCase().includes("limit")) {
+        if (
+          resp.status === 402 ||
+          cleanMsg.toLowerCase().includes("credits") ||
+          cleanMsg.toLowerCase().includes("limit")
+        ) {
           setCreditLimitModalOpen(true);
         }
         throw new Error(cleanMsg || `Request failed (${resp.status})`);
@@ -369,16 +383,21 @@ function AIPage() {
             <div className="h-16 w-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center mb-4">
               <Sparkles className="h-8 w-8 text-primary animate-pulse" />
             </div>
-            <DialogTitle className="text-2xl font-bold tracking-tight">Out of AI Credits</DialogTitle>
+            <DialogTitle className="text-2xl font-bold tracking-tight">
+              Out of AI Credits
+            </DialogTitle>
             <DialogDescription className="text-muted-foreground mt-2">
-              You've used all your complimentary AI credits for this month. Upgrade to Pro or Career Pro to get up to 25,000 credits/month and continue using our advanced AI tutor.
+              You've used all your complimentary AI credits for this month. Upgrade to Pro or Career
+              Pro to get up to 25,000 credits/month and continue using our advanced AI tutor.
             </DialogDescription>
           </DialogHeader>
 
           <div className="bg-muted/50 rounded-2xl p-4 my-4 flex items-center gap-3 text-left">
             <Zap className="h-5 w-5 text-amber-500 shrink-0" />
             <div className="text-xs">
-              <span className="font-semibold block text-foreground">Pro plans start at just ₹199/month</span>
+              <span className="font-semibold block text-foreground">
+                Pro plans start at just ₹199/month
+              </span>
               Get unlimited courses, verified certificates, and more.
             </div>
           </div>
@@ -392,9 +411,7 @@ function AIPage() {
               Cancel
             </Button>
             <Link to="/pricing" className="flex-1">
-              <Button
-                className="rounded-xl w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg font-bold"
-              >
+              <Button className="rounded-xl w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg font-bold">
                 Upgrade Plan
               </Button>
             </Link>

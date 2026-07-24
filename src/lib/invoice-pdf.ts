@@ -49,7 +49,8 @@ const DEFAULT_BRANDING: BrandingData = {
   legal_name: "Learnify EdTech Pvt. Ltd.",
   gstin: "29XXXXX1234X1Z5",
   prefix: "INV",
-  footer: "This is an official computer-generated invoice compliant with GST and Consumer Protection Rules 2020.",
+  footer:
+    "This is an official computer-generated invoice compliant with GST and Consumer Protection Rules 2020.",
   contact: "support@learnifyai.in · +91 99182 31234",
   primary_color: "#4F46E5",
   secondary_color: "#7C3AED",
@@ -117,7 +118,7 @@ export async function downloadInvoicePdf(
   // Template-specific palette defaults
   let primaryHex = branding.primary_color || DEFAULT_BRANDING.primary_color!;
   let secondaryHex = branding.secondary_color || DEFAULT_BRANDING.secondary_color!;
-  
+
   if (templateStyle === "minimal") {
     primaryHex = "#1e293b";
     secondaryHex = "#475569";
@@ -181,8 +182,12 @@ export async function downloadInvoicePdf(
 
   // ─── 3. COMPANY NAME & LEGAL INFO (header) ────────────────────────────────
   const textStartX = logoBase64 ? margin + 32 : margin;
-  const isDarkT = templateStyle === "dark" || templateStyle === "luxury" || templateStyle === "modern" || templateStyle === "corporate";
-  
+  const isDarkT =
+    templateStyle === "dark" ||
+    templateStyle === "luxury" ||
+    templateStyle === "modern" ||
+    templateStyle === "corporate";
+
   doc.setTextColor(isDarkT ? 255 : 30, isDarkT ? 255 : 41, isDarkT ? 255 : 59);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
@@ -219,7 +224,7 @@ export async function downloadInvoicePdf(
   const sc = statusColors[inv.status] || [100, 100, 100];
   const statusLabel = (inv.status || "").toUpperCase();
   doc.setFillColor(sc[0], sc[1], sc[2]);
-  
+
   const pillY = templateStyle === "minimal" ? titleY + 11 : titleY + 12;
   drawRoundedRect(doc, pageW - margin - 34, pillY, 34, 8, 2, "F");
   doc.setFont("helvetica", "bold");
@@ -229,7 +234,11 @@ export async function downloadInvoicePdf(
 
   // ─── 6. DATE BLOCK (below header) ─────────────────────────────────────────
   const startY = templateStyle === "luxury" ? 56 : 52;
-  doc.setDrawColor(templateStyle === "dark" ? 50 : 230, templateStyle === "dark" ? 70 : 230, templateStyle === "dark" ? 100 : 240);
+  doc.setDrawColor(
+    templateStyle === "dark" ? 50 : 230,
+    templateStyle === "dark" ? 70 : 230,
+    templateStyle === "dark" ? 100 : 240,
+  );
   doc.setLineWidth(0.4);
   doc.line(margin, startY, pageW - margin, startY);
 
@@ -264,7 +273,7 @@ export async function downloadInvoicePdf(
   const cardBgColor = templateStyle === "dark" ? [30, 41, 59] : [248, 248, 255];
   doc.setFillColor(cardBgColor[0], cardBgColor[1], cardBgColor[2]);
   drawRoundedRect(doc, margin, billY, 86, 32, 2.5, "F");
-  
+
   const recipientBg = templateStyle === "dark" ? [15, 32, 60] : [248, 255, 252];
   doc.setFillColor(recipientBg[0], recipientBg[1], recipientBg[2]);
   drawRoundedRect(doc, margin + 96, billY, 86, 32, 2.5, "F");
@@ -281,7 +290,7 @@ export async function downloadInvoicePdf(
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(templateStyle === "dark" ? 200 : 100);
-  
+
   const addrText = branding.address || "";
   const splitAddr = doc.splitTextToSize(addrText, 78);
   doc.text(splitAddr, margin + 4, billY + 17);
@@ -294,13 +303,13 @@ export async function downloadInvoicePdf(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
   doc.setTextColor(templateStyle === "dark" ? 255 : 40);
-  
+
   const emailTrimmed = (userEmail || "Customer").substring(0, 36);
   doc.text(emailTrimmed, margin + 100, billY + 12);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(templateStyle === "dark" ? 200 : 100);
-  
+
   doc.text("Premium Learnify Account Holder", margin + 100, billY + 17);
   if (inv.gstin) doc.text(`GSTIN: ${inv.gstin}`, margin + 100, billY + 23);
   else if (inv.payment_method) {
@@ -396,7 +405,11 @@ export async function downloadInvoicePdf(
   const payBoxY = finalY + 18;
   const payBoxBg = templateStyle === "dark" ? [30, 41, 59] : [249, 250, 251];
   doc.setFillColor(payBoxBg[0], payBoxBg[1], payBoxBg[2]);
-  doc.setDrawColor(templateStyle === "dark" ? 70 : 210, templateStyle === "dark" ? 80 : 210, templateStyle === "dark" ? 100 : 230);
+  doc.setDrawColor(
+    templateStyle === "dark" ? 70 : 210,
+    templateStyle === "dark" ? 80 : 210,
+    templateStyle === "dark" ? 100 : 230,
+  );
   doc.setLineWidth(0.4);
   drawRoundedRect(doc, margin, payBoxY, pageW - margin * 2, 20, 2.5, "FD");
 
@@ -423,7 +436,7 @@ export async function downloadInvoicePdf(
   // ─── 11. VERIFICATION URL & QR CODE ───────────────────────────────────────
   const footerStartY = payBoxY + 25;
   const verifyUrl = `https://learnifyai.com/verify/invoice/${inv.invoice_number || ""}`;
-  
+
   if (branding.qr_enabled === "true") {
     try {
       const QRCodeLib = await import("qrcode");
@@ -458,11 +471,11 @@ export async function downloadInvoicePdf(
   doc.text("Authorized Signatory", pageW - margin, footerStartY + 13, { align: "right" });
 
   // ─── 12. FOOTER NOTES & TERMS ─────────────────────────────────────────────
-  const noteX = (branding.qr_enabled === "true") ? margin + 22 : margin;
+  const noteX = branding.qr_enabled === "true" ? margin + 22 : margin;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   doc.setTextColor(templateStyle === "dark" ? 160 : 120);
-  
+
   let currentFooterY = footerStartY + 4;
   if (branding.footer) {
     doc.text(`Note: ${branding.footer}`, noteX, currentFooterY);

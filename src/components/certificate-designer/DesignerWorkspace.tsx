@@ -148,13 +148,17 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
               onUpdateElement(selectedId, { x: Math.max(0, target.x - nudge) });
             }
             if (e.key === "ArrowRight") {
-              onUpdateElement(selectedId, { x: Math.min(842 - (target.width || 50), target.x + nudge) });
+              onUpdateElement(selectedId, {
+                x: Math.min(842 - (target.width || 50), target.x + nudge),
+              });
             }
             if (e.key === "ArrowUp") {
               onUpdateElement(selectedId, { y: Math.max(0, target.y - nudge) });
             }
             if (e.key === "ArrowDown") {
-              onUpdateElement(selectedId, { y: Math.min(595 - (target.height || 30), target.y + nudge) });
+              onUpdateElement(selectedId, {
+                y: Math.min(595 - (target.height || 30), target.y + nudge),
+              });
             }
           }
         }
@@ -163,7 +167,6 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedId, historyIndex, undo, redo, elements, onUpdateElement]);
-
 
   const onUpdateDesign = useCallback(
     (updates: Partial<CertDesign>) => {
@@ -511,8 +514,17 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
       {/* Split View */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         {/* Left: Preview (Centered & Scaled) */}
-        <div ref={containerRef} className="flex-1 bg-slate-100 overflow-hidden flex items-center justify-center p-8 min-h-[300px] md:min-h-0">
-          <div style={{ transform: `scale(${scale})`, transformOrigin: "center center", transition: "transform 0.1s ease-out" }}>
+        <div
+          ref={containerRef}
+          className="flex-1 bg-slate-100 overflow-hidden flex items-center justify-center p-8 min-h-[300px] md:min-h-0"
+        >
+          <div
+            style={{
+              transform: `scale(${scale})`,
+              transformOrigin: "center center",
+              transition: "transform 0.1s ease-out",
+            }}
+          >
             <CertificatePreview
               elements={elements}
               design={design}

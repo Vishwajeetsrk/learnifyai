@@ -20369,21 +20369,19 @@ class ug {
     return { remuxResult: this.remuxer.remux(a, o, u, f, t, n, !1, this.id), chunkMeta: s };
   }
   transmuxSampleAes(e, t, n, s, a) {
-    return this.demuxer
-      .demuxSampleAes(e, t, n)
-      .then((o) => ({
-        remuxResult: this.remuxer.remux(
-          o.audioTrack,
-          o.videoTrack,
-          o.id3Track,
-          o.textTrack,
-          n,
-          s,
-          !1,
-          this.id,
-        ),
-        chunkMeta: a,
-      }));
+    return this.demuxer.demuxSampleAes(e, t, n).then((o) => ({
+      remuxResult: this.remuxer.remux(
+        o.audioTrack,
+        o.videoTrack,
+        o.id3Track,
+        o.textTrack,
+        n,
+        s,
+        !1,
+        this.id,
+      ),
+      chunkMeta: a,
+    }));
   }
   configureTransmuxer(e) {
     const { config: t, observer: n, typeSupported: s } = this;

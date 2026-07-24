@@ -338,7 +338,9 @@ function StudioClassroomPage() {
             <div className="h-7 w-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-sm">
               <Monitor className="h-4 w-4" />
             </div>
-            <h1 className="font-display font-bold text-sm text-foreground truncate max-w-[200px] sm:max-w-md">{project.title}</h1>
+            <h1 className="font-display font-bold text-sm text-foreground truncate max-w-[200px] sm:max-w-md">
+              {project.title}
+            </h1>
           </div>
         </div>
 
@@ -505,14 +507,17 @@ function StudioClassroomPage() {
                             <div className="bg-primary/15 p-1.5 rounded-lg text-primary">
                               <CheckCircle2 className="h-4 w-4" />
                             </div>
-                            <h3 className="text-xs sm:text-sm font-bold text-foreground">Knowledge Check</h3>
+                            <h3 className="text-xs sm:text-sm font-bold text-foreground">
+                              Knowledge Check
+                            </h3>
                           </div>
                           <p className="text-xs sm:text-sm font-bold text-foreground leading-relaxed">
                             {currentModule.quiz.question}
                           </p>
                           <div className="space-y-2">
                             {currentModule.quiz.options.map((option: string, index: number) => {
-                              const correctIdx = currentModule.quiz.correct_index ?? currentModule.quiz.correct ?? 0;
+                              const correctIdx =
+                                currentModule.quiz.correct_index ?? currentModule.quiz.correct ?? 0;
                               const isSelected = selectedAnswer === index;
                               const isCorrect = index === correctIdx;
                               const showCorrect = selectedAnswer !== null && isCorrect;
@@ -521,9 +526,7 @@ function StudioClassroomPage() {
                               return (
                                 <button
                                   key={index}
-                                  onClick={() =>
-                                    handleQuizAnswer(index, correctIdx)
-                                  }
+                                  onClick={() => handleQuizAnswer(index, correctIdx)}
                                   disabled={selectedAnswer !== null}
                                   className={`w-full text-left p-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
                                     showCorrect
@@ -548,7 +551,8 @@ function StudioClassroomPage() {
                               className="mt-3 text-xs text-foreground bg-accent/60 p-3 rounded-xl border border-border/60 font-medium"
                             >
                               <span className="font-bold text-primary">Explanation:</span>{" "}
-                              {currentModule.quiz.explanation || "Correct answer! You've unlocked +50 XP and the next module."}
+                              {currentModule.quiz.explanation ||
+                                "Correct answer! You've unlocked +50 XP and the next module."}
                             </motion.div>
                           )}
                         </div>

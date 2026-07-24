@@ -12,7 +12,11 @@ export const Route = createFileRoute("/api/webhooks/cashfree-subscription")({
     handlers: {
       GET: async () => {
         return new Response(
-          JSON.stringify({ status: "ok", endpoint: "cashfree-subscription", message: "Webhook active" }),
+          JSON.stringify({
+            status: "ok",
+            endpoint: "cashfree-subscription",
+            message: "Webhook active",
+          }),
           { status: 200, headers: { "Content-Type": "application/json" } },
         );
       },

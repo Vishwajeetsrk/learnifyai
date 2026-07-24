@@ -1,6 +1,18 @@
 import { useRef, useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Send, Loader2, Sparkles, Terminal, Search, Lightbulb, Bookmark, Copy, RotateCcw, FileText, X } from "lucide-react";
+import {
+  Send,
+  Loader2,
+  Sparkles,
+  Terminal,
+  Search,
+  Lightbulb,
+  Bookmark,
+  Copy,
+  RotateCcw,
+  FileText,
+  X,
+} from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -210,7 +222,12 @@ export function AgentChat({
               <Bookmark className="h-5 w-5 text-amber-500" />
               <h3 className="font-bold text-base">Saved {agentName} Insights</h3>
             </div>
-            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setShowSavedModal(false)}>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8"
+              onClick={() => setShowSavedModal(false)}
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -219,12 +236,17 @@ export function AgentChat({
             <div className="py-12 text-center text-muted-foreground text-sm space-y-2">
               <Bookmark className="h-10 w-10 mx-auto opacity-30" />
               <p>No saved insights yet.</p>
-              <p className="text-xs">Click the bookmark icon on any AI response to save key career & market insights.</p>
+              <p className="text-xs">
+                Click the bookmark icon on any AI response to save key career & market insights.
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
               {savedInsights.map((insight, idx) => (
-                <div key={idx} className="p-4 rounded-xl border bg-card text-xs leading-relaxed space-y-2 relative group shadow-sm">
+                <div
+                  key={idx}
+                  className="p-4 rounded-xl border bg-card text-xs leading-relaxed space-y-2 relative group shadow-sm"
+                >
                   <div className="prose prose-sm dark:prose-invert max-w-none">
                     <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                       {insight}
@@ -249,7 +271,10 @@ export function AgentChat({
                       onClick={() => {
                         const updated = savedInsights.filter((_, i) => i !== idx);
                         setSavedInsights(updated);
-                        localStorage.setItem(`learnify_saved_insights_${agentName}`, JSON.stringify(updated));
+                        localStorage.setItem(
+                          `learnify_saved_insights_${agentName}`,
+                          JSON.stringify(updated),
+                        );
                         toast.success("Insight removed");
                       }}
                     >

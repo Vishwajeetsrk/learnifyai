@@ -25,7 +25,9 @@ export default async function globalSetup(_config: FullConfig) {
   const page = await context.newPage();
 
   console.log("[global-setup] Navigating to login with networkidle…");
-  await page.goto(`${BASE_URL}/login`, { waitUntil: "networkidle", timeout: 40000 }).catch(() => {});
+  await page
+    .goto(`${BASE_URL}/login`, { waitUntil: "networkidle", timeout: 40000 })
+    .catch(() => {});
 
   console.log("[global-setup] Waiting 4 seconds for full hydration and React event attachment…");
   await page.waitForTimeout(4000);
@@ -65,8 +67,11 @@ export default async function globalSetup(_config: FullConfig) {
     .catch(() => null);
 
   console.log("[global-setup] Clicking Sign In…");
-  await page.getByRole("button", { name: /sign in/i }).first().click({ force: true });
-  
+  await page
+    .getByRole("button", { name: /sign in/i })
+    .first()
+    .click({ force: true });
+
   const authResp = await authResponsePromise;
   if (authResp) {
     console.log("[global-setup] Auth response status:", authResp.status());

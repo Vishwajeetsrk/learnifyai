@@ -34498,15 +34498,13 @@ function iW(e, t, i, r, s) {
 }
 var Wa = 32,
   rW = (e, t) => e.candidate - t.candidate,
-  Cn = new Array(Wa)
-    .fill()
-    .map(() => ({
-      count: 0,
-      bounds: new Float32Array(6),
-      rightCacheBounds: new Float32Array(6),
-      leftCacheBounds: new Float32Array(6),
-      candidate: 0,
-    })),
+  Cn = new Array(Wa).fill().map(() => ({
+    count: 0,
+    bounds: new Float32Array(6),
+    rightCacheBounds: new Float32Array(6),
+    leftCacheBounds: new Float32Array(6),
+    candidate: 0,
+  })),
   Ud = new Float32Array(6);
 function sW(e, t, i, r, s, a) {
   let n = -1,

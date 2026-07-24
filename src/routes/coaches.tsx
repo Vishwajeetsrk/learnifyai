@@ -554,16 +554,17 @@ function CoachesPage() {
     rating: "4.9 (42 reviews)",
   };
 
-  const coachesList = approvedCoaches && approvedCoaches.length > 0
-    ? approvedCoaches.map((c: any) => ({
-        id: c.id,
-        full_name: c.full_name || c.applicant_name || "Verified Coach",
-        expertise: c.expertise || "Tech Coach",
-        bio: c.motivation || c.bio || "1-on-1 personalized tech mentoring and code reviews.",
-        hourly_rate: c.hourly_rate || c.rate || 1499,
-        rating: "5.0 (New)",
-      }))
-    : [fallbackCoach];
+  const coachesList =
+    approvedCoaches && approvedCoaches.length > 0
+      ? approvedCoaches.map((c: any) => ({
+          id: c.id,
+          full_name: c.full_name || c.applicant_name || "Verified Coach",
+          expertise: c.expertise || "Tech Coach",
+          bio: c.motivation || c.bio || "1-on-1 personalized tech mentoring and code reviews.",
+          hourly_rate: c.hourly_rate || c.rate || 1499,
+          rating: "5.0 (New)",
+        }))
+      : [fallbackCoach];
 
   return (
     <MarketingPage
@@ -661,12 +662,13 @@ function CoachesPage() {
                       <h3 className="font-bold text-base text-foreground leading-tight">
                         {coach.full_name}
                       </h3>
-                      <p className="text-xs text-primary font-medium mt-0.5">
-                        {coach.expertise}
-                      </p>
+                      <p className="text-xs text-primary font-medium mt-0.5">{coach.expertise}</p>
                     </div>
                   </div>
-                  <Badge variant="outline" className="text-[10px] shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
+                  >
                     Verified Coach
                   </Badge>
                 </div>
@@ -682,7 +684,8 @@ function CoachesPage() {
                     Hourly Rate
                   </span>
                   <span className="text-sm font-bold text-foreground">
-                    ₹{coach.hourly_rate} <span className="text-xs font-normal text-muted-foreground">/ hr</span>
+                    ₹{coach.hourly_rate}{" "}
+                    <span className="text-xs font-normal text-muted-foreground">/ hr</span>
                   </span>
                 </div>
                 <Button size="sm" asChild className="gap-1">

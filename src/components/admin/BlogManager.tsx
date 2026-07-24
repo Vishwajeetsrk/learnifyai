@@ -7,7 +7,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { adminContentAction, adminContentQuery } from "@/lib/admin-content.functions";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { Loader2, Plus, Pencil, Trash2, Eye, EyeOff, ExternalLink, RefreshCw, FileText } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Pencil,
+  Trash2,
+  Eye,
+  EyeOff,
+  ExternalLink,
+  RefreshCw,
+  FileText,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -143,26 +153,35 @@ export default function BlogManager() {
       {
         title: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
         slug: "full-stack-ai-engineer-roadmap-2026",
-        excerpt: "Master TanStack Start, React 19, Supabase, LangChain, and Vercel AI SDK to build production-grade AI SaaS applications.",
-        featured_image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
+        excerpt:
+          "Master TanStack Start, React 19, Supabase, LangChain, and Vercel AI SDK to build production-grade AI SaaS applications.",
+        featured_image:
+          "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
         published: true,
-        content: "<h2>The Shift in Modern Software Engineering</h2><p>In 2026, Full-Stack AI Engineering combines React 19, Supabase pgvector, and LLM agent pipelines.</p>",
+        content:
+          "<h2>The Shift in Modern Software Engineering</h2><p>In 2026, Full-Stack AI Engineering combines React 19, Supabase pgvector, and LLM agent pipelines.</p>",
       },
       {
         title: "Building Production Autonomous AI Agents with LangGraph & Python",
         slug: "autonomous-ai-agents-langgraph-python",
-        excerpt: "Step-by-step guide to stateful multi-agent systems, human-in-the-loop workflows, and error handling in Python.",
-        featured_image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80",
+        excerpt:
+          "Step-by-step guide to stateful multi-agent systems, human-in-the-loop workflows, and error handling in Python.",
+        featured_image:
+          "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80",
         published: true,
-        content: "<h2>Multi-Agent Graph State Machines</h2><p>Pass typed state dictionaries between node agents with persistence checkpoints.</p>",
+        content:
+          "<h2>Multi-Agent Graph State Machines</h2><p>Pass typed state dictionaries between node agents with persistence checkpoints.</p>",
       },
       {
         title: "Comparing Cashfree vs Razorpay for Indian EdTech & SaaS Applications",
         slug: "cashfree-vs-razorpay-india-saas",
-        excerpt: "A deep dive into transaction fees, GST invoicing compliance, subscription APIs, and merchant domain whitelisting in India.",
-        featured_image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
+        excerpt:
+          "A deep dive into transaction fees, GST invoicing compliance, subscription APIs, and merchant domain whitelisting in India.",
+        featured_image:
+          "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
         published: true,
-        content: "<h2>Indian Payment Gateway Comparison</h2><p>Cashfree offers 1.9% rates with native 18% GST SAC 998431 tax breakdown on invoices.</p>",
+        content:
+          "<h2>Indian Payment Gateway Comparison</h2><p>Cashfree offers 1.9% rates with native 18% GST SAC 998431 tax breakdown on invoices.</p>",
       },
     ];
 

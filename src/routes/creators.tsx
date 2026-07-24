@@ -473,15 +473,16 @@ function CreatorsPage() {
     coursesCount: 5,
   };
 
-  const creatorsList = approvedCreators && approvedCreators.length > 0
-    ? approvedCreators.map((c: any) => ({
-        id: c.id,
-        full_name: c.full_name || c.applicant_name || "Verified Creator",
-        expertise: c.expertise || c.category || "AI Educator",
-        bio: c.motivation || c.bio || "Building interactive courses and code playgrounds.",
-        coursesCount: 3,
-      }))
-    : [fallbackCreator];
+  const creatorsList =
+    approvedCreators && approvedCreators.length > 0
+      ? approvedCreators.map((c: any) => ({
+          id: c.id,
+          full_name: c.full_name || c.applicant_name || "Verified Creator",
+          expertise: c.expertise || c.category || "AI Educator",
+          bio: c.motivation || c.bio || "Building interactive courses and code playgrounds.",
+          coursesCount: 3,
+        }))
+      : [fallbackCreator];
 
   return (
     <MarketingPage
@@ -577,9 +578,7 @@ function CreatorsPage() {
                       <h3 className="font-bold text-base text-foreground leading-tight">
                         {creator.full_name}
                       </h3>
-                      <p className="text-xs text-primary font-medium mt-0.5">
-                        {creator.expertise}
-                      </p>
+                      <p className="text-xs text-primary font-medium mt-0.5">{creator.expertise}</p>
                     </div>
                   </div>
                   <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">

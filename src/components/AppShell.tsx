@@ -106,7 +106,7 @@ const nav: NavItem[] = [
 const MOBILE_BOTTOM_NAV = [
   { to: "/dashboard", label: "Home", icon: LayoutDashboard },
   { to: "/courses", label: "Courses", icon: GraduationCap },
-  { to: "/ai", label: "AI Tutor", icon: Sparkles },
+  { to: "/system-design", label: "System", icon: Cpu },
   { to: "/career-studio", label: "Career", icon: Briefcase },
   { to: "/settings", label: "More", icon: Menu },
 ];

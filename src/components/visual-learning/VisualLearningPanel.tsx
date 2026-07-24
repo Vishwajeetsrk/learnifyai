@@ -51,15 +51,24 @@ export function VisualLearningPanel({
   ];
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2 border-b border-border/50 pb-2">
-        <Brain className="h-4 w-4 text-primary" />
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Visual Learning
-        </span>
+    <div className="space-y-4 rounded-2xl border border-border/60 bg-card/60 p-4 sm:p-5 backdrop-blur-md shadow-sm">
+      <div className="flex items-center justify-between border-b border-border/50 pb-3">
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-lg bg-primary/10 text-primary grid place-items-center border border-primary/20">
+            <Brain className="h-4 w-4" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+              Interactive Visual Learning
+            </h3>
+            <p className="text-[11px] text-muted-foreground">
+              Explore dynamic concept graphs, architecture flows & simplified explanations
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="flex gap-1 bg-muted/30 p-1 rounded-lg">
+      <div className="flex gap-1.5 bg-muted/40 p-1.5 rounded-xl border border-border/50">
         {TABS.map((t) => {
           const Icon = t.icon;
           const active = tab === t.id;
@@ -68,14 +77,14 @@ export function VisualLearningPanel({
               key={t.id}
               onClick={() => setTab(t.id)}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all flex-1 justify-center",
+                "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all flex-1 justify-center cursor-pointer",
                 active
-                  ? "bg-background text-foreground shadow-sm border border-border/50"
-                  : "text-muted-foreground hover:text-foreground",
+                  ? "bg-background text-primary shadow-sm border border-primary/20 font-bold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50 font-medium",
               )}
             >
               <Icon className="h-3.5 w-3.5" />
-              {t.label}
+              <span>{t.label}</span>
             </button>
           );
         })}

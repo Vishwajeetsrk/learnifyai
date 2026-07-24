@@ -42,7 +42,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🧠 **Visual Learning**             | Concept Graph (force-directed knowledge map), Explain Like I'm 12, Dynamic Learning Map, built into every lesson                                                                                                                                 |
 | 🏆 **Gamification Dashboard**      | XP progress, streak calendar, badge showcase, leaderboard rank, upcoming rewards — accessible from course player                                                                                                                                 |
 | 🗺️ **Career Path Course Catalog**  | 9 career path filters (Frontend, Backend, Full Stack, etc.), level filters, sort, Trending/Recommended rails                                                                                                                                     |
-| 🪄 **Cheat Sheet Generator**       | Real brand logos (HTML, Supabase, Firebase, ChatGPT, etc.), timeline layout, Save to Library, beautiful Print/PDF export, Share button |
+| 🪄 **Cheat Sheet Generator**       | Real brand logos (HTML, Supabase, Firebase, ChatGPT, etc.), timeline layout, Save to Library, beautiful Print/PDF export, Share button                                                                                                           |
 | 🎓 **12 Launch Course Categories** | Full Stack, Python, AI & Prompting, Data Science, Cyber Security, UI/UX, Resume, Interview, Roadmaps, Marketing, Freelancing, Personal Branding                                                                                                  |
 | 📚 **Documentation Hub (`/docs`)** | Comprehensive platform guides for Students, Creators (Free/Paid), and Coaches (Free/Paid)                                                                                                                                                        |
 | 🎥 **Interactive Watch Demo**      | Guided modal tour covering platform features, credit usage, and creator earning model                                                                                                                                                            |
@@ -506,6 +506,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 ## 📋 Changelog
 
 ### v5.1.0 (July 2026) — Route Overhaul, PostgREST Fix, Global Avatar Normalization & Emoji-Free AI
+
 - ✅ **Dynamic Routing Fix**: Renamed layout route `courses.tsx` to index route `courses.index.tsx` so TanStack Router can properly separate the index directory from dynamic `$slug` matching.
 - ✅ **Global Avatar Normalization**: Added `optimizeAvatarUrl` in `src/lib/utils.ts` and integrated it directly into `<AvatarImage>` to dynamically clean up legacy Dicebear v7 URLs and upgrade them to v10.x formats to avoid 400 Bad Request errors.
 - ✅ **PostgREST Query Fix**: Refactored `creator_applications` queries in `src/routes/_authenticated/admin.tsx` to query applications and profiles separately, bypassing the missing foreign-key join constraints in PostgREST that caused 400 errors.
@@ -521,7 +522,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Cheat Sheet Generator Overhaul** (`CheatSheetGenerator.tsx`): Full rewrite with 20+ real inline SVG brand logos (HTML5, CSS3, JS, TS, React, Vue, Angular, Node.js, Python, Supabase, Firebase, Docker, Git, MySQL, PostgreSQL, MongoDB, AWS, WordPress, Figma, Canva, ChatGPT, Excel, GitHub, Tailwind, Next.js, Vite, Redis, Kubernetes). Timeline layout for Core Concepts. Save to Library via localStorage with Bookmark toggle. Beautiful styled Print view (not raw JSON). Downloadable print-ready HTML for PDF. Share button with Web Share API / clipboard fallback. Timestamp in toolbar.
 - ✅ **XP Store Avatar Fix**: Removed `InteractiveAvatar` component (SVG eyes/mouth overlay was rendering on top of avatar faces at wrong coordinates). Replaced with clean edge-to-edge `<img>` tags. Avatar cards now use premium styling: `scale-110` hover zoom, dark "Unlock" overlay, `ring-4` active glow, rounded 2xl. Section renamed from "Interactive Avatars" → **"3D Profile Avatars"**.
 - ✅ **Video Player Bookmark Removed**: Cleaned up unused bookmark control from the video player UI.
-
 
 - ✅ **Certificate Auto-Email**: Fixed `issueAndEmailCertificate` server function to actually send emails using the 5-provider fallback chain (Gmail → Resend API → Brevo → Resend SMTP → Brevo SMTP). Previously was a placeholder that only logged to console. Now sends a branded HTML email with certificate ID, score, and verification link on every issuance.
 - ✅ **Certificate Email Template**: Built a dedicated HTML email template for auto-issued certificates with Learnify AI branding, gradient header, certificate details table (ID, date, score), and "View & Download Certificate" CTA button.
@@ -1002,8 +1002,8 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 - 💼 **CAREER STUDIO 12-TOOL SUITE**: Upgraded career tools with Google's X-Y-Z formula bullet point generator (`Accomplished X, as measured by Y, by doing Z`), 4 ATS-compliant templates, 1-click **Standalone Portfolio Website ZIP Export** with folders (`index.html`, `css`, `js`, `assets`, `README`), and live desktop tool switcher.
 - 📹 **LIVE VIDEO MOCK INTERVIEW & AI HUMAN AVATAR**: Practice interviews for standard or custom job roles with **Sarah Jenkins** (Senior Tech Lead) AI Interactor avatar, audio waveform bars, and live candidate webcam stream capture (`LIVE CAMERA FEED`).
-- 💳 **BILLING & REVENUE OS & SUBSCRIPTION ANALYTICS**: Full-spectrum billing operations with Cashfree gateway status, live webhook test connection for `/api/webhooks/cashfree`, date range selector (*Today* to *All*), 13 database metric categories (*Revenue, Subscriptions, AI Usage, Courses, ATS, Interviews*), and CSV exports.
-- 🤖 **AI TUTOR & AI AGENTS HISTORY & BOOKMARKS**: Saved session history in `localStorage`, 📌 **Save Insight** response bookmarking with dedicated drawer, credit balance meter, vision multi-modal attachment, and model selector (*Gemini Flash / Pro / Vision*).
+- 💳 **BILLING & REVENUE OS & SUBSCRIPTION ANALYTICS**: Full-spectrum billing operations with Cashfree gateway status, live webhook test connection for `/api/webhooks/cashfree`, date range selector (_Today_ to _All_), 13 database metric categories (_Revenue, Subscriptions, AI Usage, Courses, ATS, Interviews_), and CSV exports.
+- 🤖 **AI TUTOR & AI AGENTS HISTORY & BOOKMARKS**: Saved session history in `localStorage`, 📌 **Save Insight** response bookmarking with dedicated drawer, credit balance meter, vision multi-modal attachment, and model selector (_Gemini Flash / Pro / Vision_).
 - 🎨 **100% SVG ICON STANDARD & FULL RESPONSIVENESS**: Replaced all raw emojis across onboarding, dashboard, verification, and chat flows with Lucide SVG icons. Verified mobile, tablet, and PC desktop layouts.
 
 ### v1.3.3 (July 2026)
@@ -1055,7 +1055,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 - **Interview Prep**: Exit/Cancel button, animated AI avatar (Sarah Jenkins), video feed panel, progress counter
 - **Portfolio Builder**: Template gallery, live preview, ZIP download with full file/folder structure
 - **All emoji removed**: Replaced with Lucide SVG icons throughout Career Studio
-
 
 ### v1.1.0 (June 2026)
 

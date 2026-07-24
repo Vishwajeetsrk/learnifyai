@@ -664,7 +664,10 @@ function BillingOSPage() {
             <TabsTrigger value="taxes">Taxes</TabsTrigger>
             <TabsTrigger value="coupons">Coupons</TabsTrigger>
             <TabsTrigger value="cashfree">Cashfree</TabsTrigger>
-            <TabsTrigger value="analytics" className="text-violet-600 dark:text-violet-400 font-bold">
+            <TabsTrigger
+              value="analytics"
+              className="text-violet-600 dark:text-violet-400 font-bold"
+            >
               Subscription Analytics
             </TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -1770,7 +1773,10 @@ function BillingOSPage() {
                     onClick={() => {
                       const csvContent = `Metric Category,Date Range,Value,Unit\n${analyticsCategory},${analyticsDateRange},${overviewData?.total_revenue || 0},INR\nActive Subscriptions,${analyticsDateRange},${overviewData?.active_subscribers || 0},Users\nMRR,${analyticsDateRange},${overviewData?.mrr || 0},INR\nARR,${analyticsDateRange},${overviewData?.arr || 0},INR`;
                       const blob = new Blob([csvContent], { type: "text/csv" });
-                      downloadBlob(blob, `subscription-analytics-${analyticsCategory.toLowerCase()}-${analyticsDateRange.toLowerCase().replace(/\s+/g, '-')}.csv`);
+                      downloadBlob(
+                        blob,
+                        `subscription-analytics-${analyticsCategory.toLowerCase()}-${analyticsDateRange.toLowerCase().replace(/\s+/g, "-")}.csv`,
+                      );
                       toast.success("Analytics CSV exported!");
                     }}
                   >
@@ -1803,7 +1809,7 @@ function BillingOSPage() {
                       "px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all cursor-pointer",
                       analyticsCategory === cat
                         ? "bg-violet-600 text-white shadow-md"
-                        : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground",
                     )}
                   >
                     {cat}
@@ -1814,33 +1820,59 @@ function BillingOSPage() {
               {/* Real Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
                 <div className="p-4 rounded-xl border bg-gradient-to-br from-violet-500/10 to-purple-500/5 space-y-1">
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Total Revenue</span>
-                  <div className="text-lg font-extrabold text-violet-600 dark:text-violet-400">{inr(overviewData?.total_revenue || 0)}</div>
-                  <span className="text-[10px] text-emerald-500 font-semibold">↑ +14.2% {analyticsDateRange}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                    Total Revenue
+                  </span>
+                  <div className="text-lg font-extrabold text-violet-600 dark:text-violet-400">
+                    {inr(overviewData?.total_revenue || 0)}
+                  </div>
+                  <span className="text-[10px] text-emerald-500 font-semibold">
+                    ↑ +14.2% {analyticsDateRange}
+                  </span>
                 </div>
                 <div className="p-4 rounded-xl border bg-card space-y-1">
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Active Subs</span>
-                  <div className="text-lg font-extrabold text-foreground">{overviewData?.active_subscribers || 0}</div>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                    Active Subs
+                  </span>
+                  <div className="text-lg font-extrabold text-foreground">
+                    {overviewData?.active_subscribers || 0}
+                  </div>
                   <span className="text-[10px] text-blue-500 font-semibold">Active mandates</span>
                 </div>
                 <div className="p-4 rounded-xl border bg-card space-y-1">
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">MRR</span>
-                  <div className="text-lg font-extrabold text-foreground">{inr(overviewData?.mrr || 0)}</div>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                    MRR
+                  </span>
+                  <div className="text-lg font-extrabold text-foreground">
+                    {inr(overviewData?.mrr || 0)}
+                  </div>
                   <span className="text-[10px] text-emerald-500 font-semibold">Monthly Rec.</span>
                 </div>
                 <div className="p-4 rounded-xl border bg-card space-y-1">
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">ARR</span>
-                  <div className="text-lg font-extrabold text-foreground">{inr(overviewData?.arr || 0)}</div>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                    ARR
+                  </span>
+                  <div className="text-lg font-extrabold text-foreground">
+                    {inr(overviewData?.arr || 0)}
+                  </div>
                   <span className="text-[10px] text-violet-500 font-semibold">Annual Rec.</span>
                 </div>
                 <div className="p-4 rounded-xl border bg-card space-y-1">
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Success Rate</span>
-                  <div className="text-lg font-extrabold text-emerald-500">{overviewData?.payment_success_rate || 98.4}%</div>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                    Success Rate
+                  </span>
+                  <div className="text-lg font-extrabold text-emerald-500">
+                    {overviewData?.payment_success_rate || 98.4}%
+                  </div>
                   <span className="text-[10px] text-muted-foreground">Cashfree PG</span>
                 </div>
                 <div className="p-4 rounded-xl border bg-card space-y-1">
-                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Credits Used</span>
-                  <div className="text-lg font-extrabold text-foreground">{(overviewData?.credits_used || 0).toLocaleString()}</div>
+                  <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                    Credits Used
+                  </span>
+                  <div className="text-lg font-extrabold text-foreground">
+                    {(overviewData?.credits_used || 0).toLocaleString()}
+                  </div>
                   <span className="text-[10px] text-amber-500 font-semibold">AI Tokens</span>
                 </div>
               </div>

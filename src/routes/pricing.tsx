@@ -554,12 +554,17 @@ function PricingPage() {
       }
     } catch (e: any) {
       const msg = e?.message || "Subscription failed";
-      if (msg.toLowerCase().includes("whitelis") || msg.toLowerCase().includes("not enabled or approved")) {
+      if (
+        msg.toLowerCase().includes("whitelis") ||
+        msg.toLowerCase().includes("not enabled or approved")
+      ) {
         toast.error("Cashfree Domain Approval Needed", {
-          description: "Domain 'https://www.learnifyai.in/' must be whitelisted in Cashfree Merchant Dashboard > Developers > Whitelisting.",
+          description:
+            "Domain 'https://www.learnifyai.in/' must be whitelisted in Cashfree Merchant Dashboard > Developers > Whitelisting.",
           action: {
             label: "Open Cashfree",
-            onClick: () => window.open("https://merchant.cashfree.com/merchants/pg/whitelisting", "_blank"),
+            onClick: () =>
+              window.open("https://merchant.cashfree.com/merchants/pg/whitelisting", "_blank"),
           },
           duration: 10000,
         });
@@ -677,7 +682,11 @@ function PricingPage() {
                 { icon: Star, label: "4.9 Rating", sub: "10,000+ Learners" },
                 { icon: GraduationCap, label: "25,000+ Certificates", sub: "Issued & Verified" },
                 { icon: Briefcase, label: "Career Focused", sub: "Learning that leads to jobs" },
-                { icon: Users, label: `🔥 ${learnerCount.toLocaleString("en-IN")} Active`, sub: "Students enrolled" },
+                {
+                  icon: Users,
+                  label: `🔥 ${learnerCount.toLocaleString("en-IN")} Active`,
+                  sub: "Students enrolled",
+                },
               ].map(({ icon: Icon, label, sub }, i) => (
                 <div key={label} className="flex items-center gap-3 text-left">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 relative">

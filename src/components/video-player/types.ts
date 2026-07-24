@@ -13,6 +13,15 @@ export interface SubtitleTrack {
   isDefault?: boolean;
 }
 
+export interface LessonSlide {
+  id: string;
+  title: string;
+  body?: string;
+  start: number;
+  end?: number;
+  imageUrl?: string;
+}
+
 export interface CaptionStyle {
   fontSize: "small" | "medium" | "large" | "xlarge";
   fontFamily: string;

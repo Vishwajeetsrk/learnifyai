@@ -6,6 +6,7 @@ export { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay";
 export {
   type TranscriptEntry,
   type SubtitleTrack,
+  type LessonSlide,
   type VideoSettings,
   type CaptionStyle,
   type KeyboardShortcut,

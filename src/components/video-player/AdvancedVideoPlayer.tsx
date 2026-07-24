@@ -17,12 +17,14 @@ import {
   HelpCircle,
   List,
   Globe,
+  Subtitles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   type VideoSettings,
   type SubtitleTrack,
   type TranscriptEntry,
+  type LessonSlide,
   type CaptionStyle,
   DEFAULT_CAPTION_STYLE,
   KEYBOARD_SHORTCUTS,
@@ -37,67 +39,109 @@ import { KeyboardShortcutsOverlay } from "./KeyboardShortcutsOverlay";
 const TRANSLATION_DICTS: Record<string, Record<string, string>> = {
   hi: {
     "Welcome to this lesson on:": "इस पाठ में आपका स्वागत है:",
-    "In this session, we will explore the core fundamentals and advanced concepts.": "इस सत्र में, हम मुख्य सिद्धांतों और उन्नत अवधारणाओं का पता लगाएंगे।",
-    "Remember that practice is key to mastering these techniques.": "याद रखें कि इन तकनीकों में महारत हासिल करने के लिए अभ्यास ही कुंजी है।",
-    "If you have any doubts, you can ask the AI Tutor in the side panel.": "यदि आपको कोई संदेह है, तो आप साइड पैनल में एआई ट्यूटर से पूछ सकते हैं।",
-    "Let's proceed by writing some code in the interactive playground.": "आइए इंटरैक्टिव प्लेग्राउंड में कुछ कोड लिखकर आगे बढ़ें।",
-    "We will wrap up this topic and proceed to the practice quiz next.": "हम इस विषय को समाप्त करेंगे और आगे अभ्यास प्रश्नोत्तरी पर चलेंगे।",
-    "Thank you for watching! Complete the assessment to claim your certificate.": "देखने के लिए धन्यवाद! अपना प्रमाणपत्र प्राप्त करने के लिए मूल्यांकन पूरा करें।"
+    "In this session, we will explore the core fundamentals and advanced concepts.":
+      "इस सत्र में, हम मुख्य सिद्धांतों और उन्नत अवधारणाओं का पता लगाएंगे।",
+    "Remember that practice is key to mastering these techniques.":
+      "याद रखें कि इन तकनीकों में महारत हासिल करने के लिए अभ्यास ही कुंजी है।",
+    "If you have any doubts, you can ask the AI Tutor in the side panel.":
+      "यदि आपको कोई संदेह है, तो आप साइड पैनल में एआई ट्यूटर से पूछ सकते हैं।",
+    "Let's proceed by writing some code in the interactive playground.":
+      "आइए इंटरैक्टिव प्लेग्राउंड में कुछ कोड लिखकर आगे बढ़ें।",
+    "We will wrap up this topic and proceed to the practice quiz next.":
+      "हम इस विषय को समाप्त करेंगे और आगे अभ्यास प्रश्नोत्तरी पर चलेंगे।",
+    "Thank you for watching! Complete the assessment to claim your certificate.":
+      "देखने के लिए धन्यवाद! अपना प्रमाणपत्र प्राप्त करने के लिए मूल्यांकन पूरा करें।",
   },
   es: {
     "Welcome to this lesson on:": "Bienvenido a esta lección sobre:",
-    "In this session, we will explore the core fundamentals and advanced concepts.": "En esta sesión, exploraremos los fundamentos básicos y los conceptos avanzados.",
-    "Remember that practice is key to mastering these techniques.": "Recuerda que la práctica es clave para dominar estas técnicas.",
-    "If you have any doubts, you can ask the AI Tutor in the side panel.": "Si tienes alguna duda, puedes preguntar al Tutor de IA en el panel lateral.",
-    "Let's proceed by writing some code in the interactive playground.": "Procedamos escribiendo algo de código en el patio de recreo interactivo.",
-    "We will wrap up this topic and proceed to the practice quiz next.": "Terminaremos este tema y procederemos al cuestionario de práctica a continuación.",
-    "Thank you for watching! Complete the assessment to claim your certificate.": "¡Gracias por mirar! Completa la evaluación para reclamar tu certificado."
+    "In this session, we will explore the core fundamentals and advanced concepts.":
+      "En esta sesión, exploraremos los fundamentos básicos y los conceptos avanzados.",
+    "Remember that practice is key to mastering these techniques.":
+      "Recuerda que la práctica es clave para dominar estas técnicas.",
+    "If you have any doubts, you can ask the AI Tutor in the side panel.":
+      "Si tienes alguna duda, puedes preguntar al Tutor de IA en el panel lateral.",
+    "Let's proceed by writing some code in the interactive playground.":
+      "Procedamos escribiendo algo de código en el patio de recreo interactivo.",
+    "We will wrap up this topic and proceed to the practice quiz next.":
+      "Terminaremos este tema y procederemos al cuestionario de práctica a continuación.",
+    "Thank you for watching! Complete the assessment to claim your certificate.":
+      "¡Gracias por mirar! Completa la evaluación para reclamar tu certificado.",
   },
   fr: {
     "Welcome to this lesson on:": "Bienvenue dans cette leçon sur :",
-    "In this session, we will explore the core fundamentals and advanced concepts.": "Dans cette session, nous explorerons les fondamentaux de base et les concepts avancés.",
-    "Remember that practice is key to mastering these techniques.": "N'oubliez pas que la pratique est la clé pour maîtriser ces techniques.",
-    "If you have any doubts, you can ask the tuteur IA in the side panel.": "Si vous avez des doutes, vous pouvez demander au tuteur IA dans le panneau latéral.",
-    "Let's proceed by writing some code in the interactive playground.": "Commençons par écrire du code dans l'espace de jeu interactif.",
-    "We will wrap up this topic and proceed to the practice quiz next.": "Nous allons terminer ce sujet et passer ensuite au quiz d'entraînement.",
-    "Thank you for watching! Complete the assessment to claim your certificate.": "Merci d'avoir regardé ! Remplissez l'évaluation pour obtenir votre certificat."
+    "In this session, we will explore the core fundamentals and advanced concepts.":
+      "Dans cette session, nous explorerons les fondamentaux de base et les concepts avancés.",
+    "Remember that practice is key to mastering these techniques.":
+      "N'oubliez pas que la pratique est la clé pour maîtriser ces techniques.",
+    "If you have any doubts, you can ask the tuteur IA in the side panel.":
+      "Si vous avez des doutes, vous pouvez demander au tuteur IA dans le panneau latéral.",
+    "Let's proceed by writing some code in the interactive playground.":
+      "Commençons par écrire du code dans l'espace de jeu interactif.",
+    "We will wrap up this topic and proceed to the practice quiz next.":
+      "Nous allons terminer ce sujet et passer ensuite au quiz d'entraînement.",
+    "Thank you for watching! Complete the assessment to claim your certificate.":
+      "Merci d'avoir regardé ! Remplissez l'évaluation pour obtenir votre certificat.",
   },
   de: {
     "Welcome to this lesson on:": "Willkommen zu dieser Lektion über:",
-    "In this session, we will explore the core fundamentals and advanced concepts.": "In dieser Sitzung werden wir die Grundlagen und fortgeschrittenen Konzepte untersuchen.",
-    "Remember that practice is key to mastering these techniques.": "Denken Sie daran, dass Übung der Schlüssel zur Beherrschung dieser Techniken ist.",
-    "If you have any doubts, you can ask the KI-Tutor in the side panel.": "Wenn Sie Zweifel haben, können Sie den KI-Tutor in der Seitenleiste fragen.",
-    "Let's proceed by writing some code in the interactive playground.": "Schreiben wir etwas Code auf dem interaktiven Spielplatz.",
-    "We will wrap up this topic and proceed to the practice quiz next.": "Wir werden dieses Thema abschließen und als Nächstes mit dem Übungsquiz fortfahren.",
-    "Thank you for watching! Complete the assessment to claim your certificate.": "Vielen Dank fürs Zuschauen! Schließen Sie die Bewertung ab, um Ihr Zertifikat anzufordern."
+    "In this session, we will explore the core fundamentals and advanced concepts.":
+      "In dieser Sitzung werden wir die Grundlagen und fortgeschrittenen Konzepte untersuchen.",
+    "Remember that practice is key to mastering these techniques.":
+      "Denken Sie daran, dass Übung der Schlüssel zur Beherrschung dieser Techniken ist.",
+    "If you have any doubts, you can ask the KI-Tutor in the side panel.":
+      "Wenn Sie Zweifel haben, können Sie den KI-Tutor in der Seitenleiste fragen.",
+    "Let's proceed by writing some code in the interactive playground.":
+      "Schreiben wir etwas Code auf dem interaktiven Spielplatz.",
+    "We will wrap up this topic and proceed to the practice quiz next.":
+      "Wir werden dieses Thema abschließen und als Nächstes mit dem Übungsquiz fortfahren.",
+    "Thank you for watching! Complete the assessment to claim your certificate.":
+      "Vielen Dank fürs Zuschauen! Schließen Sie die Bewertung ab, um Ihr Zertifikat anzufordern.",
   },
   te: {
     "Welcome to this lesson on:": "ಈ ಪಾಠಕ್ಕೆ ಸುಸ್ವಾಗತ:",
-    "In this session, we will explore the core fundamentals and advanced concepts.": "ಈ ಅವಧಿಯಲ್ಲಿ, ನಾವು ಮೂಲಭೂತ ಮತ್ತು ಸುಧಾರಿತ ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಅನ್ವೇಷಿಸುತ್ತೇವೆ.",
-    "Remember that practice is key to mastering these techniques.": "ಈ ತಂತ್ರಗಳನ್ನು ಕರಗತ ಮಾಡಿಕೊಳ್ಳಲು ಅಭ್ಯಾಸವೇ ಪ್ರಮುಖವಾಗಿದೆ ಎಂದು ನೆನಪಿಡಿ.",
-    "If you have any doubts, you can ask the AI Tutor in the side panel.": "ನಿಮಗೆ ಯಾವುದೇ ಸಂದೇಹಗಳಿದ್ದರೆ, ನೀವು ಸೈಡ್ ಪ್ಯಾನೆಲ್‌ನಲ್ಲಿರುವ AI ಟ್ಯೂಟರ್ ಅನ್ನು ಕೇಳಬಹುದು.",
-    "Let's proceed by writing some code in the interactive playground.": "ಸಂವಾದಾತ್ಮಕ ಆಟದ ಮೈದಾನದಲ್ಲಿ ಕೆಲವು ಕೋಡ್ ಬರೆಯುವ ಮೂಲಕ ಮುಂದುವರಿಯೋಣ.",
-    "We will wrap up this topic and proceed to the practice quiz next.": "ನಾವು ಈ ವಿಷಯವನ್ನು ಮುಕ್ತಾಯಗೊಳಿಸುತ್ತೇವೆ ಮತ್ತು ಮುಂದೆ ಅಭ್ಯಾಸ ರಸಪ್ರಶ್ನೆಗೆ ಮುಂದುವರಿಯುತ್ತೇವೆ.",
-    "Thank you for watching! Complete the assessment to claim your certificate.": "ನೋಡಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ಪ್ರಮಾಣಪತ್ರವನ್ನು ಪಡೆಯಲು ಮೌಲ್ಯಮಾಪನವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ."
+    "In this session, we will explore the core fundamentals and advanced concepts.":
+      "ಈ ಅವಧಿಯಲ್ಲಿ, ನಾವು ಮೂಲಭೂತ ಮತ್ತು ಸುಧಾರಿತ ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಅನ್ವೇಷಿಸುತ್ತೇವೆ.",
+    "Remember that practice is key to mastering these techniques.":
+      "ಈ ತಂತ್ರಗಳನ್ನು ಕರಗತ ಮಾಡಿಕೊಳ್ಳಲು ಅಭ್ಯಾಸವೇ ಪ್ರಮುಖವಾಗಿದೆ ಎಂದು ನೆನಪಿಡಿ.",
+    "If you have any doubts, you can ask the AI Tutor in the side panel.":
+      "ನಿಮಗೆ ಯಾವುದೇ ಸಂದೇಹಗಳಿದ್ದರೆ, ನೀವು ಸೈಡ್ ಪ್ಯಾನೆಲ್‌ನಲ್ಲಿರುವ AI ಟ್ಯೂಟರ್ ಅನ್ನು ಕೇಳಬಹುದು.",
+    "Let's proceed by writing some code in the interactive playground.":
+      "ಸಂವಾದಾತ್ಮಕ ಆಟದ ಮೈದಾನದಲ್ಲಿ ಕೆಲವು ಕೋಡ್ ಬರೆಯುವ ಮೂಲಕ ಮುಂದುವರಿಯೋಣ.",
+    "We will wrap up this topic and proceed to the practice quiz next.":
+      "ನಾವು ಈ ವಿಷಯವನ್ನು ಮುಕ್ತಾಯಗೊಳಿಸುತ್ತೇವೆ ಮತ್ತು ಮುಂದೆ ಅಭ್ಯಾಸ ರಸಪ್ರಶ್ನೆಗೆ ಮುಂದುವರಿಯುತ್ತೇವೆ.",
+    "Thank you for watching! Complete the assessment to claim your certificate.":
+      "ನೋಡಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ಪ್ರಮಾಣಪತ್ರವನ್ನು ಪಡೆಯಲು ಮೌಲ್ಯಮಾಪನವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ.",
   },
   ta: {
     "Welcome to this lesson on:": "இந்த பாடத்திற்கு உங்களை வரவேற்கிறோம்:",
-    "In this session, we will explore the core fundamentals and advanced concepts.": "இந்த அமர்வில், அடிப்படை மற்றும் மேம்பட்ட கருத்துக்களை ஆராய்வோம்.",
-    "Remember that practice is key to mastering these techniques.": "இந்த நுட்பங்களை மாஸ்டர் செய்ய பயிற்சி முக்கியம் என்பதை நினைவில் கொள்க.",
-    "If you have any doubts, you can ask the AI Tutor in the side panel.": "உங்களுக்கு ஏதேனும் சந்தேகங்கள் இருந்தால், பக்கவாட்டு பேனலில் உள்ள AI பயிற்சியாளரிடம் கேட்கலாம்.",
-    "Let's proceed by writing some code in the interactive playground.": "ஊடாடும் விளையாட்டு மைதானத்தில் சில குறியீட்டை எழுதி தொடர்வோம்.",
-    "We will wrap up this topic and proceed to the practice quiz next.": "இந்த தலைப்பை முடித்துவிட்டு அடுத்ததாக பயிற்சி வினாடி வினாவிற்கு செல்வோம்.",
-    "Thank you for watching! Complete the assessment to claim your certificate.": "பார்த்ததற்கு நன்றி! உங்கள் சான்றிதழைக் கோர மதிப்பீட்டை முடிக்கவும்."
+    "In this session, we will explore the core fundamentals and advanced concepts.":
+      "இந்த அமர்வில், அடிப்படை மற்றும் மேம்பட்ட கருத்துக்களை ஆராய்வோம்.",
+    "Remember that practice is key to mastering these techniques.":
+      "இந்த நுட்பங்களை மாஸ்டர் செய்ய பயிற்சி முக்கியம் என்பதை நினைவில் கொள்க.",
+    "If you have any doubts, you can ask the AI Tutor in the side panel.":
+      "உங்களுக்கு ஏதேனும் சந்தேகங்கள் இருந்தால், பக்கவாட்டு பேனலில் உள்ள AI பயிற்சியாளரிடம் கேட்கலாம்.",
+    "Let's proceed by writing some code in the interactive playground.":
+      "ஊடாடும் விளையாட்டு மைதானத்தில் சில குறியீட்டை எழுதி தொடர்வோம்.",
+    "We will wrap up this topic and proceed to the practice quiz next.":
+      "இந்த தலைப்பை முடித்துவிட்டு அடுத்ததாக பயிற்சி வினாடி வினாவிற்கு செல்வோம்.",
+    "Thank you for watching! Complete the assessment to claim your certificate.":
+      "பார்த்ததற்கு நன்றி! உங்கள் சான்றிதழைக் கோர மதிப்பீட்டை முடிக்கவும்.",
   },
   kn: {
     "Welcome to this lesson on:": "ಈ ಪಾಠಕ್ಕೆ ಸುಸ್ವಾಗತ:",
-    "In this session, we will explore the core fundamentals and advanced concepts.": "ಈ ಅವಧಿಯಲ್ಲಿ, ನಾವು ಮೂಲಭೂತ ಮತ್ತು ಸುಧಾರಿತ ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಅನ್ವೇಷಿಸುತ್ತೇವೆ.",
-    "Remember that practice is key to mastering these techniques.": "ಈ ತಂತ್ರಗಳನ್ನು ಕರಗತ ಮಾಡಿಕೊಳ್ಳಲು ಅಭ್ಯಾಸವೇ ಪ್ರಮುಖವಾಗಿದೆ ಎಂದು ನೆನಪಿಡಿ.",
-    "If you have any doubts, you can ask the AI Tutor in the side panel.": "ನಿಮಗೆ ಯಾವುದೇ ಸಂದೇಹಗಳಿದ್ದರೆ, ನೀವು ಸೈಡ್ ಪ್ಯಾನೆಲ್‌ನಲ್ಲಿರುವ AI ಟ್ಯೂಟರ್ ಅನ್ನು ಕೇಳಬಹುದು.",
-    "Let's proceed by writing some code in the interactive playground.": "ಸಂವಾದಾತ್ಮಕ ಆಟದ ಮೈದಾನದಲ್ಲಿ ಕೆಲವು ಕೋಡ್ ಬರೆಯುವ ಮೂಲಕ ಮುಂದುವರಿಯೋಣ.",
-    "We will wrap up this topic and proceed to the practice quiz next.": "ನಾವು ಈ ವಿಷಯವನ್ನು ಮುಕ್ತಾಯಗೊಳಿಸುತ್ತೇವೆ ಮತ್ತು ಮುಂದೆ ಅಭ್ಯಾಸ ರಸಪ್ರಶ್ನೆಗೆ ಮುಂದುವರಿಯುತ್ತೇವೆ.",
-    "Thank you for watching! Complete the assessment to claim your certificate.": "ನೋಡಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ಪ್ರಮಾಣಪತ್ರವನ್ನು ಪಡೆಯಲು ಮೌಲ್ಯಮಾಪನವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ."
-  }
+    "In this session, we will explore the core fundamentals and advanced concepts.":
+      "ಈ ಅವಧಿಯಲ್ಲಿ, ನಾವು ಮೂಲಭೂತ ಮತ್ತು ಸುಧಾರಿತ ಪರಿಕಲ್ಪನೆಗಳನ್ನು ಅನ್ವೇಷಿಸುತ್ತೇವೆ.",
+    "Remember that practice is key to mastering these techniques.":
+      "ಈ ತಂತ್ರಗಳನ್ನು ಕರಗತ ಮಾಡಿಕೊಳ್ಳಲು ಅಭ್ಯಾಸವೇ ಪ್ರಮುಖವಾಗಿದೆ ಎಂದು ನೆನಪಿಡಿ.",
+    "If you have any doubts, you can ask the AI Tutor in the side panel.":
+      "ನಿಮಗೆ ಯಾವುದೇ ಸಂದೇಹಗಳಿದ್ದರೆ, ನೀವು ಸೈಡ್ ಪ್ಯಾನೆಲ್‌ನಲ್ಲಿರುವ AI ಟ್ಯೂಟರ್ ಅನ್ನು ಕೇಳಬಹುದು.",
+    "Let's proceed by writing some code in the interactive playground.":
+      "ಸಂವಾದಾತ್ಮಕ ಆಟದ ಮೈದಾನದಲ್ಲಿ ಕೆಲವು ಕೋಡ್ ಬರೆಯುವ ಮೂಲಕ ಮುಂದುವರಿಯೋಣ.",
+    "We will wrap up this topic and proceed to the practice quiz next.":
+      "ನಾವು ಈ ವಿಷಯವನ್ನು ಮುಕ್ತಾಯಗೊಳಿಸುತ್ತೇವೆ ಮತ್ತು ಮುಂದೆ ಅಭ್ಯಾಸ ರಸಪ್ರಶ್ನೆಗೆ ಮುಂದುವರಿಯುತ್ತೇವೆ.",
+    "Thank you for watching! Complete the assessment to claim your certificate.":
+      "ನೋಡಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ಪ್ರಮಾಣಪತ್ರವನ್ನು ಪಡೆಯಲು ಮೌಲ್ಯಮಾಪನವನ್ನು ಪೂರ್ಣಗೊಳಿಸಿ.",
+  },
 };
 
 interface AdvancedVideoPlayerProps {
@@ -110,6 +154,7 @@ interface AdvancedVideoPlayerProps {
   onComplete?: (lessonId: string) => void;
   transcriptEntries?: TranscriptEntry[];
   subtitleTracks?: SubtitleTrack[];
+  slides?: LessonSlide[];
   isYouTube?: boolean;
 }
 
@@ -123,6 +168,7 @@ export function AdvancedVideoPlayer({
   onComplete,
   transcriptEntries = [],
   subtitleTracks = [],
+  slides = [],
   isYouTube = false,
 }: AdvancedVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -147,6 +193,7 @@ export function AdvancedVideoPlayer({
   const [showCaptions, setShowCaptions] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showPlaylist, setShowPlaylist] = useState(false);
+  const [showSlides, setShowSlides] = useState(slides.length > 0);
   const [isPiP, setIsPiP] = useState(false);
 
   // Settings
@@ -178,12 +225,36 @@ export function AdvancedVideoPlayer({
       const generatedCues: TranscriptEntry[] = [
         { start: 1, end: 6, text: `Welcome to this lesson on:` },
         { start: 6, end: 10, text: lessonTitle },
-        { start: 12, end: 20, text: "In this session, we will explore the core fundamentals and advanced concepts." },
-        { start: 24, end: 32, text: "Remember that practice is key to mastering these techniques." },
-        { start: 36, end: 44, text: "If you have any doubts, you can ask the AI Tutor in the side panel." },
-        { start: 48, end: 56, text: "Let's proceed by writing some code in the interactive playground." },
-        { start: 60, end: 68, text: "We will wrap up this topic and proceed to the practice quiz next." },
-        { start: 72, end: 82, text: "Thank you for watching! Complete the assessment to claim your certificate." }
+        {
+          start: 12,
+          end: 20,
+          text: "In this session, we will explore the core fundamentals and advanced concepts.",
+        },
+        {
+          start: 24,
+          end: 32,
+          text: "Remember that practice is key to mastering these techniques.",
+        },
+        {
+          start: 36,
+          end: 44,
+          text: "If you have any doubts, you can ask the AI Tutor in the side panel.",
+        },
+        {
+          start: 48,
+          end: 56,
+          text: "Let's proceed by writing some code in the interactive playground.",
+        },
+        {
+          start: 60,
+          end: 68,
+          text: "We will wrap up this topic and proceed to the practice quiz next.",
+        },
+        {
+          start: 72,
+          end: 82,
+          text: "Thank you for watching! Complete the assessment to claim your certificate.",
+        },
       ];
 
       const defaultTrack: SubtitleTrack = {
@@ -201,9 +272,27 @@ export function AdvancedVideoPlayer({
 
   // Active caption cue
   const activeCue = useMemo(() => {
-    if ((!settings.captionsEnabled && translationLanguage === "off") || !activeTrack) return null;
+    if (!activeTrack) return null;
     return activeTrack.cues.find((cue) => currentTime >= cue.start && currentTime <= cue.end);
-  }, [activeTrack, currentTime, settings.captionsEnabled, translationLanguage]);
+  }, [activeTrack, currentTime]);
+
+  const activeSlideIndex = useMemo(() => {
+    return slides.findIndex(
+      (slide) => currentTime >= slide.start && (!slide.end || currentTime < slide.end),
+    );
+  }, [slides, currentTime]);
+
+  const activeSlide = activeSlideIndex >= 0 ? slides[activeSlideIndex] : slides[0];
+
+  const seekToSlide = useCallback(
+    (index: number) => {
+      const video = videoRef.current;
+      const slide = slides[index];
+      if (!video || !slide || isYouTube) return;
+      video.currentTime = slide.start;
+    },
+    [slides, isYouTube],
+  );
 
   // Translated cue text
   const translatedCueText = useMemo(() => {
@@ -234,9 +323,10 @@ export function AdvancedVideoPlayer({
     }
 
     // Determine target text to speak
-    const targetText = translationLanguage !== "off"
-      ? (TRANSLATION_DICTS[translationLanguage]?.[activeCue.text] || activeCue.text)
-      : (TRANSLATION_DICTS[audioLanguage]?.[activeCue.text] || activeCue.text);
+    const targetText =
+      translationLanguage !== "off"
+        ? TRANSLATION_DICTS[translationLanguage]?.[activeCue.text] || activeCue.text
+        : TRANSLATION_DICTS[audioLanguage]?.[activeCue.text] || activeCue.text;
 
     if (spokenCueRef.current !== activeCue.text) {
       speechSynthesis.cancel();
@@ -334,17 +424,17 @@ export function AdvancedVideoPlayer({
   const resetControlsTimer = useCallback(() => {
     setShowControls(true);
     if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
-    if (playing && !showSettings && !showTranscript && !showCaptions) {
+    if (playing && !showSettings && !showTranscript && !showCaptions && !showPlaylist) {
       hideControlsTimer.current = setTimeout(() => setShowControls(false), 4000);
     }
-  }, [playing, showSettings, showTranscript, showCaptions]);
+  }, [playing, showSettings, showTranscript, showCaptions, showPlaylist]);
 
   useEffect(() => {
     resetControlsTimer();
     return () => {
       if (hideControlsTimer.current) clearTimeout(hideControlsTimer.current);
     };
-  }, [playing, showSettings, showTranscript, showCaptions, resetControlsTimer]);
+  }, [playing, showSettings, showTranscript, showCaptions, showPlaylist, resetControlsTimer]);
 
   // Fullscreen
   useEffect(() => {
@@ -577,11 +667,64 @@ export function AdvancedVideoPlayer({
             Your browser does not support the video tag.
           </video>
 
+          {/* Slide overlay */}
+          {showSlides && activeSlide && (
+            <div className="absolute inset-0 z-10 pointer-events-none bg-slate-950/92">
+              {activeSlide.imageUrl && (
+                <img
+                  src={activeSlide.imageUrl}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover opacity-35"
+                />
+              )}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.22),transparent_34%),linear-gradient(135deg,rgba(15,23,42,0.96),rgba(2,6,23,0.9))]" />
+              <div className="relative h-full p-6 sm:p-8 flex flex-col justify-center">
+                <div className="max-w-3xl">
+                  <div className="mb-4 flex items-center gap-2 text-[11px] font-medium uppercase tracking-wider text-cyan-200/80">
+                    <span>Slide {activeSlideIndex >= 0 ? activeSlideIndex + 1 : 1}</span>
+                    <span className="h-1 w-1 rounded-full bg-cyan-200/60" />
+                    <span>{formatTimestamp(activeSlide.start)}</span>
+                  </div>
+                  <h3 className="font-display text-2xl sm:text-4xl font-bold leading-tight text-white">
+                    {activeSlide.title}
+                  </h3>
+                  {activeSlide.body && (
+                    <p className="mt-4 max-w-2xl whitespace-pre-line text-sm sm:text-base leading-7 text-slate-200">
+                      {activeSlide.body}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {slides.length > 1 && (
+                <div className="absolute right-4 top-4 z-20 flex items-center gap-2 pointer-events-auto">
+                  <button
+                    type="button"
+                    className="h-8 w-8 rounded-lg bg-white/10 text-white hover:bg-white/20 disabled:opacity-40"
+                    onClick={() => seekToSlide(Math.max(0, activeSlideIndex - 1))}
+                    disabled={activeSlideIndex <= 0}
+                    aria-label="Previous slide"
+                  >
+                    <ChevronLeft className="mx-auto h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    className="h-8 w-8 rounded-lg bg-white/10 text-white hover:bg-white/20 disabled:opacity-40"
+                    onClick={() => seekToSlide(Math.min(slides.length - 1, activeSlideIndex + 1))}
+                    disabled={activeSlideIndex < 0 || activeSlideIndex >= slides.length - 1}
+                    aria-label="Next slide"
+                  >
+                    <ChevronRight className="mx-auto h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Caption overlay */}
-          {activeCue && settings.captionsEnabled && (
+          {activeCue && (settings.captionsEnabled || translationLanguage !== "off") && (
             <div
               className={cn(
-                "absolute left-1/2 -translate-x-1/2 px-3 py-1 max-w-[80%] text-center pointer-events-none z-10",
+                "absolute left-1/2 -translate-x-1/2 px-3 py-1 max-w-[80%] text-center pointer-events-none z-20",
                 settings.captionStyle.rounded && "rounded-lg",
                 settings.captionStyle.blur && "backdrop-blur-sm",
                 settings.captionStyle.position === "top" && "top-4",
@@ -676,22 +819,32 @@ export function AdvancedVideoPlayer({
           <div className="flex items-center gap-1">
             {/* Left controls */}
             <ControlButton
-              icon={<SkipBack className="h-4 w-4" />}
+              icon={<ChevronLeft className="h-4 w-4" />}
               onClick={() => handleShortcutAction("prevLesson")}
-              disabled={currentLessonIndex === 0}
+              disabled={currentLessonIndex <= 0}
               tooltip="Previous lesson"
+            />
+            <ControlButton
+              icon={<SkipBack className="h-4 w-4" />}
+              onClick={() => handleShortcutAction("skipBack10")}
+              tooltip="Back 10 seconds"
             />
             <ControlButton
               icon={
                 playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />
               }
-              onClick={() => videoRef.current?.play()}
+              onClick={() => handleShortcutAction("togglePlay")}
               tooltip={playing ? "Pause" : "Play"}
             />
             <ControlButton
               icon={<SkipForward className="h-4 w-4" />}
+              onClick={() => handleShortcutAction("skipForward10")}
+              tooltip="Forward 10 seconds"
+            />
+            <ControlButton
+              icon={<ChevronRight className="h-4 w-4" />}
               onClick={() => handleShortcutAction("nextLesson")}
-              disabled={currentLessonIndex === lessons.length - 1}
+              disabled={currentLessonIndex < 0 || currentLessonIndex >= lessons.length - 1}
               tooltip="Next lesson"
             />
 
@@ -731,6 +884,14 @@ export function AdvancedVideoPlayer({
             <div className="flex-1" />
 
             {/* Right controls */}
+            {slides.length > 0 && (
+              <ControlButton
+                icon={<List className="h-4 w-4" />}
+                onClick={() => setShowSlides((v) => !v)}
+                tooltip={showSlides ? "Hide slides" : "Show slides"}
+                active={showSlides}
+              />
+            )}
             <ControlButton
               icon={<Camera className="h-4 w-4" />}
               onClick={takeScreenshot}
@@ -739,7 +900,9 @@ export function AdvancedVideoPlayer({
             <ControlButton
               icon={<PictureInPicture className="h-4 w-4" />}
               onClick={togglePiP}
-              disabled={isPiP || !document.pictureInPictureEnabled}
+              disabled={
+                isPiP || typeof document === "undefined" || !document.pictureInPictureEnabled
+              }
               tooltip="Picture-in-Picture"
               active={isPiP}
             />
@@ -748,6 +911,26 @@ export function AdvancedVideoPlayer({
               onClick={() => setShowPlaylist((v) => !v)}
               tooltip="Playlist"
               active={showPlaylist}
+            />
+            <ControlButton
+              icon={<Subtitles className="h-4 w-4" />}
+              onClick={() => {
+                setShowCaptions((v) => !v);
+                setShowSettings(false);
+                setShowTranscript(false);
+              }}
+              tooltip="Subtitles"
+              active={showCaptions || settings.captionsEnabled}
+            />
+            <ControlButton
+              icon={<Globe className="h-4 w-4" />}
+              onClick={() => {
+                setShowSettings(true);
+                setShowCaptions(false);
+                setShowTranscript(false);
+              }}
+              tooltip="Audio and language"
+              active={audioLanguage !== "original" || translationLanguage !== "off"}
             />
             <ControlButton
               icon={<MessageSquare className="h-4 w-4" />}
@@ -804,7 +987,10 @@ export function AdvancedVideoPlayer({
           <CaptionPanel
             tracks={tracks}
             activeTrackId={activeTrack?.id || null}
-            onSelectTrack={setActiveTrack}
+            onSelectTrack={(track) => {
+              setActiveTrack(track);
+              setSettings((prev) => ({ ...prev, captionsEnabled: !!track }));
+            }}
             onAddTrack={(track) => setTracks((prev) => [...prev, track])}
             onRemoveTrack={(id) => {
               setTracks((prev) => prev.filter((t) => t.id !== id));

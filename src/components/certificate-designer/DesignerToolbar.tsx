@@ -193,7 +193,11 @@ export function DesignerToolbar({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs font-semibold text-primary">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs font-semibold text-primary"
+            >
               <Sparkles className="h-3.5 w-3.5 mr-1" /> Dynamic Fields
             </Button>
           </DropdownMenuTrigger>
