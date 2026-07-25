@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   BarChart3,
@@ -15,6 +15,10 @@ import {
   TrendingUp,
   Building2,
   CheckCircle2,
+  FileText,
+  Trophy,
+  Wand2,
+  FileDown,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Label } from "@/components/ui/label";
@@ -574,24 +578,33 @@ function ScoreRing({ score, size = 64 }: { score: number; size?: number }) {
 }
 
 function CompanyLogo({ domain, name, color }: { domain: string; name: string; color: string }) {
-  const [failed, setFailed] = useState(false);
-  if (failed) {
-    return (
-      <div
-        className="h-10 w-10 rounded-xl flex items-center justify-center font-black text-white text-sm shadow-sm shrink-0"
-        style={{ backgroundColor: color }}
-      >
-        {name.slice(0, 2).toUpperCase()}
-      </div>
-    );
-  }
+  const [imgSrc, setImgSrc] = useState(`https://www.google.com/s2/favicons?domain=${domain}&sz=128`);
+  const [hasFailed, setHasFailed] = useState(false);
+
   return (
-    <img
-      src={`https://logo.clearbit.com/${domain}`}
-      alt={name}
-      className="h-10 w-10 rounded-xl object-contain bg-white border p-0.5 shadow-sm shrink-0"
-      onError={() => setFailed(true)}
-    />
+    <div className="h-10 w-10 rounded-xl bg-white border border-border/80 p-1 flex items-center justify-center shadow-sm shrink-0 overflow-hidden">
+      {!hasFailed ? (
+        <img
+          src={imgSrc}
+          alt={name}
+          className="h-8 w-8 object-contain"
+          onError={() => {
+            if (imgSrc.includes("google.com")) {
+              setImgSrc(`https://icons.duckduckgo.com/ip3/${domain}.ico`);
+            } else {
+              setHasFailed(true);
+            }
+          }}
+        />
+      ) : (
+        <div
+          className="h-full w-full rounded-lg flex items-center justify-center text-white font-black text-xs"
+          style={{ backgroundColor: color || "#4f46e5" }}
+        >
+          {name.slice(0, 2).toUpperCase()}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -651,6 +664,108 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
     setResumeText((t) => t + "\n" + kw);
     setAppliedKw((a) => [...a, kw]);
     toast.success(`Applied "${kw}" to resume`);
+  };
+
+  const top5Matches = useMemo(() => {
+    const text = resumeText || targetRole || "";
+    const textLower = text.toLowerCase();
+    const scored = COMPANIES.map((co) => {
+      let matchedCount = 0;
+      co.skills.forEach((sk) => {
+        if (textLower.includes(sk.toLowerCase())) matchedCount++;
+      });
+      const skillPct = matchedCount / Math.max(1, co.skills.length);
+      const titleBonus =
+        targetRole &&
+        (co.role.toLowerCase().includes(targetRole.toLowerCase()) ||
+          targetRole.toLowerCase().includes(co.name.toLowerCase()))
+          ? 20
+          : 5;
+      const scoreBase = result?.score ? result.score : 65;
+      const matchScore = Math.min(
+        99,
+        Math.max(40, Math.round(skillPct * 50 + titleBonus + scoreBase * 0.3)),
+      );
+      return { ...co, matchScore, matchedSkillsCount: matchedCount };
+    });
+
+    return [...scored].sort((a, b) => b.matchScore - a.matchScore).slice(0, 5);
+  }, [resumeText, targetRole, result]);
+
+  const handleAutoFixForJob = (co: typeof COMPANIES[0]) => {
+    const textLower = resumeText.toLowerCase();
+    const missingSkills = co.skills.filter((sk) => !textLower.includes(sk.toLowerCase()));
+
+    const xyzBullets = [
+      `Architected high-throughput ${co.skills[0] || "distributed"} services at scale, reducing latency by 45% as measured by APM metrics using ${co.skills[1] || "modern tech"}.`,
+      `Engineered automated deployment pipelines for ${co.name} architecture, boosting build reliability to 99.9% while cutting operational costs by 30%.`,
+      `Spearheaded cross-functional delivery for ${co.role} requirements, delivering key capabilities 2 weeks ahead of target deadlines.`,
+    ];
+
+    let newText = resumeText || `Target Role: ${co.role}\nCompany: ${co.name}\n`;
+    if (missingSkills.length > 0) {
+      newText += `\n\n[Optimized Key Skills for ${co.name}]\nCore Competencies: ` + missingSkills.join(", ");
+    }
+    newText += `\n\n[Google XYZ Formula Accomplishments — Target: ${co.name}]\n` + xyzBullets.join("\n");
+
+    setResumeText(newText);
+    toast.success(`Resume auto-fixed for ${co.name} (${co.role}) with Google XYZ Formula!`);
+  };
+
+  const downloadWord = () => {
+    if (!resumeText.trim()) return toast.error("Resume is empty");
+    const htmlContent = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head><meta charset='utf-8'><title>Resume</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #111; max-width: 800px; margin: auto; padding: 20px; }
+        h1 { color: #0284c7; font-size: 20px; }
+        pre { font-family: inherit; white-space: pre-wrap; word-break: break-word; }
+      </style>
+      </head>
+      <body>
+        <h1>${targetRole ? targetRole + " — " : ""}Optimized Resume</h1>
+        <pre>${resumeText}</pre>
+      </body>
+      </html>
+    `;
+    const blob = new Blob(["\ufeff", htmlContent], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement("a"), {
+      href: url,
+      download: `Resume_Optimized_${(targetRole || "Career").replace(/\s+/g, "_")}.docx`,
+    });
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Word Document (.docx) downloaded!");
+  };
+
+  const downloadPdf = async () => {
+    if (!resumeText.trim()) return toast.error("Resume is empty");
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF();
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("Optimized Professional Resume", 15, 15);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+
+      const lines = doc.splitTextToSize(resumeText, 180);
+      let y = 25;
+      for (let i = 0; i < lines.length; i++) {
+        if (y > 280) {
+          doc.addPage();
+          y = 15;
+        }
+        doc.text(lines[i], 15, y);
+        y += 6;
+      }
+      doc.save(`Resume_Optimized_${(targetRole || "Career").replace(/\s+/g, "_")}.pdf`);
+      toast.success("PDF Resume downloaded!");
+    } catch {
+      toast.error("Failed to generate PDF download");
+    }
   };
 
   const downloadFixed = () => {
@@ -874,21 +989,107 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
                         <p className="text-sm text-muted-foreground">
                           {result.summary || "ATS analysis complete"}
                         </p>
-                        <div className="flex gap-2 mt-3 flex-wrap">
+                        <div className="flex gap-2 mt-3 flex-wrap items-center">
                           <button
-                            onClick={downloadFixed}
+                            onClick={downloadPdf}
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-full text-xs font-bold hover:bg-emerald-700 transition"
                           >
-                            <Download className="h-3 w-3" /> Download Fixed
+                            <FileDown className="h-3.5 w-3.5" /> Download PDF
+                          </button>
+                          <button
+                            onClick={downloadWord}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition"
+                          >
+                            <FileText className="h-3.5 w-3.5" /> Download Word (.docx)
+                          </button>
+                          <button
+                            onClick={downloadFixed}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-muted rounded-full text-xs font-bold hover:bg-muted/80 border transition"
+                          >
+                            <Download className="h-3.5 w-3.5" /> Text (.txt)
                           </button>
                           <button
                             onClick={() => setTab("companies")}
                             className="flex items-center gap-1.5 px-3 py-1.5 bg-muted rounded-full text-xs font-bold hover:bg-muted/80 border transition"
                           >
-                            <Building2 className="h-3 w-3" /> Company Match
+                            <Building2 className="h-3.5 w-3.5" /> Company Match (55+)
                           </button>
                         </div>
                       </div>
+                    </div>
+                  </Card>
+
+                  {/* Top 5 Target Job Matches AI Recommendations */}
+                  <Card className="p-5 rounded-2xl border shadow-sm space-y-3 bg-gradient-to-br from-card via-card to-amber-500/5">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
+                        <Trophy className="h-4 w-4 text-amber-500" />
+                        <h3 className="text-sm font-bold">Top 5 Best Job Matches (AI Recommended)</h3>
+                      </div>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        Scored across 55+ companies
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+                      {top5Matches.map((co, idx) => (
+                        <div
+                          key={idx}
+                          className="p-3.5 rounded-xl border bg-background/80 shadow-sm flex flex-col justify-between space-y-3 relative overflow-hidden hover:border-primary/50 transition"
+                        >
+                          <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[9px] font-black">
+                            #{idx + 1} Match
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2.5">
+                              <CompanyLogo domain={co.domain} name={co.name} color={co.color} />
+                              <div className="min-w-0 flex-1">
+                                <p className="font-bold text-xs truncate">{co.name}</p>
+                                <p className="text-[10px] text-muted-foreground truncate">{co.role}</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between pt-1">
+                              <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+                                {co.matchScore}% Match
+                              </span>
+                              <span className="text-[10px] font-bold text-muted-foreground">{co.salary}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {co.skills.map((sk, sidx) => {
+                                const isMatched = (resumeText || "").toLowerCase().includes(sk.toLowerCase());
+                                return (
+                                  <span
+                                    key={sidx}
+                                    className={cn(
+                                      "px-1.5 py-0.5 rounded text-[9px] font-semibold border",
+                                      isMatched
+                                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                                        : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
+                                    )}
+                                  >
+                                    {isMatched ? "✓ " : "+ "}{sk}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 pt-2 border-t">
+                            <button
+                              onClick={() => handleAutoFixForJob(co)}
+                              className="flex-1 py-1.5 px-2 rounded-lg bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center gap-1 hover:bg-indigo-700 transition"
+                            >
+                              <Wand2 className="h-3 w-3" /> Auto-Fix
+                            </button>
+                            <a
+                              href={co.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-2 py-1.5 rounded-lg bg-primary text-primary-foreground text-[10px] font-bold flex items-center gap-1 hover:opacity-90 transition shrink-0"
+                            >
+                              Apply <ExternalLink className="h-2.5 w-2.5" />
+                            </a>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </Card>
 

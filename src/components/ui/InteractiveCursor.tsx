@@ -13,11 +13,12 @@ export function InteractiveCursor() {
     if (typeof document === "undefined") return;
     const stored = localStorage.getItem("mouse_cursor");
     if (stored !== null) {
-      const enabled = stored !== "false";
+      const enabled = stored === "true";
       setCursorEnabled(enabled);
       document.body.dataset.mouseCursor = String(enabled);
     } else {
-      document.body.dataset.mouseCursor = "true";
+      setCursorEnabled(false);
+      document.body.dataset.mouseCursor = "false";
     }
     const handler = (e: Event) => {
       const v = (e as CustomEvent).detail;

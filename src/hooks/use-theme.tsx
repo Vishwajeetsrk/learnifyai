@@ -33,9 +33,15 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 const MODE_KEY = "ui.mode";
 const COLOR_KEY = "ui.color";
 
-function getSystemMode(): "light" | "dark" {
+function getTimeBasedMode(): "light" | "dark" {
   if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  const hour = new Date().getHours();
+  // Daytime (6:00 AM - 6:00 PM) defaults to Light Mode; night defaults to Dark Mode
+  return hour >= 6 && hour < 18 ? "light" : "dark";
+}
+
+function getSystemMode(): "light" | "dark" {
+  return getTimeBasedMode();
 }
 
 function applyTheme(mode: Mode, color: ColorTheme) {
