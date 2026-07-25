@@ -215,20 +215,20 @@ function CareerStudioHub() {
         </div>
       </div>
 
-      {/* ── Content ── */}
+      {/* ── Content (Preserved DOM State) ── */}
       <div className="min-h-[calc(100dvh-8rem)] pb-10">
-        {activeTab === "resume" && <ResumeBuilderPage embedded />}
-        {activeTab === "ats" && <AtsCheckerPage embedded />}
-        {activeTab === "interview" && <InterviewPage embedded />}
-        {activeTab === "roadmap" && <CareerRoadmapPage embedded />}
-        {activeTab === "portfolio" && <PortfolioBuilderPage embedded />}
-        {activeTab === "linkedin" && <LinkedInOptimizerView />}
-        {activeTab === "analytics" && <CareerAnalyticsView />}
-        {activeTab === "internships" && <InternshipTrackerView />}
-        {activeTab === "skillgap" && <SkillGapView />}
-        {activeTab === "ikigai" && <CareerFinderView />}
-        {activeTab === "guides" && <GuidesDocsView />}
-        {activeTab === "agents" && <AgentHub />}
+        <div className={activeTab === "resume" ? "block" : "hidden"}><ResumeBuilderPage embedded /></div>
+        <div className={activeTab === "ats" ? "block" : "hidden"}><AtsCheckerPage embedded /></div>
+        <div className={activeTab === "interview" ? "block" : "hidden"}><InterviewPage embedded /></div>
+        <div className={activeTab === "roadmap" ? "block" : "hidden"}><CareerRoadmapPage embedded /></div>
+        <div className={activeTab === "portfolio" ? "block" : "hidden"}><PortfolioBuilderPage embedded /></div>
+        <div className={activeTab === "linkedin" ? "block" : "hidden"}><LinkedInOptimizerView /></div>
+        <div className={activeTab === "analytics" ? "block" : "hidden"}><CareerAnalyticsView /></div>
+        <div className={activeTab === "internships" ? "block" : "hidden"}><InternshipTrackerView /></div>
+        <div className={activeTab === "skillgap" ? "block" : "hidden"}><SkillGapView /></div>
+        <div className={activeTab === "ikigai" ? "block" : "hidden"}><CareerFinderView /></div>
+        <div className={activeTab === "guides" ? "block" : "hidden"}><GuidesDocsView /></div>
+        <div className={activeTab === "agents" ? "block" : "hidden"}><AgentHub /></div>
       </div>
     </AppShell>
   );

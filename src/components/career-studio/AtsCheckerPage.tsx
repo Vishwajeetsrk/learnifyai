@@ -612,15 +612,63 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
   const checkFn = useServerFn(checkAtsScore);
   const extractFn = useServerFn(extractResumeFields);
 
-  const [tab, setTab] = useState<"input" | "results" | "companies">("input");
+  const [tab, setTab] = useState<"input" | "results" | "companies">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("ats_active_subtab");
+      if (saved === "results" || saved === "companies" || saved === "input") return saved;
+    }
+    return "input";
+  });
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
-  const [result, setResult] = useState<any>(null);
-  const [resumeText, setResumeText] = useState("");
-  const [targetRole, setTargetRole] = useState("");
+  const [result, setResult] = useState<any>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("ats_result");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return null;
+  });
+  const [resumeText, setResumeText] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("ats_resume_text") || "";
+    }
+    return "";
+  });
+  const [targetRole, setTargetRole] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("ats_target_role") || "";
+    }
+    return "";
+  });
   const [industry, setIndustry] = useState("");
   const [searchQ, setSearchQ] = useState("");
   const [appliedKw, setAppliedKw] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("ats_resume_text", resumeText);
+  }, [resumeText]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("ats_target_role", targetRole);
+  }, [targetRole]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (result) {
+      localStorage.setItem("ats_result", JSON.stringify(result));
+    }
+  }, [result]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("ats_active_subtab", tab);
+  }, [tab]);
 
   const handleFileExtracted = async (text: string) => {
     setResumeText(text);

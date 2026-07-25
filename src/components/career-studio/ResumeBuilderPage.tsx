@@ -269,26 +269,65 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   const generateFn = useServerFn(generateResume);
   const extractFn = useServerFn(extractResumeFields);
 
-  const [view, setView] = useState<"edit" | "preview">("edit");
+  const [view, setView] = useState<"edit" | "preview">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("resume_builder_view");
+      if (saved === "edit" || saved === "preview") return saved;
+    }
+    return "edit";
+  });
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("resume_builder_result");
+    }
+    return null;
+  });
   const [selectedTpl, setSelectedTpl] = useState(TEMPLATES[0]);
   const [kwCategory, setKwCategory] = useState("general");
 
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    linkedin: "",
-    summary: "",
-    experience: "",
-    education: "",
-    skills: "",
-    certifications: "",
-    projects: "",
-    targetRole: "",
+  const [form, setForm] = useState(() => {
+    const defaultForm = {
+      fullName: "",
+      email: "",
+      phone: "",
+      linkedin: "",
+      summary: "",
+      experience: "",
+      education: "",
+      skills: "",
+      certifications: "",
+      projects: "",
+      targetRole: "",
+    };
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("resume_builder_form");
+      if (saved) {
+        try {
+          return { ...defaultForm, ...JSON.parse(saved) };
+        } catch {}
+      }
+    }
+    return defaultForm;
   });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("resume_builder_form", JSON.stringify(form));
+  }, [form]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (result) {
+      localStorage.setItem("resume_builder_result", result);
+    }
+  }, [result]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("resume_builder_view", view);
+  }, [view]);
 
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
