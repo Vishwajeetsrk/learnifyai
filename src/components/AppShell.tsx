@@ -60,7 +60,6 @@ const nav: NavItem[] = [
     featureKey: "course_builder",
     section: "main",
   },
-  { to: "/system-design", label: "System Design", icon: Cpu, section: "main" },
   { to: "/ai", label: "AI Tutor", icon: Sparkles, featureKey: "ai_tools", section: "main" },
   {
     to: "/career-studio",

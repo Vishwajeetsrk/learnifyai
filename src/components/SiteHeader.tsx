@@ -6,7 +6,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { useAuth } from "@/hooks/use-auth";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
-import { Loader2, Menu, Cpu } from "lucide-react";
+import { Loader2, Menu } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
 
@@ -22,7 +22,6 @@ export function SiteHeader() {
 
   const fallbackNav = [
     { label: tr("nav.features", "Features"), url: "/features" },
-    { label: tr("nav.systemDesign", "System Design"), url: "/system-design" },
     { label: tr("nav.aiTools", "AI Tools"), url: "/features#ai-tools" },
     { label: tr("nav.creators", "Creators"), url: "/creators" },
     { label: tr("nav.coaches", "Coaches"), url: "/coaches" },
@@ -30,7 +29,9 @@ export function SiteHeader() {
     { label: tr("nav.pricing", "Pricing"), url: "/pricing" },
     { label: tr("nav.blog", "Blog"), url: "/blog" },
   ];
-  const navItems = menuItems.length > 0 ? menuItems : fallbackNav;
+  const navItems = (menuItems.length > 0 ? menuItems : fallbackNav).filter(
+    (item: any) => item.url !== "/system-design" && !item.label?.includes("System Design")
+  );
 
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/70 border-b border-border/60">
@@ -44,7 +45,6 @@ export function SiteHeader() {
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
           ) : (
             navItems.map((item: any) => {
-              const isSystemDesign = item.url === "/system-design" || item.label?.includes("System Design");
               return (
                 <Link
                   key={item.id || item.label}
@@ -52,7 +52,6 @@ export function SiteHeader() {
                   preload="intent"
                   className="hover:text-foreground transition inline-flex items-center gap-1.5 font-medium"
                 >
-                  {isSystemDesign && <Cpu className="h-3.5 w-3.5 text-primary" />}
                   <span>{item.label}</span>
                 </Link>
               );
