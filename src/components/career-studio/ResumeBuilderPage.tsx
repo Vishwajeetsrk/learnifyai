@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   FileText,
@@ -329,13 +329,13 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     localStorage.setItem("resume_builder_view", view);
   }, [view]);
 
-  const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
+  const update = (field: string, value: string) => setForm((f: any) => ({ ...f, [field]: value }));
 
   const handleFileExtracted = async (text: string) => {
     setExtracting(true);
     try {
       const fields = await extractFn({ data: { rawText: text } });
-      setForm((f) => ({
+      setForm((f: any) => ({
         ...f,
         fullName: fields.fullName || f.fullName,
         email: fields.email || f.email,
