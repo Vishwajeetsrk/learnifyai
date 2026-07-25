@@ -11,6 +11,7 @@ import {
   User,
   Activity,
   Calendar,
+  Download,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -215,6 +216,33 @@ export function AuditLogsView() {
           }}
         >
           <RefreshCw className="h-3.5 w-3.5 mr-1" /> Reset
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 gap-1"
+          onClick={() => {
+            const header = ["Time", "Actor ID", "Actor Email", "Action", "Entity Type", "Entity ID", "Details"];
+            const rows = logs.map((l: any) => [
+              format(new Date(l.created_at), "yyyy-MM-dd HH:mm:ss"),
+              l.actor_id || "",
+              l.actor_email || l.actor?.email || "",
+              l.action || "",
+              l.entity_type || "",
+              l.entity_id || "",
+              l.changes ? JSON.stringify(l.changes).replace(/"/g, '""') : ""
+            ]);
+            const csvContent = [header.join(","), ...rows.map(r => r.map(c => `"${c}"`).join(","))].join("\n");
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `audit_logs_${format(new Date(), "yyyyMMdd_HHmmss")}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+        >
+          <Download className="h-3.5 w-3.5" /> Export CSV
         </Button>
       </div>
 
