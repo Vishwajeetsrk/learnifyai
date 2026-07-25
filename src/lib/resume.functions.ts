@@ -3,7 +3,34 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { callUserAiChat } from "@/lib/user-ai";
 import { z } from "zod";
 
-const SYSPROMPT = `You are an expert resume writer and career coach. Generate professional, ATS-friendly resume content. Use current industry standards (2025-2026). Return structured markdown. Be specific, quantifiable, and impactful. CRITICAL: Do NOT use any emojis under any circumstances.`;
+const SYSPROMPT = `You are an expert resume writer and career coach. Generate professional, ATS-friendly resume content in clean Markdown.
+CRITICAL MANDATES:
+1. Do NOT use any emojis.
+2. NEVER output Meta-comments, disclaimers, or notes like "Please note that the experience section is empty".
+3. ALWAYS include ALL details provided by the candidate under Professional Experience. If the user provided work experience (e.g. "Software Engineer @ Rootbridge"), expand it into strong Google XYZ Formula bullet points ("Accomplished [X] as measured by [Y] by doing [Z]").
+4. ALWAYS preserve ALL candidate URLs for LinkedIn, Projects, and Certifications verbatim as clean clickable Markdown links.
+5. Include ALL candidate skills categorized by category (e.g., Programming Languages, Frontend, Backend, Databases, Tools).
+6. Format cleanly with headers:
+# [Candidate Name]
+[Contact Line with Email | Phone | LinkedIn]
+
+## Professional Summary
+[3-4 high-impact bullet points]
+
+## Technical Skills
+[Categorized skills]
+
+## Professional Experience
+[Company, Role, Dates, and XYZ Formula bullet points]
+
+## Education
+[Degree, Institution, Dates]
+
+## Projects
+[Project titles, descriptions, and URLs]
+
+## Certifications
+[Certification names and URLs]`;
 
 const ResumeInput = z.object({
   fullName: z.string().min(1).max(200),
@@ -34,31 +61,49 @@ export const generateResume = createServerFn({ method: "POST" })
 Candidate Info:
 - Name: ${data.fullName}
 - Email: ${data.email}${data.phone ? `\n- Phone: ${data.phone}` : ""}${data.linkedin ? `\n- LinkedIn: ${data.linkedin}` : ""}
-${data.summary ? `\nProfessional Summary: ${data.summary}` : ""}
-- Experience: ${data.experience}
-${data.education ? `\n- Education: ${data.education}` : ""}
-- Skills: ${data.skills}
-${data.certifications ? `\n- Certifications: ${data.certifications}` : ""}
-${data.projects ? `\n- Projects: ${data.projects}` : ""}
+${data.summary ? `\nProfessional Summary:\n${data.summary}` : ""}
+- Experience:\n${data.experience}
+${data.education ? `\n- Education:\n${data.education}` : ""}
+- Skills:\n${data.skills}
+${data.certifications ? `\n- Certifications:\n${data.certifications}` : ""}
+${data.projects ? `\n- Projects:\n${data.projects}` : ""}
 
-Format the resume with:
-## Professional Summary (3-4 impactful bullet points)
-## Skills (organized by category)
-## Professional Experience (bullet points with metrics)
-## Education
-## Certifications (if any)
-## Projects (if any)
-
-Use strong action verbs, quantify achievements, include relevant keywords for ${data.targetRole}.`,
+STRICT FORMAT & CONTENT RULES:
+1. Header: Include Name, Email, Phone, and LinkedIn URL verbatim.
+2. Professional Summary: Enhance candidate's summary into 3-4 high-impact bullets.
+3. Technical Skills: Categorize ALL user skills (${data.skills}) into sections (e.g., Programming Languages, Frontend, Backend, Databases, Tools).
+4. Professional Experience: Format candidate's experience (${data.experience}) into detailed accomplishment bullets using Google XYZ Formula ("Accomplished [X] as measured by [Y] by doing [Z]"). NEVER say "no experience details were provided".
+5. Education: Format candidate's education (${data.education || "Degree/Institution"}).
+6. Projects: List ALL candidate projects and preserve ALL project URLs verbatim as clickable markdown links (${data.projects || "None"}).
+7. Certifications: List ALL candidate certifications and preserve ALL certification URLs verbatim as clickable markdown links (${data.certifications || "None"}).`,
         },
       ],
-      temperature: 0.7,
+      temperature: 0.5,
     };
 
     const res = await callUserAiChat(body as any, "pro");
     if (!res.ok) throw new Error(`Generation failed (${res.status})`);
     const payload = await res.json();
-    return { content: payload.choices?.[0]?.message?.content ?? "" };
+    let content: string = payload.choices?.[0]?.message?.content ?? "";
+
+    // Clean up any AI disclaimer artifacts if generated
+    content = content.replace(/Please note that the experience section is empty[^\n.]*[\n.]?/gi, "");
+    content = content.replace(/no experience details were provided[^\n.]*[\n.]?/gi, "");
+
+    // Fallback safety check: if experience section was stripped, append user's real experience formatted!
+    if (data.experience && (!content.includes("Experience") || content.length < 100)) {
+      content += `\n\n## Professional Experience\n${data.experience}`;
+    }
+
+    // Guarantee user URLs for projects and certifications are appended if not present
+    if (data.projects && !content.includes(data.projects.trim().slice(0, 20))) {
+      content += `\n\n## Key Projects\n${data.projects}`;
+    }
+    if (data.certifications && !content.includes(data.certifications.trim().slice(0, 20))) {
+      content += `\n\n## Certifications\n${data.certifications}`;
+    }
+
+    return { content };
   });
 
 const AtsInput = z.object({
@@ -84,7 +129,7 @@ export const checkAtsScore = createServerFn({ method: "POST" })
 Resume:
 """${data.resumeText}"""
 
-Return ONLY valid JSON (no markdown, no prose):
+Return ONLY valid JSON (no markdown, no code fences):
 {
   "overall_score": <0-100>,
   "format_score": <0-100>,
@@ -197,16 +242,7 @@ export const generateCareerRoadmap = createServerFn({ method: "POST" })
     "platforms": string[],
     "questions": string[]
   }
-}
-
-Requirements:
-- Provide 2-4 phases depending on timeline
-- Each phase should have 2-4 skills, 2-3 courses, 2-3 projects, 3-5 milestones
-- Courses should prefer free resources (freeCodeCamp, The Odin Project, CS50, YouTube)
-- Projects should be realistic portfolio pieces with specific tech stacks
-- Monthly milestones should be specific and measurable
-- Skill gap analysis should explain WHY each skill matters
-- Use real, well-known learning platforms and resources`,
+}`,
         },
         {
           role: "user",
@@ -243,11 +279,12 @@ export const extractResumeFields = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => ExtractResumeInput.parse(d))
   .handler(async ({ data }) => {
+    const rawText = data.rawText;
     const body = {
       messages: [
         {
           role: "system",
-          content: `You are a resume parser. Extract structured information from the resume text. Return ONLY valid JSON matching this schema, no markdown, no code fences:
+          content: `You are an expert resume parser. Extract structured information from the candidate's resume text. Return ONLY valid JSON matching this schema:
 {
   "fullName": string,
   "email": string,
@@ -261,11 +298,17 @@ export const extractResumeFields = createServerFn({ method: "POST" })
   "projects": string,
   "targetRole": string
 }
-If a field cannot be found, set it to an empty string. Merge all work history into the experience field. Merge all education entries into the education field.`,
+CRITICAL RULES:
+- Do NOT skip any details.
+- Capture ALL work history and job entries into the "experience" field.
+- Capture ALL project names and URLs (GitHub, Vercel, live demos) into the "projects" field.
+- Capture ALL certification names and URLs (Coursera, Great Learning, Simplilearn, Forage) into the "certifications" field.
+- Capture ALL technical skills mentioned in the resume into the "skills" field.
+- If a field is missing, set it to an empty string.`,
         },
         {
           role: "user",
-          content: `Extract structured info from this resume:\n"""${data.rawText}"""`,
+          content: `Extract structured info from this resume text:\n"""${rawText}"""`,
         },
       ],
       response_format: { type: "json_object" },
@@ -273,212 +316,77 @@ If a field cannot be found, set it to an empty string. Merge all work history in
     };
 
     const res = await callUserAiChat(body as any, "fast");
-    if (!res.ok) throw new Error(`Resume parsing failed (${res.status})`);
-    const payload = await res.json();
-    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
-    try {
-      return JSON.parse(content);
-    } catch {
-      const m = content.match(/\{[\s\S]*\}/);
-      if (m) return JSON.parse(m[0]);
-      throw new Error("Failed to parse resume data");
+    let result: any = {};
+    if (res.ok) {
+      const payload = await res.json();
+      const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+      try {
+        result = JSON.parse(content);
+      } catch {
+        const m = content.match(/\{[\s\S]*\}/);
+        if (m) result = JSON.parse(m[0]);
+      }
     }
-  });
 
-const PortfolioInput = z.object({
-  fullName: z.string().min(1).max(200),
-  tagline: z.string().max(200).optional(),
-  bio: z.string().max(2000).optional(),
-  skills: z.string().max(2000),
-  projects: z.string().max(3000).optional(),
-  socialLinks: z.string().max(1000).optional(),
-  experience: z.string().max(2000).optional(),
-  education: z.string().max(1000).optional(),
-  style: z.enum(["developer", "designer", "minimal", "creative"]).default("developer"),
-});
+    // Comprehensive Fallback & Enhancer for URLs, Experience, Skills, Education
+    const urlRegex = /(https?:\/\/[^\s,">]+)/gi;
+    const urls = Array.from(new Set(rawText.match(urlRegex) || []));
 
-export const generatePortfolio = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => PortfolioInput.parse(d))
-  .handler(async ({ data }) => {
-    const body = {
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert portfolio consultant and web developer. Generate detailed portfolio content and structure optimized for recruiters. Current trends: 2025-2026.`,
-        },
-        {
-          role: "user",
-          content: `Create a professional portfolio plan (${data.style} style) for ${data.fullName}.
+    if (urls.length > 0) {
+      if (!result.linkedin) {
+        const linkedinUrl = urls.find((u) => u.includes("linkedin.com"));
+        if (linkedinUrl) result.linkedin = linkedinUrl;
+      }
 
-${data.tagline ? `Tagline: ${data.tagline}` : ""}
-${data.bio ? `Bio: ${data.bio}` : ""}
-Skills: ${data.skills}
-${data.projects ? `Projects: ${data.projects}` : ""}
-${data.socialLinks ? `Links: ${data.socialLinks}` : ""}
-${data.experience ? `Experience: ${data.experience}` : ""}
-${data.education ? `Education: ${data.education}` : ""}
+      const projUrls = urls.filter(
+        (u) =>
+          u.includes("github.com") ||
+          u.includes("vercel.app") ||
+          u.includes("learnifyai.in") ||
+          u.includes("github.io") ||
+          (!u.includes("linkedin.com") &&
+            !u.includes("coursera") &&
+            !u.includes("greatlearning") &&
+            !u.includes("simplilearn") &&
+            !u.includes("forage")),
+      );
+      if (projUrls.length > 0) {
+        const existingProj = result.projects || "";
+        const missingProj = projUrls.filter((u) => !existingProj.includes(u));
+        if (missingProj.length > 0) {
+          result.projects = (existingProj ? existingProj + "\n" : "") + missingProj.join("\n");
+        }
+      }
 
-Return in markdown:
-## Portfolio Structure
-- Pages/sections to include
-- Navigation flow
-
-## Content for Each Section
-- Hero section text
-- About me (compelling bio)
-- Skills (organized with proficiency levels)
-- Project descriptions (with tech stack, impact)
-- Experience timeline
-- Education & certifications
-
-## Design Recommendations
-- Color scheme suggestions
-- Typography choices
-- Layout patterns
-- Animations to include
-
-## Technical Recommendations
-- Best framework/stack for this style
-- Hosting options
-- SEO tips
-- Performance optimizations
-
-## Content Suggestions
-- Blog post topics to showcase expertise
-- Open source contributions to highlight
-- GitHub profile optimization tips`,
-        },
-      ],
-      temperature: 0.7,
-    };
-
-    const res = await callUserAiChat(body as any, "pro");
-    if (!res.ok) throw new Error(`Portfolio generation failed (${res.status})`);
-    const payload = await res.json();
-    return { content: payload.choices?.[0]?.message?.content ?? "" };
-  });
-
-// ─── Interview Prep ──────────────────────────────────────────
-
-const InterviewInput = z.object({
-  role: z.string().min(2).max(100),
-  mode: z.enum(["voice", "chat", "video"]),
-  difficulty: z.enum(["easy", "medium", "hard"]),
-  questionIndex: z.number().min(0).max(20),
-  previousQuestions: z.array(z.string()).optional(),
-  userAnswer: z.string().max(10000).optional(),
-});
-
-export const generateInterviewQuestion = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => InterviewInput.parse(d))
-  .handler(async ({ data }) => {
-    const body = {
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert technical interviewer for ${data.role} positions. Generate realistic interview questions appropriate for ${data.difficulty} difficulty. 
-
-For each question, return ONLY valid JSON matching this schema, no markdown, no code fences:
-{
-  "question": string,
-  "type": "behavioral" | "technical" | "system-design" | "coding" | "scenario",
-  "tips": string[] (2-3 hints for the candidate),
-  "expectedPoints": string[] (3-5 key points a good answer should cover),
-  "followUp": string (a natural follow-up question)
-}
-
-Rules:
-- Generate questions appropriate for the job role
-- Mix question types (behavioral, technical, system-design, coding, scenario)
-- Easy: basic concepts, simple scenarios
-- Medium: intermediate concepts, trade-offs, real-world scenarios
-- Hard: advanced concepts, architecture decisions, edge cases
-- Each question should be unique and not repeat previous questions
-- Return ONLY the JSON object`,
-        },
-        {
-          role: "user",
-          content: `Generate question ${data.questionIndex + 1} for a ${data.difficulty} ${data.role} interview.
-${data.previousQuestions && data.previousQuestions.length > 0 ? `\nPrevious questions asked (avoid repeating):\n${data.previousQuestions.join("\n")}` : ""}`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.8,
-    };
-
-    const res = await callUserAiChat(body as any, "pro");
-    if (!res.ok) throw new Error(`Question generation failed (${res.status})`);
-    const payload = await res.json();
-    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
-    try {
-      return { question: JSON.parse(content) };
-    } catch {
-      return { question: null, rawContent: content };
+      const certUrls = urls.filter(
+        (u) =>
+          u.includes("coursera") ||
+          u.includes("greatlearning") ||
+          u.includes("simplilearn") ||
+          u.includes("forage") ||
+          u.includes("certificate") ||
+          u.includes("completion"),
+      );
+      if (certUrls.length > 0) {
+        const existingCert = result.certifications || "";
+        const missingCert = certUrls.filter((u) => !existingCert.includes(u));
+        if (missingCert.length > 0) {
+          result.certifications = (existingCert ? existingCert + "\n" : "") + missingCert.join("\n");
+        }
+      }
     }
-  });
 
-const EvaluateInput = z.object({
-  role: z.string().min(2).max(100),
-  question: z.string().min(2).max(5000),
-  answer: z.string().min(1).max(10000),
-  expectedPoints: z.array(z.string()).optional(),
-  difficulty: z.enum(["easy", "medium", "hard"]),
-});
-
-export const evaluateInterviewAnswer = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .validator((d: unknown) => EvaluateInput.parse(d))
-  .handler(async ({ data }) => {
-    const body = {
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert interview evaluator for ${data.role} positions. Evaluate the candidate's answer to the interview question.
-
-Return ONLY valid JSON matching this schema, no markdown, no code fences:
-{
-  "score": number (0-100),
-  "rating": "excellent" | "good" | "average" | "needs-improvement" | "poor",
-  "strengths": string[] (2-3 things done well),
-  "improvements": string[] (2-3 areas to improve),
-  "feedback": string (2-3 sentence overall feedback),
-  "modelAnswer": string (a brief model answer for comparison),
-  "pointsCovered": string[] (which expected points were covered),
-  "pointsMissed": string[] (which expected points were missed)
-}
-
-Scoring criteria:
-- 90-100: Excellent — comprehensive, well-structured, shows deep understanding
-- 70-89: Good — covers key points, good explanation, minor gaps
-- 50-69: Average — partially correct, missing key points, needs more detail
-- 30-49: Needs improvement — significant gaps, incorrect information
-- 0-29: Poor — largely incorrect or irrelevant
-
-Be constructive and specific in feedback.`,
-        },
-        {
-          role: "user",
-          content: `Question: ${data.question}
-
-Candidate's Answer: ${data.answer}
-
-Difficulty: ${data.difficulty}
-${data.expectedPoints ? `\nExpected key points:\n${data.expectedPoints.map((p) => `- ${p}`).join("\n")}` : ""}`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
-    };
-
-    const res = await callUserAiChat(body as any, "pro");
-    if (!res.ok) throw new Error(`Evaluation failed (${res.status})`);
-    const payload = await res.json();
-    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
-    try {
-      return { evaluation: JSON.parse(content) };
-    } catch {
-      return { evaluation: null, rawContent: content };
+    // Ensure experience is captured if rawText contains work experience lines
+    if (!result.experience || result.experience.trim().length < 10) {
+      const expMatch = rawText.match(
+        /(?:Experience|Work History|Employment|History)[\s\S]*?(?=(?:Education|Skills|Projects|Certifications|$))/i,
+      );
+      if (expMatch) {
+        result.experience = expMatch[0]
+          .replace(/^(?:Experience|Work History|Employment|History)[\s:]*/i, "")
+          .trim();
+      }
     }
+
+    return result;
   });

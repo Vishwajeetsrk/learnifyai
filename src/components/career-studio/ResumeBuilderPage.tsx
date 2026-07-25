@@ -204,7 +204,17 @@ function ResumePreview({
         <div className="flex flex-wrap gap-3 mt-2 text-xs opacity-75">
           {form.email && <span>{form.email}</span>}
           {form.phone && <span>{form.phone}</span>}
-          {form.linkedin && <span>{form.linkedin}</span>}
+          {form.linkedin && (
+            <span>
+              {form.linkedin.startsWith("http") ? (
+                <a href={form.linkedin} target="_blank" rel="noreferrer" className="underline">
+                  {form.linkedin}
+                </a>
+              ) : (
+                form.linkedin
+              )}
+            </span>
+          )}
         </div>
       </div>
       <div className="px-6 py-4 space-y-3">
@@ -217,9 +227,9 @@ function ResumePreview({
         {form.experience && (
           <div>
             {sH("Experience")}
-            <p className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
-              {form.experience}
-            </p>
+            <div className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
+              {renderTextWithLinks(form.experience)}
+            </div>
           </div>
         )}
         {form.education && (
@@ -250,18 +260,44 @@ function ResumePreview({
         {form.projects && (
           <div>
             {sH("Projects")}
-            <p className="text-xs text-muted-foreground whitespace-pre-line">{form.projects}</p>
+            <div className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
+              {renderTextWithLinks(form.projects)}
+            </div>
           </div>
         )}
         {form.certifications && (
           <div>
             {sH("Certifications")}
-            <p className="text-xs text-muted-foreground">{form.certifications}</p>
+            <div className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
+              {renderTextWithLinks(form.certifications)}
+            </div>
           </div>
         )}
       </div>
     </div>
   );
+}
+
+function renderTextWithLinks(text: string) {
+  if (!text) return null;
+  const urlRegex = /(https?:\/\/[^\s,">]+)/g;
+  const parts = text.split(urlRegex);
+  return parts.map((part, idx) => {
+    if (part.match(/^https?:\/\//)) {
+      return (
+        <a
+          key={idx}
+          href={part}
+          target="_blank"
+          rel="noreferrer"
+          className="text-primary underline font-medium hover:text-primary/80 transition break-all inline-block"
+        >
+          {part}
+        </a>
+      );
+    }
+    return <span key={idx}>{part}</span>;
+  });
 }
 
 /* ── Main ── */
