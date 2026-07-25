@@ -1019,41 +1019,28 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🗺️ **DYNAMIC XML SITEMAP**: Upgraded `/sitemap.xml` to dynamically query and include published blog posts from Supabase for automatic search engine indexing.
 - 📸 **INSTAGRAM FOOTER & ADMIN SITE SETTINGS**: Integrated Instagram social button in footer, completely configurable via Admin Content Manager Site Settings.
 
-### v1.3.1 (July 2026)
 
-- 🔴 **CRITICAL FIX**: Resolved production bundle TDZ issue (`Uncaught ReferenceError: Cannot access 'M' before initialization`) caused by over-fragmented vendor manualChunks splitting core runtime packages (`@tanstack`, `@supabase`, `zod`, `@radix-ui`, `framer-motion`).
-- ⚡ **LOAD TIME & PERFORMANCE**: Restored instant page loading and React hydration on `https://www.learnifyai.in/`.
-- 🔒 **AUTH & SIGN-IN RECOVERY**: Added 3-second timeout protection to `fetchRoles` in `useAuth` and safe try/catch error handling in `login.tsx` to ensure smooth password and Google OAuth authentication.
 
-### v1.3.0 (June 2026)
 
-- 🔴 **CRITICAL FIX**: Resolved fatal JS bundle crash (`Cannot set properties of undefined — Activity`) that prevented React from hydrating on production, making all interactive elements non-functional
-- ✅ Sign In, Google OAuth, dark mode toggle, AI Toolkit demos now fully working
-- ✅ Pricing page: loads 3 plans (Starter, Pro, Team) correctly
-- ✅ Events page: displays all 3 events with images, titles, dates, locations
-- ✅ Roadmap page: shows full roadmap timeline with status badges
-- ✅ FAQ: category filter buttons interactive
-- ✅ Email footer: auto-updates year using `new Date().getFullYear()`
-- ✅ Certificate: Learnify AI logo now shown on certificate + PDF download working
 
-### v1.2.0 (June 2026)
 
-- Premium SVG email templates (welcome + certificate) with no emojis
-- Professional certificate PDF generation with QR code verification
-- Admin email template editor with live preview
-- Super admin can delete any post
-- AI Toolkit generate buttons work without requiring user input
 
-### v4.2.0 (July 2026)
 
-- **LinkedIn Profile Optimizer complete rebuild**: Full section editor (Headline, About, Skills, Experience, Projects, Education, Featured) with live LinkedIn-style Preview and AI Posts generator
-- **3-tab UI**: Edit Profile → Live Preview → AI Posts (4 personalized posts generated from your actual profile data)
+
+
+
+
+
+
+
+
+
+
 - **AI Headline Generator**: 5 role-tailored suggestions based on skills, experience, education
 - **About Optimizer**: Story and Recruiter modes with one-click apply
 - **Zero TypeScript errors**: Full tsc --noEmit pass with clean JSX structure after fixing corrupted merge artifacts
 - **Career Studio fixes**: Resolved all broken JSX merge artifacts across LinkedInOptimizerView (905 lines of corrupt code replaced with clean 424-line function)
 - **Interview Prep**: Exit/Cancel button, animated AI avatar (Sarah Jenkins), video feed panel, progress counter
-- **Portfolio Builder**: Template gallery, live preview, ZIP download with full file/folder structure
 - **All emoji removed**: Replaced with Lucide SVG icons throughout Career Studio
 
 ### v1.1.0 (June 2026)

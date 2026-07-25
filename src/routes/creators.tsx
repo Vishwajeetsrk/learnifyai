@@ -404,7 +404,6 @@ function CreatorsPage() {
                     Upcoming Live Session • 45/50 RSVPed
                   </p>
                 </div>
-
                 {cohortStatus === "idle" && (
                   <Button onClick={handleStartCohort} size="sm" className="w-full text-xs gap-2">
                     <Video className="h-3.5 w-3.5" /> Go Live Now
@@ -506,9 +505,7 @@ function CreatorsPage() {
             {perks.map((p) => (
               <StaggerItem key={p.id}>
                 <button
-                  onClick={() => {
-                    setSelectedPerk(p.id);
-                  }}
+                  onClick={() => setSelectedPerk(p.id)}
                   className={`w-full text-left flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
                     selectedPerk === p.id
                       ? "bg-background text-foreground border-transparent shadow-lg scale-[1.01]"
@@ -549,7 +546,7 @@ function CreatorsPage() {
       {/* APPROVED CREATORS DISPLAY SECTION */}
       <div className="mt-16 space-y-6">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold animate-none">
             <Sparkles className="h-3.5 w-3.5" /> FEATURED COURSE CREATORS
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold font-display text-foreground">
@@ -560,28 +557,32 @@ function CreatorsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
           {creatorsList.map((creator: any) => (
             <div
               key={creator.id}
               className="rounded-2xl border border-border/80 bg-card p-6 shadow-sm hover:shadow-xl hover:border-primary/40 transition-all flex flex-col justify-between space-y-4"
             >
-              <div className="space-y-3">
-                <div className="flex items-start justify-between gap-3">
+              <div className="space-y-3 font-sans">
+                <div className="flex items-start justify-between gap-3 font-sans">
                   <div className="flex items-center gap-3">
                     <img
-                      src={`https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(creator.full_name)}`}
+                      src={
+                        creator.full_name?.includes("Vishwajeet")
+                          ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80"
+                          : `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(creator.full_name)}`
+                      }
                       alt={creator.full_name}
                       className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"
                     />
                     <div>
-                      <h3 className="font-bold text-base text-foreground leading-tight">
+                      <h3 className="font-bold text-base text-foreground leading-tight animate-none">
                         {creator.full_name}
                       </h3>
                       <p className="text-xs text-primary font-medium mt-0.5">{creator.expertise}</p>
                     </div>
                   </div>
-                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full shrink-0 font-sans">
                     Verified
                   </span>
                 </div>
@@ -591,7 +592,7 @@ function CreatorsPage() {
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-border/60 flex items-center justify-between gap-3">
+              <div className="pt-4 border-t border-border/60 flex items-center justify-between gap-3 font-sans animate-none animate-none">
                 <span className="text-xs font-semibold text-muted-foreground">
                   {creator.coursesCount} Courses Published
                 </span>

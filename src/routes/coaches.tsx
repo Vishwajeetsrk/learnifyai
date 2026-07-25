@@ -550,7 +550,7 @@ function CoachesPage() {
     full_name: "Vishwajeet S.",
     expertise: "Frontend Developer & SaaS Architect",
     bio: "BCA Graduate & Full-Stack AI Engineer. Built DreamSync career OS and Learnify AI platform.",
-    hourly_rate: 1499,
+    hourly_rate: 99,
     rating: "4.9 (42 reviews)",
   };
 
@@ -561,7 +561,7 @@ function CoachesPage() {
           full_name: c.full_name || c.applicant_name || "Verified Coach",
           expertise: c.expertise || "Tech Coach",
           bio: c.motivation || c.bio || "1-on-1 personalized tech mentoring and code reviews.",
-          hourly_rate: c.hourly_rate || c.rate || 1499,
+          hourly_rate: c.hourly_rate || c.rate || 99,
           rating: "5.0 (New)",
         }))
       : [fallbackCoach];
@@ -654,7 +654,11 @@ function CoachesPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <img
-                      src={`https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(coach.full_name)}`}
+                      src={
+                        coach.full_name?.includes("Vishwajeet")
+                          ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80"
+                          : `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(coach.full_name)}`
+                      }
                       alt={coach.full_name}
                       className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"
                     />
@@ -667,7 +671,7 @@ function CoachesPage() {
                   </div>
                   <Badge
                     variant="outline"
-                    className="text-[10px] shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600"
+                    className="text-[10px] shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 font-semibold"
                   >
                     Verified Coach
                   </Badge>
@@ -705,3 +709,24 @@ function CoachesPage() {
     </MarketingPage>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
