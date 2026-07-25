@@ -390,3 +390,134 @@ CRITICAL RULES:
 
     return result;
   });
+
+const InterviewQuestionInput = z.object({
+  role: z.string().min(2).max(100),
+  difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
+  category: z.enum(["technical", "behavioral", "system_design", "hr"]).default("technical"),
+  previousQuestions: z.array(z.string()).optional(),
+});
+
+export const generateInterviewQuestion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => InterviewQuestionInput.parse(d))
+  .handler(async ({ data }) => {
+    const body = {
+      messages: [
+        {
+          role: "system",
+          content: `You are a senior tech interviewer. Generate realistic interview questions for a ${data.role} position. Difficulty: ${data.difficulty}. Category: ${data.category}. Return ONLY valid JSON matching:
+{
+  "question": string,
+  "hints": string[],
+  "keyConcepts": string[],
+  "idealAnswerOutline": string[]
+}`,
+        },
+        {
+          role: "user",
+          content: `Generate a ${data.difficulty} ${data.category} question for ${data.role}.${data.previousQuestions?.length ? ` Avoid these previous questions: ${data.previousQuestions.join("; ")}` : ""}`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.7,
+    };
+
+    const res = await callUserAiChat(body as any, "fast");
+    if (!res.ok) throw new Error(`Failed to generate question (${res.status})`);
+    const payload = await res.json();
+    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      if (m) return JSON.parse(m[0]);
+      throw new Error("Invalid interview question format");
+    }
+  });
+
+const EvaluateAnswerInput = z.object({
+  question: z.string().min(2),
+  answer: z.string().min(2),
+  role: z.string().optional(),
+});
+
+export const evaluateInterviewAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => EvaluateAnswerInput.parse(d))
+  .handler(async ({ data }) => {
+    const body = {
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert tech interviewer evaluating a candidate's answer. Return ONLY valid JSON matching:
+{
+  "score": number (0-100),
+  "feedback": string,
+  "strengths": string[],
+  "improvements": string[],
+  "modelAnswer": string
+}`,
+        },
+        {
+          role: "user",
+          content: `Question: ${data.question}\n\nCandidate Answer: ${data.answer}${data.role ? `\nRole: ${data.role}` : ""}`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3,
+    };
+
+    const res = await callUserAiChat(body as any, "fast");
+    if (!res.ok) throw new Error(`Evaluation failed (${res.status})`);
+    const payload = await res.json();
+    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      if (m) return JSON.parse(m[0]);
+      throw new Error("Invalid evaluation format");
+    }
+  });
+
+const PortfolioInput = z.object({
+  fullName: z.string().min(1).max(200),
+  title: z.string().min(1).max(200),
+  bio: z.string().max(2000).optional(),
+  skills: z.union([z.string(), z.array(z.string())]),
+  projects: z.any().optional(),
+  experience: z.any().optional(),
+  socials: z.any().optional(),
+  style: z.string().optional(),
+});
+
+export const generatePortfolio = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => PortfolioInput.parse(d))
+  .handler(async ({ data }) => {
+    const body = {
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert web portfolio designer and copywriter. Generate professional developer portfolio content. Return ONLY valid JSON.`,
+        },
+        {
+          role: "user",
+          content: `Generate a structured portfolio for: Name: ${data.fullName}, Title: ${data.title}, Skills: ${Array.isArray(data.skills) ? data.skills.join(", ") : data.skills}`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.5,
+    };
+
+    const res = await callUserAiChat(body as any, "pro");
+    if (!res.ok) throw new Error(`Portfolio generation failed (${res.status})`);
+    const payload = await res.json();
+    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return JSON.parse(content);
+    } catch {
+      return { rawContent: content };
+    }
+  });
