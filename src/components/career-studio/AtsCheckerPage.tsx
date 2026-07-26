@@ -743,36 +743,73 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
             </Card>
 
             <div className="space-y-4">
-              <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
-                <div className="flex items-center gap-2">
-                  <Trophy className="h-4 w-4 text-amber-500" />
-                  <h3 className="text-sm font-bold">Top Job Matches</h3>
+              <Card className="p-4 rounded-2xl border shadow-sm space-y-4 bg-gradient-to-br from-card via-card to-amber-500/5">
+                <div className="flex items-center justify-between pb-1 border-b">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-4 w-4 text-amber-500" />
+                    <div>
+                      <h3 className="text-xs font-bold text-foreground">Top 5 Job Matches (AI Recommended)</h3>
+                      <p className="text-[10px] text-muted-foreground font-medium">Scored across 55+ companies</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="space-y-2.5">
-                  {top5Matches.slice(0, 3).map((co, i) => (
+                <div className="space-y-3">
+                  {top5Matches.map((co, i) => (
                     <div
                       key={i}
-                      className="p-3 rounded-xl border bg-muted/20 space-y-2 hover:border-primary/40 transition"
+                      className="p-3 rounded-xl border border-border bg-card shadow-xs space-y-2.5 hover:border-primary/50 transition relative overflow-hidden"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <CompanyLogo domain={co.domain} name={co.name} color={co.color} />
-                          <div className="min-w-0">
-                            <p className="font-bold text-xs truncate">{co.name}</p>
-                            <p className="text-[10px] text-muted-foreground truncate">{co.role}</p>
-                          </div>
-                        </div>
-                        <span className="text-xs font-black text-emerald-600 shrink-0">
-                          {co.matchScore}%
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[9px] font-black">
+                          #{i + 1} Match
+                        </span>
+                        <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+                          {co.matchScore}% Match
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/40">
-                        <span className="font-bold text-muted-foreground">{co.salary}</span>
+
+                      <div className="flex items-center gap-2 min-w-0">
+                        <CompanyLogo domain={co.domain} name={co.name} color={co.color} />
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-xs text-foreground truncate">{co.name}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{co.role}</p>
+                        </div>
+                      </div>
+
+                      <p className="text-[11px] font-extrabold text-foreground">{co.salary}</p>
+
+                      <div className="flex flex-wrap gap-1">
+                        {co.skills.map((sk, sidx) => {
+                          const isMatched = co.matchedSkills.includes(sk);
+                          return (
+                            <span
+                              key={sidx}
+                              className={cn(
+                                "px-1.5 py-0.5 rounded-md text-[9px] font-bold border",
+                                isMatched
+                                  ? "bg-emerald-100 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800"
+                                  : "bg-indigo-50 dark:bg-indigo-950/70 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
+                              )}
+                            >
+                              {isMatched ? "✓ " : "+ "}
+                              {sk}
+                            </span>
+                          );
+                        })}
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-1 border-t border-border/40">
+                        <button
+                          onClick={() => handleAutoFixForJob(co)}
+                          className="flex-1 py-1 px-2 rounded-lg bg-indigo-600 text-white text-[10px] font-bold flex items-center justify-center gap-1 hover:bg-indigo-700 transition cursor-pointer"
+                        >
+                          <Wand2 className="h-3 w-3" /> Auto-Fix
+                        </button>
                         <a
                           href={co.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-primary font-bold hover:underline flex items-center gap-0.5"
+                          className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground text-[10px] font-bold flex items-center gap-1 hover:opacity-90 transition shrink-0 cursor-pointer"
                         >
                           Apply <ExternalLink className="h-2.5 w-2.5" />
                         </a>
