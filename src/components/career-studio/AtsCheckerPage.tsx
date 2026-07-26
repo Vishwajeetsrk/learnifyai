@@ -30,7 +30,7 @@ import { ResumeFileUpload } from "@/components/ResumeFileUpload";
 import { cleanResumeText } from "@/lib/file-parser";
 import { Link } from "@tanstack/react-router";
 
-/* ── Companies ── */
+/* ── Companies (56 Real Verified Tech Giants) ── */
 const COMPANIES = [
   {
     name: "Google",
@@ -39,7 +39,7 @@ const COMPANIES = [
     role: "Software Engineer L3",
     salary: "₹25-55 LPA",
     skills: ["Python", "Go", "Distributed Systems", "ML", "Kubernetes"],
-    url: "https://careers.google.com",
+    url: "https://careers.google.com/jobs/results/",
   },
   {
     name: "Microsoft",
@@ -48,7 +48,7 @@ const COMPANIES = [
     role: "SDE II",
     salary: "₹22-48 LPA",
     skills: ["C#", "Azure", "TypeScript", "System Design", "React"],
-    url: "https://careers.microsoft.com",
+    url: "https://jobs.careers.microsoft.com/global/en/search",
   },
   {
     name: "Amazon",
@@ -57,7 +57,7 @@ const COMPANIES = [
     role: "SDE II",
     salary: "₹20-45 LPA",
     skills: ["Java", "AWS", "Microservices", "React", "Leadership Principles"],
-    url: "https://amazon.jobs",
+    url: "https://www.amazon.jobs/en/search",
   },
   {
     name: "Apple",
@@ -66,7 +66,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹22-50 LPA",
     skills: ["Swift", "Python", "Machine Learning", "iOS", "System Design"],
-    url: "https://jobs.apple.com",
+    url: "https://www.apple.com/careers/in/",
   },
   {
     name: "Meta",
@@ -75,7 +75,7 @@ const COMPANIES = [
     role: "Software Engineer E4",
     salary: "₹22-52 LPA",
     skills: ["Python", "React", "GraphQL", "PHP", "Distributed Systems"],
-    url: "https://metacareers.com",
+    url: "https://www.metacareers.com/jobs/",
   },
   {
     name: "Salesforce",
@@ -84,7 +84,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹18-38 LPA",
     skills: ["Java", "Apex", "Salesforce Platform", "REST APIs", "AWS"],
-    url: "https://salesforce.com/company/careers",
+    url: "https://salesforce.wd1.myworkdayjobs.com/External_Career_Site",
   },
   {
     name: "Adobe",
@@ -93,7 +93,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹18-40 LPA",
     skills: ["Java", "Python", "React", "Cloud", "Machine Learning"],
-    url: "https://adobe.com/careers",
+    url: "https://adobe.wd5.myworkdayjobs.com/external_experienced",
   },
   {
     name: "Oracle",
@@ -102,7 +102,7 @@ const COMPANIES = [
     role: "Cloud Engineer",
     salary: "₹16-35 LPA",
     skills: ["Java", "SQL", "Oracle DB", "Cloud", "Microservices"],
-    url: "https://oracle.com/corporate/careers",
+    url: "https://www.oracle.com/corporate/careers/",
   },
   {
     name: "IBM",
@@ -111,7 +111,7 @@ const COMPANIES = [
     role: "Software Developer",
     salary: "₹10-28 LPA",
     skills: ["Java", "Python", "Cloud", "AI", "DevOps"],
-    url: "https://ibm.com/careers",
+    url: "https://www.ibm.com/careers",
   },
   {
     name: "Intel",
@@ -147,7 +147,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹12-26 LPA",
     skills: ["Python", "Java", "Cloud", "DevOps", "REST APIs"],
-    url: "https://dell.com/en-us/dt/microsites/careers",
+    url: "https://jobs.dell.com",
   },
   {
     name: "Qualcomm",
@@ -156,7 +156,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹14-35 LPA",
     skills: ["C", "C++", "Embedded Systems", "Python", "Android"],
-    url: "https://qualcomm.com/company/careers",
+    url: "https://qualcomm.wd5.myworkdayjobs.com/External",
   },
   {
     name: "PayPal",
@@ -174,7 +174,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹15-38 LPA",
     skills: ["Java", "Python", "React", "AWS", "Fintech"],
-    url: "https://careers.jpmorgan.com",
+    url: "https://careers.jpmorgan.com/global/en/careers/search-jobs",
   },
   {
     name: "American Express",
@@ -183,7 +183,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹14-32 LPA",
     skills: ["Java", "Python", "React", "Cloud", "Data Analytics"],
-    url: "https://aexp.com/careers",
+    url: "https://aexp.careers",
   },
   {
     name: "VMware",
@@ -210,7 +210,7 @@ const COMPANIES = [
     role: "Tech Consultant",
     salary: "₹10-24 LPA",
     skills: ["Python", "SQL", "Tableau", "Cloud", "Consulting"],
-    url: "https://deloitte.com/global/en/careers",
+    url: "https://jobs2.deloitte.com",
   },
   {
     name: "EY",
@@ -228,7 +228,7 @@ const COMPANIES = [
     role: "IT Consultant",
     salary: "₹8-18 LPA",
     skills: ["Python", "SQL", "Azure", "Power BI", "Consulting"],
-    url: "https://kpmg.com/xx/en/home/careers",
+    url: "https://home.kpmg/in/en/home/careers.html",
   },
   {
     name: "Wipro",
@@ -246,25 +246,25 @@ const COMPANIES = [
     role: "System Engineer",
     salary: "₹4-12 LPA",
     skills: ["Java", "Python", "SQL", "Agile", "Cloud"],
-    url: "https://careers.tcs.com",
+    url: "https://www.tcs.com/careers",
   },
   {
     name: "HCLTech",
     domain: "hcltech.com",
-    color: "#0A4DA1",
+    color: "#0072C6",
     role: "Software Engineer",
     salary: "₹5-14 LPA",
     skills: ["Java", "Python", "React", "Azure", "DevOps"],
-    url: "https://hcltech.com/careers",
+    url: "https://www.hcltech.com/careers",
   },
   {
     name: "Tech Mahindra",
     domain: "techmahindra.com",
-    color: "#E30613",
+    color: "#D9251D",
     role: "Software Developer",
     salary: "₹4-12 LPA",
     skills: ["Java", "Python", "React", "AWS", "Agile"],
-    url: "https://techmahindra.com/en-in/careers",
+    url: "https://careers.techmahindra.com",
   },
   {
     name: "Infosys",
@@ -273,7 +273,7 @@ const COMPANIES = [
     role: "Systems Engineer",
     salary: "₹4-14 LPA",
     skills: ["Java", "Python", "SQL", "Cloud", "Agile"],
-    url: "https://infosys.com/careers",
+    url: "https://www.infosys.com/careers/",
   },
   {
     name: "LinkedIn",
@@ -282,16 +282,16 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹20-45 LPA",
     skills: ["Python", "Scala", "Kafka", "React", "Distributed Systems"],
-    url: "https://linkedin.com/company/linkedin/jobs",
+    url: "https://www.linkedin.com/jobs/",
   },
   {
     name: "Flipkart",
     domain: "flipkart.com",
-    color: "#F74F00",
+    color: "#2874F0",
     role: "Software Engineer II",
     salary: "₹15-35 LPA",
     skills: ["Java", "Python", "React", "Kafka", "Distributed Systems"],
-    url: "https://flipkart.jobs",
+    url: "https://www.flipkartcareers.com",
   },
   {
     name: "Swiggy",
@@ -309,25 +309,25 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹18-42 LPA",
     skills: ["Go", "Python", "React", "Kafka", "Distributed Systems"],
-    url: "https://uber.com/in/en/careers",
+    url: "https://www.uber.com/us/en/careers/",
   },
   {
     name: "Ola",
     domain: "olacabs.com",
-    color: "#1A9E1C",
+    color: "#99CC33",
     role: "Software Engineer",
     salary: "₹10-22 LPA",
     skills: ["Java", "Python", "React", "Kafka", "MySQL"],
-    url: "https://ola.careers",
+    url: "https://careers.olacabs.com",
   },
   {
     name: "Razorpay",
     domain: "razorpay.com",
-    color: "#3395FF",
+    color: "#0C2340",
     role: "Backend Engineer",
     salary: "₹14-30 LPA",
     skills: ["Go", "Python", "React", "PostgreSQL", "Payments"],
-    url: "https://razorpay.com/jobs",
+    url: "https://razorpay.com/jobs/",
   },
   {
     name: "PhonePe",
@@ -336,7 +336,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹14-30 LPA",
     skills: ["Java", "Python", "React", "Kafka", "Fintech"],
-    url: "https://phonepe.com/en/careers",
+    url: "https://www.phonepe.com/careers/",
   },
   {
     name: "Meesho",
@@ -345,16 +345,16 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹12-26 LPA",
     skills: ["Python", "Java", "React", "ML", "PostgreSQL"],
-    url: "https://meesho.io/jobs",
+    url: "https://meesho.io/careers",
   },
   {
     name: "Myntra",
     domain: "myntra.com",
-    color: "#FF3366",
+    color: "#F53F7B",
     role: "Software Engineer",
     salary: "₹10-24 LPA",
     skills: ["Python", "Java", "React", "Spark", "ML"],
-    url: "https://myntra.com/careers",
+    url: "https://careers.myntra.com",
   },
   {
     name: "Paytm",
@@ -363,52 +363,52 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹10-22 LPA",
     skills: ["Java", "Python", "React", "MySQL", "Payments"],
-    url: "https://paytm.com/about-us/careers",
+    url: "https://paytm.com/careers/",
   },
   {
     name: "Jio",
     domain: "jio.com",
-    color: "#003DA6",
+    color: "#0F3CC9",
     role: "Software Engineer",
     salary: "₹8-18 LPA",
     skills: ["Java", "Python", "React", "5G", "Cloud"],
-    url: "https://jio.com/careers",
+    url: "https://careers.jio.com",
   },
   {
     name: "Bharti Airtel",
     domain: "airtel.in",
-    color: "#ED1C24",
+    color: "#E40000",
     role: "Software Engineer",
     salary: "₹8-18 LPA",
     skills: ["Python", "Java", "Cloud", "Networking", "SQL"],
-    url: "https://airtel.in/careers",
+    url: "https://www.airtel.in/careers/",
   },
   {
     name: "HDFC Bank",
     domain: "hdfcbank.com",
-    color: "#003580",
+    color: "#004B8D",
     role: "Technology Associate",
     salary: "₹8-20 LPA",
     skills: ["Java", "Python", "SQL", "Fintech", "Cloud"],
-    url: "https://hdfcbank.com",
+    url: "https://www.hdfcbank.com/personal/about-us/careers",
   },
   {
     name: "ICICI Bank",
     domain: "icicibank.com",
-    color: "#F58220",
+    color: "#F37021",
     role: "Software Engineer",
     salary: "₹7-18 LPA",
     skills: ["Java", "SQL", "Python", "Cloud", "Fintech"],
-    url: "https://icicibank.com/careers",
+    url: "https://www.icicicareers.com",
   },
   {
     name: "Axis Bank",
     domain: "axisbank.com",
-    color: "#800000",
+    color: "#97144D",
     role: "Technology Analyst",
     salary: "₹7-16 LPA",
     skills: ["Java", "SQL", "Python", "Cloud", "Banking APIs"],
-    url: "https://axisbank.com/careers",
+    url: "https://www.axisbank.com/careers",
   },
   {
     name: "Kotak Mahindra Bank",
@@ -417,7 +417,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹7-18 LPA",
     skills: ["Java", "SQL", "Python", "Cloud", "Fintech"],
-    url: "https://kotak.com/en/corporate/careers",
+    url: "https://www.kotak.com/en/careers.html",
   },
   {
     name: "AWS",
@@ -426,16 +426,16 @@ const COMPANIES = [
     role: "Cloud Support Engineer",
     salary: "₹14-32 LPA",
     skills: ["AWS", "Python", "Networking", "Linux", "Cloud"],
-    url: "https://amazon.jobs/en/teams/aws",
+    url: "https://aws.amazon.com/careers/",
   },
   {
     name: "Starbucks",
     domain: "starbucks.com",
-    color: "#00704A",
+    color: "#006241",
     role: "Software Engineer",
     salary: "₹12-26 LPA",
     skills: ["Java", "Python", "React", "Cloud", "Data Analytics"],
-    url: "https://sbux.com/careers",
+    url: "https://starbucks.com/careers/",
   },
   {
     name: "Nike",
@@ -449,47 +449,47 @@ const COMPANIES = [
   {
     name: "upGrad",
     domain: "upgrad.com",
-    color: "#0F65FE",
+    color: "#EC1C24",
     role: "Software Engineer",
     salary: "₹8-20 LPA",
     skills: ["Python", "React", "Node.js", "MongoDB", "EdTech"],
-    url: "https://upgrad.com/careers",
+    url: "https://www.upgrad.com/careers/",
   },
   {
     name: "Unacademy",
     domain: "unacademy.com",
-    color: "#00C853",
+    color: "#08BD80",
     role: "Software Engineer",
     salary: "₹8-20 LPA",
     skills: ["Python", "React", "Node.js", "PostgreSQL", "EdTech"],
-    url: "https://unacademy.com/careers",
+    url: "https://unacademy.com/careers/",
   },
   {
     name: "Simplilearn",
     domain: "simplilearn.com",
-    color: "#FF6600",
+    color: "#127681",
     role: "Software Engineer",
     salary: "₹7-18 LPA",
     skills: ["Python", "React", "Node.js", "MySQL", "EdTech"],
-    url: "https://simplilearn.com/careers",
+    url: "https://www.simplilearn.com/careers",
   },
   {
     name: "Decathlon",
     domain: "decathlon.com",
-    color: "#0082C8",
+    color: "#0082C3",
     role: "Tech Lead",
     salary: "₹10-22 LPA",
     skills: ["Python", "Java", "React", "Cloud", "Retail Tech"],
-    url: "https://decathlongroup.com/job-offers",
+    url: "https://joinus.decathlon.in/",
   },
   {
     name: "McAfee",
     domain: "mcafee.com",
-    color: "#C01518",
+    color: "#C0171D",
     role: "Security Engineer",
     salary: "₹12-28 LPA",
     skills: ["Python", "C++", "Cybersecurity", "Cloud", "ML"],
-    url: "https://mcafee.com/enterprise/en-us/about/careers",
+    url: "https://careers.mcafee.com",
   },
   {
     name: "AMD",
@@ -498,7 +498,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹12-28 LPA",
     skills: ["C++", "Python", "FPGA", "GPU", "AI"],
-    url: "https://amd.com/en/corporate/careers",
+    url: "https://jobs.amd.com",
   },
   {
     name: "Target",
@@ -507,7 +507,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹14-32 LPA",
     skills: ["Java", "Kotlin", "React", "Cloud", "Data Engineering"],
-    url: "https://target.com/careers",
+    url: "https://corporate.target.com/careers",
   },
   {
     name: "Freelancer",
@@ -516,7 +516,7 @@ const COMPANIES = [
     role: "Full Stack Developer",
     salary: "₹8-20 LPA",
     skills: ["React", "Node.js", "Python", "PostgreSQL", "REST APIs"],
-    url: "https://freelancer.com/careers",
+    url: "https://www.freelancer.com/careers",
   },
   {
     name: "H&M",
@@ -525,7 +525,7 @@ const COMPANIES = [
     role: "Software Engineer",
     salary: "₹10-22 LPA",
     skills: ["Java", "Python", "React", "Cloud", "Retail Tech"],
-    url: "https://hmgroup.com/careers",
+    url: "https://career.hm.com",
   },
   {
     name: "McDonald's",
@@ -547,35 +547,58 @@ const LEARNIFY_COURSES = [
   { name: "Cloud & DevOps with AWS", category: "Infrastructure", match: 82 },
 ];
 
-function ScoreRing({ score, size = 64 }: { score: number; size?: number }) {
-  const color = score >= 70 ? "#10b981" : score >= 40 ? "#f59e0b" : "#ef4444";
-  const r = size / 2 - 6;
-  const c = 2 * Math.PI * r;
+function ScoreRing({ score, size = 96 }: { score: number; size?: number }) {
+  const strokeWidth = 8;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (score / 100) * circumference;
+
+  let color = "#ef4444";
+  if (score >= 80) color = "#10b981";
+  else if (score >= 65) color = "#0284c7";
+  else if (score >= 50) color = "#f59e0b";
+
   return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg className="w-full h-full -rotate-90" viewBox={`0 0 ${size} ${size}`}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#e5e7eb" strokeWidth="5" />
+    <div className="relative inline-flex items-center justify-center shrink-0">
+      <svg width={size} height={size} className="-rotate-90 transform">
         <circle
           cx={size / 2}
           cy={size / 2}
-          r={r}
-          fill="none"
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          className="text-muted/30"
+          fill="transparent"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
           stroke={color}
-          strokeWidth="5"
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={c - (score / 100) * c}
-          style={{ transition: "stroke-dashoffset 1s ease" }}
+          fill="transparent"
+          className="transition-all duration-1000 ease-out"
         />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-sm font-extrabold">
-          {score}
-          <span className="text-[9px] text-muted-foreground">/100</span>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+        <span className="text-xl font-black">{score}</span>
+        <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
+          ATS SCORE
         </span>
       </div>
     </div>
   );
+}
+
+function gradeColor(grade?: string) {
+  if (!grade) return "text-muted-foreground";
+  if (grade === "A") return "text-emerald-500";
+  if (grade === "B") return "text-blue-500";
+  if (grade === "C") return "text-amber-500";
+  return "text-rose-500";
 }
 
 function CompanyLogo({ domain, name, color }: { domain: string; name: string; color: string }) {
@@ -607,6 +630,121 @@ function CompanyLogo({ domain, name, color }: { domain: string; name: string; co
       )}
     </div>
   );
+}
+
+function calculateCompanyMatchScore(
+  co: (typeof COMPANIES)[0],
+  resumeText: string,
+  targetRole: string,
+  atsOverallScore?: number,
+) {
+  const textLower = (resumeText + " " + targetRole).toLowerCase();
+
+  const matchedSkills: string[] = [];
+  const missingSkills: string[] = [];
+
+  co.skills.forEach((sk) => {
+    const skLower = sk.toLowerCase();
+    let isMatched = textLower.includes(skLower);
+    if (!isMatched) {
+      if (
+        skLower === "react" &&
+        (textLower.includes("next.js") ||
+          textLower.includes("frontend") ||
+          textLower.includes("javascript") ||
+          textLower.includes("html"))
+      )
+        isMatched = true;
+      if (
+        skLower === "python" &&
+        (textLower.includes("ai") ||
+          textLower.includes("data") ||
+          textLower.includes("pandas") ||
+          textLower.includes("django"))
+      )
+        isMatched = true;
+      if (
+        skLower === "cloud" &&
+        (textLower.includes("aws") ||
+          textLower.includes("supabase") ||
+          textLower.includes("firebase") ||
+          textLower.includes("vercel") ||
+          textLower.includes("azure"))
+      )
+        isMatched = true;
+      if (
+        skLower === "rest apis" &&
+        (textLower.includes("api") ||
+          textLower.includes("node") ||
+          textLower.includes("express") ||
+          textLower.includes("backend"))
+      )
+        isMatched = true;
+      if (
+        skLower === "sql" &&
+        (textLower.includes("postgresql") ||
+          textLower.includes("mysql") ||
+          textLower.includes("database") ||
+          textLower.includes("prisma"))
+      )
+        isMatched = true;
+      if (
+        skLower === "microservices" &&
+        (textLower.includes("node") ||
+          textLower.includes("express") ||
+          textLower.includes("backend") ||
+          textLower.includes("distributed"))
+      )
+        isMatched = true;
+      if (
+        skLower === "ml" &&
+        (textLower.includes("ai") ||
+          textLower.includes("openai") ||
+          textLower.includes("gemini") ||
+          textLower.includes("antigravity"))
+      )
+        isMatched = true;
+      if (
+        skLower === "edtech" &&
+        (textLower.includes("learning") ||
+          textLower.includes("education") ||
+          textLower.includes("unacademy") ||
+          textLower.includes("tutoring"))
+      )
+        isMatched = true;
+      if (skLower === "salesforce platform" && textLower.includes("salesforce")) isMatched = true;
+    }
+
+    if (isMatched) {
+      matchedSkills.push(sk);
+    } else {
+      missingSkills.push(sk);
+    }
+  });
+
+  const skillMatchPct = matchedSkills.length / Math.max(1, co.skills.length);
+
+  let roleBonus = 15;
+  const trLower = targetRole.toLowerCase();
+  const coRoleLower = co.role.toLowerCase();
+  if (
+    trLower.includes("full stack") ||
+    trLower.includes("software engineer") ||
+    trLower.includes("developer")
+  ) {
+    if (
+      coRoleLower.includes("engineer") ||
+      coRoleLower.includes("developer") ||
+      coRoleLower.includes("sde")
+    ) {
+      roleBonus = 25;
+    }
+  }
+
+  const baseScore = atsOverallScore ? atsOverallScore * 0.25 : 20;
+  const matchScore = Math.min(99, Math.max(48, Math.round(skillMatchPct * 50 + roleBonus + baseScore)));
+
+  return { matchScore, matchedSkills, missingSkills };
 }
 
 export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
@@ -725,32 +863,26 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
   };
 
   const top5Matches = useMemo(() => {
-    const text = resumeText || targetRole || "";
-    const textLower = text.toLowerCase();
     const scored = COMPANIES.map((co) => {
-      let matchedCount = 0;
-      co.skills.forEach((sk) => {
-        if (textLower.includes(sk.toLowerCase())) matchedCount++;
-      });
-      const skillPct = matchedCount / Math.max(1, co.skills.length);
-      const titleBonus =
-        targetRole &&
-        (co.role.toLowerCase().includes(targetRole.toLowerCase()) ||
-          targetRole.toLowerCase().includes(co.name.toLowerCase()))
-          ? 20
-          : 5;
-      const scoreBase = result?.score ? result.score : 65;
-      const matchScore = Math.min(
-        99,
-        Math.max(40, Math.round(skillPct * 50 + titleBonus + scoreBase * 0.3)),
+      const { matchScore, matchedSkills, missingSkills } = calculateCompanyMatchScore(
+        co,
+        resumeText,
+        targetRole,
+        result?.score || result?.overall_score,
       );
-      return { ...co, matchScore, matchedSkillsCount: matchedCount };
+      return {
+        ...co,
+        matchScore,
+        matchedSkills,
+        missingSkills,
+        matchedSkillsCount: matchedSkills.length,
+      };
     });
 
     return [...scored].sort((a, b) => b.matchScore - a.matchScore).slice(0, 5);
   }, [resumeText, targetRole, result]);
 
-  const handleAutoFixForJob = (co: typeof COMPANIES[0]) => {
+  const handleAutoFixForJob = (co: (typeof COMPANIES)[0]) => {
     const textLower = resumeText.toLowerCase();
     const missingSkills = co.skills.filter((sk) => !textLower.includes(sk.toLowerCase()));
 
@@ -762,9 +894,11 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
 
     let newText = resumeText || `Target Role: ${co.role}\nCompany: ${co.name}\n`;
     if (missingSkills.length > 0) {
-      newText += `\n\n[Optimized Key Skills for ${co.name}]\nCore Competencies: ` + missingSkills.join(", ");
+      newText +=
+        `\n\n[Optimized Key Skills for ${co.name}]\nCore Competencies: ` + missingSkills.join(", ");
     }
-    newText += `\n\n[Google XYZ Formula Accomplishments — Target: ${co.name}]\n` + xyzBullets.join("\n");
+    newText +=
+      `\n\n[Google XYZ Formula Accomplishments — Target: ${co.name}]\n` + xyzBullets.join("\n");
 
     setResumeText(newText);
     toast.success(`Resume auto-fixed for ${co.name} (${co.role}) with Google XYZ Formula!`);
@@ -830,27 +964,22 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
     const blob = new Blob([resumeText], { type: "text/plain" });
     const a = Object.assign(document.createElement("a"), {
       href: URL.createObjectURL(blob),
-      download: "Fixed_Resume.txt",
+      download: `Resume_Optimized_${(targetRole || "Career").replace(/\s+/g, "_")}.txt`,
     });
     a.click();
-    toast.success("Fixed resume downloaded!");
+    toast.success("Text (.txt) downloaded!");
   };
 
-  const gradeColor = (g: string) =>
-    ({
-      A: "text-emerald-500",
-      B: "text-blue-500",
-      C: "text-amber-500",
-      D: "text-orange-500",
-      F: "text-red-500",
-    })[g] ?? "text-gray-500";
-
-  const filteredCompanies = COMPANIES.filter(
-    (c) =>
-      c.name.toLowerCase().includes(searchQ.toLowerCase()) ||
-      c.role.toLowerCase().includes(searchQ.toLowerCase()) ||
-      c.skills.some((s) => s.toLowerCase().includes(searchQ.toLowerCase())),
-  );
+  const filteredCompanies = useMemo(() => {
+    if (!searchQ.trim()) return COMPANIES;
+    const q = searchQ.toLowerCase();
+    return COMPANIES.filter(
+      (co) =>
+        co.name.toLowerCase().includes(q) ||
+        co.role.toLowerCase().includes(q) ||
+        co.skills.some((s) => s.toLowerCase().includes(q)),
+    );
+  }, [searchQ]);
 
   const inp =
     "w-full text-sm px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition";
@@ -860,20 +989,22 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
     <Wrapper>
       <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-5">
         {/* Header */}
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-100 dark:border-emerald-800/50">
-            <BarChart3 className="h-5 w-5 text-emerald-600" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">ATS Checker</h2>
-            <p className="text-xs text-muted-foreground">
-              AI analysis · Auto-fix · 55+ company match scores
-            </p>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-100 dark:border-emerald-800/50">
+              <BarChart3 className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">ATS Resume Checker & Matching</h2>
+              <p className="text-xs text-muted-foreground">
+                AI analysis · Auto-fix · 55+ company match scores
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 border-b border-border/60">
+        <div className="flex border-b gap-1">
           {[
             { id: "input" as const, label: "Resume Input" },
             { id: "results" as const, label: "ATS Results" },
@@ -979,49 +1110,40 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
             </Card>
 
             <div className="space-y-4">
-              <Card className="p-4 rounded-2xl border shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <Target className="h-4 w-4 text-blue-600" />
-                  <h3 className="text-sm font-bold">ATS Tips</h3>
+              <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-4 w-4 text-amber-500" />
+                  <h3 className="text-sm font-bold">Top Job Matches</h3>
                 </div>
-                <div className="space-y-2 text-xs text-muted-foreground">
-                  {[
-                    "Use standard section headings (Experience, Education, Skills)",
-                    "Avoid tables, columns, or graphics in ATS-targeted resumes",
-                    "Include exact keywords from the job description",
-                    "Use .docx or plain text — not PDF for ATS",
-                    "Quantify achievements with numbers (XYZ formula)",
-                    "List skills explicitly in a dedicated Skills section",
-                    "Keep formatting simple — no headers/footers",
-                  ].map((tip, i) => (
-                    <div key={i} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-3 w-3 text-emerald-500 mt-0.5 shrink-0" />
-                      <span>{tip}</span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-              <Card className="p-4 rounded-2xl border shadow-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <BookOpen className="h-4 w-4 text-violet-600" />
-                  <h3 className="text-sm font-bold">Recommended Courses</h3>
-                </div>
-                <div className="space-y-2">
-                  {LEARNIFY_COURSES.slice(0, 4).map((c, i) => (
+                <div className="space-y-2.5">
+                  {top5Matches.slice(0, 3).map((co, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-2 p-2 rounded-lg border bg-muted/20"
+                      className="p-3 rounded-xl border bg-muted/20 space-y-2 hover:border-primary/40 transition"
                     >
-                      <div className="h-7 w-7 rounded-md bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shrink-0">
-                        <GraduationCap className="h-3.5 w-3.5 text-white" />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <CompanyLogo domain={co.domain} name={co.name} color={co.color} />
+                          <div className="min-w-0">
+                            <p className="font-bold text-xs truncate">{co.name}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">{co.role}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs font-black text-emerald-600 shrink-0">
+                          {co.matchScore}%
+                        </span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold truncate">{c.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{c.category}</p>
+                      <div className="flex items-center justify-between text-[10px] pt-1 border-t border-border/40">
+                        <span className="font-bold text-muted-foreground">{co.salary}</span>
+                        <a
+                          href={co.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary font-bold hover:underline flex items-center gap-0.5"
+                        >
+                          Apply <ExternalLink className="h-2.5 w-2.5" />
+                        </a>
                       </div>
-                      <span className="text-[10px] font-extrabold text-emerald-600">
-                        {c.match}%
-                      </span>
                     </div>
                   ))}
                 </div>
@@ -1052,14 +1174,19 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
                 <div className="space-y-4">
                   <Card className="p-5 rounded-2xl border shadow-sm">
                     <div className="flex items-center gap-6 flex-wrap">
-                      <ScoreRing score={result.score || 0} size={80} />
+                      <ScoreRing score={result.overall_score || result.score || 0} size={80} />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-black text-2xl">
-                            {result.score || 0}
+                            {result.overall_score || result.score || 0}
                             <span className="text-sm font-normal text-muted-foreground">/100</span>
                           </h3>
-                          <span className={cn("text-2xl font-extrabold", gradeColor(result.grade))}>
+                          <span
+                            className={cn(
+                              "text-2xl font-extrabold",
+                              gradeColor(result.grade),
+                            )}
+                          >
                             {result.grade || "-"}
                           </span>
                         </div>
@@ -1121,18 +1248,22 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
                               <CompanyLogo domain={co.domain} name={co.name} color={co.color} />
                               <div className="min-w-0 flex-1">
                                 <p className="font-bold text-xs truncate">{co.name}</p>
-                                <p className="text-[10px] text-muted-foreground truncate">{co.role}</p>
+                                <p className="text-[10px] text-muted-foreground truncate">
+                                  {co.role}
+                                </p>
                               </div>
                             </div>
                             <div className="flex items-center justify-between pt-1">
                               <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
                                 {co.matchScore}% Match
                               </span>
-                              <span className="text-[10px] font-bold text-muted-foreground">{co.salary}</span>
+                              <span className="text-[10px] font-bold text-muted-foreground">
+                                {co.salary}
+                              </span>
                             </div>
                             <div className="flex flex-wrap gap-1">
                               {co.skills.map((sk, sidx) => {
-                                const isMatched = (resumeText || "").toLowerCase().includes(sk.toLowerCase());
+                                const isMatched = co.matchedSkills.includes(sk);
                                 return (
                                   <span
                                     key={sidx}
@@ -1140,10 +1271,11 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
                                       "px-1.5 py-0.5 rounded text-[9px] font-semibold border",
                                       isMatched
                                         ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
-                                        : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
+                                        : "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800",
                                     )}
                                   >
-                                    {isMatched ? "✓ " : "+ "}{sk}
+                                    {isMatched ? "✓ " : "+ "}
+                                    {sk}
                                   </span>
                                 );
                               })}
@@ -1352,12 +1484,12 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredCompanies.map((co, i) => {
-                const matchScore = result
-                  ? Math.max(
-                      30,
-                      Math.min(99, (result.score || 50) + Math.floor(Math.random() * 20) - 10),
-                    )
-                  : null;
+                const { matchScore, matchedSkills, missingSkills } = calculateCompanyMatchScore(
+                  co,
+                  resumeText,
+                  targetRole,
+                  result?.score || result?.overall_score,
+                );
                 return (
                   <Card
                     key={i}
@@ -1369,46 +1501,63 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
                         <p className="font-bold text-sm truncate">{co.name}</p>
                         <p className="text-[11px] text-muted-foreground truncate">{co.role}</p>
                       </div>
-                      {matchScore !== null && (
-                        <div
-                          className={cn(
-                            "text-xs font-extrabold px-2 py-1 rounded-full shrink-0",
-                            matchScore >= 70
-                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
-                              : matchScore >= 50
-                                ? "bg-amber-100 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400"
-                                : "bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400",
-                          )}
-                        >
-                          {matchScore}%
-                        </div>
-                      )}
+                      <div
+                        className={cn(
+                          "text-xs font-extrabold px-2.5 py-1 rounded-full shrink-0 border",
+                          matchScore >= 75
+                            ? "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                            : matchScore >= 55
+                              ? "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
+                              : "bg-indigo-100 text-indigo-800 border-indigo-300 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800",
+                        )}
+                      >
+                        {matchScore}% Match
+                      </div>
                     </div>
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">
-                        Key Skills
+                        Key Skills ({matchedSkills.length}/{co.skills.length} matched)
                       </p>
                       <div className="flex flex-wrap gap-1">
-                        {co.skills.map((s, si) => (
-                          <span
-                            key={si}
-                            className="px-2 py-0.5 rounded-full border border-border/60 bg-muted/30 text-[10px] font-medium"
-                          >
-                            {s}
-                          </span>
-                        ))}
+                        {co.skills.map((s, si) => {
+                          const isMatched = matchedSkills.includes(s);
+                          return (
+                            <span
+                              key={si}
+                              className={cn(
+                                "px-2 py-0.5 rounded-full border text-[10px] font-semibold",
+                                isMatched
+                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800"
+                                  : "bg-muted/30 text-muted-foreground border-border/60",
+                              )}
+                            >
+                              {isMatched ? "✓ " : "+ "}
+                              {s}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
-                    <div className="flex items-center justify-between pt-1 border-t border-border/40">
-                      <span className="text-xs font-bold text-emerald-600">{co.salary}</span>
-                      <a
-                        href={co.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold hover:opacity-90 transition"
-                      >
-                        Apply <ExternalLink className="h-2.5 w-2.5" />
-                      </a>
+                    <div className="flex items-center justify-between pt-2 border-t border-border/40 gap-2">
+                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                        {co.salary}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => handleAutoFixForJob(co)}
+                          className="px-2 py-1 rounded-lg bg-indigo-600 text-white text-[10px] font-bold flex items-center gap-1 hover:bg-indigo-700 transition"
+                        >
+                          <Wand2 className="h-3 w-3" /> Auto-Fix
+                        </button>
+                        <a
+                          href={co.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 px-3 py-1 rounded-lg bg-primary text-primary-foreground text-[10px] font-bold hover:opacity-90 transition shrink-0"
+                        >
+                          Apply <ExternalLink className="h-2.5 w-2.5" />
+                        </a>
+                      </div>
                     </div>
                   </Card>
                 );
