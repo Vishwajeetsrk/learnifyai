@@ -42,6 +42,11 @@ import {
   Link as LinkIcon,
   MessageSquare,
   Sparkle,
+  Type,
+  LayoutGrid,
+  MoveUp,
+  MoveDown,
+  List,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -53,13 +58,13 @@ import { toast } from "sonner";
 import { generateResume, extractResumeFields } from "@/lib/resume.functions";
 import { ResumeFileUpload } from "@/components/ResumeFileUpload";
 
-/* ── Design Templates ── */
+/* ── Templates ── */
 const TEMPLATES = [
   {
     id: "dreamsync",
     label: "DreamSync Pro",
     badge: "100% ATS",
-    desc: "Executive Layout with Section Icons & Solid Underlines",
+    desc: "Executive layout with section icons & accent lines",
     accent: "#0f172a",
     previewBg: "#0f172a",
     previewText: "#fff",
@@ -68,7 +73,7 @@ const TEMPLATES = [
     id: "modern",
     label: "Modern Tech",
     badge: "ATS Ready",
-    desc: "Clean indigo accent, high readability font structure",
+    desc: "Clean indigo accent, high readability hierarchy",
     accent: "#4f46e5",
     previewBg: "#4f46e5",
     previewText: "#fff",
@@ -77,7 +82,7 @@ const TEMPLATES = [
     id: "classic",
     label: "Executive Classic",
     badge: "Formal",
-    desc: "Serif headers, formal executive structure",
+    desc: "Serif headers, formal corporate structure",
     accent: "#1e293b",
     previewBg: "#1e293b",
     previewText: "#fff",
@@ -86,7 +91,7 @@ const TEMPLATES = [
     id: "minimal",
     label: "Minimal ATS",
     badge: "100% ATS",
-    desc: "Monochrome, maximum ATS parse rate",
+    desc: "Monochrome, max ATS scanning rate",
     accent: "#374151",
     previewBg: "#f9fafb",
     previewText: "#111827",
@@ -95,34 +100,35 @@ const TEMPLATES = [
     id: "creative",
     label: "Creative Showcase",
     badge: "Portfolio",
-    desc: "Emerald accents, skill badges & pill tags",
+    desc: "Emerald accents, skill pill tags & badges",
     accent: "#059669",
     previewBg: "#059669",
     previewText: "#fff",
   },
 ];
 
-const XYZ_TIPS = [
-  "Accomplished [X] as measured by [Y] by doing [Z]",
-  "Led a team of [X] to achieve [Y] by implementing [Z]",
-  "Reduced [X] by [Y%] through [Z]",
-  "Increased [X] by [Y] using [Z] approach",
-  "Delivered [X] project saving [Y] by [Z]",
+const TARGET_ROLE_PRESETS = [
+  "AI Software Engineer",
+  "Full Stack Developer",
+  "Frontend Engineer",
+  "Backend Engineer",
+  "Salesforce & Data Operations",
+  "Data Scientist",
+  "Product Manager",
+  "DevOps & Cloud Engineer",
 ];
 
-const LEARNIFY_COURSES = [
-  { name: "Full Stack AI Engineer", category: "AI & Development", match: 98 },
-  { name: "Data Science & ML Bootcamp", category: "Data & Analytics", match: 95 },
-  { name: "System Design Mastery", category: "Architecture", match: 91 },
-  { name: "DSA & Competitive Programming", category: "Core CS", match: 88 },
-  { name: "React + Next.js Pro", category: "Frontend", match: 85 },
-  { name: "Cloud & DevOps with AWS", category: "Infrastructure", match: 82 },
+const FONTS = [
+  { id: "font-sans", label: "Inter (Modern Sans)" },
+  { id: "font-display", label: "Space Grotesk (Tech)" },
+  { id: "font-serif", label: "Playfair (Executive Serif)" },
+  { id: "font-mono", label: "Roboto Mono (Code)" },
 ];
 
 function markdownToHtml(md: string) {
   let html = md
     .replace(/\r\n/g, "\n")
-    .replace(/^## (.*$)/gim, "2>$1</h2>")
+    .replace(/^## (.*$)/gim, "<h2>$1</h2>")
     .replace(/^# (.*$)/gim, "<h1>$1</h1>")
     .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.*?)\*/g, "<em>$1</em>")
@@ -138,6 +144,221 @@ function markdownToHtml(md: string) {
       return `<p>${p.replace(/\n/g, "<br/>")}</p>`;
     })
     .join("\n");
+}
+
+/* ── Structured Parsers ── */
+interface ExperienceItem {
+  title: string;
+  company: string;
+  startDate?: string;
+  endDate?: string;
+  location?: string;
+  bullets: string[];
+}
+
+function parseExperienceEntries(text: string): ExperienceItem[] {
+  if (!text || !text.trim()) return [];
+  const blocks = text.split(/\n\n+/);
+  const items: ExperienceItem[] = [];
+
+  for (const block of blocks) {
+    const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (lines.length === 0) continue;
+
+    const firstLine = lines[0];
+    let title = firstLine;
+    let company = "";
+    let startDate = "";
+    let endDate = "";
+    let location = "";
+    const bullets: string[] = [];
+
+    if (firstLine.includes("|")) {
+      const parts = firstLine.split("|").map((p) => p.trim());
+      const roleComp = parts[0];
+      if (roleComp.includes(",")) {
+        const [r, c] = roleComp.split(",").map((s) => s.trim());
+        title = r;
+        company = c;
+      } else if (roleComp.includes("@")) {
+        const [r, c] = roleComp.split("@").map((s) => s.trim());
+        title = r;
+        company = c;
+      } else {
+        title = roleComp;
+      }
+
+      if (parts[1]) {
+        const dateParts = parts[1].split("–").map((d) => d.trim());
+        startDate = dateParts[0] || parts[1];
+        endDate = dateParts[1] || "";
+      }
+      if (parts[2]) location = parts[2];
+    } else if (firstLine.includes("@")) {
+      const [r, rest] = firstLine.split("@").map((s) => s.trim());
+      title = r;
+      if (rest.includes("(")) {
+        const [c, d] = rest.split("(").map((s) => s.trim());
+        company = c;
+        startDate = d.replace(")", "");
+      } else {
+        company = rest;
+      }
+    } else if (firstLine.includes(",")) {
+      const [r, c] = firstLine.split(",").map((s) => s.trim());
+      title = r;
+      company = c;
+    }
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.startsWith("•") || line.startsWith("-") || line.startsWith("*")) {
+        bullets.push(line.replace(/^[•\-*]\s*/, ""));
+      } else {
+        bullets.push(line);
+      }
+    }
+
+    items.push({ title, company, startDate, endDate, location, bullets });
+  }
+
+  return items;
+}
+
+interface EducationItem {
+  degree: string;
+  school: string;
+  startDate?: string;
+  endDate?: string;
+  location?: string;
+}
+
+function parseEducationEntries(text: string): EducationItem[] {
+  if (!text || !text.trim()) return [];
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  const items: EducationItem[] = [];
+
+  for (const line of lines) {
+    let degree = line;
+    let school = "";
+    let startDate = "";
+    let endDate = "";
+    let location = "";
+
+    if (line.includes("|")) {
+      const parts = line.split("|").map((p) => p.trim());
+      const degSchool = parts[0];
+      if (degSchool.includes(",")) {
+        const [d, s] = degSchool.split(",").map((x) => x.trim());
+        degree = d;
+        school = s;
+      } else {
+        degree = degSchool;
+      }
+      if (parts[1]) {
+        const dParts = parts[1].split("–").map((x) => x.trim());
+        startDate = dParts[0];
+        endDate = dParts[1] || "";
+      }
+      if (parts[2]) location = parts[2];
+    } else if (line.includes(",")) {
+      const [d, s] = line.split(",").map((x) => x.trim());
+      degree = d;
+      school = s;
+    }
+
+    items.push({ degree, school, startDate, endDate, location });
+  }
+
+  return items;
+}
+
+interface ProjectItem {
+  title: string;
+  subtitle?: string;
+  techStack?: string;
+  dates?: string;
+  bullets: string[];
+}
+
+function parseProjectEntries(text: string): ProjectItem[] {
+  if (!text || !text.trim()) return [];
+  const blocks = text.split(/\n\n+/);
+  const items: ProjectItem[] = [];
+
+  for (const block of blocks) {
+    const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (lines.length === 0) continue;
+
+    const firstLine = lines[0];
+    let title = firstLine;
+    let subtitle = "";
+    let dates = "";
+    let techStack = "";
+    const bullets: string[] = [];
+
+    if (firstLine.includes("|")) {
+      const parts = firstLine.split("|").map((p) => p.trim());
+      const titlePart = parts[0];
+      if (titlePart.includes("—")) {
+        const [t, s] = titlePart.split("—").map((x) => x.trim());
+        title = t;
+        subtitle = s;
+      } else {
+        title = titlePart;
+      }
+      dates = parts[1] || "";
+    } else if (firstLine.includes("—")) {
+      const [t, s] = firstLine.split("—").map((x) => x.trim());
+      title = t;
+      subtitle = s;
+    }
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.toLowerCase().startsWith("tech stack:")) {
+        techStack = line.replace(/tech stack:\s*/i, "");
+      } else if (line.startsWith("•") || line.startsWith("-") || line.startsWith("*")) {
+        bullets.push(line.replace(/^[•\-*]\s*/, ""));
+      } else {
+        bullets.push(line);
+      }
+    }
+
+    items.push({ title, subtitle, techStack, dates, bullets });
+  }
+
+  return items;
+}
+
+interface SkillCategory {
+  category: string;
+  skills: string[];
+}
+
+function parseSkillCategories(text: string): SkillCategory[] {
+  if (!text || !text.trim()) return [];
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  const cats: SkillCategory[] = [];
+
+  for (const line of lines) {
+    if (line.includes(":")) {
+      const [c, rest] = line.split(":").map((x) => x.trim());
+      const skills = rest
+        .split(/[,|]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      cats.push({ category: c, skills });
+    } else {
+      const skills = line
+        .split(/[,|]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+      cats.push({ category: "Skills", skills });
+    }
+  }
+
+  return cats;
 }
 
 const SAMPLE_TEMPLATE_FORM: Record<string, string> = {
@@ -268,8 +489,8 @@ function FormatToolbar({
   onAiAction?: (action: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between flex-wrap gap-1 p-1 bg-muted/40 rounded-lg border border-border/50 text-xs mb-1.5">
-      <div className="flex items-center gap-0.5">
+    <div className="flex items-center justify-between flex-wrap gap-1 p-1.5 bg-muted/40 rounded-lg border border-border/50 text-xs mb-1.5">
+      <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={() => onFormat("bold")}
@@ -341,27 +562,34 @@ function FormatToolbar({
   );
 }
 
-/* ── Live Preview ───────────────────────────────────────────── */
+/* ── Live Preview Component ── */
 function ResumePreview({
   form,
   template,
   accentColor,
   dividerStyle = "bullet",
+  fontFamily = "font-sans",
 }: {
   form: Record<string, string>;
   template: (typeof TEMPLATES)[0];
   accentColor?: string;
   dividerStyle?: "bullet" | "icon" | "bar";
+  fontFamily?: string;
 }) {
   const isCreative = template.id === "creative";
   const isDreamSync = template.id === "dreamsync";
   const accent = accentColor || template.accent || "#0f172a";
 
+  const expItems = parseExperienceEntries(form.experience || "");
+  const eduItems = parseEducationEntries(form.education || "");
+  const projItems = parseProjectEntries(form.projects || "");
+  const skillCats = parseSkillCategories(form.skills || "");
+
   const renderSectionHeader = (icon: any, label: string) => {
     const IconComponent = icon;
     return (
       <div
-        className="flex items-center gap-1.5 mb-2 pb-1 border-b-2"
+        className="flex items-center gap-1.5 mb-3 pb-1 border-b-2"
         style={{ borderColor: accent }}
       >
         <IconComponent className="h-4 w-4" style={{ color: accent }} />
@@ -377,7 +605,7 @@ function ResumePreview({
 
   const sH = (label: string) => (
     <p
-      className="text-[10px] font-extrabold uppercase tracking-widest mb-1.5 pb-1 border-b"
+      className="text-[10px] font-extrabold uppercase tracking-widest mb-2 pb-1 border-b"
       style={{ color: accent, borderColor: accent + "40" }}
     >
       {label}
@@ -389,8 +617,11 @@ function ResumePreview({
   return (
     <div
       id="resume-preview-document"
-      className="w-full rounded-xl border overflow-hidden shadow-sm text-xs leading-relaxed bg-white text-slate-900 font-sans"
-      style={{ minHeight: 600 }}
+      className={cn(
+        "w-full rounded-xl border overflow-hidden shadow-sm text-xs leading-relaxed bg-white text-slate-900",
+        fontFamily,
+      )}
+      style={{ minHeight: 650 }}
     >
       {/* Header */}
       {isDreamSync ? (
@@ -411,7 +642,7 @@ function ResumePreview({
               {form.targetRole}
             </p>
           )}
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] font-medium text-slate-600 pt-1">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-[11px] font-medium text-slate-600 pt-1">
             {form.email && (
               <span className="flex items-center gap-1">
                 <Mail className="h-3 w-3 text-slate-500" />
@@ -454,22 +685,6 @@ function ResumePreview({
                 </a>
               </span>
             )}
-            {form.medium && (
-              <span className="flex items-center gap-1">
-                <Globe className="h-3 w-3 text-slate-900" />
-                <a href={form.medium} target="_blank" rel="noreferrer" className="hover:underline">
-                  Medium
-                </a>
-              </span>
-            )}
-            {form.twitter && (
-              <span className="flex items-center gap-1">
-                <Globe className="h-3 w-3 text-sky-500" />
-                <a href={form.twitter} target="_blank" rel="noreferrer" className="hover:underline">
-                  X / Twitter
-                </a>
-              </span>
-            )}
           </div>
           {(form.passport || form.nationality || form.visa) && (
             <div className="text-[10px] text-slate-500 font-medium pt-1 flex justify-center gap-3">
@@ -504,7 +719,7 @@ function ResumePreview({
       )}
 
       {/* Body Content */}
-      <div className="px-8 py-6 space-y-5">
+      <div className="px-8 py-6 space-y-6">
         {/* Objective / Summary */}
         {form.summary && (
           <div>
@@ -517,8 +732,36 @@ function ResumePreview({
         {form.experience && (
           <div>
             {isDreamSync ? renderSectionHeader(Briefcase, "PROFESSIONAL EXPERIENCE") : sH("Experience")}
-            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
-              {renderTextWithLinks(form.experience)}
+            <div className="space-y-3.5">
+              {expItems.length > 0
+                ? expItems.map((item, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                        <div className="font-bold text-[12px] text-slate-950">
+                          {item.title}{" "}
+                          {item.company && (
+                            <span className="font-semibold text-slate-700">@ {item.company}</span>
+                          )}
+                        </div>
+                        <div className="text-[10.5px] font-bold text-slate-500">
+                          {item.startDate && (
+                            <span>
+                              {item.startDate} {item.endDate ? `– ${item.endDate}` : ""}
+                            </span>
+                          )}
+                          {item.location && <span className="ml-2 font-normal">| {item.location}</span>}
+                        </div>
+                      </div>
+                      {item.bullets.length > 0 && (
+                        <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
+                          {item.bullets.map((b, bIdx) => (
+                            <li key={bIdx}>{renderTextWithLinks(b)}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))
+                : renderTextWithLinks(form.experience)}
             </div>
           </div>
         )}
@@ -527,8 +770,25 @@ function ResumePreview({
         {form.education && (
           <div>
             {isDreamSync ? renderSectionHeader(GraduationCap, "EDUCATION") : sH("Education")}
-            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
-              {renderTextWithLinks(form.education)}
+            <div className="space-y-2">
+              {eduItems.length > 0
+                ? eduItems.map((item, idx) => (
+                    <div key={idx} className="flex flex-wrap items-baseline justify-between gap-x-2">
+                      <div>
+                        <span className="font-bold text-[12px] text-slate-950">{item.degree}</span>
+                        {item.school && <span className="font-semibold text-slate-700">, {item.school}</span>}
+                      </div>
+                      <div className="text-[10.5px] font-bold text-slate-500">
+                        {item.startDate && (
+                          <span>
+                            {item.startDate} {item.endDate ? `– ${item.endDate}` : ""}
+                          </span>
+                        )}
+                        {item.location && <span className="ml-2 font-normal">| {item.location}</span>}
+                      </div>
+                    </div>
+                  ))
+                : renderTextWithLinks(form.education)}
             </div>
           </div>
         )}
@@ -537,8 +797,34 @@ function ResumePreview({
         {form.projects && (
           <div>
             {isDreamSync ? renderSectionHeader(FolderOpen, "PROJECTS") : sH("Projects")}
-            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
-              {renderTextWithLinks(form.projects)}
+            <div className="space-y-3.5">
+              {projItems.length > 0
+                ? projItems.map((item, idx) => (
+                    <div key={idx} className="space-y-1">
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                        <div className="font-bold text-[12px] text-slate-950">
+                          {item.title}{" "}
+                          {item.subtitle && (
+                            <span className="font-semibold text-slate-600">— {item.subtitle}</span>
+                          )}
+                        </div>
+                        {item.dates && <span className="text-[10.5px] font-bold text-slate-500">{item.dates}</span>}
+                      </div>
+                      {item.techStack && (
+                        <p className="text-[10.5px] text-indigo-700 font-semibold">
+                          Tech Stack: {item.techStack}
+                        </p>
+                      )}
+                      {item.bullets.length > 0 && (
+                        <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
+                          {item.bullets.map((b, bIdx) => (
+                            <li key={bIdx}>{renderTextWithLinks(b)}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))
+                : renderTextWithLinks(form.projects)}
             </div>
           </div>
         )}
@@ -558,6 +844,15 @@ function ResumePreview({
                   </span>
                 ))}
               </div>
+            ) : skillCats.length > 0 ? (
+              <div className="space-y-1 text-xs text-slate-800">
+                {skillCats.map((cat, idx) => (
+                  <div key={idx} className="flex flex-wrap items-baseline gap-1">
+                    <span className="font-bold text-slate-950">{cat.category}:</span>
+                    <span className="text-slate-700 font-medium">{cat.skills.join(" | ")}</span>
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
                 {form.skills}
@@ -570,7 +865,7 @@ function ResumePreview({
         {form.certifications && (
           <div>
             {isDreamSync ? renderSectionHeader(Award, "CERTIFICATIONS") : sH("Certifications")}
-            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
+            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed space-y-1">
               {renderTextWithLinks(form.certifications)}
             </div>
           </div>
@@ -580,7 +875,7 @@ function ResumePreview({
         {form.strengths && (
           <div>
             {isDreamSync ? renderSectionHeader(Star, "STRENGTHS & COMPETENCIES") : sH("Strengths")}
-            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
+            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
               {form.strengths}
             </div>
           </div>
@@ -650,7 +945,7 @@ function renderTextWithLinks(text: string) {
   });
 }
 
-/* ── Main Component ── */
+/* ── Main Page Component ── */
 export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) {
   const generateFn = useServerFn(generateResume);
   const extractFn = useServerFn(extractResumeFields);
@@ -660,6 +955,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   const [view, setView] = useState<"edit" | "preview">("preview");
   const [selectedTpl, setSelectedTpl] = useState(TEMPLATES[0]);
   const [accentColor, setAccentColor] = useState("#0f172a");
+  const [fontFamily, setFontFamily] = useState("font-sans");
 
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
@@ -720,32 +1016,6 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
         .join("\n");
       update(field, shortened);
       toast.success("Condensed bullet text!");
-    }
-  };
-
-  const handleFileExtracted = async (text: string) => {
-    setExtracting(true);
-    try {
-      const fields = await extractFn({ data: { rawText: text } });
-      setForm((f) => ({
-        ...f,
-        fullName: fields.fullName || f.fullName,
-        email: fields.email || f.email,
-        phone: fields.phone || f.phone,
-        linkedin: fields.linkedin || f.linkedin,
-        summary: fields.summary || f.summary,
-        experience: fields.experience || f.experience,
-        education: fields.education || f.education,
-        skills: fields.skills || f.skills,
-        certifications: fields.certifications || f.certifications,
-        projects: fields.projects || f.projects,
-        targetRole: fields.targetRole || f.targetRole,
-      }));
-      toast.success("Fields auto-filled from uploaded file!");
-    } catch {
-      toast.error("Failed to parse file");
-    } finally {
-      setExtracting(false);
     }
   };
 
@@ -916,7 +1186,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   return (
     <Wrapper>
       <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-5">
-        {/* Top Bar Header */}
+        {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
@@ -959,7 +1229,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
                   className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition",
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer",
                     activeTab === tab.id
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "bg-muted/40 text-muted-foreground hover:bg-muted",
@@ -1005,7 +1275,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 <Card className="rounded-2xl border shadow-sm overflow-hidden">
                   <button
                     onClick={() => setActiveSection(activeSection === "personal" ? "" : "personal")}
-                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition"
+                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <User className="h-4 w-4 text-primary" />
@@ -1031,13 +1301,25 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                           />
                         </div>
                         <div>
-                          <Label className="text-xs font-semibold mb-1 block">Professional Title *</Label>
+                          <Label className="text-xs font-semibold mb-1 block">Target Role *</Label>
                           <input
                             className={inp}
                             value={form.targetRole || ""}
                             onChange={(e) => update("targetRole", e.target.value)}
-                            placeholder="Senior Full Stack Engineer"
+                            placeholder="e.g. Senior Full Stack Engineer"
                           />
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {TARGET_ROLE_PRESETS.slice(0, 4).map((role) => (
+                              <button
+                                key={role}
+                                type="button"
+                                onClick={() => update("targetRole", role)}
+                                className="px-2 py-0.5 text-[10px] rounded-full bg-muted hover:bg-muted/80 text-muted-foreground font-semibold transition cursor-pointer"
+                              >
+                                {role}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                         <div>
                           <Label className="text-xs font-semibold mb-1 block">Email</Label>
@@ -1110,7 +1392,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 <Card className="rounded-2xl border shadow-sm overflow-hidden">
                   <button
                     onClick={() => setActiveSection(activeSection === "links" ? "" : "links")}
-                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition"
+                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <LinkIcon className="h-4 w-4 text-blue-600" />
@@ -1162,24 +1444,6 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                             placeholder="https://alexrivera.dev/portfolio"
                           />
                         </div>
-                        <div>
-                          <Label className="text-xs font-semibold mb-1 block">Medium / Blog</Label>
-                          <input
-                            className={inp}
-                            value={form.medium || ""}
-                            onChange={(e) => update("medium", e.target.value)}
-                            placeholder="https://medium.com/@..."
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-xs font-semibold mb-1 block">X / Twitter</Label>
-                          <input
-                            className={inp}
-                            value={form.twitter || ""}
-                            onChange={(e) => update("twitter", e.target.value)}
-                            placeholder="https://x.com/..."
-                          />
-                        </div>
                       </div>
                     </div>
                   )}
@@ -1189,7 +1453,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 <Card className="rounded-2xl border shadow-sm overflow-hidden">
                   <button
                     onClick={() => setActiveSection(activeSection === "summary" ? "" : "summary")}
-                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition"
+                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4 text-emerald-600" />
@@ -1222,7 +1486,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 <Card className="rounded-2xl border shadow-sm overflow-hidden">
                   <button
                     onClick={() => setActiveSection(activeSection === "exp" ? "" : "exp")}
-                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition"
+                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <Briefcase className="h-4 w-4 text-purple-600" />
@@ -1242,7 +1506,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                         onAiAction={(action) => handleAiAction("experience", action)}
                       />
                       <textarea
-                        className={`${inp} min-h-[180px] resize-y font-mono text-xs`}
+                        className={`${inp} min-h-[220px] resize-y font-mono text-xs`}
                         value={form.experience || ""}
                         onChange={(e) => update("experience", e.target.value)}
                         placeholder="Job Title, Company | Start Date – End Date | Location..."
@@ -1255,7 +1519,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 <Card className="rounded-2xl border shadow-sm overflow-hidden">
                   <button
                     onClick={() => setActiveSection(activeSection === "edu" ? "" : "edu")}
-                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition"
+                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <GraduationCap className="h-4 w-4 text-indigo-600" />
@@ -1271,7 +1535,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   {activeSection === "edu" && (
                     <div className="p-4 space-y-2 border-t">
                       <textarea
-                        className={`${inp} min-h-[80px] resize-y font-mono text-xs`}
+                        className={`${inp} min-h-[90px] resize-y font-mono text-xs`}
                         value={form.education || ""}
                         onChange={(e) => update("education", e.target.value)}
                         placeholder="Degree, College/University | Dates | City..."
@@ -1284,7 +1548,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 <Card className="rounded-2xl border shadow-sm overflow-hidden">
                   <button
                     onClick={() => setActiveSection(activeSection === "skills" ? "" : "skills")}
-                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition"
+                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <Wrench className="h-4 w-4 text-amber-500" />
@@ -1300,7 +1564,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   {activeSection === "skills" && (
                     <div className="p-4 space-y-2 border-t">
                       <textarea
-                        className={`${inp} min-h-[100px] resize-y font-mono text-xs`}
+                        className={`${inp} min-h-[120px] resize-y font-mono text-xs`}
                         value={form.skills || ""}
                         onChange={(e) => update("skills", e.target.value)}
                         placeholder="Languages: JS, TS, Python\nFrameworks: React, Next.js..."
@@ -1313,7 +1577,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 <Card className="rounded-2xl border shadow-sm overflow-hidden">
                   <button
                     onClick={() => setActiveSection(activeSection === "projects" ? "" : "projects")}
-                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition"
+                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <FolderOpen className="h-4 w-4 text-sky-600" />
@@ -1329,7 +1593,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   {activeSection === "projects" && (
                     <div className="p-4 space-y-2 border-t">
                       <textarea
-                        className={`${inp} min-h-[140px] resize-y font-mono text-xs`}
+                        className={`${inp} min-h-[160px] resize-y font-mono text-xs`}
                         value={form.projects || ""}
                         onChange={(e) => update("projects", e.target.value)}
                         placeholder="Project Title — Subtitle | Year\nTech Stack: React, Node...\n• Key impact bullet..."
@@ -1342,7 +1606,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 <Card className="rounded-2xl border shadow-sm overflow-hidden">
                   <button
                     onClick={() => setActiveSection(activeSection === "dec" ? "" : "dec")}
-                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition"
+                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition cursor-pointer"
                   >
                     <div className="flex items-center gap-2">
                       <PenTool className="h-4 w-4 text-rose-500" />
@@ -1369,35 +1633,43 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
               </div>
             )}
 
-            {/* DESIGN TAB */}
+            {/* DESIGN & LAYOUT TAB */}
             {activeTab === "design" && (
-              <Card className="p-5 rounded-2xl border shadow-sm space-y-5">
+              <Card className="p-5 rounded-2xl border shadow-sm space-y-6">
                 <div>
-                  <Label className="text-xs font-bold mb-2 block uppercase tracking-wider text-muted-foreground">
-                    Select Template Layout
+                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <LayoutGrid className="h-3.5 w-3.5 text-primary" /> Template Designs & Formats
                   </Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {TEMPLATES.map((t) => (
                       <button
                         key={t.id}
                         onClick={() => setSelectedTpl(t)}
                         className={cn(
-                          "p-3 rounded-xl border text-left transition-all cursor-pointer",
+                          "p-3.5 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between",
                           selectedTpl.id === t.id
-                            ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                            ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-sm"
                             : "border-border hover:bg-muted/30",
                         )}
                       >
-                        <span className="text-xs font-bold block">{t.label}</span>
-                        <span className="text-[10px] text-muted-foreground">{t.badge}</span>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold">{t.label}</span>
+                          <span
+                            className="text-[10px] font-extrabold px-2 py-0.5 rounded-full"
+                            style={{ backgroundColor: t.accent + "20", color: t.accent }}
+                          >
+                            {t.badge}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground leading-snug">{t.desc}</p>
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <Label className="text-xs font-bold mb-2 block uppercase tracking-wider text-muted-foreground">
-                    Accent Color Palette
+                <div className="pt-2 border-t">
+                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Palette className="h-3.5 w-3.5 text-indigo-600" /> Accent Color Palette
                   </Label>
                   <div className="flex items-center gap-3 flex-wrap">
                     {[
@@ -1413,7 +1685,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                         key={c}
                         onClick={() => setAccentColor(c)}
                         className={cn(
-                          "h-8 w-8 rounded-full border-2 transition-transform hover:scale-110",
+                          "h-8 w-8 rounded-full border-2 transition-transform hover:scale-110 cursor-pointer shadow-sm",
                           accentColor === c ? "border-primary ring-2 ring-offset-2 ring-primary" : "border-transparent",
                         )}
                         style={{ backgroundColor: c }}
@@ -1421,10 +1693,32 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     ))}
                   </div>
                 </div>
+
+                <div className="pt-2 border-t">
+                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Type className="h-3.5 w-3.5 text-blue-600" /> Font Typography
+                  </Label>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {FONTS.map((f) => (
+                      <button
+                        key={f.id}
+                        onClick={() => setFontFamily(f.id)}
+                        className={cn(
+                          "p-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer text-left",
+                          fontFamily === f.id
+                            ? "border-primary bg-primary/5 text-primary"
+                            : "border-border hover:bg-muted/40",
+                        )}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </Card>
             )}
 
-            {/* AI TOOLS TAB */}
+            {/* AI PRO TOOLS TAB */}
             {activeTab === "ai" && (
               <Card className="p-5 rounded-2xl border shadow-sm space-y-4">
                 <div className="flex items-center gap-2">
@@ -1436,7 +1730,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   <button
                     onClick={handleGenerate}
                     disabled={loading}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-50 shadow-md"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-50 shadow-md cursor-pointer"
                   >
                     {loading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -1446,10 +1740,10 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     AI Format & Optimize Complete Resume
                   </button>
 
-                  <div className="p-3 rounded-xl bg-muted/40 border space-y-1">
-                    <p className="text-xs font-bold text-foreground">AI Grammar & Bullet Enhancer</p>
-                    <p className="text-[11px] text-muted-foreground">
-                      Use the "Improve" or "Grammar" buttons inside the summary and experience section editor toolbars to automatically polish your bullet points with Google XYZ formula verbs.
+                  <div className="p-3.5 rounded-xl bg-muted/40 border space-y-1.5">
+                    <p className="text-xs font-bold text-foreground">AI Action Verbs & Bullet Enhancer</p>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      Use the "Improve" or "Grammar" buttons inside the section toolbars to polish bullet points with Google XYZ formula verbs (X accomplished, Y measured, Z method).
                     </p>
                   </div>
                 </div>
@@ -1473,6 +1767,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 form={form}
                 template={selectedTpl}
                 accentColor={accentColor}
+                fontFamily={fontFamily}
               />
             </div>
           </div>
