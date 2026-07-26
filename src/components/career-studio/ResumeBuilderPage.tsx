@@ -118,6 +118,45 @@ const TARGET_ROLE_PRESETS = [
   "DevOps & Cloud Engineer",
 ];
 
+const XYZ_FORMULAS = [
+  { id: 1, text: "• Accomplished [X] as measured by [Y] by doing [Z]" },
+  { id: 2, text: "• Led a team of [X] to achieve [Y] by implementing [Z]" },
+  { id: 3, text: "• Reduced [X] by [Y%] through [Z]" },
+  { id: 4, text: "• Increased [X] by [Y] using [Z] approach" },
+  { id: 5, text: "• Delivered [X] project saving [Y] by [Z]" },
+];
+
+const SKILL_KEYWORDS_BANK = [
+  "React",
+  "TypeScript",
+  "Python",
+  "Node.js",
+  "SQL",
+  "PostgreSQL",
+  "Supabase",
+  "AWS",
+  "Docker",
+  "REST APIs",
+  "Microservices",
+  "System Design",
+  "CI/CD",
+  "Git",
+  "Salesforce CRM",
+  "Generative AI",
+  "Tailwind CSS",
+  "GraphQL",
+  "Redis",
+];
+
+const LEARNIFY_COURSES = [
+  { name: "Full Stack AI Engineer", category: "AI & Development", match: 98 },
+  { name: "Data Science & ML Bootcamp", category: "Data & Analytics", match: 95 },
+  { name: "System Design Mastery", category: "Architecture", match: 91 },
+  { name: "DSA & Competitive Programming", category: "Core CS", match: 88 },
+  { name: "React + Next.js Pro", category: "Frontend", match: 85 },
+  { name: "Cloud & DevOps with AWS", category: "Infrastructure", match: 82 },
+];
+
 const FONTS = [
   { id: "font-sans", label: "Inter (Modern Sans)" },
   { id: "font-display", label: "Space Grotesk (Tech)" },
@@ -402,6 +441,8 @@ Tech Stack: Next.js, OpenAI API, Vector DB, Supabase, Tailwind CSS
   languages: `English (Native), Spanish (Professional)`,
   awards: `1st Place — National AI Hackathon 2025`,
   declaration: `I hereby declare that the information provided is accurate and true to the best of my knowledge.`,
+  signatoryName: "ALEX RIVERA",
+  signatoryPlace: "San Francisco",
 };
 
 const VISHWAJEET_DEFAULT_FORM: Record<string, string> = {
@@ -479,6 +520,8 @@ AI Prompt Engineering & Product Development: Designing intelligent prompts, AI w
   languages: `Hindi (Native), English`,
   awards: `Won 1st Prize in Web Design Competition at NEURO2026 organized by Charan's Degree College (Apr 10, 2026)`,
   declaration: `I hereby declare that the information provided is true to the best of my knowledge and belief. I am committed to applying my reconciliation and data management expertise to contribute meaningfully.`,
+  signatoryName: "VISHWAJEET",
+  signatoryPlace: "Bengaluru",
 };
 
 function FormatToolbar({
@@ -567,13 +610,11 @@ function ResumePreview({
   form,
   template,
   accentColor,
-  dividerStyle = "bullet",
   fontFamily = "font-sans",
 }: {
   form: Record<string, string>;
   template: (typeof TEMPLATES)[0];
   accentColor?: string;
-  dividerStyle?: "bullet" | "icon" | "bar";
   fontFamily?: string;
 }) {
   const isCreative = template.id === "creative";
@@ -611,8 +652,6 @@ function ResumePreview({
       {label}
     </p>
   );
-
-  const divider = dividerStyle === "bar" ? " | " : dividerStyle === "bullet" ? " • " : " ";
 
   return (
     <div
@@ -909,11 +948,19 @@ function ResumePreview({
               {form.declaration}
             </p>
             <div className="pt-2 border-t border-slate-300 w-52">
-              <p className="font-serif italic text-lg text-indigo-900 font-bold leading-none">
-                {form.fullName || "Alex Rivera"}
-              </p>
+              {form.signatureImage ? (
+                <img
+                  src={form.signatureImage}
+                  alt="Digital Signature"
+                  className="h-10 object-contain mb-1"
+                />
+              ) : (
+                <p className="font-serif italic text-lg text-indigo-900 font-bold leading-none">
+                  {form.signatoryName || form.fullName || "Alex Rivera"}
+                </p>
+              )}
               <p className="text-[10px] text-slate-500 font-bold mt-1">
-                {form.fullName || "Alex Rivera"} ({form.location?.split(",")[0] || "San Francisco"})
+                {form.signatoryName || form.fullName || "Alex Rivera"} ({form.signatoryPlace || form.location?.split(",")[0] || "San Francisco"})
               </p>
             </div>
           </div>
@@ -1017,6 +1064,26 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       update(field, shortened);
       toast.success("Condensed bullet text!");
     }
+  };
+
+  const insertXYZFormula = (formulaText: string) => {
+    const current = form.experience || "";
+    update("experience", current ? `${current}\n${formulaText}` : formulaText);
+    toast.success("Inserted Google XYZ formula template!");
+  };
+
+  const addSkillKeyword = (skill: string) => {
+    const current = form.skills || "";
+    if (current.includes(skill)) return toast.info(`"${skill}" already added!`);
+    update("skills", current ? `${current}, ${skill}` : skill);
+    toast.success(`Added "${skill}" to Technical Skills!`);
+  };
+
+  const addCourseToCertifications = (courseName: string) => {
+    const current = form.certifications || "";
+    const newCert = `• ${courseName} Certification — Learnify AI (Verified)`;
+    update("certifications", current ? `${current}\n${newCert}` : newCert);
+    toast.success(`Added "${courseName}" to Certifications!`);
   };
 
   const handleGenerate = async () => {
@@ -1153,7 +1220,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       form.strengths ? `\nSTRENGTHS\n${form.strengths}` : "",
       form.languages ? `\nLANGUAGES\n${form.languages}` : "",
       form.awards ? `\nAWARDS\n${form.awards}` : "",
-      form.declaration ? `\nDECLARATION\n${form.declaration}` : "",
+      form.declaration ? `\nDECLARATION\n${form.declaration}\nSignatory: ${form.signatoryName || form.fullName} (${form.signatoryPlace || "San Francisco"})` : "",
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -1620,13 +1687,45 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     />
                   </button>
                   {activeSection === "dec" && (
-                    <div className="p-4 space-y-2 border-t">
-                      <textarea
-                        className={`${inp} min-h-[60px] resize-y text-xs`}
-                        value={form.declaration || ""}
-                        onChange={(e) => update("declaration", e.target.value)}
-                        placeholder="I hereby declare that the information provided is true..."
-                      />
+                    <div className="p-4 space-y-3 border-t">
+                      <div>
+                        <Label className="text-xs font-semibold mb-1 block">Declaration Text</Label>
+                        <textarea
+                          className={`${inp} min-h-[60px] resize-y text-xs`}
+                          value={form.declaration || ""}
+                          onChange={(e) => update("declaration", e.target.value)}
+                          placeholder="I hereby declare that the information provided is true..."
+                        />
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs font-semibold mb-1 block">Signatory Full Name</Label>
+                          <input
+                            className={inp}
+                            value={form.signatoryName || ""}
+                            onChange={(e) => update("signatoryName", e.target.value)}
+                            placeholder="ALEX RIVERA"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs font-semibold mb-1 block">Place / City</Label>
+                          <input
+                            className={inp}
+                            value={form.signatoryPlace || ""}
+                            onChange={(e) => update("signatoryPlace", e.target.value)}
+                            placeholder="San Francisco"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <Label className="text-xs font-semibold mb-1 block">Digital Signature Image URL (Optional)</Label>
+                          <input
+                            className={inp}
+                            value={form.signatureImage || ""}
+                            onChange={(e) => update("signatureImage", e.target.value)}
+                            placeholder="https://example.com/signature.png"
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
                 </Card>
@@ -1720,31 +1819,92 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
 
             {/* AI PRO TOOLS TAB */}
             {activeTab === "ai" && (
-              <Card className="p-5 rounded-2xl border shadow-sm space-y-4">
+              <Card className="p-5 rounded-2xl border shadow-sm space-y-6">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-indigo-600" />
-                  <h3 className="text-sm font-bold">AI Resume Enhancements</h3>
+                  <div>
+                    <h3 className="text-sm font-bold">AI Resume Enhancements</h3>
+                    <p className="text-xs text-muted-foreground">Google XYZ formula generator & ATS keyword optimizer</p>
+                  </div>
                 </div>
 
-                <div className="space-y-3">
-                  <button
-                    onClick={handleGenerate}
-                    disabled={loading}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-50 shadow-md cursor-pointer"
-                  >
-                    {loading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Sparkles className="h-4 w-4" />
-                    )}
-                    AI Format & Optimize Complete Resume
-                  </button>
+                <button
+                  onClick={handleGenerate}
+                  disabled={loading}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs flex items-center justify-center gap-2 hover:opacity-90 transition disabled:opacity-50 shadow-md cursor-pointer"
+                >
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                  AI Format & Optimize Complete Resume
+                </button>
 
-                  <div className="p-3.5 rounded-xl bg-muted/40 border space-y-1.5">
-                    <p className="text-xs font-bold text-foreground">AI Action Verbs & Bullet Enhancer</p>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
-                      Use the "Improve" or "Grammar" buttons inside the section toolbars to polish bullet points with Google XYZ formula verbs (X accomplished, Y measured, Z method).
-                    </p>
+                {/* 1. Google XYZ Formulas */}
+                <div className="pt-2 border-t space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Target className="h-3.5 w-3.5 text-amber-500" /> Google XYZ Formula Tips
+                  </Label>
+                  <div className="space-y-2">
+                    {XYZ_FORMULAS.map((f) => (
+                      <div
+                        key={f.id}
+                        className="p-3 rounded-xl bg-muted/40 border flex items-center justify-between gap-2 hover:bg-muted/60 transition"
+                      >
+                        <span className="text-xs font-mono text-foreground font-medium">{f.text}</span>
+                        <button
+                          onClick={() => insertXYZFormula(f.text)}
+                          className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground text-[10px] font-bold shrink-0 hover:opacity-90 transition cursor-pointer"
+                        >
+                          + Insert
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Top Skills & Tools */}
+                <div className="pt-2 border-t space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Wrench className="h-3.5 w-3.5 text-emerald-600" /> Top Skills & Keyword Suggestions
+                  </Label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {SKILL_KEYWORDS_BANK.map((sk) => (
+                      <button
+                        key={sk}
+                        onClick={() => addSkillKeyword(sk)}
+                        className="px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold hover:bg-emerald-100 transition border border-emerald-200 dark:border-emerald-800/40 cursor-pointer flex items-center gap-1"
+                      >
+                        <Plus className="h-3 w-3" /> {sk}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Recommended Courses */}
+                <div className="pt-2 border-t space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <BookOpen className="h-3.5 w-3.5 text-blue-600" /> Recommended Learnify AI Certifications
+                  </Label>
+                  <div className="grid sm:grid-cols-2 gap-2">
+                    {LEARNIFY_COURSES.map((c) => (
+                      <div
+                        key={c.name}
+                        className="p-3 rounded-xl border bg-card flex flex-col justify-between gap-2"
+                      >
+                        <div>
+                          <p className="text-xs font-bold text-foreground">{c.name}</p>
+                          <p className="text-[10px] text-muted-foreground">{c.category} · {c.match}% Match</p>
+                        </div>
+                        <button
+                          onClick={() => addCourseToCertifications(c.name)}
+                          className="px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold hover:bg-indigo-100 transition border border-indigo-200 dark:border-indigo-800/40 cursor-pointer flex items-center justify-center gap-1"
+                        >
+                          <Plus className="h-3 w-3" /> Add Certification
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </Card>
