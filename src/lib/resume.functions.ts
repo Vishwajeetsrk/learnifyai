@@ -34,17 +34,21 @@ CRITICAL MANDATES:
 
 const ResumeInput = z.object({
   fullName: z.string().min(1).max(200),
-  email: z.string().email().max(200),
+  email: z.string().max(200).optional(),
   phone: z.string().max(50).optional(),
   linkedin: z.string().max(300).optional(),
-  summary: z.string().max(1000).optional(),
-  experience: z.string().max(5000),
-  education: z.string().max(2000).optional(),
-  skills: z.string().max(2000),
-  certifications: z.string().max(1000).optional(),
-  projects: z.string().max(2000).optional(),
+  github: z.string().max(300).optional(),
+  website: z.string().max(300).optional(),
+  summary: z.string().max(2000).optional(),
+  experience: z.string().max(10000).optional(),
+  education: z.string().max(4000).optional(),
+  skills: z.string().max(4000).optional(),
+  certifications: z.string().max(2000).optional(),
+  projects: z.string().max(4000).optional(),
   targetRole: z.string().max(200),
-  template: z.enum(["modern", "classic", "minimal", "executive"]).default("modern"),
+  template: z
+    .enum(["dreamsync", "modern", "classic", "minimal", "executive", "creative"])
+    .default("dreamsync"),
 });
 
 export const generateResume = createServerFn({ method: "POST" })
