@@ -193,7 +193,37 @@ function CareersPage() {
   const applyJobId = search.apply;
   const { data: settings } = useSiteSettings();
   const careersEmail = settings?.careers_email || "support@learnifyai.in";
-  const { data: roles, isLoading } = useQuery({
+  const defaultJobs: JobRow[] = [
+    {
+      id: "job-devrel-01",
+      title: "Developer Relations & Community Advocate",
+      team: "Community",
+      location: "Bangalore, KA / Hybrid",
+      description:
+        "Build community developer momentum, deliver technical workshops, manage developer feedback loops, and lead hackathons for Learnify AI ecosystem.",
+      apply_url: null,
+    },
+    {
+      id: "job-creator-02",
+      title: "AI Course Creator & Technical Educator",
+      team: "Content & Curriculum",
+      location: "Remote · India",
+      description:
+        "Design production-grade AI & Full Stack courses, hands-on coding exercises, and video tutorials for Next.js 15, Python AI, and System Design.",
+      apply_url: null,
+    },
+    {
+      id: "job-engineer-03",
+      title: "Senior Full-Stack AI Engineer",
+      team: "Engineering",
+      location: "Remote · India / Global",
+      description:
+        "Architect AI-assisted learning interfaces, LLM prompt pipelines, TanStack Start features, real-time code execution backends, and Supabase RLS policies.",
+      apply_url: null,
+    },
+  ];
+
+  const { data: dbRoles, isLoading } = useQuery({
     queryKey: ["jobs-public"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -201,10 +231,12 @@ function CareersPage() {
         .select("id,title,team,location,description,apply_url")
         .eq("active", true)
         .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as JobRow[];
+      if (error) return defaultJobs;
+      return data && data.length > 0 ? (data as JobRow[]) : defaultJobs;
     },
   });
+
+  const roles = dbRoles && dbRoles.length > 0 ? dbRoles : defaultJobs;
 
   const [selectedJob, setSelectedJob] = useState<JobRow | null>(null);
 

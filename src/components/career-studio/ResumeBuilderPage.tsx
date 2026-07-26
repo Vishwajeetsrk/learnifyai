@@ -20,6 +20,8 @@ import {
   FolderOpen,
   Award,
   Globe,
+  Shield,
+  Code,
   Mail,
   Phone,
   MapPin,
@@ -1116,6 +1118,29 @@ function ResumePreview({
           </div>
         )}
 
+        {/* Custom Section with SVG Icon */}
+        {form.customSectionTitle && form.customSectionBody && (
+          <div>
+            {renderSectionHeader(
+              form.customSectionIcon === "star"
+                ? Star
+                : form.customSectionIcon === "book"
+                  ? BookOpen
+                  : form.customSectionIcon === "globe"
+                    ? Globe
+                    : form.customSectionIcon === "shield"
+                      ? Shield
+                      : form.customSectionIcon === "code"
+                        ? Code
+                        : Award,
+              form.customSectionTitle,
+            )}
+            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed space-y-1 font-medium">
+              {renderTextWithLinks(form.customSectionBody)}
+            </div>
+          </div>
+        )}
+
         {/* Declaration & Digital Signature */}
         {form.declaration && (
           <div className="pt-2 border-t border-slate-200/80">
@@ -2020,7 +2045,22 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     />
                   </button>
                   {activeSection === "exp" && (
-                    <div className="p-4 space-y-2 border-t">
+                    <div className="p-4 space-y-3 border-t">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-muted-foreground uppercase">Work Experience Entries</Label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const cur = form.experience || "";
+                            const newEntry = "New Role, Company Name | Jan 2025 – Present | Location\n• Key accomplishment or bullet point...";
+                            update("experience", cur ? `${cur}\n\n${newEntry}` : newEntry);
+                            toast.success("Added new Work Experience entry!");
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 text-xs font-bold hover:bg-purple-100 transition border border-purple-200 dark:border-purple-800/40 cursor-pointer flex items-center gap-1"
+                        >
+                          <Plus className="h-3 w-3" /> Add Experience
+                        </button>
+                      </div>
                       <FormatToolbar
                         onFormat={(tag) => handleFormatText("experience", tag)}
                         onAiAction={(action) => handleAiAction("experience", action)}
@@ -2053,9 +2093,24 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     />
                   </button>
                   {activeSection === "edu" && (
-                    <div className="p-4 space-y-2 border-t">
+                    <div className="p-4 space-y-3 border-t">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-muted-foreground uppercase">Education Degrees & Institutes</Label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const cur = form.education || "";
+                            const newEdu = "Degree Name, Institution / University | 2022 – 2026 | Location";
+                            update("education", cur ? `${cur}\n${newEdu}` : newEdu);
+                            toast.success("Added new Education entry!");
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold hover:bg-indigo-100 transition border border-indigo-200 dark:border-indigo-800/40 cursor-pointer flex items-center gap-1"
+                        >
+                          <Plus className="h-3 w-3" /> Add Education
+                        </button>
+                      </div>
                       <textarea
-                        className={`${inp} min-h-[90px] resize-y font-mono text-xs`}
+                        className={`${inp} min-h-[100px] resize-y font-mono text-xs`}
                         value={form.education || ""}
                         onChange={(e) => update("education", e.target.value)}
                         placeholder="Degree, College/University | Dates | City..."
@@ -2064,7 +2119,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   )}
                 </Card>
 
-                {/* 6. Technical Skills Accordion */}
+                {/* 6. Technical & Soft Skills Accordion */}
                 <Card className="rounded-2xl border shadow-sm overflow-hidden">
                   <button
                     onClick={() => setActiveSection(activeSection === "skills" ? "" : "skills")}
@@ -2072,7 +2127,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   >
                     <div className="flex items-center gap-2">
                       <Wrench className="h-4 w-4 text-amber-500" />
-                      <span>Technical Skills</span>
+                      <span>Technical Skills & Soft Skills</span>
                     </div>
                     <ChevronDown
                       className={cn(
@@ -2082,18 +2137,33 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     />
                   </button>
                   {activeSection === "skills" && (
-                    <div className="p-4 space-y-2 border-t">
+                    <div className="p-4 space-y-3 border-t">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-muted-foreground uppercase">Skill Categories</Label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const cur = form.skills || "";
+                            const newCategory = "Category Name: Skill 1, Skill 2, Skill 3";
+                            update("skills", cur ? `${cur}\n${newCategory}` : newCategory);
+                            toast.success("Added new Skill Category!");
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-xs font-bold hover:bg-amber-100 transition border border-amber-200 dark:border-amber-800/40 cursor-pointer flex items-center gap-1"
+                        >
+                          <Plus className="h-3 w-3" /> Add Category
+                        </button>
+                      </div>
                       <textarea
-                        className={`${inp} min-h-[120px] resize-y font-mono text-xs`}
+                        className={`${inp} min-h-[140px] resize-y font-mono text-xs`}
                         value={form.skills || ""}
                         onChange={(e) => update("skills", e.target.value)}
-                        placeholder="Languages: JS, TS, Python\nFrameworks: React, Next.js..."
+                        placeholder="Programming: HTML5 | CSS3 | JavaScript | Python\nFrontend: React.js | Next.js | Tailwind CSS\nSoft Skills: Leadership, Problem Solving..."
                       />
                     </div>
                   )}
                 </Card>
 
-                {/* 7. Projects Accordion */}
+                {/* 7. Key Projects Accordion */}
                 <Card className="rounded-2xl border shadow-sm overflow-hidden">
                   <button
                     onClick={() => setActiveSection(activeSection === "projects" ? "" : "projects")}
@@ -2111,13 +2181,86 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     />
                   </button>
                   {activeSection === "projects" && (
-                    <div className="p-4 space-y-2 border-t">
+                    <div className="p-4 space-y-3 border-t">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-bold text-muted-foreground uppercase">Key Projects Entries</Label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const cur = form.projects || "";
+                            const newProj = "Project Title — Subtitle / Tagline | Year\nTech Stack: React, Next.js, Node.js\n• Key architecture impact bullet...\n• Live: https://example.com";
+                            update("projects", cur ? `${cur}\n\n${newProj}` : newProj);
+                            toast.success("Added new Key Project entry!");
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 text-xs font-bold hover:bg-sky-100 transition border border-sky-200 dark:border-sky-800/40 cursor-pointer flex items-center gap-1"
+                        >
+                          <Plus className="h-3 w-3" /> Add Project
+                        </button>
+                      </div>
                       <textarea
-                        className={`${inp} min-h-[160px] resize-y font-mono text-xs`}
+                        className={`${inp} min-h-[180px] resize-y font-mono text-xs`}
                         value={form.projects || ""}
                         onChange={(e) => update("projects", e.target.value)}
-                        placeholder="Project Title — Subtitle | Year\nTech Stack: React, Node...\n• Key impact bullet..."
+                        placeholder="CloudMetrics — Real-Time Infrastructure Monitoring Dashboard | 2025\nTech Stack: React, WebSockets, Node.js\n• Developed real-time telemetry dashboard...\n• Live: https://cloudmetrics-demo.example.com"
                       />
+                    </div>
+                  )}
+                </Card>
+
+                {/* 8. Custom Section with SVG Icon */}
+                <Card className="rounded-2xl border shadow-sm overflow-hidden">
+                  <button
+                    onClick={() => setActiveSection(activeSection === "custom" ? "" : "custom")}
+                    className="w-full p-4 flex items-center justify-between font-bold text-sm bg-muted/20 hover:bg-muted/40 transition cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-emerald-500" />
+                      <span>Custom Section (with SVG Icon)</span>
+                    </div>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform",
+                        activeSection === "custom" && "rotate-180",
+                      )}
+                    />
+                  </button>
+                  {activeSection === "custom" && (
+                    <div className="p-4 space-y-3 border-t">
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs font-semibold mb-1 block">Custom Section Title</Label>
+                          <input
+                            className={inp}
+                            value={form.customSectionTitle || ""}
+                            onChange={(e) => update("customSectionTitle", e.target.value)}
+                            placeholder="e.g. Publications, Volunteer Work, Patents"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs font-semibold mb-1 block">SVG Icon Preset</Label>
+                          <select
+                            className={inp}
+                            value={form.customSectionIcon || "award"}
+                            onChange={(e) => update("customSectionIcon", e.target.value)}
+                          >
+                            <option value="award">🏆 Award (SVG)</option>
+                            <option value="star">⭐ Star (SVG)</option>
+                            <option value="book">📚 Publications (SVG)</option>
+                            <option value="globe">🌐 Global Community (SVG)</option>
+                            <option value="shield">🛡️ Patents / Honors (SVG)</option>
+                            <option value="code">💻 Open Source (SVG)</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs font-semibold mb-1 block">Custom Section Content / Bullets</Label>
+                        <textarea
+                          className={`${inp} min-h-[90px] resize-y text-xs font-mono`}
+                          value={form.customSectionBody || ""}
+                          onChange={(e) => update("customSectionBody", e.target.value)}
+                          placeholder="• Speaker at International Tech Summit 2026\n• Published research paper on LLM Agents..."
+                        />
+                      </div>
                     </div>
                   )}
                 </Card>
