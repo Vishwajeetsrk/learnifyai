@@ -796,61 +796,25 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-card p-6 space-y-4">
+          <div className="rounded-2xl border bg-card p-6 space-y-3">
             <h2 className="font-semibold flex items-center gap-2">
               <Target className="h-4 w-4 text-primary" /> AI Interviewer Avatar
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <button
-                onClick={() => setAvatarModel("eric")}
-                className={cn(
-                  "p-4 rounded-xl border text-center transition-all cursor-pointer relative overflow-hidden",
-                  avatarModel === "eric"
-                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
-                    : "border-border hover:bg-muted/30",
-                )}
-              >
-                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-black">
-                  3D FBX
+            <div className="p-4 rounded-xl border border-primary/40 bg-primary/5 flex items-center gap-4 relative overflow-hidden shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center text-white font-black text-xl shadow-md shrink-0">
+                EV
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-foreground">Eric Vance</span>
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold border border-emerald-500/20">
+                    3D Interactive Avatar
+                  </span>
                 </div>
-                <div className="w-12 h-12 rounded-full mx-auto bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center text-white font-bold mb-2 shadow-md">
-                  EV
-                </div>
-                <span className="text-sm font-bold block">Eric Vance</span>
-                <span className="text-[10px] text-muted-foreground">3D RenderPeople Avatar</span>
-              </button>
-
-              <button
-                onClick={() => setAvatarModel("sarah")}
-                className={cn(
-                  "p-4 rounded-xl border text-center transition-all cursor-pointer",
-                  avatarModel === "sarah"
-                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
-                    : "border-border hover:bg-muted/30",
-                )}
-              >
-                <div className="w-12 h-12 rounded-full mx-auto bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white font-bold mb-2 shadow-md">
-                  SJ
-                </div>
-                <span className="text-sm font-bold block">Sarah Jenkins</span>
-                <span className="text-[10px] text-muted-foreground">Senior Tech Lead</span>
-              </button>
-
-              <button
-                onClick={() => setAvatarModel("alex")}
-                className={cn(
-                  "p-4 rounded-xl border text-center transition-all cursor-pointer",
-                  avatarModel === "alex"
-                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
-                    : "border-border hover:bg-muted/30",
-                )}
-              >
-                <div className="w-12 h-12 rounded-full mx-auto bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white font-bold mb-2 shadow-md">
-                  AR
-                </div>
-                <span className="text-sm font-bold block">Alex Rivera</span>
-                <span className="text-[10px] text-muted-foreground">Technical Recruiter</span>
-              </button>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Senior Technical Lead & AI Interviewer · Waving, Lip-Sync, Smiling & Observing
+                </p>
+              </div>
             </div>
           </div>
 
