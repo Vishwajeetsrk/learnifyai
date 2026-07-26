@@ -678,6 +678,9 @@ function ResumePreview({
 }) {
   const isCreative = template.id === "creative" || skillsStyle === "badges";
   const isDreamSync = template.id === "dreamsync";
+  const isModern = template.id === "modern";
+  const isClassic = template.id === "classic";
+  const isMinimal = template.id === "minimal";
   const accent = accentColor || template.accent || "#0f172a";
 
   const expItems = parseExperienceEntries(form.experience || "");
@@ -688,6 +691,45 @@ function ResumePreview({
   const renderSectionHeader = (icon: any, label: string) => {
     const IconComponent = icon;
     const displayLabel = headingCap === "uppercase" ? label.toUpperCase() : label;
+    if (isClassic) {
+      return (
+        <div className="mb-3 pb-1 border-b-2 border-slate-800 flex items-center gap-2">
+          <IconComponent className="h-4 w-4 text-slate-800" />
+          <h3 className="text-xs font-serif font-black uppercase tracking-widest text-slate-900">
+            {displayLabel}
+          </h3>
+        </div>
+      );
+    }
+    if (isMinimal) {
+      return (
+        <div className="mb-2 pb-0.5 border-b border-black">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-black">
+            {displayLabel}
+          </h3>
+        </div>
+      );
+    }
+    if (isCreative) {
+      return (
+        <div className="mb-3 pb-1 border-b-2 border-emerald-500 flex items-center gap-2">
+          <IconComponent className="h-4 w-4 text-emerald-600" />
+          <h3 className="text-xs font-extrabold uppercase tracking-wider text-emerald-800">
+            {displayLabel}
+          </h3>
+        </div>
+      );
+    }
+    if (isModern) {
+      return (
+        <div className="mb-3 pb-1 border-b-2 border-indigo-600 flex items-center gap-2">
+          <IconComponent className="h-4 w-4 text-indigo-600" />
+          <h3 className="text-xs font-black uppercase tracking-wider text-indigo-900">
+            {displayLabel}
+          </h3>
+        </div>
+      );
+    }
     return (
       <div
         className="flex items-center gap-1.5 mb-3 pb-1 border-b-2"
@@ -704,14 +746,45 @@ function ResumePreview({
     );
   };
 
-  const sH = (label: string) => (
-    <p
-      className="text-[10px] font-extrabold uppercase tracking-widest mb-2 pb-1 border-b"
-      style={{ color: accent, borderColor: accent + "40" }}
-    >
-      {headingCap === "uppercase" ? label.toUpperCase() : label}
-    </p>
-  );
+  const sH = (label: string) => {
+    const displayLabel = headingCap === "uppercase" ? label.toUpperCase() : label;
+    if (isClassic) {
+      return (
+        <p className="text-[11px] font-serif font-black uppercase tracking-widest mb-2 pb-1 border-b-2 border-slate-800 text-slate-900">
+          {displayLabel}
+        </p>
+      );
+    }
+    if (isMinimal) {
+      return (
+        <p className="text-[10.5px] font-bold uppercase tracking-wider mb-2 pb-0.5 border-b border-black text-black">
+          {displayLabel}
+        </p>
+      );
+    }
+    if (isCreative) {
+      return (
+        <p className="text-[10px] font-black uppercase tracking-widest mb-2 pb-1 border-b-2 border-emerald-500 text-emerald-800">
+          {displayLabel}
+        </p>
+      );
+    }
+    if (isModern) {
+      return (
+        <p className="text-[10px] font-black uppercase tracking-widest mb-2 pb-1 border-b-2 border-indigo-600 text-indigo-900">
+          {displayLabel}
+        </p>
+      );
+    }
+    return (
+      <p
+        className="text-[10px] font-extrabold uppercase tracking-widest mb-2 pb-1 border-b"
+        style={{ color: accent, borderColor: accent + "40" }}
+      >
+        {displayLabel}
+      </p>
+    );
+  };
 
   return (
     <div
@@ -1305,7 +1378,55 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     toast.success("Generated LinkedIn Profile Headline & Bio!");
   };
 
-  const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
+  const [history, setHistory] = useState<Record<string, string>[]>([]);
+  const [redoStack, setRedoStack] = useState<Record<string, string>[]>([]);
+
+  const handleUndo = () => {
+    if (history.length === 0) return toast.info("Nothing to undo!");
+    const previous = history[history.length - 1];
+    setHistory((h) => h.slice(0, h.length - 1));
+    setRedoStack((r) => [...r, form]);
+    setForm(previous);
+    toast.info("Undo (Ctrl+Z)");
+  };
+
+  const handleRedo = () => {
+    if (redoStack.length === 0) return toast.info("Nothing to redo!");
+    const next = redoStack[redoStack.length - 1];
+    setRedoStack((r) => r.slice(0, r.length - 1));
+    setHistory((h) => [...h, form]);
+    setForm(next);
+    toast.info("Redo (Ctrl+Y)");
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      } else if (
+        ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "z")
+      ) {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [history, redoStack, form]);
+
+  const update = (field: string, value: string) => {
+    setForm((f: Record<string, string>) => {
+      if (f[field] !== value) {
+        setHistory((h) => [...h.slice(-30), f]);
+        setRedoStack([]);
+      }
+      return { ...f, [field]: value };
+    });
+  };
 
   const handleFormatText = (field: string, type: string) => {
     const current = form[field] || "";
@@ -1566,6 +1687,24 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition cursor-pointer flex items-center gap-1"
               >
                 <Plus className="h-3 w-3" /> Save Draft
+              </button>
+            </div>
+
+            {/* Undo / Redo Shortcuts */}
+            <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-xl border">
+              <button
+                onClick={handleUndo}
+                title="Undo (Ctrl+Z)"
+                className="px-2 py-1 rounded-lg text-xs font-bold hover:bg-muted transition cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground"
+              >
+                ↩ Undo <span className="text-[9px] opacity-60 font-mono">(Ctrl+Z)</span>
+              </button>
+              <button
+                onClick={handleRedo}
+                title="Redo (Ctrl+Y)"
+                className="px-2 py-1 rounded-lg text-xs font-bold hover:bg-muted transition cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground"
+              >
+                ↪ Redo <span className="text-[9px] opacity-60 font-mono">(Ctrl+Y)</span>
               </button>
             </div>
 
