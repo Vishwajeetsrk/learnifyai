@@ -274,6 +274,49 @@ AI Prompt Engineering & Product Development: Designing intelligent prompts, AI w
   declaration: `I hereby declare that the information provided is true to the best of my knowledge and belief. I am committed to applying my reconciliation and data management expertise to contribute meaningfully.`,
 };
 
+const SAMPLE_TEMPLATE_FORM = {
+  fullName: "ALEX RIVERA",
+  targetRole: "Senior Full Stack Engineer | Cloud & AI Architect",
+  email: "alex.rivera@example.com",
+  phone: "+1 (555) 019-2834",
+  location: "San Francisco, CA",
+  linkedin: "https://www.linkedin.com/in/alex-rivera-dev/",
+  github: "https://github.com/alexrivera-dev",
+  website: "https://alexrivera.dev",
+  portfolio: "https://alexrivera.dev/portfolio",
+  summary:
+    "Results-driven Senior Full Stack Engineer with 4+ years of experience architecting high-availability cloud platforms, scalable REST/GraphQL APIs, and AI-assisted workflows. Skilled in TypeScript, React, Next.js, Node.js, Python, PostgreSQL, and cloud infrastructure.",
+  experience: `Senior Software Engineer, TechCorp Systems | Jan 2024 – Present | San Francisco, CA
+• Spearheaded frontend and backend architecture for enterprise SaaS platform serving 500K+ active users.
+• Reduced API response latency by 42% through query optimization, Redis caching, and microservices refactoring.
+• Mentored a team of 6 junior engineers and established automated CI/CD deployment pipelines.
+
+Full Stack Developer, Innovate Labs | Jun 2022 – Dec 2023 | San Jose, CA
+• Designed and shipped 12+ production web applications using React, Next.js, Node.js, and PostgreSQL.
+• Integrated Stripe payment gateway and automated invoicing, processing $2.5M+ in annual revenue.
+• Implemented robust OAuth2 authentication and Role-Based Access Control (RBAC).`,
+  education: `B.S. in Computer Science, Stanford University | Sep 2018 – May 2022 | Stanford, CA`,
+  skills: `Languages: JavaScript, TypeScript, Python, SQL, HTML5, CSS3
+Frameworks: React.js, Next.js, Node.js, Express, Tailwind CSS
+Databases & Cloud: PostgreSQL, MongoDB, Redis, AWS (S3, EC2, Lambda), Docker, Vercel
+Tools & Practices: Git, REST APIs, GraphQL, Jest, CI/CD, Agile/Scrum`,
+  projects: `CloudMetrics — Real-Time Infrastructure Monitoring Dashboard | 2025
+Tech Stack: React, WebSockets, Node.js, TimescaleDB, Tailwind CSS
+• Developed real-time telemetry dashboard handling 10K events/sec with customized alert rules.
+• Live: https://cloudmetrics-demo.example.com
+
+AIChat Studio — Generative AI Prompt Automation Tool | 2024
+Tech Stack: Next.js, OpenAI API, Vector DB, Supabase, Tailwind CSS
+• Built full-stack AI platform integrating LLM APIs with credit management and vector search.
+• Live: https://aichat-studio.example.com`,
+  certifications: `• AWS Certified Solutions Architect – Associate (2024)
+• Meta Certified Senior Front-End Developer (2023)`,
+  strengths: `System Architecture, Full-Stack Optimization, Technical Leadership, AI API Integration`,
+  languages: `English (Native), Spanish (Professional)`,
+  awards: `1st Place — National AI Hackathon 2025`,
+  declaration: `I hereby declare that the information provided is accurate and true to the best of my knowledge.`,
+};
+
 /* ── Live Preview ───────────────────────────────────────────── */
 function ResumePreview({
   form,
@@ -568,11 +611,11 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       const saved = localStorage.getItem("resume_builder_form");
       if (saved) {
         try {
-          return { ...VISHWAJEET_DEFAULT_FORM, ...JSON.parse(saved) };
+          return { ...SAMPLE_TEMPLATE_FORM, ...JSON.parse(saved) };
         } catch {}
       }
     }
-    return VISHWAJEET_DEFAULT_FORM;
+    return SAMPLE_TEMPLATE_FORM;
   });
 
   useEffect(() => {
@@ -798,15 +841,21 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     }, 500);
   };
 
-  const addKw = (kw: string) => {
-    update("skills", form.skills ? form.skills + ", " + kw : kw);
-    toast.success(`Added "${kw}"`);
+  const resetToSampleTemplate = () => {
+    setForm(SAMPLE_TEMPLATE_FORM);
+    setResult(null);
+    toast.success("Loaded Generic Sample Resume Template (Alex Rivera)!");
   };
 
   const resetToVishwajeetTemplate = () => {
     setForm(VISHWAJEET_DEFAULT_FORM);
     setResult(null);
-    toast.success("Reset to Vishwajeet Platinum ATS Resume Template!");
+    toast.success("Loaded Vishwajeet Platinum ATS Resume Sample!");
+  };
+
+  const addKw = (kw: string) => {
+    update("skills", form.skills ? form.skills + ", " + kw : kw);
+    toast.success(`Added "${kw}"`);
   };
 
   const inp =
@@ -825,14 +874,20 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             <div>
               <h2 className="text-xl font-bold">Resume Builder</h2>
               <p className="text-xs text-muted-foreground">
-                5 premium templates · Live preview · Vishwajeet Executive ATS
+                5 premium templates · Live preview · ATS-optimized
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <button
+              onClick={resetToSampleTemplate}
+              className="px-3 py-1.5 rounded-xl border bg-muted/40 hover:bg-muted text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <FileText className="h-3.5 w-3.5 text-blue-500" /> Load Sample Template
+            </button>
+            <button
               onClick={resetToVishwajeetTemplate}
-              className="px-3 py-1.5 rounded-xl border bg-muted/30 hover:bg-muted text-xs font-bold transition flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-xl border bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50 hover:bg-amber-100 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
             >
               <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Reset to Vishwajeet Resume
             </button>

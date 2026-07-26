@@ -830,6 +830,22 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
     toast.success("Resume text cleaned! PDF metadata junk, binary noise & duplicate URLs stripped.");
   };
 
+  const handleLoadSampleResume = () => {
+    setResumeText(
+      `ALEX RIVERA\nSan Francisco, CA | alex.rivera@example.com | +1 (555) 019-2834 | linkedin.com/in/alex-rivera-dev\n\nOBJECTIVE\nSenior Full Stack Engineer with 4+ years of experience building scalable web applications, REST APIs, and AI integrations using React, Node.js, Python, PostgreSQL, and AWS.\n\nEXPERIENCE\nSenior Software Engineer @ TechCorp Systems (Jan 2024 – Present)\n• Built enterprise SaaS frontend and backend architecture supporting 500K+ monthly active users.\n• Reduced API latency by 42% using query optimization, Redis caching, and microservice decoupling.\n\nFull Stack Developer @ Innovate Labs (Jun 2022 – Dec 2023)\n• Shipped 12+ web applications using React, Next.js, Node.js, and PostgreSQL.\n• Integrated Stripe payment pipelines processing over $2.5M annually.\n\nEDUCATION\nB.S. in Computer Science, Stanford University (2018 – 2022)\n\nSKILLS\nJavaScript, TypeScript, React, Next.js, Node.js, Python, SQL, PostgreSQL, AWS, Docker, Git, REST APIs`,
+    );
+    setTargetRole("Senior Full Stack Engineer");
+    toast.success("Loaded Generic Sample Resume (Alex Rivera)!");
+  };
+
+  const handleLoadVishwajeetResume = () => {
+    setResumeText(
+      `VISHWAJEET\nBengaluru, India | vishwajeetsrk@gmail.com | +91 85952 02922 | linkedin.com/in/vishwajeetsrk/ | github.com/Vishwajeetsrk | learnifyai.in\n\nOBJECTIVE\nAI-focused Full Stack Developer with hands-on experience building AI-powered SaaS applications, modern web platforms, and automation workflows. Skilled in Salesforce CRM, HTML, Supabase, Firebase, React, Python, and web development.\n\nEXPERIENCE\nReconciliation & Data Management @ Rootbridge Academy Pvt Ltd (Dec 2024 – Present)\n• Entered, verified, and maintained over 200,000 records with 99%+ accuracy.\n• Identified and resolved 50+ monthly data mismatches, boosting accuracy by 30%.\n\nSocial Media Intern @ Sorting Hat Technologies (Unacademy) (Feb 2026 – Mar 2026)\n• Optimized content metadata and managed video uploads using Python automation scripts.\n\nEDUCATION\nBachelor of Computer Applications (BCA), St. Aloysius Degree College (2023 – 2026)\n\nPROJECTS\n• Learnify AI (learnifyai.in) — Full-stack AI learning platform (React 19, TypeScript, Supabase, OpenRouter)\n• DreamSync (dream-sync-nine.vercel.app) — AI Career Intelligence Platform\n• Luxury Laundry (luxurylaundry.vercel.app) — Premium SaaS Platform\n\nSKILLS\nHTML5, CSS3, JavaScript, Python, SQL, React.js, Next.js, Supabase, Firebase, Node.js, REST APIs, Salesforce CRM`,
+    );
+    setTargetRole("AI Software Engineer / Full Stack Developer");
+    toast.success("Loaded Vishwajeet Platinum ATS Sample Resume!");
+  };
+
   const handleCheck = async () => {
     const cleanedText = cleanResumeText(resumeText);
     if (!cleanedText.trim()) return toast.error("Paste your resume text");
@@ -1046,22 +1062,36 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
               )}
               <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
                 <span className="text-xs text-muted-foreground font-semibold">Resume Content</span>
-                {resumeText && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={handleSanitizeText}
-                      className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold hover:bg-indigo-100 transition flex items-center gap-1 border border-indigo-200 dark:border-indigo-800/40"
-                    >
-                      <Sparkles className="h-3 w-3 text-indigo-600" /> Clean & Sanitize Text
-                    </button>
-                    <button
-                      onClick={() => setResumeText("")}
-                      className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground text-xs font-semibold hover:bg-muted/80 transition"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={handleLoadSampleResume}
+                    className="px-2.5 py-1 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-100 transition border border-blue-200 dark:border-blue-800/40 cursor-pointer"
+                  >
+                    <FileText className="h-3 w-3 text-blue-600" /> Sample Resume
+                  </button>
+                  <button
+                    onClick={handleLoadVishwajeetResume}
+                    className="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-xs font-bold hover:bg-amber-100 transition border border-amber-200 dark:border-amber-800/40 cursor-pointer"
+                  >
+                    <Sparkles className="h-3 w-3 text-amber-500" /> Vishwajeet Sample
+                  </button>
+                  {resumeText && (
+                    <>
+                      <button
+                        onClick={handleSanitizeText}
+                        className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold hover:bg-indigo-100 transition border border-indigo-200 dark:border-indigo-800/40 cursor-pointer"
+                      >
+                        <Sparkles className="h-3 w-3 text-indigo-600" /> Clean Text
+                      </button>
+                      <button
+                        onClick={() => setResumeText("")}
+                        className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground text-xs font-semibold hover:bg-muted/80 transition cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
               <textarea
                 id="ats-resume"
