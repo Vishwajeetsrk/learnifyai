@@ -156,23 +156,53 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
-  const [form, setForm] = useState({
-    fullName: "",
-    tagline: "",
-    bio: "",
-    skills: "",
-    softSkills: "",
-    tools: "",
-    projects: "",
-    socialLinks: "",
-    experience: "",
-    education: "",
-    style: "developer",
+  const [form, setForm] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("portfolio_builder_form");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return {
+      fullName: "",
+      tagline: "",
+      bio: "",
+      skills: "",
+      softSkills: "",
+      tools: "",
+      projects: "",
+      socialLinks: "",
+      experience: "",
+      education: "",
+      style: "developer",
+    };
   });
 
-  const [projects, setProjects] = useState<ProjectEntry[]>([]);
+  const [projects, setProjects] = useState<ProjectEntry[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("portfolio_builder_projects");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return [];
+  });
   const [published, setPublished] = useState(false);
   const [exportFormat, setExportFormat] = useState<"md" | "html">("md");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("portfolio_builder_form", JSON.stringify(form));
+  }, [form]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("portfolio_builder_projects", JSON.stringify(projects));
+  }, [projects]);
 
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
@@ -286,11 +316,15 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
     if (!form.fullName.trim()) return toast.error("Enter your full name");
     if (!form.skills.trim()) return toast.error("Enter your skills");
 
-    const portfolioForm = { ...form, projects: fullProjectsValue };
+    const portfolioForm = {
+      ...form,
+      title: form.tagline || "Full Stack Developer",
+      projects: fullProjectsValue,
+    };
     setLoading(true);
     try {
       const res = await generateFn({ data: portfolioForm });
-      setResult(res.content);
+      setResult(res.content || (res as any).rawContent);
       setTab("preview");
       toast.success("Portfolio plan generated!");
     } catch (err: any) {
