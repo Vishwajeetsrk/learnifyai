@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { checkAtsScore, extractResumeFields } from "@/lib/resume.functions";
 import { ResumeFileUpload } from "@/components/ResumeFileUpload";
+import { cleanResumeText } from "@/lib/file-parser";
 import { Link } from "@tanstack/react-router";
 
 /* ── Companies ── */
@@ -671,28 +672,37 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
   }, [tab]);
 
   const handleFileExtracted = async (text: string) => {
-    setResumeText(text);
+    const cleanedText = cleanResumeText(text);
+    setResumeText(cleanedText);
     setExtracting(true);
     try {
-      const fields = await extractFn({ data: { rawText: text } });
+      const fields = await extractFn({ data: { rawText: cleanedText } });
       if (fields.targetRole) setTargetRole(fields.targetRole);
-      toast.success("Resume parsed! Fields auto-filled.");
+      toast.success("Resume parsed & cleaned! PDF headers and repeated URLs removed.");
     } catch {
-      toast.warning("Resume text captured. Fill target role manually.");
+      toast.warning("Resume text captured and cleaned. Fill target role manually.");
     } finally {
       setExtracting(false);
     }
   };
 
+  const handleSanitizeText = () => {
+    const cleaned = cleanResumeText(resumeText);
+    setResumeText(cleaned);
+    toast.success("Resume text cleaned! PDF metadata junk, binary noise & duplicate URLs stripped.");
+  };
+
   const handleCheck = async () => {
-    if (!resumeText.trim()) return toast.error("Paste your resume text");
-    if (resumeText.trim().length < 50) return toast.error("Resume must be at least 50 characters");
+    const cleanedText = cleanResumeText(resumeText);
+    if (!cleanedText.trim()) return toast.error("Paste your resume text");
+    if (cleanedText.trim().length < 50) return toast.error("Resume must be at least 50 characters");
     if (!targetRole.trim()) return toast.error("Enter your target role");
+    setResumeText(cleanedText);
     setLoading(true);
     try {
       const res = await checkFn({
         data: {
-          resumeText: resumeText.trim(),
+          resumeText: cleanedText.trim(),
           targetRole: targetRole.trim(),
           industry: industry.trim() || undefined,
         },
@@ -903,6 +913,25 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
                   Parsing...
                 </p>
               )}
+              <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
+                <span className="text-xs text-muted-foreground font-semibold">Resume Content</span>
+                {resumeText && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleSanitizeText}
+                      className="px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold hover:bg-indigo-100 transition flex items-center gap-1 border border-indigo-200 dark:border-indigo-800/40"
+                    >
+                      <Sparkles className="h-3 w-3 text-indigo-600" /> Clean & Sanitize Text
+                    </button>
+                    <button
+                      onClick={() => setResumeText("")}
+                      className="px-2.5 py-1 rounded-lg bg-muted text-muted-foreground text-xs font-semibold hover:bg-muted/80 transition"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
+              </div>
               <textarea
                 id="ats-resume"
                 name="ats-resume"

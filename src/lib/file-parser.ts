@@ -1,16 +1,78 @@
 export async function parseResumeFile(file: File): Promise<string> {
   const ext = file.name.toLowerCase().split(".").pop();
+  let rawText = "";
 
   if (ext === "pdf") {
-    return parsePdf(file);
+    rawText = await parsePdf(file);
+  } else if (ext === "docx" || ext === "doc") {
+    rawText = await parseDocx(file);
+  } else if (ext === "txt") {
+    rawText = await file.text();
+  } else {
+    throw new Error("Unsupported file format. Please upload a PDF, DOCX, or TXT file.");
   }
-  if (ext === "docx" || ext === "doc") {
-    return parseDocx(file);
-  }
-  if (ext === "txt") {
-    return file.text();
-  }
-  throw new Error("Unsupported file format. Please upload a PDF, DOCX, or TXT file.");
+
+  const cleaned = cleanResumeText(rawText);
+  return cleaned.length > 20 ? cleaned : rawText;
+}
+
+export function cleanResumeText(text: string): string {
+  if (!text) return "";
+
+  let cleaned = text;
+
+  // 1. Remove PDF metadata lines, FlowCV header artifacts, Skia/PDF, KHTML, Linux x86_64, D:2026...
+  cleaned = cleaned.replace(/app\.flowcv\.com\/[^\s]+/gi, "");
+  cleaned = cleaned.replace(/Linux\s+x86_64.*?Skia\/PDF[^\s\n]*/gi, "");
+  cleaned = cleaned.replace(/KHTML,?\s*like\s*Gecko/gi, "");
+  cleaned = cleaned.replace(/D:\d{14}[^\s\n']*/gi, "");
+  cleaned = cleaned.replace(/\/Type\s*\/Font[^\s]*/gi, "");
+  cleaned = cleaned.replace(/\/MediaBox\s*\[.*?\]/gi, "");
+
+  // 2. Remove non-printable / non-ASCII binary garbage (corrupted PDF streams like ¿¥¿;kfùBóî®6Q...)
+  cleaned = cleaned.replace(/[^\x09\x0A\x0D\x20-\x7E]/g, " ");
+
+  // 3. Deduplicate URLs (if exact same URL or tracking URL repeats multiple times, keep only 1 copy)
+  const urlRegex = /(https?:\/\/[^\s,">]+)/g;
+  const urlsSeen = new Set<string>();
+  cleaned = cleaned.replace(urlRegex, (url) => {
+    const cleanUrl = url.split("?")[0].replace(/\/+$/, "");
+    if (urlsSeen.has(cleanUrl)) {
+      return "";
+    }
+    urlsSeen.add(cleanUrl);
+    return url;
+  });
+
+  // 4. Clean up corrupted PDF literal stream tokens
+  const lines = cleaned.split("\n");
+  const filteredLines = lines
+    .map((line) => line.trim())
+    .filter((line) => {
+      if (!line) return false;
+      if (
+        line.startsWith("/") &&
+        (line.includes("Font") ||
+          line.includes("Encoding") ||
+          line.includes("Subtype") ||
+          line.includes("Widths"))
+      ) {
+        return false;
+      }
+      const letters = line.replace(/[^a-zA-Z0-9]/g, "").length;
+      if (line.length > 20 && letters / line.length < 0.3) {
+        return false;
+      }
+      return true;
+    });
+
+  cleaned = filteredLines.join("\n");
+
+  // 5. Normalize whitespace and newlines
+  cleaned = cleaned.replace(/[ \t]{2,}/g, " ");
+  cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
+
+  return cleaned.trim();
 }
 
 async function parsePdf(file: File): Promise<string> {
@@ -18,7 +80,6 @@ async function parsePdf(file: File): Promise<string> {
 
   try {
     const pdfjsLib = await import("pdfjs-dist");
-    // Use reliable cdnjs worker URL or fallback to cdnjs/unpkg with error handling
     try {
       pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version || "3.11.174"}/pdf.worker.min.mjs`;
     } catch {
@@ -75,7 +136,13 @@ function extractPdfTextFallback(buffer: ArrayBuffer): string {
   let match;
   while ((match = stringRegex.exec(str)) !== null) {
     const content = match[1].trim();
-    if (content.length > 2 && /[a-zA-Z0-9]/.test(content)) {
+    if (
+      content.length > 2 &&
+      /[a-zA-Z0-9]/.test(content) &&
+      !content.includes("flowcv.com") &&
+      !content.includes("Skia/PDF") &&
+      !content.includes("KHTML")
+    ) {
       textMatches.push(content);
     }
   }
