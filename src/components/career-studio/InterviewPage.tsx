@@ -38,6 +38,7 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { generateInterviewQuestion, evaluateInterviewAnswer } from "@/lib/resume.functions";
+import { ThreeAvatarCanvas } from "@/components/career-studio/ThreeAvatarCanvas";
 import { Link } from "@tanstack/react-router";
 
 const JOB_ROLES = [
@@ -328,7 +329,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const [step, setStep] = useState<"setup" | "interview" | "results">("setup");
   const [role, setRole] = useState("");
   const [customRole, setCustomRole] = useState("");
-  const [avatarModel, setAvatarModel] = useState<"sarah" | "alex">("sarah");
+  const [avatarModel, setAvatarModel] = useState<"eric" | "sarah" | "alex">("eric");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
   const [mode, setMode] = useState<"chat" | "voice" | "video">("chat");
 
@@ -702,32 +703,52 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
             <h2 className="font-semibold flex items-center gap-2">
               <Target className="h-4 w-4 text-primary" /> AI Interviewer Avatar
             </h2>
-            <div className="grid grid-cols-2 gap-3 max-w-md">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                onClick={() => setAvatarModel("eric")}
+                className={cn(
+                  "p-4 rounded-xl border text-center transition-all cursor-pointer relative overflow-hidden",
+                  avatarModel === "eric"
+                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
+                    : "border-border hover:bg-muted/30",
+                )}
+              >
+                <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] font-black">
+                  3D FBX
+                </div>
+                <div className="w-12 h-12 rounded-full mx-auto bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center text-white font-bold mb-2 shadow-md">
+                  EV
+                </div>
+                <span className="text-sm font-bold block">Eric Vance</span>
+                <span className="text-[10px] text-muted-foreground">3D RenderPeople Avatar</span>
+              </button>
+
               <button
                 onClick={() => setAvatarModel("sarah")}
                 className={cn(
                   "p-4 rounded-xl border text-center transition-all cursor-pointer",
                   avatarModel === "sarah"
-                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
                     : "border-border hover:bg-muted/30",
                 )}
               >
-                <div className="w-12 h-12 rounded-full mx-auto bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white font-bold mb-2">
+                <div className="w-12 h-12 rounded-full mx-auto bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center text-white font-bold mb-2 shadow-md">
                   SJ
                 </div>
                 <span className="text-sm font-bold block">Sarah Jenkins</span>
                 <span className="text-[10px] text-muted-foreground">Senior Tech Lead</span>
               </button>
+
               <button
                 onClick={() => setAvatarModel("alex")}
                 className={cn(
                   "p-4 rounded-xl border text-center transition-all cursor-pointer",
                   avatarModel === "alex"
-                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    ? "border-primary bg-primary/5 ring-1 ring-primary shadow-sm"
                     : "border-border hover:bg-muted/30",
                 )}
               >
-                <div className="w-12 h-12 rounded-full mx-auto bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white font-bold mb-2">
+                <div className="w-12 h-12 rounded-full mx-auto bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white font-bold mb-2 shadow-md">
                   AR
                 </div>
                 <span className="text-sm font-bold block">Alex Rivera</span>
@@ -803,8 +824,8 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
               {/* Talking Avatar & Candidate Feed Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Talking AI Interviewer */}
-                <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 via-card to-purple-950/30 p-5 flex flex-col items-center justify-center relative overflow-hidden shadow-lg min-h-[220px]">
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md">
+                <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 via-card to-purple-950/30 p-4 flex flex-col items-center justify-center relative overflow-hidden shadow-lg min-h-[240px]">
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md z-10">
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full bg-indigo-400",
@@ -812,18 +833,28 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
                       )}
                     />
                     AI Interactor:{" "}
-                    {avatarModel === "sarah"
-                      ? "Sarah (Senior Tech Lead)"
-                      : "Alex (Recruitment Lead)"}
+                    {avatarModel === "eric"
+                      ? "Eric (3D Technical Lead)"
+                      : avatarModel === "sarah"
+                        ? "Sarah (Senior Tech Lead)"
+                        : "Alex (Recruitment Lead)"}
                   </div>
 
-                  <SVGAvatar viseme={viseme} avatarModel={avatarModel} />
+                  {avatarModel === "eric" ? (
+                    <ThreeAvatarCanvas
+                      aiSpeaking={aiSpeaking}
+                      viseme={viseme}
+                      className="w-full h-56"
+                    />
+                  ) : (
+                    <SVGAvatar viseme={viseme} avatarModel={avatarModel} />
+                  )}
 
-                  <div className="absolute bottom-3 whitespace-nowrap bg-slate-900/90 text-indigo-300 border border-indigo-500/30 text-[9px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md">
+                  <div className="absolute bottom-3 whitespace-nowrap bg-slate-900/90 text-indigo-300 border border-indigo-500/30 text-[9px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md z-10">
                     {evaluating
                       ? "Evaluating..."
                       : aiSpeaking
-                        ? "Sarah is Speaking..."
+                        ? `${avatarModel === "eric" ? "Eric" : avatarModel === "sarah" ? "Sarah" : "Alex"} is Speaking...`
                         : isRecording
                           ? "Listening..."
                           : "Standing By..."}
