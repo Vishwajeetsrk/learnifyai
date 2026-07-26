@@ -925,7 +925,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             <div>
               <h2 className="text-xl font-bold">Resume Builder Studio</h2>
               <p className="text-xs text-muted-foreground">
-                FlowCV-style Granular Customizer · Real-time Preview · ATS Verified
+                DreamSync Pro Granular Customizer · Real-time Preview · ATS Verified
               </p>
             </div>
           </div>
