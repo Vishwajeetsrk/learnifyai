@@ -16,6 +16,20 @@ import {
   GraduationCap,
   ChevronRight,
   Plus,
+  Briefcase,
+  FolderOpen,
+  Award,
+  Globe,
+  Mail,
+  Phone,
+  MapPin,
+  Linkedin,
+  Github,
+  Star,
+  CheckCircle2,
+  Layers,
+  Wrench,
+  PenTool,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -29,6 +43,15 @@ import { ResumeFileUpload } from "@/components/ResumeFileUpload";
 
 /* ── Templates ─────────────────────────────────────────────── */
 const TEMPLATES = [
+  {
+    id: "dreamsync",
+    label: "DreamSync Pro",
+    badge: "100% ATS",
+    desc: "Vishwajeet ATS Executive Layout with Icons & Dividers",
+    accent: "#0f172a",
+    previewBg: "#0f172a",
+    previewText: "#fff",
+  },
   {
     id: "modern",
     label: "Modern Tech",
@@ -173,6 +196,83 @@ const TOP_TOOLS = [
   "Netlify",
 ];
 
+const VISHWAJEET_DEFAULT_FORM = {
+  fullName: "VISHWAJEET",
+  targetRole: "AI Software Engineer | Full Stack Developer | Salesforce & Data Operations",
+  email: "vishwajeetsrk@gmail.com",
+  phone: "+91 85952 02922",
+  location: "Bengaluru, India",
+  linkedin: "https://www.linkedin.com/in/vishwajeetsrk/",
+  github: "https://github.com/Vishwajeetsrk",
+  website: "https://www.learnifyai.in",
+  portfolio: "https://vishwajeetsrk.github.io",
+  summary:
+    "AI-focused Full Stack Developer with hands-on experience building AI-powered SaaS applications, modern web platforms, and automation workflows. Skilled in Salesforce CRM, Microsoft Excel, PowerPoint, Word, HTML, Supabase, Firebase, AI tools, and responsive web development. Passionate about Generative AI, cloud technologies, and creating scalable digital products that improve learning and productivity.",
+  experience: `Reconciliation & Data Management, Rootbridge Academy Pvt Ltd | Dec 2024 – Present | Bengaluru
+Played a key role in enhancing data management and operational efficiency at Rootbridge.
+• Entered, verified, and maintained over 200,000 records with exceptional accuracy.
+• Identified and resolved more than 50 recurring data mismatches monthly, significantly improving data integrity.
+• Achieved a 30% increase in data accuracy through rigorous validation and reconciliation checks.
+
+Fundraiser, Rootbridge Academy Pvt Ltd | Jun 2023 – Nov 2024 | Bengaluru
+• Engaged potential donors through face-to-face interactions, effectively communicating the organization's mission.
+• Developed and maintained strong relationships with stakeholders to enhance fundraising efforts.
+• Achieved fundraising targets consistently, contributing to the overall growth of Rootbridge.
+• Promoted awareness of the organization's initiatives, resulting in increased community involvement.
+
+Social Media Intern, Sorting Hat Technologies (Unacademy) | Feb 2026 – Mar 2026 | Bengaluru
+• Designed thumbnails and optimized metadata for educational content visibility and engagement.
+• Managed uploads, playlists, and structured UI-focused content systems on the Atlas platform.
+• Improved workflow efficiency using Python-based automation systems.
+• Collaborated with teams to maintain high-quality educational content delivery.
+
+Social Media Designer Intern, WeLive Foundation | Jan 2023 – May 2023 | Bengaluru
+• Designed social media creatives and digital content using Canva.
+• Improved engagement through visually optimized content and audience-focused design strategies.
+• Created WordPress blogs and assisted in content presentation improvements.`,
+  education: `Bachelor of Computer Applications (BCA), St. Aloysius Degree College | Apr 2023 – Jul 2026 | Bengaluru
+Diploma in Software Development, Oxford Software Institute | Feb 2021 – Feb 2022 | New Delhi`,
+  skills: `Programming: HTML5 | CSS3 | JavaScript | Python | SQL | Basic Java
+Frontend: React.js | Next.js | Tailwind CSS | Responsive Design
+Database: Supabase | Firebase | MySQL | MongoDB | PostgreSQL | Prisma | Upstash Redis
+CRM & Business Tools: Salesforce CRM | Salesforce Data Loader | Razorpay
+AI & Automation: ChatGPT | Gemini | Claude | OpenRouter | Antigravity | NotebookLM | Prompt Engineering
+Backend: Node.js | Express.js | PHP | REST APIs
+Cloud & Deployment: Vercel | Render | GitHub | Cloudinary
+Microsoft Office: Microsoft Excel | Microsoft Word | Microsoft PowerPoint`,
+  projects: `Learnify AI | May 2026 – Present
+Tech Stack: React 19, TypeScript, Tailwind CSS, Cashfree, Supabase, OpenRouter etc.
+• Built a full-stack AI-powered learning platform that combines intelligent tutoring, creator tools, gamification, AI career guidance, and community learning.
+• GitHub: https://github.com/Vishwajeetsrk/learnifyai | Live: https://www.learnifyai.in
+
+DreamSync — AI Career Intelligence & Support Platform | Feb 2026 – Apr 2026
+Tech Stack: Next.js, React, Tailwind CSS, Firebase, OpenRouter API, Gemini, Upstash Redis, Framer Motion
+• Designed and developed a modern AI-powered platform focused on career growth and portfolio building.
+• Built responsive interfaces including AI Resume Builder, ATS Checker, LinkedIn Optimizer, and Portfolio Generator.
+• Live: https://dream-sync-nine.vercel.app/
+
+LUXURY LAUNDRY — Premium Laundry SaaS Platform | Apr 2026 – May 2026
+Tech Stack: Next.js, Express.js, PostgreSQL, Prisma, Socket.io, Tailwind CSS
+• Developed responsive customer and admin dashboards for a premium SaaS platform.
+• Built modern UI components and scalable frontend architecture using Tailwind CSS.
+• Live: https://luxurylaundry.vercel.app/`,
+  certifications: `• Full Stack Development Internship Certificate
+• Excel certificate verifies - GreatLearning Academy (https://mygreatlearning.com/certificate/BOXDAINZ)
+• Develop a Company Website with Wix - Coursera (https://coursera.org/share/5b28571966f0a7d4fd89f72532208b76)
+• Tata — GenAI Powered Data Analytics Job Simulation (https://www.theforage.com/completion-certificates/ifobHAoMjQs9s6bKS/gMTdCXwDdLYoXZ3wG)
+• Google Sheets powered by Google Cloud (https://www.simplilearn.com/free-google-sheets-course-skillup)
+• MySQL Basics - Great Learning Academy (https://www.mygreatlearning.com/certificate/JPSOBOHB)
+• Build your business brand using Canva (https://coursera.org/share/7b9f5dcc6ba44c3a260c4a2abdf03b1c)`,
+  strengths: `Analytical Thinking: Skilled in identifying trends and optimizing workflows.
+Team Collaboration: Effective in cross-functional team environments (fundraising, technical support, client engagement).
+Problem Solving: Handling reconciliation discrepancies and database integrity issues.
+Fast Learning: Actively pursuing certifications and new tools.
+AI Prompt Engineering & Product Development: Designing intelligent prompts, AI workflows, and building scalable AI SaaS products.`,
+  languages: `Hindi (Native), English`,
+  awards: `Won 1st Prize in Web Design Competition at NEURO2026 organized by Charan's Degree College (Apr 10, 2026)`,
+  declaration: `I hereby declare that the information provided is true to the best of my knowledge and belief. I am committed to applying my reconciliation and data management expertise to contribute meaningfully.`,
+};
+
 /* ── Live Preview ───────────────────────────────────────────── */
 function ResumePreview({
   form,
@@ -182,6 +282,20 @@ function ResumePreview({
   template: (typeof TEMPLATES)[0];
 }) {
   const isCreative = template.id === "creative";
+  const isDreamSync = template.id === "dreamsync";
+
+  const renderSectionHeader = (icon: any, label: string) => {
+    const IconComponent = icon;
+    return (
+      <div className="flex items-center gap-1.5 mb-2 pb-1 border-b-2 border-slate-900 dark:border-slate-100">
+        <IconComponent className="h-4 w-4 text-slate-900 dark:text-slate-100" />
+        <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-slate-100">
+          {label}
+        </h3>
+      </div>
+    );
+  };
+
   const sH = (label: string) => (
     <p
       className="text-[10px] font-extrabold uppercase tracking-widest mb-1.5 pb-1 border-b"
@@ -190,57 +304,138 @@ function ResumePreview({
       {label}
     </p>
   );
+
   return (
     <div
-      className="w-full rounded-xl border overflow-hidden shadow-sm text-[11px] leading-relaxed bg-card"
-      style={{ minHeight: 360 }}
+      id="resume-preview-document"
+      className="w-full rounded-xl border overflow-hidden shadow-sm text-xs leading-relaxed bg-white text-slate-900 font-sans"
+      style={{ minHeight: 600 }}
     >
-      <div
-        className="px-6 py-5"
-        style={{ background: template.previewBg, color: template.previewText }}
-      >
-        <p className="font-black text-lg">{form.fullName || "Your Name"}</p>
-        {form.targetRole && <p className="opacity-90 text-sm mt-0.5">{form.targetRole}</p>}
-        <div className="flex flex-wrap gap-3 mt-2 text-xs opacity-75">
-          {form.email && <span>{form.email}</span>}
-          {form.phone && <span>{form.phone}</span>}
-          {form.linkedin && (
-            <span>
-              {form.linkedin.startsWith("http") ? (
-                <a href={form.linkedin} target="_blank" rel="noreferrer" className="underline">
-                  {form.linkedin}
-                </a>
-              ) : (
-                form.linkedin
-              )}
-            </span>
+      {/* Header */}
+      {isDreamSync ? (
+        <div className="px-8 py-6 text-center border-b space-y-2 bg-slate-50/50">
+          <h1 className="text-2xl font-black tracking-wide text-slate-950 uppercase">
+            {form.fullName || "VISHWAJEET"}
+          </h1>
+          {form.targetRole && (
+            <p className="text-xs font-bold text-slate-700 max-w-2xl mx-auto leading-normal">
+              {form.targetRole}
+            </p>
           )}
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11px] font-medium text-slate-600 pt-1">
+            {form.email && (
+              <span className="flex items-center gap-1">
+                <Mail className="h-3 w-3 text-slate-500" />
+                {form.email}
+              </span>
+            )}
+            {form.phone && (
+              <span className="flex items-center gap-1">
+                <Phone className="h-3 w-3 text-slate-500" />
+                {form.phone}
+              </span>
+            )}
+            {form.location && (
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3 w-3 text-slate-500" />
+                {form.location}
+              </span>
+            )}
+            {form.linkedin && (
+              <span className="flex items-center gap-1">
+                <Linkedin className="h-3 w-3 text-blue-600" />
+                <a href={form.linkedin} target="_blank" rel="noreferrer" className="hover:underline">
+                  LinkedIn: {form.linkedin.replace(/https?:\/\/(www\.)?linkedin\.com\/in\//, "").replace(/\/$/, "")}
+                </a>
+              </span>
+            )}
+            {form.github && (
+              <span className="flex items-center gap-1">
+                <Github className="h-3 w-3 text-slate-800" />
+                <a href={form.github} target="_blank" rel="noreferrer" className="hover:underline">
+                  GitHub: {form.github.replace(/https?:\/\/(www\.)?github\.com\//, "")}
+                </a>
+              </span>
+            )}
+            {form.website && (
+              <span className="flex items-center gap-1">
+                <Globe className="h-3 w-3 text-emerald-600" />
+                <a href={form.website} target="_blank" rel="noreferrer" className="hover:underline">
+                  {form.website.replace(/https?:\/\//, "")}
+                </a>
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-      <div className="px-6 py-4 space-y-3">
+      ) : (
+        <div
+          className="px-6 py-5"
+          style={{ background: template.previewBg, color: template.previewText }}
+        >
+          <p className="font-black text-lg">{form.fullName || "Your Name"}</p>
+          {form.targetRole && <p className="opacity-90 text-sm mt-0.5">{form.targetRole}</p>}
+          <div className="flex flex-wrap gap-3 mt-2 text-xs opacity-75">
+            {form.email && <span>{form.email}</span>}
+            {form.phone && <span>{form.phone}</span>}
+            {form.linkedin && (
+              <span>
+                {form.linkedin.startsWith("http") ? (
+                  <a href={form.linkedin} target="_blank" rel="noreferrer" className="underline">
+                    {form.linkedin}
+                  </a>
+                ) : (
+                  form.linkedin
+                )}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Body Content */}
+      <div className="px-8 py-6 space-y-5">
+        {/* Objective / Summary */}
         {form.summary && (
           <div>
-            {sH("Summary")}
-            <p className="text-xs text-muted-foreground leading-relaxed">{form.summary}</p>
+            {isDreamSync ? renderSectionHeader(FileText, "OBJECTIVE") : sH("Summary")}
+            <p className="text-xs text-slate-700 leading-relaxed font-normal">{form.summary}</p>
           </div>
         )}
+
+        {/* Experience */}
         {form.experience && (
           <div>
-            {sH("Experience")}
-            <div className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
+            {isDreamSync ? renderSectionHeader(Briefcase, "PROFESSIONAL EXPERIENCE") : sH("Experience")}
+            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
               {renderTextWithLinks(form.experience)}
             </div>
           </div>
         )}
+
+        {/* Education */}
         {form.education && (
           <div>
-            {sH("Education")}
-            <p className="text-xs text-muted-foreground whitespace-pre-line">{form.education}</p>
+            {isDreamSync ? renderSectionHeader(GraduationCap, "EDUCATION") : sH("Education")}
+            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
+              {renderTextWithLinks(form.education)}
+            </div>
           </div>
         )}
+
+        {/* Projects */}
+        {form.projects && (
+          <div>
+            {isDreamSync ? renderSectionHeader(FolderOpen, "PROJECTS") : sH("Projects")}
+            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
+              {renderTextWithLinks(form.projects)}
+            </div>
+          </div>
+        )}
+
+        {/* Skills */}
         {form.skills && (
           <div>
-            {sH("Skills")}
+            {isDreamSync ? renderSectionHeader(Wrench, "TECHNICAL SKILLS") : sH("Skills")}
             {isCreative ? (
               <div className="flex flex-wrap gap-1.5">
                 {form.skills.split(",").map((s, i) => (
@@ -253,23 +448,67 @@ function ResumePreview({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground">{form.skills}</p>
+              <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
+                {form.skills}
+              </div>
             )}
           </div>
         )}
-        {form.projects && (
+
+        {/* Certifications */}
+        {form.certifications && (
           <div>
-            {sH("Projects")}
-            <div className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
-              {renderTextWithLinks(form.projects)}
+            {isDreamSync ? renderSectionHeader(Award, "CERTIFICATIONS") : sH("Certifications")}
+            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
+              {renderTextWithLinks(form.certifications)}
             </div>
           </div>
         )}
-        {form.certifications && (
+
+        {/* Strengths */}
+        {form.strengths && (
           <div>
-            {sH("Certifications")}
-            <div className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
-              {renderTextWithLinks(form.certifications)}
+            {isDreamSync ? renderSectionHeader(Star, "STRENGTHS") : sH("Strengths")}
+            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed">
+              {form.strengths}
+            </div>
+          </div>
+        )}
+
+        {/* Languages & Awards */}
+        {(form.languages || form.awards) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {form.languages && (
+              <div>
+                {isDreamSync ? renderSectionHeader(Globe, "LANGUAGES") : sH("Languages")}
+                <p className="text-xs text-slate-800 font-medium">{form.languages}</p>
+              </div>
+            )}
+            {form.awards && (
+              <div>
+                {isDreamSync ? renderSectionHeader(Award, "AWARDS") : sH("Awards")}
+                <div className="text-xs text-slate-800 font-medium">
+                  {renderTextWithLinks(form.awards)}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Declaration */}
+        {form.declaration && (
+          <div className="pt-2">
+            {isDreamSync ? renderSectionHeader(PenTool, "DECLARATION") : sH("Declaration")}
+            <p className="text-[11px] text-slate-600 italic mb-4 leading-relaxed">
+              {form.declaration}
+            </p>
+            <div className="pt-2 border-t border-slate-200 w-48">
+              <p className="font-serif italic text-lg text-indigo-900 font-bold leading-none">
+                {form.fullName || "Vishwajeet"}
+              </p>
+              <p className="text-[10px] text-slate-500 font-bold mt-1">
+                {form.fullName || "Vishwajeet"} ({form.location?.split(",")[0] || "Bangalore"})
+              </p>
             </div>
           </div>
         )}
@@ -290,7 +529,7 @@ function renderTextWithLinks(text: string) {
           href={part}
           target="_blank"
           rel="noreferrer"
-          className="text-primary underline font-medium hover:text-primary/80 transition break-all inline-block"
+          className="text-blue-600 hover:text-blue-800 underline font-medium break-all inline-block"
         >
           {part}
         </a>
@@ -310,7 +549,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       const saved = localStorage.getItem("resume_builder_view");
       if (saved === "edit" || saved === "preview") return saved;
     }
-    return "edit";
+    return "preview";
   });
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
@@ -324,28 +563,15 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   const [kwCategory, setKwCategory] = useState("general");
 
   const [form, setForm] = useState(() => {
-    const defaultForm = {
-      fullName: "",
-      email: "",
-      phone: "",
-      linkedin: "",
-      summary: "",
-      experience: "",
-      education: "",
-      skills: "",
-      certifications: "",
-      projects: "",
-      targetRole: "",
-    };
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("resume_builder_form");
       if (saved) {
         try {
-          return { ...defaultForm, ...JSON.parse(saved) };
+          return { ...VISHWAJEET_DEFAULT_FORM, ...JSON.parse(saved) };
         } catch {}
       }
     }
-    return defaultForm;
+    return VISHWAJEET_DEFAULT_FORM;
   });
 
   useEffect(() => {
@@ -385,7 +611,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
         projects: fields.projects || f.projects,
         targetRole: fields.targetRole || f.targetRole,
       }));
-      toast.success("Fields auto-filled!");
+      toast.success("Fields auto-filled from resume!");
     } catch {
       toast.error("Failed to parse resume");
     } finally {
@@ -410,34 +636,17 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   };
 
   const handleDownloadWord = () => {
+    const el = document.getElementById("resume-preview-document");
     let bodyHtml = "";
-    if (result) {
+    if (el) {
+      bodyHtml = el.innerHTML;
+    } else if (result) {
       bodyHtml = markdownToHtml(result);
     } else {
-      bodyHtml = `
-        <div class="header">
-          <div class="name">${form.fullName || "Your Name"}</div>
-          <div class="title">${form.targetRole || ""}</div>
-          <p>${form.email} | ${form.phone} | ${form.linkedin}</p>
-        </div>
-        <div>
-          <h2>Professional Summary</h2>
-          <p>${form.summary}</p>
-          <h2>Experience</h2>
-          <p style="white-space: pre-wrap;">${form.experience}</p>
-          <h2>Education</h2>
-          <p style="white-space: pre-wrap;">${form.education}</p>
-          <h2>Skills</h2>
-          <p>${form.skills}</p>
-          <h2>Projects</h2>
-          <p style="white-space: pre-wrap;">${form.projects}</p>
-          <h2>Certifications</h2>
-          <p>${form.certifications}</p>
-        </div>
-      `;
+      bodyHtml = `<h1>${form.fullName}</h1><p>${form.targetRole}</p>`;
     }
 
-    const docHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><title>Resume</title><style>body { font-family: Calibri, Arial, sans-serif; line-height: 1.4; color: #333; margin: 1in; } h2 { font-family: Garamond, Georgia, serif; color: ${selectedTpl.accent}; border-bottom: 2px solid ${selectedTpl.accent}; padding-bottom: 4px; font-size: 16pt; margin-top: 18pt; } p { font-size: 11pt; margin-bottom: 6pt; } ul { margin-top: 0; } li { font-size: 11pt; margin-bottom: 4pt; } .header { text-align: center; margin-bottom: 20pt; } .name { font-size: 24pt; font-weight: bold; color: ${selectedTpl.accent}; } .title { font-size: 14pt; font-style: italic; color: #555; }</style></head><body>${bodyHtml}</body></html>`;
+    const docHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><title>Resume</title><style>body { font-family: Arial, sans-serif; line-height: 1.5; color: #111; margin: 0.8in; } h1 { font-size: 22pt; font-weight: bold; text-align: center; margin-bottom: 4pt; } h3 { font-size: 13pt; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 3pt; margin-top: 14pt; margin-bottom: 6pt; } p, div { font-size: 10pt; margin-bottom: 4pt; } a { color: #0284c7; text-decoration: underline; }</style></head><body>${bodyHtml}</body></html>`;
     const a = Object.assign(document.createElement("a"), {
       href: URL.createObjectURL(new Blob(["\ufeff" + docHtml], { type: "application/msword" })),
       download: `${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.doc`,
@@ -481,6 +690,12 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     toast.success(`Added "${kw}"`);
   };
 
+  const resetToVishwajeetTemplate = () => {
+    setForm(VISHWAJEET_DEFAULT_FORM);
+    setResult(null);
+    toast.success("Reset to Vishwajeet Platinum ATS Resume Template!");
+  };
+
   const inp =
     "w-full text-sm px-3 py-2 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/40 transition";
   const Wrapper = embedded ? "div" : AppShell;
@@ -497,11 +712,17 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             <div>
               <h2 className="text-xl font-bold">Resume Builder</h2>
               <p className="text-xs text-muted-foreground">
-                4 premium templates · Live preview · ATS-optimized
+                5 premium templates · Live preview · Vishwajeet Executive ATS
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={resetToVishwajeetTemplate}
+              className="px-3 py-1.5 rounded-xl border bg-muted/30 hover:bg-muted text-xs font-bold transition flex items-center gap-1.5"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Reset to Vishwajeet Resume
+            </button>
             <ResumeFileUpload onTextExtracted={handleFileExtracted} />
             {extracting && (
               <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -513,7 +734,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
         </div>
 
         {/* Template Gallery */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {TEMPLATES.map((t) => (
             <button
               key={t.id}
@@ -544,15 +765,17 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
               </div>
               <div className="p-2.5 bg-card">
                 <div className="flex items-center justify-between mb-0.5">
-                  <p className="text-[11px] font-bold">{t.label}</p>
+                  <p className="text-[11px] font-bold truncate">{t.label}</p>
                   <span
-                    className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                    className="text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
                     style={{ background: t.accent + "18", color: t.accent }}
                   >
                     {t.badge}
                   </span>
                 </div>
-                <p className="text-[10px] text-muted-foreground leading-tight">{t.desc}</p>
+                <p className="text-[10px] text-muted-foreground leading-tight line-clamp-2">
+                  {t.desc}
+                </p>
               </div>
             </button>
           ))}
@@ -612,7 +835,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                       id="rb-name"
                       name="rb-name"
                       className={inp}
-                      placeholder="Vishwajeet Kumar"
+                      placeholder="VISHWAJEET"
                       value={form.fullName}
                       onChange={(e) => update("fullName", e.target.value)}
                     />
@@ -623,7 +846,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                       id="rb-role"
                       name="rb-role"
                       className={inp}
-                      placeholder="Full Stack Engineer"
+                      placeholder="AI Software Engineer | Full Stack Developer"
                       value={form.targetRole}
                       onChange={(e) => update("targetRole", e.target.value)}
                     />
@@ -645,32 +868,63 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                       id="rb-phone"
                       name="rb-phone"
                       className={inp}
-                      placeholder="+91 98765 43210"
+                      placeholder="+91 85952 02922"
                       value={form.phone}
                       onChange={(e) => update("phone", e.target.value)}
                     />
                   </div>
-                  <div className="sm:col-span-2">
-                    <Label className="text-xs font-semibold mb-1 block">
-                      LinkedIn / Portfolio URL
-                    </Label>
+                  <div>
+                    <Label className="text-xs font-semibold mb-1 block">Location</Label>
+                    <input
+                      id="rb-loc"
+                      name="rb-loc"
+                      className={inp}
+                      placeholder="Bengaluru, India"
+                      value={form.location || ""}
+                      onChange={(e) => update("location", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold mb-1 block">LinkedIn URL</Label>
                     <input
                       id="rb-linkedin"
                       name="rb-linkedin"
                       className={inp}
-                      placeholder="linkedin.com/in/yourname"
+                      placeholder="https://linkedin.com/in/..."
                       value={form.linkedin}
                       onChange={(e) => update("linkedin", e.target.value)}
                     />
                   </div>
+                  <div>
+                    <Label className="text-xs font-semibold mb-1 block">GitHub URL</Label>
+                    <input
+                      id="rb-github"
+                      name="rb-github"
+                      className={inp}
+                      placeholder="https://github.com/..."
+                      value={form.github || ""}
+                      onChange={(e) => update("github", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold mb-1 block">Website / Portfolio</Label>
+                    <input
+                      id="rb-web"
+                      name="rb-web"
+                      className={inp}
+                      placeholder="https://www.learnifyai.in"
+                      value={form.website || ""}
+                      onChange={(e) => update("website", e.target.value)}
+                    />
+                  </div>
                 </div>
                 <div>
-                  <Label className="text-xs font-semibold mb-1 block">Professional Summary</Label>
+                  <Label className="text-xs font-semibold mb-1 block">Objective / Summary</Label>
                   <textarea
                     id="rb-summary"
                     name="rb-summary"
                     className={`${inp} min-h-[72px] resize-none`}
-                    placeholder="Result-driven engineer with 3+ years..."
+                    placeholder="AI-focused Full Stack Developer..."
                     value={form.summary}
                     onChange={(e) => update("summary", e.target.value)}
                   />
@@ -682,9 +936,9 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   <textarea
                     id="rb-exp"
                     name="rb-exp"
-                    className={`${inp} min-h-[110px] resize-none`}
+                    className={`${inp} min-h-[140px] resize-none`}
                     placeholder={
-                      "Software Engineer @ Rootbridge (Jan 2024)\n• Managed 200K+ records with 99%+ accuracy"
+                      "Reconciliation & Data Management, Rootbridge Academy Pvt Ltd | Dec 2024 – Present | Bengaluru\n• Entered, verified, and maintained over 200,000 records with exceptional accuracy."
                     }
                     value={form.experience}
                     onChange={(e) => update("experience", e.target.value)}
@@ -695,21 +949,21 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   <textarea
                     id="rb-edu"
                     name="rb-edu"
-                    className={`${inp} min-h-[56px] resize-none`}
-                    placeholder={"B.Tech Computer Science — ABC University (2020-2024)"}
+                    className={`${inp} min-h-[64px] resize-none`}
+                    placeholder={"Bachelor of Computer Applications (BCA), St. Aloysius Degree College | Apr 2023 – Jul 2026"}
                     value={form.education}
                     onChange={(e) => update("education", e.target.value)}
                   />
                 </div>
                 <div>
                   <Label className="text-xs font-semibold mb-1 block">
-                    Skills (comma separated)
+                    Categorized Technical Skills
                   </Label>
                   <textarea
                     id="rb-skills"
                     name="rb-skills"
-                    className={`${inp} min-h-[56px] resize-none`}
-                    placeholder="React, TypeScript, Python, Node.js, PostgreSQL"
+                    className={`${inp} min-h-[90px] resize-none`}
+                    placeholder="Programming: HTML5 | CSS3 | JavaScript | Python | SQL\nFrontend: React.js | Next.js | Tailwind CSS"
                     value={form.skills}
                     onChange={(e) => update("skills", e.target.value)}
                   />
@@ -719,9 +973,9 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   <textarea
                     id="rb-projects"
                     name="rb-projects"
-                    className={`${inp} min-h-[72px] resize-none`}
+                    className={`${inp} min-h-[110px] resize-none`}
                     placeholder={
-                      "Learnify AI - AI-powered learning platform\n• React, Supabase, 500+ active users"
+                      "Learnify AI | May 2026 – Present\nTech Stack: React 19, TypeScript, Supabase\n• Built a full-stack AI platform..."
                     }
                     value={form.projects}
                     onChange={(e) => update("projects", e.target.value)}
@@ -729,13 +983,59 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 </div>
                 <div>
                   <Label className="text-xs font-semibold mb-1 block">Certifications</Label>
-                  <input
+                  <textarea
                     id="rb-certs"
                     name="rb-certs"
-                    className={inp}
-                    placeholder="AWS Solutions Architect, Google Cloud..."
+                    className={`${inp} min-h-[72px] resize-none`}
+                    placeholder="• Full Stack Development Internship Certificate\n• Excel certificate verifies - GreatLearning Academy"
                     value={form.certifications}
                     onChange={(e) => update("certifications", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold mb-1 block">Strengths</Label>
+                  <textarea
+                    id="rb-strengths"
+                    name="rb-strengths"
+                    className={`${inp} min-h-[56px] resize-none`}
+                    placeholder="Analytical Thinking: Skilled in identifying trends..."
+                    value={form.strengths || ""}
+                    onChange={(e) => update("strengths", e.target.value)}
+                  />
+                </div>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs font-semibold mb-1 block">Languages</Label>
+                    <input
+                      id="rb-lang"
+                      name="rb-lang"
+                      className={inp}
+                      placeholder="Hindi (Native), English"
+                      value={form.languages || ""}
+                      onChange={(e) => update("languages", e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold mb-1 block">Awards</Label>
+                    <input
+                      id="rb-awards"
+                      name="rb-awards"
+                      className={inp}
+                      placeholder="Won 1st Prize in Web Design Competition..."
+                      value={form.awards || ""}
+                      onChange={(e) => update("awards", e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs font-semibold mb-1 block">Declaration</Label>
+                  <textarea
+                    id="rb-dec"
+                    name="rb-dec"
+                    className={`${inp} min-h-[48px] resize-none`}
+                    placeholder="I hereby declare that the information provided is true..."
+                    value={form.declaration || ""}
+                    onChange={(e) => update("declaration", e.target.value)}
                   />
                 </div>
 
@@ -749,7 +1049,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   ) : (
                     <Sparkles className="h-4 w-4" />
                   )}{" "}
-                  Generate Resume
+                  AI Optimize & Format Resume
                 </button>
               </Card>
             ) : (
@@ -757,7 +1057,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 {result ? (
                   <Card
                     id="resume-preview-container"
-                    className="p-6 rounded-2xl border shadow-sm overflow-auto max-h-[70vh]"
+                    className="p-6 rounded-2xl border shadow-sm overflow-auto max-h-[80vh]"
                   >
                     <div className="prose prose-sm dark:prose-invert max-w-none">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{result}</ReactMarkdown>
