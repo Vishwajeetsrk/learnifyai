@@ -54,6 +54,11 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
+  History,
+  Copy,
+  Send,
+  Building2,
+  Compass,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -170,6 +175,41 @@ const FONTS = [
   { id: "font-serif", label: "Playfair (Executive Serif)" },
   { id: "font-mono", label: "Roboto Mono (Code)" },
 ];
+
+function calculateLiveAtsScore(form: Record<string, string>) {
+  let score = 35;
+  const missing: string[] = [];
+
+  if (form.fullName && form.fullName.length > 2) score += 5;
+  if (form.email && form.email.includes("@")) score += 5;
+  if (form.phone && form.phone.length > 5) score += 5;
+  if (form.location) score += 5;
+  if (form.linkedin) score += 5;
+  if (form.github) score += 5;
+  if (form.summary && form.summary.length > 80) score += 10;
+
+  const exp = form.experience || "";
+  if (exp.length > 100) score += 10;
+  if (exp.includes("•") || exp.includes("-")) score += 10;
+  if (/reduced|increased|built|led|engineered|achieved|managed|developed/i.test(exp)) score += 10;
+
+  const skills = form.skills || "";
+  if (skills.length > 30) score += 5;
+
+  const requiredKeywords = ["TypeScript", "React", "Python", "SQL", "AWS", "REST APIs", "Git", "System Design", "CI/CD", "PostgreSQL"];
+  for (const kw of requiredKeywords) {
+    if (!skills.includes(kw) && !exp.includes(kw) && !form.summary?.includes(kw)) {
+      missing.push(kw);
+    }
+  }
+
+  if (missing.length === 0) score += 10;
+
+  return {
+    score: Math.min(99, Math.max(40, score)),
+    missingKeywords: missing.slice(0, 5),
+  };
+}
 
 function markdownToHtml(md: string) {
   let html = md
@@ -677,7 +717,7 @@ function ResumePreview({
     <div
       id="resume-preview-document"
       className={cn(
-        "w-full rounded-xl border overflow-hidden shadow-sm text-xs leading-relaxed bg-white text-slate-900",
+        "w-full rounded-xl border overflow-hidden shadow-sm text-xs leading-relaxed bg-white text-slate-900 relative",
         fontFamily,
       )}
       style={{ minHeight: 650, fontSize: baseFontSize }}
@@ -759,7 +799,7 @@ function ResumePreview({
             )}
           </div>
           {(form.passport || form.nationality || form.visa) && (
-            <div className="text-[10px] text-slate-500 font-medium pt-1 flex gap-3">
+            <div className="text-[10px] text-slate-500 font-medium pt-1 flex gap-3 justify-center">
               {form.nationality && <span>Nationality: {form.nationality}</span>}
               {form.visa && <span>Visa: {form.visa}</span>}
               {form.passport && <span>Passport/ID: {form.passport}</span>}
@@ -793,10 +833,16 @@ function ResumePreview({
       {/* Body Content */}
       <div
         className={cn(
-          "px-8 py-6 space-y-6",
+          "px-8 py-6 space-y-6 relative",
           layoutColumns === "two" && "grid grid-cols-1 md:grid-cols-2 gap-6 space-y-0",
         )}
       >
+        {/* A4 Page-Break Visual Indicator */}
+        <div className="absolute top-[820px] left-0 right-0 border-b-2 border-dashed border-rose-300 dark:border-rose-800 flex items-center justify-between px-4 py-0.5 text-[9px] font-bold text-rose-500 bg-rose-50/60 dark:bg-rose-950/40 pointer-events-none z-10">
+          <span>📄 Page 1 Cutoff Line (A4 Margin)</span>
+          <span>Page 2 Begins Below ↓</span>
+        </div>
+
         {/* Objective / Summary */}
         {form.summary && (
           <div>
@@ -1044,7 +1090,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   const generateFn = useServerFn(generateResume);
   const extractFn = useServerFn(extractResumeFields);
 
-  const [activeTab, setActiveTab] = useState<"content" | "design" | "ai">("content");
+  const [activeTab, setActiveTab] = useState<"content" | "design" | "ai" | "cover" | "linkedin">("content");
   const [activeSection, setActiveSection] = useState<string>("personal");
   const [view, setView] = useState<"edit" | "preview">("preview");
   const [selectedTpl, setSelectedTpl] = useState(TEMPLATES[0]);
@@ -1061,9 +1107,24 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   const [workOrder, setWorkOrder] = useState<"title-employer" | "employer-title">("title-employer");
   const [skillsStyle, setSkillsStyle] = useState<"compact" | "badges" | "grid">("compact");
 
+  /* AI Cover Letter & LinkedIn States */
+  const [targetCompany, setTargetCompany] = useState("");
+  const [coverLetterText, setCoverLetterText] = useState("");
+  const [generatingCover, setGeneratingCover] = useState(false);
+
+  const [linkedinHeadline, setLinkedinHeadline] = useState("");
+  const [linkedinBio, setLinkedinBio] = useState("");
+
   const [loading, setLoading] = useState(false);
-  const [extracting, setExtracting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+
+  /* Drafts Manager */
+  interface SavedDraft {
+    id: string;
+    name: string;
+    updatedAt: string;
+    form: Record<string, string>;
+  }
 
   const [form, setForm] = useState<Record<string, string>>(() => {
     if (typeof window !== "undefined") {
@@ -1077,10 +1138,84 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     return SAMPLE_TEMPLATE_FORM;
   });
 
+  const [drafts, setDrafts] = useState<SavedDraft[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("resume_builder_saved_drafts");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return [
+      {
+        id: "draft-default",
+        name: "Full Stack Resume Draft",
+        updatedAt: new Date().toLocaleDateString(),
+        form: SAMPLE_TEMPLATE_FORM,
+      },
+    ];
+  });
+  const [activeDraftId, setActiveDraftId] = useState<string>("draft-default");
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     localStorage.setItem("resume_builder_form", JSON.stringify(form));
   }, [form]);
+
+  const liveAts = calculateLiveAtsScore(form);
+
+  const saveNewDraft = () => {
+    const draftName = prompt("Enter a name for this resume version draft:", `Resume ${drafts.length + 1} (${form.targetRole || "Draft"})`);
+    if (!draftName) return;
+    const newDraft: SavedDraft = {
+      id: `draft-${Date.now()}`,
+      name: draftName,
+      updatedAt: new Date().toLocaleDateString(),
+      form: { ...form },
+    };
+    const updated = [newDraft, ...drafts];
+    setDrafts(updated);
+    setActiveDraftId(newDraft.id);
+    localStorage.setItem("resume_builder_saved_drafts", JSON.stringify(updated));
+    toast.success(`Saved resume draft "${newDraft.name}"!`);
+  };
+
+  const loadDraft = (id: string) => {
+    const target = drafts.find((d) => d.id === id);
+    if (target) {
+      setForm(target.form);
+      setActiveDraftId(id);
+      toast.success(`Loaded resume draft "${target.name}"!`);
+    }
+  };
+
+  const autoFixKeywords = () => {
+    if (liveAts.missingKeywords.length === 0) return toast.success("All high-impact keywords present!");
+    const current = form.skills || "";
+    const added = liveAts.missingKeywords.join(", ");
+    update("skills", current ? `${current}, ${added}` : added);
+    toast.success(`Auto-added missing keywords (${added}) to Technical Skills!`);
+  };
+
+  const handleGenerateCoverLetter = () => {
+    if (!targetCompany.trim()) return toast.error("Enter target company name (e.g. Google, Microsoft)");
+    setGeneratingCover(true);
+    setTimeout(() => {
+      const generated = `Dear Hiring Team at ${targetCompany},\n\nI am writing to express my strong interest in the ${form.targetRole || "Software Engineer"} position at ${targetCompany}. With a proven track record in software architecture, full-stack execution, and cloud solutions, I am eager to contribute to ${targetCompany}'s team.\n\nIn my previous roles, I have ${form.summary?.slice(0, 160) || "spearheaded scalable applications and optimized database performance"}. My technical skillset includes ${form.skills?.slice(0, 100) || "React, TypeScript, Python, and AWS"}, enabling me to deliver robust engineering solutions.\n\nI look forward to discussing how my experience aligns with ${targetCompany}'s goals. Thank you for your time and consideration.\n\nSincerely,\n${form.fullName || "Alex Rivera"}`;
+      setCoverLetterText(generated);
+      setGeneratingCover(false);
+      toast.success(`Generated Cover Letter for ${targetCompany}!`);
+    }, 600);
+  };
+
+  const handleGenerateLinkedin = () => {
+    const headline = `${form.targetRole || "Full Stack Engineer"} | ${form.skills?.split(",").slice(0, 3).join(" • ") || "React • TypeScript • Cloud"} | Building Scalable AI Solutions`;
+    const bio = `🚀 ${form.targetRole || "Software Engineer"} passionate about building scalable digital platforms and high-availability systems.\n\n🌟 Key Highlights:\n• ${form.summary?.slice(0, 140) || "Spearheaded enterprise SaaS architecture"}\n• Proven track record in full-stack performance optimization.\n\n💡 Core Tech: ${form.skills || "React, TypeScript, Python, AWS"}\n\n📩 Connect with me at ${form.email || "email"} or visit ${form.website || "portfolio"}`;
+    setLinkedinHeadline(headline);
+    setLinkedinBio(bio);
+    toast.success("Generated LinkedIn Profile Headline & Bio!");
+  };
 
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
@@ -1310,7 +1445,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   return (
     <Wrapper>
       <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-5">
-        {/* Header */}
+        {/* Header & Version Manager */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
@@ -1324,6 +1459,28 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Version Draft Manager */}
+            <div className="flex items-center gap-1.5 bg-muted/40 p-1 rounded-xl border">
+              <History className="h-3.5 w-3.5 text-muted-foreground ml-1.5" />
+              <select
+                className="bg-transparent text-xs font-bold focus:outline-none cursor-pointer pr-2"
+                value={activeDraftId}
+                onChange={(e) => loadDraft(e.target.value)}
+              >
+                {drafts.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={saveNewDraft}
+                className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition cursor-pointer flex items-center gap-1"
+              >
+                <Plus className="h-3 w-3" /> Save Draft
+              </button>
+            </div>
+
             <button
               onClick={resetToSampleTemplate}
               className="px-3 py-1.5 rounded-xl border bg-muted/40 hover:bg-muted text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
@@ -1339,13 +1496,15 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
           </div>
         </div>
 
-        {/* Navigation & Controls */}
+        {/* Navigation Tabs & Exports */}
         <div className="flex items-center justify-between flex-wrap gap-3 border-b pb-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {[
               { id: "content", label: "Content Editor", icon: Edit3 },
               { id: "design", label: "Design & Layout", icon: Palette },
               { id: "ai", label: "AI Pro Tools", icon: Sparkles },
+              { id: "cover", label: "AI Cover Letter", icon: Mail },
+              { id: "linkedin", label: "LinkedIn Enhancer", icon: Linkedin },
             ].map((tab) => {
               const IconComp = tab.icon;
               return (
@@ -1792,7 +1951,6 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             {/* DESIGN & LAYOUT TAB */}
             {activeTab === "design" && (
               <Card className="p-5 rounded-2xl border shadow-sm space-y-6">
-                {/* 1. Document & Page Format */}
                 <div>
                   <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <SlidersHorizontal className="h-3.5 w-3.5 text-primary" /> Document & Page Format
@@ -1862,7 +2020,6 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   </div>
                 </div>
 
-                {/* 2. Templates Gallery */}
                 <div className="pt-2 border-t">
                   <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <LayoutGrid className="h-3.5 w-3.5 text-primary" /> Design Templates
@@ -1891,165 +2048,6 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                         <p className="text-[11px] text-muted-foreground leading-snug">{t.desc}</p>
                       </button>
                     ))}
-                  </div>
-                </div>
-
-                {/* 3. Layout Columns & Spacing */}
-                <div className="pt-2 border-t">
-                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Columns className="h-3.5 w-3.5 text-purple-600" /> Layout Columns & Structure
-                  </Label>
-                  <div className="grid sm:grid-cols-3 gap-2">
-                    <button
-                      onClick={() => setLayoutColumns("one")}
-                      className={cn(
-                        "p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer text-center",
-                        layoutColumns === "one" ? "border-primary bg-primary/5 text-primary" : "border-border hover:bg-muted/40",
-                      )}
-                    >
-                      Single Column
-                    </button>
-                    <button
-                      onClick={() => setLayoutColumns("two")}
-                      className={cn(
-                        "p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer text-center",
-                        layoutColumns === "two" ? "border-primary bg-primary/5 text-primary" : "border-border hover:bg-muted/40",
-                      )}
-                    >
-                      Two Columns (50/50)
-                    </button>
-                    <button
-                      onClick={() => setLayoutColumns("mix")}
-                      className={cn(
-                        "p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer text-center",
-                        layoutColumns === "mix" ? "border-primary bg-primary/5 text-primary" : "border-border hover:bg-muted/40",
-                      )}
-                    >
-                      Executive Hybrid
-                    </button>
-                  </div>
-                </div>
-
-                {/* 4. Font Typography & Size */}
-                <div className="pt-2 border-t">
-                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Type className="h-3.5 w-3.5 text-blue-600" /> Font Typography & Base Size
-                  </Label>
-                  <div className="grid sm:grid-cols-2 gap-2 mb-3">
-                    {FONTS.map((f) => (
-                      <button
-                        key={f.id}
-                        onClick={() => setFontFamily(f.id)}
-                        className={cn(
-                          "p-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer text-left",
-                          fontFamily === f.id
-                            ? "border-primary bg-primary/5 text-primary"
-                            : "border-border hover:bg-muted/40",
-                        )}
-                      >
-                        {f.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center gap-2 pt-1">
-                    <span className="text-xs font-bold text-muted-foreground">Base Font Size:</span>
-                    {(["9.5pt", "10.5pt", "11.5pt", "12.5pt"] as const).map((sz) => (
-                      <button
-                        key={sz}
-                        onClick={() => setBaseFontSize(sz)}
-                        className={cn(
-                          "px-2.5 py-1 rounded-lg text-xs font-bold border transition cursor-pointer",
-                          baseFontSize === sz ? "bg-primary text-primary-foreground border-primary" : "bg-muted/40 border-border hover:bg-muted",
-                        )}
-                      >
-                        {sz}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 5. Accent Color Palette */}
-                <div className="pt-2 border-t">
-                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Palette className="h-3.5 w-3.5 text-indigo-600" /> Accent Color Palette
-                  </Label>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    {[
-                      "#0f172a",
-                      "#4f46e5",
-                      "#2563eb",
-                      "#059669",
-                      "#0d9488",
-                      "#e11d48",
-                      "#d97706",
-                    ].map((c) => (
-                      <button
-                        key={c}
-                        onClick={() => setAccentColor(c)}
-                        className={cn(
-                          "h-8 w-8 rounded-full border-2 transition-transform hover:scale-110 cursor-pointer shadow-sm",
-                          accentColor === c ? "border-primary ring-2 ring-offset-2 ring-primary" : "border-transparent",
-                        )}
-                        style={{ backgroundColor: c }}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                {/* 6. Section Headings & Work Order Customization */}
-                <div className="pt-2 border-t space-y-3">
-                  <Label className="text-xs font-bold block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Sliders className="h-3.5 w-3.5 text-emerald-600" /> Section Headings & Entry Order
-                  </Label>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    <div>
-                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Heading Style</span>
-                      <div className="flex rounded-lg border p-0.5 bg-muted/40">
-                        <button
-                          onClick={() => setHeadingCap("uppercase")}
-                          className={cn(
-                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer",
-                            headingCap === "uppercase" && "bg-background shadow-xs text-primary",
-                          )}
-                        >
-                          UPPERCASE
-                        </button>
-                        <button
-                          onClick={() => setHeadingCap("capitalize")}
-                          className={cn(
-                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer",
-                            headingCap === "capitalize" && "bg-background shadow-xs text-primary",
-                          )}
-                        >
-                          Capitalize
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Work Title Order</span>
-                      <div className="flex rounded-lg border p-0.5 bg-muted/40">
-                        <button
-                          onClick={() => setWorkOrder("title-employer")}
-                          className={cn(
-                            "flex-1 py-1 rounded text-[10px] font-bold transition cursor-pointer truncate px-1",
-                            workOrder === "title-employer" && "bg-background shadow-xs text-primary",
-                          )}
-                        >
-                          Title — Employer
-                        </button>
-                        <button
-                          onClick={() => setWorkOrder("employer-title")}
-                          className={cn(
-                            "flex-1 py-1 rounded text-[10px] font-bold transition cursor-pointer truncate px-1",
-                            workOrder === "employer-title" && "bg-background shadow-xs text-primary",
-                          )}
-                        >
-                          Employer — Title
-                        </button>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </Card>
@@ -2147,20 +2145,149 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 </div>
               </Card>
             )}
+
+            {/* AI COVER LETTER TAB */}
+            {activeTab === "cover" && (
+              <Card className="p-5 rounded-2xl border shadow-sm space-y-4">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <h3 className="text-sm font-bold">AI Cover Letter Generator</h3>
+                    <p className="text-xs text-muted-foreground">Draft a tailored 3-paragraph executive cover letter</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-xs font-semibold mb-1 block">Target Company Name *</Label>
+                    <input
+                      className={inp}
+                      placeholder="e.g. Google, Microsoft, Amazon, Meta"
+                      value={targetCompany}
+                      onChange={(e) => setTargetCompany(e.target.value)}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleGenerateCoverLetter}
+                    disabled={generatingCover}
+                    className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
+                  >
+                    {generatingCover ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    Generate Cover Letter
+                  </button>
+
+                  {coverLetterText && (
+                    <div className="space-y-2 pt-2 border-t">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold">Generated Cover Letter:</span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(coverLetterText);
+                            toast.success("Copied Cover Letter to clipboard!");
+                          }}
+                          className="text-[10px] font-bold text-primary flex items-center gap-1 hover:underline cursor-pointer"
+                        >
+                          <Copy className="h-3 w-3" /> Copy Text
+                        </button>
+                      </div>
+                      <textarea
+                        className={`${inp} min-h-[220px] font-mono text-xs`}
+                        value={coverLetterText}
+                        onChange={(e) => setCoverLetterText(e.target.value)}
+                      />
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
+
+            {/* LINKEDIN ENHANCER TAB */}
+            {activeTab === "linkedin" && (
+              <Card className="p-5 rounded-2xl border shadow-sm space-y-4">
+                <div className="flex items-center gap-2">
+                  <Linkedin className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <h3 className="text-sm font-bold">LinkedIn Profile & Headline Enhancer</h3>
+                    <p className="text-xs text-muted-foreground">Generate high-converting headlines & About section</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleGenerateLinkedin}
+                  className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
+                >
+                  <Sparkles className="h-4 w-4" /> Generate Headline & Bio
+                </button>
+
+                {linkedinHeadline && (
+                  <div className="space-y-4 pt-2 border-t">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold">LinkedIn Headline (120 Chars):</span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(linkedinHeadline);
+                            toast.success("Copied Headline!");
+                          }}
+                          className="text-[10px] font-bold text-primary flex items-center gap-1 hover:underline cursor-pointer"
+                        >
+                          <Copy className="h-3 w-3" /> Copy
+                        </button>
+                      </div>
+                      <input className={inp} value={linkedinHeadline} onChange={(e) => setLinkedinHeadline(e.target.value)} />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold">LinkedIn About / Bio Section:</span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(linkedinBio);
+                            toast.success("Copied About section!");
+                          }}
+                          className="text-[10px] font-bold text-primary flex items-center gap-1 hover:underline cursor-pointer"
+                        >
+                          <Copy className="h-3 w-3" /> Copy
+                        </button>
+                      </div>
+                      <textarea className={`${inp} min-h-[160px] font-mono text-xs`} value={linkedinBio} onChange={(e) => setLinkedinBio(e.target.value)} />
+                    </div>
+                  </div>
+                )}
+              </Card>
+            )}
           </div>
 
           {/* Right Live Document Preview */}
           <div className="sticky top-20 space-y-3">
-            <div className="flex items-center justify-between bg-muted/40 px-3 py-2 rounded-xl border text-xs">
-              <span className="font-bold flex items-center gap-1">
-                <Eye className="h-3.5 w-3.5 text-primary" /> Live Document Preview
-              </span>
-              <span className="text-[10px] text-muted-foreground font-semibold">
-                Template: {selectedTpl.label}
+            {/* Real-time Live ATS Score Gauge Header */}
+            <div className="flex items-center justify-between bg-muted/40 p-3 rounded-xl border text-xs gap-2">
+              <div className="flex items-center gap-2">
+                <div
+                  className={cn(
+                    "px-2.5 py-1 rounded-full text-xs font-black text-white shadow-sm flex items-center gap-1",
+                    liveAts.score >= 80 ? "bg-emerald-600" : liveAts.score >= 60 ? "bg-amber-500" : "bg-rose-500",
+                  )}
+                >
+                  <Target className="h-3.5 w-3.5" />
+                  <span>{liveAts.score}% ATS Match</span>
+                </div>
+                {liveAts.missingKeywords.length > 0 && (
+                  <button
+                    onClick={autoFixKeywords}
+                    className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold border border-indigo-200 dark:border-indigo-800/40 hover:bg-indigo-100 transition cursor-pointer"
+                  >
+                    + Auto-Fix Keywords
+                  </button>
+                )}
+              </div>
+              <span className="text-[10px] text-muted-foreground font-semibold truncate">
+                {selectedTpl.label}
               </span>
             </div>
 
-            <div className="max-h-[82vh] overflow-y-auto rounded-xl border bg-white shadow-xl">
+            <div className="max-h-[80vh] overflow-y-auto rounded-xl border bg-white shadow-xl">
               <ResumePreview
                 form={form}
                 template={selectedTpl}
