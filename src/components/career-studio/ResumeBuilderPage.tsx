@@ -2429,23 +2429,37 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
               </Card>
             )}
 
-            {/* LINKEDIN ENHANCER TAB */}
+            {/* LINKEDIN PROFILE OPTIMIZER TAB */}
             {activeTab === "linkedin" && (
-              <Card className="p-5 rounded-2xl border shadow-sm space-y-4">
+              <Card className="p-5 rounded-2xl border shadow-sm space-y-6">
                 <div className="flex items-center gap-2">
                   <Linkedin className="h-5 w-5 text-blue-600" />
                   <div>
-                    <h3 className="text-sm font-bold">LinkedIn Profile & Headline Enhancer</h3>
-                    <p className="text-xs text-muted-foreground">Generate high-converting headlines & About section</p>
+                    <h3 className="text-sm font-bold">LinkedIn Profile Optimizer</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Build every section, generate AI posts — see it live before you publish.
+                    </p>
                   </div>
                 </div>
 
-                <button
-                  onClick={handleGenerateLinkedin}
-                  className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
-                >
-                  <Sparkles className="h-4 w-4" /> Generate Headline & Bio
-                </button>
+                <div className="grid sm:grid-cols-2 gap-2">
+                  <button
+                    onClick={handleGenerateLinkedin}
+                    className="py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-sm"
+                  >
+                    <Sparkles className="h-4 w-4" /> Generate Headline & Bio
+                  </button>
+                  <button
+                    onClick={() => {
+                      const post = `🚀 Excited to share my latest project build!\n\nI just engineered ${form.projects?.split("\n")[0] || "a full-stack AI application"} using ${form.skills?.split(",").slice(0, 4).join(", ") || "React, TypeScript & Node"}.\n\nKey Highlights:\n• Scalable architecture & ATS-optimized design\n• ${form.summary?.slice(0, 100) || "Enhanced operational efficiency & data accuracy"}\n\nCheck out the live demo & repo:\n🔗 ${form.website || form.github || "https://github.com/Vishwajeetsrk"}\n\n#SoftwareEngineering #FullStack #AI #LearnifyAI #WebDev`;
+                      setCoverLetterText(post);
+                      toast.success("Generated Viral LinkedIn Project Post!");
+                    }}
+                    className="py-2.5 px-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/40 font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer hover:bg-indigo-100"
+                  >
+                    <Send className="h-4 w-4 text-indigo-600" /> Generate AI Post
+                  </button>
+                </div>
 
                 {linkedinHeadline && (
                   <div className="space-y-4 pt-2 border-t">
@@ -2478,10 +2492,64 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                           <Copy className="h-3 w-3" /> Copy
                         </button>
                       </div>
-                      <textarea className={`${inp} min-h-[160px] font-mono text-xs`} value={linkedinBio} onChange={(e) => setLinkedinBio(e.target.value)} />
+                      <textarea className={`${inp} min-h-[140px] font-mono text-xs`} value={linkedinBio} onChange={(e) => setLinkedinBio(e.target.value)} />
                     </div>
                   </div>
                 )}
+
+                {/* Live LinkedIn Card & Post Mockup Preview */}
+                <div className="pt-4 border-t space-y-3">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Linkedin className="h-3.5 w-3.5 text-blue-600" /> Live LinkedIn Profile & Post Mockup
+                  </Label>
+                  <div className="rounded-2xl border bg-slate-900 text-white p-5 space-y-4 shadow-xl overflow-hidden relative">
+                    <div className="h-16 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-t-xl -mx-5 -mt-5 mb-2 relative">
+                      <div className="absolute -bottom-6 left-5 w-14 h-14 rounded-full border-4 border-slate-900 bg-indigo-600 flex items-center justify-center font-black text-xl text-white shadow-lg overflow-hidden">
+                        {form.photo ? (
+                          <img src={form.photo} alt="Photo" className="w-full h-full object-cover" />
+                        ) : (
+                          form.fullName?.slice(0, 2).toUpperCase() || "VR"
+                        )}
+                      </div>
+                    </div>
+                    <div className="pt-4 space-y-1">
+                      <h4 className="text-base font-black text-white flex items-center gap-1.5">
+                        {form.fullName || "VISHWAJEET"}
+                        <span className="w-4 h-4 rounded-full bg-blue-500 text-white text-[10px] flex items-center justify-center font-bold">
+                          ✓
+                        </span>
+                      </h4>
+                      <p className="text-xs text-slate-300 font-medium">
+                        {linkedinHeadline || form.targetRole || "AI Software Engineer | Full Stack Developer"}
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        {form.location || "Bengaluru, India"} · <span className="text-blue-400 font-bold">500+ connections</span>
+                      </p>
+                    </div>
+
+                    {coverLetterText && (
+                      <div className="p-3.5 rounded-xl bg-slate-800/90 border border-slate-700/80 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">
+                            {form.fullName?.slice(0, 1) || "V"}
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-white">{form.fullName || "VISHWAJEET"}</p>
+                            <p className="text-[9px] text-slate-400">Posted · 1m ago</p>
+                          </div>
+                        </div>
+                        <p className="text-xs text-slate-200 whitespace-pre-line leading-relaxed font-sans">
+                          {coverLetterText}
+                        </p>
+                        <div className="flex items-center gap-4 pt-2 border-t border-slate-700/60 text-[11px] text-slate-400 font-bold">
+                          <span>👍 142 Likes</span>
+                          <span>💬 28 Comments</span>
+                          <span>🔄 12 Reposts</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </Card>
             )}
           </div>

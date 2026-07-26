@@ -148,15 +148,40 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
     return [];
   });
 
-  const [form, setForm] = useState({
-    currentRole: "",
-    targetRole: "",
-    skills: "",
-    experience: "",
-    education: "",
-    timeline: "12 months",
-    learningStyle: "self-paced",
+  const [form, setForm] = useState(() => {
+    let initialSkills = "React, TypeScript, Python, SQL, Supabase, Tailwind CSS, REST APIs, Git";
+    if (typeof window !== "undefined") {
+      try {
+        const savedResume = localStorage.getItem("resume_builder_form");
+        if (savedResume) {
+          const parsed = JSON.parse(savedResume);
+          if (parsed.skills) initialSkills = parsed.skills;
+        }
+      } catch {}
+    }
+    return {
+      currentRole: "AI Software Engineer / Developer",
+      targetRole: "Senior Full-Stack Engineer & AI Architect",
+      skills: initialSkills,
+      experience: "Full Stack Development & Data Reconciliation at Rootbridge",
+      education: "B.Tech / BCA in Computer Science",
+      timeline: "12 months",
+      learningStyle: "self-paced",
+    };
   });
+
+  const [activeSkills, setActiveSkills] = useState<string[]>(() => {
+    return form.skills.split(/[,|]/).map((s) => s.trim()).filter(Boolean);
+  });
+
+  const toggleSkill = (skill: string) => {
+    setActiveSkills((prev) => {
+      const exists = prev.includes(skill);
+      const next = exists ? prev.filter((s) => s !== skill) : [...prev, skill];
+      setForm((f) => ({ ...f, skills: next.join(", ") }));
+      return next;
+    });
+  };
 
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
@@ -264,6 +289,9 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
           <TabsTrigger value="form">
             <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Your Profile
           </TabsTrigger>
+          <TabsTrigger value="gap">
+            <Target className="h-3.5 w-3.5 mr-1.5 text-indigo-500" /> Skill Gap Analysis
+          </TabsTrigger>
           <TabsTrigger value="roadmap" disabled={!roadmapData && !rawContent}>
             <Map className="h-3.5 w-3.5 mr-1.5" /> Your Roadmap
           </TabsTrigger>
@@ -274,6 +302,98 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
             </TabsTrigger>
           )}
         </TabsList>
+
+        <TabsContent value="gap" className="pt-4 space-y-6 max-w-4xl">
+          <Card className="p-6 rounded-2xl border shadow-sm space-y-6">
+            <div className="flex items-center justify-between flex-wrap gap-3 border-b pb-4">
+              <div>
+                <h3 className="text-base font-bold text-foreground">Interactive Skill Gap Matrix</h3>
+                <p className="text-xs text-muted-foreground">
+                  Select target role, toggle skills — matched to your courses & interests.
+                </p>
+              </div>
+              <div className="px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-black">
+                {Math.round((activeSkills.length / 12) * 100)}% Role Readiness
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Your Skills (Click to Toggle / Add to Profile)
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "React",
+                  "TypeScript",
+                  "Python",
+                  "Node.js",
+                  "SQL",
+                  "PostgreSQL",
+                  "Supabase",
+                  "AWS",
+                  "Docker",
+                  "REST APIs",
+                  "Microservices",
+                  "System Design",
+                  "CI/CD",
+                  "Git",
+                  "Salesforce CRM",
+                  "Generative AI",
+                  "Tailwind CSS",
+                  "GraphQL",
+                  "Redis",
+                ].map((skill) => {
+                  const has = activeSkills.includes(skill);
+                  return (
+                    <button
+                      key={skill}
+                      onClick={() => toggleSkill(skill)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                        has
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80 border border-transparent"
+                      }`}
+                    >
+                      {has ? <Check className="h-3.5 w-3.5" /> : <Circle className="h-3 w-3" />}
+                      <span>{skill}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t space-y-3">
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Recommended Learnify AI Courses to Bridge Missing Gaps
+              </Label>
+              <div className="grid sm:grid-cols-3 gap-3">
+                {[
+                  { name: "Full Stack AI Engineer", cat: "AI & Development", match: "98%" },
+                  { name: "Data Science & ML Bootcamp", cat: "Data & Analytics", match: "95%" },
+                  { name: "System Design Mastery", cat: "Architecture", match: "91%" },
+                  { name: "DSA & Competitive Programming", cat: "Core CS", match: "88%" },
+                  { name: "React + Next.js Pro", cat: "Frontend", match: "85%" },
+                  { name: "Cloud & DevOps with AWS", cat: "Infrastructure", match: "82%" },
+                ].map((c) => (
+                  <div key={c.name} className="p-3.5 rounded-xl border bg-card space-y-2 flex flex-col justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold text-indigo-500">{c.cat} · {c.match} Match</span>
+                      <p className="text-xs font-bold text-foreground mt-0.5">{c.name}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full h-7 text-[11px] font-bold text-primary hover:bg-primary/5 cursor-pointer"
+                      onClick={() => toast.success(`Enrolled in ${c.name}!`)}
+                    >
+                      + Enroll Course
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="form" className="pt-4 space-y-6 max-w-2xl">
           <div className="space-y-4">
