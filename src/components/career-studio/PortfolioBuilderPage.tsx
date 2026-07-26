@@ -204,7 +204,7 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
     localStorage.setItem("portfolio_builder_projects", JSON.stringify(projects));
   }, [projects]);
 
-  const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
+  const update = (field: string, value: string) => setForm((f: any) => ({ ...f, [field]: value }));
 
   const handleFileExtracted = async (text: string) => {
     setExtracting(true);
@@ -220,7 +220,7 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
         return cleaned ? `https://linkedin.com/in/${cleaned}` : "";
       };
 
-      setForm((f) => ({
+      setForm((f: any) => ({
         ...f,
         fullName: fields.fullName || f.fullName,
         bio: fields.summary || f.bio,
@@ -349,11 +349,11 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
   const handleExportHtml = () => {
     const skills = form.skills
       .split(",")
-      .map((s) => s.trim())
+      .map((s: string) => s.trim())
       .filter(Boolean);
     const projectCards = projects
-      .filter((p) => p.name)
-      .map((p) => {
+      .filter((p: ProjectEntry) => p.name)
+      .map((p: ProjectEntry) => {
         const img = p.imageUrl
           ? '<img src="' + p.imageUrl + '" alt="' + p.name + '" class="project-img" />'
           : "";
@@ -361,7 +361,7 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
           ? '<div class="tags">' +
             p.techStack
               .split(",")
-              .map((t) => '<span class="tag">' + t.trim() + "</span>")
+              .map((t: string) => '<span class="tag">' + t.trim() + "</span>")
               .join("") +
             "</div>"
           : "";
@@ -387,9 +387,9 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
         form.socialLinks
           .split("\n")
           .filter(Boolean)
-          .map((l) => l.trim())
+          .map((l: string) => l.trim())
           .map(
-            (l) =>
+            (l: string) =>
               '<a href="' +
               l +
               '" target="_blank">' +
@@ -417,7 +417,7 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
         ? '<section class="section"><h2>Skills</h2><div class="skills">' +
           skills
             .map(
-              (s) =>
+              (s: string) =>
                 '<span class="skill" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:#f1f5f9;border-radius:9999px;font-size:.875rem;font-weight:500">' +
                 skillHtmlLogo(s) +
                 "<span>" +
@@ -473,13 +473,13 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
 
       const skills = form.skills
         .split(",")
-        .map((s) => s.trim())
+        .map((s: string) => s.trim())
         .filter(Boolean);
 
       const projectCards = projects
-        .filter((p) => p.name)
+        .filter((p: ProjectEntry) => p.name)
         .map(
-          (p) => `
+          (p: ProjectEntry) => `
         <div class="project-card border border-slate-800 bg-slate-900/80 p-6 rounded-2xl shadow-lg hover:border-indigo-500/50 transition duration-300">
           ${p.imageUrl ? `<img src="${p.imageUrl}" alt="${p.name}" class="w-full h-48 object-cover rounded-xl mb-4" />` : ""}
           <h3 class="text-xl font-bold text-slate-100 mb-2">${p.name}</h3>
@@ -490,7 +490,7 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
                 ? p.techStack
                     .split(",")
                     .map(
-                      (t) =>
+                      (t: string) =>
                         `<span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${t.trim()}</span>`,
                     )
                     .join("")
@@ -505,7 +505,7 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
 
       const skillsHtml = skills
         .map(
-          (s) => `
+          (s: string) => `
         <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-sm font-semibold text-slate-200 hover:border-indigo-500/50 transition">
           <span>${s}</span>
         </div>
@@ -1144,7 +1144,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                         .split("\n")
                         .filter(Boolean)
                         .slice(0, 4)
-                        .map((link, i) => (
+                        .map((link: string, i: number) => (
                           <Badge key={i} variant="outline" className="text-[10px] gap-1">
                             <ExternalLink className="h-3 w-3" />
                             {link.replace(/https?:\/\//, "").split("/")[0]}
@@ -1166,7 +1166,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                     <Code2 className="h-3.5 w-3.5 text-blue-500" /> Tech Skills
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {form.skills.split(",").map((s, i) => (
+                    {form.skills.split(",").map((s: string, i: number) => (
                       <motion.div
                         key={i}
                         initial={{ opacity: 0, scale: 0.8 }}
@@ -1196,7 +1196,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                     <Heart className="h-3.5 w-3.5 text-rose-500" /> Soft Skills
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {form.softSkills.split(",").map((s, i) => (
+                    {form.softSkills.split(",").map((s: string, i: number) => (
                       <motion.div
                         key={i}
                         initial={{ opacity: 0, scale: 0.8 }}
@@ -1228,7 +1228,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                     <Settings className="h-3.5 w-3.5 text-amber-500" /> Tools
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {form.tools.split(",").map((s, i) => (
+                    {form.tools.split(",").map((s: string, i: number) => (
                       <motion.div
                         key={i}
                         initial={{ opacity: 0, scale: 0.8 }}
