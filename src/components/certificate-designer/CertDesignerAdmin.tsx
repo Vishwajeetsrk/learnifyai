@@ -1178,7 +1178,7 @@ function OverviewScreen({
                     textDecoration: "none",
                     color: "inherit",
                     paddingBottom: i < listCertificates.length - 1 ? 10 : 0,
-                    borderBottom: i < recentCertificates.length - 1 ? `1px solid ${BD}` : "none",
+                    borderBottom: i < listCertificates.length - 1 ? `1px solid ${BD}` : "none",
                   }}
                 >
                   <CertThumbnail
