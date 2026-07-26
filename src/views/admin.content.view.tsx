@@ -590,8 +590,10 @@ export default function AdminContentPage() {
               <TabsContent value="demo-video" className="mt-0">
                 <DemoVideoManager />
               </TabsContent>
-              <TabsContent value="cert-templates" className="mt-0">
-                <CertDesignerAdmin />
+              <TabsContent value="cert-templates" className="mt-0 w-full overflow-x-hidden">
+                <div className="-m-2 p-1">
+                  <CertDesignerAdmin />
+                </div>
               </TabsContent>
               <TabsContent value="faqs" className="mt-0">
                 <FaqsManager />

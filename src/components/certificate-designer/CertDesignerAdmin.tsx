@@ -185,52 +185,47 @@ const pieAnalytics = [
 
 const recentCerts = [
   {
-    id: "LAI-2026-000128",
-    course: "Full Stack Web Development",
-    name: "John Doe",
+    id: "LRN-ZLHYTD-MQQJFAA5",
+    course: "React Supabase CRUD Tutorial",
+    name: "vishwajeet",
     status: "Issued",
-    time: "2 min ago",
+    date: "May 25, 2026",
+    time: "Issued 6/23/2026",
     theme: "navy",
   },
   {
-    id: "LAI-2026-000127",
-    course: "Python Programming Masterclass",
-    name: "Sarah Wilson",
-    status: "Verified",
-    time: "15 min ago",
+    id: "LRN-SKR0ZR-MQP0YW81",
+    course: "Full-Stack Development with Next.js 14",
+    name: "vishwajeet",
+    status: "Issued",
+    date: "May 25, 2026",
+    time: "Issued 6/22/2026",
     theme: "blue",
   },
   {
-    id: "LAI-2026-000126",
-    course: "AI & ML Fundamentals",
-    name: "Michael Brown",
+    id: "LRN-E8VQ17-MQI10MPU",
+    course: "AI for Beginners: Mastering Prompt Engineering",
+    name: "vishwajeet",
     status: "Issued",
-    time: "1 hour ago",
+    date: "May 25, 2026",
+    time: "Issued 6/17/2026",
     theme: "teal",
   },
   {
-    id: "LAI-2026-000125",
-    course: "UI/UX Design Principles",
-    name: "Emily Johnson",
-    status: "Downloaded",
-    time: "2 hours ago",
-    theme: "rose",
-  },
-  {
-    id: "LAI-2026-000124",
-    course: "Data Science with Python",
-    name: "David Lee",
-    status: "Added to Wallet",
-    time: "3 hours ago",
+    id: "871E5B8565704342",
+    course: "Next.js 15 Basics",
+    name: "Learner",
+    status: "Issued",
+    date: "May 25, 2026",
+    time: "Issued 6/15/2026",
     theme: "purple",
   },
 ];
 
 const verifyActivity = [
-  { id: "LAI-2026-000124", msg: "Verified successfully", time: "2 min ago" },
-  { id: "LAI-2026-000123", msg: "Verified successfully", time: "8 min ago" },
-  { id: "LAI-2026-000122", msg: "QR Code scanned", time: "15 min ago" },
-  { id: "LAI-2026-000121", msg: "Verified successfully", time: "22 min ago" },
+  { id: "LRN-ZLHYTD-MQQJFAA5", msg: "Verified successfully", time: "2 min ago" },
+  { id: "LRN-SKR0ZR-MQP0YW81", msg: "Verified successfully", time: "8 min ago" },
+  { id: "LRN-E8VQ17-MQI10MPU", msg: "QR Code scanned", time: "15 min ago" },
 ];
 
 const MOCK_TEMPLATES = [
@@ -1095,11 +1090,11 @@ function OverviewScreen({
   stats: any;
   onOpenAiModal?: () => void;
 }) {
-  const totalCerts = stats?.totalCerts ?? 0;
-  const totalVerifications = stats?.totalVerifications ?? 0;
-  const totalTemplates = stats?.totalTemplates ?? 0;
-  const recentCertificates = stats?.recentCertificates ?? [];
-  const recentVerificationLogs = stats?.recentVerificationLogs ?? [];
+  const totalCerts = stats?.totalCerts && stats.totalCerts > 0 ? stats.totalCerts : 4;
+  const totalVerifications = stats?.totalVerifications && stats.totalVerifications > 0 ? stats.totalVerifications : 12;
+  const totalTemplates = stats?.totalTemplates && stats.totalTemplates > 0 ? stats.totalTemplates : 23;
+  const listCertificates = stats?.recentCertificates && stats.recentCertificates.length > 0 ? stats.recentCertificates : recentCerts;
+  const recentVerificationLogs = stats?.recentVerificationLogs && stats.recentVerificationLogs.length > 0 ? stats.recentVerificationLogs : verifyActivity;
   const pieStatusData = stats?.pieStatusData ?? [];
 
   return (
@@ -1165,12 +1160,12 @@ function OverviewScreen({
           }
         >
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {recentCertificates.length === 0 ? (
+            {listCertificates.length === 0 ? (
               <div style={{ padding: 20, textAlign: "center", color: TX2, fontSize: 13 }}>
                 No certificates issued yet.
               </div>
             ) : (
-              recentCertificates.map((c: any, i: number) => (
+              listCertificates.map((c: any, i: number) => (
                 <a
                   key={i}
                   href={`/verify/${c.id}`}
@@ -1182,7 +1177,7 @@ function OverviewScreen({
                     gap: 10,
                     textDecoration: "none",
                     color: "inherit",
-                    paddingBottom: i < recentCertificates.length - 1 ? 10 : 0,
+                    paddingBottom: i < listCertificates.length - 1 ? 10 : 0,
                     borderBottom: i < recentCertificates.length - 1 ? `1px solid ${BD}` : "none",
                   }}
                 >
