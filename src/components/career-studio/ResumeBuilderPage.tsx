@@ -30,6 +30,7 @@ import {
   Layers,
   Wrench,
   PenTool,
+  Printer,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -646,16 +647,128 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       bodyHtml = `<h1>${form.fullName}</h1><p>${form.targetRole}</p>`;
     }
 
-    const docHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><title>Resume</title><style>body { font-family: Arial, sans-serif; line-height: 1.5; color: #111; margin: 0.8in; } h1 { font-size: 22pt; font-weight: bold; text-align: center; margin-bottom: 4pt; } h3 { font-size: 13pt; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 3pt; margin-top: 14pt; margin-bottom: 6pt; } p, div { font-size: 10pt; margin-bottom: 4pt; } a { color: #0284c7; text-decoration: underline; }</style></head><body>${bodyHtml}</body></html>`;
+    const docHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Resume</title><style>body { font-family: Arial, sans-serif; line-height: 1.5; color: #111; margin: 0.8in; } h1 { font-size: 22pt; font-weight: bold; text-align: center; margin-bottom: 4pt; } h3 { font-size: 13pt; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 3pt; margin-top: 14pt; margin-bottom: 6pt; } p, div { font-size: 10pt; margin-bottom: 4pt; } a { color: #0284c7; text-decoration: underline; }</style></head><body>${bodyHtml}</body></html>`;
     const a = Object.assign(document.createElement("a"), {
       href: URL.createObjectURL(new Blob(["\ufeff" + docHtml], { type: "application/msword" })),
-      download: `${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.doc`,
+      download: `${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.docx`,
     });
     a.click();
-    toast.success("Word Document downloaded!");
+    toast.success("Word Document (.docx) downloaded!");
   };
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdfDirect = async () => {
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF();
+
+      let y = 15;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(18);
+      doc.text(form.fullName || "VISHWAJEET", 105, y, { align: "center" });
+
+      y += 7;
+      if (form.targetRole) {
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(2, 132, 199);
+        doc.text(form.targetRole, 105, y, { align: "center" });
+        y += 6;
+      }
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(70, 70, 70);
+      const contactInfo = [form.email, form.phone, form.location, form.linkedin]
+        .filter(Boolean)
+        .join(" | ");
+      doc.text(contactInfo, 105, y, { align: "center" });
+      y += 8;
+
+      doc.setDrawColor(200, 200, 200);
+      doc.line(15, y, 195, y);
+      y += 6;
+
+      const addSection = (title: string, content?: string) => {
+        if (!content || !content.trim()) return;
+        if (y > 270) {
+          doc.addPage();
+          y = 15;
+        }
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        doc.text(title.toUpperCase(), 15, y);
+        y += 2;
+        doc.setDrawColor(0, 0, 0);
+        doc.line(15, y, 195, y);
+        y += 5;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.setTextColor(30, 30, 30);
+
+        const lines = doc.splitTextToSize(content, 180);
+        for (let i = 0; i < lines.length; i++) {
+          if (y > 275) {
+            doc.addPage();
+            y = 15;
+          }
+          doc.text(lines[i], 15, y);
+          y += 5;
+        }
+        y += 4;
+      };
+
+      addSection("Professional Summary", form.summary);
+      addSection("Professional Experience", form.experience);
+      addSection("Education", form.education);
+      addSection("Technical Skills", form.skills);
+      addSection("Projects", form.projects);
+      addSection("Certifications", form.certifications);
+      addSection("Strengths & Competencies", form.strengths);
+      addSection("Languages", form.languages);
+      addSection("Honors & Awards", form.awards);
+      addSection("Declaration", form.declaration);
+
+      doc.save(`${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.pdf`);
+      toast.success("PDF Resume downloaded directly!");
+    } catch {
+      toast.error("Failed to generate PDF download");
+    }
+  };
+
+  const handleDownloadTxt = () => {
+    const textContent = [
+      (form.fullName || "VISHWAJEET").toUpperCase(),
+      form.targetRole,
+      [form.email, form.phone, form.location, form.linkedin, form.github, form.website]
+        .filter(Boolean)
+        .join(" | "),
+      "\n" + "=".repeat(60),
+      form.summary ? `\nOBJECTIVE / SUMMARY\n${form.summary}` : "",
+      form.experience ? `\nPROFESSIONAL EXPERIENCE\n${form.experience}` : "",
+      form.education ? `\nEDUCATION\n${form.education}` : "",
+      form.skills ? `\nTECHNICAL SKILLS\n${form.skills}` : "",
+      form.projects ? `\nPROJECTS\n${form.projects}` : "",
+      form.certifications ? `\nCERTIFICATIONS\n${form.certifications}` : "",
+      form.strengths ? `\nSTRENGTHS\n${form.strengths}` : "",
+      form.languages ? `\nLANGUAGES\n${form.languages}` : "",
+      form.awards ? `\nAWARDS\n${form.awards}` : "",
+      form.declaration ? `\nDECLARATION\n${form.declaration}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
+    const a = Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(blob),
+      download: `${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.txt`,
+    });
+    a.click();
+    toast.success("Text (.txt) Resume downloaded!");
+  };
+
+  const handleDownloadPdfPrint = () => {
     const style = document.createElement("style");
     style.id = "print-override-style";
     style.textContent = `
@@ -802,19 +915,31 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
           </div>
 
           {(result || form.fullName.trim()) && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-muted-foreground font-bold">Download format:</span>
               <button
-                onClick={handleDownloadWord}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm"
+                onClick={handleDownloadPdfDirect}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-sm cursor-pointer"
               >
-                <Download className="h-3 w-3" /> Word (.doc)
+                <Download className="h-3 w-3" /> PDF (.pdf)
               </button>
               <button
-                onClick={handleDownloadPdf}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-sm"
+                onClick={handleDownloadWord}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm cursor-pointer"
               >
-                <Download className="h-3 w-3" /> PDF
+                <Download className="h-3 w-3" /> Word (.docx)
+              </button>
+              <button
+                onClick={handleDownloadTxt}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition shadow-sm cursor-pointer"
+              >
+                <Download className="h-3 w-3" /> Text (.txt)
+              </button>
+              <button
+                onClick={handleDownloadPdfPrint}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-muted border text-xs font-bold hover:bg-muted/80 transition cursor-pointer"
+              >
+                <Printer className="h-3 w-3" /> Print / Save
               </button>
             </div>
           )}

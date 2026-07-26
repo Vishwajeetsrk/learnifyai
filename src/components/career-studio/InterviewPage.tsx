@@ -28,6 +28,9 @@ import {
   Check,
   Play,
   Pause,
+  Download,
+  FileText,
+  FileDown,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -609,6 +612,100 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const avgScore =
     scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
 
+  const downloadInterviewPdf = async () => {
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF();
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text("AI Mock Interview Scorecard & Feedback Report", 15, 15);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+
+      let y = 25;
+      doc.text(`Role: ${role || "Software Engineer"} (${difficulty.toUpperCase()} Level)`, 15, y);
+      y += 6;
+      doc.text(
+        `Overall Score: ${avgScore}/100 | Grade: ${
+          avgScore >= 70 ? "A" : avgScore >= 50 ? "B" : avgScore >= 30 ? "C" : "D"
+        }`,
+        15,
+        y,
+      );
+      y += 6;
+      doc.text(`Questions Answered: ${scores.length} / ${totalQuestions}`, 15, y);
+      y += 8;
+
+      doc.setDrawColor(200, 200, 200);
+      doc.line(15, y, 195, y);
+      y += 8;
+
+      doc.setFont("helvetica", "bold");
+      doc.text("QUESTION BY QUESTION BREAKDOWN:", 15, y);
+      y += 8;
+
+      scores.forEach((sc, i) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 15;
+        }
+        doc.setFont("helvetica", "bold");
+        doc.text(`Question ${i + 1}: ${sc}/100 Match`, 15, y);
+        y += 6;
+      });
+
+      doc.save(`Interview_Scorecard_${(role || "Career").replace(/\s+/g, "_")}.pdf`);
+      toast.success("Interview PDF Report downloaded!");
+    } catch {
+      toast.error("Failed to generate PDF report download");
+    }
+  };
+
+  const downloadInterviewWord = () => {
+    const docHtml = `
+      <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+      <head><meta charset='utf-8'><title>Interview Scorecard</title>
+      <style>body { font-family: Arial, sans-serif; line-height: 1.6; color: #111; max-width: 800px; margin: auto; padding: 20px; }</style>
+      </head>
+      <body>
+        <h1>AI Mock Interview Scorecard — ${role || "Software Engineer"}</h1>
+        <p><b>Average Score:</b> ${avgScore}/100</p>
+        <p><b>Grade:</b> ${avgScore >= 70 ? "A" : avgScore >= 50 ? "B" : avgScore >= 30 ? "C" : "D"}</p>
+        <p><b>Questions Evaluated:</b> ${scores.length}</p>
+      </body>
+      </html>
+    `;
+    const blob = new Blob(["\ufeff", docHtml], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const a = Object.assign(document.createElement("a"), {
+      href: url,
+      download: `Interview_Scorecard_${(role || "Career").replace(/\s+/g, "_")}.docx`,
+    });
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Word Interview Transcript downloaded!");
+  };
+
+  const downloadInterviewTxt = () => {
+    const textContent = `AI MOCK INTERVIEW SCORECARD & REPORT
+Role: ${role || "Software Engineer"}
+Difficulty: ${difficulty.toUpperCase()}
+Overall Score: ${avgScore}/100
+Grade: ${avgScore >= 70 ? "A" : avgScore >= 50 ? "B" : avgScore >= 30 ? "C" : "D"}
+Questions Evaluated: ${scores.length}
+
+SCORES:
+${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
+`;
+    const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
+    const a = Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(blob),
+      download: `Interview_Scorecard_${(role || "Career").replace(/\s+/g, "_")}.txt`,
+    });
+    a.click();
+    toast.success("Text Interview Report downloaded!");
+  };
+
   const mainContent = (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center gap-3">
@@ -1154,6 +1251,28 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">Grade</p>
               </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+              <Button
+                onClick={downloadInterviewPdf}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 rounded-full"
+              >
+                <FileDown className="h-4 w-4" /> Download PDF Scorecard
+              </Button>
+              <Button
+                onClick={downloadInterviewWord}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs gap-1.5 rounded-full"
+              >
+                <FileText className="h-4 w-4" /> Word (.docx)
+              </Button>
+              <Button
+                onClick={downloadInterviewTxt}
+                variant="outline"
+                className="font-bold text-xs gap-1.5 rounded-full"
+              >
+                <Download className="h-4 w-4" /> Text (.txt)
+              </Button>
             </div>
 
             <Button onClick={handleRestart}>
