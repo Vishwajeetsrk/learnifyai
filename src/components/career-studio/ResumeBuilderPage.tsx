@@ -47,6 +47,13 @@ import {
   MoveUp,
   MoveDown,
   List,
+  Columns,
+  Maximize,
+  Minimize,
+  SlidersHorizontal,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -611,13 +618,25 @@ function ResumePreview({
   template,
   accentColor,
   fontFamily = "font-sans",
+  layoutColumns = "one",
+  headerAlign = "center",
+  baseFontSize = "10.5pt",
+  headingCap = "uppercase",
+  workOrder = "title-employer",
+  skillsStyle = "compact",
 }: {
   form: Record<string, string>;
   template: (typeof TEMPLATES)[0];
   accentColor?: string;
   fontFamily?: string;
+  layoutColumns?: "one" | "two" | "mix";
+  headerAlign?: "left" | "center";
+  baseFontSize?: string;
+  headingCap?: "uppercase" | "capitalize";
+  workOrder?: "title-employer" | "employer-title";
+  skillsStyle?: "compact" | "badges" | "grid";
 }) {
-  const isCreative = template.id === "creative";
+  const isCreative = template.id === "creative" || skillsStyle === "badges";
   const isDreamSync = template.id === "dreamsync";
   const accent = accentColor || template.accent || "#0f172a";
 
@@ -628,6 +647,7 @@ function ResumePreview({
 
   const renderSectionHeader = (icon: any, label: string) => {
     const IconComponent = icon;
+    const displayLabel = headingCap === "uppercase" ? label.toUpperCase() : label;
     return (
       <div
         className="flex items-center gap-1.5 mb-3 pb-1 border-b-2"
@@ -638,7 +658,7 @@ function ResumePreview({
           className="text-xs font-black uppercase tracking-wider"
           style={{ color: accent }}
         >
-          {label}
+          {displayLabel}
         </h3>
       </div>
     );
@@ -649,7 +669,7 @@ function ResumePreview({
       className="text-[10px] font-extrabold uppercase tracking-widest mb-2 pb-1 border-b"
       style={{ color: accent, borderColor: accent + "40" }}
     >
-      {label}
+      {headingCap === "uppercase" ? label.toUpperCase() : label}
     </p>
   );
 
@@ -660,16 +680,24 @@ function ResumePreview({
         "w-full rounded-xl border overflow-hidden shadow-sm text-xs leading-relaxed bg-white text-slate-900",
         fontFamily,
       )}
-      style={{ minHeight: 650 }}
+      style={{ minHeight: 650, fontSize: baseFontSize }}
     >
       {/* Header */}
       {isDreamSync ? (
-        <div className="px-8 py-6 text-center border-b space-y-2 bg-slate-50/50">
+        <div
+          className={cn(
+            "px-8 py-6 border-b space-y-2 bg-slate-50/50",
+            headerAlign === "center" ? "text-center" : "text-left",
+          )}
+        >
           {form.photo && (
             <img
               src={form.photo}
               alt="Profile Photo"
-              className="h-16 w-16 rounded-full mx-auto object-cover border-2 shadow-sm mb-1"
+              className={cn(
+                "h-16 w-16 rounded-full object-cover border-2 shadow-sm mb-1",
+                headerAlign === "center" && "mx-auto",
+              )}
               style={{ borderColor: accent }}
             />
           )}
@@ -677,11 +705,16 @@ function ResumePreview({
             {form.fullName || "ALEX RIVERA"}
           </h1>
           {form.targetRole && (
-            <p className="text-xs font-bold text-slate-700 max-w-2xl mx-auto leading-normal">
+            <p className="text-xs font-bold text-slate-700 max-w-2xl leading-normal">
               {form.targetRole}
             </p>
           )}
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-[11px] font-medium text-slate-600 pt-1">
+          <div
+            className={cn(
+              "flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] font-medium text-slate-600 pt-1",
+              headerAlign === "center" && "justify-center",
+            )}
+          >
             {form.email && (
               <span className="flex items-center gap-1">
                 <Mail className="h-3 w-3 text-slate-500" />
@@ -726,7 +759,7 @@ function ResumePreview({
             )}
           </div>
           {(form.passport || form.nationality || form.visa) && (
-            <div className="text-[10px] text-slate-500 font-medium pt-1 flex justify-center gap-3">
+            <div className="text-[10px] text-slate-500 font-medium pt-1 flex gap-3">
               {form.nationality && <span>Nationality: {form.nationality}</span>}
               {form.visa && <span>Visa: {form.visa}</span>}
               {form.passport && <span>Passport/ID: {form.passport}</span>}
@@ -758,7 +791,12 @@ function ResumePreview({
       )}
 
       {/* Body Content */}
-      <div className="px-8 py-6 space-y-6">
+      <div
+        className={cn(
+          "px-8 py-6 space-y-6",
+          layoutColumns === "two" && "grid grid-cols-1 md:grid-cols-2 gap-6 space-y-0",
+        )}
+      >
         {/* Objective / Summary */}
         {form.summary && (
           <div>
@@ -777,9 +815,18 @@ function ResumePreview({
                     <div key={idx} className="space-y-1">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
                         <div className="font-bold text-[12px] text-slate-950">
-                          {item.title}{" "}
-                          {item.company && (
-                            <span className="font-semibold text-slate-700">@ {item.company}</span>
+                          {workOrder === "employer-title" ? (
+                            <>
+                              {item.company && <span>{item.company} — </span>}
+                              <span className="font-normal">{item.title}</span>
+                            </>
+                          ) : (
+                            <>
+                              {item.title}{" "}
+                              {item.company && (
+                                <span className="font-semibold text-slate-700">@ {item.company}</span>
+                              )}
+                            </>
                           )}
                         </div>
                         <div className="text-[10.5px] font-bold text-slate-500">
@@ -1003,6 +1050,16 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   const [selectedTpl, setSelectedTpl] = useState(TEMPLATES[0]);
   const [accentColor, setAccentColor] = useState("#0f172a");
   const [fontFamily, setFontFamily] = useState("font-sans");
+
+  /* Advanced Design Controls */
+  const [docLanguage, setDocLanguage] = useState("English (UK)");
+  const [pageFormat, setPageFormat] = useState<"A4" | "Letter">("A4");
+  const [layoutColumns, setLayoutColumns] = useState<"one" | "two" | "mix">("one");
+  const [headerAlign, setHeaderAlign] = useState<"left" | "center">("center");
+  const [baseFontSize, setBaseFontSize] = useState<"9.5pt" | "10.5pt" | "11.5pt" | "12.5pt">("10.5pt");
+  const [headingCap, setHeadingCap] = useState<"uppercase" | "capitalize">("uppercase");
+  const [workOrder, setWorkOrder] = useState<"title-employer" | "employer-title">("title-employer");
+  const [skillsStyle, setSkillsStyle] = useState<"compact" | "badges" | "grid">("compact");
 
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
@@ -1735,9 +1792,80 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             {/* DESIGN & LAYOUT TAB */}
             {activeTab === "design" && (
               <Card className="p-5 rounded-2xl border shadow-sm space-y-6">
+                {/* 1. Document & Page Format */}
                 <div>
                   <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <LayoutGrid className="h-3.5 w-3.5 text-primary" /> Template Designs & Formats
+                    <SlidersHorizontal className="h-3.5 w-3.5 text-primary" /> Document & Page Format
+                  </Label>
+                  <div className="grid sm:grid-cols-3 gap-2">
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Language</span>
+                      <select
+                        className={inp}
+                        value={docLanguage}
+                        onChange={(e) => setDocLanguage(e.target.value)}
+                      >
+                        <option>English (UK)</option>
+                        <option>English (US)</option>
+                        <option>Hindi</option>
+                        <option>French</option>
+                        <option>German</option>
+                        <option>Spanish</option>
+                      </select>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Page Format</span>
+                      <div className="flex rounded-lg border p-0.5 bg-muted/40">
+                        <button
+                          onClick={() => setPageFormat("A4")}
+                          className={cn(
+                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer",
+                            pageFormat === "A4" && "bg-background shadow-xs text-primary",
+                          )}
+                        >
+                          A4
+                        </button>
+                        <button
+                          onClick={() => setPageFormat("Letter")}
+                          className={cn(
+                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer",
+                            pageFormat === "Letter" && "bg-background shadow-xs text-primary",
+                          )}
+                        >
+                          Letter
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Header Align</span>
+                      <div className="flex rounded-lg border p-0.5 bg-muted/40">
+                        <button
+                          onClick={() => setHeaderAlign("left")}
+                          className={cn(
+                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer flex justify-center items-center",
+                            headerAlign === "left" && "bg-background shadow-xs text-primary",
+                          )}
+                        >
+                          <AlignLeft className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setHeaderAlign("center")}
+                          className={cn(
+                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer flex justify-center items-center",
+                            headerAlign === "center" && "bg-background shadow-xs text-primary",
+                          )}
+                        >
+                          <AlignCenter className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Templates Gallery */}
+                <div className="pt-2 border-t">
+                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <LayoutGrid className="h-3.5 w-3.5 text-primary" /> Design Templates
                   </Label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {TEMPLATES.map((t) => (
@@ -1766,6 +1894,82 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   </div>
                 </div>
 
+                {/* 3. Layout Columns & Spacing */}
+                <div className="pt-2 border-t">
+                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Columns className="h-3.5 w-3.5 text-purple-600" /> Layout Columns & Structure
+                  </Label>
+                  <div className="grid sm:grid-cols-3 gap-2">
+                    <button
+                      onClick={() => setLayoutColumns("one")}
+                      className={cn(
+                        "p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer text-center",
+                        layoutColumns === "one" ? "border-primary bg-primary/5 text-primary" : "border-border hover:bg-muted/40",
+                      )}
+                    >
+                      Single Column
+                    </button>
+                    <button
+                      onClick={() => setLayoutColumns("two")}
+                      className={cn(
+                        "p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer text-center",
+                        layoutColumns === "two" ? "border-primary bg-primary/5 text-primary" : "border-border hover:bg-muted/40",
+                      )}
+                    >
+                      Two Columns (50/50)
+                    </button>
+                    <button
+                      onClick={() => setLayoutColumns("mix")}
+                      className={cn(
+                        "p-2.5 rounded-xl border text-xs font-bold transition cursor-pointer text-center",
+                        layoutColumns === "mix" ? "border-primary bg-primary/5 text-primary" : "border-border hover:bg-muted/40",
+                      )}
+                    >
+                      Executive Hybrid
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4. Font Typography & Size */}
+                <div className="pt-2 border-t">
+                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Type className="h-3.5 w-3.5 text-blue-600" /> Font Typography & Base Size
+                  </Label>
+                  <div className="grid sm:grid-cols-2 gap-2 mb-3">
+                    {FONTS.map((f) => (
+                      <button
+                        key={f.id}
+                        onClick={() => setFontFamily(f.id)}
+                        className={cn(
+                          "p-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer text-left",
+                          fontFamily === f.id
+                            ? "border-primary bg-primary/5 text-primary"
+                            : "border-border hover:bg-muted/40",
+                        )}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="text-xs font-bold text-muted-foreground">Base Font Size:</span>
+                    {(["9.5pt", "10.5pt", "11.5pt", "12.5pt"] as const).map((sz) => (
+                      <button
+                        key={sz}
+                        onClick={() => setBaseFontSize(sz)}
+                        className={cn(
+                          "px-2.5 py-1 rounded-lg text-xs font-bold border transition cursor-pointer",
+                          baseFontSize === sz ? "bg-primary text-primary-foreground border-primary" : "bg-muted/40 border-border hover:bg-muted",
+                        )}
+                      >
+                        {sz}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 5. Accent Color Palette */}
                 <div className="pt-2 border-t">
                   <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <Palette className="h-3.5 w-3.5 text-indigo-600" /> Accent Color Palette
@@ -1793,25 +1997,59 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   </div>
                 </div>
 
-                <div className="pt-2 border-t">
-                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Type className="h-3.5 w-3.5 text-blue-600" /> Font Typography
+                {/* 6. Section Headings & Work Order Customization */}
+                <div className="pt-2 border-t space-y-3">
+                  <Label className="text-xs font-bold block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Sliders className="h-3.5 w-3.5 text-emerald-600" /> Section Headings & Entry Order
                   </Label>
-                  <div className="grid sm:grid-cols-2 gap-2">
-                    {FONTS.map((f) => (
-                      <button
-                        key={f.id}
-                        onClick={() => setFontFamily(f.id)}
-                        className={cn(
-                          "p-2.5 rounded-xl border text-xs font-semibold transition cursor-pointer text-left",
-                          fontFamily === f.id
-                            ? "border-primary bg-primary/5 text-primary"
-                            : "border-border hover:bg-muted/40",
-                        )}
-                      >
-                        {f.label}
-                      </button>
-                    ))}
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Heading Style</span>
+                      <div className="flex rounded-lg border p-0.5 bg-muted/40">
+                        <button
+                          onClick={() => setHeadingCap("uppercase")}
+                          className={cn(
+                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer",
+                            headingCap === "uppercase" && "bg-background shadow-xs text-primary",
+                          )}
+                        >
+                          UPPERCASE
+                        </button>
+                        <button
+                          onClick={() => setHeadingCap("capitalize")}
+                          className={cn(
+                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer",
+                            headingCap === "capitalize" && "bg-background shadow-xs text-primary",
+                          )}
+                        >
+                          Capitalize
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Work Title Order</span>
+                      <div className="flex rounded-lg border p-0.5 bg-muted/40">
+                        <button
+                          onClick={() => setWorkOrder("title-employer")}
+                          className={cn(
+                            "flex-1 py-1 rounded text-[10px] font-bold transition cursor-pointer truncate px-1",
+                            workOrder === "title-employer" && "bg-background shadow-xs text-primary",
+                          )}
+                        >
+                          Title — Employer
+                        </button>
+                        <button
+                          onClick={() => setWorkOrder("employer-title")}
+                          className={cn(
+                            "flex-1 py-1 rounded text-[10px] font-bold transition cursor-pointer truncate px-1",
+                            workOrder === "employer-title" && "bg-background shadow-xs text-primary",
+                          )}
+                        >
+                          Employer — Title
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -1928,6 +2166,12 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 template={selectedTpl}
                 accentColor={accentColor}
                 fontFamily={fontFamily}
+                layoutColumns={layoutColumns}
+                headerAlign={headerAlign}
+                baseFontSize={baseFontSize}
+                headingCap={headingCap}
+                workOrder={workOrder}
+                skillsStyle={skillsStyle}
               />
             </div>
           </div>
