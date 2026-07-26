@@ -167,6 +167,46 @@ Return ONLY valid JSON (no markdown, no code fences):
     }
   });
 
+const CareerInput = z.object({
+  currentRole: z.string().max(200).optional().default(""),
+  targetRole: z.string().min(1).max(200).optional().default("Software Engineer"),
+  skills: z.string().max(2000).optional().default(""),
+  experience: z.string().max(1000).optional().default(""),
+  education: z.string().max(500).optional().default(""),
+  timeline: z.enum(["3 months", "6 months", "12 months", "24 months"]).optional().default("12 months"),
+  learningStyle: z.enum(["self-paced", "structured", "mentor-led"]).optional().default("self-paced"),
+});
+
+export const generateCareerRoadmap = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => CareerInput.parse(d || {}))
+  .handler(async ({ data }) => {
+    const body = {
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert career coach and learning path designer. Create detailed, actionable career roadmaps. Current year: 2025-2026. Return ONLY valid JSON matching schema.`,
+        },
+        {
+          role: "user",
+          content: `Create a ${data.timeline} career roadmap to become a ${data.targetRole}.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.7,
+    };
+
+    const res = await callUserAiChat(body as any, "pro");
+    if (!res.ok) throw new Error(`Roadmap generation failed (${res.status})`);
+    const payload = await res.json();
+    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return { roadmap: JSON.parse(content) };
+    } catch {
+      return { roadmap: null, rawContent: content };
+    }
+  });
+
 const ExtractResumeInput = z.object({
   rawText: z.string().min(1).max(100000).optional().default(""),
 });
@@ -230,11 +270,8 @@ export const extractResumeFields = createServerFn({ method: "POST" })
           if (m) result = { ...result, ...JSON.parse(m[0]) };
         }
       }
-    } catch {
-      // Ignore AI errors and fall through to regex extraction
-    }
+    } catch {}
 
-    // Comprehensive Fallback & Enhancer for URLs, Experience, Skills, Education
     const urlRegex = /(https?:\/\/[^\s,">]+)/gi;
     const urls = Array.from(new Set(rawText.match(urlRegex) || []));
 
@@ -263,38 +300,18 @@ export const extractResumeFields = createServerFn({ method: "POST" })
           result.projects = (existingProj ? existingProj + "\n" : "") + missingProj.join("\n");
         }
       }
-
-      const certUrls = urls.filter(
-        (u) =>
-          u.includes("coursera") ||
-          u.includes("greatlearning") ||
-          u.includes("simplilearn") ||
-          u.includes("forage") ||
-          u.includes("certificate") ||
-          u.includes("completion"),
-      );
-      if (certUrls.length > 0) {
-        const existingCert = result.certifications || "";
-        const missingCert = certUrls.filter((u) => !existingCert.includes(u));
-        if (missingCert.length > 0) {
-          result.certifications = (existingCert ? existingCert + "\n" : "") + missingCert.join("\n");
-        }
-      }
     }
 
-    // Email regex fallback
     if (!result.email) {
       const emailMatch = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
       if (emailMatch) result.email = emailMatch[0];
     }
 
-    // Phone regex fallback
     if (!result.phone) {
       const phoneMatch = rawText.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
       if (phoneMatch) result.phone = phoneMatch[0];
     }
 
-    // Experience regex fallback
     if (!result.experience || result.experience.trim().length < 10) {
       const expMatch = rawText.match(
         /(?:Experience|Work History|Employment|History)[\s\S]*?(?=(?:Education|Skills|Projects|Certifications|$))/i,
@@ -307,6 +324,96 @@ export const extractResumeFields = createServerFn({ method: "POST" })
     }
 
     return result;
+  });
+
+const InterviewQuestionInput = z.object({
+  role: z.string().min(1).max(100).optional().default("Software Engineer"),
+  difficulty: z.enum(["easy", "medium", "hard"]).optional().default("medium"),
+  category: z.enum(["technical", "behavioral", "system_design", "hr"]).optional().default("technical"),
+  previousQuestions: z.array(z.string()).optional(),
+});
+
+export const generateInterviewQuestion = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => InterviewQuestionInput.parse(d || {}))
+  .handler(async ({ data }) => {
+    const body = {
+      messages: [
+        {
+          role: "system",
+          content: `You are a senior tech interviewer. Generate realistic interview questions for a ${data.role} position. Difficulty: ${data.difficulty}. Category: ${data.category}. Return ONLY valid JSON matching:
+{
+  "question": string,
+  "hints": string[],
+  "keyConcepts": string[],
+  "idealAnswerOutline": string[]
+}`,
+        },
+        {
+          role: "user",
+          content: `Generate a ${data.difficulty} ${data.category} question for ${data.role}.${data.previousQuestions?.length ? ` Avoid these previous questions: ${data.previousQuestions.join("; ")}` : ""}`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.7,
+    };
+
+    const res = await callUserAiChat(body as any, "fast");
+    if (!res.ok) throw new Error(`Failed to generate question (${res.status})`);
+    const payload = await res.json();
+    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      if (m) return JSON.parse(m[0]);
+      throw new Error("Invalid interview question format");
+    }
+  });
+
+const EvaluateAnswerInput = z.object({
+  question: z.string().min(1).optional().default("Technical Question"),
+  answer: z.string().min(1).optional().default("Answer"),
+  role: z.string().optional().default("Software Engineer"),
+});
+
+export const evaluateInterviewAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => EvaluateAnswerInput.parse(d || {}))
+  .handler(async ({ data }) => {
+    const body = {
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert tech interviewer evaluating a candidate's answer. Return ONLY valid JSON matching:
+{
+  "score": number (0-100),
+  "feedback": string,
+  "strengths": string[],
+  "improvements": string[],
+  "modelAnswer": string
+}`,
+        },
+        {
+          role: "user",
+          content: `Question: ${data.question}\n\nCandidate Answer: ${data.answer}${data.role ? `\nRole: ${data.role}` : ""}`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      temperature: 0.3,
+    };
+
+    const res = await callUserAiChat(body as any, "fast");
+    if (!res.ok) throw new Error(`Evaluation failed (${res.status})`);
+    const payload = await res.json();
+    const content: string = payload.choices?.[0]?.message?.content ?? "{}";
+    try {
+      return JSON.parse(content);
+    } catch {
+      const m = content.match(/\{[\s\S]*\}/);
+      if (m) return JSON.parse(m[0]);
+      throw new Error("Invalid evaluation format");
+    }
   });
 
 const PortfolioInput = z.object({
