@@ -329,21 +329,75 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const generateQuestion = useServerFn(generateInterviewQuestion);
   const evaluateAnswer = useServerFn(evaluateInterviewAnswer);
 
-  const [step, setStep] = useState<"setup" | "interview" | "results">("setup");
-  const [role, setRole] = useState("");
-  const [customRole, setCustomRole] = useState("");
+  const [step, setStep] = useState<"setup" | "interview" | "results">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("interview_step") as any)) || "setup";
+  });
+  const [role, setRole] = useState(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("interview_role")) || "";
+  });
+  const [customRole, setCustomRole] = useState(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("interview_custom_role")) || "";
+  });
   const [avatarModel, setAvatarModel] = useState<"eric" | "sarah" | "alex">("eric");
-  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
-  const [mode, setMode] = useState<"chat" | "voice" | "video">("chat");
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("interview_difficulty") as any)) || "medium";
+  });
+  const [mode, setMode] = useState<"chat" | "voice" | "video">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("interview_mode") as any)) || "chat";
+  });
 
-  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [previousQuestions, setPreviousQuestions] = useState<string[]>([]);
-  const [userAnswer, setUserAnswer] = useState("");
-  const [evaluation, setEvaluation] = useState<Evaluation | null>(null);
+  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("interview_current_question");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return null;
+  });
+  const [questionIndex, setQuestionIndex] = useState(() => {
+    return (typeof window !== "undefined" && Number(localStorage.getItem("interview_question_index"))) || 0;
+  });
+  const [previousQuestions, setPreviousQuestions] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("interview_prev_questions");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return [];
+  });
+  const [userAnswer, setUserAnswer] = useState(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("interview_user_answer")) || "";
+  });
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("interview_evaluation");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(false);
   const [evaluating, setEvaluating] = useState(false);
-  const [scores, setScores] = useState<number[]>([]);
+  const [scores, setScores] = useState<number[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("interview_scores");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return [];
+  });
   const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showTips, setShowTips] = useState(false);
@@ -352,6 +406,21 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [micActive, setMicActive] = useState(true);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("interview_step", step);
+    localStorage.setItem("interview_role", role);
+    localStorage.setItem("interview_custom_role", customRole);
+    localStorage.setItem("interview_difficulty", difficulty);
+    localStorage.setItem("interview_mode", mode);
+    localStorage.setItem("interview_question_index", String(questionIndex));
+    localStorage.setItem("interview_user_answer", userAnswer);
+    if (currentQuestion) localStorage.setItem("interview_current_question", JSON.stringify(currentQuestion));
+    if (previousQuestions) localStorage.setItem("interview_prev_questions", JSON.stringify(previousQuestions));
+    if (evaluation) localStorage.setItem("interview_evaluation", JSON.stringify(evaluation));
+    if (scores) localStorage.setItem("interview_scores", JSON.stringify(scores));
+  }, [step, role, customRole, difficulty, mode, questionIndex, userAnswer, currentQuestion, previousQuestions, evaluation, scores]);
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [viseme, setViseme] = useState("X");
 

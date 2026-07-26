@@ -1090,30 +1090,79 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   const generateFn = useServerFn(generateResume);
   const extractFn = useServerFn(extractResumeFields);
 
-  const [activeTab, setActiveTab] = useState<"content" | "design" | "ai" | "cover" | "linkedin">("content");
-  const [activeSection, setActiveSection] = useState<string>("personal");
+  const [activeTab, setActiveTab] = useState<"content" | "design" | "ai" | "cover" | "linkedin">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("resume_builder_active_tab");
+      if (saved) return saved as any;
+    }
+    return "content";
+  });
+  const [activeSection, setActiveSection] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("resume_builder_active_section");
+      if (saved) return saved;
+    }
+    return "personal";
+  });
   const [view, setView] = useState<"edit" | "preview">("preview");
-  const [selectedTpl, setSelectedTpl] = useState(TEMPLATES[0]);
-  const [accentColor, setAccentColor] = useState("#0f172a");
-  const [fontFamily, setFontFamily] = useState("font-sans");
+  const [selectedTpl, setSelectedTpl] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("resume_builder_tpl");
+      if (saved) {
+        const found = TEMPLATES.find((t) => t.id === saved);
+        if (found) return found;
+      }
+    }
+    return TEMPLATES[0];
+  });
+  const [accentColor, setAccentColor] = useState(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("resume_builder_accent")) || "#0f172a";
+  });
+  const [fontFamily, setFontFamily] = useState(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("resume_builder_font")) || "font-sans";
+  });
 
   /* Advanced Design Controls */
-  const [docLanguage, setDocLanguage] = useState("English (UK)");
-  const [pageFormat, setPageFormat] = useState<"A4" | "Letter">("A4");
-  const [layoutColumns, setLayoutColumns] = useState<"one" | "two" | "mix">("one");
-  const [headerAlign, setHeaderAlign] = useState<"left" | "center">("center");
-  const [baseFontSize, setBaseFontSize] = useState<"9.5pt" | "10.5pt" | "11.5pt" | "12.5pt">("10.5pt");
-  const [headingCap, setHeadingCap] = useState<"uppercase" | "capitalize">("uppercase");
-  const [workOrder, setWorkOrder] = useState<"title-employer" | "employer-title">("title-employer");
-  const [skillsStyle, setSkillsStyle] = useState<"compact" | "badges" | "grid">("compact");
+  const [docLanguage, setDocLanguage] = useState(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("resume_builder_lang")) || "English (UK)";
+  });
+  const [pageFormat, setPageFormat] = useState<"A4" | "Letter">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_format") as any)) || "A4";
+  });
+  const [layoutColumns, setLayoutColumns] = useState<"one" | "two" | "mix">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_cols") as any)) || "one";
+  });
+  const [headerAlign, setHeaderAlign] = useState<"left" | "center">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_align") as any)) || "center";
+  });
+  const [baseFontSize, setBaseFontSize] = useState<"9.5pt" | "10.5pt" | "11.5pt" | "12.5pt">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_font_size") as any)) || "10.5pt";
+  });
+  const [headingCap, setHeadingCap] = useState<"uppercase" | "capitalize">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_cap") as any)) || "uppercase";
+  });
+  const [workOrder, setWorkOrder] = useState<"title-employer" | "employer-title">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_work_order") as any)) || "title-employer";
+  });
+  const [skillsStyle, setSkillsStyle] = useState<"compact" | "badges" | "grid">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_skills_style") as any)) || "compact";
+  });
 
   /* AI Cover Letter & LinkedIn States */
-  const [targetCompany, setTargetCompany] = useState("");
-  const [coverLetterText, setCoverLetterText] = useState("");
+  const [targetCompany, setTargetCompany] = useState(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("resume_builder_target_company")) || "";
+  });
+  const [coverLetterText, setCoverLetterText] = useState(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("resume_builder_cover_text")) || "";
+  });
   const [generatingCover, setGeneratingCover] = useState(false);
 
-  const [linkedinHeadline, setLinkedinHeadline] = useState("");
-  const [linkedinBio, setLinkedinBio] = useState("");
+  const [linkedinHeadline, setLinkedinHeadline] = useState(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("resume_builder_linkedin_headline")) || "";
+  });
+  const [linkedinBio, setLinkedinBio] = useState(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("resume_builder_linkedin_bio")) || "";
+  });
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -1162,6 +1211,45 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     if (typeof window === "undefined") return;
     localStorage.setItem("resume_builder_form", JSON.stringify(form));
   }, [form]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("resume_builder_active_tab", activeTab);
+    localStorage.setItem("resume_builder_active_section", activeSection);
+    localStorage.setItem("resume_builder_tpl", selectedTpl.id);
+    localStorage.setItem("resume_builder_accent", accentColor);
+    localStorage.setItem("resume_builder_font", fontFamily);
+    localStorage.setItem("resume_builder_lang", docLanguage);
+    localStorage.setItem("resume_builder_format", pageFormat);
+    localStorage.setItem("resume_builder_cols", layoutColumns);
+    localStorage.setItem("resume_builder_align", headerAlign);
+    localStorage.setItem("resume_builder_font_size", baseFontSize);
+    localStorage.setItem("resume_builder_cap", headingCap);
+    localStorage.setItem("resume_builder_work_order", workOrder);
+    localStorage.setItem("resume_builder_skills_style", skillsStyle);
+    localStorage.setItem("resume_builder_target_company", targetCompany);
+    localStorage.setItem("resume_builder_cover_text", coverLetterText);
+    localStorage.setItem("resume_builder_linkedin_headline", linkedinHeadline);
+    localStorage.setItem("resume_builder_linkedin_bio", linkedinBio);
+  }, [
+    activeTab,
+    activeSection,
+    selectedTpl,
+    accentColor,
+    fontFamily,
+    docLanguage,
+    pageFormat,
+    layoutColumns,
+    headerAlign,
+    baseFontSize,
+    headingCap,
+    workOrder,
+    skillsStyle,
+    targetCompany,
+    coverLetterText,
+    linkedinHeadline,
+    linkedinBio,
+  ]);
 
   const liveAts = calculateLiveAtsScore(form);
 
