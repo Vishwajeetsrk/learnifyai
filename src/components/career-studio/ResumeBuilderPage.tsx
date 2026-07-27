@@ -496,7 +496,7 @@ Tech Stack: Next.js, OpenAI API, Vector DB, Supabase, Tailwind CSS
 
 const VISHWAJEET_DEFAULT_FORM: Record<string, string> = {
   fullName: "VISHWAJEET",
-  targetRole: "AI Software Engineer | Full Stack Developer | Salesforce & Data Operations",
+  targetRole: "AI Software Engineer",
   email: "vishwajeetsrk@gmail.com",
   phone: "+91 85952 02922",
   location: "Bengaluru, India",
@@ -507,7 +507,7 @@ const VISHWAJEET_DEFAULT_FORM: Record<string, string> = {
   summary:
     "AI-focused Full Stack Developer with hands-on experience building AI-powered SaaS applications, modern web platforms, and automation workflows. Skilled in Salesforce CRM, Microsoft Excel, PowerPoint, Word, HTML, Supabase, Firebase, AI tools, and responsive web development. Passionate about Generative AI, cloud technologies, and creating scalable digital products that improve learning and productivity.",
   experience: `Reconciliation & Data Management, Rootbridge Academy Pvt Ltd | Dec 2024 – Present | Bengaluru
-Played a key role in enhancing data management and operational efficiency at Rootbridge.
+• Played a key role in enhancing data management and operational efficiency at Rootbridge.
 • Entered, verified, and maintained over 200,000 records with exceptional accuracy.
 • Identified and resolved more than 50 recurring data mismatches monthly, significantly improving data integrity.
 • Achieved a 30% increase in data accuracy through rigorous validation and reconciliation checks.
@@ -537,7 +537,7 @@ CRM & Business Tools: Salesforce CRM | Salesforce Data Loader | Razorpay
 AI & Automation: ChatGPT | Gemini | Claude | OpenRouter | Antigravity | NotebookLM | Prompt Engineering
 Backend: Node.js | Express.js | PHP | REST APIs
 Cloud & Deployment: Vercel | Render | GitHub | Cloudinary
-Microsoft Office: Microsoft Excel | Microsoft Word | Microsoft PowerPoint`,
+Microsoft Office: Microsoft Excel | Microsoft Word | Microsoft PowerPoint | TypeScript | AWS | System Design | CI/CD`,
   projects: `Learnify AI | May 2026 – Present
 Tech Stack: React 19, TypeScript, Tailwind CSS, Cashfree, Supabase, OpenRouter etc.
 • Built a full-stack AI-powered learning platform that combines intelligent tutoring, creator tools, gamification, AI career guidance, and community learning.
@@ -1281,11 +1281,11 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       const saved = localStorage.getItem("resume_builder_form");
       if (saved) {
         try {
-          return { ...SAMPLE_TEMPLATE_FORM, ...JSON.parse(saved) };
+          return { ...VISHWAJEET_DEFAULT_FORM, ...JSON.parse(saved) };
         } catch {}
       }
     }
-    return SAMPLE_TEMPLATE_FORM;
+    return VISHWAJEET_DEFAULT_FORM;
   });
 
   const [drafts, setDrafts] = useState<SavedDraft[]>(() => {
@@ -1519,35 +1519,103 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     }
   };
 
-  const handleDownloadWord = () => {
-    const el = document.getElementById("resume-preview-document");
-    let bodyHtml = "";
-    if (el) {
-      bodyHtml = el.innerHTML;
-    } else if (result) {
-      bodyHtml = markdownToHtml(result);
-    } else {
-      bodyHtml = `<h1>${form.fullName}</h1><p>${form.targetRole}</p>`;
-    }
+  const generateWordDocumentHtml = (f: Record<string, string>) => {
+    const name = f.fullName || "VISHWAJEET";
+    const role = f.targetRole || "AI Software Engineer";
+    const contacts = [
+      f.email && `Email: ${f.email}`,
+      f.phone && `Phone: ${f.phone}`,
+      f.location && `Location: ${f.location}`,
+      f.linkedin && `LinkedIn: ${f.linkedin}`,
+      f.github && `GitHub: ${f.github}`,
+      f.website && `Website: ${f.website}`,
+    ].filter(Boolean).join(" | ");
 
-    const docHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Resume</title><style>body { font-family: Arial, sans-serif; line-height: 1.5; color: #111; margin: 0.8in; } h1 { font-size: 22pt; font-weight: bold; text-align: center; margin-bottom: 4pt; } h3 { font-size: 13pt; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 3pt; margin-top: 14pt; margin-bottom: 6pt; } p, div { font-size: 10pt; margin-bottom: 4pt; } a { color: #0284c7; text-decoration: underline; }</style></head><body>${bodyHtml}</body></html>`;
-    const a = Object.assign(document.createElement("a"), {
-      href: URL.createObjectURL(new Blob(["\ufeff" + docHtml], { type: "application/msword" })),
-      download: `${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.docx`,
-    });
-    a.click();
-    toast.success("Word Document (.docx) downloaded!");
+    const formatBlockHtml = (text?: string) => {
+      if (!text) return "";
+      const lines = text.split("\n").filter((l) => l.trim());
+      const htmlLines = lines.map((line) => {
+        const clean = line.replace(/^[•\-*]\s*/, "");
+        if (line.startsWith("•") || line.startsWith("-") || line.startsWith("*")) {
+          return `<li style="margin-bottom: 3pt; text-align: left;">${clean}</li>`;
+        }
+        return `<p style="margin-bottom: 4pt; text-align: left;">${clean}</p>`;
+      });
+
+      if (htmlLines.some((l) => l.startsWith("<li"))) {
+        return `<ul style="margin-top: 4pt; margin-bottom: 8pt; padding-left: 18pt;">${htmlLines.join("")}</ul>`;
+      }
+      return htmlLines.join("");
+    };
+
+    return `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head>
+  <meta charset='utf-8'>
+  <title>${name} - Resume</title>
+  <style>
+    body { font-family: 'Calibri', 'Arial', sans-serif; font-size: 11pt; line-height: 1.4; color: #0f172a; margin: 0.75in; }
+    h1 { font-size: 20pt; font-weight: bold; text-align: center; text-transform: uppercase; margin-bottom: 2pt; color: #0f172a; }
+    .role { font-size: 12pt; font-weight: bold; text-align: center; color: #0284c7; margin-bottom: 6pt; }
+    .contact { font-size: 9.5pt; text-align: center; color: #475569; margin-bottom: 12pt; }
+    h2 { font-size: 11.5pt; font-weight: bold; text-transform: uppercase; border-bottom: 1.5pt solid #0f172a; padding-bottom: 2pt; margin-top: 14pt; margin-bottom: 6pt; color: #0f172a; }
+    p { margin: 0 0 4pt 0; text-align: left; }
+    ul { margin: 4pt 0 8pt 0; padding-left: 18pt; }
+    li { margin-bottom: 3pt; text-align: left; }
+    a { color: #0284c7; text-decoration: underline; }
+    .declaration { font-style: italic; color: #475569; font-size: 10pt; margin-top: 6pt; }
+    .signature { margin-top: 16pt; font-weight: bold; font-size: 11pt; border-top: 1pt solid #cbd5e1; width: 220pt; padding-top: 4pt; }
+  </style>
+</head>
+<body>
+  <h1>${name}</h1>
+  ${role ? `<div class="role">${role}</div>` : ""}
+  ${contacts ? `<div class="contact">${contacts}</div>` : ""}
+
+  ${f.summary ? `<h2>OBJECTIVE / SUMMARY</h2><div>${formatBlockHtml(f.summary)}</div>` : ""}
+  ${f.experience ? `<h2>PROFESSIONAL EXPERIENCE</h2><div>${formatBlockHtml(f.experience)}</div>` : ""}
+  ${f.education ? `<h2>EDUCATION</h2><div>${formatBlockHtml(f.education)}</div>` : ""}
+  ${f.projects ? `<h2>PROJECTS</h2><div>${formatBlockHtml(f.projects)}</div>` : ""}
+  ${f.skills ? `<h2>TECHNICAL SKILLS</h2><div>${formatBlockHtml(f.skills)}</div>` : ""}
+  ${f.certifications ? `<h2>CERTIFICATIONS</h2><div>${formatBlockHtml(f.certifications)}</div>` : ""}
+  ${f.customSectionTitle && f.customSectionBody ? `<h2>${f.customSectionTitle.toUpperCase()}</h2><div>${formatBlockHtml(f.customSectionBody)}</div>` : ""}
+  ${f.strengths ? `<h2>STRENGTHS & COMPETENCIES</h2><div>${formatBlockHtml(f.strengths)}</div>` : ""}
+  ${f.languages ? `<h2>LANGUAGES</h2><p>${f.languages}</p>` : ""}
+  ${f.awards ? `<h2>HONORS & AWARDS</h2><div>${formatBlockHtml(f.awards)}</div>` : ""}
+  ${f.declaration ? `<h2>DECLARATION</h2><p class="declaration">${f.declaration}</p><div class="signature">${f.signatoryName || name}<br/><span style="font-weight:normal; font-size:9.5pt; color:#64748b;">${f.signatoryName || name} (${f.signatoryPlace || f.location?.split(",")[0] || "Bengaluru"})</span></div>` : ""}
+</body>
+</html>`;
+  };
+
+  const handleDownloadWord = () => {
+    try {
+      const docHtml = generateWordDocumentHtml(form);
+      const blob = new Blob(["\ufeff" + docHtml], { type: "application/msword;charset=utf-8" });
+      const fileName = `${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.docx`;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast.success("Word Document (.docx) downloaded successfully!");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to generate Word document");
+    }
   };
 
   const handleDownloadPdfDirect = async () => {
     try {
       const { jsPDF } = await import("jspdf");
-      const doc = new jsPDF();
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
 
       let y = 15;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(18);
-      doc.text(form.fullName || "ALEX RIVERA", 105, y, { align: "center" });
+      doc.text(form.fullName || "VISHWAJEET", 105, y, { align: "center" });
 
       y += 7;
       if (form.targetRole) {
@@ -1558,10 +1626,10 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
         y += 6;
       }
 
-      doc.setFontSize(9);
+      doc.setFontSize(8.5);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(70, 70, 70);
-      const contactInfo = [form.email, form.phone, form.location, form.linkedin]
+      const contactInfo = [form.email, form.phone, form.location, form.linkedin, form.github, form.website]
         .filter(Boolean)
         .join(" | ");
       doc.text(contactInfo, 105, y, { align: "center" });
@@ -1573,22 +1641,22 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
 
       const addSection = (title: string, content?: string) => {
         if (!content || !content.trim()) return;
-        if (y > 270) {
+        if (y > 265) {
           doc.addPage();
           y = 15;
         }
         doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
-        doc.setTextColor(0, 0, 0);
+        doc.setTextColor(15, 23, 42);
         doc.text(title.toUpperCase(), 15, y);
         y += 2;
-        doc.setDrawColor(0, 0, 0);
+        doc.setDrawColor(15, 23, 42);
         doc.line(15, y, 195, y);
         y += 5;
 
         doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
-        doc.setTextColor(30, 30, 30);
+        doc.setTextColor(30, 41, 59);
 
         const lines = doc.splitTextToSize(content, 180);
         for (let i = 0; i < lines.length; i++) {
@@ -1605,24 +1673,30 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       addSection("Professional Summary", form.summary);
       addSection("Professional Experience", form.experience);
       addSection("Education", form.education);
-      addSection("Technical Skills", form.skills);
       addSection("Projects", form.projects);
+      addSection("Technical Skills", form.skills);
       addSection("Certifications", form.certifications);
+      if (form.customSectionTitle && form.customSectionBody) {
+        addSection(form.customSectionTitle, form.customSectionBody);
+      }
       addSection("Strengths & Competencies", form.strengths);
       addSection("Languages", form.languages);
       addSection("Honors & Awards", form.awards);
-      addSection("Declaration", form.declaration);
+      if (form.declaration) {
+        const decContent = `${form.declaration}\n\nSignatory: ${form.signatoryName || form.fullName || "VISHWAJEET"} (${form.signatoryPlace || "Bengaluru"})`;
+        addSection("Declaration", decContent);
+      }
 
       doc.save(`${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.pdf`);
       toast.success("PDF Resume downloaded directly!");
-    } catch {
-      toast.error("Failed to generate PDF download");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to generate PDF download");
     }
   };
 
   const handleDownloadTxt = () => {
     const textContent = [
-      (form.fullName || "ALEX RIVERA").toUpperCase(),
+      (form.fullName || "VISHWAJEET").toUpperCase(),
       form.targetRole,
       [form.email, form.phone, form.location, form.linkedin, form.github, form.website]
         .filter(Boolean)
@@ -1631,13 +1705,14 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       form.summary ? `\nOBJECTIVE / SUMMARY\n${form.summary}` : "",
       form.experience ? `\nPROFESSIONAL EXPERIENCE\n${form.experience}` : "",
       form.education ? `\nEDUCATION\n${form.education}` : "",
-      form.skills ? `\nTECHNICAL SKILLS\n${form.skills}` : "",
       form.projects ? `\nPROJECTS\n${form.projects}` : "",
+      form.skills ? `\nTECHNICAL SKILLS\n${form.skills}` : "",
       form.certifications ? `\nCERTIFICATIONS\n${form.certifications}` : "",
-      form.strengths ? `\nSTRENGTHS\n${form.strengths}` : "",
+      form.customSectionTitle && form.customSectionBody ? `\n${form.customSectionTitle.toUpperCase()}\n${form.customSectionBody}` : "",
+      form.strengths ? `\nSTRENGTHS & COMPETENCIES\n${form.strengths}` : "",
       form.languages ? `\nLANGUAGES\n${form.languages}` : "",
       form.awards ? `\nAWARDS\n${form.awards}` : "",
-      form.declaration ? `\nDECLARATION\n${form.declaration}\nSignatory: ${form.signatoryName || form.fullName} (${form.signatoryPlace || "San Francisco"})` : "",
+      form.declaration ? `\nDECLARATION\n${form.declaration}\nSignatory: ${form.signatoryName || form.fullName} (${form.signatoryPlace || "Bengaluru"})` : "",
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -2223,12 +2298,12 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                             value={form.customSectionIcon || "award"}
                             onChange={(e) => update("customSectionIcon", e.target.value)}
                           >
-                            <option value="award">🏆 Award (SVG)</option>
-                            <option value="star">⭐ Star (SVG)</option>
-                            <option value="book">📚 Publications (SVG)</option>
-                            <option value="globe">🌐 Global Community (SVG)</option>
-                            <option value="shield">🛡️ Patents / Honors (SVG)</option>
-                            <option value="code">💻 Open Source (SVG)</option>
+                            <option value="award">Award (SVG Icon)</option>
+                            <option value="star">Star (SVG Icon)</option>
+                            <option value="book">Publications / Book (SVG Icon)</option>
+                            <option value="globe">Global / Community (SVG Icon)</option>
+                            <option value="shield">Patents / Shield (SVG Icon)</option>
+                            <option value="code">Code / Open Source (SVG Icon)</option>
                           </select>
                         </div>
                       </div>
