@@ -577,6 +577,95 @@ function FormatToolbar({
   );
 }
 
+function SectionTitleConfigHeader({
+  sectionKey,
+  defaultTitle,
+  form,
+  update,
+}: {
+  sectionKey: string;
+  defaultTitle: string;
+  form: Record<string, string>;
+  update: (field: string, val: string) => void;
+}) {
+  const titleKey = `${sectionKey}SectionTitle`;
+  const iconKey = `${sectionKey}SectionIcon`;
+  const currentTitle = form[titleKey] ?? defaultTitle;
+  const currentIcon = form[iconKey] ?? "default";
+
+  return (
+    <div className="p-3 bg-muted/30 rounded-xl border border-border/50 mb-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+          <Edit3 className="h-3 w-3 text-primary" /> Section Title & Icon Settings
+        </span>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-2">
+        <div>
+          <label className="text-[10px] font-semibold text-muted-foreground mb-1 block">Custom Section Title</label>
+          <input
+            className="w-full text-xs px-2.5 py-1.5 rounded-lg border bg-background font-bold focus:outline-none focus:ring-1 focus:ring-primary"
+            value={currentTitle}
+            onChange={(e) => update(titleKey, e.target.value)}
+            placeholder={defaultTitle}
+          />
+        </div>
+        <div>
+          <label className="text-[10px] font-semibold text-muted-foreground mb-1 block">SVG Icon Preset</label>
+          <select
+            className="w-full text-xs px-2.5 py-1.5 rounded-lg border bg-background font-semibold focus:outline-none focus:ring-1 focus:ring-primary"
+            value={currentIcon}
+            onChange={(e) => update(iconKey, e.target.value)}
+          >
+            <option value="default">Default Section Icon</option>
+            <option value="award">Award (SVG Icon)</option>
+            <option value="briefcase">Briefcase / Work (SVG Icon)</option>
+            <option value="grad">Graduation Cap / Edu (SVG Icon)</option>
+            <option value="folder">Folder / Projects (SVG Icon)</option>
+            <option value="wrench">Wrench / Skills (SVG Icon)</option>
+            <option value="star">Star / Competencies (SVG Icon)</option>
+            <option value="globe">Globe / Languages (SVG Icon)</option>
+            <option value="trophy">Trophy / Honors (SVG Icon)</option>
+            <option value="pen">Pen / Declaration (SVG Icon)</option>
+            <option value="file">File / Summary (SVG Icon)</option>
+            <option value="shield">Shield / Security (SVG Icon)</option>
+            <option value="code">Code / Development (SVG Icon)</option>
+            <option value="none">No Icon</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function getSectionIconAndTitle(
+  sectionKey: string,
+  defaultIcon: any,
+  defaultTitle: string,
+  form: Record<string, string>,
+) {
+  const customTitle = form[`${sectionKey}SectionTitle`] || defaultTitle;
+  const customIconKey = form[`${sectionKey}SectionIcon`];
+
+  let IconComp = defaultIcon;
+  if (customIconKey && customIconKey !== "default") {
+    if (customIconKey === "award") IconComp = Award;
+    else if (customIconKey === "briefcase") IconComp = Briefcase;
+    else if (customIconKey === "grad") IconComp = GraduationCap;
+    else if (customIconKey === "folder") IconComp = FolderOpen;
+    else if (customIconKey === "wrench") IconComp = Wrench;
+    else if (customIconKey === "star") IconComp = Star;
+    else if (customIconKey === "globe") IconComp = Globe;
+    else if (customIconKey === "trophy") IconComp = Trophy;
+    else if (customIconKey === "pen") IconComp = PenTool;
+    else if (customIconKey === "file") IconComp = FileText;
+    else if (customIconKey === "shield") IconComp = Shield;
+    else if (customIconKey === "code") IconComp = Code;
+    else if (customIconKey === "none") IconComp = null;
+  }
+  return { title: customTitle, icon: IconComp };
+}
+
 /* ── Live Preview Component ── */
 function ResumePreview({
   form,
@@ -852,36 +941,79 @@ function ResumePreview({
         ))}
 
         {/* Objective / Summary */}
-        {form.summary && (
-          <div>
-            {isDreamSync ? renderSectionHeader(FileText, "OBJECTIVE / SUMMARY") : sH("Summary")}
-            <p className="text-xs text-slate-700 leading-relaxed font-normal">{form.summary}</p>
-          </div>
-        )}
+        {form.summary && (() => {
+          const { title, icon } = getSectionIconAndTitle("summary", FileText, "OBJECTIVE / SUMMARY", form);
+          return (
+            <div>
+              {renderSectionHeader(icon, title)}
+              <p className="text-xs text-slate-700 leading-relaxed font-normal">{form.summary}</p>
+            </div>
+          );
+        })()}
 
         {/* Experience */}
-        {form.experience && (
-          <div>
-            {isDreamSync ? renderSectionHeader(Briefcase, "PROFESSIONAL EXPERIENCE") : sH("Experience")}
-            <div className="space-y-3.5">
-              {expItems.length > 0
-                ? expItems.map((item, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-                        <div className="font-bold text-[12px] text-slate-950">
-                          {workOrder === "employer-title" ? (
-                            <>
-                              {item.company && <span>{item.company} — </span>}
-                              <span className="font-normal">{item.title}</span>
-                            </>
-                          ) : (
-                            <>
-                              {item.title}{" "}
-                              {item.company && (
-                                <span className="font-semibold text-slate-700">@ {item.company}</span>
-                              )}
-                            </>
-                          )}
+        {form.experience && (() => {
+          const { title, icon } = getSectionIconAndTitle("experience", Briefcase, "PROFESSIONAL EXPERIENCE", form);
+          return (
+            <div>
+              {renderSectionHeader(icon, title)}
+              <div className="space-y-3.5">
+                {expItems.length > 0
+                  ? expItems.map((item, idx) => (
+                      <div key={idx} className="space-y-1">
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                          <div className="font-bold text-[12px] text-slate-950">
+                            {workOrder === "employer-title" ? (
+                              <>
+                                {item.company && <span>{item.company} — </span>}
+                                <span className="font-normal">{item.title}</span>
+                              </>
+                            ) : (
+                              <>
+                                {item.title}{" "}
+                                {item.company && (
+                                  <span className="font-semibold text-slate-700">@ {item.company}</span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          <div className="text-[10.5px] font-bold text-slate-500">
+                            {item.startDate && (
+                              <span>
+                                {item.startDate} {item.endDate ? `– ${item.endDate}` : ""}
+                              </span>
+                            )}
+                            {item.location && <span className="ml-2 font-normal">| {item.location}</span>}
+                          </div>
+                        </div>
+                        {item.bullets.length > 0 && (
+                          <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
+                            {item.bullets.map((b, bIdx) => (
+                              <li key={bIdx}>{renderTextWithLinks(b)}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))
+                  : renderTextWithLinks(form.experience)}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* Education */}
+        {form.education && (() => {
+          const { title, icon } = getSectionIconAndTitle("education", GraduationCap, "EDUCATION", form);
+          return (
+            <div>
+              {renderSectionHeader(icon, title)}
+              <div className="space-y-2">
+                {eduItems.length > 0
+                  ? eduItems.map((item, idx) => (
+                      <div key={idx} className="flex flex-wrap items-baseline justify-between gap-x-2">
+                        <div>
+                          <span className="font-bold text-[12px] text-slate-950">{item.degree}</span>
+                          {item.school && <span className="font-semibold text-slate-700">, {item.school}</span>}
                         </div>
                         <div className="text-[10.5px] font-bold text-slate-500">
                           {item.startDate && (
@@ -892,152 +1024,136 @@ function ResumePreview({
                           {item.location && <span className="ml-2 font-normal">| {item.location}</span>}
                         </div>
                       </div>
-                      {item.bullets.length > 0 && (
-                        <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
-                          {item.bullets.map((b, bIdx) => (
-                            <li key={bIdx}>{renderTextWithLinks(b)}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))
-                : renderTextWithLinks(form.experience)}
+                    ))
+                  : renderTextWithLinks(form.education)}
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Education */}
-        {form.education && (
-          <div>
-            {isDreamSync ? renderSectionHeader(GraduationCap, "EDUCATION") : sH("Education")}
-            <div className="space-y-2">
-              {eduItems.length > 0
-                ? eduItems.map((item, idx) => (
-                    <div key={idx} className="flex flex-wrap items-baseline justify-between gap-x-2">
-                      <div>
-                        <span className="font-bold text-[12px] text-slate-950">{item.degree}</span>
-                        {item.school && <span className="font-semibold text-slate-700">, {item.school}</span>}
-                      </div>
-                      <div className="text-[10.5px] font-bold text-slate-500">
-                        {item.startDate && (
-                          <span>
-                            {item.startDate} {item.endDate ? `– ${item.endDate}` : ""}
-                          </span>
-                        )}
-                        {item.location && <span className="ml-2 font-normal">| {item.location}</span>}
-                      </div>
-                    </div>
-                  ))
-                : renderTextWithLinks(form.education)}
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Projects */}
-        {form.projects && (
-          <div>
-            {isDreamSync ? renderSectionHeader(FolderOpen, "PROJECTS") : sH("Projects")}
-            <div className="space-y-3.5">
-              {projItems.length > 0
-                ? projItems.map((item, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-                        <div className="font-bold text-[12px] text-slate-950">
-                          {item.title}{" "}
-                          {item.subtitle && (
-                            <span className="font-semibold text-slate-600">— {item.subtitle}</span>
-                          )}
+        {form.projects && (() => {
+          const { title, icon } = getSectionIconAndTitle("projects", FolderOpen, "KEY PROJECTS", form);
+          return (
+            <div>
+              {renderSectionHeader(icon, title)}
+              <div className="space-y-3.5">
+                {projItems.length > 0
+                  ? projItems.map((item, idx) => (
+                      <div key={idx} className="space-y-1">
+                        <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                          <div className="font-bold text-[12px] text-slate-950">
+                            {item.title}{" "}
+                            {item.subtitle && (
+                              <span className="font-semibold text-slate-600">— {item.subtitle}</span>
+                            )}
+                          </div>
+                          {item.dates && <span className="text-[10.5px] font-bold text-slate-500">{item.dates}</span>}
                         </div>
-                        {item.dates && <span className="text-[10.5px] font-bold text-slate-500">{item.dates}</span>}
+                        {item.techStack && (
+                          <p className="text-[10.5px] text-indigo-700 font-semibold">
+                            Tech Stack: {item.techStack}
+                          </p>
+                        )}
+                        {item.bullets.length > 0 && (
+                          <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
+                            {item.bullets.map((b, bIdx) => (
+                              <li key={bIdx}>{renderTextWithLinks(b)}</li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
-                      {item.techStack && (
-                        <p className="text-[10.5px] text-indigo-700 font-semibold">
-                          Tech Stack: {item.techStack}
-                        </p>
-                      )}
-                      {item.bullets.length > 0 && (
-                        <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
-                          {item.bullets.map((b, bIdx) => (
-                            <li key={bIdx}>{renderTextWithLinks(b)}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))
-                : renderTextWithLinks(form.projects)}
+                    ))
+                  : renderTextWithLinks(form.projects)}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Skills */}
-        {form.skills && (
-          <div>
-            {isDreamSync ? renderSectionHeader(Wrench, "TECHNICAL SKILLS") : sH("Skills")}
-            {isCreative ? (
-              <div className="flex flex-wrap gap-1.5">
-                {form.skills.split(",").map((s, i) => (
-                  <span
-                    key={i}
-                    className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200"
-                  >
-                    {s.trim()}
-                  </span>
-                ))}
-              </div>
-            ) : skillCats.length > 0 ? (
-              <div className="space-y-1 text-xs text-slate-800">
-                {skillCats.map((cat, idx) => (
-                  <div key={idx} className="flex flex-wrap items-baseline gap-1">
-                    <span className="font-bold text-slate-950">{cat.category}:</span>
-                    <span className="text-slate-700 font-medium">{cat.skills.join(" | ")}</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
-                {form.skills}
-              </div>
-            )}
-          </div>
-        )}
+        {form.skills && (() => {
+          const { title, icon } = getSectionIconAndTitle("skills", Wrench, "TECHNICAL SKILLS & SOFT SKILLS", form);
+          return (
+            <div>
+              {renderSectionHeader(icon, title)}
+              {isCreative ? (
+                <div className="flex flex-wrap gap-1.5">
+                  {form.skills.split(",").map((s, i) => (
+                    <span
+                      key={i}
+                      className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200"
+                    >
+                      {s.trim()}
+                    </span>
+                  ))}
+                </div>
+              ) : skillCats.length > 0 ? (
+                <div className="space-y-1 text-xs text-slate-800">
+                  {skillCats.map((cat, idx) => (
+                    <div key={idx} className="flex flex-wrap items-baseline gap-1">
+                      <span className="font-bold text-slate-950">{cat.category}:</span>
+                      <span className="text-slate-700 font-medium">{cat.skills.join(" | ")}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
+                  {form.skills}
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Certifications */}
-        {form.certifications && (
-          <div>
-            {isDreamSync ? renderSectionHeader(Award, "CERTIFICATIONS") : sH("Certifications")}
-            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed space-y-1">
-              {renderTextWithLinks(form.certifications)}
+        {form.certifications && (() => {
+          const { title, icon } = getSectionIconAndTitle("certifications", Award, "CERTIFICATIONS", form);
+          return (
+            <div>
+              {renderSectionHeader(icon, title)}
+              <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed space-y-1">
+                {renderTextWithLinks(form.certifications)}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Strengths */}
-        {form.strengths && (
-          <div>
-            {isDreamSync ? renderSectionHeader(Star, "STRENGTHS & COMPETENCIES") : sH("Strengths")}
-            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
-              {form.strengths}
+        {form.strengths && (() => {
+          const { title, icon } = getSectionIconAndTitle("strengths", Star, "STRENGTHS & COMPETENCIES", form);
+          return (
+            <div>
+              {renderSectionHeader(icon, title)}
+              <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
+                {form.strengths}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Languages & Awards */}
         {(form.languages || form.awards) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {form.languages && (
-              <div>
-                {isDreamSync ? renderSectionHeader(Globe, "LANGUAGES") : sH("Languages")}
-                <p className="text-xs text-slate-800 font-medium">{form.languages}</p>
-              </div>
-            )}
-            {form.awards && (
-              <div>
-                {isDreamSync ? renderSectionHeader(Award, "AWARDS") : sH("Awards")}
-                <div className="text-xs text-slate-800 font-medium">
-                  {renderTextWithLinks(form.awards)}
+            {form.languages && (() => {
+              const { title, icon } = getSectionIconAndTitle("languages", Globe, "LANGUAGES", form);
+              return (
+                <div>
+                  {renderSectionHeader(icon, title)}
+                  <p className="text-xs text-slate-800 font-medium">{form.languages}</p>
                 </div>
-              </div>
-            )}
+              );
+            })()}
+            {form.awards && (() => {
+              const { title, icon } = getSectionIconAndTitle("awards", Trophy, "HONORS & AWARDS", form);
+              return (
+                <div>
+                  {renderSectionHeader(icon, title)}
+                  <div className="text-xs text-slate-800 font-medium">
+                    {renderTextWithLinks(form.awards)}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -1065,30 +1181,33 @@ function ResumePreview({
         )}
 
         {/* Declaration & Digital Signature */}
-        {form.declaration && (
-          <div className="pt-2 border-t border-slate-200/80">
-            {isDreamSync ? renderSectionHeader(PenTool, "DECLARATION") : sH("Declaration")}
-            <p className="text-[11px] text-slate-600 italic mb-4 leading-relaxed">
-              {form.declaration}
-            </p>
-            <div className="pt-2 border-t border-slate-300 w-52">
-              {form.signatureImage ? (
-                <img
-                  src={form.signatureImage}
-                  alt="Digital Signature"
-                  className="h-10 object-contain mb-1"
-                />
-              ) : (
-                <p className="font-serif italic text-lg text-indigo-900 font-bold leading-none">
-                  {form.signatoryName || form.fullName || "Alex Rivera"}
-                </p>
-              )}
-              <p className="text-[10px] text-slate-500 font-bold mt-1">
-                {form.signatoryName || form.fullName || "Alex Rivera"} ({form.signatoryPlace || form.location?.split(",")[0] || "San Francisco"})
+        {form.declaration && (() => {
+          const { title, icon } = getSectionIconAndTitle("declaration", PenTool, "DECLARATION & SIGNATURE", form);
+          return (
+            <div className="pt-2 border-t border-slate-200/80">
+              {renderSectionHeader(icon, title)}
+              <p className="text-[11px] text-slate-600 italic mb-4 leading-relaxed">
+                {form.declaration}
               </p>
+              <div className="pt-2 border-t border-slate-300 w-52">
+                {form.signatureImage ? (
+                  <img
+                    src={form.signatureImage}
+                    alt="Digital Signature"
+                    className="h-10 object-contain mb-1"
+                  />
+                ) : (
+                  <p className="font-serif italic text-lg text-indigo-900 font-bold leading-none">
+                    {form.signatoryName || form.fullName || "Alex Rivera"}
+                  </p>
+                )}
+                <p className="text-[10px] text-slate-500 font-bold mt-1">
+                  {form.signatoryName || form.fullName || "Alex Rivera"} ({form.signatoryPlace || form.location?.split(",")[0] || "San Francisco"})
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
@@ -1997,6 +2116,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   </button>
                   {activeSection === "summary" && (
                     <div className="p-4 space-y-2 border-t">
+                      <SectionTitleConfigHeader sectionKey="summary" defaultTitle="OBJECTIVE / SUMMARY" form={form} update={update} />
                       <FormatToolbar
                         onFormat={(tag) => handleFormatText("summary", tag)}
                         onAiAction={(action) => handleAiAction("summary", action)}
@@ -2030,6 +2150,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   </button>
                   {activeSection === "exp" && (
                     <div className="p-4 space-y-3 border-t">
+                      <SectionTitleConfigHeader sectionKey="experience" defaultTitle="PROFESSIONAL EXPERIENCE" form={form} update={update} />
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-bold text-muted-foreground uppercase">Work Experience Entries</Label>
                         <button
@@ -2078,6 +2199,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   </button>
                   {activeSection === "edu" && (
                     <div className="p-4 space-y-3 border-t">
+                      <SectionTitleConfigHeader sectionKey="education" defaultTitle="EDUCATION" form={form} update={update} />
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-bold text-muted-foreground uppercase">Education Degrees & Institutes</Label>
                         <button
@@ -2122,6 +2244,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   </button>
                   {activeSection === "skills" && (
                     <div className="p-4 space-y-3 border-t">
+                      <SectionTitleConfigHeader sectionKey="skills" defaultTitle="TECHNICAL SKILLS & SOFT SKILLS" form={form} update={update} />
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-bold text-muted-foreground uppercase">Skill Categories</Label>
                         <button
@@ -2166,6 +2289,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   </button>
                   {activeSection === "projects" && (
                     <div className="p-4 space-y-3 border-t">
+                      <SectionTitleConfigHeader sectionKey="projects" defaultTitle="KEY PROJECTS" form={form} update={update} />
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-bold text-muted-foreground uppercase">Key Projects Entries</Label>
                         <button
@@ -2268,6 +2392,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                   </button>
                   {activeSection === "dec" && (
                     <div className="p-4 space-y-3 border-t">
+                      <SectionTitleConfigHeader sectionKey="declaration" defaultTitle="DECLARATION & SIGNATURE" form={form} update={update} />
                       <div>
                         <Label className="text-xs font-semibold mb-1 block">Declaration Text</Label>
                         <textarea
@@ -2314,78 +2439,196 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
 
             {/* DESIGN & LAYOUT TAB */}
             {activeTab === "design" && (
-              <Card className="p-5 rounded-2xl border shadow-sm space-y-6">
-                <div>
-                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <SlidersHorizontal className="h-3.5 w-3.5 text-primary" /> Document & Page Format
+              <div className="space-y-4">
+                {/* 1. Layout & Columns */}
+                <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <LayoutGrid className="h-3.5 w-3.5 text-primary" /> Layout & Column Structure
                   </Label>
-                  <div className="grid sm:grid-cols-3 gap-2">
+                  <div className="grid sm:grid-cols-2 gap-3">
                     <div>
-                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Language</span>
-                      <select
-                        className={inp}
-                        value={docLanguage}
-                        onChange={(e) => setDocLanguage(e.target.value)}
-                      >
-                        <option>English (UK)</option>
-                        <option>English (US)</option>
-                        <option>Hindi</option>
-                        <option>French</option>
-                        <option>German</option>
-                        <option>Spanish</option>
-                      </select>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Page Format</span>
-                      <div className="flex rounded-lg border p-0.5 bg-muted/40">
-                        <button
-                          onClick={() => setPageFormat("A4")}
-                          className={cn(
-                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer",
-                            pageFormat === "A4" && "bg-background shadow-xs text-primary",
-                          )}
-                        >
-                          A4
-                        </button>
-                        <button
-                          onClick={() => setPageFormat("Letter")}
-                          className={cn(
-                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer",
-                            pageFormat === "Letter" && "bg-background shadow-xs text-primary",
-                          )}
-                        >
-                          Letter
-                        </button>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Columns</span>
+                      <div className="flex rounded-lg border p-0.5 bg-muted/40 text-xs font-bold">
+                        {(["one", "two", "mix"] as const).map((col) => (
+                          <button
+                            key={col}
+                            onClick={() => setLayoutColumns(col)}
+                            className={cn(
+                              "flex-1 py-1 rounded capitalize transition cursor-pointer",
+                              layoutColumns === col && "bg-background shadow-xs text-primary",
+                            )}
+                          >
+                            {col}
+                          </button>
+                        ))}
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Header Align</span>
-                      <div className="flex rounded-lg border p-0.5 bg-muted/40">
-                        <button
-                          onClick={() => setHeaderAlign("left")}
-                          className={cn(
-                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer flex justify-center items-center",
-                            headerAlign === "left" && "bg-background shadow-xs text-primary",
-                          )}
-                        >
-                          <AlignLeft className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          onClick={() => setHeaderAlign("center")}
-                          className={cn(
-                            "flex-1 py-1 rounded text-xs font-bold transition cursor-pointer flex justify-center items-center",
-                            headerAlign === "center" && "bg-background shadow-xs text-primary",
-                          )}
-                        >
-                          <AlignCenter className="h-3.5 w-3.5" />
-                        </button>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Header Position</span>
+                      <div className="flex rounded-lg border p-0.5 bg-muted/40 text-xs font-bold">
+                        {(["top", "left", "right"] as const).map((pos) => (
+                          <button
+                            key={pos}
+                            onClick={() => setHeaderAlign(pos === "right" ? "center" : "left")}
+                            className={cn(
+                              "flex-1 py-1 rounded capitalize transition cursor-pointer",
+                              (pos === "top" ? headerAlign === "left" : true) && "bg-background shadow-xs text-primary",
+                            )}
+                          >
+                            {pos}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
-                </div>
+                </Card>
 
-                <div className="pt-2 border-t">
-                  <Label className="text-xs font-bold mb-3 block uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                {/* 2. Font Size Fine Tuning */}
+                <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Type className="h-3.5 w-3.5 text-primary" /> Font Sizes & Increments
+                  </Label>
+                  <div className="grid sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Base Font Size</span>
+                      <div className="flex rounded-lg border p-0.5 bg-muted/40 font-bold">
+                        {["9.5pt", "10.5pt", "11.5pt", "12.5pt"].map((size) => (
+                          <button
+                            key={size}
+                            onClick={() => setBaseFontSize(size)}
+                            className={cn(
+                              "flex-1 py-1 rounded transition cursor-pointer text-[11px]",
+                              baseFontSize === size && "bg-background shadow-xs text-primary",
+                            )}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Full Name</span>
+                      <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border justify-between">
+                        <span className="font-bold px-2 text-primary">+11pt</span>
+                        <div className="flex gap-1">
+                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">-</button>
+                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">+</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Professional Title</span>
+                      <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border justify-between">
+                        <span className="font-bold px-2 text-primary">+5pt</span>
+                        <div className="flex gap-1">
+                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">-</button>
+                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">+</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Section Headings</span>
+                      <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border justify-between">
+                        <span className="font-bold px-2 text-primary">+1pt</span>
+                        <div className="flex gap-1">
+                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">-</button>
+                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">+</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* 3. Spacing & Margins */}
+                <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <SlidersHorizontal className="h-3.5 w-3.5 text-primary" /> Spacing & Margins
+                  </Label>
+                  <div className="grid sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Line Height</span>
+                      <div className="flex rounded-lg border p-0.5 bg-muted/40 font-bold">
+                        {["1.1", "1.2", "1.3", "1.4", "1.5"].map((lh) => (
+                          <button
+                            key={lh}
+                            onClick={() => toast.success(`Line height set to ${lh}`)}
+                            className={cn(
+                              "flex-1 py-1 rounded transition cursor-pointer text-[10px]",
+                              lh === "1.3" && "bg-background shadow-xs text-primary",
+                            )}
+                          >
+                            {lh}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Left & Right Margin</span>
+                      <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border justify-between">
+                        <span className="font-bold px-2 text-primary">10mm</span>
+                        <div className="flex gap-1">
+                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">-</button>
+                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">+</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* 4. Color Targets */}
+                <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Palette className="h-3.5 w-3.5 text-primary" /> Apply Accent Color To
+                  </Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-semibold">
+                    {["Name", "Job title", "Headings", "Headings line", "Header icons", "Dots/bars", "Dates", "Entry subtitle", "Link icons"].map((item, idx) => (
+                      <label key={item} className="flex items-center gap-2 p-1.5 rounded-lg border bg-muted/20 hover:bg-muted/40 transition cursor-pointer">
+                        <input type="checkbox" defaultChecked={idx < 5} className="rounded border-gray-300 text-primary focus:ring-primary" />
+                        <span className="text-[11px]">{item}</span>
+                      </label>
+                    ))}
+                  </div>
+                </Card>
+
+                {/* 5. Header Formatting & Separators */}
+                <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-primary" /> Header & Detail Arrangement
+                  </Label>
+                  <div className="grid sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Details Arrangement</span>
+                      <div className="flex rounded-lg border p-0.5 bg-muted/40 font-bold">
+                        {["Icon", "Bullet", "|", "Bar"].map((sep) => (
+                          <button
+                            key={sep}
+                            onClick={() => toast.success(`Details separator set to ${sep}`)}
+                            className={cn(
+                              "flex-1 py-1 rounded transition cursor-pointer text-[10px]",
+                              sep === "|" && "bg-background shadow-xs text-primary",
+                            )}
+                          >
+                            {sep}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-muted-foreground font-bold block mb-1">Icon Style</span>
+                      <select className={inp}>
+                        <option>Icon Style: Circle Outline</option>
+                        <option>Icon Style: No Frame</option>
+                        <option>Icon Style: Circle Filled</option>
+                        <option>Icon Style: Rounded Filled</option>
+                        <option>Icon Style: Square Filled</option>
+                      </select>
+                    </div>
+                  </div>
+                </Card>
+
+                {/* 6. Design Templates Selection */}
+                <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <LayoutGrid className="h-3.5 w-3.5 text-primary" /> Design Templates
                   </Label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2413,8 +2656,8 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                       </button>
                     ))}
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </div>
             )}
 
             {/* AI PRO TOOLS TAB */}
