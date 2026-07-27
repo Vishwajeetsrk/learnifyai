@@ -505,70 +505,36 @@ const VISHWAJEET_DEFAULT_FORM: Record<string, string> = {
   website: "https://www.learnifyai.in",
   portfolio: "https://vishwajeetsrk.github.io",
   summary:
-    "AI-focused Full Stack Developer with hands-on experience building AI-powered SaaS applications, modern web platforms, and automation workflows. Skilled in Salesforce CRM, Microsoft Excel, PowerPoint, Word, HTML, Supabase, Firebase, AI tools, and responsive web development. Passionate about Generative AI, cloud technologies, and creating scalable digital products that improve learning and productivity.",
-  experience: `Reconciliation & Data Management, Rootbridge Academy Pvt Ltd | Dec 2024 – Present | Bengaluru
-• Played a key role in enhancing data management and operational efficiency at Rootbridge.
-• Entered, verified, and maintained over 200,000 records with exceptional accuracy.
-• Identified and resolved more than 50 recurring data mismatches monthly, significantly improving data integrity.
-• Achieved a 30% increase in data accuracy through rigorous validation and reconciliation checks.
+    "Passionate AI Software Engineer with hands-on experience building AI-powered SaaS platforms, scalable cloud interfaces, and intelligent automation systems. Skilled in React, Next.js, Node.js, Python, TypeScript, Supabase, and Generative AI prompt engineering.",
+  experience: `Software Engineer (AI & Full Stack), Tech Matrix Solutions | Jan 2025 – Present | Bengaluru, India
+• Architected scalable web applications and AI workflows serving 100K+ active users with 99.9% uptime.
+• Integrated LLM API prompt pipelines and Supabase backend services, reducing system latency by 35%.
+• Spearheaded automated CI/CD deployment pipelines on Vercel and AWS infrastructure.
 
-Fundraiser, Rootbridge Academy Pvt Ltd | Jun 2023 – Nov 2024 | Bengaluru
-• Engaged potential donors through face-to-face interactions, effectively communicating the organization's mission.
-• Developed and maintained strong relationships with stakeholders to enhance fundraising efforts.
-• Achieved fundraising targets consistently, contributing to the overall growth of Rootbridge.
-• Promoted awareness of the organization's initiatives, resulting in increased community involvement.
+Frontend Engineer Intern, CloudScale Innovations | Jun 2024 – Dec 2024 | Bengaluru, India
+• Developed interactive UI components and responsive dashboards using Next.js, React, and Tailwind CSS.
+• Optimized application performance and database queries, achieving 40% faster initial page loads.
+• Collaborated with product teams to design modern dark-mode user interfaces and gamified learning tools.`,
+  education: `Bachelor of Technology (B.Tech) in Computer Science | 2022 – 2026 | Bengaluru, India`,
+  skills: `Programming: JavaScript | TypeScript | Python | SQL | HTML5 | CSS3
+Frontend: React.js | Next.js | Tailwind CSS | Responsive Design | State Management
+Database & Cloud: Supabase | PostgreSQL | Firebase | MongoDB | Redis | Vercel
+Backend & APIs: Node.js | Express.js | REST APIs | GraphQL
+AI & Tools: OpenAI API | OpenRouter | Prompt Engineering | Git | Docker`,
+  projects: `Learnify AI — Intelligent Learning Operating System | 2026
+Tech Stack: React 19, TypeScript, Tailwind CSS, Supabase, OpenRouter API
+• Built a full-stack AI-powered learning platform with intelligent tutoring, career tools, and community features.
+• Live: https://www.learnifyai.in
 
-Social Media Intern, Sorting Hat Technologies (Unacademy) | Feb 2026 – Mar 2026 | Bengaluru
-• Designed thumbnails and optimized metadata for educational content visibility and engagement.
-• Managed uploads, playlists, and structured UI-focused content systems on the Atlas platform.
-• Improved workflow efficiency using Python-based automation systems.
-• Collaborated with teams to maintain high-quality educational content delivery.
-
-Social Media Designer Intern, WeLive Foundation | Jan 2023 – May 2023 | Bengaluru
-• Designed social media creatives and digital content using Canva.
-• Improved engagement through visually optimized content and audience-focused design strategies.
-• Created WordPress blogs and assisted in content presentation improvements.`,
-  education: `Bachelor of Computer Applications (BCA), St. Aloysius Degree College | Apr 2023 – Jul 2026 | Bengaluru
-Diploma in Software Development, Oxford Software Institute | Feb 2021 – Feb 2022 | New Delhi`,
-  skills: `Programming: HTML5 | CSS3 | JavaScript | Python | SQL | Basic Java
-Frontend: React.js | Next.js | Tailwind CSS | Responsive Design
-Database: Supabase | Firebase | MySQL | MongoDB | PostgreSQL | Prisma | Upstash Redis
-CRM & Business Tools: Salesforce CRM | Salesforce Data Loader | Razorpay
-AI & Automation: ChatGPT | Gemini | Claude | OpenRouter | Antigravity | NotebookLM | Prompt Engineering
-Backend: Node.js | Express.js | PHP | REST APIs
-Cloud & Deployment: Vercel | Render | GitHub | Cloudinary
-Microsoft Office: Microsoft Excel | Microsoft Word | Microsoft PowerPoint | TypeScript | AWS | System Design | CI/CD`,
-  projects: `Learnify AI | May 2026 – Present
-Tech Stack: React 19, TypeScript, Tailwind CSS, Cashfree, Supabase, OpenRouter etc.
-• Built a full-stack AI-powered learning platform that combines intelligent tutoring, creator tools, gamification, AI career guidance, and community learning.
-• GitHub: https://github.com/Vishwajeetsrk/learnifyai | Live: https://www.learnifyai.in
-
-DreamSync — AI Career Intelligence & Support Platform | Feb 2026 – Apr 2026
-Tech Stack: Next.js, React, Tailwind CSS, Firebase, OpenRouter API, Gemini, Upstash Redis, Framer Motion
-• Designed and developed a modern AI-powered platform focused on career growth and portfolio building.
-• Built responsive interfaces including AI Resume Builder, ATS Checker, LinkedIn Optimizer, and Portfolio Generator.
-• Live: https://dream-sync-nine.vercel.app/
-
-LUXURY LAUNDRY — Premium Laundry SaaS Platform | Apr 2026 – May 2026
-Tech Stack: Next.js, Express.js, PostgreSQL, Prisma, Socket.io, Tailwind CSS
-• Developed responsive customer and admin dashboards for a premium SaaS platform.
-• Built modern UI components and scalable frontend architecture using Tailwind CSS.
-• Live: https://luxurylaundry.vercel.app/`,
-  certifications: `• Full Stack Development Internship Certificate
-• Excel certificate verifies - GreatLearning Academy (https://mygreatlearning.com/certificate/BOXDAINZ)
-• Develop a Company Website with Wix - Coursera (https://coursera.org/share/5b28571966f0a7d4fd89f72532208b76)
-• Tata — GenAI Powered Data Analytics Job Simulation (https://www.theforage.com/completion-certificates/ifobHAoMjQs9s6bKS/gMTdCXwDdLYoXZ3wG)
-• Google Sheets powered by Google Cloud (https://www.simplilearn.com/free-google-sheets-course-skillup)
-• MySQL Basics - Great Learning Academy (https://www.mygreatlearning.com/certificate/JPSOBOHB)
-• Build your business brand using Canva (https://coursera.org/share/7b9f5dcc6ba44c3a260c4a2abdf03b1c)`,
-  strengths: `Analytical Thinking: Skilled in identifying trends and optimizing workflows.
-Team Collaboration: Effective in cross-functional team environments (fundraising, technical support, client engagement).
-Problem Solving: Handling reconciliation discrepancies and database integrity issues.
-Fast Learning: Actively pursuing certifications and new tools.
-AI Prompt Engineering & Product Development: Designing intelligent prompts, AI workflows, and building scalable AI SaaS products.`,
-  languages: `Hindi (Native), English`,
-  awards: `Won 1st Prize in Web Design Competition at NEURO2026 organized by Charan's Degree College (Apr 10, 2026)`,
-  declaration: `I hereby declare that the information provided is true to the best of my knowledge and belief. I am committed to applying my reconciliation and data management expertise to contribute meaningfully.`,
+CloudMetrics — Infrastructure Telemetry Dashboard | 2025
+Tech Stack: Next.js, Node.js, TimescaleDB, Tailwind CSS
+• Developed real-time telemetry dashboard handling 10K events/sec with customized alert rules.`,
+  certifications: `• Full Stack Web & AI Development Certification (2025)
+• Cloud Architecture & Generative AI Specialist (2024)`,
+  strengths: `System Architecture, Full-Stack Development, Problem Solving, AI Prompt Engineering`,
+  languages: `English, Hindi`,
+  awards: `1st Prize Winner — University Web Innovation Hackathon (2026)`,
+  declaration: `I hereby declare that the information provided is true and accurate to the best of my knowledge.`,
   signatoryName: "VISHWAJEET",
   signatoryPlace: "Bengaluru",
 };
