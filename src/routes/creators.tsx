@@ -466,7 +466,7 @@ function CreatorsPage() {
 
   const fallbackCreator = {
     id: "creator-demo-1",
-    full_name: "Vishwajeet S.",
+    full_name: "Alex Rivera",
     expertise: "Full-Stack & AI Systems",
     bio: "Creator of Full-Stack AI Engineering & Autonomous Agents masterclasses on Learnify AI.",
     coursesCount: 5,
@@ -568,7 +568,7 @@ function CreatorsPage() {
                   <div className="flex items-center gap-3">
                     <img
                       src={
-                        creator.full_name?.includes("Vishwajeet")
+                        creator.full_name?.includes("Alex")
                           ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80"
                           : `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(creator.full_name)}`
                       }

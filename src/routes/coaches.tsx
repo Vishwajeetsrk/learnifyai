@@ -547,9 +547,9 @@ function CoachesPage() {
 
   const fallbackCoach = {
     id: "coach-demo-1",
-    full_name: "Vishwajeet S.",
+    full_name: "Alex Rivera",
     expertise: "Frontend Developer & SaaS Architect",
-    bio: "BCA Graduate & Full-Stack AI Engineer. Built DreamSync career OS and Learnify AI platform.",
+    bio: "Senior Full-Stack Engineer & AI Educator specializing in cloud architecture and web platforms.",
     hourly_rate: 99,
     rating: "4.9 (42 reviews)",
   };
@@ -655,7 +655,7 @@ function CoachesPage() {
                   <div className="flex items-center gap-3">
                     <img
                       src={
-                        coach.full_name?.includes("Vishwajeet")
+                        coach.full_name?.includes("Alex")
                           ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80"
                           : `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(coach.full_name)}`
                       }

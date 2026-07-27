@@ -53,7 +53,7 @@ const FALLBACK_POSTS: Record<string, any> = {
       "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80",
     published_at: "2026-07-18T10:00:00Z",
     created_at: "2026-07-18T10:00:00Z",
-    profiles: { full_name: "Vishwajeet S., Lead Architect" },
+    profiles: { full_name: "Alex Rivera, Lead Architect" },
     content: `
       <h2>Why LangGraph for Multi-Agent Systems?</h2>
       <p>Autonomous agents are no longer just single-prompt scripts. Modern applications require stateful multi-agent graphs where specialized agents collaborate, review code, and trigger human-in-the-loop approvals.</p>

@@ -187,7 +187,7 @@ const recentCerts = [
   {
     id: "LRN-ZLHYTD-MQQJFAA5",
     course: "React Supabase CRUD Tutorial",
-    name: "vishwajeet",
+    name: "Alex Rivera",
     status: "Issued",
     date: "May 25, 2026",
     time: "Issued 6/23/2026",
@@ -196,7 +196,7 @@ const recentCerts = [
   {
     id: "LRN-SKR0ZR-MQP0YW81",
     course: "Full-Stack Development with Next.js 14",
-    name: "vishwajeet",
+    name: "Sarah Jenkins",
     status: "Issued",
     date: "May 25, 2026",
     time: "Issued 6/22/2026",
@@ -205,7 +205,7 @@ const recentCerts = [
   {
     id: "LRN-E8VQ17-MQI10MPU",
     course: "AI for Beginners: Mastering Prompt Engineering",
-    name: "vishwajeet",
+    name: "Michael Chen",
     status: "Issued",
     date: "May 25, 2026",
     time: "Issued 6/17/2026",
@@ -484,8 +484,8 @@ const CATS_DATA = [
 
 const VERIFY_LIST = [
   {
-    name: "Vishwajeet Sharma",
-    email: "vishwajeet@example.com",
+    name: "Alex Rivera",
+    email: "alex.rivera@example.com",
     id: "LAI-2026-000124",
     status: "Verified",
     time: "2 min ago",
@@ -797,7 +797,7 @@ function CertThumbnail({
           fontFamily="Great Vibes,Georgia,serif"
           fontStyle="italic"
         >
-          {name || "Vishwajeet"}
+          {name || "Learner"}
         </text>
         <line x1="70" y1="165" x2="330" y2="165" stroke={c.bd2} strokeWidth="0.6" />
         <text
@@ -2497,7 +2497,7 @@ function DesignerCanvasScreen() {
   const [canvasElements, setCanvasElements] = useState([
     {
       id: "recipient",
-      text: "Vishwajeet Sharma",
+      text: "Alex Rivera",
       fontFamily: "Great Vibes",
       fontSize: 80,
       fontColor: "#ffffff",
@@ -2945,7 +2945,7 @@ function DesignerCanvasScreen() {
           fontSize="18"
           fontFamily="sans-serif"
         >
-          Vishwajeet S.
+          Alex Rivera
         </text>
         <text
           x="832"
@@ -3828,7 +3828,7 @@ function DesignerCanvasScreen() {
               setCanvasElements([
                 {
                   id: "recipient",
-                  text: "Vishwajeet Sharma",
+                  text: "Alex Rivera",
                   fontFamily: "Great Vibes",
                   fontSize: 80,
                   fontColor: "#ffffff",
@@ -5179,8 +5179,8 @@ function AnalyticsCertificates({ BD, TX, TX2, TX3, P, SGL, SG, ER }: any) {
           <tbody>
             {[
               {
-                name: "Vishwajeet SRK",
-                email: "vishwajeetsrk@gmail.com",
+                name: "Alex Rivera",
+                email: "alex.rivera@example.com",
                 course: "Full Stack Web Development",
                 date: "May 25, 2026",
                 id: "LAI-2026-000124",
@@ -5573,8 +5573,8 @@ function AnalyticsRecipients({ BD, TX, TX2, TX3, P }: any) {
           <tbody>
             {[
               {
-                name: "Vishwajeet SRK",
-                email: "vishwajeetsrk@gmail.com",
+                name: "Alex Rivera",
+                email: "alex.rivera@example.com",
                 count: 4,
                 enrolled: 6,
                 lastDate: "May 25, 2026",

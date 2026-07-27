@@ -894,10 +894,7 @@ export default function CommunityPage() {
                       </div>
                     </div>
                   </div>
-                  {(user?.id === post.author_id ||
-                    isAdmin ||
-                    user?.email === "vishwajeetsrk@gamil.com" ||
-                    user?.email === "vishwajeetsrk@gmail.com") && (
+                  {(user?.id === post.author_id || isAdmin) && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button

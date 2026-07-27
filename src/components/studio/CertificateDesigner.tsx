@@ -944,11 +944,11 @@ export function CertificateDesigner() {
   const t = templates[selectedTemplate];
 
   const [contentData, setContentData] = useState({
-    student_name: "Vishwajeet",
+    student_name: "Alex Rivera",
     cert_id: "LAI-2026-05-00248",
     course_name: "Cloud Computing Essentials",
     completion_date: "May 25, 2026",
-    instructor_name: "Vishwajeet S.",
+    instructor_name: "Alex Rivera",
     instructor_title: "Founder & CEO, Learnify AI",
     verification_link: "https://learnify.ai/verify/LAI-2026-05-00248",
     badge_subtitle: "has demonstrated the knowledge and skills\nrequired to complete the course.",

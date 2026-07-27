@@ -47,8 +47,8 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
       .eq("id", context.userId)
       .maybeSingle();
     const customerPhone = (profile as any)?.phone || (profile as any)?.phone_number || "9918231234";
-    const customerName = (profile as any)?.full_name || "Vishwajeet Kumar";
-    const customerEmail = email || (profile as any)?.email || "vishwajeetsrk@gmail.com";
+    const customerName = (profile as any)?.full_name || "Valued Learner";
+    const customerEmail = email || (profile as any)?.email || "support@learnifyai.in";
 
     const orderId = `ord_${context.userId}_${Date.now()}`;
 

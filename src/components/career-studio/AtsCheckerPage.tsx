@@ -442,12 +442,12 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
     toast.success("Loaded Generic Sample Resume (Alex Rivera)!");
   };
 
-  const handleLoadVishwajeetResume = () => {
+  const handleLoadAtsSampleResume = () => {
     setResumeText(
-      `VISHWAJEET\nBengaluru, India | vishwajeetsrk@gmail.com | +91 85952 02922 | linkedin.com/in/vishwajeetsrk/ | github.com/Vishwajeetsrk | learnifyai.in\n\nOBJECTIVE\nAI-focused Full Stack Developer with hands-on experience building AI-powered SaaS applications, modern web platforms, and automation workflows. Skilled in Salesforce CRM, HTML, Supabase, Firebase, React, Python, and web development.\n\nEXPERIENCE\nReconciliation & Data Management @ Rootbridge Academy Pvt Ltd (Dec 2024 – Present)\n• Entered, verified, and maintained over 200,000 records with 99%+ accuracy.\n• Identified and resolved 50+ monthly data mismatches, boosting accuracy by 30%.\n\nSocial Media Intern @ Sorting Hat Technologies (Unacademy) (Feb 2026 – Mar 2026)\n• Optimized content metadata and managed video uploads using Python automation scripts.\n\nEDUCATION\nBachelor of Computer Applications (BCA), St. Aloysius Degree College (2023 – 2026)\n\nPROJECTS\n• Learnify AI (learnifyai.in) — Full-stack AI learning platform (React 19, TypeScript, Supabase, OpenRouter)\n• DreamSync (dream-sync-nine.vercel.app) — AI Career Intelligence Platform\n• Luxury Laundry (luxurylaundry.vercel.app) — Premium SaaS Platform\n\nSKILLS\nHTML5, CSS3, JavaScript, Python, SQL, React.js, Next.js, Supabase, Firebase, Node.js, REST APIs, Salesforce CRM`,
+      `ALEX RIVERA\nSan Francisco, CA | alex.rivera@example.com | +1 (555) 019-2834 | linkedin.com/in/alex-rivera-dev | github.com/alexrivera-dev | alexrivera.dev\n\nOBJECTIVE\nResults-driven Senior Full Stack Engineer with 4+ years of experience architecting high-availability cloud platforms, scalable REST/GraphQL APIs, and AI-assisted workflows.\n\nEXPERIENCE\nSenior Software Engineer @ TechCorp Systems (Jan 2024 – Present)\n• Spearheaded frontend and backend architecture for enterprise SaaS platform serving 500K+ active users.\n• Reduced API response latency by 42% through query optimization, Redis caching, and microservices refactoring.\n\nFull Stack Developer @ Innovate Labs (Jun 2022 – Dec 2023)\n• Designed and shipped 12+ production web applications using React, Next.js, Node.js, and PostgreSQL.\n\nEDUCATION\nB.S. in Computer Science, Stanford University (2018 – 2022)\n\nPROJECTS\n• CloudMetrics — Real-Time Infrastructure Monitoring Dashboard (React, WebSockets, Node.js, TimescaleDB)\n• AIChat Studio — Generative AI Prompt Automation Tool (Next.js, OpenAI API, Vector DB, Supabase)\n\nSKILLS\nJavaScript, TypeScript, Python, SQL, React.js, Next.js, Node.js, Express, PostgreSQL, MongoDB, Redis, AWS, Docker, Vercel, Git`,
     );
-    setTargetRole("AI Software Engineer / Full Stack Developer");
-    toast.success("Loaded Vishwajeet Platinum ATS Sample Resume!");
+    setTargetRole("Senior Full Stack AI Engineer");
+    toast.success("Loaded Platinum ATS Sample Resume!");
   };
 
   const handleCheck = async () => {
@@ -673,10 +673,10 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
                     <FileText className="h-3 w-3 text-blue-600" /> Sample Resume
                   </button>
                   <button
-                    onClick={handleLoadVishwajeetResume}
-                    className="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-xs font-bold hover:bg-amber-100 transition border border-amber-200 dark:border-amber-800/40 cursor-pointer"
+                    onClick={handleLoadAtsSampleResume}
+                    className="px-2.5 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-xs font-bold hover:bg-amber-100 transition border border-amber-200 dark:border-amber-800/40 cursor-pointer flex items-center gap-1"
                   >
-                    <Sparkles className="h-3 w-3 text-amber-500" /> Vishwajeet Sample
+                    <Sparkles className="h-3 w-3 text-amber-500" /> ATS Sample
                   </button>
                   {resumeText && (
                     <>

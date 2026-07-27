@@ -94,7 +94,7 @@ export const Route = createFileRoute("/")({
               url: "https://www.learnifyai.in/",
               logo: "https://www.learnifyai.in/logo.png",
               description: "India's premier AI-native learning & career operating system.",
-              sameAs: ["https://github.com/Vishwajeetsrk/learnifyai"],
+              sameAs: ["https://github.com/learnifyai"],
             },
             {
               "@type": "WebSite",

@@ -6,7 +6,6 @@ import rishabhAvatar from "@/assets/avatars/Rishabh-Sharma.png";
 import anjaliAvatar from "@/assets/avatars/Anjali-Verma.png";
 import priyaAvatar from "@/assets/avatars/Priya-Kapoor.png";
 import vikramAvatar from "@/assets/avatars/Vikram-Singh.png";
-import vishwajeetAvatar from "@/assets/avatars/Vishwajeet.png";
 import { InteractiveDemoCards } from "@/components/interactive/InteractiveDemoCards";
 import { LaunchOfferBanner } from "@/components/interactive/LaunchOfferBanner";
 import { ROISavingsSection } from "@/components/interactive/ROISavingsSection";
@@ -406,7 +405,6 @@ function PricingPage() {
     "Anjali Verma": anjaliAvatar,
     "Priya Kapoor": priyaAvatar,
     "Vikram Singh": vikramAvatar,
-    Vishwajeet: vishwajeetAvatar,
   };
 
   const cmsFaqItems = cmsFaq?.content?.items ?? FAQ_ITEMS;
@@ -1003,14 +1001,12 @@ function PricingPage() {
                 intelligent platform.&rdquo;
               </blockquote>
               <div className="flex items-center justify-center gap-4">
-                <img
-                  src={vishwajeetAvatar}
-                  alt="Vishwajeet"
-                  className="w-14 h-14 rounded-full object-cover shadow-lg shadow-indigo-500/25 ring-2 ring-white dark:ring-gray-800"
-                />
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary text-lg shadow-md">
+                  LA
+                </div>
                 <div className="text-left">
-                  <div className="text-sm font-semibold">Vishwajeet</div>
-                  <div className="text-xs text-muted-foreground">Founder, Learnify AI</div>
+                  <div className="text-sm font-semibold">Learnify AI Team</div>
+                  <div className="text-xs text-muted-foreground">Product Architecture & Engineering</div>
                   <div className="flex gap-2 mt-1">
                     <span className="text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
                       Built in India

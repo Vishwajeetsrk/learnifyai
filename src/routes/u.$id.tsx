@@ -1037,8 +1037,7 @@ function PublicProfilePage() {
                                 </button>
                                 {(user?.id === post.author_id ||
                                   roles.includes("admin") ||
-                                  roles.includes("super_admin") ||
-                                  user?.email === "vishwajeetsrk@gmail.com") && (
+                                  roles.includes("super_admin")) && (
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                       <Button

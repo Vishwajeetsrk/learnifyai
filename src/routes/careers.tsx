@@ -124,7 +124,7 @@ function JobApplyDialog({
             <Label htmlFor="applicant-name">Full Name</Label>
             <Input
               id="applicant-name"
-              placeholder="Vishwajeet"
+              placeholder="Alex Rivera"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
@@ -136,7 +136,7 @@ function JobApplyDialog({
               <Input
                 id="applicant-email"
                 type="email"
-                placeholder="vishwajeetsrk@gmail.com"
+                placeholder="support.learnifyai@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

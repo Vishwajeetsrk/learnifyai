@@ -83,7 +83,7 @@ export function UniversityCert({ studentName, courseName, issueDate, certificate
 
       <div className="flex justify-between items-end text-xs text-amber-950 pt-8 border-t border-amber-900/20">
         <div>
-          <p className="font-cursive text-2xl text-slate-800">Vishwajeet S.</p>
+          <p className="font-cursive text-2xl text-slate-800">Alex Rivera</p>
           <p className="text-[10px] uppercase font-bold tracking-wider">Dean of Studies</p>
         </div>
         <div className="text-center font-mono text-[10px]">

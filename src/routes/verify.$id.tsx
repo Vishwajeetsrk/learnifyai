@@ -44,11 +44,11 @@ function CertificateVerificationPage() {
         return {
           id: id,
           certificate_number: id.toUpperCase(),
-          recipient_name: "Vishwajeet S.",
+          recipient_name: "Alex Rivera",
           course_title: "Full-Stack AI Engineering & Autonomous Agents",
           issue_date: "2026-05-25",
           issuer_name: "Learnify AI Board of Education",
-          instructor_name: "Vishwajeet S., Founder & CEO",
+          instructor_name: "Learnify AI Educator",
           grade: "Distinction (98%)",
           score: "98/100",
           verification_url: `https://www.learnifyai.in/verify/${id}`,

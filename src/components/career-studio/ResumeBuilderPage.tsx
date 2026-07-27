@@ -450,15 +450,15 @@ function parseSkillCategories(text: string): SkillCategory[] {
 }
 
 const SAMPLE_TEMPLATE_FORM: Record<string, string> = {
-  fullName: "VISHWAJEET",
-  targetRole: "AI Software Engineer",
-  email: "vishwajeetsrk@gmail.com",
-  phone: "+91 85952 02922",
-  location: "Bengaluru, India",
-  linkedin: "https://www.linkedin.com/in/vishwajeetsrk/",
-  github: "https://github.com/Vishwajeetsrk",
-  website: "https://www.learnifyai.in",
-  portfolio: "https://vishwajeetsrk.github.io",
+  fullName: "ALEX RIVERA",
+  targetRole: "Senior Full Stack Engineer | Cloud & AI Architect",
+  email: "alex.rivera@example.com",
+  phone: "+1 (555) 019-2834",
+  location: "San Francisco, CA",
+  linkedin: "https://www.linkedin.com/in/alex-rivera-dev/",
+  github: "https://github.com/alexrivera-dev",
+  website: "https://alexrivera.dev",
+  portfolio: "https://alexrivera.dev/portfolio",
   summary:
     "Results-driven Senior Full Stack Engineer with 4+ years of experience architecting high-availability cloud platforms, scalable REST/GraphQL APIs, and AI-assisted workflows. Skilled in TypeScript, React, Next.js, Node.js, Python, PostgreSQL, and cloud infrastructure.",
   experience: `Senior Software Engineer, TechCorp Systems | Jan 2024 – Present | San Francisco, CA
@@ -490,54 +490,11 @@ Tech Stack: Next.js, OpenAI API, Vector DB, Supabase, Tailwind CSS
   languages: `English (Native), Spanish (Professional)`,
   awards: `1st Place — National AI Hackathon 2025`,
   declaration: `I hereby declare that the information provided is accurate and true to the best of my knowledge.`,
-  signatoryName: "VISHWAJEET",
-  signatoryPlace: "Bengaluru",
+  signatoryName: "ALEX RIVERA",
+  signatoryPlace: "San Francisco",
 };
 
-const VISHWAJEET_DEFAULT_FORM: Record<string, string> = {
-  fullName: "VISHWAJEET",
-  targetRole: "AI Software Engineer",
-  email: "vishwajeetsrk@gmail.com",
-  phone: "+91 85952 02922",
-  location: "Bengaluru, India",
-  linkedin: "https://www.linkedin.com/in/vishwajeetsrk/",
-  github: "https://github.com/Vishwajeetsrk",
-  website: "https://www.learnifyai.in",
-  portfolio: "https://vishwajeetsrk.github.io",
-  summary:
-    "Passionate AI Software Engineer with hands-on experience building AI-powered SaaS platforms, scalable cloud interfaces, and intelligent automation systems. Skilled in React, Next.js, Node.js, Python, TypeScript, Supabase, and Generative AI prompt engineering.",
-  experience: `Software Engineer (AI & Full Stack), Tech Matrix Solutions | Jan 2025 – Present | Bengaluru, India
-• Architected scalable web applications and AI workflows serving 100K+ active users with 99.9% uptime.
-• Integrated LLM API prompt pipelines and Supabase backend services, reducing system latency by 35%.
-• Spearheaded automated CI/CD deployment pipelines on Vercel and AWS infrastructure.
-
-Frontend Engineer Intern, CloudScale Innovations | Jun 2024 – Dec 2024 | Bengaluru, India
-• Developed interactive UI components and responsive dashboards using Next.js, React, and Tailwind CSS.
-• Optimized application performance and database queries, achieving 40% faster initial page loads.
-• Collaborated with product teams to design modern dark-mode user interfaces and gamified learning tools.`,
-  education: `Bachelor of Technology (B.Tech) in Computer Science | 2022 – 2026 | Bengaluru, India`,
-  skills: `Programming: JavaScript | TypeScript | Python | SQL | HTML5 | CSS3
-Frontend: React.js | Next.js | Tailwind CSS | Responsive Design | State Management
-Database & Cloud: Supabase | PostgreSQL | Firebase | MongoDB | Redis | Vercel
-Backend & APIs: Node.js | Express.js | REST APIs | GraphQL
-AI & Tools: OpenAI API | OpenRouter | Prompt Engineering | Git | Docker`,
-  projects: `Learnify AI — Intelligent Learning Operating System | 2026
-Tech Stack: React 19, TypeScript, Tailwind CSS, Supabase, OpenRouter API
-• Built a full-stack AI-powered learning platform with intelligent tutoring, career tools, and community features.
-• Live: https://www.learnifyai.in
-
-CloudMetrics — Infrastructure Telemetry Dashboard | 2025
-Tech Stack: Next.js, Node.js, TimescaleDB, Tailwind CSS
-• Developed real-time telemetry dashboard handling 10K events/sec with customized alert rules.`,
-  certifications: `• Full Stack Web & AI Development Certification (2025)
-• Cloud Architecture & Generative AI Specialist (2024)`,
-  strengths: `System Architecture, Full-Stack Development, Problem Solving, AI Prompt Engineering`,
-  languages: `English, Hindi`,
-  awards: `1st Prize Winner — University Web Innovation Hackathon (2026)`,
-  declaration: `I hereby declare that the information provided is true and accurate to the best of my knowledge.`,
-  signatoryName: "VISHWAJEET",
-  signatoryPlace: "Bengaluru",
-};
+const ATS_DEFAULT_FORM: Record<string, string> = SAMPLE_TEMPLATE_FORM;
 
 function FormatToolbar({
   onFormat,
@@ -1250,13 +1207,13 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
           const parsed = JSON.parse(saved);
           if (!parsed.fullName || parsed.fullName === "ALEX RIVERA" || parsed.fullName === "Alex Rivera" || parsed.email === "alex.rivera@example.com") {
             localStorage.removeItem("resume_builder_form");
-            return VISHWAJEET_DEFAULT_FORM;
+            return ATS_DEFAULT_FORM;
           }
-          return { ...VISHWAJEET_DEFAULT_FORM, ...parsed };
+          return { ...ATS_DEFAULT_FORM, ...parsed };
         } catch {}
       }
     }
-    return VISHWAJEET_DEFAULT_FORM;
+    return ATS_DEFAULT_FORM;
   });
 
   const [drafts, setDrafts] = useState<SavedDraft[]>(() => {
@@ -1491,8 +1448,8 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   };
 
   const generateWordDocumentHtml = (f: Record<string, string>) => {
-    const name = f.fullName || "VISHWAJEET";
-    const role = f.targetRole || "AI Software Engineer";
+    const name = f.fullName || "ALEX RIVERA";
+    const role = f.targetRole || "Senior Full Stack Engineer";
     const contacts = [
       f.email && `Email: ${f.email}`,
       f.phone && `Phone: ${f.phone}`,
@@ -1552,7 +1509,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   ${f.strengths ? `<h2>STRENGTHS & COMPETENCIES</h2><div>${formatBlockHtml(f.strengths)}</div>` : ""}
   ${f.languages ? `<h2>LANGUAGES</h2><p>${f.languages}</p>` : ""}
   ${f.awards ? `<h2>HONORS & AWARDS</h2><div>${formatBlockHtml(f.awards)}</div>` : ""}
-  ${f.declaration ? `<h2>DECLARATION</h2><p class="declaration">${f.declaration}</p><div class="signature">${f.signatoryName || name}<br/><span style="font-weight:normal; font-size:9.5pt; color:#64748b;">${f.signatoryName || name} (${f.signatoryPlace || f.location?.split(",")[0] || "Bengaluru"})</span></div>` : ""}
+  ${f.declaration ? `<h2>DECLARATION</h2><p class="declaration">${f.declaration}</p><div class="signature">${f.signatoryName || name}<br/><span style="font-weight:normal; font-size:9.5pt; color:#64748b;">${f.signatoryName || name} (${f.signatoryPlace || f.location?.split(",")[0] || "San Francisco"})</span></div>` : ""}
 </body>
 </html>`;
   };
@@ -1586,7 +1543,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       let y = 15;
       doc.setFont("helvetica", "bold");
       doc.setFontSize(18);
-      doc.text(form.fullName || "VISHWAJEET", 105, y, { align: "center" });
+      doc.text(form.fullName || "ALEX RIVERA", 105, y, { align: "center" });
 
       y += 7;
       if (form.targetRole) {
@@ -1654,7 +1611,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       addSection("Languages", form.languages);
       addSection("Honors & Awards", form.awards);
       if (form.declaration) {
-        const decContent = `${form.declaration}\n\nSignatory: ${form.signatoryName || form.fullName || "VISHWAJEET"} (${form.signatoryPlace || "Bengaluru"})`;
+        const decContent = `${form.declaration}\n\nSignatory: ${form.signatoryName || form.fullName || "ALEX RIVERA"} (${form.signatoryPlace || "San Francisco"})`;
         addSection("Declaration", decContent);
       }
 
@@ -1667,7 +1624,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
 
   const handleDownloadTxt = () => {
     const textContent = [
-      (form.fullName || "VISHWAJEET").toUpperCase(),
+      (form.fullName || "ALEX RIVERA").toUpperCase(),
       form.targetRole,
       [form.email, form.phone, form.location, form.linkedin, form.github, form.website]
         .filter(Boolean)
@@ -1683,7 +1640,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       form.strengths ? `\nSTRENGTHS & COMPETENCIES\n${form.strengths}` : "",
       form.languages ? `\nLANGUAGES\n${form.languages}` : "",
       form.awards ? `\nAWARDS\n${form.awards}` : "",
-      form.declaration ? `\nDECLARATION\n${form.declaration}\nSignatory: ${form.signatoryName || form.fullName} (${form.signatoryPlace || "Bengaluru"})` : "",
+      form.declaration ? `\nDECLARATION\n${form.declaration}\nSignatory: ${form.signatoryName || form.fullName} (${form.signatoryPlace || "San Francisco"})` : "",
     ]
       .filter(Boolean)
       .join("\n\n");
@@ -1703,10 +1660,10 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     toast.success("Loaded Generic Sample Resume (Alex Rivera)!");
   };
 
-  const resetToVishwajeetTemplate = () => {
-    setForm(VISHWAJEET_DEFAULT_FORM);
+  const resetToAtsTemplate = () => {
+    setForm(ATS_DEFAULT_FORM);
     setResult(null);
-    toast.success("Loaded Vishwajeet Platinum ATS Sample Resume!");
+    toast.success("Loaded Platinum ATS Sample Resume!");
   };
 
   const inp =
@@ -1745,6 +1702,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 ))}
               </select>
               <button
+                type="button"
                 onClick={saveNewDraft}
                 className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition cursor-pointer flex items-center gap-1"
               >
@@ -1777,10 +1735,10 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
               <FileText className="h-3.5 w-3.5 text-blue-500" /> Sample Resume
             </button>
             <button
-              onClick={resetToVishwajeetTemplate}
+              onClick={resetToAtsTemplate}
               className="px-3 py-1.5 rounded-xl border bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/50 hover:bg-amber-100 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
             >
-              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Vishwajeet Resume
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" /> ATS Sample Resume
             </button>
           </div>
         </div>

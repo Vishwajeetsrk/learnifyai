@@ -1167,9 +1167,9 @@ function CourseDetail() {
                     <Users className="h-3.5 w-3.5 text-primary" />
                     <span>{displaySubscribersCount.toLocaleString()} subscribers</span>
                   </div>
-                  {(instructorProfile?.email || "vishwajeetsrk@gmail.com") && (
+                  {instructorProfile?.email && (
                     <p className="text-xs text-foreground/80 truncate mt-0.5 font-medium">
-                      {instructorProfile?.email || "vishwajeetsrk@gmail.com"}
+                      {instructorProfile.email}
                     </p>
                   )}
                 </div>

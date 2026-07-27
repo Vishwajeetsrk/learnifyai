@@ -135,7 +135,7 @@ function CommunityPage() {
                 {/* Joined member profile images stack */}
                 <div className="flex items-center gap-1.5">
                   <div className="flex -space-x-2 overflow-hidden">
-                    {["Vishwajeet", "Sarah", "Alex", "Elena"].map((name, i) => (
+                    {["Alex", "Sarah", "Michael", "Elena"].map((name, i) => (
                       <img
                         key={i}
                         className="inline-block h-6 w-6 rounded-full ring-2 ring-card bg-muted object-cover"

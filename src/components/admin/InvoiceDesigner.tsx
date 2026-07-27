@@ -667,9 +667,9 @@ export default function InvoiceDesigner() {
                 <span className="text-[9px] font-bold text-muted-foreground tracking-wider uppercase block">
                   Bill To
                 </span>
-                <strong className="block text-xs">Vishwajeet Kumar</strong>
+                <strong className="block text-xs">Alex Rivera</strong>
                 <p className="text-[10px] text-muted-foreground leading-relaxed">
-                  vishwajeetsrk@gmail.com · +91 99182 31234
+                  alex.rivera@example.com · +91 99182 31234
                   <br />
                   H.No. 405, Sector 4, HSR Layout, Bangalore, Karnataka, 560102
                 </p>

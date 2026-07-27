@@ -132,7 +132,7 @@ export type EditorHistory = {
 };
 
 export const DYNAMIC_FIELD_PLACEHOLDERS = [
-  { tag: "{student_name}", label: "Student Name", sample: "Vishwajeet S." },
+  { tag: "{student_name}", label: "Student Name", sample: "Alex Rivera" },
   { tag: "{course_name}", label: "Course Name", sample: "Full Stack AI Engineering" },
   { tag: "{issue_date}", label: "Issue Date", sample: "May 25, 2026" },
   { tag: "{expiry_date}", label: "Expiry Date", sample: "Lifetime" },

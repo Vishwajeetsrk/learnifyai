@@ -69,11 +69,11 @@ const ALL_FIELDS = [
 ];
 
 const DEFAULT_PREVIEW: PreviewData = {
-  studentName: "Vishwajeet",
+  studentName: "Alex Rivera",
   courseName: "AI Fundamentals for Beginners",
   description: "and has demonstrated the knowledge and skills\nrequired to complete the course.",
   date: "May 25, 2026",
-  signatureName: "Vishwajeet S.",
+  signatureName: "Alex Rivera",
   signatureTitle: "Founder & CEO",
   signatureRole: "Founder & CEO, Learnify AI",
   certId: "LAI-2026-05-00125",

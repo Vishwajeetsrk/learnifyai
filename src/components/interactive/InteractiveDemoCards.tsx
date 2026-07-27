@@ -896,7 +896,7 @@ function InteractiveRoadmapDemo() {
 }
 
 function InteractiveCertDemo() {
-  const [name, setName] = useState("Vishwajeet Kumar");
+  const [name, setName] = useState("Alex Rivera");
   const [topic, setTopic] = useState("Full Stack Development");
   const [style, setStyle] = useState("navy");
   const [generated, setGenerated] = useState(false);

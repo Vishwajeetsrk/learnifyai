@@ -280,7 +280,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           sameAs: [
             "https://twitter.com/LearnifyAI",
             "https://linkedin.com/company/learnify-ai",
-            "https://github.com/Vishwajeetsrk/learnifyai",
+            "https://github.com/learnifyai",
           ],
         }),
       },
