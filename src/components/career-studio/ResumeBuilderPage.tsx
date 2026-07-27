@@ -19,6 +19,7 @@ import {
   Briefcase,
   FolderOpen,
   Award,
+  Trophy,
   Globe,
   Shield,
   Code,
@@ -2492,7 +2493,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     <div>
                       <span className="text-[10px] text-muted-foreground font-bold block mb-1">Base Font Size</span>
                       <div className="flex rounded-lg border p-0.5 bg-muted/40 font-bold">
-                        {["9.5pt", "10.5pt", "11.5pt", "12.5pt"].map((size) => (
+                        {(["9.5pt", "10.5pt", "11.5pt", "12.5pt"] as const).map((size) => (
                           <button
                             key={size}
                             onClick={() => setBaseFontSize(size)}
