@@ -476,16 +476,16 @@ function PricingPage() {
           const match = dbPlans.find((db) => db.name.toLowerCase() === def.name.toLowerCase());
           return match
             ? {
-                ...def,
-                ...match,
-                id: match.id,
-                price_label: match.price_label || def.price_label,
-                price_inr: typeof match.price_inr === "number" ? match.price_inr : def.price_inr,
-                yearly_price:
-                  typeof match.yearly_price === "number" ? match.yearly_price : def.yearly_price,
-                interval: match.interval || def.interval,
-                features: def.features,
-              }
+              ...def,
+              ...match,
+              id: match.id,
+              price_label: match.price_label || def.price_label,
+              price_inr: typeof match.price_inr === "number" ? match.price_inr : def.price_inr,
+              yearly_price:
+                typeof match.yearly_price === "number" ? match.yearly_price : def.yearly_price,
+              interval: match.interval || def.interval,
+              features: def.features,
+            }
             : def;
         });
       } finally {
@@ -829,21 +829,19 @@ function PricingPage() {
             <div className="inline-flex items-center gap-1 bg-muted/50 rounded-full p-1.5">
               <button
                 onClick={() => setBillingCycle("monthly")}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                  billingCycle === "monthly"
+                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${billingCycle === "monthly"
                     ? "bg-background text-foreground shadow-md"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setBillingCycle("yearly")}
-                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 relative ${
-                  billingCycle === "yearly"
+                className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 relative ${billingCycle === "yearly"
                     ? "bg-background text-foreground shadow-md"
                     : "text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 Yearly
                 <span className="ml-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full animate-bounce">
@@ -1001,12 +999,14 @@ function PricingPage() {
                 intelligent platform.&rdquo;
               </blockquote>
               <div className="flex items-center justify-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary text-lg shadow-md">
-                  LA
-                </div>
+                <img
+                  src="/avatars/Vishwajeet.jpeg"
+                  alt="Vishwajeet"
+                  className="w-14 h-14 rounded-full object-cover shadow-lg shadow-indigo-500/25 ring-2 ring-white dark:ring-gray-800"
+                />
                 <div className="text-left">
-                  <div className="text-sm font-semibold">Learnify AI Team</div>
-                  <div className="text-xs text-muted-foreground">Product Architecture & Engineering</div>
+                  <div className="text-sm font-semibold">Vishwajeet</div>
+                  <div className="text-xs text-muted-foreground">Founder, Learnify AI</div>
                   <div className="flex gap-2 mt-1">
                     <span className="text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
                       Built in India
@@ -1271,11 +1271,10 @@ function PricingPage() {
           <div className="flex flex-wrap gap-2 mb-6">
             <button
               onClick={() => setFaqCategory(null)}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
-                !faqCategory
+              className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${!faqCategory
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
-              }`}
+                }`}
             >
               All
             </button>
@@ -1283,11 +1282,10 @@ function PricingPage() {
               <button
                 key={cat}
                 onClick={() => setFaqCategory(faqCategory === cat ? null : cat)}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${
-                  faqCategory === cat
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-all ${faqCategory === cat
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-card text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
-                }`}
+                  }`}
               >
                 {cat}
               </button>
@@ -1481,9 +1479,8 @@ function PricingCard({
   return (
     <div className="relative flex flex-col snap-start shrink-0 w-[80vw] sm:w-auto">
       <div
-        className={`relative rounded-2xl flex flex-col overflow-hidden transition-all duration-300 ${
-          isPopular ? "shadow-xl border-2 hover:shadow-2xl" : "border hover:shadow-lg"
-        }`}
+        className={`relative rounded-2xl flex flex-col overflow-hidden transition-all duration-300 ${isPopular ? "shadow-xl border-2 hover:shadow-2xl" : "border hover:shadow-lg"
+          }`}
         style={{
           borderColor: isPopular ? accentColor : undefined,
           background: "hsl(var(--card))",

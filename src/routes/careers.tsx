@@ -136,7 +136,7 @@ function JobApplyDialog({
               <Input
                 id="applicant-email"
                 type="email"
-                placeholder="support.learnifyai@gmail.com"
+                placeholder="alex.rivera@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

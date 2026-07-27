@@ -835,17 +835,17 @@ function ResumePreview({
           layoutColumns === "two" && "grid grid-cols-1 md:grid-cols-2 gap-6 space-y-0",
         )}
       >
-        {/* Multi-Page A4 Cutoff Visual Indicators (Page 1, Page 2, Page 3, Page 4, Page 5) */}
-        {[1, 2, 3, 4, 5].map((pageNum) => (
+        {/* Multi-Page A4 Cutoff Visual Indicators (Page 1, Page 2, Page 3, Page 4, Page 5, Page 6) */}
+        {[1, 2, 3, 4, 5, 6].map((pageNum) => (
           <div
             key={pageNum}
-            className="absolute left-0 right-0 border-b-2 border-dashed border-rose-400 dark:border-rose-700 flex items-center justify-between px-4 py-1 text-[10px] font-black text-rose-600 dark:text-rose-400 bg-rose-50/90 dark:bg-rose-950/90 pointer-events-none z-20 shadow-xs"
-            style={{ top: `${pageNum * 1050}px` }}
+            className="absolute left-0 right-0 border-y-2 border-dashed border-rose-500 flex items-center justify-between px-4 py-1.5 text-[10px] font-black text-rose-700 bg-rose-100/95 dark:bg-rose-950/95 dark:text-rose-300 pointer-events-none z-30 shadow-md print:hidden"
+            style={{ top: `${pageNum * 1050}px`, transform: "translateY(-50%)" }}
           >
-            <span className="flex items-center gap-1">
-              📄 Page {pageNum} Cutoff Line (A4 Margin)
+            <span className="flex items-center gap-1.5 font-bold uppercase tracking-wide">
+              📄 Page {pageNum} Cutoff Line (A4 Paper Boundary)
             </span>
-            <span className="bg-rose-600 text-white px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider shadow-xs">
+            <span className="bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider shadow-xs">
               Page {pageNum + 1} Begins Below ↓
             </span>
           </div>
