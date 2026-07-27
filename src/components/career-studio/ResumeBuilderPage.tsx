@@ -450,15 +450,15 @@ function parseSkillCategories(text: string): SkillCategory[] {
 }
 
 const SAMPLE_TEMPLATE_FORM: Record<string, string> = {
-  fullName: "ALEX RIVERA",
-  targetRole: "Senior Full Stack Engineer | Cloud & AI Architect",
-  email: "alex.rivera@example.com",
-  phone: "+1 (555) 019-2834",
-  location: "San Francisco, CA",
-  linkedin: "https://www.linkedin.com/in/alex-rivera-dev/",
-  github: "https://github.com/alexrivera-dev",
-  website: "https://alexrivera.dev",
-  portfolio: "https://alexrivera.dev/portfolio",
+  fullName: "VISHWAJEET",
+  targetRole: "AI Software Engineer",
+  email: "vishwajeetsrk@gmail.com",
+  phone: "+91 85952 02922",
+  location: "Bengaluru, India",
+  linkedin: "https://www.linkedin.com/in/vishwajeetsrk/",
+  github: "https://github.com/Vishwajeetsrk",
+  website: "https://www.learnifyai.in",
+  portfolio: "https://vishwajeetsrk.github.io",
   summary:
     "Results-driven Senior Full Stack Engineer with 4+ years of experience architecting high-availability cloud platforms, scalable REST/GraphQL APIs, and AI-assisted workflows. Skilled in TypeScript, React, Next.js, Node.js, Python, PostgreSQL, and cloud infrastructure.",
   experience: `Senior Software Engineer, TechCorp Systems | Jan 2024 – Present | San Francisco, CA
@@ -490,8 +490,8 @@ Tech Stack: Next.js, OpenAI API, Vector DB, Supabase, Tailwind CSS
   languages: `English (Native), Spanish (Professional)`,
   awards: `1st Place — National AI Hackathon 2025`,
   declaration: `I hereby declare that the information provided is accurate and true to the best of my knowledge.`,
-  signatoryName: "ALEX RIVERA",
-  signatoryPlace: "San Francisco",
+  signatoryName: "VISHWAJEET",
+  signatoryPlace: "Bengaluru",
 };
 
 const VISHWAJEET_DEFAULT_FORM: Record<string, string> = {
@@ -1247,7 +1247,12 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       const saved = localStorage.getItem("resume_builder_form");
       if (saved) {
         try {
-          return { ...VISHWAJEET_DEFAULT_FORM, ...JSON.parse(saved) };
+          const parsed = JSON.parse(saved);
+          if (!parsed.fullName || parsed.fullName === "ALEX RIVERA" || parsed.fullName === "Alex Rivera" || parsed.email === "alex.rivera@example.com") {
+            localStorage.removeItem("resume_builder_form");
+            return VISHWAJEET_DEFAULT_FORM;
+          }
+          return { ...VISHWAJEET_DEFAULT_FORM, ...parsed };
         } catch {}
       }
     }
