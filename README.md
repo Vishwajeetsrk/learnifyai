@@ -1017,24 +1017,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 📝 **BLOG RELATED ARTICLES SYSTEM**: Built dynamic **Related Articles** recommendation module on every blog post page for internal search link networks.
 - 🗺️ **DYNAMIC XML SITEMAP**: Upgraded `/sitemap.xml` to dynamically query and include published blog posts from Supabase for automatic search engine indexing.
 - 📸 **INSTAGRAM FOOTER & ADMIN SITE SETTINGS**: Integrated Instagram social button in footer, completely configurable via Admin Content Manager Site Settings.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 - **AI Headline Generator**: 5 role-tailored suggestions based on skills, experience, education
 - **About Optimizer**: Story and Recruiter modes with one-click apply
 - **Zero TypeScript errors**: Full tsc --noEmit pass with clean JSX structure after fixing corrupted merge artifacts
@@ -1043,12 +1025,10 @@ MIT License. See [LICENSE](LICENSE) for details.
 - **All emoji removed**: Replaced with Lucide SVG icons throughout Career Studio
 
 ### v1.1.0 (June 2026)
-
 - Complete UI overhaul with glassmorphism design
 - Dark mode + 6-color theme system
 - Gamification: XP, streaks, badges, leaderboard
 - Creator economy: course builder, cohorts, payouts
-
 ---
 
 <div align="center">
