@@ -14,7 +14,6 @@
 [![License](https://img.shields.io/badge/License-MIT-6366f1?style=for-the-badge)](LICENSE)
 
 [🚀 Live Demo](https://www.learnifyai.in/) · [🐛 Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues) · [✨ Request Feature](https://github.com/Vishwajeetsrk/learnifyai/issues/new?template=feature_request.md)
-
 </div>
 
 ---
@@ -1054,7 +1053,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**Built with ❤️ by [Learnify AI](https://learnifyaitool.vercel.app/)**
+**Built with ❤️ by [Learnify AI](http://learnifyai.in/)**
 
 [![Star on GitHub](https://img.shields.io/github/stars/Vishwajeetsrk/learnifyai?style=social)](https://github.com/Vishwajeetsrk/learnifyai)
 
