@@ -151,12 +151,10 @@ CREATE TABLE canva_templates (
 ---
 
 ## 🚀 Upcoming Master Sprints
-
 For developers and AI agents (Lovable, Cursor, Claude Code) looking to implement massive feature overhauls, please refer to the following sprint specifications:
 
 - [Gamification 4.0 Master Prompt](./GAMIFICATION_MASTER_PROMPT.md)
 - [Mobile UI/UX & Functional Fix Sprint](./MOBILE_UX_SPRINT.md)
-
 ---
 
 ## 💻 Code Playground Languages
