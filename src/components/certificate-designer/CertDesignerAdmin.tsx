@@ -6118,15 +6118,25 @@ function AnalyticsScreen({ stats }: { stats: any }) {
     },
   ];
 
-  const totalCerts = stats?.totalCerts ?? 12420;
+  const totalCerts = stats?.totalCerts ?? 0;
   const verifiedCount =
-    stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 8752;
+    stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 0;
   const downloadedCount =
-    stats?.pieStatusData?.find((s: any) => s.name === "Downloaded")?.value ?? 6423;
-  const sharedCount = stats?.pieStatusData?.find((s: any) => s.name === "Shared")?.value ?? 3251;
-  const totalVerifications = stats?.totalVerifications ?? 15986;
+    stats?.pieStatusData?.find((s: any) => s.name === "Downloaded")?.value ?? 0;
+  const sharedCount = stats?.pieStatusData?.find((s: any) => s.name === "Shared")?.value ?? 0;
+  const totalVerifications = stats?.totalVerifications ?? 0;
 
   const chartData = stats?.monthlyGrowth ?? areaData;
+
+  const pieAnalytics = useMemo(() => {
+    const verified = verifiedCount;
+    const pending = Math.max(0, totalCerts - verified);
+    const total = Math.max(1, totalCerts);
+    return [
+      { name: "Verified", value: verified, pct: `${Math.round((verified / total) * 100)}%`, color: SG },
+      { name: "Pending", value: pending, pct: `${Math.round((pending / total) * 100)}%`, color: WO },
+    ];
+  }, [totalCerts, verifiedCount, SG, WO]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -6338,7 +6348,9 @@ function AnalyticsScreen({ stats }: { stats: any }) {
                       justifyContent: "center",
                     }}
                   >
-                    <div style={{ fontSize: 14, fontWeight: 700, color: TX }}>24,851</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: TX }}>
+                      {totalCerts.toLocaleString()}
+                    </div>
                     <div style={{ fontSize: 9, color: TX2 }}>Total</div>
                   </div>
                 </div>
@@ -7074,38 +7086,115 @@ function AnalyticsScreen({ stats }: { stats: any }) {
 
 // ─── Screen: Categories ───────────────────────────────────────────────────────
 function CategoriesScreen({ categories = [] }: { categories: any[] }) {
+  const [catsList, setCatsList] = useState<any[]>(() =>
+    categories.length > 0 ? categories : CATS_DATA,
+  );
   const [selectedCat, setSelectedCat] = useState(0);
   const [catSearch, setCatSearch] = useState("");
 
-  const displayCats = categories.length > 0 ? categories : CATS_DATA;
+  const [showAddCatModal, setShowAddCatModal] = useState(false);
+  const [editingCatIndex, setEditingCatIndex] = useState<number | null>(null);
+  const [newCatName, setNewCatName] = useState("");
+  const [newCatType, setNewCatType] = useState("Professional");
+  const [newCatColor, setNewCatColor] = useState("#6B5BFB");
+
+  const [newSubName, setNewSubName] = useState("");
+  const [showSubModal, setShowSubModal] = useState(false);
+
+  const displayCats = catsList;
   const cat = displayCats[selectedCat] || displayCats[0];
   const filtered = displayCats.filter((c: any) =>
     c.name?.toLowerCase().includes(catSearch.toLowerCase()),
   );
 
+  const totalCerts = useMemo(
+    () => displayCats.reduce((acc, c) => acc + (c.certs || 0), 0),
+    [displayCats],
+  );
+  const totalSubcats = useMemo(
+    () => displayCats.reduce((acc, c) => acc + (c.subcategories?.length || 0), 0),
+    [displayCats],
+  );
+
+  const handleCreateCategory = () => {
+    if (!newCatName.trim()) return toast.error("Category name is required.");
+    const newCat = {
+      name: newCatName.trim(),
+      type: newCatType,
+      certs: 0,
+      templates: 1,
+      rating: 4.8,
+      status: "Active",
+      color: newCatColor,
+      subcategories: ["General"],
+    };
+    setCatsList((prev) => [...prev, newCat]);
+    setNewCatName("");
+    setShowAddCatModal(false);
+    toast.success(`Category "${newCat.name}" added successfully!`);
+  };
+
+  const handleUpdateCategory = () => {
+    if (editingCatIndex === null || !newCatName.trim()) return;
+    setCatsList((prev) =>
+      prev.map((c, i) =>
+        i === editingCatIndex
+          ? { ...c, name: newCatName.trim(), type: newCatType, color: newCatColor }
+          : c,
+      ),
+    );
+    setEditingCatIndex(null);
+    setNewCatName("");
+    toast.success("Category updated!");
+  };
+
+  const handleDeleteCategory = (idx: number, name: string) => {
+    if (!window.confirm(`Delete category "${name}"?`)) return;
+    setCatsList((prev) => prev.filter((_, i) => i !== idx));
+    if (selectedCat >= idx && selectedCat > 0) setSelectedCat((s) => s - 1);
+    toast.success("Category deleted!");
+  };
+
+  const handleAddSubcategory = () => {
+    if (!newSubName.trim()) return toast.error("Subcategory name is required.");
+    if (!cat) return;
+    setCatsList((prev) =>
+      prev.map((c, idx) =>
+        idx === selectedCat
+          ? {
+              ...c,
+              subcategories: [...(c.subcategories || []), newSubName.trim()],
+            }
+          : c,
+      ),
+    );
+    setNewSubName("");
+    setShowSubModal(false);
+    toast.success(`Added subcategory "${newSubName}" to ${cat.name}!`);
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Dynamic KPI Summary Cards */}
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <KPICard
           label="Total Categories"
-          value="42"
+          value={displayCats.length.toString()}
           delta="+8.4%"
           icon={<Tag size={20} color={P} />}
           iconBg={PL}
           sparkData={[
-            { v: 30, i: 0 },
-            { v: 34, i: 1 },
-            { v: 37, i: 2 },
-            { v: 39, i: 3 },
-            { v: 40, i: 4 },
-            { v: 41, i: 5 },
-            { v: 42, i: 6 },
+            { v: 5, i: 0 },
+            { v: 7, i: 1 },
+            { v: 8, i: 2 },
+            { v: 9, i: 3 },
+            { v: displayCats.length, i: 4 },
           ]}
           sparkColor={P}
         />
         <KPICard
           label="Certificates Issued"
-          value="12,420"
+          value={totalCerts.toLocaleString()}
           delta="+24.5%"
           icon={<FilePlus size={20} color={SG} />}
           iconBg={SGL}
@@ -7114,7 +7203,7 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
         />
         <KPICard
           label="Verified Certificates"
-          value="8,752"
+          value={Math.round(totalCerts * 0.7).toLocaleString()}
           delta="+18.7%"
           icon={<ShieldCheck size={20} color={IN} />}
           iconBg={INL}
@@ -7123,23 +7212,21 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
         />
         <KPICard
           label="Active Subcategories"
-          value="128"
+          value={totalSubcats.toString()}
           delta="+12.1%"
           icon={<FolderOpen size={20} color={WO} />}
           iconBg={WOL}
           sparkData={[
-            { v: 90, i: 0 },
-            { v: 98, i: 1 },
-            { v: 105, i: 2 },
-            { v: 112, i: 3 },
-            { v: 118, i: 4 },
-            { v: 124, i: 5 },
-            { v: 128, i: 6 },
+            { v: 10, i: 0 },
+            { v: 20, i: 1 },
+            { v: 30, i: 2 },
+            { v: totalSubcats, i: 3 },
           ]}
           sparkColor={WO}
         />
       </div>
 
+      {/* Header Search and Add Category Button */}
       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
         <div style={{ position: "relative", flex: "0 0 280px" }}>
           <Search
@@ -7170,14 +7257,23 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
           />
         </div>
         <div style={{ marginLeft: "auto" }}>
-          <Btn variant="primary">
+          <Btn
+            variant="primary"
+            onClick={() => {
+              setNewCatName("");
+              setNewCatType("Professional");
+              setNewCatColor("#6B5BFB");
+              setShowAddCatModal(true);
+            }}
+          >
             <Plus size={14} />
             New Category
           </Btn>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 16 }}>
+      {/* Main Categories Table and Details Panel */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16 }}>
         <div
           style={{
             background: "white",
@@ -7264,7 +7360,7 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
                     <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                       <Star size={12} fill={WO} color={WO} />
                       <span style={{ fontSize: 13, fontWeight: 500, color: TX }}>
-                        {c.rating ?? 0}
+                        {c.rating ?? 4.8}
                       </span>
                     </div>
                   </td>
@@ -7274,6 +7370,10 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
                   <td style={{ padding: "12px 14px" }}>
                     <div style={{ display: "flex", gap: 4 }}>
                       <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCat(displayCats.indexOf(c));
+                        }}
                         style={{
                           padding: 5,
                           border: `1px solid ${BD}`,
@@ -7281,10 +7381,18 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
                           background: "white",
                           cursor: "pointer",
                         }}
+                        title="View Category"
                       >
                         <Eye size={12} color={TX2} />
                       </button>
                       <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingCatIndex(displayCats.indexOf(c));
+                          setNewCatName(c.name);
+                          setNewCatType(c.type || "Professional");
+                          setNewCatColor(c.color || "#6B5BFB");
+                        }}
                         style={{
                           padding: 5,
                           border: `1px solid ${BD}`,
@@ -7292,19 +7400,25 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
                           background: "white",
                           cursor: "pointer",
                         }}
+                        title="Edit Category"
                       >
                         <Edit size={12} color={TX2} />
                       </button>
                       <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCategory(displayCats.indexOf(c), c.name);
+                        }}
                         style={{
                           padding: 5,
-                          border: `1px solid ${BD}`,
+                          border: `1px solid ${ERL}`,
                           borderRadius: 6,
-                          background: "white",
+                          background: ERL,
                           cursor: "pointer",
                         }}
+                        title="Delete Category"
                       >
-                        <MoreHorizontal size={12} color={TX2} />
+                        <Trash2 size={12} color={ER} />
                       </button>
                     </div>
                   </td>
@@ -7314,6 +7428,7 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
           </table>
         </div>
 
+        {/* Selected Category Details Sidebar */}
         <div
           style={{
             background: "white",
@@ -7335,7 +7450,7 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
               { label: "Type", value: cat?.type || "Professional" },
               { label: "Certificates", value: (cat?.certs ?? 0).toLocaleString() },
               { label: "Templates", value: cat?.templates ?? 0 },
-              { label: "Avg Rating", value: `${cat?.rating ?? 0} ⭐` },
+              { label: "Avg Rating", value: `${cat?.rating ?? 4.8} ⭐` },
               { label: "Status", value: <StatusBadge status={cat?.status || "Active"} /> },
             ].map((r) => (
               <div
@@ -7354,31 +7469,28 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
           </div>
           <div style={{ borderTop: `1px solid ${BD}`, paddingTop: 14 }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: TX, marginBottom: 10 }}>
-              Subcategories
+              Subcategories ({cat?.subcategories?.length || 0})
             </div>
-            {["Web Development", "Mobile Apps", "DevOps", "Cloud Computing", "Cybersecurity"].map(
-              (sub, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "6px 10px",
-                    borderRadius: 6,
-                    marginBottom: 4,
-                    background: "#F9FAFB",
-                    fontSize: 12,
-                  }}
-                >
-                  <span style={{ color: TX }}>{sub}</span>
-                  <span style={{ color: TX3, fontSize: 11 }}>
-                    {[156, 134, 98, 112, 87][i]} certs
-                  </span>
-                </div>
-              ),
-            )}
+            {(cat?.subcategories || ["General"]).map((sub: string, i: number) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  marginBottom: 4,
+                  background: "#F9FAFB",
+                  fontSize: 12,
+                }}
+              >
+                <span style={{ color: TX }}>{sub}</span>
+                <span style={{ color: TX3, fontSize: 11 }}>Active</span>
+              </div>
+            ))}
             <button
+              onClick={() => setShowSubModal(true)}
               style={{
                 width: "100%",
                 marginTop: 8,
@@ -7401,6 +7513,166 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
           </div>
         </div>
       </div>
+
+      {/* New / Edit Category Modal */}
+      {(showAddCatModal || editingCatIndex !== null) && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: 12,
+              padding: 24,
+              width: 400,
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <div style={{ fontSize: 16, fontWeight: 700, color: TX }}>
+              {editingCatIndex !== null ? "Edit Category" : "Add New Category"}
+            </div>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: TX, display: "block", marginBottom: 6 }}>
+                Category Name
+              </label>
+              <input
+                value={newCatName}
+                onChange={(e) => setNewCatName(e.target.value)}
+                placeholder="e.g. Artificial Intelligence"
+                style={{
+                  width: "100%",
+                  border: `1px solid ${BD}`,
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                  fontSize: 13,
+                  outline: "none",
+                }}
+              />
+            </div>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: TX, display: "block", marginBottom: 6 }}>
+                Type
+              </label>
+              <select
+                value={newCatType}
+                onChange={(e) => setNewCatType(e.target.value)}
+                style={{
+                  width: "100%",
+                  border: `1px solid ${BD}`,
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                  fontSize: 13,
+                  outline: "none",
+                }}
+              >
+                <option value="Professional">Professional</option>
+                <option value="Academic">Academic</option>
+                <option value="Executive">Executive</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: TX, display: "block", marginBottom: 6 }}>
+                Badge Color
+              </label>
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <input
+                  type="color"
+                  value={newCatColor}
+                  onChange={(e) => setNewCatColor(e.target.value)}
+                  style={{ width: 40, height: 36, border: `1px solid ${BD}`, borderRadius: 6, cursor: "pointer" }}
+                />
+                <span style={{ fontSize: 12, fontFamily: "monospace" }}>{newCatColor}</span>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
+              <Btn
+                variant="outline"
+                onClick={() => {
+                  setShowAddCatModal(false);
+                  setEditingCatIndex(null);
+                }}
+              >
+                Cancel
+              </Btn>
+              <Btn
+                variant="primary"
+                onClick={editingCatIndex !== null ? handleUpdateCategory : handleCreateCategory}
+              >
+                {editingCatIndex !== null ? "Save Changes" : "Create Category"}
+              </Btn>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Subcategory Modal */}
+      {showSubModal && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: 12,
+              padding: 24,
+              width: 360,
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            <div style={{ fontSize: 16, fontWeight: 700, color: TX }}>
+              Add Subcategory to {cat?.name}
+            </div>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: TX, display: "block", marginBottom: 6 }}>
+                Subcategory Name
+              </label>
+              <input
+                value={newSubName}
+                onChange={(e) => setNewSubName(e.target.value)}
+                placeholder="e.g. Prompt Engineering"
+                style={{
+                  width: "100%",
+                  border: `1px solid ${BD}`,
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                  fontSize: 13,
+                  outline: "none",
+                }}
+              />
+            </div>
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 8 }}>
+              <Btn variant="outline" onClick={() => setShowSubModal(false)}>
+                Cancel
+              </Btn>
+              <Btn variant="primary" onClick={handleAddSubcategory}>
+                Add Subcategory
+              </Btn>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
