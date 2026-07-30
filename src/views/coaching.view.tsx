@@ -346,14 +346,12 @@ export default function CoachingDashboard() {
           >
             <TrendingUp className="h-4 w-4 inline-block mr-2" /> Outcomes
           </button>
-          {isCreator && (
-            <button
-              className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "cohorts" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-              onClick={() => setActiveTab("cohorts")}
-            >
-              <Users className="h-4 w-4 inline-block mr-2" /> Cohorts
-            </button>
-          )}
+          <button
+            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "cohorts" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            onClick={() => setActiveTab("cohorts")}
+          >
+            <Users className="h-4 w-4 inline-block mr-2" /> Cohorts
+          </button>
         </div>
 
         {activeTab === "scheduling" && (
@@ -816,13 +814,13 @@ export default function CoachingDashboard() {
 
         {activeTab === "outcomes" && <RealOutcomes user={user} />}
 
-        {activeTab === "cohorts" && isCreator && <RealCohorts user={user} />}
+        {activeTab === "cohorts" && <RealCohorts user={user} isCreator={isCreator} />}
       </div>
     </AppShell>
   );
 }
 
-function RealCohorts({ user }: { user: any }) {
+function RealCohorts({ user, isCreator }: { user: any; isCreator: boolean }) {
   const qc = useQueryClient();
   const [newOpen, setNewOpen] = useState(false);
   const [form, setForm] = useState({
@@ -843,13 +841,13 @@ function RealCohorts({ user }: { user: any }) {
 
   const { data: cohorts = [], isLoading } = useQuery({
     enabled: !!user,
-    queryKey: ["coaching-cohorts", user?.id],
+    queryKey: ["coaching-cohorts", user?.id, isCreator],
     queryFn: async () => {
-      const { data } = await supabase
-        .from("cohorts")
-        .select("*, cohort_members(count)")
-        .eq("creator_id", user!.id)
-        .order("starts_at", { ascending: false });
+      let q = supabase.from("cohorts").select("*, cohort_members(count)");
+      if (isCreator) {
+        q = q.eq("creator_id", user!.id);
+      }
+      const { data } = await q.order("starts_at", { ascending: false });
       return data ?? [];
     },
   });
@@ -922,6 +920,11 @@ function RealCohorts({ user }: { user: any }) {
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };
 
+  const enterStudio = (c: any) => {
+    toast.success(`Entering Live Studio for ${c.title}...`);
+    window.open(`https://meet.google.com/new`, "_blank");
+  };
+
   return (
     <div className="bg-card rounded-2xl border p-6 min-h-[400px]">
       <div className="flex items-center justify-between mb-6">
@@ -934,57 +937,59 @@ function RealCohorts({ user }: { user: any }) {
             </p>
           </div>
         </div>
-        <Dialog open={newOpen} onOpenChange={setNewOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Users className="h-4 w-4" /> New cohort
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create cohort</DialogTitle>
-              <DialogDescription>Set up a new live learning cohort.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-3">
-              <div>
-                <Label>Title</Label>
-                <Input
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  placeholder="Fall 2026 Bootcamp"
-                />
-              </div>
-              <div>
-                <Label>Description</Label>
-                <Textarea
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {isCreator && (
+          <Dialog open={newOpen} onOpenChange={setNewOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Users className="h-4 w-4" /> New cohort
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create cohort</DialogTitle>
+                <DialogDescription>Set up a new live learning cohort.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3">
                 <div>
-                  <Label>Start date</Label>
+                  <Label>Title</Label>
                   <Input
-                    type="datetime-local"
-                    value={form.starts_at}
-                    onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
+                    value={form.title}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    placeholder="Fall 2026 Bootcamp"
                   />
                 </div>
                 <div>
-                  <Label>Capacity</Label>
-                  <Input
-                    type="number"
-                    value={form.capacity}
-                    onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })}
+                  <Label>Description</Label>
+                  <Textarea
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
                   />
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label>Start date</Label>
+                    <Input
+                      type="datetime-local"
+                      value={form.starts_at}
+                      onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Capacity</Label>
+                    <Input
+                      type="number"
+                      value={form.capacity}
+                      onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={createCohort}>Create</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button onClick={createCohort}>Create</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {isLoading ? (
@@ -1019,7 +1024,7 @@ function RealCohorts({ user }: { user: any }) {
                     </p>
                   </div>
                   <div className="flex items-center gap-1 shrink-0 flex-wrap">
-                    {!isLive && (
+                    {isCreator && !isLive && (
                       <>
                         <button
                           onClick={() => openEditCohort(c)}
@@ -1080,13 +1085,13 @@ function RealCohorts({ user }: { user: any }) {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  {isScheduled && (
+                  {isScheduled && isCreator && (
                     <Button size="sm" className="flex-1" onClick={() => launchCohort(c.id)}>
                       <Video className="h-4 w-4" /> Launch Now
                     </Button>
                   )}
                   {isLive && (
-                    <Button size="sm" className="flex-1 gap-2">
+                    <Button size="sm" className="flex-1 gap-2" onClick={() => enterStudio(c)}>
                       <Video className="h-4 w-4" /> Enter Studio
                     </Button>
                   )}
