@@ -1026,7 +1026,7 @@ function Btn({
 }: {
   children: ReactNode;
   variant?: "primary" | "outline" | "ghost" | "danger";
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   style?: CSSProperties;
   disabled?: boolean;
 }) {
@@ -2471,7 +2471,7 @@ function TemplatesScreen({
                   </div>
                   <Btn
                     variant="primary"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                       e.stopPropagation();
                       handleEdit(t.dbTemplate);
                     }}
