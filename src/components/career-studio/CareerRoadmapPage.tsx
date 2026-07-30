@@ -585,7 +585,13 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
 }
 
 function StructuredRoadmap({ data }: { data: RoadmapData }) {
-  const gapChartData = data.skill_gap.map((s) => ({
+  const safeSkillGap = data.skill_gap || [];
+  const safeCurrentSkills = data.current_skills || [];
+  const safeTargetSkills = data.target_skills || [];
+  const safePhases = data.phases || [];
+  const safeMonthlyMilestones = data.monthly_milestones || [];
+
+  const gapChartData = safeSkillGap.map((s) => ({
     name: s.skill.length > 12 ? s.skill.slice(0, 12) + "…" : s.skill,
     priority: s.priority === "high" ? 3 : s.priority === "medium" ? 2 : 1,
     fill: s.priority === "high" ? "#ef4444" : s.priority === "medium" ? "#f59e0b" : "#10b981",
@@ -603,11 +609,11 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
           </span>
           <span className="flex items-center gap-1.5">
             <Target className="h-4 w-4" />
-            {data.target_skills.length} target skills
+            {safeTargetSkills.length} target skills
           </span>
           <span className="flex items-center gap-1.5">
             <AlertCircle className="h-4 w-4" />
-            {data.skill_gap.length} gaps identified
+            {safeSkillGap.length} gaps identified
           </span>
         </div>
       </div>
@@ -621,7 +627,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-1.5">
-              {data.current_skills.map((s) => (
+              {safeCurrentSkills.map((s) => (
                 <SkillBadge key={s} skill={s} variant="secondary" />
               ))}
             </div>
@@ -635,7 +641,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-1.5">
-              {data.target_skills.map((s) => (
+              {safeTargetSkills.map((s) => (
                 <SkillBadge key={s} skill={s} variant="default" />
               ))}
             </div>
@@ -643,7 +649,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
         </Card>
       </div>
 
-      {data.skill_gap.length > 0 && (
+      {safeSkillGap.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
@@ -668,7 +674,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
               </ResponsiveContainer>
             )}
             <div className="space-y-2">
-              {data.skill_gap.map((gap) => (
+              {safeSkillGap.map((gap) => (
                 <div
                   key={gap.skill}
                   className="flex items-start gap-3 p-2 rounded-lg bg-muted/50 text-sm"
@@ -690,7 +696,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
         <div className="relative">
           <div className="absolute left-[18px] top-0 bottom-0 w-[2px] bg-border" />
           <div className="space-y-8">
-            {data.phases.map((phase, i) => {
+            {safePhases.map((phase, i) => {
               const color = phase.color || PHASE_COLORS[i % PHASE_COLORS.length];
               return (
                 <div key={i} className="relative flex gap-4">
@@ -708,17 +714,17 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                     <p className="text-sm text-muted-foreground mb-3">{phase.description}</p>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                      {phase.skills.length > 0 && (
+                      {(phase.skills || []).length > 0 && (
                         <div className="rounded-lg border p-3 space-y-2 bg-card">
                           <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
                             <Code className="h-3.5 w-3.5" /> Skills
                           </h5>
-                          {phase.skills.map((s) => (
+                          {(phase.skills || []).map((s) => (
                             <div key={s.name} className="space-y-1">
                               <SkillBadge skill={s.name} size="md" variant="default" />
-                              {s.topics.length > 0 && (
+                              {(s.topics || []).length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-1 pl-1">
-                                  {s.topics.map((t) => (
+                                  {(s.topics || []).map((t) => (
                                     <SkillBadge key={t} skill={t} variant="outline" size="sm" />
                                   ))}
                                 </div>
@@ -728,12 +734,12 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                         </div>
                       )}
 
-                      {phase.courses.length > 0 && (
+                      {(phase.courses || []).length > 0 && (
                         <div className="rounded-lg border p-3 space-y-2 bg-card">
                           <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
                             <BookOpen className="h-3.5 w-3.5" /> Courses
                           </h5>
-                          {phase.courses.map((c, j) => (
+                          {(phase.courses || []).map((c, j) => (
                             <div key={j} className="text-sm">
                               <div className="flex items-center gap-2">
                                 {c.url ? (
@@ -766,12 +772,12 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                         </div>
                       )}
 
-                      {phase.projects.length > 0 && (
+                      {(phase.projects || []).length > 0 && (
                         <div className="rounded-lg border p-3 space-y-2 bg-card">
                           <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
                             <FolderGit2 className="h-3.5 w-3.5" /> Projects
                           </h5>
-                          {phase.projects.map((p, j) => (
+                          {(phase.projects || []).map((p, j) => (
                             <div key={j} className="text-sm">
                               <div className="flex items-center gap-2">
                                 <span className="font-medium">{p.title}</span>
@@ -779,7 +785,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                               </div>
                               <p className="text-xs text-muted-foreground">{p.description}</p>
                               <div className="flex flex-wrap gap-1 mt-1">
-                                {p.tech_stack.map((t) => (
+                                {(p.tech_stack || []).map((t) => (
                                   <SkillBadge key={t} skill={t} variant="outline" size="sm" />
                                 ))}
                               </div>
@@ -788,13 +794,13 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                         </div>
                       )}
 
-                      {phase.milestones.length > 0 && (
+                      {(phase.milestones || []).length > 0 && (
                         <div className="rounded-lg border p-3 space-y-2 bg-card">
                           <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
                             <Milestone className="h-3.5 w-3.5" /> Milestones
                           </h5>
                           <ul className="space-y-1">
-                            {phase.milestones.map((m, j) => (
+                            {(phase.milestones || []).map((m, j) => (
                               <li key={j} className="text-sm flex items-start gap-2">
                                 <Circle
                                   className="h-2 w-2 mt-1.5 shrink-0"
@@ -815,7 +821,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
         </div>
       </div>
 
-      {data.monthly_milestones.length > 0 && (
+      {safeMonthlyMilestones.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
@@ -824,7 +830,7 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {data.monthly_milestones.map((m) => (
+              {safeMonthlyMilestones.map((m) => (
                 <div key={m.month} className="p-2.5 rounded-lg border bg-card text-sm">
                   <div className="font-semibold text-primary">Month {m.month}</div>
                   <div className="font-medium mt-0.5">{m.goal}</div>
@@ -846,13 +852,13 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {data.interview_prep.topics.length > 0 && (
+            {(data.interview_prep.topics || []).length > 0 && (
               <div>
                 <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
                   Key Topics
                 </h5>
                 <div className="flex flex-wrap gap-1.5">
-                  {data.interview_prep.topics.map((t) => (
+                  {(data.interview_prep.topics || []).map((t) => (
                     <Badge key={t} variant="secondary" className="text-xs">
                       {t}
                     </Badge>
@@ -860,13 +866,13 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                 </div>
               </div>
             )}
-            {data.interview_prep.platforms.length > 0 && (
+            {(data.interview_prep.platforms || []).length > 0 && (
               <div>
                 <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
                   Practice Platforms
                 </h5>
                 <div className="flex flex-wrap gap-1.5">
-                  {data.interview_prep.platforms.map((p) => (
+                  {(data.interview_prep.platforms || []).map((p) => (
                     <Badge key={p} variant="outline" className="text-xs">
                       {p}
                     </Badge>
@@ -874,13 +880,13 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
                 </div>
               </div>
             )}
-            {data.interview_prep.questions.length > 0 && (
+            {(data.interview_prep.questions || []).length > 0 && (
               <div>
                 <h5 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1.5">
                   Common Questions
                 </h5>
                 <ul className="space-y-1 text-sm text-muted-foreground">
-                  {data.interview_prep.questions.map((q, i) => (
+                  {(data.interview_prep.questions || []).map((q, i) => (
                     <li key={i} className="flex items-start gap-2">
                       <span className="text-primary font-mono text-xs mt-0.5">{i + 1}.</span>
                       {q}

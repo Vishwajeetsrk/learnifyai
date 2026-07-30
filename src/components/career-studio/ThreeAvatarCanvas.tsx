@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { cn } from "@/lib/utils";
+import { Hand } from "lucide-react";
 
 interface ThreeAvatarCanvasProps {
   modelUrl?: string;
@@ -212,16 +213,16 @@ export function ThreeAvatarCanvas({
               aiSpeaking ? "bg-emerald-400 animate-ping" : "bg-indigo-400",
             )}
           />
-          <span>{aiSpeaking ? "Speaking & Explaining..." : isWaving ? "Waving Hello 👋" : "Listening & Observing"}</span>
+          <span>{aiSpeaking ? "Speaking & Explaining..." : isWaving ? "Waving Hello!" : "Listening & Observing"}</span>
         </div>
 
         {/* Interactive Wave Trigger Button */}
         <button
           onClick={() => setIsWaving((w) => !w)}
-          className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white text-[10px] font-bold transition backdrop-blur-sm cursor-pointer shadow"
+          className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white text-[10px] font-bold transition backdrop-blur-sm cursor-pointer shadow"
           title="Trigger Friendly Wave"
         >
-          👋 Wave
+          <Hand className="h-3 w-3" /> Wave
         </button>
       </div>
 

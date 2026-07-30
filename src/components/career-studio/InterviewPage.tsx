@@ -31,6 +31,7 @@ import {
   Download,
   FileText,
   FileDown,
+  AlertTriangle,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -401,6 +402,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [showTips, setShowTips] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
 
   // Video & Audio Stream control states
   const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
@@ -931,13 +933,7 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
               size="sm"
               variant="outline"
               className="h-8 text-xs font-bold gap-1 text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20 shrink-0 cursor-pointer"
-              onClick={() => {
-                if (confirm("Exit this session? Progress will be reset.")) {
-                  stopVoiceRecognition();
-                  handleRestart();
-                  toast.success("Cancelled");
-                }
-              }}
+              onClick={() => setShowExitDialog(true)}
             >
               <XCircle className="h-3.5 w-3.5" />
               <span>Exit / Cancel</span>
@@ -1000,9 +996,13 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
                     </div>
                     <Badge
                       variant="outline"
-                      className="text-[10px] border-slate-700 text-slate-300"
+                      className={cn(
+                        "text-[10px] flex items-center gap-1",
+                        isRecording ? "border-red-500/50 text-red-400" : "border-slate-700 text-slate-300",
+                      )}
                     >
-                      {isRecording ? "🔴 RECORDING" : "STANDBY"}
+                      <span className={cn("h-1.5 w-1.5 rounded-full", isRecording ? "bg-red-500 animate-pulse" : "bg-slate-500")} />
+                      {isRecording ? "RECORDING" : "STANDBY"}
                     </Badge>
                   </div>
 
@@ -1342,6 +1342,51 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
     </div>
   );
 
-  if (embedded) return mainContent;
-  return <AppShell>{mainContent}</AppShell>;
+  const exitDialog = showExitDialog && (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{ backdropFilter: "blur(8px)", backgroundColor: "rgba(0,0,0,0.7)" }}
+      onClick={() => setShowExitDialog(false)}
+    >
+      <div
+        className="relative w-full max-w-sm rounded-2xl border border-red-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-red-950/30 p-6 shadow-2xl"
+        style={{ animation: "dialog-in 0.2s ease" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Icon */}
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/15 border border-red-500/30">
+          <AlertTriangle className="h-7 w-7 text-red-400" />
+        </div>
+        <h3 className="text-center text-lg font-bold text-white mb-1">Exit Session?</h3>
+        <p className="text-center text-sm text-slate-400 mb-6">
+          Your progress for this session will be reset.
+          <br />
+          <span className="text-red-400 font-semibold">This action cannot be undone.</span>
+        </p>
+        <div className="flex gap-3">
+          <button
+            className="flex-1 rounded-xl border border-slate-700 bg-slate-800 px-4 py-2.5 text-sm font-bold text-slate-200 transition hover:bg-slate-700 active:scale-95 cursor-pointer"
+            onClick={() => setShowExitDialog(false)}
+          >
+            Continue Interview
+          </button>
+          <button
+            className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-red-700 active:scale-95 cursor-pointer shadow-lg shadow-red-900/40"
+            onClick={() => {
+              setShowExitDialog(false);
+              stopVoiceRecognition();
+              handleRestart();
+              toast.success("Session cancelled");
+            }}
+          >
+            Exit & Reset
+          </button>
+        </div>
+      </div>
+      <style>{`@keyframes dialog-in { from { opacity: 0; transform: scale(0.92) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }`}</style>
+    </div>
+  );
+
+  if (embedded) return <>{mainContent}{exitDialog}</>;
+  return <AppShell>{mainContent}{exitDialog}</AppShell>;
 }
