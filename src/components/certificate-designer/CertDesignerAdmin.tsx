@@ -2482,12 +2482,10 @@ function TemplatesScreen({
                 </div>
               </div>
             </div>
-          ))}
         </div>
       )}
     </div>
   );
-}
 }
 
 // ─── Screen: Designer (wraps existing DesignerWorkspace) ─────────────────────
