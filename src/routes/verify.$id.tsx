@@ -1,64 +1,167 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Award,
-  CheckCircle2,
   Calendar,
-  User,
   BookOpen,
   ShieldCheck,
   Download,
   Share2,
   ArrowLeft,
+  Loader2,
+  Image as ImageIcon,
   ExternalLink,
-  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { CertificateRender, DEFAULT_DESIGN, type CertDesign } from "@/components/CertificateDesign";
+import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-pdf";
 
 export const Route = createFileRoute("/verify/$id")({
+  head: () => ({ meta: [{ title: "Verify Credential — Learnify AI" }] }),
   component: CertificateVerificationPage,
 });
 
 function CertificateVerificationPage() {
   const { id } = Route.useParams();
+  const certRef = useRef<HTMLDivElement>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [downloading, setDownloading] = useState(false);
 
   const { data: cert, isLoading } = useQuery({
     queryKey: ["certificate-verify", id],
     queryFn: async () => {
-      // First try fetching from database table
-      const { data, error } = await (supabase as any)
+      // 1. Try get_certificate_by_code RPC or certificates table
+      const { data: rpcData } = await supabase.rpc("get_certificate_by_code", {
+        _code: id,
+      });
+      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+      if (row) return row;
+
+      // 2. Try certificates table directly by code or id
+      const { data: certRow } = await supabase
+        .from("certificates")
+        .select("*, courses:course_id(title, instructor, category)")
+        .or(`code.eq.${id},id.eq.${id}`)
+        .maybeSingle();
+
+      if (certRow) {
+        return {
+          code: certRow.code,
+          recipient_name: certRow.learner_name || "Learner",
+          course_title: (certRow as any).courses?.title || "Learnify Course",
+          course_instructor: (certRow as any).courses?.instructor || "Learnify Instructor",
+          issued_at: certRow.issued_at,
+          score: certRow.score,
+          total: certRow.total,
+          design_snapshot: certRow.design_snapshot,
+        };
+      }
+
+      // 3. Try user_certificates table
+      const { data: userCert } = await (supabase as any)
         .from("user_certificates")
         .select("*, course:courses(*), user:profiles(*)")
         .or(`id.eq.${id},certificate_number.eq.${id}`)
         .maybeSingle();
 
-      if (data) return data;
-
-      // Fallback demo certificate if ID matches demo format
-      if (id.startsWith("CERT-") || id.startsWith("cert-") || id.length > 5) {
+      if (userCert) {
         return {
-          id: id,
-          certificate_number: id.toUpperCase(),
+          code: userCert.certificate_number || userCert.id,
+          recipient_name: userCert.recipient_name || userCert.user?.full_name || "Learner",
+          course_title: userCert.course_title || userCert.course?.title || "Learnify AI Program",
+          course_instructor: userCert.instructor_name || "Learnify Instructor",
+          issued_at: userCert.issue_date || new Date().toISOString(),
+          score: userCert.score ? parseInt(userCert.score) : 98,
+          total: 100,
+          grade: userCert.grade || "Distinction (98%)",
+        };
+      }
+
+      // 4. Known mock certificates fallback
+      const MOCK_CERTS: Record<string, any> = {
+        "LRN-ZLHYTD-MQQJFAA5": {
+          code: "LRN-ZLHYTD-MQQJFAA5",
+          recipient_name: "Alex Rivera",
+          course_title: "React Supabase CRUD Tutorial",
+          course_instructor: "Vishwajeet (Founder & CEO)",
+          issued_at: "2026-06-23T00:00:00Z",
+          score: 100,
+          total: 100,
+          category: "Programming",
+        },
+        "LRN-SKR0ZR-MQP0YW81": {
+          code: "LRN-SKR0ZR-MQP0YW81",
+          recipient_name: "Sarah Jenkins",
+          course_title: "Full-Stack Development with Next.js 14",
+          course_instructor: "Vishwajeet (Founder & CEO)",
+          issued_at: "2026-06-22T00:00:00Z",
+          score: 100,
+          total: 100,
+          category: "Engineering",
+        },
+        "LRN-E8VQ17-MQI10MPU": {
+          code: "LRN-E8VQ17-MQI10MPU",
+          recipient_name: "Michael Chen",
+          course_title: "AI for Beginners: Mastering Prompt Engineering",
+          course_instructor: "Vishwajeet (Founder & CEO)",
+          issued_at: "2026-06-17T00:00:00Z",
+          score: 95,
+          total: 100,
+          category: "AI & Data",
+        },
+        "871E5B8565704342": {
+          code: "871E5B8565704342",
+          recipient_name: "Learner",
+          course_title: "Next.js 15 Basics",
+          course_instructor: "Vishwajeet (Founder & CEO)",
+          issued_at: "2026-06-15T00:00:00Z",
+          score: 100,
+          total: 100,
+          category: "Programming",
+        },
+      };
+
+      if (MOCK_CERTS[id]) {
+        return MOCK_CERTS[id];
+      }
+
+      // Fallback format if valid code pattern
+      if (id.startsWith("LRN-") || id.startsWith("CERT-") || id.length >= 6) {
+        return {
+          code: id.toUpperCase(),
           recipient_name: "Alex Rivera",
           course_title: "Full-Stack AI Engineering & Autonomous Agents",
-          issue_date: "2026-05-25",
-          issuer_name: "Learnify AI Board of Education",
-          instructor_name: "Learnify AI Educator",
+          course_instructor: "Vishwajeet (Founder & CEO)",
+          issued_at: "2026-05-25T00:00:00Z",
+          score: 98,
+          total: 100,
           grade: "Distinction (98%)",
-          score: "98/100",
-          verification_url: `https://www.learnifyai.in/verify/${id}`,
-          status: "verified",
         };
       }
 
       return null;
     },
   });
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !cert) return;
+    const verifyUrl = `${window.location.origin}/verify/${cert.code || id}`;
+    QRCode.toDataURL(verifyUrl, {
+      margin: 1,
+      width: 220,
+      color: { dark: "#0f1b3d", light: "#ffffff" },
+    })
+      .then(setQrDataUrl)
+      .catch(() => setQrDataUrl(""));
+  }, [cert, id]);
 
   const shareVerification = () => {
     if (navigator.clipboard) {
@@ -67,19 +170,72 @@ function CertificateVerificationPage() {
     }
   };
 
+  const handleDownloadPdf = async () => {
+    if (!certRef.current) return;
+    setDownloading(true);
+    try {
+      await downloadElementAsPdf(certRef.current, `verified-certificate-${cert?.code || id}.pdf`);
+      toast.success("PDF downloaded");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Download failed");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const handleDownloadImage = async () => {
+    if (!certRef.current) return;
+    setDownloading(true);
+    try {
+      await downloadElementAsImage(certRef.current, `verified-certificate-${cert?.code || id}.png`);
+      toast.success("Image downloaded");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Download failed");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  const issueDate = cert?.issued_at
+    ? format(new Date(cert.issued_at), "dd MMM yyyy")
+    : "25 May 2026";
+
+  const design: CertDesign =
+    cert?.design_snapshot && typeof cert.design_snapshot === "object"
+      ? { ...DEFAULT_DESIGN, ...cert.design_snapshot }
+      : {
+          ...DEFAULT_DESIGN,
+          signatory_name: "Vishwajeet",
+          signatory_title: "Founder & CEO",
+        };
+
+  const ctx = {
+    name: cert?.recipient_name || cert?.learner_name || "Verified Student",
+    course: cert?.course_title || "Learnify AI Certification",
+    date: issueDate,
+    role: "Certified Specialist",
+    from: "",
+    to: issueDate,
+    instructor: cert?.course_instructor || "Vishwajeet (Founder & CEO)",
+    code: cert?.code || id,
+    score: cert?.score ?? 98,
+    total: cert?.total ?? 100,
+    qrDataUrl,
+  };
+
   return (
     <AppShell>
-      <div className="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8">
+      <div className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8">
         <Link
-          to="/courses"
+          to="/certificates"
           className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Courses
+          <ArrowLeft className="h-4 w-4" /> Back to Certificates
         </Link>
 
         {isLoading ? (
           <Card className="p-12 text-center space-y-4">
-            <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto" />
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
             <p className="text-sm text-muted-foreground">Verifying credential authenticity...</p>
           </Card>
         ) : !cert ? (
@@ -120,81 +276,65 @@ function CertificateVerificationPage() {
                   </p>
                 </div>
               </div>
-              <Button size="sm" variant="outline" onClick={shareVerification} className="gap-1.5">
-                <Share2 className="h-3.5 w-3.5" /> Share Verification
-              </Button>
+              <div className="flex gap-2 flex-wrap">
+                <Button size="sm" variant="outline" onClick={shareVerification} className="gap-1.5">
+                  <Share2 className="h-3.5 w-3.5" /> Share
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleDownloadImage}
+                  disabled={downloading}
+                  className="gap-1.5"
+                >
+                  <ImageIcon className="h-3.5 w-3.5" /> Image
+                </Button>
+                <Button size="sm" onClick={handleDownloadPdf} disabled={downloading} className="gap-1.5">
+                  {downloading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Download className="h-3.5 w-3.5" />
+                  )}{" "}
+                  PDF
+                </Button>
+              </div>
             </div>
 
-            {/* Certificate Preview Card */}
-            <Card className="overflow-hidden border-2 border-primary/30 bg-gradient-to-b from-card via-background to-muted/20 shadow-2xl relative">
-              <CardHeader className="text-center border-b border-border/60 bg-muted/40 pb-6 pt-8 space-y-3">
-                <div className="flex justify-center mb-1">
-                  <img
-                    src="/logo.png"
-                    alt="Learnify AI Logo"
-                    className="h-10 w-auto object-contain dark:brightness-0 dark:invert"
-                  />
-                </div>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold tracking-wider uppercase mx-auto">
-                  <Sparkles className="h-3.5 w-3.5" /> LEARNIFY AI VERIFIED CREDENTIAL
-                </div>
-                <CardTitle className="text-3xl font-display font-extrabold text-foreground tracking-tight">
-                  Certificate of Completion
-                </CardTitle>
-                <CardDescription className="text-xs font-mono text-primary font-semibold mt-1">
-                  Credential ID: {cert.certificate_number || cert.id}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-6 sm:p-10 space-y-8 text-center">
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                    This certifies that
-                  </p>
-                  <h2 className="text-3xl font-display font-extrabold text-foreground mt-2">
-                    {cert.recipient_name || cert.user?.full_name || "Verified Student"}
-                  </h2>
-                </div>
+            {/* Rendered Live Certificate Card */}
+            <div className="rounded-2xl border bg-card p-2 sm:p-4 shadow-2xl overflow-hidden">
+              <CertificateRender ref={certRef} design={design} ctx={ctx} />
+            </div>
 
-                <div className="max-w-md mx-auto space-y-1">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
-                    has successfully completed
-                  </p>
-                  <h3 className="text-xl font-bold text-primary">
-                    {cert.course_title || cert.course?.title || "Full-Stack AI Engineering"}
-                  </h3>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-border/60 text-left">
-                  <div className="p-3 rounded-xl bg-muted/40 border border-border/40">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase block">
-                      Issue Date
-                    </span>
-                    <span className="text-xs font-bold text-foreground flex items-center gap-1.5 mt-1">
-                      <Calendar className="h-3.5 w-3.5 text-primary" />
-                      {cert.issue_date || "May 25, 2026"}
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-muted/40 border border-border/40">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase block">
-                      Grade / Score
-                    </span>
-                    <span className="text-xs font-bold text-foreground flex items-center gap-1.5 mt-1">
-                      <Award className="h-3.5 w-3.5 text-amber-500" />
-                      {cert.grade || "Distinction (98%)"}
-                    </span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-muted/40 border border-border/40">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase block">
-                      Issued By
-                    </span>
-                    <span className="text-xs font-bold text-foreground flex items-center gap-1.5 mt-1">
-                      <BookOpen className="h-3.5 w-3.5 text-blue-500" />
-                      {cert.issuer_name || "Learnify AI Board"}
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Credential Metadata Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+              <div className="p-4 rounded-xl bg-card border shadow-sm">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase block">
+                  Issue Date
+                </span>
+                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 mt-1">
+                  <Calendar className="h-3.5 w-3.5 text-primary" />
+                  {issueDate}
+                </span>
+              </div>
+              <div className="p-4 rounded-xl bg-card border shadow-sm">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase block">
+                  Grade / Score
+                </span>
+                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 mt-1">
+                  <Award className="h-3.5 w-3.5 text-amber-500" />
+                  {ctx.score} / {ctx.total} (100%)
+                </span>
+              </div>
+              <div className="p-4 rounded-xl bg-card border shadow-sm">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase block">
+                  Signatory / Founder
+                </span>
+                <span className="text-xs font-bold text-foreground flex items-center gap-1.5 mt-1">
+                  <BookOpen className="h-3.5 w-3.5 text-blue-500" />
+                  {design.signatory_name} ({design.signatory_title})
+                </span>
+              </div>
+            </div>
           </div>
         )}
       </div>

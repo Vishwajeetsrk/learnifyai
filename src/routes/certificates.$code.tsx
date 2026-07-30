@@ -19,10 +19,10 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { emailCertificate } from "@/lib/cert.functions";
-import { downloadElementAsPdf } from "@/lib/certificate-pdf";
+import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-pdf";
 import { CertificateRender, DEFAULT_DESIGN, type CertDesign } from "@/components/CertificateDesign";
 import { CertificateFullPreviewDialog } from "@/components/CertificateFullPreviewDialog";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, Image as ImageIcon } from "lucide-react";
 
 export const Route = createFileRoute("/certificates/$code")({
   head: () => ({ meta: [{ title: "Certificate — Learnify AI" }] }),
@@ -182,6 +182,19 @@ function CertificatePage() {
     }
   };
 
+  const handleDownloadImage = async () => {
+    if (!certRef.current) return;
+    setDownloading(true);
+    try {
+      await downloadElementAsImage(certRef.current, `certificate-${row.code}.png`);
+      toast.success("Image downloaded");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Download failed");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const handleEmail = async () => {
     if (!emailTo) return toast.error("Enter an email");
     setSending(true);
@@ -236,6 +249,9 @@ function CertificatePage() {
             </Button>
             <Button size="sm" variant="outline" onClick={() => window.print()}>
               <Printer className="h-4 w-4" /> Print
+            </Button>
+            <Button size="sm" variant="outline" onClick={handleDownloadImage} disabled={downloading}>
+              <ImageIcon className="h-4 w-4" /> Image
             </Button>
             <Button size="sm" onClick={handleDownloadPdf} disabled={downloading}>
               {downloading ? (

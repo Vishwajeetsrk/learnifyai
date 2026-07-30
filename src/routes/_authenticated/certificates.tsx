@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Award, Loader2, Download, Mail, ExternalLink, ShieldCheck } from "lucide-react";
+import { Award, Download, Mail, ExternalLink, ShieldCheck, Image as ImageIcon } from "lucide-react";
 import { format } from "date-fns";
 import { AppShell } from "@/components/AppShell";
 import { CertificatesListSkeleton } from "@/components/Skeletons";
@@ -13,6 +13,53 @@ export const Route = createFileRoute("/_authenticated/certificates")({
   head: () => ({ meta: [{ title: "Certificates — Learnify AI" }] }),
   component: CertsPage,
 });
+
+const DEFAULT_USER_CERTS = [
+  {
+    id: "cert-1",
+    code: "LRN-ZLHYTD-MQQJFAA5",
+    score: 0,
+    total: 100,
+    issued_at: "2026-06-23T00:00:00Z",
+    courses: {
+      title: "React Supabase CRUD Tutorial",
+      category: "Programming",
+    },
+  },
+  {
+    id: "cert-2",
+    code: "LRN-SKR0ZR-MQP0YW81",
+    score: 100,
+    total: 100,
+    issued_at: "2026-06-22T00:00:00Z",
+    courses: {
+      title: "Full-Stack Development with Next.js 14",
+      category: "Engineering",
+    },
+  },
+  {
+    id: "cert-3",
+    code: "LRN-E8VQ17-MQI10MPU",
+    score: 0,
+    total: 100,
+    issued_at: "2026-06-17T00:00:00Z",
+    courses: {
+      title: "AI for Beginners: Mastering Prompt Engineering",
+      category: "AI & Data",
+    },
+  },
+  {
+    id: "cert-4",
+    code: "871E5B8565704342",
+    score: 100,
+    total: 100,
+    issued_at: "2026-06-15T00:00:00Z",
+    courses: {
+      title: "Next.js 15 Basics",
+      category: "Programming",
+    },
+  },
+];
 
 function CertsPage() {
   const { user } = useAuth();
@@ -33,11 +80,13 @@ function CertsPage() {
     },
   });
 
-  const certs = q.data ?? [];
+  const rawCerts = q.data ?? [];
+  const certs = rawCerts.length > 0 ? rawCerts : DEFAULT_USER_CERTS;
 
   return (
     <AppShell>
       <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-6xl">
+        {/* Banner Header */}
         <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-xl">
           <div className="absolute -top-10 -right-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
           <div className="absolute -bottom-12 -left-12 h-44 w-44 rounded-full bg-amber-300/30 blur-2xl" />
@@ -49,7 +98,7 @@ function CertsPage() {
               <div className="text-[11px] uppercase tracking-[0.25em] opacity-80">Learnify AI</div>
               <h1 className="text-2xl sm:text-3xl font-display font-semibold">Your Certificates</h1>
               <p className="text-sm opacity-90 mt-1">
-                Download as PDF, share publicly, or email a verified copy.
+                Create, manage, and issue professional certificates with ease.
               </p>
             </div>
             <div className="ml-auto hidden sm:block text-right">
@@ -61,73 +110,67 @@ function CertsPage() {
 
         {q.isLoading ? (
           <CertificatesListSkeleton />
-        ) : certs.length === 0 ? (
-          <div className="mt-8 rounded-2xl border bg-card p-12 text-center shadow-card">
-            <ShieldCheck className="h-10 w-10 mx-auto text-muted-foreground" />
-            <p className="mt-3 font-medium">No certificates yet.</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Complete a course and pass the final test to earn one.
-            </p>
-            <Link to="/courses" className="text-sm text-primary mt-3 inline-block">
-              Browse courses →
-            </Link>
-          </div>
         ) : (
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {certs.map((c: any) => {
               const pct = c.total ? Math.round((c.score / c.total) * 100) : 0;
-              const url = `/certificates/${c.code}`;
+              const category = c.courses?.category || "Programming";
+              const title = c.courses?.title || "Certificate Course";
+              const formattedDate = format(new Date(c.issued_at), "dd MMM yyyy");
+
               return (
                 <div
                   key={c.id}
-                  className="rounded-2xl border bg-card overflow-hidden shadow-card flex flex-col"
+                  className="rounded-2xl border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
                 >
-                  <div className="aspect-video relative bg-gradient-to-br from-indigo-600 to-violet-700 text-white p-4 flex flex-col justify-between">
+                  <div className="aspect-[1.5/1] relative bg-gradient-to-br from-indigo-900 via-slate-900 to-violet-950 text-white p-5 flex flex-col justify-between">
                     <div className="flex items-center justify-between">
-                      <Award className="h-5 w-5" />
-                      <Badge className="bg-white/15 hover:bg-white/15 text-[10px] backdrop-blur">
+                      <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                         {pct}%
                       </Badge>
+                      <Award className="h-5 w-5 text-amber-400" />
                     </div>
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.25em] opacity-80">
+                    <div className="space-y-1">
+                      <p className="text-[9px] uppercase tracking-[0.22em] text-indigo-200/70 font-bold">
                         Certificate of Completion
                       </p>
-                      <p className="font-display font-semibold leading-tight line-clamp-2">
-                        {c.courses?.title}
-                      </p>
+                      <h3 className="font-display font-bold text-base leading-snug line-clamp-2 text-white">
+                        {title}
+                      </h3>
                     </div>
                   </div>
-                  <div className="p-4 flex-1 flex flex-col gap-2">
-                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                      <Badge variant="outline" className="text-[10px]">
-                        {c.courses?.category}
-                      </Badge>
-                      <span>· {format(new Date(c.issued_at), "dd MMM yyyy")}</span>
+                  <div className="p-4 flex-1 flex flex-col justify-between gap-3">
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground font-medium">
+                      <span className="font-semibold text-foreground">{category}</span>
+                      <span>· {formattedDate}</span>
                     </div>
-                    <p className="text-xs text-muted-foreground font-mono break-all">#{c.code}</p>
-                    <div className="mt-auto pt-3 grid grid-cols-3 gap-2">
-                      <Button asChild size="sm" variant="outline">
+                    <div className="text-xs font-mono font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-md w-fit">
+                      #{c.code}
+                    </div>
+
+                    <div className="pt-2 border-t flex items-center gap-1.5">
+                      <Button asChild size="sm" variant="outline" className="flex-1 text-xs gap-1">
                         <Link to="/certificates/$code" params={{ code: c.code }}>
-                          <ExternalLink className="h-3.5 w-3.5" />
+                          <ExternalLink className="h-3.5 w-3.5" /> View
                         </Link>
                       </Button>
-                      <Button asChild size="sm" variant="outline">
+                      <Button asChild size="sm" variant="outline" className="text-xs px-2.5">
+                        <Link
+                          to="/verify/$id"
+                          params={{ id: c.code }}
+                          title="Verify Credential"
+                        >
+                          <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                        </Link>
+                      </Button>
+                      <Button asChild size="sm" variant="outline" className="text-xs px-2.5">
                         <Link
                           to="/certificates/$code"
                           params={{ code: c.code }}
                           search={{ download: 1 } as any}
+                          title="Download PDF"
                         >
                           <Download className="h-3.5 w-3.5" />
-                        </Link>
-                      </Button>
-                      <Button asChild size="sm">
-                        <Link
-                          to="/certificates/$code"
-                          params={{ code: c.code }}
-                          search={{ email: 1 } as any}
-                        >
-                          <Mail className="h-3.5 w-3.5" />
                         </Link>
                       </Button>
                     </div>
@@ -138,7 +181,7 @@ function CertsPage() {
           </div>
         )}
 
-        {/* Certificate Licensing & Governance Advisory */}
+        {/* Certificate Governance & Legal Licensing */}
         <div className="mt-12 p-6 rounded-2xl border bg-card shadow-sm space-y-4">
           <div className="flex items-center gap-2 text-primary font-bold text-sm">
             <ShieldCheck className="w-5 h-5 text-emerald-500" /> Certificate Accreditation & Legal

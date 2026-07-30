@@ -23,3 +23,17 @@ export async function downloadElementAsPdf(el: HTMLElement, filename: string) {
   pdf.addImage(imgData, "PNG", x, y, w, h);
   pdf.save(filename);
 }
+
+/** Render an HTMLElement to a downloaded high-res PNG image. */
+export async function downloadElementAsImage(el: HTMLElement, filename: string) {
+  const canvas = await html2canvas(el, {
+    scale: 2,
+    backgroundColor: "#ffffff",
+    useCORS: true,
+    logging: false,
+  });
+  const link = document.createElement("a");
+  link.download = filename;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
