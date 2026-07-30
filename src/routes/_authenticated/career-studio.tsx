@@ -4053,10 +4053,12 @@ const DETAILED_ROADMAPS: Record<
 function GuidesDocsView() {
   const navigate = useNavigate();
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState("All");
 
   const skillGuides = [
     {
       title: "Generative AI",
+      category: "AI & ML",
       icon: Sparkles,
       color: "bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400",
       level: "2026 Core",
@@ -4066,6 +4068,7 @@ function GuidesDocsView() {
     },
     {
       title: "Agentic AI",
+      category: "AI & ML",
       icon: Brain,
       color: "bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400",
       level: "Cutting Edge",
@@ -4075,6 +4078,7 @@ function GuidesDocsView() {
     },
     {
       title: "UI/UX Design",
+      category: "Design",
       icon: Palette,
       color: "bg-pink-50 text-pink-600 dark:bg-pink-950/40 dark:text-pink-400",
       level: "Creative Focus",
@@ -4084,6 +4088,7 @@ function GuidesDocsView() {
     },
     {
       title: "Full-Stack (Next.js)",
+      category: "Web Dev",
       icon: Globe,
       color: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400",
       level: "High Demand",
@@ -4093,6 +4098,7 @@ function GuidesDocsView() {
     },
     {
       title: "Cloud & DevSecOps",
+      category: "Cloud & DevOps",
       icon: Shield,
       color: "bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400",
       level: "Infrastructure",
@@ -4102,6 +4108,7 @@ function GuidesDocsView() {
     },
     {
       title: "Data Intelligence",
+      category: "AI & ML",
       icon: Database,
       color: "bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400",
       level: "Enterprise",
@@ -4111,6 +4118,7 @@ function GuidesDocsView() {
     },
     {
       title: "Mobile Development",
+      category: "Web Dev",
       icon: Smartphone,
       color: "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400",
       level: "High Growth",
@@ -4120,6 +4128,7 @@ function GuidesDocsView() {
     },
     {
       title: "Cybersecurity",
+      category: "Security",
       icon: Lock,
       color: "bg-cyan-50 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400",
       level: "Critical Demand",
@@ -4129,6 +4138,7 @@ function GuidesDocsView() {
     },
     {
       title: "Product Management",
+      category: "Strategy",
       icon: Users,
       color: "bg-teal-50 text-teal-600 dark:bg-teal-950/40 dark:text-teal-400",
       level: "Strategic",
@@ -4138,24 +4148,49 @@ function GuidesDocsView() {
     },
   ];
 
+  const filteredGuides =
+    categoryFilter === "All"
+      ? skillGuides
+      : skillGuides.filter((g) => g.category === categoryFilter);
+
   const activeRoadmap = selectedKey ? DETAILED_ROADMAPS[selectedKey] : null;
 
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
-      <div className="flex items-center gap-4">
-        <div className="p-3 bg-card rounded-2xl border shadow-sm">
-          <BookOpen className="h-6 w-6 text-primary" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-card rounded-2xl border shadow-sm">
+            <BookOpen className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Skill Roadmaps & Industry Guides</h2>
+            <p className="text-sm text-muted-foreground">
+              Click any card to view the full 2026 industry roadmap breakdown, tech stack & milestones.
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Skill Roadmaps & Guides</h2>
-          <p className="text-sm text-muted-foreground">
-            Click any card to view the full 2026 industry roadmap breakdown & tech stack.
-          </p>
+
+        {/* Category Filters */}
+        <div className="flex items-center gap-1 overflow-x-auto pb-1 max-w-full">
+          {["All", "AI & ML", "Web Dev", "Cloud & DevOps", "Design", "Security", "Strategy"].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setCategoryFilter(cat)}
+              className={cn(
+                "px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer border whitespace-nowrap",
+                categoryFilter === cat
+                  ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                  : "bg-muted/30 text-muted-foreground border-border hover:bg-muted",
+              )}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {skillGuides.map((guide, i) => (
+        {filteredGuides.map((guide, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}

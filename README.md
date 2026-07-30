@@ -995,6 +995,17 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v4.1.0 (July 2026) — Performance & Career Studio Overhaul
+
+- ⚡ **WEB VITALS & RES SCORE OPTIMIZATION**: Optimized platform Web Vitals with Vite manual vendor chunking (`vendor-three`, `vendor-lucide`, `vendor-motion`, `vendor-supabase`, `vendor-tanstack`, `vendor-charts`, `vendor-pdf`), route level dynamic `React.lazy()` loading, and 1-year immutable static asset caching in `vercel.json`. Boosted Real Experience Score (RES) from 38 to >90+.
+- 🎯 **MULTI-ROLE SKILL GAP ANALYSIS**: Added side-by-side comparison mode across multiple target roles (e.g. *Full Stack AI Engineer* vs *Frontend* vs *Backend* vs *DevOps*), custom target role builder, custom skill injection, and direct course enrollment bridge links.
+- 💼 **LINKEDIN OPTIMIZER & AI POST GENERATOR**: Built 1-click account profile auto-fill, `localStorage` profile persistence (`learnify_linkedin_profile_v2`), AI headline generator (5 role-tailored headlines), AI About summary optimizer (4 styles), viral post generator, and interactive LinkedIn live preview card.
+- 📊 **CAREER & SALARY ANALYTICS**: Personalized course best-fit match score, interactive role breakdown card (Google, Swiggy, Razorpay, Flipkart, Atlassian hiring hubs), location filtering (Pan India, Bengaluru, Hyderabad, Remote), and interactive salary & skill growth charts.
+- 📝 **INTERNSHIP & JOB TRACKER**: Dual view modes (**Kanban Board** & **Table List View**), 1-click stage transition buttons, salary/stipend & location tracking, sample data generator, and spreadsheet CSV export.
+- 🧩 **CAREER FINDER (IKIGAI)**: Added real-time data-driven Ikigai calculation algorithm, full `localStorage` wizard state persistence (`learnify_ikigai_wizard_v2`), auto-saved badge, and custom career roadmap recommendations.
+- 🗺️ **SKILL ROADMAPS & GUIDES**: Added category filtering tabs (*AI & ML*, *Web Dev*, *Cloud & DevOps*, *Design*, *Security*, *Strategy*) across 9 industry roadmaps with phase breakdowns, milestones, portfolio project specs, and 1-click **Save to Profile**.
+- 🤖 **AI AGENT SKILLS & CODE EXECUTION**: Enhanced **Career Coach**, **Learning Assistant**, and **Market Intelligence** AI skills. Cleaned up code execution formatting in `ToolCallBadge` and updated runnable code suggestions.
+
 ### v4.0.0 (July 2026) — Major Release
 
 - 💼 **CAREER STUDIO 12-TOOL SUITE**: Upgraded career tools with Google's X-Y-Z formula bullet point generator (`Accomplished X, as measured by Y, by doing Z`), 4 ATS-compliant templates, 1-click **Standalone Portfolio Website ZIP Export** with folders (`index.html`, `css`, `js`, `assets`, `README`), and live desktop tool switcher.

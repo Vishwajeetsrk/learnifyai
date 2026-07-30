@@ -478,34 +478,46 @@ function ToolCallBadge({ step }: { step: Step }) {
   const [open, setOpen] = useState(false);
   if (step.name === "web_search") {
     return (
-      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground px-1">
-        <Search className="h-3 w-3" />
-        <span>Searched: {step.arguments?.query || "web"}</span>
+      <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground px-1 py-0.5">
+        <Search className="h-3 w-3 text-blue-500" />
+        <span>Searched web: "{step.arguments?.query || "tech topics"}"</span>
       </div>
     );
   }
   if (step.name === "execute_code") {
+    let parsedResult: any = null;
+    try {
+      if (step.result) parsedResult = JSON.parse(step.result);
+    } catch {
+      parsedResult = { stdout: step.result };
+    }
+    const output =
+      parsedResult?.stdout?.trim() ||
+      parsedResult?.stderr?.trim() ||
+      parsedResult?.error ||
+      "Execution finished cleanly.";
+
     return (
-      <div>
+      <div className="text-[10px] space-y-1 my-1">
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground px-1 transition-colors"
+          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground px-1 transition-colors font-mono cursor-pointer"
         >
-          <Terminal className="h-3 w-3" />
-          <span>Executed {step.arguments?.language || "code"}</span>
-          <span className="text-[8px]">{open ? "▲" : "▼"}</span>
+          <Terminal className="h-3 w-3 text-emerald-500" />
+          <span className="font-bold">Executed {step.arguments?.language || "code"}</span>
+          <span className="text-[9px] opacity-75">{open ? "▲ Hide Output" : "▼ View Execution Output"}</span>
         </button>
         {open && (
-          <div className="mt-1 ml-3 p-2 bg-muted rounded-lg border text-[10px] font-mono whitespace-pre-wrap max-h-[200px] overflow-auto">
-            <div className="text-muted-foreground mb-1">Input:</div>
-            <pre className="text-foreground">{step.arguments?.code || ""}</pre>
-            {step.result && (
-              <>
-                <div className="text-muted-foreground mt-2 mb-1">Output:</div>
-                <pre className="text-foreground">
-                  {(JSON.parse(step.result)?.stdout || step.result || "").slice(0, 500)}
-                </pre>
-              </>
+          <div className="ml-2 p-3 bg-slate-950 text-slate-100 rounded-xl border border-slate-800 text-[10px] font-mono space-y-2 max-h-[240px] overflow-auto shadow-md">
+            <div>
+              <span className="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Code Input:</span>
+              <pre className="text-emerald-300 font-mono mt-1 whitespace-pre-wrap">{step.arguments?.code || ""}</pre>
+            </div>
+            {output && (
+              <div className="pt-2 border-t border-slate-800">
+                <span className="text-slate-400 font-bold uppercase tracking-wider text-[8px]">Execution Output:</span>
+                <pre className="text-amber-300 font-mono mt-1 whitespace-pre-wrap">{output.slice(0, 800)}</pre>
+              </div>
             )}
           </div>
         )}
