@@ -1619,17 +1619,17 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   ${role ? `<div class="role">${role}</div>` : ""}
   ${contacts ? `<div class="contact">${contacts}</div>` : ""}
 
-  ${f.summary ? `<h2>OBJECTIVE / SUMMARY</h2><div>${formatBlockHtml(f.summary)}</div>` : ""}
-  ${f.experience ? `<h2>PROFESSIONAL EXPERIENCE</h2><div>${formatBlockHtml(f.experience)}</div>` : ""}
-  ${f.education ? `<h2>EDUCATION</h2><div>${formatBlockHtml(f.education)}</div>` : ""}
-  ${f.projects ? `<h2>PROJECTS</h2><div>${formatBlockHtml(f.projects)}</div>` : ""}
-  ${f.skills ? `<h2>TECHNICAL SKILLS</h2><div>${formatBlockHtml(f.skills)}</div>` : ""}
-  ${f.certifications ? `<h2>CERTIFICATIONS</h2><div>${formatBlockHtml(f.certifications)}</div>` : ""}
+  ${f.summary ? `<h2>${(f.summarySectionTitle || "OBJECTIVE / SUMMARY").toUpperCase()}</h2><div>${formatBlockHtml(f.summary)}</div>` : ""}
+  ${f.experience ? `<h2>${(f.experienceSectionTitle || "PROFESSIONAL EXPERIENCE").toUpperCase()}</h2><div>${formatBlockHtml(f.experience)}</div>` : ""}
+  ${f.education ? `<h2>${(f.educationSectionTitle || "EDUCATION").toUpperCase()}</h2><div>${formatBlockHtml(f.education)}</div>` : ""}
+  ${f.projects ? `<h2>${(f.projectsSectionTitle || "KEY PROJECTS").toUpperCase()}</h2><div>${formatBlockHtml(f.projects)}</div>` : ""}
+  ${f.skills ? `<h2>${(f.skillsSectionTitle || "TECHNICAL SKILLS & SOFT SKILLS").toUpperCase()}</h2><div>${formatBlockHtml(f.skills)}</div>` : ""}
+  ${f.certifications ? `<h2>${(f.certificationsSectionTitle || "CERTIFICATIONS").toUpperCase()}</h2><div>${formatBlockHtml(f.certifications)}</div>` : ""}
   ${f.customSectionTitle && f.customSectionBody ? `<h2>${f.customSectionTitle.toUpperCase()}</h2><div>${formatBlockHtml(f.customSectionBody)}</div>` : ""}
-  ${f.strengths ? `<h2>STRENGTHS & COMPETENCIES</h2><div>${formatBlockHtml(f.strengths)}</div>` : ""}
-  ${f.languages ? `<h2>LANGUAGES</h2><p>${f.languages}</p>` : ""}
-  ${f.awards ? `<h2>HONORS & AWARDS</h2><div>${formatBlockHtml(f.awards)}</div>` : ""}
-  ${f.declaration ? `<h2>DECLARATION</h2><p class="declaration">${f.declaration}</p><div class="signature">${f.signatoryName || name}<br/><span style="font-weight:normal; font-size:9.5pt; color:#64748b;">${f.signatoryName || name} (${f.signatoryPlace || f.location?.split(",")[0] || "San Francisco"})</span></div>` : ""}
+  ${f.strengths ? `<h2>${(f.strengthsSectionTitle || "STRENGTHS & COMPETENCIES").toUpperCase()}</h2><div>${formatBlockHtml(f.strengths)}</div>` : ""}
+  ${f.languages ? `<h2>${(f.languagesSectionTitle || "LANGUAGES").toUpperCase()}</h2><p>${f.languages}</p>` : ""}
+  ${f.awards ? `<h2>${(f.awardsSectionTitle || "HONORS & AWARDS").toUpperCase()}</h2><div>${formatBlockHtml(f.awards)}</div>` : ""}
+  ${f.declaration ? `<h2>${(f.declarationSectionTitle || "DECLARATION & DIGITAL SIGNATURE").toUpperCase()}</h2><p class="declaration">${f.declaration}</p><div class="signature">${f.signatoryName || name}<br/><span style="font-weight:normal; font-size:9.5pt; color:#64748b;">${f.signatoryName || name} (${f.signatoryPlace || f.location?.split(",")[0] || "Bengaluru, India"})</span></div>` : ""}
 </body>
 </html>`;
   };
@@ -1718,21 +1718,21 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
         y += 4;
       };
 
-      addSection("Professional Summary", form.summary);
-      addSection("Professional Experience", form.experience);
-      addSection("Education", form.education);
-      addSection("Projects", form.projects);
-      addSection("Technical Skills", form.skills);
-      addSection("Certifications", form.certifications);
+      addSection(form.summarySectionTitle || "Objective / Summary", form.summary);
+      addSection(form.experienceSectionTitle || "Professional Experience", form.experience);
+      addSection(form.educationSectionTitle || "Education", form.education);
+      addSection(form.projectsSectionTitle || "Key Projects", form.projects);
+      addSection(form.skillsSectionTitle || "Technical Skills & Soft Skills", form.skills);
+      addSection(form.certificationsSectionTitle || "Certifications", form.certifications);
       if (form.customSectionTitle && form.customSectionBody) {
         addSection(form.customSectionTitle, form.customSectionBody);
       }
-      addSection("Strengths & Competencies", form.strengths);
-      addSection("Languages", form.languages);
-      addSection("Honors & Awards", form.awards);
+      addSection(form.strengthsSectionTitle || "Strengths & Competencies", form.strengths);
+      addSection(form.languagesSectionTitle || "Languages", form.languages);
+      addSection(form.awardsSectionTitle || "Honors & Awards", form.awards);
       if (form.declaration) {
-        const decContent = `${form.declaration}\n\nSignatory: ${form.signatoryName || form.fullName || "ALEX RIVERA"} (${form.signatoryPlace || "San Francisco"})`;
-        addSection("Declaration", decContent);
+        const decContent = `${form.declaration}\n\nSignatory: ${form.signatoryName || form.fullName || "VISHWAJEET"} (${form.signatoryPlace || form.location?.split(",")[0] || "Bengaluru, India"})`;
+        addSection(form.declarationSectionTitle || "Declaration & Digital Signature", decContent);
       }
 
       doc.save(`${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.pdf`);
@@ -1744,23 +1744,23 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
 
   const handleDownloadTxt = () => {
     const textContent = [
-      (form.fullName || "ALEX RIVERA").toUpperCase(),
+      (form.fullName || "VISHWAJEET").toUpperCase(),
       form.targetRole,
       [form.email, form.phone, form.location, form.linkedin, form.github, form.website]
         .filter(Boolean)
         .join(" | "),
       "\n" + "=".repeat(60),
-      form.summary ? `\nOBJECTIVE / SUMMARY\n${form.summary}` : "",
-      form.experience ? `\nPROFESSIONAL EXPERIENCE\n${form.experience}` : "",
-      form.education ? `\nEDUCATION\n${form.education}` : "",
-      form.projects ? `\nPROJECTS\n${form.projects}` : "",
-      form.skills ? `\nTECHNICAL SKILLS\n${form.skills}` : "",
-      form.certifications ? `\nCERTIFICATIONS\n${form.certifications}` : "",
+      form.summary ? `\n${(form.summarySectionTitle || "OBJECTIVE / SUMMARY").toUpperCase()}\n${form.summary}` : "",
+      form.experience ? `\n${(form.experienceSectionTitle || "PROFESSIONAL EXPERIENCE").toUpperCase()}\n${form.experience}` : "",
+      form.education ? `\n${(form.educationSectionTitle || "EDUCATION").toUpperCase()}\n${form.education}` : "",
+      form.projects ? `\n${(form.projectsSectionTitle || "KEY PROJECTS").toUpperCase()}\n${form.projects}` : "",
+      form.skills ? `\n${(form.skillsSectionTitle || "TECHNICAL SKILLS & SOFT SKILLS").toUpperCase()}\n${form.skills}` : "",
+      form.certifications ? `\n${(form.certificationsSectionTitle || "CERTIFICATIONS").toUpperCase()}\n${form.certifications}` : "",
       form.customSectionTitle && form.customSectionBody ? `\n${form.customSectionTitle.toUpperCase()}\n${form.customSectionBody}` : "",
-      form.strengths ? `\nSTRENGTHS & COMPETENCIES\n${form.strengths}` : "",
-      form.languages ? `\nLANGUAGES\n${form.languages}` : "",
-      form.awards ? `\nAWARDS\n${form.awards}` : "",
-      form.declaration ? `\nDECLARATION\n${form.declaration}\nSignatory: ${form.signatoryName || form.fullName} (${form.signatoryPlace || "San Francisco"})` : "",
+      form.strengths ? `\n${(form.strengthsSectionTitle || "STRENGTHS & COMPETENCIES").toUpperCase()}\n${form.strengths}` : "",
+      form.languages ? `\n${(form.languagesSectionTitle || "LANGUAGES").toUpperCase()}\n${form.languages}` : "",
+      form.awards ? `\n${(form.awardsSectionTitle || "HONORS & AWARDS").toUpperCase()}\n${form.awards}` : "",
+      form.declaration ? `\n${(form.declarationSectionTitle || "DECLARATION & DIGITAL SIGNATURE").toUpperCase()}\n${form.declaration}\nSignatory: ${form.signatoryName || form.fullName} (${form.signatoryPlace || form.location?.split(",")[0] || "Bengaluru, India"})` : "",
     ]
       .filter(Boolean)
       .join("\n\n");
