@@ -102,7 +102,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MagnificationDock } from "@/components/ui/MagnificationDock";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

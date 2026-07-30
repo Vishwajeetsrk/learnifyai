@@ -1,5 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { AppShell } from "@/components/AppShell";
+import { cn } from "@/lib/utils";
 const InteractiveAvatar = React.lazy(() =>
   import("@/components/InteractiveAvatar").then((m) => ({ default: m.InteractiveAvatar })),
 );
