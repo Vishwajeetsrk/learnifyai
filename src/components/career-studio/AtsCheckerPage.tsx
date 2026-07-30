@@ -503,7 +503,8 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
   }, [resumeText, targetRole, result]);
 
   const handleAutoFixForJob = (co: (typeof COMPANIES)[0]) => {
-    const textLower = resumeText.toLowerCase();
+    const cleanedCurrent = cleanResumeText(resumeText);
+    const textLower = cleanedCurrent.toLowerCase();
     const missingSkills = co.skills.filter((sk) => !textLower.includes(sk.toLowerCase()));
 
     const xyzBullets = [
@@ -511,7 +512,7 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
       `• Engineered automated deployment pipelines for ${co.name} architecture, boosting build reliability to 99.9%.`,
     ];
 
-    let newText = resumeText || `Target Role: ${co.role}\nCompany: ${co.name}\n`;
+    let newText = cleanedCurrent || `Target Role: ${co.role}\nCompany: ${co.name}\n`;
     if (missingSkills.length > 0) {
       newText +=
         `\n\n[Optimized Key Skills for ${co.name}]\nCore Competencies: ` + missingSkills.join(", ");
@@ -519,8 +520,10 @@ export function AtsCheckerPage({ embedded = false }: { embedded?: boolean }) {
     newText +=
       `\n\n[Google XYZ Formula Accomplishments — Target: ${co.name}]\n` + xyzBullets.join("\n");
 
-    setResumeText(newText);
-    toast.success(`Resume auto-fixed for ${co.name} (${co.role})!`);
+    const sanitized = cleanResumeText(newText);
+    setResumeText(sanitized);
+    setTargetRole(co.role);
+    toast.success(`Resume auto-fixed for ${co.name} (${co.role})! Target role updated.`);
   };
 
   const downloadWord = () => {

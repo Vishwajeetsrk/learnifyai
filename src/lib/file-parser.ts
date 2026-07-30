@@ -23,14 +23,18 @@ export function cleanResumeText(text: string): string {
 
   // 1. Remove PDF metadata lines, FlowCV header artifacts, Skia/PDF, KHTML, Linux x86_64, D:2026...
   cleaned = cleaned.replace(/app\.flowcv\.com\/[^\s]+/gi, "");
-  cleaned = cleaned.replace(/Linux\s+x86_64.*?Skia\/PDF[^\s\n]*/gi, "");
+  cleaned = cleaned.replace(/Linux\s+x86_64[^\n]*/gi, "");
   cleaned = cleaned.replace(/X11;\s*Linux[^\n]*/gi, "");
   cleaned = cleaned.replace(/KHTML,?\s*like\s*Gecko/gi, "");
   cleaned = cleaned.replace(/D:\d{14}[^\s\n']*/gi, "");
   cleaned = cleaned.replace(/\/Type\s*\/Font[^\s]*/gi, "");
   cleaned = cleaned.replace(/\/MediaBox\s*\[.*?\]/gi, "");
 
-  // 2. Remove tracking parameters from URLs for clean presentation
+  // 2. Extract clean URLs, mailto, tel links before stripping garbage
+  cleaned = cleaned.replace(/mailto:([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/gi, "$1");
+  cleaned = cleaned.replace(/tel:([+\d\s-]{8,})/gi, "$1");
+
+  // 3. Strip tracking parameters from URLs for clean presentation
   cleaned = cleaned.replace(/(https?:\/\/[^\s,">]+)/gi, (url) => {
     try {
       const u = new URL(url);
@@ -41,43 +45,46 @@ export function cleanResumeText(text: string): string {
     }
   });
 
-  // 3. Remove non-printable / non-ASCII binary garbage (corrupted PDF streams)
+  // 4. Remove non-printable / non-ASCII binary garbage (corrupted PDF streams)
   cleaned = cleaned.replace(/[^\x09\x0A\x0D\x20-\x7E]/g, " ");
 
-  // 4. Clean up corrupted PDF literal stream tokens and noise lines
+  // 5. Clean up corrupted PDF literal stream tokens and noise lines
   const lines = cleaned.split("\n");
   const filteredLines = lines
     .map((line) => line.trim())
     .filter((line) => {
       if (!line) return false;
+      // Filter out PDF stream dictionary definitions
       if (
-        line.startsWith("/") &&
-        (line.includes("Font") ||
-          line.includes("Encoding") ||
-          line.includes("Subtype") ||
-          line.includes("Widths"))
+        line.startsWith("/") ||
+        line.startsWith("<<") ||
+        line.startsWith(">>") ||
+        line.includes("endobj") ||
+        line.includes("stream") ||
+        line.includes("endstream")
       ) {
         return false;
       }
       if (
         line.includes("X11;") ||
-        line.includes("mailto:") ||
-        line.includes("tel:") ||
         line.includes("feedView=") ||
         line.includes("utm_source=")
       ) {
-        // Keep actual email/phone lines, but filter PDF header metadata dumping
-        if (line.length > 150 && (line.includes("X11") || line.includes("'00'"))) {
+        if (line.length > 100 && (line.includes("X11") || line.includes("'00'"))) {
           return false;
         }
       }
-      // Filter out lines that are mostly random isolated characters or symbols
+      // Filter out random isolated character noise lines (e.g. ";k f B 6Q I ]Y R\&k> ot @")
       const lettersAndDigits = line.replace(/[^a-zA-Z0-9]/g, "").length;
-      if (line.length > 15 && lettersAndDigits / line.length < 0.4) {
+      if (line.length > 10 && lettersAndDigits / line.length < 0.45) {
         return false;
       }
-      // Filter out random single-character noise lines
-      if (line.length < 4 && !/^(I|a|an|the|to|in|of|or|on|at|by|re|de)$/i.test(line)) {
+      // Filter out lines composed mostly of repeated single characters / noise symbols
+      if (/^[^a-zA-Z0-9]+$/.test(line)) {
+        return false;
+      }
+      // Filter out random single-character noise tokens
+      if (line.length < 4 && !/^(I|a|an|the|to|in|of|or|on|at|by|re|de|v2|v3)$/i.test(line)) {
         return false;
       }
       return true;
@@ -85,7 +92,7 @@ export function cleanResumeText(text: string): string {
 
   cleaned = filteredLines.join("\n");
 
-  // 5. Normalize whitespace and newlines
+  // 6. Normalize whitespace and newlines
   cleaned = cleaned.replace(/[ \t]{2,}/g, " ");
   cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
 
