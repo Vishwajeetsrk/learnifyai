@@ -2157,25 +2157,39 @@ function TemplatesScreen({
     }),
   ), []);
 
-  // Merge DB templates with public SVG templates
+  // Merge DB templates with public SVG templates (deduplicated)
   const displayTemplates = useMemo(() => {
+    const seen = new Set<string>();
+    const list: any[] = [];
     if (dbTemplates && dbTemplates.length > 0) {
-      const db = dbTemplates.map((t, i) => ({
-        name: t.name,
-        badge: t.category === "Premium" ? "Premium" : "Professional",
-        badgeColor: t.category === "Premium" ? "#92400E" : "#1E40AF",
-        badgeBg: t.category === "Premium" ? "#FEF3C7" : "#DBEAFE",
-        bg_image_url: t.bg_image_url,
-        thumbnail_url: t.thumbnail_url || t.bg_image_url,
-        theme: "navy",
-        rating: 4.9,
-        reviews: 650,
-        downloads: "3.2k",
-        dbTemplate: t,
-      }));
-      return [...db, ...ALL_PUBLIC_SVG_TEMPLATES];
+      dbTemplates.forEach((t) => {
+        const key = (t.bg_image_url || t.name || "").trim().toLowerCase();
+        if (key && !seen.has(key)) {
+          seen.add(key);
+          list.push({
+            name: t.name,
+            badge: t.category === "Premium" ? "Premium" : "Professional",
+            badgeColor: t.category === "Premium" ? "#92400E" : "#1E40AF",
+            badgeBg: t.category === "Premium" ? "#FEF3C7" : "#DBEAFE",
+            bg_image_url: t.bg_image_url,
+            thumbnail_url: t.thumbnail_url || t.bg_image_url,
+            theme: "navy",
+            rating: 4.9,
+            reviews: 650,
+            downloads: "3.2k",
+            dbTemplate: t,
+          });
+        }
+      });
     }
-    return ALL_PUBLIC_SVG_TEMPLATES;
+    ALL_PUBLIC_SVG_TEMPLATES.forEach((t) => {
+      const key = (t.bg_image_url || t.name || "").trim().toLowerCase();
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        list.push(t);
+      }
+    });
+    return list;
   }, [dbTemplates, ALL_PUBLIC_SVG_TEMPLATES]);
 
   const filtered = displayTemplates.filter((t) => {
@@ -3957,6 +3971,22 @@ function BulkIssueScreen({ courses = [], templates = [] }: { courses: any[]; tem
       });
       return row;
     });
+
+    const findHeader = (aliases: string[]) =>
+      headers.find((h) => aliases.some((a) => h.toLowerCase().includes(a.toLowerCase()))) || headers[0] || "";
+
+    const nameKey = findHeader(["student_name", "recipient_name", "name", "student"]);
+    const emailKey = findHeader(["email", "mail", "address"]);
+    const scoreKey = findHeader(["score", "mark", "grade"]);
+    const totalKey = findHeader(["total", "max"]);
+
+    setMappedFields({
+      name: nameKey,
+      email: emailKey,
+      score: scoreKey,
+      total: totalKey,
+    });
+
     setParsedRecipients(records);
     setFileUploaded(true);
     toast.success(`Successfully parsed ${records.length} records.`);
@@ -4621,11 +4651,32 @@ function BulkIssueScreen({ courses = [], templates = [] }: { courses: any[]; tem
 function VerificationScreen({ stats }: { stats: any }) {
   const [selectedV, setSelectedV] = useState(0);
   const [verFilter, setVerFilter] = useState("All");
-  const v = VERIFY_LIST[selectedV];
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const totalVerifications = stats?.totalVerifications ?? 24851;
+  const v = VERIFY_LIST[selectedV] || VERIFY_LIST[0];
+
+  const totalCerts = stats?.totalCerts ?? 4;
   const verifiedCount =
-    stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 23652;
+    stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 3;
+  const pendingCount = Math.max(0, totalCerts - verifiedCount);
+  const totalVerifications = stats?.totalVerifications ?? 12;
+
+  const filteredList = useMemo(() => {
+    return VERIFY_LIST.filter((item) => {
+      if (verFilter === "Verified" && item.status !== "Verified") return false;
+      if (verFilter === "Invalid" && item.status !== "Invalid") return false;
+      if (verFilter === "Pending" && item.status !== "Pending") return false;
+      if (
+        searchQuery &&
+        !item.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !item.email.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !item.id.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }, [verFilter, searchQuery]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -4650,8 +4701,8 @@ function VerificationScreen({ stats }: { stats: any }) {
         />
         <KPICard
           label="Invalid Certificates"
-          value="342"
-          delta="-8.3%"
+          value="0"
+          delta="0%"
           icon={<AlertCircle size={20} color={ER} />}
           iconBg={ERL}
           sparkData={sparkInvalid}
@@ -4659,7 +4710,7 @@ function VerificationScreen({ stats }: { stats: any }) {
         />
         <KPICard
           label="Pending Verifications"
-          value="857"
+          value={pendingCount.toString()}
           delta="+5.1%"
           icon={<Clock size={20} color={WO} />}
           iconBg={WOL}
@@ -4668,7 +4719,7 @@ function VerificationScreen({ stats }: { stats: any }) {
         />
         <KPICard
           label="QR Code Scans"
-          value="15,986"
+          value={totalVerifications.toLocaleString()}
           delta="+22.6%"
           icon={<QrCode size={20} color={WP} />}
           iconBg="#EDE9FE"
@@ -4704,6 +4755,8 @@ function VerificationScreen({ stats }: { stats: any }) {
                 }}
               />
               <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name, email or certificate ID..."
                 style={{
                   width: "100%",
@@ -4719,7 +4772,7 @@ function VerificationScreen({ stats }: { stats: any }) {
               />
             </div>
             <div style={{ display: "flex", gap: 4 }}>
-              {["All (857)", "Verified", "Invalid", "Pending"].map((f) => (
+              {["All", "Verified", "Invalid", "Pending"].map((f) => (
                 <button
                   key={f}
                   onClick={() => setVerFilter(f)}
@@ -4740,7 +4793,7 @@ function VerificationScreen({ stats }: { stats: any }) {
             </div>
           </div>
           <div style={{ overflowY: "auto", maxHeight: 420 }}>
-            {VERIFY_LIST.map((item, i) => (
+            {filteredList.map((item, i) => (
               <div
                 key={i}
                 onClick={() => setSelectedV(i)}
