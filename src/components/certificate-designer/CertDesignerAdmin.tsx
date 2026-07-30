@@ -2480,6 +2480,7 @@ function TemplatesScreen({
                     Edit Certificate
                   </Btn>
                 </div>
+              </div>
             </div>
           ))}
         </div>
