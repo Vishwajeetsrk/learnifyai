@@ -69,9 +69,10 @@ public/            # Static assets (favicon, robots.txt)
 - AI features go through `user-ai.ts` multi-provider fallback
 - Validate all inputs with Zod
 
-## Reporting Issues
+## Reporting Issues & Questions
 
-- Use [GitHub Issues](https://github.com/your-username/learnify-ai/issues)
+- Use [GitHub Issues](https://github.com/Vishwajeetsrk/learnifyai/issues)
+- For direct developer questions or feedback, email **vishwajeetsrk@gmail.com**
 - For security issues, see [SECURITY.md](SECURITY.md)
 
 ## License

@@ -8,7 +8,7 @@ If you discover a security vulnerability in Learnify AI, please report it respon
 
 ### How to Report
 
-1. Email: **security@learnifyai.com** (or open a private GitHub advisory)
+1. Email: **vishwajeetsrk@gmail.com** / **security@learnifyai.com** (or open a private GitHub advisory)
 2. Include:
    - Description of the vulnerability
    - Steps to reproduce

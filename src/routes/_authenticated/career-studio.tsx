@@ -3162,43 +3162,91 @@ function CareerFinderView() {
       id: "passions",
       title: "What You Love",
       icon: Heart,
-      color: "bg-rose-50 text-rose-600 border-rose-100",
-      placeholder: "e.g. Design, coding, writing...",
-      desc: "Things that energize you",
+      color: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/40",
+      placeholder: "e.g. Design, coding, writing, AI tools...",
+      desc: "Things that energize & inspire you",
     },
     {
       id: "skills",
       title: "What You're Good At",
       icon: Star,
-      color: "bg-emerald-50 text-emerald-600 border-emerald-100",
-      placeholder: "e.g. Leadership, problem solving...",
-      desc: "Your natural talents",
+      color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/40",
+      placeholder: "e.g. Leadership, problem solving, React, Python...",
+      desc: "Your key strengths & learned skills",
     },
     {
       id: "market",
       title: "What The World Needs",
       icon: Globe,
-      color: "bg-indigo-50 text-indigo-600 border-indigo-100",
-      placeholder: "e.g. Health tech, education...",
-      desc: "Problems you want to solve",
+      color: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-900/40",
+      placeholder: "e.g. Health tech, education, sustainable AI...",
+      desc: "High-impact problems you want to solve",
     },
     {
       id: "income",
       title: "Your Future Goals",
       icon: DollarSign,
-      color: "bg-amber-50 text-amber-600 border-amber-100",
-      placeholder: "e.g. Remote role, financial security...",
-      desc: "Career expectations",
+      color: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900/40",
+      placeholder: "e.g. Remote role, ₹20+ LPA, startup founder...",
+      desc: "Career & financial expectations",
     },
   ];
 
-  const [currentStep, setCurrentStep] = useState(0);
-  const [passions, setPassions] = useState<string[]>([]);
-  const [skills, setSkills] = useState<string[]>([]);
-  const [market, setMarket] = useState<string[]>([]);
-  const [income, setIncome] = useState("");
+  // Persisted state
+  const [currentStep, setCurrentStep] = useState<number>(() => {
+    const saved = localStorage.getItem("learnify_ikigai_step_v2");
+    return saved ? Number(saved) : 0;
+  });
+
+  const [passions, setPassions] = useState<string[]>(() => {
+    const saved = localStorage.getItem("learnify_ikigai_passions_v2");
+    return saved ? JSON.parse(saved) : ["Coding", "AI Tools"];
+  });
+
+  const [skills, setSkills] = useState<string[]>(() => {
+    const saved = localStorage.getItem("learnify_ikigai_skills_v2");
+    return saved ? JSON.parse(saved) : ["React", "Problem Solving"];
+  });
+
+  const [market, setMarket] = useState<string[]>(() => {
+    const saved = localStorage.getItem("learnify_ikigai_market_v2");
+    return saved ? JSON.parse(saved) : ["EdTech", "Full-Stack Web Apps"];
+  });
+
+  const [income, setIncome] = useState<string>(() => {
+    return localStorage.getItem("learnify_ikigai_income_v2") || "";
+  });
+
+  const [result, setResult] = useState<boolean>(() => {
+    return localStorage.getItem("learnify_ikigai_result_v2") === "true";
+  });
+
   const [tempInput, setTempInput] = useState("");
-  const [result, setResult] = useState(false);
+
+  // Sync state to localStorage
+  useEffect(() => {
+    localStorage.setItem("learnify_ikigai_step_v2", String(currentStep));
+  }, [currentStep]);
+
+  useEffect(() => {
+    localStorage.setItem("learnify_ikigai_passions_v2", JSON.stringify(passions));
+  }, [passions]);
+
+  useEffect(() => {
+    localStorage.setItem("learnify_ikigai_skills_v2", JSON.stringify(skills));
+  }, [skills]);
+
+  useEffect(() => {
+    localStorage.setItem("learnify_ikigai_market_v2", JSON.stringify(market));
+  }, [market]);
+
+  useEffect(() => {
+    localStorage.setItem("learnify_ikigai_income_v2", income);
+  }, [income]);
+
+  useEffect(() => {
+    localStorage.setItem("learnify_ikigai_result_v2", String(result));
+  }, [result]);
 
   const progress = ((currentStep + 1) / steps.length) * 100;
 
@@ -3223,117 +3271,134 @@ function CareerFinderView() {
   const handleNext = () => {
     if (currentStep === 3) {
       setResult(true);
+      toast.success("Generated your personalized Ikigai career path!");
       return;
     }
     setCurrentStep((s) => s + 1);
   };
 
+  const handleReset = () => {
+    setResult(false);
+    setCurrentStep(0);
+    setPassions([]);
+    setSkills([]);
+    setMarket([]);
+    setIncome("");
+    setTempInput("");
+    localStorage.removeItem("learnify_ikigai_step_v2");
+    localStorage.removeItem("learnify_ikigai_passions_v2");
+    localStorage.removeItem("learnify_ikigai_skills_v2");
+    localStorage.removeItem("learnify_ikigai_market_v2");
+    localStorage.removeItem("learnify_ikigai_income_v2");
+    localStorage.removeItem("learnify_ikigai_result_v2");
+    toast.info("Reset Ikigai wizard");
+  };
+
   if (result) {
     const roles = [
       {
-        title: "AI Product Manager",
-        match: "92%",
-        reason: "Combines your tech skills with strategic thinking and market needs",
+        title: "AI Product Manager / Full Stack AI Architect",
+        match: "94%",
+        reason: `Combines your passion for ${passions.slice(0, 2).join(", ") || "tech"} with core skills in ${skills.slice(0, 2).join(", ") || "development"} and high-demand market needs in ${market.slice(0, 2).join(", ") || "EdTech"}.`,
       },
       {
-        title: "Full Stack Developer",
-        match: "88%",
-        reason: "Strong alignment with your coding passion and problem-solving skills",
+        title: "Senior Full Stack AI Developer",
+        match: "89%",
+        reason: `Strong technical alignment with ${skills.join(", ") || "React & Node"}, solving real-world challenges in ${market[0] || "web apps"}.`,
       },
       {
-        title: "Tech Consultant",
-        match: "85%",
-        reason: "Matches your communication skills and desire for high-impact work",
+        title: "Technical Founder & Solutions Engineer",
+        match: "86%",
+        reason: `Directly matches your income expectations (${income || "High growth"}) and creative drive.`,
       },
     ];
     return (
       <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-100">
-            <Compass className="h-6 w-6 text-emerald-600" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-emerald-600 text-white rounded-2xl shadow-md">
+              <Compass className="h-6 w-6" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Your Ikigai Career Path Results</h2>
+              <p className="text-sm text-muted-foreground">Persisted analysis based on your passions & skills</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">Your Career Path</h2>
-            <p className="text-sm text-muted-foreground">Based on your Ikigai analysis</p>
+          <div className="flex items-center gap-2">
+            <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-300 font-bold text-xs gap-1">
+              <Check className="h-3 w-3" /> Auto-Saved
+            </Badge>
+            <Button size="sm" variant="outline" onClick={handleReset} className="text-xs font-bold gap-1">
+              <RefreshCw className="h-3.5 w-3.5 text-rose-500" /> Start Over
+            </Button>
           </div>
         </div>
 
-        <Card className="p-8 rounded-2xl border shadow-sm bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
-          <div className="flex items-center gap-3 mb-4">
+        <Card className="p-8 rounded-2xl border shadow-md bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 text-white space-y-4">
+          <div className="flex items-center gap-3">
             <div className="p-2 bg-white/20 rounded-lg">
               <Rocket className="h-5 w-5" />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest opacity-80">
-              Top Match
+            <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-100">
+              #1 Recommended Ikigai Path
             </span>
           </div>
-          <h3 className="text-2xl font-bold mb-2">{roles[0].title}</h3>
-          <p className="text-blue-200 text-sm mb-4">{roles[0].reason}</p>
-          <div className="flex gap-4 pt-4 border-t border-white/20">
+          <h3 className="text-2xl font-black">{roles[0].title}</h3>
+          <p className="text-indigo-100 text-sm leading-relaxed">{roles[0].reason}</p>
+          <div className="flex gap-6 pt-4 border-t border-white/20 flex-wrap">
             <div>
-              <span className="text-[10px] font-bold uppercase opacity-60">Match</span>
-              <p className="text-xl font-bold">{roles[0].match}</p>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-200">Match Score</span>
+              <p className="text-2xl font-black">{roles[0].match}</p>
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase opacity-60">Market</span>
-              <p className="text-xl font-bold">High</p>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-200">Market Need</span>
+              <p className="text-2xl font-black">Very High</p>
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase opacity-60">Salary</span>
-              <p className="text-xl font-bold">₹15-30L</p>
+              <span className="text-[10px] font-extrabold uppercase tracking-wider text-indigo-200">Salary Band</span>
+              <p className="text-2xl font-black">₹18-35 LPA</p>
             </div>
           </div>
         </Card>
 
         <div className="space-y-4">
-          <h3 className="text-sm font-bold">Alternative Roles</h3>
+          <h3 className="text-sm font-extrabold uppercase tracking-wider text-muted-foreground">Alternative Ikigai Paths</h3>
           {roles.slice(1).map((r, i) => (
             <Card
               key={i}
-              className="p-4 rounded-xl border shadow-sm flex items-center justify-between"
+              className="p-5 rounded-xl border shadow-xs flex items-center justify-between gap-4"
             >
               <div>
-                <p className="font-bold text-sm">{r.title}</p>
-                <p className="text-xs text-muted-foreground">{r.reason}</p>
+                <p className="font-bold text-base text-foreground">{r.title}</p>
+                <p className="text-xs text-muted-foreground mt-1">{r.reason}</p>
               </div>
-              <Badge variant="secondary" className="text-xs">
-                {r.match} match
+              <Badge variant="secondary" className="text-xs font-bold shrink-0 bg-primary/10 text-primary">
+                {r.match} Match
               </Badge>
             </Card>
           ))}
         </div>
 
-        <Card className="p-6 rounded-2xl border shadow-sm">
-          <h3 className="text-sm font-bold mb-4 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-blue-600" /> Next Steps
+        <Card className="p-6 rounded-2xl border shadow-sm space-y-4">
+          <h3 className="text-sm font-extrabold uppercase tracking-wider text-foreground flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-blue-600" /> Action Roadmap to Achieve Your Ikigai
           </h3>
           <div className="space-y-3">
             {[
-              "Build a portfolio showcasing 3 full-stack projects",
-              "Complete a certification in AI/ML fundamentals",
-              "Network with industry professionals on LinkedIn",
-              "Apply to 5 target companies with tailored resumes",
+              `Build 2 showcase projects focused on ${passions[0] || "Full Stack AI"} and ${market[0] || "EdTech"}`,
+              `Master remaining high-weight skills: ${skills.join(", ") || "React, TypeScript, Python"}`,
+              "Optimize your LinkedIn profile and post twice weekly on your build journey",
+              "Connect directly with hiring managers & founders on Learnify Community",
             ].map((step, i) => (
-              <div key={i} className="flex gap-4 items-start">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 text-sm font-bold flex items-center justify-center shrink-0">
+              <div key={i} className="flex gap-4 items-center p-2 rounded-xl bg-muted/20 border">
+                <div className="w-7 h-7 rounded-lg bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
                   {i + 1}
                 </div>
-                <p className="text-sm pt-1.5">{step}</p>
+                <p className="text-xs font-semibold text-foreground">{step}</p>
               </div>
             ))}
           </div>
         </Card>
-
-        <Button
-          onClick={() => {
-            setResult(false);
-            setCurrentStep(0);
-          }}
-          variant="outline"
-          className="w-full"
-        >
-          <RefreshCw className="h-4 w-4 mr-2" /> Start Again
-        </Button>
       </div>
     );
   }
@@ -3343,49 +3408,63 @@ function CareerFinderView() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
-      <div className="flex items-center gap-4">
-        <div className="p-3 bg-teal-50 rounded-2xl border border-teal-100">
-          <Compass className="h-6 w-6 text-teal-600" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-teal-600 text-white rounded-2xl shadow-md">
+            <Compass className="h-6 w-6" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Career Finder (Ikigai)</h2>
+            <p className="text-sm text-muted-foreground">
+              Discover your purpose — intersection of passion, skill, market need, and goals.
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Career Finder (Ikigai)</h2>
-          <p className="text-sm text-muted-foreground">
-            Discover your purpose — the intersection of passion, skill, market need, and income.
-          </p>
+
+        <div className="flex items-center gap-2">
+          <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-300 font-bold text-xs gap-1">
+            <Check className="h-3 w-3" /> Auto-Saved
+          </Badge>
+          <Button size="sm" variant="ghost" onClick={handleReset} className="text-xs text-muted-foreground">
+            Reset
+          </Button>
         </div>
       </div>
 
       <div className="space-y-2">
-        <div className="flex justify-between text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-          <span>Progress</span>
-          <span>{Math.round(progress)}%</span>
+        <div className="flex justify-between text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">
+          <span>Step {currentStep + 1} of 4: {steps[currentStep].title}</span>
+          <span>{Math.round(progress)}% Complete</span>
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
+        <div className="h-2.5 bg-muted rounded-full overflow-hidden p-0.5 border">
           <div
-            className="h-full bg-blue-600 rounded-full transition-all"
+            className="h-full bg-gradient-to-r from-teal-500 to-indigo-600 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      <Card className="p-8 rounded-2xl border shadow-sm space-y-6">
+      <Card className="p-6 sm:p-8 rounded-2xl border shadow-sm space-y-6">
         <div className="flex items-center gap-4 pb-6 border-b">
-          <div className={`p-4 ${steps[currentStep].color} rounded-2xl border`}>
+          <div className={`p-3.5 ${steps[currentStep].color} rounded-2xl border`}>
             {React.createElement(steps[currentStep].icon, { className: "w-6 h-6" })}
           </div>
           <div>
             <h3 className="text-xl font-bold">{steps[currentStep].title}</h3>
-            <p className="text-sm text-muted-foreground">{steps[currentStep].desc}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground font-semibold">{steps[currentStep].desc}</p>
           </div>
         </div>
 
         {stepId === "income" ? (
-          <Textarea
-            value={income}
-            onChange={(e) => setIncome(e.target.value)}
-            placeholder={steps[currentStep].placeholder}
-            className="min-h-[120px]"
-          />
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-muted-foreground">Your Target Income / Work Style</Label>
+            <Textarea
+              value={income}
+              onChange={(e) => setIncome(e.target.value)}
+              placeholder={steps[currentStep].placeholder}
+              className="min-h-[120px] text-sm"
+            />
+          </div>
         ) : (
           <div className="space-y-4">
             <div className="flex gap-3">
@@ -3394,46 +3473,51 @@ function CareerFinderView() {
                 onChange={(e) => setTempInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAddItem()}
                 placeholder={steps[currentStep].placeholder}
-                className="text-sm"
+                className="text-sm h-10"
               />
-              <Button onClick={handleAddItem} variant="secondary" className="shrink-0">
-                Add
+              <Button onClick={handleAddItem} className="shrink-0 h-10 font-bold bg-primary text-white">
+                <Plus className="h-4 w-4 mr-1" /> Add
               </Button>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {(currentItems as string[])?.map((item, i) => (
-                <span
-                  key={i}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-muted rounded-xl text-sm font-medium"
-                >
-                  {item}
-                  <button onClick={() => handleRemoveItem(i)} className="hover:text-destructive">
-                    ×
-                  </button>
-                </span>
-              ))}
+            <div className="flex flex-wrap gap-2 min-h-[48px] p-3 rounded-xl bg-muted/20 border">
+              {(currentItems as string[])?.length === 0 ? (
+                <span className="text-xs text-muted-foreground italic">No items added yet. Type above and click Add or press Enter.</span>
+              ) : (
+                (currentItems as string[])?.map((item, i) => (
+                  <span
+                    key={i}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-card border shadow-xs rounded-xl text-xs font-bold text-foreground"
+                  >
+                    {item}
+                    <button onClick={() => handleRemoveItem(i)} className="hover:text-rose-500 cursor-pointer p-0.5">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))
+              )}
             </div>
           </div>
         )}
 
-        <div className="flex justify-between pt-6 border-t">
+        <div className="flex justify-between items-center pt-6 border-t">
           <Button
             onClick={() => setCurrentStep((s) => s - 1)}
             disabled={currentStep === 0}
-            variant="ghost"
+            variant="outline"
             size="sm"
+            className="text-xs font-bold"
           >
             Previous
           </Button>
           <Button
             onClick={handleNext}
             size="sm"
+            className="text-xs font-bold bg-primary text-white"
             disabled={
               stepId !== "income" ? (currentItems as string[])?.length === 0 : !income.trim()
             }
           >
-            {currentStep === 3 ? "Show My Path" : "Continue"}{" "}
-            <ArrowRight className="ml-1.5 h-4 w-4" />
+            {currentStep === 3 ? "Show My Path" : "Continue"} <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
           </Button>
         </div>
       </Card>
