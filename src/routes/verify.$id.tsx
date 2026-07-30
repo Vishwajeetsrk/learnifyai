@@ -55,7 +55,7 @@ function CertificateVerificationPage() {
       if (certRow) {
         return {
           code: certRow.code,
-          recipient_name: certRow.learner_name || "Learner",
+          recipient_name: (certRow as any).learner_name || (certRow as any).recipient_name || "Learner",
           course_title: (certRow as any).courses?.title || "Learnify Course",
           course_instructor: (certRow as any).courses?.instructor || "Learnify Instructor",
           issued_at: certRow.issued_at,
