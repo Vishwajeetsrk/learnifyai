@@ -52,6 +52,15 @@ export default defineConfig({
           manualChunks(id) {
             if (!id.includes("node_modules")) return;
 
+            // Core React runtime must be initialized together
+            if (
+              id.includes("/node_modules/react/") ||
+              id.includes("/node_modules/react-dom/") ||
+              id.includes("/node_modules/scheduler/")
+            ) {
+              return "vendor-react";
+            }
+
             // Heavy 3D Canvas libraries
             if (
               id.includes("/node_modules/three/") ||
@@ -59,40 +68,8 @@ export default defineConfig({
             ) {
               return "vendor-three";
             }
-            // Icon library
-            if (id.includes("/node_modules/lucide-react/")) {
-              return "vendor-lucide";
-            }
-            // Animation library
-            if (id.includes("/node_modules/framer-motion/")) {
-              return "vendor-motion";
-            }
-            // Supabase client
-            if (id.includes("/node_modules/@supabase/")) {
-              return "vendor-supabase";
-            }
-            // TanStack Router & Query
-            if (id.includes("/node_modules/@tanstack/")) {
-              return "vendor-tanstack";
-            }
-            // Charts & Graphs
-            if (
-              id.includes("/node_modules/recharts/") ||
-              id.includes("/node_modules/d3-")
-            ) {
-              return "vendor-charts";
-            }
-            // Code & Rich Text Editors
-            if (
-              id.includes("/node_modules/monaco-editor/") ||
-              id.includes("/node_modules/@monaco-editor/")
-            ) {
-              return "vendor-monaco";
-            }
-            if (id.includes("/node_modules/pdfjs-dist/")) return "vendor-pdfjs";
-            if (id.includes("/node_modules/xlsx/") || id.includes("/node_modules/exceljs/")) {
-              return "vendor-excel";
-            }
+
+            // Heavy PDF & Canvas Export tools
             if (
               id.includes("/node_modules/jspdf/") ||
               id.includes("/node_modules/html2canvas/") ||
@@ -100,6 +77,18 @@ export default defineConfig({
               id.includes("/node_modules/html-to-image/")
             ) {
               return "vendor-pdf";
+            }
+            if (id.includes("/node_modules/pdfjs-dist/")) return "vendor-pdfjs";
+
+            // Code & Data Table Editors
+            if (
+              id.includes("/node_modules/monaco-editor/") ||
+              id.includes("/node_modules/@monaco-editor/")
+            ) {
+              return "vendor-monaco";
+            }
+            if (id.includes("/node_modules/xlsx/") || id.includes("/node_modules/exceljs/")) {
+              return "vendor-excel";
             }
             if (id.includes("/node_modules/sql.js/")) return "vendor-sql";
             if (id.includes("/node_modules/highlight.js/")) return "vendor-highlight";
