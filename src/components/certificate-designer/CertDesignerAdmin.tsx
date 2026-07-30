@@ -2117,36 +2117,66 @@ function TemplatesScreen({
   ];
 
   // Merge DB templates with mock for display
+  const ALL_PUBLIC_SVG_TEMPLATES = useMemo(() => [
+    { folder: "02-Python-Programming", name: "Python Programming", count: 16, category: "Technology" },
+    { folder: "03-Web-Development", name: "Web Development", count: 18, category: "Technology" },
+    { folder: "04-Excel-Data-Analysis", name: "Excel & Data Analysis", count: 23, category: "Business" },
+    { folder: "05-Data-Structures", name: "Data Structures & Algorithms", count: 20, category: "Technology" },
+    { folder: "01-UIUX-Design", name: "UI/UX Design", count: 17, category: "Design" },
+    { folder: "06-Digital-Marketing", name: "Digital Marketing", count: 25, category: "Marketing" },
+    { folder: "07-AI-Fundamentals", name: "AI Fundamentals", count: 14, category: "AI & Data" },
+    { folder: "08-Data-Structures-2", name: "Advanced Data Structures", count: 20, category: "Technology" },
+  ].flatMap((cat) =>
+    Array.from({ length: cat.count }, (_, i) => {
+      const num = i + 1;
+      const url = `/templates/${cat.folder}/${num}.svg`;
+      return {
+        name: `${cat.name} #${num}`,
+        badge: num <= 3 ? "Premium" : "Professional",
+        badgeColor: num <= 3 ? "#92400E" : "#1E40AF",
+        badgeBg: num <= 3 ? "#FEF3C7" : "#DBEAFE",
+        bg_image_url: url,
+        thumbnail_url: url,
+        theme: "navy",
+        rating: 4.8,
+        reviews: 450 + num * 12,
+        downloads: `${(1 + (num % 6) * 0.4).toFixed(1)}k`,
+        dbTemplate: {
+          id: `${cat.folder}-${num}`,
+          name: `${cat.name} Template #${num}`,
+          category: cat.category,
+          bg_image_url: url,
+          thumbnail_url: url,
+          fields_json: null,
+          theme_colors: null,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          created_by: null,
+        } as CanvaTemplate,
+      };
+    }),
+  ), []);
+
+  // Merge DB templates with public SVG templates
   const displayTemplates = useMemo(() => {
-    const db = dbTemplates.map((t, i) => ({
-      name: t.name,
-      badge: t.category === "Premium" ? "Premium" : "Professional",
-      badgeColor: t.category === "Premium" ? "#92400E" : "#1E40AF",
-      badgeBg: t.category === "Premium" ? "#FEF3C7" : "#DBEAFE",
-      theme: [
-        "navy",
-        "blue",
-        "teal",
-        "rose",
-        "purple",
-        "minimal",
-        "onyx",
-        "ivory",
-        "glass",
-        "corporate",
-        "classic",
-        "gradient",
-      ][i % 12],
-      rating: 4.5 + Math.random() * 0.4,
-      reviews: Math.floor(300 + Math.random() * 600),
-      downloads: `${(1 + Math.random() * 2).toFixed(1)}k`,
-      dbTemplate: t,
-    }));
-    const combined = [...db];
-    // Add mock if no DB templates yet
-    if (db.length === 0) return MOCK_TEMPLATES.map((t) => ({ ...t, dbTemplate: undefined as any }));
-    return combined;
-  }, [dbTemplates]);
+    if (dbTemplates && dbTemplates.length > 0) {
+      const db = dbTemplates.map((t, i) => ({
+        name: t.name,
+        badge: t.category === "Premium" ? "Premium" : "Professional",
+        badgeColor: t.category === "Premium" ? "#92400E" : "#1E40AF",
+        badgeBg: t.category === "Premium" ? "#FEF3C7" : "#DBEAFE",
+        bg_image_url: t.bg_image_url,
+        thumbnail_url: t.thumbnail_url || t.bg_image_url,
+        theme: "navy",
+        rating: 4.9,
+        reviews: 650,
+        downloads: "3.2k",
+        dbTemplate: t,
+      }));
+      return [...db, ...ALL_PUBLIC_SVG_TEMPLATES];
+    }
+    return ALL_PUBLIC_SVG_TEMPLATES;
+  }, [dbTemplates, ALL_PUBLIC_SVG_TEMPLATES]);
 
   const filtered = displayTemplates.filter((t) => {
     if (activeChip !== "All" && !t.name.toLowerCase().includes(activeChip.toLowerCase()))
@@ -2207,6 +2237,7 @@ function TemplatesScreen({
           </button>
         ))}
         <button
+          onClick={() => { setSearchT(""); setActiveChip("All"); }}
           style={{
             padding: "6px 12px",
             border: `1px solid ${BD}`,
@@ -2224,7 +2255,7 @@ function TemplatesScreen({
             <RefreshCw size={13} />
             Seed Templates
           </Btn>
-          <Btn variant="primary">
+          <Btn variant="primary" onClick={() => setTab("designer")}>
             <Plus size={14} />
             New Template
           </Btn>
@@ -2254,7 +2285,7 @@ function TemplatesScreen({
 
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: 14, fontWeight: 600, color: TX }}>
-          All Templates ({filtered.length})
+          All Certificate SVG Templates ({filtered.length})
         </span>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <select
@@ -2270,28 +2301,6 @@ function TemplatesScreen({
             <option>Most Popular</option>
             <option>Top Rated</option>
           </select>
-          <button
-            style={{
-              padding: "5px 8px",
-              border: `1px solid ${BD}`,
-              borderRadius: 6,
-              background: "white",
-              cursor: "pointer",
-            }}
-          >
-            <LayoutGrid size={15} color={TX2} />
-          </button>
-          <button
-            style={{
-              padding: "5px 8px",
-              border: `1px solid ${BD}`,
-              borderRadius: 6,
-              background: "white",
-              cursor: "pointer",
-            }}
-          >
-            <List size={15} color={TX2} />
-          </button>
         </div>
       </div>
 
@@ -2299,7 +2308,7 @@ function TemplatesScreen({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))",
+            gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))",
             gap: 16,
           }}
         >
@@ -2315,7 +2324,7 @@ function TemplatesScreen({
             >
               <div
                 style={{
-                  height: 133,
+                  height: 140,
                   background: "linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%)",
                   backgroundSize: "200% 100%",
                 }}
@@ -2333,13 +2342,14 @@ function TemplatesScreen({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))",
+            gridTemplateColumns: "repeat(auto-fill,minmax(220px,1fr))",
             gap: 16,
           }}
         >
           {filtered.map((t, i) => (
             <div
               key={i}
+              onClick={() => handleEdit(t.dbTemplate)}
               style={{
                 background: "white",
                 border: `1px solid ${BD}`,
@@ -2358,8 +2368,19 @@ function TemplatesScreen({
                 e.currentTarget.style.transform = "scale(1)";
               }}
             >
-              <div style={{ position: "relative" }}>
-                <CertThumbnail theme={t.theme} w={200} h={133} />
+              <div style={{ position: "relative", width: "100%", height: 140, background: "#f8fafc" }}>
+                {t.bg_image_url ? (
+                  <img
+                    src={t.bg_image_url}
+                    alt={t.name}
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <CertThumbnail theme={t.theme} w={220} h={140} />
+                )}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -2432,6 +2453,10 @@ function TemplatesScreen({
                 >
                   <div style={{ display: "flex", gap: 6 }}>
                     <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(t.bg_image_url, "_blank");
+                      }}
                       style={{
                         padding: 4,
                         border: `1px solid ${BD}`,
@@ -2439,41 +2464,20 @@ function TemplatesScreen({
                         background: "white",
                         cursor: "pointer",
                       }}
+                      title="View SVG File"
                     >
                       <Eye size={12} color={TX2} />
                     </button>
-                    <button
-                      style={{
-                        padding: 4,
-                        border: `1px solid ${BD}`,
-                        borderRadius: 6,
-                        background: "white",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <Copy size={12} color={TX2} />
-                    </button>
-                    {t.dbTemplate && (
-                      <button
-                        onClick={() => handleDelete(t.dbTemplate.id)}
-                        style={{
-                          padding: 4,
-                          border: `1px solid ${ERL}`,
-                          borderRadius: 6,
-                          background: ERL,
-                          cursor: "pointer",
-                        }}
-                      >
-                        <Trash2 size={12} color={ER} />
-                      </button>
-                    )}
                   </div>
                   <Btn
                     variant="primary"
-                    onClick={() => (t.dbTemplate ? handleEdit(t.dbTemplate) : setTab("designer"))}
-                    style={{ fontSize: 11, padding: "4px 10px" }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEdit(t.dbTemplate);
+                    }}
+                    style={{ fontSize: 11, padding: "4px 12px" }}
                   >
-                    {t.dbTemplate ? "Edit" : "Use"}
+                    Edit Certificate
                   </Btn>
                 </div>
               </div>
@@ -2483,6 +2487,7 @@ function TemplatesScreen({
       )}
     </div>
   );
+}
 }
 
 // ─── Screen: Designer (wraps existing DesignerWorkspace) ─────────────────────
