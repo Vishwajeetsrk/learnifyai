@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-
-import { AppShell } from "@/components/AppShell";
-import { cn } from "@/lib/utils";
-import { InteractiveAvatar } from "@/components/InteractiveAvatar";
+import React, { useState } from "react";
+const InteractiveAvatar = React.lazy(() =>
+  import("@/components/InteractiveAvatar").then((m) => ({ default: m.InteractiveAvatar })),
+);
 import {
   ShoppingCart,
   Star,
@@ -406,12 +404,20 @@ function StorePage() {
                         }
                       }}
                     >
-                      <InteractiveAvatar
-                        src={item.image_url || `/avatars/${item.id || "avatar-m1"}.svg`}
-                        name={item.name}
-                        size={96}
-                        className="w-full h-full"
-                      />
+                      <React.Suspense
+                        fallback={
+                          <div className="w-full h-full rounded-full bg-muted/50 animate-pulse flex items-center justify-center text-[10px] font-bold text-muted-foreground">
+                            Avatar
+                          </div>
+                        }
+                      >
+                        <InteractiveAvatar
+                          src={item.image_url || `/avatars/${item.id || "avatar-m1"}.svg`}
+                          name={item.name}
+                          size={96}
+                          className="w-full h-full"
+                        />
+                      </React.Suspense>
                       {/* Hover overlay */}
                       {!owned && (
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">

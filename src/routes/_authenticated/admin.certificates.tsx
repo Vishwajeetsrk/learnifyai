@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { AppShell } from "@/components/AppShell";
-import { CertDesignerAdmin } from "@/components/certificate-designer/CertDesignerAdmin";
+import React from "react";
+import { Loader2 } from "lucide-react";
+
+const CertDesignerAdmin = React.lazy(() =>
+  import("@/components/certificate-designer/CertDesignerAdmin").then((m) => ({
+    default: m.CertDesignerAdmin,
+  })),
+);
 
 export const Route = createFileRoute("/_authenticated/admin/certificates")({
   head: () => ({
@@ -30,7 +37,16 @@ function AdminCertificatesPage() {
 
   return (
     <AppShell>
-      <CertDesignerAdmin />
+      <React.Suspense
+        fallback={
+          <div className="p-16 text-center text-sm font-bold text-muted-foreground flex flex-col items-center justify-center gap-3">
+            <Loader2 className="h-7 w-7 animate-spin text-primary" />
+            <span>Loading Certificate OS Studio...</span>
+          </div>
+        }
+      >
+        <CertDesignerAdmin />
+      </React.Suspense>
     </AppShell>
   );
 }
