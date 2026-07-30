@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { cn } from "@/lib/utils";
 import { Hand } from "lucide-react";
 

@@ -76,6 +76,15 @@ import {
   Network,
   Loader2,
   Eye,
+  Kanban,
+  LayoutGrid,
+  List,
+  Copy,
+  FileSpreadsheet,
+  Filter,
+  ArrowUpRight,
+  SlidersHorizontal,
+  ArrowLeftRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MagnificationDock } from "@/components/ui/MagnificationDock";
@@ -288,41 +297,128 @@ function LinkedInOptimizerView() {
   const [bannerBg, setBannerBg] = useState(
     "linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#312e81 100%)",
   );
-  const [name, setName] = useState("Your Name");
+  const [name, setName] = useState("Vishwajeet Kumar");
   const [pronouns, setPronouns] = useState("He/Him");
-  const [headline, setHeadline] = useState("");
-  const [location, setLocation] = useState("");
-  const [about, setAbout] = useState("");
+  const [headline, setHeadline] = useState("Full Stack AI Engineer | Building Learnify AI | React, Supabase & OpenRouter");
+  const [location, setLocation] = useState("Bengaluru, Karnataka, India");
+  const [about, setAbout] = useState(
+    "Passionate Full Stack AI Engineer crafting high-performance, intelligent web applications. Specialized in React 19, TypeScript, Supabase, Tailwind CSS, and LLM integrations."
+  );
   const [featuredItems, setFeaturedItems] = useState<{ title: string; url: string }[]>([
-    { title: "", url: "" },
+    { title: "Learnify AI Platform", url: "https://www.learnifyai.in" },
+    { title: "Full-Stack AI Project Showcase", url: "https://github.com/Vishwajeetsrk/learnifyai" },
   ]);
-  const [skills, setSkills] = useState<string[]>([]);
+  const [skills, setSkills] = useState<string[]>([
+    "React.js",
+    "TypeScript",
+    "Python",
+    "Node.js",
+    "Supabase",
+    "Tailwind CSS",
+    "OpenAI / OpenRouter API",
+    "PostgreSQL",
+  ]);
   const [skillInput, setSkillInput] = useState("");
   const [experiences, setExperiences] = useState<
     { company: string; role: string; period: string; desc: string }[]
-  >([{ company: "", role: "", period: "", desc: "" }]);
+  >([
+    {
+      company: "Learnify AI",
+      role: "Lead Full Stack & AI Engineer",
+      period: "Jan 2024 – Present",
+      desc: "Architected end-to-end AI learning platform serving 10,000+ students. Integrated Supabase RLS, OpenRouter LLM tools, Cashfree billing, and ATS resume studio.",
+    },
+  ]);
   const [projects, setProjects] = useState<{ name: string; url: string; desc: string }[]>([
-    { name: "", url: "", desc: "" },
+    {
+      name: "DreamSync Career Studio",
+      url: "https://learnifyaitool.vercel.app/career-studio",
+      desc: "AI-powered suite featuring ATS checker, real-time 3D voice interactor, resume builder, and skill gap matrix.",
+    },
   ]);
   const [education, setEducation] = useState<
     { institution: string; degree: string; year: string }[]
-  >([{ institution: "", degree: "", year: "" }]);
+  >([
+    { institution: "St. Aloysius Institute", degree: "B.Tech Computer Science", year: "2020 – 2024" },
+  ]);
   const [activeSection, setActiveSection] = useState<"edit" | "preview" | "posts">("edit");
   const [generatedHeadlines, setGeneratedHeadlines] = useState<string[]>([]);
   const [optimizedAbout, setOptimizedAbout] = useState("");
-  const [aboutStyle, setAboutStyle] = useState<"story" | "recruiter">("story");
+  const [aboutStyle, setAboutStyle] = useState<"story" | "recruiter" | "executive" | "creative">("story");
   const [generatedPosts, setGeneratedPosts] = useState<string[]>([]);
   const [generating, setGenerating] = useState<string | null>(null);
 
   const photoRef = useRef<HTMLInputElement>(null);
 
+  // Persistence: Load from LocalStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("learnify_linkedin_profile_v2");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.name) setName(data.name);
+        if (data.pronouns) setPronouns(data.pronouns);
+        if (data.headline) setHeadline(data.headline);
+        if (data.location) setLocation(data.location);
+        if (data.about) setAbout(data.about);
+        if (data.skills) setSkills(data.skills);
+        if (data.experiences) setExperiences(data.experiences);
+        if (data.projects) setProjects(data.projects);
+        if (data.education) setEducation(data.education);
+        if (data.featuredItems) setFeaturedItems(data.featuredItems);
+        if (data.profilePhoto) setProfilePhoto(data.profilePhoto);
+        if (data.bannerBg) setBannerBg(data.bannerBg);
+      } catch {
+        // ignore fallback
+      }
+    } else if (user) {
+      const uName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Your Name";
+      setName(uName);
+    }
+  }, [user]);
+
+  // Auto save to LocalStorage
+  const saveToStorage = useCallback(() => {
+    const payload = {
+      name,
+      pronouns,
+      headline,
+      location,
+      about,
+      skills,
+      experiences,
+      projects,
+      education,
+      featuredItems,
+      profilePhoto,
+      bannerBg,
+    };
+    localStorage.setItem("learnify_linkedin_profile_v2", JSON.stringify(payload));
+  }, [name, pronouns, headline, location, about, skills, experiences, projects, education, featuredItems, profilePhoto, bannerBg]);
+
+  useEffect(() => {
+    saveToStorage();
+  }, [saveToStorage]);
+
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => setProfilePhoto(ev.target?.result as string);
+    reader.onload = (ev) => {
+      setProfilePhoto(ev.target?.result as string);
+      toast.success("Profile photo uploaded!");
+    };
     reader.readAsDataURL(file);
-    toast.success("Photo uploaded!");
+  };
+
+  const handleAutoFillAccount = () => {
+    const uName = user?.user_metadata?.full_name || "Vishwajeet Kumar";
+    setName(uName);
+    setLocation("Bengaluru, India");
+    setHeadline("Full Stack AI Engineer | React 19, Supabase & LLM Architect | Learnify AI");
+    setSkills(["React", "TypeScript", "Python", "Supabase", "Tailwind CSS", "Node.js", "Generative AI", "REST APIs"]);
+    setAbout("Full-stack engineer dedicated to building scalable web platforms and AI-driven creator tools. Experienced in React, Next.js, Supabase RLS, and LLM integrations.");
+    toast.success("Profile auto-filled from account!");
   };
 
   const addSkill = () => {
@@ -356,103 +452,135 @@ function LinkedInOptimizerView() {
     setFeaturedItems(featuredItems.map((f, idx) => (idx === i ? { ...f, [k]: v } : f)));
 
   const handleGenerateHeadlines = () => {
-    if (!skills.length && !experiences[0]?.role) {
-      toast.error("Add some skills or experience first");
-      return;
-    }
     setGenerating("headlines");
     setTimeout(() => {
-      const role = experiences[0]?.role || "Software Engineer";
-      const company = experiences[0]?.company || "";
+      const role = experiences[0]?.role || "Full Stack AI Engineer";
+      const company = experiences[0]?.company || "Learnify AI";
       const top3 = skills.slice(0, 3).join(", ") || "React, TypeScript, Python";
       setGeneratedHeadlines([
-        `${role}${company ? ` @ ${company}` : ""} | ${top3} | Open to Opportunities`,
-        `${top3} Developer | Building innovative products | ${name || "Builder"}`,
-        `Full-Stack & AI Engineer | ${skills.slice(0, 4).join(" · ") || "React · Node.js · Python · Supabase"}`,
-        `${role} | ${skills.slice(0, 2).join(" & ") || "Web & AI"} Specialist | ${education[0]?.degree || "B.Tech CS"} ${education[0]?.year || ""}`,
-        `Software Engineer | Passionate about ${skills[0] || "Technology"} | ${company ? `Ex ${company}` : "Open to Work"}`,
+        `${role} @ ${company} | ${top3} | Open to Lead Tech Roles`,
+        `Building the Future of EdTech with AI | ${top3} Specialist | ${name}`,
+        `Full-Stack & Generative AI Engineer | ${skills.slice(0, 4).join(" · ") || "React · Supabase · Python · LLMs"}`,
+        `${role} | Scalable Microservices & Modern Web Systems | Ex-${company}`,
+        `Software Architect | ${skills[0] || "AI System Design"} Specialist | Helping developers build 10x faster`,
       ]);
       setGenerating(null);
-      toast.success("5 tailored headlines generated!");
-    }, 700);
+      toast.success("5 tailored high-converting headlines generated!");
+    }, 600);
   };
 
   const handleOptimizeAbout = () => {
-    if (!about.trim() && !skills.length) {
-      toast.error("Fill in About or add skills first");
-      return;
-    }
     setGenerating("about");
     setTimeout(() => {
-      const role = experiences[0]?.role || "Software Engineer";
-      const company = experiences[0]?.company || "";
-      const skillList = skills.slice(0, 5).join(", ") || "React, TypeScript, Python";
+      const role = experiences[0]?.role || "Full Stack AI Engineer";
+      const company = experiences[0]?.company || "Learnify AI";
+      const skillList = skills.slice(0, 6).join(", ") || "React, TypeScript, Python, Supabase, Tailwind CSS, LLM APIs";
       const proj = projects
         .filter((p) => p.name)
         .map((p) => p.name)
         .join(", ");
+
       if (aboutStyle === "story") {
         setOptimizedAbout(
-          `I am a passionate ${role}${company ? ` at ${company}` : ""} focused on building real-world solutions using ${skillList}.\n\n` +
-            (about.trim() ? `${about.trim()}\n\n` : "") +
-            (proj ? `Key Projects: ${proj}.\n\n` : "") +
-            `Core Stack: ${skillList}.\n\nOpen to Software Engineer, Full Stack, and AI Developer roles.`,
+          `🚀 Hi there! I'm ${name}, a ${role}${company ? ` at ${company}` : ""} with a passion for transforming complex ideas into intuitive, production-grade applications.\n\n` +
+            `My engineering journey centers on building fast, reliable, and user-first systems using ${skillList}.\n\n` +
+            (about.trim() ? `💡 What drives me:\n${about.trim()}\n\n` : "") +
+            (proj ? `🛠️ Featured Work:\n${proj}\n\n` : "") +
+            `🎯 Core Technical Stack:\n${skills.map((s) => `• ${s}`).join("\n") || "• React 19 & TypeScript\n• Supabase RLS & PostgreSQL\n• OpenRouter & LLM Workflows"}\n\n` +
+            `📫 Let's connect! I'm always open to discussing web architecture, AI innovations, and engineering opportunities.`
+        );
+      } else if (aboutStyle === "recruiter") {
+        setOptimizedAbout(
+          `📌 SUMMARY:\nResults-driven ${role} with proven experience in building scalable web architectures and AI tools.\n\n` +
+            `✨ CORE COMPETENCIES:\n${skills.map((s) => `[x] ${s}`).join("\n") || "[x] Full-Stack Engineering\n[x] System Design\n[x] LLM API Integration"}\n\n` +
+            `💼 EXPERIENCE HIGHLIGHTS:\n` +
+            (experiences.filter((e) => e.company).map((e) => `• ${e.role} @ ${e.company} (${e.period}): ${e.desc || "Delivered high-impact solutions"}`).join("\n") || "• Built and scaled modern web applications") +
+            `\n\n🎓 EDUCATION:\n${education[0]?.degree || "B.Tech Computer Science"} — ${education[0]?.institution || "Institute of Technology"}\n\n` +
+            `📩 Open to Senior Software Engineer, Full Stack, and AI Engineering roles.`
+        );
+      } else if (aboutStyle === "executive") {
+        setOptimizedAbout(
+          `As a ${role}, I bridge technical execution with strategic vision to deliver products that drive user engagement and business growth.\n\n` +
+            `Over my career, I've led full-stack engineering efforts specializing in ${skillList}. My focus is on high-throughput database design, maintainable component architectures, and seamless AI integrations.\n\n` +
+            `Key Strengths:\n` +
+            `• End-to-End Product Architecture\n` +
+            `• Performance & Optimization\n` +
+            `• Cross-functional Collaboration & AI Workflow Automation\n\n` +
+            `Open to strategic technology advisory, staff engineering, and tech lead opportunities.`
         );
       } else {
         setOptimizedAbout(
-          `${role}${company ? ` @ ${company}` : ""} | ${skillList}\n\n` +
-            `${
-              experiences
-                .filter((e) => e.company)
-                .map((e) => `• ${e.role} at ${e.company} (${e.period})`)
-                .join("\n") || "• Building production-grade applications"
-            }\n` +
-            (proj ? `• Projects: ${proj}\n` : "") +
-            `\nStack: ${skillList}.\n\nOpen to exciting opportunities.`,
+          `⚡ Building software that matters.\n\n` +
+            `I'm ${name} — a ${role} obsessed with modern UX, clean architecture, and practical AI integrations.\n\n` +
+            `Current Focus:\n${skills.slice(0, 4).map((s) => `🔥 ${s}`).join("\n")}\n\n` +
+            (proj ? `Recently Built: ${proj}\n\n` : "") +
+            `If you love shipping clean code, exploring cutting-edge AI tools, or collaborating on ambitious products, let's talk!`
         );
       }
       setGenerating(null);
-      toast.success("About section optimized!");
-    }, 700);
+      toast.success(`About section optimized in ${aboutStyle} style!`);
+    }, 600);
   };
 
   const handleGeneratePosts = () => {
-    if (!headline && !skills.length && !experiences[0]?.role) {
-      toast.error("Fill in your profile first");
-      return;
-    }
     setGenerating("posts");
     setTimeout(() => {
-      const role = experiences[0]?.role || "Software Engineer";
-      const company = experiences[0]?.company || "";
-      const top4 = skills.slice(0, 4).join(", ") || "React, TypeScript, Python, Node.js";
-      const proj = projects.filter((p) => p.name)[0]?.name || "my latest project";
+      const role = experiences[0]?.role || "Full Stack AI Engineer";
+      const company = experiences[0]?.company || "Learnify AI";
+      const top4 = skills.slice(0, 4).join(", ") || "React, TypeScript, Python, Supabase";
+      const proj = projects.filter((p) => p.name)[0]?.name || "DreamSync Career Studio";
       const tags = skills
-        .slice(0, 4)
-        .map((s) => `#${s.replace(/\s+/g, "")}`)
+        .slice(0, 5)
+        .map((s) => `#${s.replace(/[\s./]/g, "")}`)
         .join(" ");
+
       setGeneratedPosts([
-        `Just hit a major milestone as a ${role}!\n\nAfter months of learning and building, ${top4} have transformed how I approach software.\n\nWhat I learned:\n` +
-          skills
-            .slice(0, 4)
-            .map((s) => `[x] ${s} — used in real production projects`)
-            .join("\n") +
-          `\n\nBiggest lesson? Build things. Ship things. Learn from every deployment.\n\n${tags} #BuildInPublic #TechCareers`,
-        `Excited to share an update on ${proj}!\n\n${about.split(".")[0] || `Building with ${top4} has been incredible`}.\n\nCore Tech: ${top4}.\n\nDrop a comment if you've worked with these tools!\n\n${tags} #OpenSource #Developers`,
-        `What ${role}s actually do (vs what people think):\n\nThink: Write code all day.\nReality: Debug 6 hours, write 3 lines.\n\nThink: Use one language.\nReality: ${top4} all in one week.\n\nWouldn't trade it. The problem-solving is addictive.\n\n${tags} #DeveloperLife`,
-        company
-          ? `Grateful for my time at ${company}.\n\n${experiences[0]?.desc ? experiences[0].desc.split(".")[0] + "." : `Working as ${role} taught me things no course could.`}\n\nKey takeaways:\n[x] Production problem-solving\n[x] Team collaboration\n[x] ${top4}\n\n${tags} #CareerGrowth`
-          : `My self-study roadmap for ${role}:\n\n` +
-            skills
-              .slice(0, 5)
-              .map((s, i) => `${i + 1}. ${s}`)
-              .join("\n") +
-            `\n\nNo bootcamp. No shortcuts. Just consistency.\n\n${tags} #SelfTaught`,
+        `🎉 Major Milestone Announcement!\n\nBuilding as a ${role} at ${company} has taught me that the best code is code that solves real human problems.\n\nKey technologies powering our stack:\n` +
+          skills.slice(0, 5).map((s) => `✅ ${s}`).join("\n") +
+          `\n\nBiggest lesson learned? Iterate fast, listen to user feedback, and never compromise on DX (Developer Experience).\n\nWhat tools are you building with this week? Drop them below! 👇\n\n${tags} #BuildInPublic #SoftwareEngineering #TechGrowth`,
+
+        `💡 Technical Insight: Why ${skills[0] || "React"} + ${skills[1] || "Supabase"} is my default stack for 2026.\n\n` +
+          `When building production products like ${proj}, speed-to-market and security are paramount.\n\n` +
+          `Here is why this combination works so well:\n` +
+          `1️⃣ Real-Time Synchronization without complex WebSockets\n` +
+          `2️⃣ Row Level Security (RLS) keeping data safe by default\n` +
+          `3️⃣ Type-safe Server Functions reducing runtime bugs\n\n` +
+          `Are you using relational databases or NoSQL for your latest AI tools? Let's discuss!\n\n${tags} #WebDevelopment #SystemDesign`,
+
+        `🤖 Reality Check: What people think being a ${role} is like vs reality.\n\n` +
+          `Expectation: Sitting in a coffee shop writing flawless AI algorithms all day ☕\n` +
+          `Reality: Spending 3 hours debugging CORS headers, 2 hours tuning prompt templates, and 10 minutes writing the actual feature code 🛠️\n\n` +
+          `And yet... I wouldn't trade this for anything. The feeling when your build passes cleanly is unmatched.\n\nWho else relates? 😂\n\n${tags} #DeveloperLife #TechHumor #CodeLife`,
+
+        `🚀 Product Update: Just launched ${proj}!\n\n` +
+          `We built this to solve real career challenges for developers — featuring automated ATS resume checking, mock interview simulations, and skill gap matrices.\n\n` +
+          `Built with: ${top4}.\n\n` +
+          `Check it out and let me know your thoughts! Feedbacks and pull requests are always welcome.\n\n${tags} #OpenSource #ProductLaunch #TechCommunity`,
       ]);
       setGenerating(null);
       setActiveSection("posts");
-      toast.success("4 profile-based posts generated!");
-    }, 900);
+      toast.success("4 tailored viral LinkedIn posts generated!");
+    }, 700);
+  };
+
+  const handleCopyAllPosts = () => {
+    if (!generatedPosts.length) return toast.error("No posts to copy");
+    const fullText = generatedPosts.map((p, i) => `--- POST #${i + 1} ---\n${p}\n\n`).join("");
+    navigator.clipboard.writeText(fullText);
+    toast.success("All 4 posts copied to clipboard!");
+  };
+
+  const handleDownloadPostsTxt = () => {
+    if (!generatedPosts.length) return toast.error("No posts to download");
+    const fullText = generatedPosts.map((p, i) => `==================== POST #${i + 1} ====================\n\n${p}\n\n`).join("");
+    const blob = new Blob([fullText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `LinkedIn_AI_Posts_${name.replace(/\s+/g, "_")}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Downloaded posts (.txt)!");
   };
 
   const inp =
@@ -471,26 +599,33 @@ function LinkedInOptimizerView() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between gap-4 flex-wrap"
+        className="flex items-center justify-between gap-4 flex-wrap border-b pb-4"
       >
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-2xl border border-blue-100 dark:border-blue-900/50">
-            <Linkedin className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <div className="p-3 bg-blue-600 text-white rounded-2xl shadow-md">
+            <Linkedin className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">LinkedIn Profile Optimizer</h2>
+            <h2 className="text-2xl font-bold tracking-tight">LinkedIn Profile Optimizer & Post Generator</h2>
             <p className="text-sm text-muted-foreground">
-              Build every section, generate AI posts — see it live before you publish.
+              Build every profile section, auto-generate AI headlines & viral posts — inspect in live preview.
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={handleAutoFillAccount}
+            className="px-3 py-1.5 rounded-full text-xs font-bold bg-muted/60 hover:bg-muted text-foreground border border-border transition flex items-center gap-1.5 cursor-pointer"
+          >
+            <UserCheck className="h-3.5 w-3.5 text-blue-600" /> Auto-Fill Account Profile
+          </button>
+          <div className="h-4 w-[1px] bg-border mx-1 hidden sm:block" />
           {(["edit", "preview", "posts"] as const).map((s) => (
             <button
               key={s}
               onClick={() => setActiveSection(s)}
               className={cn(
-                "px-4 py-1.5 rounded-full text-xs font-bold capitalize transition-all border",
+                "px-4 py-1.5 rounded-full text-xs font-bold capitalize transition-all border cursor-pointer",
                 activeSection === s
                   ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                   : "bg-muted/40 border-border text-muted-foreground hover:bg-muted",
@@ -505,9 +640,9 @@ function LinkedInOptimizerView() {
       {/* EDIT PANEL */}
       {activeSection === "edit" && (
         <div className="grid lg:grid-cols-2 gap-6">
-          {/* Left */}
+          {/* Left Column */}
           <div className="space-y-5">
-            {/* Photo + Banner */}
+            {/* Photo + Banner Card */}
             <Card className="rounded-2xl border shadow-sm overflow-hidden">
               <div className="h-24 w-full relative" style={{ background: bannerBg }}>
                 <div className="absolute top-2 right-2 flex gap-1.5">
@@ -516,11 +651,11 @@ function LinkedInOptimizerView() {
                       key={i}
                       onClick={() => setBannerBg(bg)}
                       className={cn(
-                        "w-5 h-5 rounded-full border-2 shadow transition hover:scale-110",
+                        "w-5 h-5 rounded-full border-2 shadow transition hover:scale-110 cursor-pointer",
                         bannerBg === bg ? "border-white" : "border-white/30",
                       )}
                       style={{ background: bg }}
-                      title="Change banner"
+                      title="Change banner color"
                     />
                   ))}
                 </div>
@@ -540,7 +675,7 @@ function LinkedInOptimizerView() {
                   )}
                   <button
                     onClick={() => photoRef.current?.click()}
-                    className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-primary text-white flex items-center justify-center shadow-md hover:scale-110 transition"
+                    className="absolute bottom-0 right-0 h-6 w-6 rounded-full bg-primary text-white flex items-center justify-center shadow-md hover:scale-110 transition cursor-pointer"
                     title="Upload photo"
                   >
                     <Camera className="h-3 w-3" />
@@ -586,7 +721,7 @@ function LinkedInOptimizerView() {
               </div>
             </Card>
 
-            {/* Headline */}
+            {/* Headline Section */}
             <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -596,7 +731,7 @@ function LinkedInOptimizerView() {
                 <button
                   onClick={handleGenerateHeadlines}
                   disabled={generating === "headlines"}
-                  className="flex items-center gap-1 px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50"
+                  className="flex items-center gap-1 px-3 py-1 rounded-full bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50 cursor-pointer shadow-sm"
                 >
                   {generating === "headlines" ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -617,21 +752,21 @@ function LinkedInOptimizerView() {
               {generatedHeadlines.length > 0 && (
                 <div className="space-y-2 pt-2 border-t">
                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                    Suggested Headlines
+                    Suggested Headlines (Click Use to Apply)
                   </p>
                   {generatedHeadlines.map((h, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-2 p-3 rounded-xl border bg-muted/30 hover:border-primary/40 transition text-xs"
+                      className="flex items-center gap-2 p-2.5 rounded-xl border bg-muted/30 hover:border-primary/40 transition text-xs"
                     >
-                      <span className="flex-1 font-medium">{h}</span>
+                      <span className="flex-1 font-medium text-foreground">{h}</span>
                       <button
                         onClick={() => {
                           setHeadline(h);
                           navigator.clipboard.writeText(h);
-                          toast.success("Applied!");
+                          toast.success("Applied to profile!");
                         }}
-                        className="shrink-0 px-2 py-1 bg-primary text-primary-foreground rounded-md text-[10px] font-bold hover:opacity-90 transition"
+                        className="shrink-0 px-2.5 py-1 bg-primary text-primary-foreground rounded-md text-[10px] font-bold hover:opacity-90 transition cursor-pointer"
                       >
                         Use
                       </button>
@@ -641,24 +776,24 @@ function LinkedInOptimizerView() {
               )}
             </Card>
 
-            {/* About */}
+            {/* About Section */}
             <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-emerald-600" />
-                  <h3 className="text-sm font-bold">About</h3>
+                  <h3 className="text-sm font-bold">About / Summary</h3>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-0.5 bg-muted p-0.5 rounded-lg">
-                    {(["story", "recruiter"] as const).map((s) => (
+                    {(["story", "recruiter", "executive", "creative"] as const).map((s) => (
                       <button
                         key={s}
                         onClick={() => setAboutStyle(s)}
                         className={cn(
-                          "px-2.5 py-0.5 rounded text-[10px] font-bold capitalize transition",
+                          "px-2 py-0.5 rounded text-[10px] font-bold capitalize transition cursor-pointer",
                           aboutStyle === s
                             ? "bg-card text-foreground shadow-sm"
-                            : "text-muted-foreground",
+                            : "text-muted-foreground hover:text-foreground",
                         )}
                       >
                         {s}
@@ -668,7 +803,7 @@ function LinkedInOptimizerView() {
                   <button
                     onClick={handleOptimizeAbout}
                     disabled={generating === "about"}
-                    className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition disabled:opacity-50"
+                    className="flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition disabled:opacity-50 cursor-pointer shadow-sm"
                   >
                     {generating === "about" ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -682,29 +817,31 @@ function LinkedInOptimizerView() {
               <textarea
                 id="li-about"
                 name="li-about"
-                className={`${inp} min-h-[100px] resize-none`}
+                className={`${inp} min-h-[110px] resize-none`}
                 placeholder="Write your LinkedIn About / Summary..."
                 value={about}
                 onChange={(e) => setAbout(e.target.value)}
               />
               {optimizedAbout && (
-                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800/50 space-y-2">
-                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
-                    Optimized ({aboutStyle})
-                  </p>
-                  <p className="text-xs leading-relaxed whitespace-pre-line max-h-36 overflow-y-auto">
+                <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800/50 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
+                      Optimized Preview ({aboutStyle} style)
+                    </p>
+                    <button
+                      onClick={() => {
+                        setAbout(optimizedAbout);
+                        setOptimizedAbout("");
+                        toast.success("Applied to your About section!");
+                      }}
+                      className="text-xs font-bold px-2.5 py-1 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition cursor-pointer"
+                    >
+                      Apply to Profile
+                    </button>
+                  </div>
+                  <p className="text-xs leading-relaxed whitespace-pre-line max-h-44 overflow-y-auto font-sans">
                     {optimizedAbout}
                   </p>
-                  <button
-                    onClick={() => {
-                      setAbout(optimizedAbout);
-                      setOptimizedAbout("");
-                      toast.success("Applied!");
-                    }}
-                    className="text-[10px] font-bold text-emerald-600 hover:underline"
-                  >
-                    Apply to Profile
-                  </button>
                 </div>
               )}
             </Card>
@@ -713,7 +850,7 @@ function LinkedInOptimizerView() {
             <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-amber-600" />
-                <h3 className="text-sm font-bold">Skills</h3>
+                <h3 className="text-sm font-bold">Skills & Endorsements ({skills.length})</h3>
               </div>
               <div className="flex gap-2">
                 <input
@@ -727,7 +864,7 @@ function LinkedInOptimizerView() {
                 />
                 <button
                   onClick={addSkill}
-                  className="px-4 py-2 bg-amber-500 text-white rounded-lg text-xs font-bold hover:bg-amber-600 transition shrink-0"
+                  className="px-4 py-2 bg-amber-500 text-white rounded-lg text-xs font-bold hover:bg-amber-600 transition shrink-0 cursor-pointer"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -742,7 +879,7 @@ function LinkedInOptimizerView() {
                       {s}
                       <button
                         onClick={() => removeSkill(i)}
-                        className="hover:text-rose-500 transition ml-0.5"
+                        className="hover:text-rose-500 transition ml-0.5 cursor-pointer"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -753,20 +890,20 @@ function LinkedInOptimizerView() {
             </Card>
           </div>
 
-          {/* Right */}
+          {/* Right Column */}
           <div className="space-y-5">
-            {/* Featured */}
+            {/* Featured Section */}
             <Card className="p-4 rounded-2xl border shadow-sm space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Star className="h-4 w-4 text-violet-600" />
-                  <h3 className="text-sm font-bold">Featured</h3>
+                  <h3 className="text-sm font-bold">Featured Links & Posts</h3>
                 </div>
                 <button
                   onClick={addFeatured}
-                  className="text-xs font-bold text-primary flex items-center gap-1 hover:underline"
+                  className="text-xs font-bold text-primary flex items-center gap-1 hover:underline cursor-pointer"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Add
+                  <Plus className="h-3.5 w-3.5" /> Add Item
                 </button>
               </div>
               {featuredItems.map((f, i) => (
@@ -792,7 +929,7 @@ function LinkedInOptimizerView() {
                   {featuredItems.length > 1 && (
                     <button
                       onClick={() => removeFeatured(i)}
-                      className="mt-2 text-rose-500 hover:text-rose-600 p-1"
+                      className="mt-2 text-rose-500 hover:text-rose-600 p-1 cursor-pointer"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -806,13 +943,13 @@ function LinkedInOptimizerView() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <BriefcaseIcon className="h-4 w-4 text-blue-600" />
-                  <h3 className="text-sm font-bold">Experience</h3>
+                  <h3 className="text-sm font-bold">Work Experience</h3>
                 </div>
                 <button
                   onClick={addExp}
-                  className="text-xs font-bold text-primary flex items-center gap-1 hover:underline"
+                  className="text-xs font-bold text-primary flex items-center gap-1 hover:underline cursor-pointer"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Add
+                  <Plus className="h-3.5 w-3.5" /> Add Experience
                 </button>
               </div>
               {experiences.map((exp, i) => (
@@ -820,7 +957,7 @@ function LinkedInOptimizerView() {
                   {experiences.length > 1 && (
                     <button
                       onClick={() => removeExp(i)}
-                      className="absolute top-2 right-2 text-rose-500 hover:text-rose-600"
+                      className="absolute top-2 right-2 text-rose-500 hover:text-rose-600 cursor-pointer"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -868,13 +1005,13 @@ function LinkedInOptimizerView() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Code2 className="h-4 w-4 text-emerald-600" />
-                  <h3 className="text-sm font-bold">Projects</h3>
+                  <h3 className="text-sm font-bold">Key Projects</h3>
                 </div>
                 <button
                   onClick={addProject}
-                  className="text-xs font-bold text-primary flex items-center gap-1 hover:underline"
+                  className="text-xs font-bold text-primary flex items-center gap-1 hover:underline cursor-pointer"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Add
+                  <Plus className="h-3.5 w-3.5" /> Add Project
                 </button>
               </div>
               {projects.map((p, i) => (
@@ -882,7 +1019,7 @@ function LinkedInOptimizerView() {
                   {projects.length > 1 && (
                     <button
                       onClick={() => removeProject(i)}
-                      className="absolute top-2 right-2 text-rose-500 hover:text-rose-600"
+                      className="absolute top-2 right-2 text-rose-500 hover:text-rose-600 cursor-pointer"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -926,9 +1063,9 @@ function LinkedInOptimizerView() {
                 </div>
                 <button
                   onClick={addEdu}
-                  className="text-xs font-bold text-primary flex items-center gap-1 hover:underline"
+                  className="text-xs font-bold text-primary flex items-center gap-1 hover:underline cursor-pointer"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Add
+                  <Plus className="h-3.5 w-3.5" /> Add Education
                 </button>
               </div>
               {education.map((edu, i) => (
@@ -936,7 +1073,7 @@ function LinkedInOptimizerView() {
                   {education.length > 1 && (
                     <button
                       onClick={() => removeEdu(i)}
-                      className="absolute top-2 right-2 text-rose-500 hover:text-rose-600"
+                      className="absolute top-2 right-2 text-rose-500 hover:text-rose-600 cursor-pointer"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -975,14 +1112,14 @@ function LinkedInOptimizerView() {
             <button
               onClick={handleGeneratePosts}
               disabled={generating === "posts"}
-              className="w-full py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition shadow-lg shadow-blue-500/20 disabled:opacity-60"
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold text-sm flex items-center justify-center gap-2 hover:opacity-95 active:scale-[0.98] transition shadow-lg shadow-blue-500/20 disabled:opacity-60 cursor-pointer"
             >
               {generating === "posts" ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Sparkles className="h-4 w-4" />
               )}
-              Generate LinkedIn Posts from My Profile
+              Generate 4 Viral LinkedIn Posts from My Profile
             </button>
           </div>
         </div>
@@ -993,160 +1130,212 @@ function LinkedInOptimizerView() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
+          className="space-y-6 max-w-4xl mx-auto"
         >
+          {/* Simulated LinkedIn Card */}
           <div className="rounded-2xl border shadow-xl overflow-hidden bg-card">
-            <div className="h-36 w-full" style={{ background: bannerBg }} />
-            <div className="px-6 pb-6 -mt-12">
-              <div className="flex items-end gap-4">
-                {profilePhoto ? (
-                  <img
-                    src={profilePhoto}
-                    alt={name}
-                    className="h-24 w-24 rounded-full border-4 border-card object-cover shadow-2xl"
-                  />
-                ) : (
-                  <div className="h-24 w-24 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-3xl shadow-2xl">
-                    {name?.charAt(0) || "?"}
-                  </div>
-                )}
-                <div className="pb-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-black text-xl">{name || "Your Name"}</h3>
-                    {pronouns && (
-                      <span className="text-xs text-muted-foreground font-semibold">
-                        ({pronouns})
-                      </span>
-                    )}
-                  </div>
-                  {headline && <p className="text-sm font-semibold mt-0.5 max-w-xl">{headline}</p>}
-                  {location && (
-                    <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                      <Globe className="h-3 w-3" />
-                      {location}
-                    </p>
+            {/* Banner */}
+            <div className="h-40 w-full relative" style={{ background: bannerBg }}>
+              <div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-black/40 text-white text-[11px] font-bold backdrop-blur-md flex items-center gap-1.5">
+                <Globe className="h-3 w-3" /> Public Profile Preview
+              </div>
+            </div>
+
+            {/* Header info */}
+            <div className="px-6 pb-6 -mt-14">
+              <div className="flex items-end justify-between flex-wrap gap-4">
+                <div className="flex items-end gap-4">
+                  {profilePhoto ? (
+                    <img
+                      src={profilePhoto}
+                      alt={name}
+                      className="h-28 w-28 rounded-full border-4 border-card object-cover shadow-2xl"
+                    />
+                  ) : (
+                    <div className="h-28 w-28 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-4xl shadow-2xl">
+                      {name?.charAt(0) || "?"}
+                    </div>
                   )}
+                  <div className="pb-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-black text-2xl text-foreground">{name || "Your Name"}</h3>
+                      <CheckCircle2 className="h-5 w-5 text-blue-500 fill-blue-500/20" />
+                      {pronouns && (
+                        <span className="text-xs text-muted-foreground font-semibold">
+                          ({pronouns})
+                        </span>
+                      )}
+                    </div>
+                    {headline && <p className="text-sm font-semibold mt-1 max-w-xl text-foreground/90">{headline}</p>}
+                    <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground font-medium flex-wrap">
+                      {location && (
+                        <span className="flex items-center gap-1">
+                          <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+                          {location}
+                        </span>
+                      )}
+                      <span className="text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer">
+                        500+ connections
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pb-1">
+                  <Badge className="bg-emerald-500 text-white font-bold text-xs px-3 py-1">
+                    Open to Work
+                  </Badge>
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-full">
+                    More Options
+                  </Button>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* About Card */}
           {about && (
-            <div className="rounded-2xl border bg-card p-5 shadow-sm space-y-2">
-              <h4 className="font-bold">About</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+            <div className="rounded-2xl border bg-card p-6 shadow-sm space-y-3">
+              <h4 className="font-extrabold text-base flex items-center gap-2">
+                <MessageSquare className="h-4.5 w-4.5 text-emerald-600" /> About
+              </h4>
+              <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line font-sans">
                 {about}
               </p>
             </div>
           )}
+
+          {/* Featured Card */}
           {featuredItems.some((f) => f.title) && (
-            <div className="rounded-2xl border bg-card p-5 shadow-sm space-y-3">
-              <h4 className="font-bold">Featured</h4>
+            <div className="rounded-2xl border bg-card p-6 shadow-sm space-y-4">
+              <h4 className="font-extrabold text-base flex items-center gap-2">
+                <Star className="h-4.5 w-4.5 text-violet-500" /> Featured Work
+              </h4>
               <div className="grid sm:grid-cols-2 gap-3">
                 {featuredItems
                   .filter((f) => f.title)
                   .map((f, i) => (
                     <div
                       key={i}
-                      className="p-3 rounded-xl border bg-muted/30 flex items-center gap-3 hover:border-primary/40 transition"
+                      className="p-4 rounded-xl border bg-muted/30 flex items-center gap-3 hover:border-primary/40 transition group"
                     >
-                      <Star className="h-4 w-4 text-violet-500 shrink-0" />
+                      <div className="p-2.5 bg-violet-500/10 text-violet-600 rounded-lg shrink-0">
+                        <ExternalLink className="h-4 w-4" />
+                      </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-bold truncate">{f.title}</p>
-                        {f.url && <p className="text-xs text-blue-600 truncate">{f.url}</p>}
+                        <p className="text-sm font-bold truncate group-hover:text-primary transition">{f.title}</p>
+                        {f.url && <p className="text-xs text-blue-600 truncate mt-0.5">{f.url}</p>}
                       </div>
                     </div>
                   ))}
               </div>
             </div>
           )}
+
+          {/* Experience Card */}
           {experiences.some((e) => e.company) && (
-            <div className="rounded-2xl border bg-card p-5 shadow-sm space-y-4">
-              <h4 className="font-bold">Experience</h4>
-              {experiences
-                .filter((e) => e.company)
-                .map((exp, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                      <Building className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    <div className="space-y-0.5 min-w-0">
-                      <p className="font-bold text-sm">{exp.role}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {exp.company}
-                        {exp.period ? ` · ${exp.period}` : ""}
-                      </p>
-                      {exp.desc && (
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed whitespace-pre-line">
-                          {exp.desc}
+            <div className="rounded-2xl border bg-card p-6 shadow-sm space-y-5">
+              <h4 className="font-extrabold text-base flex items-center gap-2">
+                <BriefcaseIcon className="h-4.5 w-4.5 text-blue-600" /> Experience
+              </h4>
+              <div className="space-y-4">
+                {experiences
+                  .filter((e) => e.company)
+                  .map((exp, i) => (
+                    <div key={i} className="flex gap-4 border-b pb-4 last:border-0 last:pb-0">
+                      <div className="h-11 w-11 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
+                        <Building className="h-5.5 w-5.5" />
+                      </div>
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <p className="font-bold text-base text-foreground">{exp.role}</p>
+                        <p className="text-xs text-muted-foreground font-semibold">
+                          {exp.company}
+                          {exp.period ? ` · ${exp.period}` : ""}
                         </p>
-                      )}
+                        {exp.desc && (
+                          <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed whitespace-pre-line">
+                            {exp.desc}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+              </div>
             </div>
           )}
+
+          {/* Projects Card */}
           {projects.some((p) => p.name) && (
-            <div className="rounded-2xl border bg-card p-5 shadow-sm space-y-3">
-              <h4 className="font-bold">Projects</h4>
-              <div className="grid sm:grid-cols-2 gap-3">
+            <div className="rounded-2xl border bg-card p-6 shadow-sm space-y-4">
+              <h4 className="font-extrabold text-base flex items-center gap-2">
+                <Code2 className="h-4.5 w-4.5 text-emerald-600" /> Projects
+              </h4>
+              <div className="grid sm:grid-cols-2 gap-4">
                 {projects
                   .filter((p) => p.name)
                   .map((p, i) => (
                     <div
                       key={i}
-                      className="p-3 rounded-xl border bg-muted/30 space-y-1 hover:border-primary/40 transition"
+                      className="p-4 rounded-xl border bg-muted/30 space-y-2 hover:border-primary/40 transition"
                     >
-                      <div className="flex items-center gap-2">
-                        <Code2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                        <p className="font-bold text-sm">{p.name}</p>
+                      <div className="flex items-center justify-between">
+                        <p className="font-bold text-sm text-foreground">{p.name}</p>
+                        {p.url && (
+                          <a
+                            href={p.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
                       </div>
                       {p.desc && (
                         <p className="text-xs text-muted-foreground leading-relaxed">{p.desc}</p>
-                      )}
-                      {p.url && (
-                        <a
-                          href={p.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                          View Project
-                        </a>
                       )}
                     </div>
                   ))}
               </div>
             </div>
           )}
+
+          {/* Skills Card */}
           {skills.length > 0 && (
-            <div className="rounded-2xl border bg-card p-5 shadow-sm space-y-3">
-              <h4 className="font-bold">Skills</h4>
+            <div className="rounded-2xl border bg-card p-6 shadow-sm space-y-4">
+              <h4 className="font-extrabold text-base flex items-center gap-2">
+                <Zap className="h-4.5 w-4.5 text-amber-500" /> Skills & Endorsements
+              </h4>
               <div className="flex flex-wrap gap-2">
                 {skills.map((s, i) => (
                   <span
                     key={i}
-                    className="px-3 py-1 rounded-full border bg-muted text-xs font-semibold"
+                    className="px-3.5 py-1.5 rounded-full border bg-muted/50 text-foreground text-xs font-bold flex items-center gap-1.5"
                   >
+                    <Check className="h-3 w-3 text-emerald-500" />
                     {s}
                   </span>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Education Card */}
           {education.some((e) => e.institution) && (
-            <div className="rounded-2xl border bg-card p-5 shadow-sm space-y-4">
-              <h4 className="font-bold">Education</h4>
+            <div className="rounded-2xl border bg-card p-6 shadow-sm space-y-4">
+              <h4 className="font-extrabold text-base flex items-center gap-2">
+                <GraduationCap className="h-4.5 w-4.5 text-indigo-600" /> Education
+              </h4>
               {education
                 .filter((e) => e.institution)
                 .map((edu, i) => (
                   <div key={i} className="flex gap-4">
-                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                      <GraduationCap className="h-5 w-5 text-muted-foreground" />
+                    <div className="h-10 w-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center shrink-0">
+                      <GraduationCap className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="font-bold text-sm">{edu.institution}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="font-bold text-sm text-foreground">{edu.institution}</p>
+                      <p className="text-xs text-muted-foreground font-semibold">
                         {edu.degree}
                         {edu.year ? ` · ${edu.year}` : ""}
                       </p>
@@ -1163,67 +1352,96 @@ function LinkedInOptimizerView() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-5"
+          className="space-y-6 max-w-5xl mx-auto"
         >
-          <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center justify-between flex-wrap gap-3 border-b pb-4">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-blue-600" />
-              <h3 className="font-bold text-base">AI-Generated Posts from Your Profile</h3>
+              <h3 className="font-extrabold text-lg">AI-Generated LinkedIn Posts ({generatedPosts.length})</h3>
             </div>
-            <button
-              onClick={handleGeneratePosts}
-              disabled={generating === "posts"}
-              className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50"
-            >
-              {generating === "posts" ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Sparkles className="h-3.5 w-3.5" />
-              )}{" "}
-              Regenerate
-            </button>
+            <div className="flex items-center gap-2">
+              {generatedPosts.length > 0 && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCopyAllPosts}
+                    className="text-xs font-bold gap-1.5"
+                  >
+                    <Copy className="h-3.5 w-3.5" /> Copy All Posts
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleDownloadPostsTxt}
+                    className="text-xs font-bold gap-1.5"
+                  >
+                    <Download className="h-3.5 w-3.5" /> Download (.txt)
+                  </Button>
+                </>
+              )}
+              <button
+                onClick={handleGeneratePosts}
+                disabled={generating === "posts"}
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-blue-600 text-white rounded-full text-xs font-bold hover:bg-blue-700 transition disabled:opacity-50 cursor-pointer shadow-sm"
+              >
+                {generating === "posts" ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}{" "}
+                Regenerate
+              </button>
+            </div>
           </div>
+
           {generatedPosts.length === 0 ? (
-            <div className="text-center py-16 rounded-2xl border border-dashed space-y-3">
+            <div className="text-center py-16 rounded-2xl border border-dashed space-y-4 bg-card/40">
               <Sparkles className="h-10 w-10 text-muted-foreground/30 mx-auto" />
-              <p className="text-sm font-semibold text-muted-foreground">No posts yet</p>
-              <p className="text-xs text-muted-foreground">
-                Fill in your profile in the Edit tab and click Generate
+              <p className="text-sm font-bold text-foreground">No generated posts yet</p>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                Fill in your profile in the Edit tab and click Generate to produce 4 high-converting LinkedIn posts!
               </p>
               <button
-                onClick={() => setActiveSection("edit")}
-                className="mt-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition"
+                onClick={handleGeneratePosts}
+                className="px-5 py-2.5 rounded-full bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition cursor-pointer shadow-md"
               >
-                Go to Edit Profile
+                Generate Posts Now
               </button>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid sm:grid-cols-2 gap-5">
               {generatedPosts.map((post, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08 }}
-                  className="rounded-2xl border bg-card p-5 space-y-3 shadow-sm hover:shadow-md transition"
+                  className="rounded-2xl border bg-card p-5 space-y-3 shadow-sm hover:shadow-md transition flex flex-col justify-between"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-600">
-                      LinkedIn Post #{i + 1}
-                    </span>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(post);
-                        toast.success(`Post #${i + 1} copied!`);
-                      }}
-                      className="flex items-center gap-1 px-2.5 py-1 bg-muted rounded-full text-xs font-bold hover:bg-accent transition"
-                    >
-                      <Download className="h-3 w-3" /> Copy
-                    </button>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between border-b pb-2">
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-blue-600 bg-blue-500/10 px-2.5 py-0.5 rounded-md">
+                        {i === 0 ? "🎉 Milestone" : i === 1 ? "💡 Tech Insight" : i === 2 ? "🤖 Dev Reality" : "🚀 Product Launch"}
+                      </span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(post);
+                          toast.success(`Post #${i + 1} copied!`);
+                        }}
+                        className="flex items-center gap-1 px-2.5 py-1 bg-muted hover:bg-primary/10 hover:text-primary rounded-full text-xs font-bold transition cursor-pointer"
+                      >
+                        <Copy className="h-3 w-3" /> Copy
+                      </button>
+                    </div>
+                    <pre className="text-xs text-foreground font-sans whitespace-pre-line leading-relaxed max-h-64 overflow-y-auto pr-1">
+                      {post}
+                    </pre>
                   </div>
-                  <pre className="text-xs text-foreground font-sans whitespace-pre-line leading-relaxed max-h-52 overflow-y-auto">
-                    {post}
-                  </pre>
+                  <div className="pt-2 border-t text-[10px] text-muted-foreground flex justify-between items-center">
+                    <span>Ready for LinkedIn</span>
+                    <span className="font-semibold">{post.length} chars</span>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -1237,6 +1455,8 @@ function LinkedInOptimizerView() {
 function CareerAnalyticsView() {
   const { user } = useAuth();
   const [chartType, setChartType] = useState<"salary" | "demand">("salary");
+  const [selectedRole, setSelectedRole] = useState<string>("AI/ML Eng");
+  const [locationFilter, setLocationFilter] = useState<string>("India");
 
   const { data: userCourseCategories } = useQuery({
     queryKey: ["user-analytics-cats", user?.id],
@@ -1253,24 +1473,17 @@ function CareerAnalyticsView() {
     enabled: !!user,
   });
 
-  const interestBoost = userCourseCategories?.length
-    ? Math.min(userCourseCategories.length * 8, 30)
-    : 0;
-
   const salaryData = [
     {
-      role: "Frontend Dev",
-      entry: "3.5",
-      mid: "8",
-      senior: "15",
-      match: userCourseCategories?.some((c) => /front|ui|react/i.test(c)) ? 92 : 70,
-    },
-    {
-      role: "Backend Dev",
-      entry: "4",
-      mid: "10",
-      senior: "20",
-      match: userCourseCategories?.some((c) => /back|api|node/i.test(c)) ? 90 : 65,
+      role: "AI/ML Eng",
+      entry: "8",
+      mid: "18",
+      senior: "35",
+      match: userCourseCategories?.some((c) => /ai|ml|llm|gen/i.test(c)) ? 96 : 88,
+      companies: ["Google DeepMind", "OpenAI", "Microsoft", "Zomato", "Swiggy AI"],
+      skills: ["PyTorch", "LLM APIs", "Python", "Vector DBs", "RAG Pipeline"],
+      growth: "+185%",
+      desc: "Architecting generative AI models, vector search indexing, and LLM application pipelines.",
     },
     {
       role: "Full Stack",
@@ -1278,6 +1491,32 @@ function CareerAnalyticsView() {
       mid: "12",
       senior: "22",
       match: userCourseCategories?.some((c) => /full|web|mern/i.test(c)) ? 95 : 75,
+      companies: ["Razorpay", "Flipkart", "Postman", "Atlassian", "PhonePe"],
+      skills: ["React 19", "Next.js", "TypeScript", "Node.js", "PostgreSQL"],
+      growth: "+45%",
+      desc: "Building end-to-end user interfaces, backend APIs, and real-time database applications.",
+    },
+    {
+      role: "Backend Dev",
+      entry: "4",
+      mid: "10",
+      senior: "20",
+      match: userCourseCategories?.some((c) => /back|api|node/i.test(c)) ? 90 : 65,
+      companies: ["Uber India", "CRED", "Paytm", "Swiggy", "JPMorgan"],
+      skills: ["Go / Python", "Node.js", "Microservices", "Redis", "Kafka"],
+      growth: "+50%",
+      desc: "Designing high-throughput API gateways, database schemas, and message queues.",
+    },
+    {
+      role: "Frontend Dev",
+      entry: "3.5",
+      mid: "8",
+      senior: "15",
+      match: userCourseCategories?.some((c) => /front|ui|react/i.test(c)) ? 92 : 70,
+      companies: ["Swiggy", "Unacademy", "Zepto", "Cars24", "InMobi"],
+      skills: ["React", "TypeScript", "Tailwind CSS", "Figma", "Web Performance"],
+      growth: "+35%",
+      desc: "Designing responsive, accessible, pixel-perfect user interfaces with micro-animations.",
     },
     {
       role: "Data Scientist",
@@ -1285,6 +1524,10 @@ function CareerAnalyticsView() {
       mid: "15",
       senior: "28",
       match: userCourseCategories?.some((c) => /data|ml|ai/i.test(c)) ? 88 : 60,
+      companies: ["Fractal Analytics", "Tiger Analytics", "Mu Sigma", "Amazon", "Walmart Labs"],
+      skills: ["Python", "SQL", "Pandas", "Scikit-Learn", "Tableau / PowerBI"],
+      growth: "+65%",
+      desc: "Extracting actionable business insights, predictive modeling, and statistical analysis.",
     },
     {
       role: "DevOps Eng",
@@ -1292,13 +1535,10 @@ function CareerAnalyticsView() {
       mid: "13",
       senior: "25",
       match: userCourseCategories?.some((c) => /devops|cloud|aws/i.test(c)) ? 87 : 55,
-    },
-    {
-      role: "AI/ML Eng",
-      entry: "8",
-      mid: "18",
-      senior: "35",
-      match: userCourseCategories?.some((c) => /ai|ml|llm|gen/i.test(c)) ? 96 : 72,
+      companies: ["AWS India", "Red Hat", "NVIDIA", "Dell Technologies", "Oracle"],
+      skills: ["Docker", "Kubernetes", "AWS", "Terraform", "CI/CD Pipelines"],
+      growth: "+62%",
+      desc: "Managing cloud infrastructure, container orchestration, automated deployments, and security monitoring.",
     },
     {
       role: "UI/UX Designer",
@@ -1306,6 +1546,10 @@ function CareerAnalyticsView() {
       mid: "9",
       senior: "18",
       match: userCourseCategories?.some((c) => /ui|ux|design|figma/i.test(c)) ? 91 : 58,
+      companies: ["Licious", "CRED", "MakeMyTrip", "OYO", "Freecharge"],
+      skills: ["Figma", "User Research", "Wireframing", "Design Systems", "Prototyping"],
+      growth: "+40%",
+      desc: "Creating high-fidelity design prototypes, user journey flows, and cohesive brand design systems.",
     },
     {
       role: "Product Manager",
@@ -1313,37 +1557,58 @@ function CareerAnalyticsView() {
       mid: "15",
       senior: "30",
       match: userCourseCategories?.some((c) => /product|manage|pm/i.test(c)) ? 85 : 62,
+      companies: ["Paytm", "MakeMyTrip", "Freshworks", "Ola", "BrowserStack"],
+      skills: ["Product Roadmap", "User Stories", "A/B Testing", "Agile / Scrum", "Data Analytics"],
+      growth: "+55%",
+      desc: "Leading cross-functional engineering teams, feature prioritization, and product vision.",
     },
   ];
 
   const demandData = [
     { skill: "Generative AI", demand: 94, growth: 185 },
-    { skill: "Agentic AI", demand: 88, growth: 210 },
-    { skill: "Full Stack", demand: 85, growth: 45 },
-    { skill: "DevOps/K8s", demand: 78, growth: 62 },
-    { skill: "Data Eng", demand: 76, growth: 55 },
-    { skill: "Cybersec", demand: 72, growth: 70 },
-    { skill: "Cloud Arch", demand: 70, growth: 48 },
-    { skill: "Mobile Dev", demand: 65, growth: 30 },
+    { skill: "Agentic AI & MCP", demand: 88, growth: 210 },
+    { skill: "Full Stack (React+Node)", demand: 85, growth: 45 },
+    { skill: "DevOps & Kubernetes", demand: 78, growth: 62 },
+    { skill: "Data Engineering", demand: 76, growth: 55 },
+    { skill: "Cybersecurity", demand: 72, growth: 70 },
+    { skill: "Cloud Architecture", demand: 70, growth: 48 },
+    { skill: "Mobile App Dev", demand: 65, growth: 30 },
   ];
 
   const bestFit = [...salaryData].sort((a, b) => b.match - a.match)[0];
+  const activeRoleData = salaryData.find((r) => r.role === selectedRole) || salaryData[0];
 
   return (
     <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-4"
+        className="flex items-center justify-between gap-4 flex-wrap border-b pb-4"
       >
-        <div className="p-3 bg-violet-50 dark:bg-violet-950/30 rounded-2xl border border-violet-100 dark:border-violet-900/50">
-          <TrendingUp className="h-6 w-6 text-violet-600 dark:text-violet-400" />
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-violet-600 text-white rounded-2xl shadow-md">
+            <TrendingUp className="h-6 w-6" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Career & Salary Analytics</h2>
+            <p className="text-sm text-muted-foreground">
+              Personalized market benchmarks & hiring demands based on your courses & interests.
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Career & Salary Analytics</h2>
-          <p className="text-sm text-muted-foreground">
-            Personalized benchmarks based on your courses & interests.
-          </p>
+
+        {/* Location Filter Controls */}
+        <div className="flex items-center gap-2">
+          <select
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+            className="text-xs font-bold h-9 px-3 rounded-xl border border-input bg-card shadow-sm cursor-pointer"
+          >
+            <option value="India">📍 India (Pan India)</option>
+            <option value="Bengaluru">📍 Bengaluru / NCR</option>
+            <option value="Hyderabad">📍 Hyderabad / Pune</option>
+            <option value="Remote">🌐 Remote / Global</option>
+          </select>
         </div>
       </motion.div>
 
@@ -1351,28 +1616,31 @@ function CareerAnalyticsView() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-cyan-500/15 border border-emerald-500/30 flex items-center justify-between gap-4 flex-wrap shadow-sm"
+        className="p-5 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-cyan-500/15 border border-emerald-500/30 flex items-center justify-between gap-4 flex-wrap shadow-sm"
       >
         <div className="flex items-center gap-3">
           <div className="p-2.5 bg-emerald-500 text-white rounded-xl shadow-md">
-            <Trophy className="h-5 w-5" />
+            <Trophy className="h-5.5 w-5.5" />
           </div>
           <div>
             <div className="text-xs font-extrabold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-              Personalized Career Benchmark
+              Personalized Career Recommendation
             </div>
             <div className="text-base sm:text-lg font-extrabold text-foreground mt-0.5">
-              Your Best-Fit Role:{" "}
+              Your Top Match:{" "}
               <span className="text-emerald-600 dark:text-emerald-400">
-                {bestFit?.role || "AI/ML Eng"}
+                {bestFit?.role}
               </span>{" "}
-              — {bestFit?.match || 96}% match based on your enrolled courses
+              — {bestFit?.match}% match based on your learning trajectory
             </div>
           </div>
         </div>
-        <Badge className="bg-emerald-500 text-white font-bold text-xs px-3 py-1 shadow-sm">
-          Best Fit Recommendation
-        </Badge>
+        <button
+          onClick={() => setSelectedRole(bestFit.role)}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-md cursor-pointer transition"
+        >
+          View Role Insights
+        </button>
       </motion.div>
 
       {/* 3 Metric Cards */}
@@ -1380,22 +1648,22 @@ function CareerAnalyticsView() {
         {[
           {
             label: "Avg Entry Salary",
-            value: "₹5.5 - ₹15 LPA",
-            sub: "+46% growth YoY",
+            value: `₹${activeRoleData.entry}L - ₹${activeRoleData.senior}L LPA`,
+            sub: `${activeRoleData.growth} demand growth YoY`,
             color: "text-emerald-600 dark:text-emerald-400",
             icon: DollarSign,
           },
           {
             label: "Top Hiring Hubs",
             value: "Bengaluru, NCR, Pune, Hyderabad",
-            sub: "68% of open roles",
+            sub: "68% of active job openings",
             color: "text-blue-600 dark:text-blue-400",
             icon: Map,
           },
           {
             label: "Most Demanded Skill",
-            value: "Generative AI",
-            sub: "210% YoY growth",
+            value: activeRoleData.skills[0] || "Generative AI",
+            sub: "210% YoY skill surge",
             color: "text-violet-600 dark:text-violet-400",
             icon: Zap,
           },
@@ -1420,96 +1688,165 @@ function CareerAnalyticsView() {
         ))}
       </div>
 
+      {/* Interactive Selected Role Detail Card */}
+      <Card className="p-6 rounded-2xl border bg-card shadow-sm space-y-4">
+        <div className="flex items-center justify-between flex-wrap gap-3 border-b pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl font-black text-foreground">{activeRoleData.role} Breakdown</h3>
+              <Badge className="bg-blue-600 text-white font-bold text-xs">
+                {activeRoleData.match}% Match
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">{activeRoleData.desc}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground font-bold">Select Role:</span>
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="text-xs font-bold h-9 px-3 rounded-xl border border-input bg-background shadow-sm cursor-pointer"
+            >
+              {salaryData.map((r) => (
+                <option key={r.role} value={r.role}>
+                  {r.role} ({r.match}%)
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="space-y-2 bg-muted/20 p-4 rounded-xl border">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">
+              Core Required Skills
+            </span>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {activeRoleData.skills.map((s, i) => (
+                <Badge key={i} variant="secondary" className="text-xs font-bold gap-1">
+                  <Check className="h-3 w-3 text-emerald-500" /> {s}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-2 bg-muted/20 p-4 rounded-xl border">
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">
+              Top Hiring Companies in India
+            </span>
+            <div className="flex flex-wrap gap-2 pt-1">
+              {activeRoleData.companies.map((c, i) => (
+                <Badge key={i} variant="outline" className="text-xs font-semibold">
+                  <Building className="h-3 w-3 mr-1 text-blue-500" /> {c}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Salary & Demand Benchmarks Bar Chart */}
       <Card className="rounded-2xl border shadow-sm overflow-hidden">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border-b bg-muted/20 gap-3">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-blue-600" />
-            <h3 className="text-sm font-bold">Salary Benchmarks (₹ LPA)</h3>
+            <h3 className="text-sm font-bold">Salary Benchmarks (₹ LPA) & Market Demand</h3>
           </div>
           <div className="flex gap-1 bg-muted rounded-lg p-0.5">
             <button
               onClick={() => setChartType("salary")}
-              className={`px-3 py-1 text-[10px] rounded-md font-medium transition ${chartType === "salary" ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-background"}`}
+              className={`px-3.5 py-1 text-[11px] rounded-md font-bold transition cursor-pointer ${chartType === "salary" ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-background text-muted-foreground"}`}
             >
-              Salary
+              Salary Ranges
             </button>
             <button
               onClick={() => setChartType("demand")}
-              className={`px-3 py-1 text-[10px] rounded-md font-medium transition ${chartType === "demand" ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-background"}`}
+              className={`px-3.5 py-1 text-[11px] rounded-md font-bold transition cursor-pointer ${chartType === "demand" ? "bg-primary text-primary-foreground shadow-sm" : "hover:bg-background text-muted-foreground"}`}
             >
-              Demand
+              Skill Growth (%)
             </button>
           </div>
         </div>
-        <div className="p-4 space-y-2">
-          {(chartType === "salary" ? salaryData : demandData).map((item: any, i: number) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.03 }}
-              className="space-y-1"
-            >
-              <div className="flex justify-between text-xs">
-                <span className="font-medium flex items-center gap-1.5">
-                  {item.skill || item.role}
-                  {item.match && item.match >= 85 && (
-                    <Badge className="text-[8px] px-1 py-0 bg-emerald-500/10 text-emerald-600 border-emerald-200">
-                      Best Fit
-                    </Badge>
-                  )}
-                </span>
-                <span className="font-bold text-blue-600">
-                  {chartType === "salary"
-                    ? `₹${item.entry}L - ₹${item.senior}L`
-                    : `${item.demand}% demand`}
-                </span>
-              </div>
-              <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden flex gap-0.5">
-                {chartType === "salary" ? (
-                  <>
-                    <div
-                      className="h-full bg-blue-400 rounded-l-full transition-all"
-                      style={{ width: `${(Number(item.entry) / 35) * 100}%` }}
-                    />
-                    <div
-                      className="h-full bg-blue-500 transition-all"
-                      style={{ width: `${((Number(item.mid) - Number(item.entry)) / 35) * 100}%` }}
-                    />
-                    <div
-                      className="h-full bg-blue-600 rounded-r-full transition-all"
-                      style={{ width: `${((Number(item.senior) - Number(item.mid)) / 35) * 100}%` }}
-                    />
-                  </>
-                ) : (
-                  <div
-                    className="h-full bg-gradient-to-r from-violet-400 to-violet-600 rounded-full transition-all"
-                    style={{ width: `${item.demand}%` }}
-                  />
+        <div className="p-5 space-y-3">
+          {(chartType === "salary" ? salaryData : demandData).map((item: any, i: number) => {
+            const isSelected = item.role === selectedRole;
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.03 }}
+                onClick={() => item.role && setSelectedRole(item.role)}
+                className={cn(
+                  "p-3 rounded-xl border transition-all cursor-pointer space-y-1.5",
+                  isSelected
+                    ? "bg-primary/10 border-primary shadow-xs ring-1 ring-primary/20"
+                    : "hover:bg-muted/30 border-border/70 bg-card",
                 )}
-              </div>
-              <div className="flex justify-between text-[9px] text-muted-foreground">
-                {chartType === "salary" ? (
-                  <div className="flex gap-3">
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-sm bg-blue-400" /> Entry
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-sm bg-blue-500" /> Mid
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-sm bg-blue-600" /> Senior
-                    </span>
-                  </div>
-                ) : (
-                  <span>
-                    Growth: <span className="text-emerald-600 font-bold">+{item.growth}%</span> YoY
+              >
+                <div className="flex justify-between text-xs items-center">
+                  <span className="font-bold text-foreground flex items-center gap-2">
+                    {item.skill || item.role}
+                    {item.match && item.match >= 90 && (
+                      <Badge className="text-[9px] px-1.5 py-0 bg-emerald-500/10 text-emerald-600 border-emerald-200 font-extrabold">
+                        Top Fit
+                      </Badge>
+                    )}
                   </span>
-                )}
-                {item.match && <span className="text-primary">{item.match}% match</span>}
-              </div>
-            </motion.div>
-          ))}
+                  <span className="font-extrabold text-blue-600 dark:text-blue-400">
+                    {chartType === "salary"
+                      ? `₹${item.entry}L - ₹${item.senior}L LPA`
+                      : `${item.demand}% Demand`}
+                  </span>
+                </div>
+                <div className="w-full h-3 bg-muted rounded-full overflow-hidden flex gap-0.5">
+                  {chartType === "salary" ? (
+                    <>
+                      <div
+                        className="h-full bg-blue-400 rounded-l-full transition-all"
+                        style={{ width: `${(Number(item.entry) / 35) * 100}%` }}
+                        title={`Entry: ₹${item.entry}L`}
+                      />
+                      <div
+                        className="h-full bg-blue-500 transition-all"
+                        style={{ width: `${((Number(item.mid) - Number(item.entry)) / 35) * 100}%` }}
+                        title={`Mid: ₹${item.mid}L`}
+                      />
+                      <div
+                        className="h-full bg-blue-600 rounded-r-full transition-all"
+                        style={{ width: `${((Number(item.senior) - Number(item.mid)) / 35) * 100}%` }}
+                        title={`Senior: ₹${item.senior}L`}
+                      />
+                    </>
+                  ) : (
+                    <div
+                      className="h-full bg-gradient-to-r from-violet-500 to-indigo-600 rounded-full transition-all"
+                      style={{ width: `${item.demand}%` }}
+                    />
+                  )}
+                </div>
+                <div className="flex justify-between text-[10px] text-muted-foreground">
+                  {chartType === "salary" ? (
+                    <div className="flex gap-4">
+                      <span className="flex items-center gap-1 font-semibold">
+                        <span className="w-2 h-2 rounded-sm bg-blue-400" /> Entry (₹{item.entry}L)
+                      </span>
+                      <span className="flex items-center gap-1 font-semibold">
+                        <span className="w-2 h-2 rounded-sm bg-blue-500" /> Mid (₹{item.mid}L)
+                      </span>
+                      <span className="flex items-center gap-1 font-semibold">
+                        <span className="w-2 h-2 rounded-sm bg-blue-600" /> Senior (₹{item.senior}L)
+                      </span>
+                    </div>
+                  ) : (
+                    <span>
+                      YoY Growth Surge: <span className="text-emerald-600 font-extrabold">+{item.growth}%</span>
+                    </span>
+                  )}
+                  {item.match && <span className="font-bold text-primary">{item.match}% Skill Match</span>}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </Card>
     </div>
@@ -1522,6 +1859,8 @@ interface InternshipApp {
   role: string;
   status: "Applied" | "Interviewing" | "Offer" | "Rejected";
   date: string;
+  salary?: string;
+  location?: string;
   notes?: string;
 }
 
@@ -1529,28 +1868,121 @@ function InternshipTrackerView() {
   const [apps, setApps] = useState<InternshipApp[]>([]);
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
+  const [salary, setSalary] = useState("");
+  const [location, setLocation] = useState("");
+  const [notes, setNotes] = useState("");
   const [status, setStatus] = useState<InternshipApp["status"]>("Applied");
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+
+  const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("All");
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editCompany, setEditCompany] = useState("");
   const [editRole, setEditRole] = useState("");
+  const [editSalary, setEditSalary] = useState("");
+  const [editLocation, setEditLocation] = useState("");
+  const [editNotes, setEditNotes] = useState("");
   const [editStatus, setEditStatus] = useState<InternshipApp["status"]>("Applied");
   const [editDate, setEditDate] = useState("");
 
   useEffect(() => {
-    const saved = localStorage.getItem("learnify_internships");
+    const saved = localStorage.getItem("learnify_internships_v2");
     if (saved) {
       try {
         setApps(JSON.parse(saved));
       } catch {
         setApps([]);
       }
+    } else {
+      const defaultApps: InternshipApp[] = [
+        {
+          id: "1",
+          company: "Google",
+          role: "SWE Intern",
+          status: "Interviewing",
+          date: "2026-07-15",
+          salary: "₹1,20,000 / mo",
+          location: "Bengaluru",
+          notes: "Round 2 Technical Interview scheduled for next Monday.",
+        },
+        {
+          id: "2",
+          company: "Microsoft",
+          role: "Full Stack Engineer Intern",
+          status: "Offer",
+          date: "2026-07-01",
+          salary: "₹1,00,000 / mo",
+          location: "Hyderabad",
+          notes: "Received offer letter! Accepting before July 31.",
+        },
+        {
+          id: "3",
+          company: "Razorpay",
+          role: "Frontend Developer",
+          status: "Applied",
+          date: "2026-07-28",
+          salary: "₹15 LPA",
+          location: "Remote",
+          notes: "Applied via referral link.",
+        },
+      ];
+      setApps(defaultApps);
+      localStorage.setItem("learnify_internships_v2", JSON.stringify(defaultApps));
     }
   }, []);
 
   const saveApps = (newApps: InternshipApp[]) => {
     setApps(newApps);
-    localStorage.setItem("learnify_internships", JSON.stringify(newApps));
+    localStorage.setItem("learnify_internships_v2", JSON.stringify(newApps));
+  };
+
+  const handleLoadSampleData = () => {
+    const samples: InternshipApp[] = [
+      {
+        id: crypto.randomUUID(),
+        company: "Google India",
+        role: "Software Engineering Intern",
+        status: "Interviewing",
+        date: "2026-07-20",
+        salary: "₹1,20,000 / mo",
+        location: "Bengaluru",
+        notes: "Passed Resume Screen & DSA Assessment.",
+      },
+      {
+        id: crypto.randomUUID(),
+        company: "Microsoft",
+        role: "AI / ML Developer",
+        status: "Offer",
+        date: "2026-07-05",
+        salary: "₹18 LPA",
+        location: "Hyderabad",
+        notes: "Offer Letter Received! Valid till Aug 15.",
+      },
+      {
+        id: crypto.randomUUID(),
+        company: "Swiggy",
+        role: "Full Stack AI Developer",
+        status: "Applied",
+        date: "2026-07-29",
+        salary: "₹16 LPA",
+        location: "Remote",
+        notes: "Applied via Learnify AI Job Board.",
+      },
+      {
+        id: crypto.randomUUID(),
+        company: "Atlassian",
+        role: "Frontend Engineer Intern",
+        status: "Rejected",
+        date: "2026-06-18",
+        salary: "₹80,000 / mo",
+        location: "Bengaluru",
+        notes: "Will re-apply next hiring cycle.",
+      },
+    ];
+    saveApps(samples);
+    toast.success("Loaded 4 realistic sample applications!");
   };
 
   const addApp = (e: React.FormEvent) => {
@@ -1565,22 +1997,61 @@ function InternshipTrackerView() {
       role: role.trim(),
       status,
       date: date || new Date().toISOString().slice(0, 10),
+      salary: salary.trim() || undefined,
+      location: location.trim() || undefined,
+      notes: notes.trim() || undefined,
     };
     saveApps([newApp, ...apps]);
     setCompany("");
     setRole("");
+    setSalary("");
+    setLocation("");
+    setNotes("");
     setStatus("Applied");
     setDate(new Date().toISOString().slice(0, 10));
-    toast.success("Application tracked!");
+    toast.success("Application tracked successfully!");
+  };
+
+  const handleUpdateStatus = (id: string, newStatus: InternshipApp["status"]) => {
+    saveApps(apps.map((a) => (a.id === id ? { ...a, status: newStatus } : a)));
+    toast.success(`Moved to ${newStatus}!`);
+  };
+
+  const handleExportCSV = () => {
+    if (!apps.length) return toast.error("No applications to export");
+    const headers = "Company,Role,Status,Date,Salary/Stipend,Location,Notes\n";
+    const rows = apps
+      .map(
+        (a) =>
+          `"${a.company}","${a.role}","${a.status}","${a.date}","${a.salary || ""}","${a.location || ""}","${(a.notes || "").replace(/"/g, '""')}"`,
+      )
+      .join("\n");
+    const blob = new Blob([headers + rows], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Job_Applications_Tracker_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Exported CSV spreadsheet!");
   };
 
   const countByStatus = (s: string) => apps.filter((a) => a.status === s).length;
   const pipelineData = [
-    { label: "Applied", count: countByStatus("Applied"), color: "bg-blue-500" },
-    { label: "Interviewing", count: countByStatus("Interviewing"), color: "bg-amber-500" },
-    { label: "Offer", count: countByStatus("Offer"), color: "bg-emerald-500" },
-    { label: "Rejected", count: countByStatus("Rejected"), color: "bg-rose-500" },
+    { label: "Applied", count: countByStatus("Applied"), color: "bg-blue-500", border: "border-blue-500/30" },
+    { label: "Interviewing", count: countByStatus("Interviewing"), color: "bg-amber-500", border: "border-amber-500/30" },
+    { label: "Offer", count: countByStatus("Offer"), color: "bg-emerald-500", border: "border-emerald-500/30" },
+    { label: "Rejected", count: countByStatus("Rejected"), color: "bg-rose-500", border: "border-rose-500/30" },
   ];
+
+  const filteredApps = apps.filter((a) => {
+    const matchesSearch =
+      a.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      a.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (a.location && a.location.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesStatus = filterStatus === "All" || a.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
 
   const startEdit = (app: InternshipApp) => {
     setEditingId(app.id);
@@ -1588,11 +2059,14 @@ function InternshipTrackerView() {
     setEditRole(app.role);
     setEditStatus(app.status);
     setEditDate(app.date);
+    setEditSalary(app.salary || "");
+    setEditLocation(app.location || "");
+    setEditNotes(app.notes || "");
   };
 
   const updateApp = (id: string) => {
     if (!editCompany.trim() || !editRole.trim()) {
-      toast.error("Fields cannot be empty");
+      toast.error("Company and role cannot be empty");
       return;
     }
     saveApps(
@@ -1604,50 +2078,94 @@ function InternshipTrackerView() {
               role: editRole.trim(),
               status: editStatus,
               date: editDate,
+              salary: editSalary.trim() || undefined,
+              location: editLocation.trim() || undefined,
+              notes: editNotes.trim() || undefined,
             }
           : a,
       ),
     );
     setEditingId(null);
-    toast.success("Updated!");
+    toast.success("Updated application!");
   };
 
   const deleteApp = (id: string) => {
     saveApps(apps.filter((a) => a.id !== id));
-    toast.success("Deleted");
+    toast.success("Application deleted");
   };
 
-  const getStatusBadge = (s: InternshipApp["status"]) => {
+  const getStatusBadgeClass = (s: InternshipApp["status"]) => {
     switch (s) {
       case "Applied":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
+        return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30";
       case "Interviewing":
-        return "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300";
+        return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30";
       case "Offer":
-        return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300";
+        return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30";
       case "Rejected":
-        return "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300";
+        return "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30";
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-4"
+        className="flex items-center justify-between gap-4 flex-wrap border-b pb-4"
       >
-        <div className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-2xl border border-amber-100 dark:border-amber-900/50">
-          <BriefcaseIcon className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-amber-600 text-white rounded-2xl shadow-md">
+            <BriefcaseIcon className="h-6 w-6" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Internship & Job Application Tracker</h2>
+            <p className="text-sm text-muted-foreground">
+              Track job pipeline, drag/switch application stages, log interview notes & export reports.
+            </p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Internship & Job Tracker</h2>
-          <p className="text-sm text-muted-foreground">
-            Track your applications, manage interview stages, and land offers.
-          </p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleLoadSampleData}
+            className="text-xs font-bold gap-1.5"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-amber-500" /> Sample Data
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleExportCSV}
+            className="text-xs font-bold gap-1.5"
+          >
+            <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" /> Export CSV
+          </Button>
+          <div className="flex items-center gap-0.5 bg-muted p-1 rounded-xl border">
+            <button
+              onClick={() => setViewMode("kanban")}
+              className={cn(
+                "px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer",
+                viewMode === "kanban" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground",
+              )}
+            >
+              <Kanban className="h-3.5 w-3.5" /> Kanban Board
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={cn(
+                "px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer",
+                viewMode === "list" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground",
+              )}
+            >
+              <List className="h-3.5 w-3.5" /> List View
+            </button>
+          </div>
         </div>
       </motion.div>
 
+      {/* Metric Pipeline Overview Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {pipelineData.map((item, idx) => (
           <motion.div
@@ -1655,11 +2173,16 @@ function InternshipTrackerView() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.08 }}
+            onClick={() => setFilterStatus(filterStatus === item.label ? "All" : item.label)}
+            className={cn(
+              "cursor-pointer transition-all",
+              filterStatus === item.label ? "ring-2 ring-primary" : "",
+            )}
           >
-            <Card className="p-4 rounded-xl border shadow-sm text-center">
-              <div className={`w-2 h-2 rounded-full mx-auto mb-2 ${item.color}`} />
-              <p className="text-2xl font-bold">{item.count}</p>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+            <Card className="p-4 rounded-xl border shadow-sm text-center hover:shadow-md transition">
+              <div className={`w-2.5 h-2.5 rounded-full mx-auto mb-2 ${item.color}`} />
+              <p className="text-2xl font-black text-foreground">{item.count}</p>
+              <p className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest mt-0.5">
                 {item.label}
               </p>
             </Card>
@@ -1667,46 +2190,72 @@ function InternshipTrackerView() {
         ))}
       </div>
 
+      {/* Add New Application Form */}
       <form
         onSubmit={addApp}
-        className="p-5 rounded-2xl border bg-card/50 backdrop-blur space-y-4 shadow-sm"
+        className="p-5 rounded-2xl border bg-card/60 backdrop-blur space-y-4 shadow-sm"
       >
-        <h3 className="text-sm font-bold flex items-center gap-2">
-          <Plus className="h-4 w-4 text-primary" /> Track New Application
+        <h3 className="text-sm font-bold flex items-center gap-2 text-foreground">
+          <Plus className="h-4 w-4 text-primary" /> Track New Internship / Job Application
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div>
-            <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              Company
+            <Label className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">
+              Company *
             </Label>
             <Input
-              placeholder="Google, Microsoft"
+              placeholder="e.g. Google, Swiggy, Razorpay"
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              className="text-sm h-9"
+              className="text-sm h-9 mt-1"
               required
             />
           </div>
           <div>
-            <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              Role
+            <Label className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">
+              Role / Position *
             </Label>
             <Input
-              placeholder="SWE Intern"
+              placeholder="e.g. Full Stack AI Intern"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="text-sm h-9"
+              className="text-sm h-9 mt-1"
               required
             />
           </div>
           <div>
-            <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              Status
+            <Label className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">
+              Salary / Stipend
+            </Label>
+            <Input
+              placeholder="e.g. ₹50,000/mo or ₹15 LPA"
+              value={salary}
+              onChange={(e) => setSalary(e.target.value)}
+              className="text-sm h-9 mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">
+              Location
+            </Label>
+            <Input
+              placeholder="e.g. Remote / Bengaluru"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="text-sm h-9 mt-1"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end pt-1">
+          <div>
+            <Label className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">
+              Stage / Status
             </Label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as any)}
-              className="w-full text-sm h-9 px-3 rounded-md border border-input bg-background"
+              className="w-full text-sm h-9 px-3 rounded-md border border-input bg-background mt-1 cursor-pointer font-semibold"
             >
               <option value="Applied">Applied</option>
               <option value="Interviewing">Interviewing</option>
@@ -1715,163 +2264,356 @@ function InternshipTrackerView() {
             </select>
           </div>
           <div>
-            <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              Date
+            <Label className="text-[10px] font-extrabold text-muted-foreground uppercase tracking-widest">
+              Date Applied
             </Label>
             <Input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="text-sm h-9"
+              className="text-sm h-9 mt-1"
             />
           </div>
+          <Button type="submit" size="sm" className="h-9 font-bold bg-primary hover:bg-primary/90 text-white">
+            <Plus className="w-4 h-4 mr-1.5" /> Add Application
+          </Button>
         </div>
-        <Button type="submit" size="sm" className="w-full sm:w-auto">
-          <Plus className="w-4 h-4 mr-1.5" /> Add Application
-        </Button>
       </form>
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold">Applications ({apps.length})</h3>
-          {apps.length > 0 && (
-            <button
-              onClick={() => {
-                if (confirm("Clear all?")) {
-                  saveApps([]);
-                  toast.success("Cleared");
-                }
-              }}
-              className="text-xs text-destructive hover:underline"
-            >
-              Clear All
-            </button>
-          )}
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-muted/20 p-3 rounded-2xl border">
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by company or role..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 h-9 text-xs bg-background"
+          />
         </div>
-        {apps.length === 0 ? (
-          <div className="text-center p-10 rounded-2xl border border-dashed">
-            <BriefcaseIcon className="h-8 w-8 text-muted-foreground/35 mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">No applications tracked yet.</p>
-          </div>
-        ) : (
-          <div className="grid gap-3">
-            {apps.map((a) => {
-              const isEditing = editingId === a.id;
-              return (
-                <div
-                  key={a.id}
-                  className={`p-4 rounded-xl border bg-card transition-all ${isEditing ? "border-primary/50" : ""}`}
-                >
-                  {isEditing ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-                      <Input
-                        value={editCompany}
-                        onChange={(e) => setEditCompany(e.target.value)}
-                        className="text-sm h-9"
-                      />
-                      <Input
-                        value={editRole}
-                        onChange={(e) => setEditRole(e.target.value)}
-                        className="text-sm h-9"
-                      />
-                      <select
-                        value={editStatus}
-                        onChange={(e) => setEditStatus(e.target.value as any)}
-                        className="text-sm h-9 px-3 rounded-md border border-input bg-background"
-                      >
-                        <option value="Applied">Applied</option>
-                        <option value="Interviewing">Interviewing</option>
-                        <option value="Offer">Offer</option>
-                        <option value="Rejected">Rejected</option>
-                      </select>
-                      <Input
-                        type="date"
-                        value={editDate}
-                        onChange={(e) => setEditDate(e.target.value)}
-                        className="text-sm h-9"
-                      />
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto">
+          {["All", "Applied", "Interviewing", "Offer", "Rejected"].map((st) => (
+            <button
+              key={st}
+              onClick={() => setFilterStatus(st)}
+              className={cn(
+                "px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer whitespace-nowrap border",
+                filterStatus === st
+                  ? "bg-primary text-white border-primary shadow-xs"
+                  : "bg-background text-muted-foreground border-border hover:bg-muted",
+              )}
+            >
+              {st} {st !== "All" && `(${countByStatus(st)})`}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* KANBAN BOARD VIEW */}
+      {viewMode === "kanban" && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {(["Applied", "Interviewing", "Offer", "Rejected"] as const).map((stage) => {
+            const stageApps = filteredApps.filter((a) => a.status === stage);
+            const stageColors: Record<string, string> = {
+              Applied: "border-t-blue-500",
+              Interviewing: "border-t-amber-500",
+              Offer: "border-t-emerald-500",
+              Rejected: "border-t-rose-500",
+            };
+            return (
+              <div key={stage} className={cn("rounded-2xl border bg-muted/20 p-3 space-y-3 border-t-4", stageColors[stage])}>
+                <div className="flex items-center justify-between px-1">
+                  <h4 className="font-extrabold text-xs uppercase tracking-wider text-foreground flex items-center gap-2">
+                    {stage}
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-bold">
+                      {stageApps.length}
+                    </Badge>
+                  </h4>
+                </div>
+
+                <div className="space-y-3 min-h-[160px]">
+                  {stageApps.length === 0 ? (
+                    <div className="text-center py-8 border border-dashed rounded-xl text-xs text-muted-foreground">
+                      No applications
                     </div>
                   ) : (
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-primary/10 text-primary rounded-lg shrink-0 hidden sm:block">
-                        <Building className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0 space-y-1 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-bold text-sm">{a.company}</span>
-                          <Badge
-                            variant="outline"
-                            className={`text-[10px] py-0 px-2 font-medium ${getStatusBadge(a.status)}`}
-                          >
-                            {a.status}
-                          </Badge>
+                    stageApps.map((a) => (
+                      <Card key={a.id} className="p-3.5 rounded-xl border bg-card shadow-xs space-y-2 hover:shadow-md transition">
+                        <div className="flex items-start justify-between gap-1">
+                          <div>
+                            <h5 className="font-extrabold text-sm text-foreground">{a.company}</h5>
+                            <p className="text-xs text-muted-foreground font-semibold">{a.role}</p>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => startEdit(a)}
+                              className="text-muted-foreground hover:text-foreground p-1 cursor-pointer"
+                              title="Edit"
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => deleteApp(a.id)}
+                              className="text-muted-foreground hover:text-rose-500 p-1 cursor-pointer"
+                              title="Delete"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
-                          <span>{a.role}</span>
-                          <span className="text-muted-foreground/40">•</span>
-                          <span className="inline-flex items-center gap-1">
+
+                        {a.salary && (
+                          <div className="text-xs font-extrabold text-emerald-600 dark:text-emerald-400">
+                            💰 {a.salary}
+                          </div>
+                        )}
+
+                        {a.location && (
+                          <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                            <Globe className="h-3 w-3" /> {a.location}
+                          </div>
+                        )}
+
+                        {a.notes && (
+                          <p className="text-[11px] text-muted-foreground/90 bg-muted/40 p-2 rounded-lg leading-snug line-clamp-2">
+                            {a.notes}
+                          </p>
+                        )}
+
+                        {/* Quick Stage Move buttons */}
+                        <div className="pt-2 border-t flex items-center justify-between gap-1 text-[10px]">
+                          <span className="text-muted-foreground flex items-center gap-1">
                             <Calendar className="h-3 w-3" /> {a.date}
                           </span>
-                        </p>
-                      </div>
-                    </div>
+                          <div className="flex items-center gap-1">
+                            {stage !== "Offer" && (
+                              <button
+                                onClick={() => handleUpdateStatus(a.id, "Offer")}
+                                className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-bold hover:bg-emerald-500/20 cursor-pointer"
+                                title="Move to Offer"
+                              >
+                                → Offer
+                              </button>
+                            )}
+                            {stage === "Applied" && (
+                              <button
+                                onClick={() => handleUpdateStatus(a.id, "Interviewing")}
+                                className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 font-bold hover:bg-amber-500/20 cursor-pointer"
+                                title="Move to Interviewing"
+                              >
+                                → Interview
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    ))
                   )}
-                  <div className="flex justify-end gap-2 mt-3 pt-3 border-t border-border/50">
-                    {isEditing ? (
-                      <>
-                        <Button
-                          onClick={() => updateApp(a.id)}
-                          size="sm"
-                          className="h-8 px-3 text-xs"
-                        >
-                          <Check className="h-3.5 w-3.5 mr-1" /> Save
-                        </Button>
-                        <Button
-                          onClick={() => setEditingId(null)}
-                          size="sm"
-                          variant="ghost"
-                          className="h-8 px-3 text-xs"
-                        >
-                          <X className="h-3.5 w-3.5 mr-1" /> Cancel
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button
-                          onClick={() => startEdit(a)}
-                          size="sm"
-                          variant="outline"
-                          className="h-8 w-8 p-0"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          onClick={() => deleteApp(a.id)}
-                          size="sm"
-                          variant="outline"
-                          className="h-8 w-8 p-0 border-destructive/20"
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* TABLE LIST VIEW */}
+      {viewMode === "list" && (
+        <div className="space-y-3">
+          {filteredApps.length === 0 ? (
+            <div className="text-center p-12 rounded-2xl border border-dashed space-y-2 bg-card">
+              <BriefcaseIcon className="h-10 w-10 text-muted-foreground/35 mx-auto mb-2" />
+              <p className="text-sm font-bold text-foreground">No applications found</p>
+              <p className="text-xs text-muted-foreground">Add a new application above or click Load Sample Data.</p>
+            </div>
+          ) : (
+            <div className="grid gap-3">
+              {filteredApps.map((a) => {
+                const isEditing = editingId === a.id;
+                return (
+                  <Card
+                    key={a.id}
+                    className={cn(
+                      "p-4 rounded-xl border bg-card transition-all space-y-3",
+                      isEditing ? "border-primary ring-1 ring-primary/30" : "",
+                    )}
+                  >
+                    {isEditing ? (
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                          <Input
+                            value={editCompany}
+                            onChange={(e) => setEditCompany(e.target.value)}
+                            placeholder="Company"
+                            className="text-sm h-9"
+                          />
+                          <Input
+                            value={editRole}
+                            onChange={(e) => setEditRole(e.target.value)}
+                            placeholder="Role"
+                            className="text-sm h-9"
+                          />
+                          <select
+                            value={editStatus}
+                            onChange={(e) => setEditStatus(e.target.value as any)}
+                            className="text-sm h-9 px-3 rounded-md border border-input bg-background"
+                          >
+                            <option value="Applied">Applied</option>
+                            <option value="Interviewing">Interviewing</option>
+                            <option value="Offer">Offer</option>
+                            <option value="Rejected">Rejected</option>
+                          </select>
+                          <Input
+                            type="date"
+                            value={editDate}
+                            onChange={(e) => setEditDate(e.target.value)}
+                            className="text-sm h-9"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <Input
+                            value={editSalary}
+                            onChange={(e) => setEditSalary(e.target.value)}
+                            placeholder="Salary / Stipend"
+                            className="text-sm h-9"
+                          />
+                          <Input
+                            value={editLocation}
+                            onChange={(e) => setEditLocation(e.target.value)}
+                            placeholder="Location"
+                            className="text-sm h-9"
+                          />
+                        </div>
+                        <Input
+                          value={editNotes}
+                          onChange={(e) => setEditNotes(e.target.value)}
+                          placeholder="Interview notes..."
+                          className="text-sm h-9"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between flex-wrap gap-3">
+                        <div className="flex items-start gap-3 min-w-0">
+                          <div className="p-2.5 bg-primary/10 text-primary rounded-xl shrink-0 hidden sm:block">
+                            <Building className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0 space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-extrabold text-base text-foreground">{a.company}</span>
+                              <Badge
+                                variant="outline"
+                                className={cn("text-xs py-0.5 px-2.5 font-bold border", getStatusBadgeClass(a.status))}
+                              >
+                                {a.status}
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground flex items-center gap-2 flex-wrap font-medium">
+                              <span>{a.role}</span>
+                              {a.salary && <span className="text-emerald-600 dark:text-emerald-400 font-bold">• {a.salary}</span>}
+                              {a.location && <span>• 📍 {a.location}</span>}
+                              <span>• <Calendar className="h-3 w-3 inline mr-1" />{a.date}</span>
+                            </p>
+                            {a.notes && (
+                              <p className="text-xs text-muted-foreground/90 bg-muted/30 p-2 rounded-lg mt-1 font-sans">
+                                💬 {a.notes}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Move stage actions */}
+                        <div className="flex items-center gap-1.5">
+                          <select
+                            value={a.status}
+                            onChange={(e) => handleUpdateStatus(a.id, e.target.value as any)}
+                            className="text-xs font-bold h-8 px-2 rounded-lg border border-input bg-muted/40 cursor-pointer"
+                          >
+                            <option value="Applied">Applied</option>
+                            <option value="Interviewing">Interviewing</option>
+                            <option value="Offer">Offer</option>
+                            <option value="Rejected">Rejected</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex justify-end gap-2 pt-2 border-t border-border/50">
+                      {isEditing ? (
+                        <>
+                          <Button
+                            onClick={() => updateApp(a.id)}
+                            size="sm"
+                            className="h-8 px-3 text-xs font-bold"
+                          >
+                            <Check className="h-3.5 w-3.5 mr-1" /> Save
+                          </Button>
+                          <Button
+                            onClick={() => setEditingId(null)}
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 px-3 text-xs"
+                          >
+                            <X className="h-3.5 w-3.5 mr-1" /> Cancel
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            onClick={() => startEdit(a)}
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0 cursor-pointer"
+                            title="Edit"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            onClick={() => deleteApp(a.id)}
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0 border-destructive/20 hover:bg-destructive/10 text-destructive cursor-pointer"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
 function SkillGapView() {
-  const { user } = useAuth();
+  const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState("Full Stack AI Engineer");
-  const [savedRoles, setSavedRoles] = useState<string[]>(["Full Stack AI Engineer"]);
+  const [compareRoles, setCompareRoles] = useState<string[]>(["Full Stack AI Engineer", "Frontend Developer", "Backend Developer"]);
+  const [viewMode, setViewMode] = useState<"single" | "compare">("single");
 
-  const ROLE_REQUIREMENTS: Record<
+  // Custom role state
+  const [showCustomRoleModal, setShowCustomRoleModal] = useState(false);
+  const [customRoleName, setCustomRoleName] = useState("");
+  const [customSkillName, setCustomSkillName] = useState("");
+  const [customSkillWeight, setCustomSkillWeight] = useState("15");
+
+  // Mastered skills state (persisted)
+  const [masteredSkills, setMasteredSkills] = useState<string[]>(() => {
+    const saved = localStorage.getItem("learnify_skill_gap_mastered_v2");
+    return saved ? JSON.parse(saved) : ["React", "TypeScript", "Tailwind CSS", "Python"];
+  });
+
+  // Custom roles dictionary (persisted)
+  const [customRoleDict, setCustomRoleDict] = useState<Record<string, Array<{ skill: string; weight: number; desc: string }>>>(() => {
+    const saved = localStorage.getItem("learnify_skill_gap_custom_roles_v2");
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  const BASE_ROLE_REQUIREMENTS: Record<
     string,
     Array<{ skill: string; weight: number; desc: string }>
   > = {
@@ -1904,158 +2646,473 @@ function SkillGapView() {
       { skill: "Linux", weight: 18, desc: "Bash scripting & system admin" },
       { skill: "Terraform", weight: 17, desc: "Infrastructure as Code" },
     ],
+    "Data Scientist": [
+      { skill: "Python", weight: 30, desc: "NumPy, Pandas, Data Wrangling" },
+      { skill: "Machine Learning", weight: 25, desc: "Scikit-learn, Regression, Classification" },
+      { skill: "SQL", weight: 20, desc: "Complex queries, window functions" },
+      { skill: "Deep Learning", weight: 15, desc: "PyTorch / TensorFlow neural nets" },
+      { skill: "Data Viz", weight: 10, desc: "Matplotlib, Seaborn, Tableau" },
+    ],
+    ...customRoleDict,
   };
 
-  const currentReqs =
-    ROLE_REQUIREMENTS[selectedRole] || ROLE_REQUIREMENTS["Full Stack AI Engineer"];
+  useEffect(() => {
+    localStorage.setItem("learnify_skill_gap_mastered_v2", JSON.stringify(masteredSkills));
+  }, [masteredSkills]);
 
-  const [masteredSkills, setMasteredSkills] = useState<string[]>(["React", "TypeScript"]);
+  useEffect(() => {
+    localStorage.setItem("learnify_skill_gap_custom_roles_v2", JSON.stringify(customRoleDict));
+  }, [customRoleDict]);
 
   const toggleSkill = (skill: string) => {
-    setMasteredSkills((prev) =>
-      prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill],
-    );
+    setMasteredSkills((prev) => {
+      const isMastered = prev.includes(skill);
+      const next = isMastered ? prev.filter((s) => s !== skill) : [...prev, skill];
+      toast.success(isMastered ? `Unmarked ${skill}` : `Marked ${skill} as Mastered! 🎉`);
+      return next;
+    });
   };
 
-  const selectAll = () => setMasteredSkills(currentReqs.map((r) => r.skill));
-  const clearAll = () => setMasteredSkills([]);
+  const calculateRoleScore = (roleName: string) => {
+    const reqs = BASE_ROLE_REQUIREMENTS[roleName] || [];
+    if (!reqs.length) return 0;
+    const matched = reqs
+      .filter((r) => masteredSkills.includes(r.skill))
+      .reduce((acc, r) => acc + r.weight, 0);
+    return Math.min(Math.round(matched), 100);
+  };
 
-  const matchedWeight = currentReqs
-    .filter((r) => masteredSkills.includes(r.skill))
-    .reduce((acc, r) => acc + r.weight, 0);
+  const currentReqs = BASE_ROLE_REQUIREMENTS[selectedRole] || BASE_ROLE_REQUIREMENTS["Full Stack AI Engineer"];
 
-  const overallScore = Math.min(Math.round(matchedWeight), 100);
+  const selectAll = () => setMasteredSkills(Array.from(new Set([...masteredSkills, ...currentReqs.map((r) => r.skill)])));
+  const clearAllForRole = () => setMasteredSkills(masteredSkills.filter((s) => !currentReqs.some((r) => r.skill === s)));
+
+  const overallScore = calculateRoleScore(selectedRole);
+
+  const handleAddCustomRole = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customRoleName.trim()) return toast.error("Enter a target role title");
+    if (!customSkillName.trim()) return toast.error("Enter at least one required skill");
+
+    const newRoleObj = [
+      {
+        skill: customSkillName.trim(),
+        weight: Number(customSkillWeight) || 20,
+        desc: `Custom skill for ${customRoleName.trim()}`,
+      },
+    ];
+
+    setCustomRoleDict((prev) => ({
+      ...prev,
+      [customRoleName.trim()]: newRoleObj,
+    }));
+
+    setSelectedRole(customRoleName.trim());
+    setCustomRoleName("");
+    setCustomSkillName("");
+    setShowCustomRoleModal(false);
+    toast.success(`Created custom target role: ${customRoleName.trim()}!`);
+  };
+
+  const handleAddCustomSkillToRole = () => {
+    if (!customSkillName.trim()) return toast.error("Enter skill name");
+    const newSkillObj = {
+      skill: customSkillName.trim(),
+      weight: Number(customSkillWeight) || 15,
+      desc: `Required competency for ${selectedRole}`,
+    };
+
+    setCustomRoleDict((prev) => {
+      const existing = prev[selectedRole] || BASE_ROLE_REQUIREMENTS[selectedRole] || [];
+      return {
+        ...prev,
+        [selectedRole]: [...existing, newSkillObj],
+      };
+    });
+
+    setCustomSkillName("");
+    toast.success(`Added ${customSkillName.trim()} to ${selectedRole}!`);
+  };
+
+  const toggleCompareRole = (role: string) => {
+    if (compareRoles.includes(role)) {
+      if (compareRoles.length <= 1) return toast.error("Select at least 1 role to compare");
+      setCompareRoles(compareRoles.filter((r) => r !== role));
+    } else {
+      if (compareRoles.length >= 4) return toast.error("Max 4 roles in comparison grid");
+      setCompareRoles([...compareRoles, role]);
+    }
+  };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4"
       >
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-rose-50 dark:bg-rose-950/40 rounded-2xl border border-rose-100 dark:border-rose-900/40">
-            <Target className="h-6 w-6 text-rose-600 dark:text-rose-400" />
+          <div className="p-3 bg-rose-600 text-white rounded-2xl shadow-md">
+            <Target className="h-6 w-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Skill Gap Analysis</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Skill Gap & Multi-Role Readiness Analysis</h2>
             <p className="text-sm text-muted-foreground">
-              Select target role, toggle skills — matched to your courses & interests.
+              Select target role, compare multiple roles side-by-side, toggle skill mastery & bridge course gaps.
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-300 font-bold text-xs gap-1">
-            <Check className="h-3 w-3" /> Saved
-          </Badge>
-          <div className="w-full sm:w-56">
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full text-xs font-bold h-9 px-3 rounded-xl border border-input bg-card shadow-sm focus:ring-2 focus:ring-primary"
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* View mode toggle */}
+          <div className="flex items-center gap-0.5 bg-muted p-1 rounded-xl border">
+            <button
+              onClick={() => setViewMode("single")}
+              className={cn(
+                "px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer",
+                viewMode === "single" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground",
+              )}
             >
-              {Object.keys(ROLE_REQUIREMENTS).map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))}
-            </select>
+              Single Role
+            </button>
+            <button
+              onClick={() => setViewMode("compare")}
+              className={cn(
+                "px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1",
+                viewMode === "compare" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground",
+              )}
+            >
+              <ArrowLeftRight className="h-3.5 w-3.5" /> Compare Multiple Roles
+            </button>
           </div>
+
+          <Button
+            size="sm"
+            onClick={() => setShowCustomRoleModal(true)}
+            className="text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-sm"
+          >
+            <Plus className="h-3.5 w-3.5 mr-1" /> Custom Role
+          </Button>
         </div>
       </motion.div>
 
-      <Card className="p-4 sm:p-6 rounded-2xl border shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-blue-50 dark:bg-blue-950/40 rounded-xl">
-              <TargetIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <h3 className="font-extrabold text-base sm:text-lg">{selectedRole} Readiness</h3>
-              <p className="text-xs text-muted-foreground font-semibold">
-                {masteredSkills.length}/{currentReqs.length} skills mastered
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={selectAll}
-              className="text-xs h-8 font-bold gap-1"
-            >
-              <Check className="h-3.5 w-3.5 text-emerald-500" /> All
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearAll}
-              className="text-xs h-8 font-bold gap-1"
-            >
-              <X className="h-3.5 w-3.5 text-rose-500" /> Clear
-            </Button>
-            <div className="px-4 py-2 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl text-center">
-              <div className="text-xl font-black text-indigo-600 dark:text-indigo-400">
-                {overallScore}/100
+      {/* SINGLE ROLE VIEW MODE */}
+      {viewMode === "single" && (
+        <Card className="p-4 sm:p-6 rounded-2xl border shadow-sm space-y-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-blue-500/10 text-blue-600 rounded-xl">
+                <TargetIcon className="h-5.5 w-5.5" />
               </div>
-              <div className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider">
-                Readiness
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-black text-lg text-foreground">{selectedRole} Readiness</h3>
+                  <select
+                    value={selectedRole}
+                    onChange={(e) => setSelectedRole(e.target.value)}
+                    className="text-xs font-bold h-8 px-2.5 rounded-lg border border-input bg-background cursor-pointer"
+                  >
+                    {Object.keys(BASE_ROLE_REQUIREMENTS).map((role) => (
+                      <option key={role} value={role}>
+                        {role} ({calculateRoleScore(role)}%)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className="text-xs text-muted-foreground font-semibold mt-1">
+                  {currentReqs.filter((r) => masteredSkills.includes(r.skill)).length}/{currentReqs.length} skills mastered
+                </p>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="space-y-3">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Required Skills (click to toggle mastery)
-          </h4>
-          <div className="grid gap-2.5">
-            {currentReqs.map((item, idx) => {
-              const isMastered = masteredSkills.includes(item.skill);
-              return (
-                <motion.div
-                  key={item.skill}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  onClick={() => toggleSkill(item.skill)}
-                  className={cn(
-                    "p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all shadow-xs",
-                    isMastered
-                      ? "bg-emerald-500/10 border-emerald-500/40 ring-1 ring-emerald-500/20"
-                      : "bg-card hover:bg-muted/40 border-border",
-                  )}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <SkillBadge
-                      skill={item.skill}
-                      size="md"
-                      variant={isMastered ? "default" : "outline"}
-                    />
-                    <div>
-                      <p className="text-sm font-bold text-foreground">{item.skill}</p>
-                      <p className="text-xs text-muted-foreground truncate max-w-[280px] sm:max-w-[400px]">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge
-                    variant={isMastered ? "default" : "outline"}
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={selectAll}
+                className="text-xs h-8 font-bold gap-1"
+              >
+                <Check className="h-3.5 w-3.5 text-emerald-500" /> Select All
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearAllForRole}
+                className="text-xs h-8 font-bold gap-1"
+              >
+                <X className="h-3.5 w-3.5 text-rose-500" /> Clear Role
+              </Button>
+              <div className="px-4 py-2 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl text-center">
+                <div className="text-xl font-black text-indigo-600 dark:text-indigo-400">
+                  {overallScore}/100
+                </div>
+                <div className="text-[9px] font-extrabold text-muted-foreground uppercase tracking-wider">
+                  Readiness Score
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Inline Custom Skill Adding Bar */}
+          <div className="p-3 bg-muted/20 rounded-xl border flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold text-muted-foreground flex items-center gap-1">
+              <Plus className="h-3.5 w-3.5 text-rose-500" /> Add Skill to {selectedRole}:
+            </span>
+            <input
+              placeholder="e.g. GraphQL, Docker, PyTorch"
+              value={customSkillName}
+              onChange={(e) => setCustomSkillName(e.target.value)}
+              className="text-xs h-8 px-3 rounded-lg border border-input bg-background flex-1 min-w-[180px]"
+            />
+            <select
+              value={customSkillWeight}
+              onChange={(e) => setCustomSkillWeight(e.target.value)}
+              className="text-xs h-8 px-2 rounded-lg border border-input bg-background font-semibold"
+            >
+              <option value="10">10% Weight</option>
+              <option value="15">15% Weight</option>
+              <option value="20">20% Weight</option>
+              <option value="25">25% Weight</option>
+            </select>
+            <Button size="sm" onClick={handleAddCustomSkillToRole} className="h-8 text-xs font-bold bg-primary text-white">
+              Add Skill
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            <h4 className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground flex justify-between">
+              <span>Required Skills (Click card to toggle mastery)</span>
+              <span>{masteredSkills.length} Total Mastered</span>
+            </h4>
+            <div className="grid gap-3">
+              {currentReqs.map((item, idx) => {
+                const isMastered = masteredSkills.includes(item.skill);
+                return (
+                  <motion.div
+                    key={item.skill}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    onClick={() => toggleSkill(item.skill)}
                     className={cn(
-                      "text-xs font-bold shrink-0 px-3 py-1",
+                      "p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all shadow-xs",
                       isMastered
-                        ? "bg-emerald-500 text-white"
-                        : "border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10",
+                        ? "bg-emerald-500/10 border-emerald-500/40 ring-1 ring-emerald-500/20"
+                        : "bg-card hover:bg-muted/40 border-border",
                     )}
                   >
-                    {isMastered ? "Mastered" : `Gap (+${item.weight}%)`}
-                  </Badge>
-                </motion.div>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <SkillBadge
+                        skill={item.skill}
+                        size="md"
+                        variant={isMastered ? "default" : "outline"}
+                      />
+                      <div>
+                        <p className="text-sm font-bold text-foreground">{item.skill}</p>
+                        <p className="text-xs text-muted-foreground truncate max-w-[280px] sm:max-w-[420px]">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      {!isMastered && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate({ to: "/courses" });
+                            toast.info(`Searching courses for ${item.skill}...`);
+                          }}
+                          className="px-2.5 py-1 text-[10px] font-bold bg-primary/10 text-primary hover:bg-primary/20 rounded-md transition cursor-pointer"
+                        >
+                          Learn Course →
+                        </button>
+                      )}
+                      <Badge
+                        variant={isMastered ? "default" : "outline"}
+                        className={cn(
+                          "text-xs font-bold px-3 py-1",
+                          isMastered
+                            ? "bg-emerald-500 text-white"
+                            : "border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10",
+                        )}
+                      >
+                        {isMastered ? "Mastered" : `Gap (+${item.weight}%)`}
+                      </Badge>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* MULTI-ROLE SIDE-BY-SIDE COMPARISON MODE */}
+      {viewMode === "compare" && (
+        <div className="space-y-6">
+          <Card className="p-4 rounded-2xl border bg-card space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h3 className="font-extrabold text-sm text-foreground flex items-center gap-2">
+                <ArrowLeftRight className="h-4 w-4 text-rose-500" /> Select Roles to Compare Side-by-Side
+              </h3>
+              <span className="text-xs text-muted-foreground font-semibold">
+                Showing {compareRoles.length} Roles
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {Object.keys(BASE_ROLE_REQUIREMENTS).map((role) => {
+                const isSelected = compareRoles.includes(role);
+                const score = calculateRoleScore(role);
+                return (
+                  <button
+                    key={role}
+                    onClick={() => toggleCompareRole(role)}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-full text-xs font-bold transition border cursor-pointer flex items-center gap-1.5",
+                      isSelected
+                        ? "bg-rose-600 text-white border-rose-600 shadow-xs"
+                        : "bg-muted/40 border-border text-muted-foreground hover:bg-muted",
+                    )}
+                  >
+                    {isSelected ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+                    {role} ({score}%)
+                  </button>
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* Comparison Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {compareRoles.map((roleName) => {
+              const reqs = BASE_ROLE_REQUIREMENTS[roleName] || [];
+              const score = calculateRoleScore(roleName);
+              const masteredCount = reqs.filter((r) => masteredSkills.includes(r.skill)).length;
+              return (
+                <Card key={roleName} className="p-5 rounded-2xl border bg-card shadow-sm space-y-4 flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between border-b pb-3">
+                      <div>
+                        <h4 className="font-extrabold text-base text-foreground">{roleName}</h4>
+                        <p className="text-xs text-muted-foreground font-semibold mt-0.5">
+                          {masteredCount}/{reqs.length} Skills Mastered
+                        </p>
+                      </div>
+                      <div className="text-center px-3 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-xl">
+                        <div className="text-lg font-black text-indigo-600 dark:text-indigo-400">{score}%</div>
+                        <div className="text-[8px] font-extrabold text-muted-foreground uppercase">Readiness</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">
+                        Skill Matrix & Gaps
+                      </span>
+                      <div className="space-y-2">
+                        {reqs.map((item) => {
+                          const isMastered = masteredSkills.includes(item.skill);
+                          return (
+                            <div
+                              key={item.skill}
+                              onClick={() => toggleSkill(item.skill)}
+                              className={cn(
+                                "p-2.5 rounded-lg border text-xs flex items-center justify-between cursor-pointer transition",
+                                isMastered
+                                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                                  : "bg-muted/30 border-border text-foreground hover:bg-muted",
+                              )}
+                            >
+                              <span className="font-bold flex items-center gap-1.5">
+                                {isMastered ? (
+                                  <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                                ) : (
+                                  <X className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                                )}
+                                {item.skill}
+                              </span>
+                              <span className="text-[10px] font-bold opacity-80">
+                                {isMastered ? "Mastered" : `Gap +${item.weight}%`}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setSelectedRole(roleName);
+                      setViewMode("single");
+                    }}
+                    className="w-full py-2 rounded-xl bg-muted hover:bg-primary hover:text-white text-foreground text-xs font-bold transition cursor-pointer text-center"
+                  >
+                    Focus & Build {roleName} →
+                  </button>
+                </Card>
               );
             })}
           </div>
         </div>
-      </Card>
+      )}
+
+      {/* Custom Role Dialog Modal */}
+      {showCustomRoleModal && (
+        <Dialog open={showCustomRoleModal} onOpenChange={setShowCustomRoleModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+                <Target className="h-5 w-5 text-rose-600" /> Create Custom Target Role
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleAddCustomRole} className="space-y-4 pt-2">
+              <div>
+                <Label className="text-xs font-bold">Role Title *</Label>
+                <Input
+                  placeholder="e.g. Cloud Solutions Architect, Blockchain Dev"
+                  value={customRoleName}
+                  onChange={(e) => setCustomRoleName(e.target.value)}
+                  className="mt-1 text-sm"
+                  required
+                />
+              </div>
+              <div>
+                <Label className="text-xs font-bold">Initial Required Skill *</Label>
+                <Input
+                  placeholder="e.g. AWS VPC, Solidity, Kubernetes"
+                  value={customSkillName}
+                  onChange={(e) => setCustomSkillName(e.target.value)}
+                  className="mt-1 text-sm"
+                  required
+                />
+              </div>
+              <div>
+                <Label className="text-xs font-bold">Skill Weight (%)</Label>
+                <select
+                  value={customSkillWeight}
+                  onChange={(e) => setCustomSkillWeight(e.target.value)}
+                  className="w-full text-sm h-9 px-3 rounded-md border border-input bg-background mt-1"
+                >
+                  <option value="15">15% Weight</option>
+                  <option value="20">20% Weight</option>
+                  <option value="25">25% Weight</option>
+                  <option value="30">30% Weight</option>
+                </select>
+              </div>
+              <div className="flex justify-end gap-2 pt-3">
+                <Button type="button" variant="ghost" onClick={() => setShowCustomRoleModal(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-rose-600 hover:bg-rose-700 text-white font-bold">
+                  Create Role
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
