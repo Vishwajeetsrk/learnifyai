@@ -406,21 +406,12 @@ function StorePage() {
                         }
                       }}
                     >
-                      {item.name === "Avatar M1" ? (
-                        <InteractiveAvatar
-                          src={item.image_url || "/avatars/avatar-m1.svg"}
-                          name={item.name}
-                          size={96}
-                          className="w-full h-full"
-                        />
-                      ) : (
-                        <img
-                          src={item.image_url || "/avatars/avatar-m1.svg"}
-                          alt={item.name}
-                          className="w-full h-full object-cover select-none transition-transform duration-200 group-hover:scale-110"
-                          draggable={false}
-                        />
-                      )}
+                      <InteractiveAvatar
+                        src={item.image_url || `/avatars/${item.id || "avatar-m1"}.svg`}
+                        name={item.name}
+                        size={96}
+                        className="w-full h-full"
+                      />
                       {/* Hover overlay */}
                       {!owned && (
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
