@@ -39,6 +39,7 @@ import { toast } from "sonner";
 import { generateCareerRoadmap } from "@/lib/resume.functions";
 import { SkillBadge } from "@/components/SkillBadge";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { DEVELOPER_ROADMAPS } from "@/lib/developer-roadmaps";
 
 const TIMELINES = [
   { value: "3 months", label: "3 Months (Intensive)" },
@@ -289,6 +290,9 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
           <TabsTrigger value="form">
             <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Your Profile
           </TabsTrigger>
+          <TabsTrigger value="catalog">
+            <BookOpen className="h-3.5 w-3.5 mr-1.5 text-blue-500" /> 91 Developer Roadmaps
+          </TabsTrigger>
           <TabsTrigger value="gap">
             <Target className="h-3.5 w-3.5 mr-1.5 text-indigo-500" /> Skill Gap Analysis
           </TabsTrigger>
@@ -302,6 +306,14 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
             </TabsTrigger>
           )}
         </TabsList>
+
+        <TabsContent value="catalog" className="pt-4 space-y-6">
+          <DeveloperRoadmapsCatalog onSelectTrack={(name) => {
+            setForm((f) => ({ ...f, targetRole: name }));
+            setTab("form");
+            toast.success(`Target role set to ${name}! Click Generate Roadmap.`);
+          }} />
+        </TabsContent>
 
         <TabsContent value="gap" className="pt-4 space-y-6 max-w-4xl">
           <Card className="p-6 rounded-2xl border shadow-sm space-y-6">
@@ -897,6 +909,112 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
             )}
           </CardContent>
         </Card>
+      )}
+    </div>
+  );
+}
+
+function DeveloperRoadmapsCatalog({ onSelectTrack }: { onSelectTrack: (name: string) => void }) {
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const categories = ["All", ...Array.from(new Set(DEVELOPER_ROADMAPS.map((r) => r.category))).sort()];
+
+  const filtered = DEVELOPER_ROADMAPS.filter((r) => {
+    const matchSearch =
+      r.name.toLowerCase().includes(search.toLowerCase()) ||
+      r.description.toLowerCase().includes(search.toLowerCase());
+    const matchCat = activeCategory === "All" || r.category === activeCategory;
+    return matchSearch && matchCat;
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b pb-4">
+        <div>
+          <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-primary" />
+            91 Curated Developer Roadmaps (roadmap.sh)
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Step-by-step technical learning paths across AI, Web, Systems, DevOps, Security & CS.
+          </p>
+        </div>
+        <div className="relative min-w-[260px]">
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search 91 roadmaps…"
+            className="pl-9 text-xs"
+          />
+          <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+        </div>
+      </div>
+
+      {/* Category Pills */}
+      <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1">
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setActiveCategory(cat)}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              activeCategory === cat
+                ? "bg-primary text-primary-foreground"
+                : "border bg-card text-muted-foreground hover:bg-accent hover:text-foreground"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Roadmaps Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map((item) => (
+          <Card
+            key={item.id}
+            className="group relative flex flex-col justify-between p-4 rounded-xl border transition-all hover:border-primary/50 hover:shadow-md"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Badge variant="outline" className="text-[10px] font-mono">
+                  {item.moduleCount} modules
+                </Badge>
+                {item.featured && (
+                  <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 text-[10px]">
+                    ★ Popular
+                  </Badge>
+                )}
+              </div>
+              <h4 className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">
+                {item.name}
+              </h4>
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                {item.description}
+              </p>
+            </div>
+
+            <div className="mt-4 pt-3 border-t flex items-center justify-between">
+              <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                {item.category}
+              </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onSelectTrack(item.name)}
+                className="text-xs text-primary hover:text-primary hover:bg-primary/10 h-7 px-2"
+              >
+                Set Target Role →
+              </Button>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      {filtered.length === 0 && (
+        <div className="py-12 text-center text-sm text-muted-foreground">
+          No roadmaps match your search.
+        </div>
       )}
     </div>
   );

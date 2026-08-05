@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { cn } from "@/lib/utils";
-import { Hand } from "lucide-react";
+import { Hand, Loader2, AlertTriangle } from "lucide-react";
 
 interface ThreeAvatarCanvasProps {
   modelUrl?: string;
@@ -12,6 +14,16 @@ interface ThreeAvatarCanvasProps {
   className?: string;
 }
 
+const VISEME_OPENNESS: Record<string, number> = {
+  X: 0,
+  A: 0.25,
+  B: 0.5,
+  C: 0.85,
+  D: 1,
+  E: 0.35,
+  O: 0.45,
+};
+
 export function ThreeAvatarCanvas({
   modelUrl = "/avatars/eric/rp_eric_rigged_001_yup_a.fbx",
   textureUrl = "/avatars/eric/tex/rp_eric_rigged_001_dif.jpg",
@@ -22,11 +34,11 @@ export function ThreeAvatarCanvas({
   className = "w-full h-full",
 }: ThreeAvatarCanvasProps) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [isWaving, setIsWaving] = useState(true);
 
-  // Trigger a friendly initial wave when avatar mounts
+  const waveStartRef = useRef(performance.now());
+
   useEffect(() => {
     setIsWaving(true);
     const timer = setTimeout(() => setIsWaving(false), 3500);
@@ -34,177 +46,273 @@ export function ThreeAvatarCanvas({
   }, []);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const mount = mountRef.current;
+    if (!mount) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const canvas = document.createElement("canvas");
+    canvas.className = "w-full h-full block";
+    mount.appendChild(canvas);
 
+    let renderer: THREE.WebGLRenderer;
+    let scene: THREE.Scene;
+    let camera: THREE.PerspectiveCamera;
+    let clock = new THREE.Clock();
+    let avatar: THREE.Group | null = null;
+    let mixer: THREE.AnimationMixer | null = null;
     let animationId: number;
-    let frame = 0;
+    let rafRunning = true;
+    let resizeObserver: ResizeObserver;
 
-    const render = () => {
-      frame++;
-      const w = canvas.width;
-      const h = canvas.height;
+    // Identified rig bones (populated after load)
+    let headBone: THREE.Bone | null = null;
+    let jawBone: THREE.Bone | null = null;
+    let waveBone: THREE.Bone | null = null;
+    let eyeLeft: THREE.Bone | null = null;
+    let eyeRight: THREE.Bone | null = null;
+    let restJaw = 0;
+    let headRest = new THREE.Quaternion();
+    let waveRest = new THREE.Quaternion();
 
-      ctx.clearRect(0, 0, w, h);
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.1;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-      // Studio Gradient Background
-      const bgGrad = ctx.createRadialGradient(w / 2, h / 2, 10, w / 2, h / 2, h / 1.1);
-      bgGrad.addColorStop(0, "#1e1b4b");
-      bgGrad.addColorStop(0.6, "#0f172a");
-      bgGrad.addColorStop(1, "#020617");
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, w, h);
+      scene = new THREE.Scene();
 
-      // Ambient Glowing Studio Lights
-      const glowGrad = ctx.createRadialGradient(w / 2, 90, 5, w / 2, 90, 110);
-      glowGrad.addColorStop(0, "rgba(99, 102, 241, 0.3)");
-      glowGrad.addColorStop(1, "rgba(99, 102, 241, 0)");
-      ctx.fillStyle = glowGrad;
-      ctx.fillRect(0, 0, w, h);
+      camera = new THREE.PerspectiveCamera(45, mount.clientWidth / Math.max(mount.clientHeight, 1), 0.1, 1000);
+      camera.position.set(0, 1.55, 2.6);
+      camera.lookAt(0, 1.35, 0);
 
-      const time = frame * 0.05;
-      const headTilt = Math.sin(time * 0.8) * 4;
-      const headBob = Math.cos(time * 1.2) * 2.5;
+      // ── Studio Lighting ──
+      const hemi = new THREE.HemisphereLight(0xbfd4ff, 0x241b2e, 0.7);
+      scene.add(hemi);
 
-      const centerX = w / 2 + headTilt;
-      const centerY = 100 + headBob;
+      const key = new THREE.DirectionalLight(0xffffff, 2.4);
+      key.position.set(1.5, 3, 2.2);
+      key.castShadow = true;
+      key.shadow.mapSize.set(1024, 1024);
+      scene.add(key);
 
-      // Body / Suit Shoulders
-      ctx.save();
-      ctx.fillStyle = "#1e293b";
-      ctx.beginPath();
-      ctx.ellipse(w / 2, 230, 95, 65, 0, 0, Math.PI * 2);
-      ctx.fill();
+      const rim = new THREE.DirectionalLight(0x818cf8, 2.2);
+      rim.position.set(-2.2, 2, -1.5);
+      scene.add(rim);
 
-      // Shirt Collar & Tie
-      ctx.fillStyle = "#f8fafc";
-      ctx.beginPath();
-      ctx.moveTo(w / 2 - 22, 170);
-      ctx.lineTo(w / 2, 210);
-      ctx.lineTo(w / 2 + 22, 170);
-      ctx.fill();
+      const fill = new THREE.DirectionalLight(0xffb3d9, 0.8);
+      fill.position.set(0, 1, -2.5);
+      scene.add(fill);
 
-      ctx.fillStyle = "#6366f1";
-      ctx.beginPath();
-      ctx.moveTo(w / 2 - 6, 175);
-      ctx.lineTo(w / 2 + 6, 175);
-      ctx.lineTo(w / 2 + 8, 220);
-      ctx.lineTo(w / 2, 235);
-      ctx.lineTo(w / 2 - 8, 220);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
+      const spot = new THREE.SpotLight(0xffffff, 30, 8, Math.PI / 4, 0.4, 1.4);
+      spot.position.set(0, 4, 1);
+      scene.add(spot);
 
-      // Waving Right Arm (Wave Animation)
-      ctx.save();
-      const waveAngle = isWaving ? Math.sin(time * 6) * 0.35 : 0;
-      ctx.translate(w / 2 + 65, 170);
-      ctx.rotate(waveAngle - 0.4);
+      // Ground shadow catcher
+      const ground = new THREE.Mesh(
+        new THREE.PlaneGeometry(6, 6),
+        new THREE.ShadowMaterial({ opacity: 0.32 }),
+      );
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = 0;
+      ground.receiveShadow = true;
+      scene.add(ground);
+    } catch {
+      setStatus("error");
+      mount.removeChild(canvas);
+      return;
+    }
 
-      // Arm Suit
-      ctx.fillStyle = "#334155";
-      ctx.beginPath();
-      ctx.roundRect(-10, -5, 20, 60, 8);
-      ctx.fill();
-
-      // Hand Waving
-      ctx.fillStyle = "#fdba74";
-      ctx.beginPath();
-      ctx.arc(0, 62, 12, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      // Head Base / Skin
-      ctx.save();
-      ctx.fillStyle = "#fdba74";
-      ctx.beginPath();
-      ctx.ellipse(centerX, centerY, 44, 52, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Hair (Professional Cut)
-      ctx.fillStyle = "#0f172a";
-      ctx.beginPath();
-      ctx.ellipse(centerX, centerY - 24, 46, 26, 0, Math.PI, Math.PI * 2);
-      ctx.fill();
-
-      // Eyes & Blinking Animation
-      const blink = Math.sin(time * 0.5) > 0.96 ? 0.1 : 1;
-      ctx.fillStyle = "#0f172a";
-      // Left Eye
-      ctx.beginPath();
-      ctx.ellipse(centerX - 16, centerY - 6, 5, 6 * blink, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Right Eye
-      ctx.beginPath();
-      ctx.ellipse(centerX + 16, centerY - 6, 5, 6 * blink, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Eye Catchlights
-      ctx.fillStyle = "#ffffff";
-      ctx.beginPath();
-      ctx.arc(centerX - 18, centerY - 8, 1.8, 0, Math.PI * 2);
-      ctx.arc(centerX + 14, centerY - 8, 1.8, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Eyebrows
-      ctx.strokeStyle = "#1e293b";
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(centerX - 16, centerY - 16, 9, Math.PI * 1.15, Math.PI * 1.85);
-      ctx.arc(centerX + 16, centerY - 16, 9, Math.PI * 1.15, Math.PI * 1.85);
-      ctx.stroke();
-
-      // Professional Smile Curve
-      const mouthOpen = aiSpeaking ? Math.abs(Math.sin(time * 12)) * 12 + 4 : 2;
-      ctx.fillStyle = "#be123c";
-      ctx.beginPath();
-      ctx.ellipse(centerX, centerY + 22, 14, mouthOpen, 0, 0, Math.PI);
-      ctx.fill();
-
-      // Smile Curve Lips Outline
-      ctx.strokeStyle = "#9f1239";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY + 18, 16, 0.1 * Math.PI, 0.9 * Math.PI);
-      ctx.stroke();
-
-      ctx.restore();
-
-      // Audio Equalizer Wave Animation (When AI is speaking)
-      if (aiSpeaking) {
-        ctx.save();
-        const bars = 18;
-        const startX = w / 2 - (bars * 6) / 2;
-        ctx.fillStyle = "#6366f1";
-        for (let i = 0; i < bars; i++) {
-          const barH = Math.abs(Math.sin(time * 10 + i * 0.5)) * 18 + 4;
-          ctx.fillRect(startX + i * 6, h - 22 - barH / 2, 4, barH);
+    const findBone = (root: THREE.Object3D, keywords: string[]): THREE.Bone | null => {
+      let found: THREE.Bone | null = null;
+      root.traverse((obj) => {
+        if (found) return;
+        if ((obj as THREE.Bone).isBone) {
+          const name = obj.name.toLowerCase();
+          if (keywords.some((k) => name.includes(k))) {
+            found = obj as THREE.Bone;
+          }
         }
-        ctx.restore();
-      }
-
-      animationId = requestAnimationFrame(render);
+      });
+      return found;
     };
 
+    const loadModel = () => {
+      const manager = new THREE.LoadingManager();
+      const loader = new FBXLoader(manager);
+      loader.setPath(modelUrl.substring(0, modelUrl.lastIndexOf("/") + 1));
+
+      loader.load(
+        modelUrl,
+        (object) => {
+          avatar = object;
+          scene.add(avatar);
+
+          // ── Fit camera to model bounds ──
+          const box = new THREE.Box3().setFromObject(avatar);
+          const size = box.getSize(new THREE.Vector3());
+          const center = box.getCenter(new THREE.Vector3());
+          const fitDistance = (size.y * 1.25) / Math.tan((camera.fov * Math.PI) / 360) + 0.8;
+          camera.position.set(center.x, center.y + size.y * 0.18, center.z + fitDistance);
+          camera.lookAt(center.x, center.y + size.y * 0.42, center.z);
+
+          // ── Apply diffuse + normal textures ──
+          try {
+            const texLoader = new THREE.TextureLoader();
+            const dif = texLoader.load(textureUrl);
+            dif.colorSpace = THREE.SRGBColorSpace;
+            avatar.traverse((obj) => {
+              const mesh = obj as THREE.Mesh;
+              if ((mesh as any).isMesh) {
+                const mat = (mesh.material as THREE.Material | THREE.Material[]) || new THREE.MeshStandardMaterial();
+                const materials = Array.isArray(mat) ? mat : [mat];
+                for (const m of materials) {
+                  const std = m as THREE.MeshStandardMaterial;
+                  if (std && !std.map) std.map = dif;
+                  if (std) std.needsUpdate = true;
+                }
+              }
+            });
+          } catch {}
+
+          // ── Enable shadows on skinned meshes ──
+          avatar.traverse((obj) => {
+            const mesh = obj as THREE.Mesh;
+            if ((mesh as any).isMesh) {
+              mesh.castShadow = true;
+              mesh.receiveShadow = true;
+            }
+          });
+
+          // ── Identify rig bones for animation ──
+          headBone = findBone(avatar, ["headnub", "head", "neck"]);
+          jawBone = findBone(avatar, ["jaw", "mandible", "chin"]);
+          waveBone = findBone(avatar, ["rightarm", "arm.r", "arm_r", "upper_arm_r", "upperarm.r"]);
+          eyeLeft = findBone(avatar, ["lefteye", "eye.l", "eye_l", "eyeleft"]);
+          eyeRight = findBone(avatar, ["righteye", "eye.r", "eye_r", "eyeright"]);
+
+          if (headBone) headRest.copy(headBone.quaternion);
+          if (waveBone) waveRest.copy(waveBone.quaternion);
+
+          // ── Play embedded idle animation if present ──
+          if (avatar.animations && avatar.animations.length > 0) {
+            mixer = new THREE.AnimationMixer(avatar);
+            const action = mixer.clipAction(avatar.animations[0]);
+            action.play();
+          }
+
+          setStatus("ready");
+        },
+        undefined,
+        () => {
+          setStatus("error");
+        },
+      );
+    };
+
+    const render = () => {
+      if (!rafRunning) return;
+      animationId = requestAnimationFrame(render);
+      const dt = Math.min(clock.getDelta(), 0.05);
+      const t = clock.elapsedTime;
+
+      if (mixer) mixer.update(dt);
+
+      if (avatar) {
+        // ── Subtle idle head sway (life) ──
+        if (headBone) {
+          headBone.quaternion.copy(headRest);
+          headBone.rotateX(Math.sin(t * 0.7) * 0.035);
+          headBone.rotateY(Math.cos(t * 0.5) * 0.03);
+        }
+
+        // ── Lip sync: jaw opens with viseme ──
+        if (jawBone) {
+          const openness = VISEME_OPENNESS[viseme] ?? 0;
+          const target = aiSpeaking ? openness : 0;
+          restJaw += (target - restJaw) * 0.35;
+          jawBone.rotation.x = restJaw * 0.35;
+        }
+
+        // ── Blink ──
+        const blinkAmount = Math.sin(t * 1.4) > 0.985 ? 0.15 : 1;
+        if (eyeLeft) eyeLeft.scale.y = blinkAmount;
+        if (eyeRight) eyeRight.scale.y = blinkAmount;
+
+        // ── Wave animation (friendly hello) ──
+        if (waveBone) {
+          const elapsed = (performance.now() - waveStartRef.current) / 1000;
+          if (elapsed < 3.5 && isWaving) {
+            const angle = Math.sin(elapsed * 7) * 0.5 + 0.4;
+            waveBone.quaternion.copy(waveRest);
+            waveBone.rotateZ(angle);
+          } else if (elapsed >= 3.5 && isWaving) {
+            setIsWaving(false);
+          }
+        }
+      }
+
+      renderer.render(scene, camera);
+    };
+
+    const onResize = () => {
+      const w = mount.clientWidth;
+      const h = mount.clientHeight;
+      if (w === 0 || h === 0) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    };
+
+    resizeObserver = new ResizeObserver(onResize);
+    resizeObserver.observe(mount);
+    onResize();
+
+    loadModel();
     render();
 
     return () => {
+      rafRunning = false;
       cancelAnimationFrame(animationId);
+      resizeObserver.disconnect();
+      if (mixer) mixer.stopAllAction();
+      avatar?.traverse((obj) => {
+        const mesh = obj as THREE.Mesh;
+        if ((mesh as any).isMesh) {
+          mesh.geometry?.dispose();
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          mats.forEach((m) => m?.dispose());
+        }
+      });
+      renderer.dispose();
+      mount.removeChild(canvas);
     };
-  }, [aiSpeaking, isWaving]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className={`relative flex flex-col items-center justify-center ${className}`}>
-      {/* 2.5D/3D Avatar Canvas */}
       <div className="relative w-full h-[240px] rounded-2xl overflow-hidden shadow-2xl border border-indigo-500/30 bg-slate-950 flex items-center justify-center">
-        <canvas ref={canvasRef} width={340} height={240} className="w-full h-full object-cover" />
+        <div ref={mountRef} className="absolute inset-0" />
+
+        {status === "loading" && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-950/60 backdrop-blur-sm">
+            <Loader2 className="h-6 w-6 text-indigo-400 animate-spin" />
+            <span className="text-[10px] font-bold text-indigo-300">Loading 3D Avatar...</span>
+          </div>
+        )}
+
+        {status === "error" && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-950/80">
+            <AlertTriangle className="h-6 w-6 text-amber-400" />
+            <span className="text-[10px] font-bold text-slate-300">Avatar unavailable</span>
+          </div>
+        )}
 
         {/* Live Speaking / Waving Status Badge */}
-        <div className="absolute top-3 left-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-700/80 text-[10px] font-bold text-white shadow-md">
+        <div className="absolute top-3 left-3 flex items-center gap-2 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-700/80 text-[10px] font-bold text-white shadow-md z-10">
           <span
             className={cn(
               "h-2 w-2 rounded-full",
@@ -216,8 +324,11 @@ export function ThreeAvatarCanvas({
 
         {/* Interactive Wave Trigger Button */}
         <button
-          onClick={() => setIsWaving((w) => !w)}
-          className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white text-[10px] font-bold transition backdrop-blur-sm cursor-pointer shadow"
+          onClick={() => {
+            setIsWaving(true);
+            waveStartRef.current = performance.now();
+          }}
+          className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white text-[10px] font-bold transition backdrop-blur-sm cursor-pointer shadow"
           title="Trigger Friendly Wave"
         >
           <Hand className="h-3 w-3" /> Wave
