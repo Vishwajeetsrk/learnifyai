@@ -36,7 +36,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | Feature                            | Description                                                                                                                                                                                                                                      |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 🤖 **AI Tutor**                    | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)                                                                                                                                                                 |
-| 🗺️ **91 Developer Roadmaps (roadmap.sh)** | 91 interactive developer learning tracks (AI Agents, AI Engineer, System Design, Frontend, Backend, DevOps, Cyber Security, MLOps) with real-time search and target role selection |
+| 🗺️ **91 Developer Roadmaps (roadmap.sh)** | 91 interactive developer learning tracks (AI Agents, AI Engineer, System Design, Frontend, Backend, DevOps, Cyber Security, MLOps) with real-time search, target role selection, and AI generation grounded in 90 curated roadmap definitions |
 | 💼 **Career Studio (11-in-1)**     | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder, **LinkedIn Optimizer**, **Career & Salary Analytics**, **Internship Tracker**, **Skill Gap Analysis**, **Career Finder (Ikigai)**, and **Skill Roadmaps** |
 | 🎓 **System Design Academy**       | 10 topics (Netflix, Uber, WhatsApp, YouTube, Twitter, Amazon, Google, Instagram, Slack, Zoom) with animated architecture diagrams, knowledge graph, voice narration, quiz                                                                        |
 | 🧠 **Visual Learning**             | Concept Graph (force-directed knowledge map), Explain Like I'm 12, Dynamic Learning Map, built into every lesson                                                                                                                                 |
@@ -52,7 +52,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 💻 **Code Playground**             | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant                                                                                                                                                          |
 | 📝 **Smart Notes**                 | Auto-generated flashcards, summaries, and quizzes from any lesson                                                                                                                                                                                |
 | 🏆 **Gamification Engine**         | XP, streaks, badges, leaderboards, XP Store with server-side purchase tracking, interactive AI quizzes, confetti celebrations                                                                                                                    |
-| 🛍️ **XP Store**                    | Spend XP on premium perks (themes, discounts, credits, badges) — server-side purchase history with admin panel at `/admin/store`                                                                                                                 |
+| 🛍️ **XP Store**                    | Spend XP on premium perks (avatar packs, themes, discounts, credits, badges) — pay with XP or Wallet Cash, server-side purchase history, and full admin CRUD at `/admin/store` |
 | 📅 **Calendar Sync**               | Browser-based `.ics` generator to sync events to Google, Apple, and Outlook calendars                                                                                                                                                            |
 | 💰 **Wallet & AI Credits**         | Starter 500 AI credits/mo, creator earnings & withdrawals, Cashfree gateway integration                                                                                                                                                          |
 | 📋 **Billing Dashboard**           | Plan management, Cashfree invoices, coupons (`WELCOME20`, `STUDENT50`, `LAUNCH20`)                                                                                                                                                               |
@@ -374,7 +374,9 @@ src/
 │   │   ├── admin.tsx       # Admin panel
 │   │   ├── admin.content.tsx  # Content manager (16 tabs + WCMS)
 │   │   └── admin/
-│   │       └── subscriptions.tsx  # Subscription analytics
+│   │       ├── subscriptions.tsx  # Subscription analytics
+│   │       ├── billing.tsx        # Billing OS (invoices, refunds, coupons, payments)
+│   │       └── store.tsx          # XP Store admin (CRUD + purchase history)
 │   └── api/                # Server-side API routes
 │       ├── cron/
 │       │   ├── check-subscriptions.ts  # Cron: expire overdue subscriptions
@@ -414,6 +416,9 @@ src/
 ├── lib/                    # Server functions & utilities
 │   ├── file-parser.ts      # PDF/DOCX text extraction (pdfjs-dist + mammoth)
 │   ├── resume.functions.ts # Resume generation, ATS scoring, career roadmap, portfolio
+│   ├── roadmap-content.ts  # Curated roadmap definitions for AI grounding
+│   ├── roadmap-content.generated.ts  # 90 generated roadmap definitions
+│   ├── billing.functions.ts  # Billing exports, invoices, payment logs
 │   ├── cert.functions.ts   # Certificate CRUD + email sending
 │   ├── subscription.functions.ts     # Subscription CRUD + Cashfree
 │   ├── subscription-email.functions.ts # Subscription email notifications
@@ -502,6 +507,18 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v5.2.0 (August 2026) — Avatar Polish, Admin Store CRUD, XP Payment Options & AI-Grounded Roadmaps
+
+- ✅ **Avatar Eye/Smile Animation Removed**: `InteractiveAvatar` is now a clean static image (subtle hover zoom only). No more cursor-tracking eyes or hover smile rendering over avatar faces. Store item descriptions updated via migration to match.
+- ✅ **"Customize Your Character" Fixed**: Root cause was `optimizeAvatarUrl` in `src/lib/utils.ts` stripping ALL DiceBear query params (skin, hair, eyes, style) down to just the seed — so the settings preview ignored every customization. It now preserves all parameters while still stripping `profile_border` for the ring styling.
+- ✅ **Admin Store Full CRUD Unblocked** (`/admin/store`): New RLS policy (`20270805000000_store_items_admin_rls.sql`) lets admins/super-admins add, edit, and delete store items through the authenticated client — previously blocked by SELECT-only RLS.
+- ✅ **Avatar Purchase Dialog Upgraded**: Offers both **"Pay 1 XP"** and **"Pay with ₹ Cash"** payment methods with live balance footer. Copy cleaned up (no more "3D avatar" claims). Server-side XP deduction validates balance in `gamification.functions.ts`.
+- ✅ **Voice AI Widget Removed from Courses**: The "Voice AI — HI 1x" narration widget was removed from course lesson pages (`courses.$slug.tsx`) for a cleaner player.
+- ✅ **AI-Grounded Career Roadmaps**: `generateCareerRoadmap` now grounds every AI roadmap with 90 curated roadmap definitions (`src/lib/roadmap-content.generated.ts` + `roadmap-content.ts`), producing accurate skill phases, courses, projects, and monthly milestones for the selected target role. Generator script: `scripts/generate-roadmap-content.mjs`.
+- ✅ **Admin Billing Enhancements**: Expanded `admin/billing.tsx` and `billing.functions.ts` with richer invoice/refund/payment tooling and profile joins (full name, email, mobile) across billing exports and payment logs.
+- ✅ **Super-Admin User Deletion Fix**: `adminDeleteUser` now nulls out non-cascading foreign keys (`canva_templates`, `certificate_templates`, `workspaces`, `projects`, `crm_leads`, `crm_deals`, `coupons`, `billing_settings`, `billing_refunds`, `billing_templates`) before deleting the profile and auth user.
+- ✅ **TypeScript & Build Clean**: `tsc --noEmit` exit 0 and production build succeeds.
 
 ### v5.1.0 (July 2026) — Route Overhaul, PostgREST Fix, Global Avatar Normalization & Emoji-Free AI
 
