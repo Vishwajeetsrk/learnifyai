@@ -1,10 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, HeadContent } from "@tanstack/react-router";
 import { getPortfolioBySlug } from "@/lib/portfolio.functions";
+import { wcmsGetPublicPage } from "@/lib/wcms-public.functions";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BlockRenderer } from "@/components/wcms/BlockRenderer";
 import {
   Code2,
   Heart,
@@ -19,18 +20,46 @@ import {
   Briefcase,
   Eye,
   Sparkles,
-  Loader2,
-  Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/p/$slug")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `Portfolio — Learnify AI` },
-      { name: "description", content: `Public portfolio on Learnify AI.` },
-    ],
-  }),
+  loader: async ({ params }) => {
+    const [portfolioRes, wcmsPage] = await Promise.all([
+      getPortfolioBySlug({ data: { slug: params.slug } }),
+      wcmsGetPublicPage({ data: { slug: params.slug } }),
+    ]);
+    return { portfolio: portfolioRes.portfolio, wcmsPage };
+  },
+  head: ({ loaderData }) => {
+    const p = (loaderData as any)?.portfolio;
+    if (p) {
+      return {
+        meta: [
+          { title: `${p.username} — Portfolio | Learnify AI` },
+          { name: "description", content: `Public portfolio of ${p.username} on Learnify AI.` },
+        ],
+      };
+    }
+    const wcms = (loaderData as any)?.wcmsPage;
+    if (wcms) {
+      return {
+        meta: [
+          { title: wcms.meta_title || `${wcms.title} — Learnify AI` },
+          { name: "description", content: wcms.meta_description || wcms.description || "" },
+          { property: "og:title", content: wcms.meta_title || wcms.title },
+          { property: "og:description", content: wcms.meta_description || wcms.description || "" },
+          ...(wcms.og_image_url ? [{ property: "og:image", content: wcms.og_image_url }] : []),
+        ],
+      };
+    }
+    return {
+      meta: [
+        { title: `Not found — Learnify AI` },
+        { name: "description", content: `Page not found on Learnify AI.` },
+      ],
+    };
+  },
   component: PublicPortfolioPage,
 });
 
@@ -60,46 +89,30 @@ interface PortfolioData {
 }
 
 function PublicPortfolioPage() {
-  const { slug } = Route.useParams();
+  const { portfolio, wcmsPage } = Route.useLoaderData() as any;
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["public-portfolio", slug],
-    queryFn: async () => {
-      const res = await getPortfolioBySlug({ data: { slug } });
-      return res.portfolio;
-    },
-  });
+  if (portfolio) return <PortfolioView data={portfolio} />;
+  if (wcmsPage) return <WcmsPageView page={wcmsPage} />;
 
-  if (isLoading) {
-    return (
-      <AppShell>
-        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3">
-          <Loader2 className="h-8 w-8 text-primary animate-spin" />
-          <p className="text-sm text-muted-foreground">Loading portfolio...</p>
+  return (
+    <AppShell>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 px-6 text-center">
+        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
+          <FolderOpen className="h-9 w-9 text-primary/60" />
         </div>
-      </AppShell>
-    );
-  }
+        <h1 className="text-2xl font-bold">Page not found</h1>
+        <p className="text-muted-foreground text-sm max-w-sm">
+          This page hasn't been published yet, or the link is incorrect.
+        </p>
+        <Button asChild variant="outline" className="mt-2 cursor-pointer">
+          <Link to="/">Back to home</Link>
+        </Button>
+      </div>
+    </AppShell>
+  );
+}
 
-  if (!data) {
-    return (
-      <AppShell>
-        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 px-6 text-center">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center">
-            <FolderOpen className="h-9 w-9 text-primary/60" />
-          </div>
-          <h1 className="text-2xl font-bold">Portfolio not found</h1>
-          <p className="text-muted-foreground text-sm max-w-sm">
-            This portfolio hasn't been published yet, or the link is incorrect.
-          </p>
-          <Button asChild variant="outline" className="mt-2 cursor-pointer">
-            <Link to="/career-studio">Build your portfolio</Link>
-          </Button>
-        </div>
-      </AppShell>
-    );
-  }
-
+function PortfolioView({ data }: { data: any }) {
   const pd = (data.data as PortfolioData) || {};
   const viewCount = data.views ?? 0;
   const projects = Array.isArray(pd.projectsList) ? pd.projectsList : [];
@@ -188,7 +201,7 @@ function PublicPortfolioPage() {
                   </span>
                   {pd.updatedAt && (
                     <span className="inline-flex items-center gap-1.5">
-                      <Send className="h-3.5 w-3.5" />
+                      <Sparkles className="h-3.5 w-3.5" />
                       Updated {new Date(pd.updatedAt).toLocaleDateString()}
                     </span>
                   )}
@@ -342,6 +355,49 @@ function PublicPortfolioPage() {
           </footer>
         </section>
       </div>
+    </AppShell>
+  );
+}
+
+function WcmsPageView({ page }: { page: any }) {
+  if (!page) {
+    return (
+      <AppShell>
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="text-center space-y-4">
+            <h1 className="text-6xl font-black text-muted-foreground/30">404</h1>
+            <p className="text-muted-foreground">Page not found or not published yet.</p>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  return (
+    <AppShell>
+      <HeadContent />
+      <article>
+        {/* Page Header */}
+        <header className="py-12 md:py-16 bg-gradient-to-b from-muted/30 to-transparent">
+          <div className="max-w-5xl mx-auto px-6 text-center space-y-3">
+            <h1 className="text-3xl md:text-5xl font-bold font-display tracking-tight">
+              {page.title}
+            </h1>
+            {page.description && (
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{page.description}</p>
+            )}
+          </div>
+        </header>
+
+        {/* Rendered Blocks */}
+        {page.blocks && page.blocks.length > 0 ? (
+          <BlockRenderer blocks={page.blocks} />
+        ) : (
+          <div className="max-w-5xl mx-auto px-6 py-20 text-center text-muted-foreground">
+            <p>This page has no content blocks yet.</p>
+          </div>
+        )}
+      </article>
     </AppShell>
   );
 }

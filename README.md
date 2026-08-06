@@ -37,7 +37,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 🤖 **AI Tutor**                    | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)                                                                                                                                                                 |
 | 🗺️ **91 Developer Roadmaps (roadmap.sh)** | 91 interactive developer learning tracks (AI Agents, AI Engineer, System Design, Frontend, Backend, DevOps, Cyber Security, MLOps) with real-time search, target role selection, and AI generation grounded in 90 curated roadmap definitions |
-| 💼 **Career Studio (11-in-1)**     | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder, **LinkedIn Optimizer**, **Career & Salary Analytics**, **Internship Tracker**, **Skill Gap Analysis**, **Career Finder (Ikigai)**, and **Skill Roadmaps** |
+| 💼 **Career Studio (11-in-1)**     | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder (publishes live at `/p/{username}`), **LinkedIn Optimizer**, **Career & Salary Analytics**, **Internship Tracker**, **Skill Gap Analysis**, **Career Finder (Ikigai)**, and **Skill Roadmaps** |
 | 🎓 **System Design Academy**       | 10 topics (Netflix, Uber, WhatsApp, YouTube, Twitter, Amazon, Google, Instagram, Slack, Zoom) with animated architecture diagrams, knowledge graph, voice narration, quiz                                                                        |
 | 🧠 **Visual Learning**             | Concept Graph (force-directed knowledge map), Explain Like I'm 12, Dynamic Learning Map, built into every lesson                                                                                                                                 |
 | 🏆 **Gamification Dashboard**      | XP progress, streak calendar, badge showcase, leaderboard rank, upcoming rewards — accessible from course player                                                                                                                                 |
@@ -350,7 +350,7 @@ src/
 │   ├── login.tsx           # Authentication
 │   ├── signup.tsx          # Registration
 │   ├── pricing.tsx         # 3D pricing plans with feature comparison
-│   ├── p.$slug.tsx         # Dynamic WCMS public pages
+│   ├── p.$slug.tsx         # Public WCMS pages + public portfolios (fallback) at /p/{slug}
 │   ├── u/
 │   │   ├── $id.tsx         # Public profile (UUID) with banner error handling
 │   │   └── @$username.tsx  # Username redirect → UUID
@@ -416,6 +416,7 @@ src/
 ├── lib/                    # Server functions & utilities
 │   ├── file-parser.ts      # PDF/DOCX text extraction (pdfjs-dist + mammoth)
 │   ├── resume.functions.ts # Resume generation, ATS scoring, career roadmap, portfolio
+│   ├── portfolio.functions.ts # Portfolio publish/unpublish/get server functions (public /p/{slug})
 │   ├── roadmap-content.ts  # Curated roadmap definitions for AI grounding
 │   ├── roadmap-content.generated.ts  # 90 generated roadmap definitions
 │   ├── billing.functions.ts  # Billing exports, invoices, payment logs
@@ -507,6 +508,16 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v5.3.0 (August 2026) — Public Portfolio Publishing, Animated 3D Avatar Fallback & Resume Extraction Overhaul
+
+- ✅ **Publish Portfolio by Username (`/p/{slug}`)**: Portfolio Builder now publishes to a real public URL (`https://www.learnifyai.in/p/vishwajeetsrk`) backed by the new `portfolios` DB table (migration `20270806000000_portfolios.sql`) with RLS. Profile photos upload to the `avatars` storage bucket, project images included, and the live page tracks view counts. Users can update or unpublish their portfolio anytime.
+- ✅ **Public Portfolio Page**: New `/p/$slug` renders a polished public page — hero with accent-glow avatar ring, tech/soft-skill/tool badges, project cards with hover zoom, experience & education panels, and a "Built with Learnify AI" footer. WCMS pages still render at `/p/$slug` as a fallback when no portfolio exists (no regression).
+- ✅ **Animated 3D Avatar Fallback (Interview Prep)**: When the Three.js Eric FBX avatar fails to load (WebGL/texture errors), Interview Prep now shows a graceful animated SVG Eric — idle bob, waving hand, blinking eyes, viseme lip-sync mouth, equalizer bars and indigo glow — plus a "Retry 3D" button. No more "Avatar unavailable" error screen.
+- ✅ **Resume Extraction Fixed (Experience/Projects/Skills)**: `extractResumeFields` prompt rewritten with STRICT RULES (experience as "Role @ Company (Start – End): bullets", projects with URLs, categorized skills, education, `github`), plus stronger local fallback regexes for experience, skills, education, and projects when AI output is incomplete.
+- ✅ **LinkedIn Optimizer Photo Fix**: Profile photos in both the edit panel and Live Preview were cropped by `object-cover` inside the circular frame — now `object-contain` with a soft gradient background so the full image is always visible.
+- ✅ **Portfolio Builder Design Polish**: Animated SVG folder mark with pulsing rings in the header, floating gradient orbs behind the live preview, and the "Create Your Own Custom Color Theme" swatches are now functional — the accent recolors the preview avatar ring, is persisted with your portfolio, and renders on the public page.
+- ✅ **TypeScript & Build Clean**: `tsc --noEmit` exit 0 and production build succeeds.
 
 ### v5.2.0 (August 2026) — Avatar Polish, Admin Store CRUD, XP Payment Options & AI-Grounded Roadmaps
 
