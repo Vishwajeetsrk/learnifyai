@@ -56,6 +56,7 @@ import {
   getCoupons,
   saveCoupon,
   deleteCoupon,
+  updateInvoice,
 } from "@/lib/billing.functions";
 
 import { adminUpdateSubscription } from "@/lib/subscription.functions";
@@ -280,6 +281,68 @@ function BillingOSPage() {
   const [sendInvoiceEmail, setSendInvoiceEmail] = useState(true);
   const userSearchRef = useRef<HTMLDivElement>(null);
 
+  const [editInvoice, setEditInvoice] = useState<any>(null);
+  const [editForm, setEditForm] = useState({
+    status: "paid",
+    total_inr: "",
+    tax_inr: "",
+    subtotal_inr: "",
+    discount_inr: "",
+    notes: "",
+    terms: "",
+    due_date: "",
+    payment_method: "",
+    gstin: "",
+  });
+  const [savingInvoice, setSavingInvoice] = useState(false);
+
+  function openEditInvoice(inv: any) {
+    setEditInvoice(inv);
+    setEditForm({
+      status: inv.status || "paid",
+      total_inr: inv.total_inr != null ? String(inv.total_inr) : "",
+      tax_inr: inv.tax_inr != null ? String(inv.tax_inr) : "",
+      subtotal_inr: inv.subtotal_inr != null ? String(inv.subtotal_inr) : "",
+      discount_inr: inv.discount_inr != null ? String(inv.discount_inr) : "",
+      notes: inv.notes || "",
+      terms: inv.terms || "",
+      due_date: inv.due_date ? inv.due_date.slice(0, 10) : "",
+      payment_method: inv.payment_method || "",
+      gstin: inv.gstin || "",
+    });
+  }
+
+  async function handleSaveInvoice() {
+    if (!editInvoice) return;
+    setSavingInvoice(true);
+    try {
+      const fn = updateInvoice;
+      await fn({
+        data: {
+          id: editInvoice.id,
+          status: editForm.status,
+          total_inr: editForm.total_inr ? parseFloat(editForm.total_inr) : undefined,
+          tax_inr: editForm.tax_inr ? parseFloat(editForm.tax_inr) : undefined,
+          subtotal_inr: editForm.subtotal_inr ? parseFloat(editForm.subtotal_inr) : undefined,
+          discount_inr: editForm.discount_inr ? parseFloat(editForm.discount_inr) : undefined,
+          notes: editForm.notes || null,
+          terms: editForm.terms || null,
+          due_date: editForm.due_date ? new Date(editForm.due_date).toISOString() : null,
+          payment_method: editForm.payment_method || null,
+          gstin: editForm.gstin || null,
+        } as any,
+      });
+      toast.success(`Invoice ${editInvoice.invoice_number} updated`);
+      setEditInvoice(null);
+      queryClient.invalidateQueries({ queryKey: ["billing-invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["billing-overview"] });
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setSavingInvoice(false);
+    }
+  }
+
   async function handleCreateManualInvoice() {
     if (!manualUserId || !manualAmount) return;
     setCreatingInvoice(true);
@@ -339,7 +402,28 @@ function BillingOSPage() {
   async function handleDownloadInvoice(inv: any) {
     try {
       const userEmail = inv.user?.email || "customer@example.com";
-      await downloadInvoicePdf(inv, userEmail, undefined);
+      const s: Record<string, string> = billingSettings.data || {};
+      const branding = {
+        company_name: s.company_name || s.invoice_company_name,
+        legal_name: s.legal_name || s.invoice_legal_name,
+        gstin: s.gstin || s.invoice_gstin,
+        prefix: s.invoice_prefix || s.prefix,
+        footer: s.invoice_footer || s.footer,
+        logo_url: s.logo_url || s.company_logo_url,
+        contact: s.contact || s.support_email || s.email,
+        primary_color: s.primary_color,
+        secondary_color: s.secondary_color,
+        success_color: s.success_color,
+        address: s.address || s.support_address,
+        website: s.website,
+        signature: s.signature,
+        terms: s.terms || s.invoice_terms,
+        refund_policy: s.refund_policy,
+        template: s.template,
+        qr_enabled: s.show_qr || s.qr_enabled,
+        watermark: s.watermark,
+      };
+      await downloadInvoicePdf(inv, userEmail, branding);
     } catch (e: any) {
       toast.error(e.message || "Failed to download invoice");
     }
@@ -868,6 +952,133 @@ function BillingOSPage() {
               </Dialog>
             </div>
 
+            {editInvoice && (
+              <Dialog open onOpenChange={(o) => !o && setEditInvoice(null)}>
+                <DialogContent className="max-w-xl">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <Pencil className="h-4 w-4 text-primary" />
+                      Edit Invoice {editInvoice.invoice_number}
+                    </DialogTitle>
+                    <DialogDescription>
+                      Update status, amounts, GST, notes, terms, or due date. Changes are audited.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2">
+                    <div className="space-y-1">
+                      <Label>Status</Label>
+                      <Select
+                        value={editForm.status}
+                        onValueChange={(v) => setEditForm((f) => ({ ...f, status: v }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["paid", "pending", "failed", "refunded", "void"].map((s) => (
+                            <SelectItem key={s} value={s}>
+                              <span className="capitalize">{s}</span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Payment Method</Label>
+                      <Input
+                        value={editForm.payment_method}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, payment_method: e.target.value }))
+                        }
+                        placeholder="card / subscription / upi"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Subtotal (INR)</Label>
+                      <Input
+                        type="number"
+                        value={editForm.subtotal_inr}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, subtotal_inr: e.target.value }))
+                        }
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Tax (INR)</Label>
+                      <Input
+                        type="number"
+                        value={editForm.tax_inr}
+                        onChange={(e) => setEditForm((f) => ({ ...f, tax_inr: e.target.value }))}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Discount (INR)</Label>
+                      <Input
+                        type="number"
+                        value={editForm.discount_inr}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, discount_inr: e.target.value }))
+                        }
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Total (INR)</Label>
+                      <Input
+                        type="number"
+                        value={editForm.total_inr}
+                        onChange={(e) => setEditForm((f) => ({ ...f, total_inr: e.target.value }))}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>GSTIN</Label>
+                      <Input
+                        value={editForm.gstin}
+                        onChange={(e) => setEditForm((f) => ({ ...f, gstin: e.target.value }))}
+                        placeholder="29XXXXX1234X1Z5"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Due Date</Label>
+                      <Input
+                        type="date"
+                        value={editForm.due_date}
+                        onChange={(e) => setEditForm((f) => ({ ...f, due_date: e.target.value }))}
+                      />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label>Notes</Label>
+                      <Input
+                        value={editForm.notes}
+                        onChange={(e) => setEditForm((f) => ({ ...f, notes: e.target.value }))}
+                        placeholder="Optional admin note shown on invoice"
+                      />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <Label>Terms</Label>
+                      <Input
+                        value={editForm.terms}
+                        onChange={(e) => setEditForm((f) => ({ ...f, terms: e.target.value }))}
+                        placeholder="Payment terms shown on invoice"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setEditInvoice(null)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveInvoice} disabled={savingInvoice}>
+                      {savingInvoice && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}Save
+                      Changes
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
+
             <div className="rounded-xl border bg-card overflow-hidden">
               {invoices.isLoading ? (
                 <div className="flex justify-center py-12">
@@ -915,15 +1126,26 @@ function BillingOSPage() {
                           {inv.created_at ? format(new Date(inv.created_at), "MMM d, yyyy") : "—"}
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            title="Download"
-                            onClick={() => handleDownloadInvoice(inv)}
-                          >
-                            <Download className="h-3.5 w-3.5" />
-                          </Button>
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              title="Edit invoice"
+                              onClick={() => openEditInvoice(inv)}
+                            >
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              title="Download"
+                              onClick={() => handleDownloadInvoice(inv)}
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}

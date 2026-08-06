@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Map,
@@ -19,6 +19,13 @@ import {
   Code,
   BarChart3,
   Bookmark,
+  Library,
+  GraduationCap,
+  Youtube,
+  FileText,
+  Link2,
+  Layers,
+  Search,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -36,7 +43,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { generateCareerRoadmap } from "@/lib/resume.functions";
+import { generateCareerRoadmap, getRoadmapGuide } from "@/lib/resume.functions";
 import { SkillBadge } from "@/components/SkillBadge";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { DEVELOPER_ROADMAPS } from "@/lib/developer-roadmaps";
@@ -296,6 +303,9 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
           <TabsTrigger value="gap">
             <Target className="h-3.5 w-3.5 mr-1.5 text-indigo-500" /> Skill Gap Analysis
           </TabsTrigger>
+          <TabsTrigger value="guide">
+            <Library className="h-3.5 w-3.5 mr-1.5 text-emerald-500" /> Learning Guide
+          </TabsTrigger>
           <TabsTrigger value="roadmap" disabled={!roadmapData && !rawContent}>
             <Map className="h-3.5 w-3.5 mr-1.5" /> Your Roadmap
           </TabsTrigger>
@@ -312,6 +322,10 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
             setForm((f) => ({ ...f, targetRole: name }));
             setTab("form");
             toast.success(`Target role set to ${name}! Click Generate Roadmap.`);
+          }} onViewGuide={(name) => {
+            setForm((f) => ({ ...f, targetRole: name }));
+            setTab("guide");
+            toast.success(`Loaded learning guide for ${name}`);
           }} />
         </TabsContent>
 
@@ -503,6 +517,10 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
             )}
             {loading ? "Generating..." : "Generate Roadmap"}
           </Button>
+        </TabsContent>
+
+        <TabsContent value="guide" className="pt-4">
+          <RoadmapGuideView targetRole={form.targetRole} />
         </TabsContent>
 
         <TabsContent value="roadmap" className="pt-4">
@@ -914,7 +932,13 @@ function StructuredRoadmap({ data }: { data: RoadmapData }) {
   );
 }
 
-function DeveloperRoadmapsCatalog({ onSelectTrack }: { onSelectTrack: (name: string) => void }) {
+function DeveloperRoadmapsCatalog({
+  onSelectTrack,
+  onViewGuide,
+}: {
+  onSelectTrack: (name: string) => void;
+  onViewGuide: (name: string) => void;
+}) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -994,18 +1018,29 @@ function DeveloperRoadmapsCatalog({ onSelectTrack }: { onSelectTrack: (name: str
               </p>
             </div>
 
-            <div className="mt-4 pt-3 border-t flex items-center justify-between">
+            <div className="mt-4 pt-3 border-t flex items-center justify-between gap-2">
               <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
                 {item.category}
               </span>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onSelectTrack(item.name)}
-                className="text-xs text-primary hover:text-primary hover:bg-primary/10 h-7 px-2"
-              >
-                Set Target Role →
-              </Button>
+              <div className="flex items-center gap-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onViewGuide(item.name)}
+                  className="text-xs h-7 px-2"
+                  title="View learning guide"
+                >
+                  <Library className="h-3 w-3 mr-1" /> Guide
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => onSelectTrack(item.name)}
+                  className="text-xs text-primary hover:text-primary hover:bg-primary/10 h-7 px-2"
+                >
+                  Set Target Role →
+                </Button>
+              </div>
             </div>
           </Card>
         ))}
@@ -1014,6 +1049,163 @@ function DeveloperRoadmapsCatalog({ onSelectTrack }: { onSelectTrack: (name: str
       {filtered.length === 0 && (
         <div className="py-12 text-center text-sm text-muted-foreground">
           No roadmaps match your search.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ResourceKindIcon({ kind }: { kind: string }) {
+  switch (kind) {
+    case "video":
+      return <Youtube className="h-3.5 w-3.5 text-red-500" />;
+    case "official":
+    case "documentation":
+      return <FileText className="h-3.5 w-3.5 text-blue-500" />;
+    case "course":
+      return <GraduationCap className="h-3.5 w-3.5 text-emerald-500" />;
+    default:
+      return <Link2 className="h-3.5 w-3.5 text-muted-foreground" />;
+  }
+}
+
+const RESOURCE_LABEL: Record<string, string> = {
+  article: "Article",
+  official: "Official Docs",
+  video: "Video",
+  course: "Course",
+  book: "Book",
+  documentation: "Docs",
+  opensource: "Open Source",
+};
+
+function RoadmapGuideView({ targetRole }: { targetRole: string }) {
+  const guideFn = useServerFn(getRoadmapGuide);
+  const [guide, setGuide] = useState<{
+    roadmapId: string | null;
+    roadmap: { name: string; topics: Array<{ title: string; resources: Array<{ kind: string; title: string; url: string }> }> } | null;
+  } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState(targetRole);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!role.trim()) {
+      setGuide(null);
+      return;
+    }
+    setLoading(true);
+    guideFn({ data: { targetRole: role } })
+      .then((res: any) => {
+        if (!cancelled) setGuide(res);
+      })
+      .catch(() => {
+        if (!cancelled) setGuide({ roadmapId: null, roadmap: null });
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
+
+  const [expanded, setExpanded] = useState<number | null>(0);
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <Card className="p-5 rounded-2xl border shadow-sm">
+        <div className="flex items-center gap-2 mb-1">
+          <Library className="h-5 w-5 text-emerald-500" />
+          <h3 className="text-base font-bold text-foreground">Curated Learning Guide (roadmap.sh)</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-4">
+          Real, hand-picked topics and resources from the official roadmap.sh dataset for your
+          target role. Use these to structure your studies and fill skill gaps.
+        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          <Input
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            placeholder="e.g. Backend Developer, React Developer, DevOps Engineer…"
+            className="flex-1 text-xs"
+          />
+          <Button
+            size="sm"
+            onClick={() => setRole(role)}
+            className="shrink-0"
+            disabled={loading}
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : <Search className="h-4 w-4 mr-1.5" />}
+            Load Guide
+          </Button>
+        </div>
+      </Card>
+
+      {loading && (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      )}
+
+      {!loading && guide && !guide.roadmap && (
+        <div className="py-10 text-center text-sm text-muted-foreground">
+          No curated roadmap found for "{role}". Try a role like "Backend Developer", "React
+          Developer", or pick one from the catalog tab.
+        </div>
+      )}
+
+      {!loading && guide?.roadmap && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-xs">
+              {guide.roadmap.topics.length} topics
+            </Badge>
+            <span className="text-sm font-semibold text-foreground capitalize">
+              {guide.roadmap.name}
+            </span>
+          </div>
+          {guide.roadmap.topics.map((topic, i) => (
+            <Card key={topic.title + i} className="rounded-xl border shadow-sm overflow-hidden">
+              <button
+                className="w-full flex items-center justify-between gap-3 p-3.5 text-left hover:bg-accent/40 transition-colors"
+                onClick={() => setExpanded(expanded === i ? null : i)}
+              >
+                <span className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold flex items-center justify-center shrink-0">
+                    {i + 1}
+                  </span>
+                  {topic.title}
+                </span>
+                <ChevronRight
+                  className={`h-4 w-4 text-muted-foreground transition-transform shrink-0 ${
+                    expanded === i ? "rotate-90" : ""
+                  }`}
+                />
+              </button>
+              {expanded === i && topic.resources.length > 0 && (
+                <div className="border-t bg-muted/30 px-4 py-3 space-y-1.5">
+                  {topic.resources.map((res, j) => (
+                    <a
+                      key={j}
+                      href={res.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary hover:underline py-0.5"
+                    >
+                      <ResourceKindIcon kind={res.kind} />
+                      <span className="flex-1">{res.title}</span>
+                      <Badge variant="outline" className="text-[9px] uppercase shrink-0">
+                        {RESOURCE_LABEL[res.kind] || res.kind}
+                      </Badge>
+                      <ExternalLink className="h-3 w-3 shrink-0" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </Card>
+          ))}
         </div>
       )}
     </div>

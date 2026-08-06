@@ -177,20 +177,72 @@ const CareerInput = z.object({
   learningStyle: z.enum(["self-paced", "structured", "mentor-led"]).optional().default("self-paced"),
 });
 
+const ROADMAP_SCHEMA = `{
+  "title": string,
+  "summary": string,
+  "timeline_months": number,
+  "current_skills": string[],
+  "target_skills": string[],
+  "skill_gap": [{ "skill": string, "priority": "high" | "medium" | "low", "why": string }],
+  "phases": [
+    {
+      "title": string,
+      "subtitle": string,
+      "color": string,
+      "description": string,
+      "skills": [{ "name": string, "topics": string[] }],
+      "courses": [{ "title": string, "provider": string, "url": string, "is_free": boolean, "duration": string }],
+      "projects": [{ "title": string, "description": string, "tech_stack": string[], "difficulty": "beginner" | "intermediate" | "advanced" }],
+      "milestones": string[]
+    }
+  ],
+  "monthly_milestones": [{ "month": number, "goal": string, "deliverable": string }],
+  "interview_prep": { "topics": string[], "platforms": string[], "questions": string[] }
+}`;
+
+function extractJsonObject(content: string): any {
+  const m = content.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error("No JSON object found in response");
+  return JSON.parse(m[0]);
+}
+
 export const generateCareerRoadmap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => CareerInput.parse(d || {}))
   .handler(async ({ data }) => {
+    const { findRoadmapId, buildGroundingPrompt } = await import("@/lib/roadmap-content");
+    const roadmapId = findRoadmapId(data.targetRole);
+    let grounding = "";
+    if (roadmapId) {
+      try {
+        const { ROADMAP_CONTENT } = await import("@/lib/roadmap-content.generated");
+        const rd = ROADMAP_CONTENT[roadmapId];
+        if (rd) grounding = buildGroundingPrompt(roadmapId, rd);
+      } catch (e) {
+        console.warn("Failed to load roadmap grounding:", e);
+      }
+    }
+
+    const userContent = `Create a ${data.timeline} career roadmap to become a ${data.targetRole}.
+
+CURRENT PROFILE:
+- Current role: ${data.currentRole || "Not provided"}
+- Current skills: ${data.skills || "Not provided"}
+- Experience: ${data.experience || "Not provided"}
+- Education: ${data.education || "Not provided"}
+- Preferred learning style: ${data.learningStyle}
+
+${grounding ? "REAL ROADMAP.SH TOPICS AND RESOURCES TO GROUND YOUR ANSWER:\n" + grounding + "\n\nUse these topics to structure phases, skills, courses and projects. Where provided, use the real resource URLs for course URLs and enrich course details (provider, free/paid, duration) from them.\n" : ""}
+Return ONLY a valid JSON object matching the schema. Every phase must include courses, projects, and milestones arrays.`;
+
     const body = {
       messages: [
         {
           role: "system",
-          content: `You are an expert career coach and learning path designer. Create detailed, actionable career roadmaps. Current year: 2025-2026. Return ONLY valid JSON matching schema.`,
+          content: `You are an expert career coach and learning path designer. Create detailed, actionable career roadmaps. Current year: 2025-2026. Return ONLY valid JSON matching this schema (no markdown fences, no prose):
+${ROADMAP_SCHEMA}`,
         },
-        {
-          role: "user",
-          content: `Create a ${data.timeline} career roadmap to become a ${data.targetRole}.`,
-        },
+        { role: "user", content: userContent },
       ],
       response_format: { type: "json_object" },
       temperature: 0.7,
@@ -201,10 +253,25 @@ export const generateCareerRoadmap = createServerFn({ method: "POST" })
     const payload = await res.json();
     const content: string = payload.choices?.[0]?.message?.content ?? "{}";
     try {
-      return { roadmap: JSON.parse(content) };
+      return { roadmap: extractJsonObject(content), rawContent: null };
     } catch {
       return { roadmap: null, rawContent: content };
     }
+  });
+
+export const getRoadmapGuide = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: { roadmapId?: string; targetRole?: string }) =>
+    z.object({ roadmapId: z.string().optional(), targetRole: z.string().optional() }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { findRoadmapId } = await import("@/lib/roadmap-content");
+    const { ROADMAP_CONTENT } = await import("@/lib/roadmap-content.generated");
+    const id = data.roadmapId || findRoadmapId(data.targetRole || "");
+    if (!id) return { roadmapId: null, roadmap: null };
+    const rd = ROADMAP_CONTENT[id];
+    if (!rd) return { roadmapId: id, roadmap: null };
+    return { roadmapId: id, roadmap: rd };
   });
 
 const ExtractResumeInput = z.object({
