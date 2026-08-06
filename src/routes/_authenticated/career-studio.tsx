@@ -689,7 +689,7 @@ function LinkedInOptimizerView() {
                     <img
                       src={profilePhoto}
                       alt="Profile"
-                      className="h-20 w-20 rounded-full border-4 border-card object-cover shadow-xl"
+                      className="h-20 w-20 rounded-full border-4 border-card bg-gradient-to-br from-muted to-muted/60 object-contain p-0.5 shadow-xl"
                     />
                   ) : (
                     <div className="h-20 w-20 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-xl">
@@ -1172,7 +1172,7 @@ function LinkedInOptimizerView() {
                     <img
                       src={profilePhoto}
                       alt={name}
-                      className="h-28 w-28 rounded-full border-4 border-card object-cover shadow-2xl"
+                      className="h-28 w-28 rounded-full border-4 border-card bg-gradient-to-br from-muted to-muted/60 object-contain p-0.5 shadow-2xl"
                     />
                   ) : (
                     <div className="h-28 w-28 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-4xl shadow-2xl">

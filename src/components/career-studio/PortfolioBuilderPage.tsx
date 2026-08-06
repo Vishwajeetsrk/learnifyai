@@ -42,6 +42,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { generatePortfolio, extractResumeFields } from "@/lib/resume.functions";
+import { savePortfolio, getMyPortfolio } from "@/lib/portfolio.functions";
 import { ResumeFileUpload } from "@/components/ResumeFileUpload";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -149,9 +150,14 @@ function skillHtmlLogo(name: string): string {
 export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean }) {
   const generateFn = useServerFn(generatePortfolio);
   const extractFn = useServerFn(extractResumeFields);
+  const saveFn = useServerFn(savePortfolio);
+  const myPortfolioFn = useServerFn(getMyPortfolio);
   const [tab, setTab] = useState("form");
   const [loading, setLoading] = useState(false);
   const [extracting, setExtracting] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishedUrl, setPublishedUrl] = useState("");
+  const [publishedSlug, setPublishedSlug] = useState("");
   const [result, setResult] = useState<string | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -193,6 +199,7 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
   });
   const [published, setPublished] = useState(false);
   const [exportFormat, setExportFormat] = useState<"md" | "html">("md");
+  const [accentColor, setAccentColor] = useState("#6366f1");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -623,24 +630,81 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
     }
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!form.fullName.trim()) {
       toast.error("Enter your name first");
       return;
     }
+    setPublishing(true);
     try {
-      const portfolio = { ...form, projects, photoPreview, publishedAt: new Date().toISOString() };
       const username = form.fullName
         .toLowerCase()
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9-]/g, "");
-      localStorage.setItem(`learnify_portfolio_${username}`, JSON.stringify(portfolio));
+
+      const data = {
+        fullName: form.fullName,
+        tagline: form.tagline,
+        bio: form.bio,
+        skills: form.skills,
+        softSkills: form.softSkills,
+        tools: form.tools,
+        projects: form.projects,
+        socialLinks: form.socialLinks,
+        experience: form.experience,
+        education: form.education,
+        style: form.style,
+        accentColor,
+        photoUrl: null,
+        projectsList: projects.map((p) => ({
+          name: p.name,
+          description: p.description,
+          techStack: p.techStack,
+          githubUrl: p.githubUrl,
+          imageUrl: p.imageUrl || null,
+        })),
+      };
+
+      const res = await saveFn({ data: { data, username, photoDataUrl: photoPreview } });
+      setPublishedUrl(res.url);
+      setPublishedSlug(res.slug);
+      localStorage.setItem(
+        `learnify_portfolio_${username}`,
+        JSON.stringify({ ...form, projects, photoPreview, publishedAt: new Date().toISOString() }),
+      );
       setPublished(true);
-      toast.success(`Published at learnify.ai/${username}`);
-    } catch {
-      toast.error("Publish failed");
+      toast.success(`Portfolio published at ${res.url}`);
+    } catch (err: any) {
+      toast.error(err.message || "Publish failed");
+    } finally {
+      setPublishing(false);
     }
   };
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await myPortfolioFn();
+        if (!active || !res.portfolio) return;
+        const pd = (res.portfolio.data || {}) as any;
+        setPublished(true);
+        setPublishedUrl(`https://www.learnifyai.in/p/${res.portfolio.slug}`);
+        setPublishedSlug(res.portfolio.slug);
+        if (pd.fullName) {
+          setForm((f: any) => ({ ...f, ...pd }));
+        }
+        if (pd.accentColor) setAccentColor(pd.accentColor);
+        if (Array.isArray(pd.projectsList) && pd.projectsList.length > 0) {
+          setProjects(pd.projectsList);
+        }
+        if (pd.photoUrl) setPhotoPreview(pd.photoUrl);
+      } catch {}
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const mainContent = (
     <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
@@ -660,11 +724,49 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
             Create a stunning portfolio with projects, skills, and export to HTML.
           </p>
         </div>
-        {published && (
-          <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-200 gap-1 px-3 py-1.5 text-xs">
-            <Check className="h-3 w-3" /> Published
-          </Badge>
-        )}
+        <div className="flex items-center gap-3">
+          <div className="relative h-14 w-14 shrink-0 hidden sm:block" aria-hidden>
+            <motion.span
+              className="absolute inset-0 rounded-2xl bg-primary/25"
+              animate={{ scale: [1, 1.3], opacity: [0.7, 0] }}
+              transition={{ repeat: Infinity, duration: 2.2, ease: "easeOut" }}
+            />
+            <motion.span
+              className="absolute inset-0 rounded-2xl bg-primary/15"
+              animate={{ scale: [1, 1.45], opacity: [0.5, 0] }}
+              transition={{ repeat: Infinity, duration: 2.2, ease: "easeOut", delay: 0.4 }}
+            />
+            <div className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/15 to-indigo-500/15 border border-primary/25 flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
+                <defs>
+                  <linearGradient id="pf-header-grad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#6366f1" />
+                    <stop offset="100%" stopColor="#a855f7" />
+                  </linearGradient>
+                </defs>
+                <path
+                  d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"
+                  stroke="url(#pf-header-grad)"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+                <motion.path
+                  d="M3 12h18"
+                  stroke="url(#pf-header-grad)"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
+                />
+              </svg>
+            </div>
+          </div>
+          {published && (
+            <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-200 gap-1 px-3 py-1.5 text-xs">
+              <Check className="h-3 w-3" /> Published
+            </Badge>
+          )}
+        </div>
       </motion.div>
 
       <Tabs value={tab} onValueChange={setTab} className="mt-2">
@@ -961,7 +1063,7 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                       Select Design Template or Create Your Own
                     </span>
                     <span className="text-[10px] text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-full">
-                      5 Design Modes
+                      4 Design Modes
                     </span>
                   </Label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -1023,13 +1125,31 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                           <button
                             key={hex}
                             type="button"
-                            onClick={() => toast.success(`Custom theme accent set to ${hex}`)}
-                            className="w-6 h-6 rounded-full border border-white/20 shadow-sm transition hover:scale-110 cursor-pointer"
+                            onClick={() => {
+                              setAccentColor(hex);
+                              toast.success("Custom theme accent applied");
+                            }}
+                            className={cn(
+                              "w-6 h-6 rounded-full border shadow-sm transition hover:scale-110 cursor-pointer",
+                              accentColor === hex
+                                ? "border-foreground ring-2 ring-foreground/30 scale-110"
+                                : "border-white/20",
+                            )}
                             style={{ backgroundColor: hex }}
+                            title={`Use ${hex}`}
                           />
                         ),
                       )}
                     </div>
+                    {accentColor && (
+                      <div className="text-[10px] text-muted-foreground flex items-center gap-1.5">
+                        <span
+                          className="inline-block h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: accentColor }}
+                        />
+                        Current accent: <span className="font-mono">{accentColor}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -1119,10 +1239,26 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                 portfolio-preview
               </span>
             </div>
-            <div className="bg-gradient-to-br from-background to-muted/30 p-6 sm:p-10">
+            <div className="relative bg-gradient-to-br from-background to-muted/30 p-6 sm:p-10 overflow-hidden">
+              <style>{`
+                @keyframes pf-orb-a { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(30px,-20px) scale(1.15); } }
+                @keyframes pf-orb-b { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-25px,25px) scale(1.1); } }
+              `}</style>
+              <div
+                className="absolute -top-16 -left-16 h-56 w-56 rounded-full blur-3xl opacity-30 pointer-events-none"
+                style={{ backgroundColor: accentColor, animation: "pf-orb-a 9s ease-in-out infinite" }}
+              />
+              <div
+                className="absolute -bottom-20 -right-16 h-64 w-64 rounded-full blur-3xl opacity-25 pointer-events-none"
+                style={{ backgroundColor: accentColor, animation: "pf-orb-b 11s ease-in-out infinite" }}
+              />
+              <div className="relative">
               <div className="flex flex-col sm:flex-row items-center gap-6 mb-10">
                 <motion.div whileHover={{ scale: 1.05 }} className="relative">
-                  <Avatar className="h-24 w-24 rounded-full ring-4 ring-primary/20">
+                  <Avatar
+                    className="h-24 w-24 rounded-full"
+                    style={{ boxShadow: `0 0 0 4px ${accentColor}33, 0 0 24px ${accentColor}22` }}
+                  >
                     {photoPreview ? (
                       <AvatarImage src={photoPreview} alt={form.fullName} />
                     ) : (
@@ -1378,10 +1514,45 @@ This portfolio website was generated with Learnify AI Portfolio Builder.
                 <Button
                   size="sm"
                   onClick={handlePublish}
+                  disabled={publishing}
                   className="gap-2 font-bold rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md cursor-pointer"
                 >
-                  <Send className="h-4 w-4" /> {published ? "Update Publish" : "Publish Live URL"}
+                  {publishing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
+                  {publishing
+                    ? "Publishing..."
+                    : published
+                      ? "Update Publish"
+                      : "Publish Live URL"}
                 </Button>
+              </div>
+
+              {publishedUrl && (
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mt-4 text-center">
+                  <p className="text-xs text-muted-foreground">Your live portfolio is at:</p>
+                  <a
+                    href={publishedUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    {publishedUrl}
+                  </a>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard?.writeText(publishedUrl);
+                      toast.success("Link copied!");
+                    }}
+                    className="text-[10px] font-semibold text-muted-foreground hover:text-foreground underline cursor-pointer"
+                  >
+                    Copy
+                  </button>
+                </div>
+              )}
               </div>
             </div>
           </motion.div>

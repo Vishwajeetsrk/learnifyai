@@ -293,6 +293,7 @@ export const extractResumeFields = createServerFn({ method: "POST" })
   "email": string,
   "phone": string,
   "linkedin": string,
+  "github": string,
   "summary": string,
   "experience": string,
   "education": string,
@@ -300,7 +301,16 @@ export const extractResumeFields = createServerFn({ method: "POST" })
   "certifications": string,
   "projects": string,
   "targetRole": string
-}`,
+}
+
+STRICT RULES:
+1. experience: Extract EVERY job entry as one line each in this exact format: "Role @ Company (Start - End): Achievement bullet 1; Achievement bullet 2". Preserve ALL companies, roles, dates and achievements. NEVER omit entries and NEVER write "no experience" unless the resume truly has none.
+2. projects: Extract EVERY project as one line: "- Name (URL): Short description [tech1, tech2]". Preserve ALL project URLs verbatim.
+3. skills: List ALL skills separated by commas, grouped with "|" per category if categories exist (e.g. "HTML, CSS, JavaScript | React, Node.js | Figma, VS Code"). Include soft skills too.
+4. education: "Degree — Institution (Year)" per entry, one per line.
+5. summary: 2-3 sentence professional summary.
+6. targetRole: The job title the resume targets (e.g. "Responsive Web Designer", "Full Stack Developer").
+7. Use null or "" for missing fields. No extra text, no markdown fences.`,
         },
         {
           role: "user",
@@ -386,6 +396,42 @@ export const extractResumeFields = createServerFn({ method: "POST" })
       if (expMatch) {
         result.experience = expMatch[0]
           .replace(/^(?:Experience|Work History|Employment|History)[\s:]*/i, "")
+          .trim();
+      }
+    }
+
+    if (!result.skills || result.skills.trim().length < 3) {
+      const skillsMatch = rawText.match(
+        /(?:Skills|Technical Skills|Core Competencies|Expertise|Proficiencies)[\s\S]*?(?=(?:Experience|Work History|Employment|Education|Projects|Certifications|$))/i,
+      );
+      if (skillsMatch) {
+        result.skills = skillsMatch[0]
+          .replace(/^(?:Skills|Technical Skills|Core Competencies|Expertise|Proficiencies)[\s:]*/i, "")
+          .replace(/\n{2,}/g, "\n")
+          .trim();
+      }
+    }
+
+    if (!result.education || result.education.trim().length < 3) {
+      const eduMatch = rawText.match(
+        /(?:Education|Academic Background|Qualifications)[\s\S]*?(?=(?:Experience|Skills|Projects|Certifications|$))/i,
+      );
+      if (eduMatch) {
+        result.education = eduMatch[0]
+          .replace(/^(?:Education|Academic Background|Qualifications)[\s:]*/i, "")
+          .replace(/\n{2,}/g, "\n")
+          .trim();
+      }
+    }
+
+    if (!result.projects || result.projects.trim().length < 3) {
+      const projMatch = rawText.match(
+        /(?:Projects|Key Projects|Portfolio|Project Experience)[\s\S]*?(?=(?:Experience|Skills|Education|Certifications|$))/i,
+      );
+      if (projMatch) {
+        result.projects = projMatch[0]
+          .replace(/^(?:Projects|Key Projects|Portfolio|Project Experience)[\s:]*/i, "")
+          .replace(/\n{2,}/g, "\n")
           .trim();
       }
     }

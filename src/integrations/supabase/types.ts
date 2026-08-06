@@ -4436,6 +4436,47 @@ export type Database = {
         };
         Relationships: [];
       };
+      portfolios: {
+        Row: {
+          id: string;
+          user_id: string;
+          username: string;
+          slug: string;
+          data: Json;
+          published_at: string;
+          updated_at: string;
+          views: number;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          username: string;
+          slug: string;
+          data?: Json;
+          published_at?: string;
+          updated_at?: string;
+          views?: number;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          username?: string;
+          slug?: string;
+          data?: Json;
+          published_at?: string;
+          updated_at?: string;
+          views?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "portfolios_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       xp_log: {
         Row: {
           amount: number;

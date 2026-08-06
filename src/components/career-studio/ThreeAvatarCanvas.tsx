@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { cn } from "@/lib/utils";
-import { Hand, Loader2, AlertTriangle } from "lucide-react";
+import { Hand, Loader2, RefreshCw } from "lucide-react";
 
 interface ThreeAvatarCanvasProps {
   modelUrl?: string;
@@ -24,6 +24,112 @@ const VISEME_OPENNESS: Record<string, number> = {
   O: 0.45,
 };
 
+const FALLBACK_VISEMES: Record<string, string> = {
+  X: "M45 56 Q50 59 55 56",
+  A: "M44 56 Q50 61 56 56 Q50 58 44 56 Z",
+  B: "M43 56 Q50 63 57 56 Q50 57 43 56 Z",
+  C: "M44 56 Q50 65 56 56 Q50 59 44 56 Z",
+  D: "M42 56 Q50 68 58 56 Q50 58 42 56 Z",
+  E: "M45 55 Q50 58 55 55 Q50 61 45 55 Z",
+  O: "M46 56 Q50 62 54 56 Q50 51 46 56 Z",
+};
+
+function EricFallbackAvatar({ aiSpeaking, viseme }: { aiSpeaking: boolean; viseme: string }) {
+  const [isWaving, setIsWaving] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setIsWaving(false), 3500);
+    return () => clearTimeout(t);
+  }, []);
+  const mouth = FALLBACK_VISEMES[viseme] || FALLBACK_VISEMES.X;
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+      <div className="relative flex flex-col items-center">
+        {/* Glow ring */}
+        <div
+          className="absolute rounded-full w-44 h-44"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(99,102,241,0.35) 0%, rgba(99,102,241,0.08) 55%, transparent 70%)",
+          }}
+        />
+        <svg
+          className="w-36 h-36 drop-shadow-2xl"
+          viewBox="0 0 100 100"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ transformOrigin: "50% 50%", animation: "eric-idle 4.5s ease-in-out infinite" }}
+        >
+          <defs>
+            <linearGradient id="eric-fallback-grad" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+              <stop stopColor="#6366F1" />
+              <stop offset="1" stopColor="#8B5CF6" />
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="48" fill="url(#eric-fallback-grad)" />
+          <rect x="46" y="64" width="8" height="13" fill="#FDBA74" rx="2" />
+          <path
+            d="M50 24 C36 24 33 35 33 47 C33 59 38 69 50 69 C62 69 67 59 67 47 C67 35 64 24 50 24 Z"
+            fill="#FDBA74"
+          />
+          <path
+            d="M50 21 C36 21 34 26 34 32 C38 32 44 26 50 28 C56 26 62 32 66 32 C66 26 64 21 50 21 Z"
+            fill="#1e293b"
+          />
+          {/* Waving hand */}
+          <g style={isWaving ? { transformOrigin: "68px 66px", animation: "eric-wave 0.5s ease-in-out infinite alternate" } : undefined}>
+            <rect x="66" y="62" width="6" height="10" fill="#FDBA74" rx="2" />
+            <circle cx="69" cy="60" r="4.5" fill="#FDBA74" />
+          </g>
+          <ellipse cx="43" cy="45" rx="3" ry="3" fill="#1E293B" style={{ transformOrigin: "43px 45px", animation: "eric-blink 4.2s infinite" }} />
+          <ellipse cx="57" cy="45" rx="3" ry="3" fill="#1E293B" style={{ transformOrigin: "57px 45px", animation: "eric-blink 4.2s infinite" }} />
+          <path d="M39 40 C41 39 44 40 45 41" stroke="#1e293b" strokeWidth="1.5" strokeLinecap="round" />
+          <path d="M61 40 C59 39 56 40 55 41" stroke="#1e293b" strokeWidth="1.5" strokeLinecap="round" />
+          {aiSpeaking && viseme === "X" ? (
+            <path d={mouth} stroke="#be123c" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+          ) : (
+            <path d={mouth} fill="#be123c" />
+          )}
+        </svg>
+        {/* Equalizer */}
+        {aiSpeaking && (
+          <div className="absolute -bottom-4 inset-x-0 flex items-end justify-center gap-[3px] pointer-events-none h-6">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span
+                key={i}
+                className="w-[3px] rounded-full bg-indigo-400/80"
+                style={{
+                  animation: "eq-bounce 0.4s ease-in-out infinite alternate",
+                  animationDelay: `${i * 0.045}s`,
+                  animationDuration: `${0.3 + (i % 5) * 0.06}s`,
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+      <style>{`
+        @keyframes eric-idle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        @keyframes eric-wave {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(18deg); }
+        }
+        @keyframes eric-blink {
+          0%, 94%, 100% { transform: scaleY(0.08); opacity: 0.9; }
+          96% { transform: scaleY(1); opacity: 0.95; }
+        }
+        @keyframes eq-bounce {
+          0% { height: 3px; }
+          100% { height: 18px; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export function ThreeAvatarCanvas({
   modelUrl = "/avatars/eric/rp_eric_rigged_001_yup_a.fbx",
   textureUrl = "/avatars/eric/tex/rp_eric_rigged_001_dif.jpg",
@@ -35,6 +141,7 @@ export function ThreeAvatarCanvas({
 }: ThreeAvatarCanvasProps) {
   const mountRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [attempt, setAttempt] = useState(0);
   const [isWaving, setIsWaving] = useState(true);
 
   const waveStartRef = useRef(performance.now());
@@ -290,7 +397,7 @@ export function ThreeAvatarCanvas({
       mount.removeChild(canvas);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [attempt]);
 
   return (
     <div className={`relative flex flex-col items-center justify-center ${className}`}>
@@ -305,10 +412,7 @@ export function ThreeAvatarCanvas({
         )}
 
         {status === "error" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-slate-950/80">
-            <AlertTriangle className="h-6 w-6 text-amber-400" />
-            <span className="text-[10px] font-bold text-slate-300">Avatar unavailable</span>
-          </div>
+          <EricFallbackAvatar aiSpeaking={aiSpeaking} viseme={viseme} />
         )}
 
         {/* Live Speaking / Waving Status Badge */}
@@ -323,16 +427,28 @@ export function ThreeAvatarCanvas({
         </div>
 
         {/* Interactive Wave Trigger Button */}
-        <button
-          onClick={() => {
-            setIsWaving(true);
-            waveStartRef.current = performance.now();
-          }}
-          className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white text-[10px] font-bold transition backdrop-blur-sm cursor-pointer shadow"
-          title="Trigger Friendly Wave"
-        >
-          <Hand className="h-3 w-3" /> Wave
-        </button>
+        {status !== "error" && (
+          <button
+            onClick={() => {
+              setIsWaving(true);
+              waveStartRef.current = performance.now();
+            }}
+            className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white text-[10px] font-bold transition backdrop-blur-sm shadow cursor-pointer"
+            title="Trigger Friendly Wave"
+          >
+            <Hand className="h-3 w-3" /> Wave
+          </button>
+        )}
+
+        {status === "error" && (
+          <button
+            onClick={() => setAttempt((a) => a + 1)}
+            className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-600/80 hover:bg-indigo-600 text-white text-[10px] font-bold transition backdrop-blur-sm shadow cursor-pointer"
+            title="Retry loading 3D avatar"
+          >
+            <RefreshCw className="h-3 w-3" /> Retry 3D
+          </button>
+        )}
       </div>
 
       {/* Avatar Identity Footer */}
