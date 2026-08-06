@@ -642,7 +642,7 @@ function StorePage() {
           <DialogHeader>
             <DialogTitle>Unlock {avatarPurchaseItem?.name}</DialogTitle>
             <DialogDescription>
-              Purchase this 3D avatar and set it as your profile image.
+              Purchase this avatar and set it as your profile image.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">
@@ -664,12 +664,21 @@ function StorePage() {
             </div>
             <p className="text-sm text-muted-foreground text-center">
               {avatarPurchaseItem?.description ||
-                "A professional 3D avatar for your Learnify profile."}
+                "A professional avatar for your Learnify profile."}
             </p>
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row">
             <Button
-              className="w-full flex items-center justify-center gap-1.5 h-11"
+              variant="outline"
+              className="flex-1 flex items-center justify-center gap-1.5 h-11"
+              disabled={xp < 1 || purchasing !== null}
+              onClick={() => handleAvatarPurchase("xp")}
+            >
+              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+              Pay 1 XP
+            </Button>
+            <Button
+              className="flex-1 flex items-center justify-center gap-1.5 h-11"
               disabled={
                 walletBalance < (avatarPurchaseItem?.prime_price || 1) || purchasing !== null
               }
@@ -680,7 +689,8 @@ function StorePage() {
             </Button>
           </DialogFooter>
           <div className="text-[11px] text-center text-muted-foreground border-t pt-3">
-            Your balance: <strong className="text-foreground">₹{walletBalance}</strong> Wallet Cash.
+            Balance: <strong className="text-foreground">{xp.toLocaleString()}</strong> XP ·{" "}
+            <strong className="text-foreground">₹{walletBalance}</strong> Wallet Cash.
           </div>
         </DialogContent>
       </Dialog>

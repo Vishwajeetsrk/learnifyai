@@ -206,7 +206,45 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertAdmin(context.userId);
     if (data.userId === context.userId) throw new Error("You cannot delete your own account");
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+
+    const uid = data.userId;
+
+    // Clear FK references from tables whose columns point at auth.users WITHOUT
+    // ON DELETE CASCADE/SET NULL — otherwise auth.admin.deleteUser fails with a
+    // foreign key constraint violation. All of these columns are nullable.
+    const nullOutFks: Array<{ table: string; column: string }> = [
+      { table: "canva_templates", column: "created_by" },
+      { table: "certificate_templates", column: "created_by" },
+      { table: "workspaces", column: "created_by" },
+      { table: "projects", column: "created_by" },
+      { table: "projects", column: "assigned_to" },
+      { table: "crm_leads", column: "created_by" },
+      { table: "crm_deals", column: "created_by" },
+      { table: "coupons", column: "creator_id" },
+      { table: "billing_settings", column: "updated_by" },
+      { table: "billing_refunds", column: "initiated_by" },
+      { table: "billing_templates", column: "created_by" },
+    ];
+
+    for (const fk of nullOutFks) {
+      try {
+        await supabaseAdmin
+          .from(fk.table as any)
+          .update({ [fk.column]: null })
+          .eq(fk.column, uid);
+      } catch (e) {
+        console.warn(`[adminDeleteUser] null-out ${fk.table}.${fk.column} skipped:`, e);
+      }
+    }
+
+    // Delete owned content that should be removed with the account (cascade cleanup).
+    try {
+      await supabaseAdmin.from("profiles").delete().eq("id", uid);
+    } catch (e) {
+      console.warn("[adminDeleteUser] profile delete skipped:", e);
+    }
+
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(uid);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

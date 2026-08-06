@@ -25,14 +25,12 @@ export function optimizeAvatarUrl(url: string | null | undefined): string | unde
   if (!url) return undefined;
   try {
     if (url.includes("api.dicebear.com")) {
-      let style = "avataaars";
-      const match = url.match(/api\.dicebear\.com\/[^/]+\/([^/]+)/);
-      if (match && match[1]) {
-        style = match[1];
-      }
       const urlObj = new URL(url);
+      // Profile borders are applied via the Avatar ring classes, not the image.
+      urlObj.searchParams.delete("profile_border");
       const seed = urlObj.searchParams.get("seed") || "Learnify";
-      return `https://api.dicebear.com/10.x/${style}/svg?seed=${encodeURIComponent(seed)}`;
+      urlObj.searchParams.set("seed", seed);
+      return urlObj.toString();
     }
   } catch {
     // not a valid URL
