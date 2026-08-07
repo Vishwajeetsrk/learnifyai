@@ -118,6 +118,69 @@ const CAREER_PATHS = [
   { id: "mobile", label: "Mobile Developer", icon: Smartphone },
 ] as const;
 
+type CareerPathId = (typeof CAREER_PATHS)[number]["id"];
+type CareerPathFilter = Exclude<CareerPathId, "all">;
+
+const CATEGORY_CAREER_PATHS: Record<string, CareerPathFilter[]> = {
+  "Full Stack Development": ["fullstack", "frontend", "backend"],
+  Python: ["data-science", "ai-ml", "backend"],
+  "AI & Prompt Engineering": ["ai-ml"],
+  "Data Science": ["data-science", "ai-ml"],
+  "Cyber Security": ["cybersecurity"],
+  "UI/UX Design": ["frontend"],
+  "Academic & CS Fundamentals": ["fullstack", "frontend", "backend", "data-science", "ai-ml"],
+  "Career Roadmaps": ["fullstack", "frontend", "backend", "data-science", "ai-ml", "cybersecurity", "devops", "mobile"],
+};
+
+const CAREER_PATH_KEYWORDS: Record<CareerPathFilter, { words: string[]; phrases: string[] }> = {
+  frontend: {
+    words: ["frontend", "react", "next.js", "nextjs", "vue", "angular", "html", "css", "javascript", "typescript", "svelte", "tailwind", "wordpress", "gatsby"],
+    phrases: ["front end", "ui design", "web design", "ui/ux"],
+  },
+  backend: {
+    words: ["backend", "node", "express", "nestjs", "graphql", "postgres", "mongodb", "sql", "database", "django", "spring", "go", "rust", "java", "php", "prisma", "supabase"],
+    phrases: ["back end", "rest api"],
+  },
+  fullstack: {
+    words: ["fullstack", "mern"],
+    phrases: ["full stack", "web development", "web dev", "full stack development"],
+  },
+  "data-science": {
+    words: ["pandas", "numpy", "tableau", "statistics"],
+    phrases: ["data science", "data analysis", "data engineering", "power bi"],
+  },
+  "ai-ml": {
+    words: ["ml", "llm", "openai", "tensorflow", "pytorch", "nlp"],
+    phrases: ["machine learning", "deep learning", "prompt engineering", "artificial intelligence", "neural network", "generative ai"],
+  },
+  cybersecurity: {
+    words: ["cybersecurity", "hacking", "cissp", "kali", "devsecops"],
+    phrases: ["cyber security", "ethical hacking", "penetration testing", "network security", "security engineer"],
+  },
+  devops: {
+    words: ["devops", "docker", "kubernetes", "k8s", "aws", "azure", "gcp", "cloud", "terraform", "jenkins", "linux", "sre"],
+    phrases: ["ci/cd"],
+  },
+  mobile: {
+    words: ["mobile", "android", "ios", "flutter", "kotlin", "swift", "expo"],
+    phrases: ["react native", "app development"],
+  },
+};
+
+function courseCareerPaths(c: {
+  category: string;
+  title: string;
+  description?: string | null;
+}): CareerPathFilter[] {
+  const hay = `${c.category} ${c.title} ${c.description ?? ""}`.replace(/-/g, " ").toLowerCase();
+  const tokens = new Set(hay.split(/[^a-z0-9.]+/).filter(Boolean));
+  const fromCategory = CATEGORY_CAREER_PATHS[c.category] ?? [];
+  const fromKeywords = (Object.entries(CAREER_PATH_KEYWORDS) as [CareerPathFilter, { words: string[]; phrases: string[] }][])
+    .filter(([, { words, phrases }]) => words.some((w) => tokens.has(w)) || phrases.some((p) => hay.includes(p)))
+    .map(([id]) => id);
+  return Array.from(new Set([...fromCategory, ...fromKeywords]));
+}
+
 type PriceFilter = "all" | "free" | "paid";
 type LevelFilter = "all" | "beginner" | "intermediate" | "advanced";
 type SortFilter = "newest" | "popular" | "price-low" | "price-high";
@@ -127,7 +190,7 @@ function CoursesPage() {
   const [cat, setCat] = useState<string>("All");
   const [price, setPrice] = useState<PriceFilter>("all");
   const [level, setLevel] = useState<LevelFilter>("all");
-  const [careerPath, setCareerPath] = useState("all");
+  const [careerPath, setCareerPath] = useState<CareerPathId>("all");
   const [sort, setSort] = useState<SortFilter>("newest");
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -228,6 +291,16 @@ function CoursesPage() {
     return Array.from(set);
   }, [coursesQuery.data]);
 
+  const careerCounts = useMemo(() => {
+    const counts: Partial<Record<CareerPathFilter, number>> = {};
+    (coursesQuery.data ?? []).forEach((c) => {
+      courseCareerPaths(c).forEach((p) => {
+        counts[p] = (counts[p] ?? 0) + 1;
+      });
+    });
+    return counts;
+  }, [coursesQuery.data]);
+
   const filtered = useMemo(() => {
     const data = coursesQuery.data ?? [];
     const needle = q.trim().toLowerCase();
@@ -238,7 +311,8 @@ function CoursesPage() {
         (price === "free" && Number(c.price_inr) === 0) ||
         (price === "paid" && Number(c.price_inr) > 0);
       const matchLevel = level === "all" || String(c.level).toLowerCase() === level;
-      const matchCareer = careerPath === "all" || (c as any).career_path?.includes(careerPath);
+      const matchCareer =
+        careerPath === "all" || courseCareerPaths(c).includes(careerPath as CareerPathFilter);
       const matchQ =
         !needle ||
         c.title.toLowerCase().includes(needle) ||
@@ -363,6 +437,7 @@ function CoursesPage() {
               {CAREER_PATHS.map((p) => {
                 const IconComp = p.icon;
                 const active = careerPath === p.id;
+                const count = p.id === "all" ? (coursesQuery.data?.length ?? 0) : (careerCounts[p.id as CareerPathFilter] ?? 0);
                 return (
                   <button
                     key={p.id}
@@ -377,6 +452,16 @@ function CoursesPage() {
                   >
                     <IconComp className="h-3.5 w-3.5" />
                     <span>{p.label}</span>
+                    <span
+                      className={cn(
+                        "text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none",
+                        active
+                          ? "bg-primary-foreground/20 text-primary-foreground"
+                          : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {count}
+                    </span>
                   </button>
                 );
               })}
