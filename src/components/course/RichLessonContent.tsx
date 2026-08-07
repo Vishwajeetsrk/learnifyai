@@ -19,6 +19,7 @@ import {
   Layers,
   ChevronLeft,
   ChevronRight,
+  Brain,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -228,7 +229,9 @@ function Flashcards({ md }: { md: string }) {
           className="transition-transform duration-500"
           style={{ transform: flipped ? "rotateX(180deg)" : "rotateX(0deg)" }}
         >
-          <div className="text-5xl font-bold text-purple-300/30">{flipped ? "🙃" : "💡"}</div>
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-300/50">
+            {flipped ? <Brain className="h-8 w-8" /> : <Lightbulb className="h-8 w-8" />}
+          </div>
           <p className="mt-2 text-lg font-semibold text-foreground">
             {flipped ? card[1] : card[0]}
           </p>
@@ -301,7 +304,7 @@ export function RichLessonContent({ content }: { content: string }) {
     }
   };
 
-  const resolveCallout = (children: ReactNode, isAlert: boolean) => {
+  const parseCallout = (children: ReactNode): { type: "note" | "tip" | "warning" | "info"; rest: string } | null => {
     const raw = Array.isArray(children)
       ? children
           .map((c) =>
@@ -310,27 +313,18 @@ export function RichLessonContent({ content }: { content: string }) {
               : String(c),
           )
           .join("")
-      : "";
+      : String(children);
     const trimmed = raw.trim();
-    const alertMatch = /^\[!?(note|tip|warning|info|important)\]/i.exec(trimmed);
-    if (isAlert && alertMatch) {
-      const kind = alertMatch[1].toLowerCase();
-      const type: "note" | "tip" | "warning" | "info" = kind === "important" ? "info" : (kind as "note" | "tip" | "warning" | "info");
-      return (
-        <Callout type={type}>
-          {trimmed.replace(/^\[!?(note|tip|warning|info|important)\]\s*/i, "")}
-        </Callout>
-      );
-    }
-    if (!isAlert && /\[!tip\]/i.test(trimmed)) {
-      return <Callout type="tip">{children}</Callout>;
-    }
-    if (!isAlert && /\[!warning\]/i.test(trimmed)) {
-      return <Callout type="warning">{children}</Callout>;
-    }
-    if (!isAlert && /\[!info\]/i.test(trimmed)) {
-      return <Callout type="info">{children}</Callout>;
-    }
+    const match = /^\[!?(note|tip|warning|info|important)\]\s*/i.exec(trimmed);
+    if (!match) return null;
+    const kind = match[1].toLowerCase();
+    const type: "note" | "tip" | "warning" | "info" = kind === "important" ? "info" : (kind as "note" | "tip" | "warning" | "info");
+    return { type, rest: trimmed.replace(/^\[!?(note|tip|warning|info|important)\]\s*/i, "") };
+  };
+
+  const resolveCallout = (children: ReactNode) => {
+    const parsed = parseCallout(children);
+    if (parsed) return <Callout type={parsed.type}>{parsed.rest}</Callout>;
     return <blockquote className="border-l-4 border-indigo-400/60 bg-muted/30 py-2 pl-4 pr-3 italic text-muted-foreground">{children}</blockquote>;
   };
 
@@ -359,7 +353,7 @@ export function RichLessonContent({ content }: { content: string }) {
             }
             return <CodeBlock language={lang || "text"} code={code} onOpenInIde={openInIde} />;
           },
-          blockquote: ({ children }) => resolveCallout(children, false),
+          blockquote: ({ children }) => resolveCallout(children),
           table: ({ children }) => (
             <div className="overflow-x-auto rounded-xl border border-border/70">
               <table className="w-full border-collapse text-sm">{children}</table>
@@ -406,7 +400,11 @@ export function RichLessonContent({ content }: { content: string }) {
             </h2>
           ),
           h3: ({ children }) => <h3 className="mt-6 text-base font-bold text-foreground first:mt-0">{children}</h3>,
-          p: ({ children }) => <p className="leading-relaxed text-foreground/85">{children}</p>,
+          p: ({ children }) => {
+            const parsed = parseCallout(children);
+            if (parsed) return <Callout type={parsed.type}>{parsed.rest}</Callout>;
+            return <p className="leading-relaxed text-foreground/85">{children}</p>;
+          },
           ul: ({ children }) => <ul className="list-disc space-y-1 pl-5 marker:text-indigo-400">{children}</ul>,
           ol: ({ children }) => <ol className="list-decimal space-y-1 pl-5 marker:text-indigo-400">{children}</ol>,
           li: ({ children }) => <li className="leading-relaxed text-foreground/85">{children}</li>,

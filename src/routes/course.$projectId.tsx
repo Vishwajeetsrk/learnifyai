@@ -228,7 +228,12 @@ function CourseDetailPage() {
             {/* Right Column: Curriculum & CTA */}
             <div className="lg:col-span-4">
               <div className="sticky top-24 bg-card border border-border rounded-2xl p-6 shadow-xl">
-                <h3 className="font-display font-semibold text-xl mb-4">Course Content</h3>
+                <h3 className="font-display font-semibold text-xl mb-4 flex items-center gap-2">
+                  Course Content
+                  <span className="text-[10px] font-bold uppercase tracking-wide bg-primary/10 text-primary border border-primary/20 rounded-full px-2 py-0.5">
+                    {modules.length} modules
+                  </span>
+                </h3>
 
                 <div className="flex items-center gap-4 border-b border-border mb-6">
                   <button

@@ -438,6 +438,7 @@ function CoursesPage() {
                 const IconComp = p.icon;
                 const active = careerPath === p.id;
                 const count = p.id === "all" ? (coursesQuery.data?.length ?? 0) : (careerCounts[p.id as CareerPathFilter] ?? 0);
+                const zero = p.id !== "all" && count === 0;
                 return (
                   <button
                     key={p.id}
@@ -446,9 +447,12 @@ function CoursesPage() {
                       "px-3 py-1.5 rounded-full text-xs font-bold border transition-all shrink-0 inline-flex items-center gap-1.5 cursor-pointer shadow-xs",
                       active
                         ? "bg-primary text-primary-foreground border-primary shadow-md"
-                        : "border-border/80 bg-card text-foreground/80 hover:border-primary/40 hover:text-foreground",
+                        : zero
+                          ? "border-border/50 bg-card/60 text-muted-foreground/40 hover:border-primary/30 hover:text-foreground/70"
+                          : "border-border/80 bg-card text-foreground/80 hover:border-primary/40 hover:text-foreground",
                     )}
                     aria-pressed={active}
+                    title={zero ? "No courses in this path yet" : undefined}
                   >
                     <IconComp className="h-3.5 w-3.5" />
                     <span>{p.label}</span>
@@ -457,7 +461,9 @@ function CoursesPage() {
                         "text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none",
                         active
                           ? "bg-primary-foreground/20 text-primary-foreground"
-                          : "bg-muted text-muted-foreground",
+                          : zero
+                            ? "bg-muted/60 text-muted-foreground/50"
+                            : "bg-muted text-muted-foreground",
                       )}
                     >
                       {count}

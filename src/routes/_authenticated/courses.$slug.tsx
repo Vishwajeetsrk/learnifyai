@@ -42,11 +42,16 @@ import {
   Zap,
   Languages,
   FileText,
-  FileCode2,
   Download,
   ClipboardList,
   Target,
+  Image as ImageIcon,
+  StickyNote,
+  Link2,
+  Video,
+  FileType2,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -1677,6 +1682,32 @@ function LessonResources({
     return `${window.location.origin}/${url}`;
   };
 
+  const materialMeta = (type?: string) => {
+    const t = (type || "file").toLowerCase();
+    const meta: Record<string, { label: string; icon: LucideIcon; tile: string; accent: string; iconHover: string }> = {
+      image: { label: "Image", icon: ImageIcon, tile: "bg-indigo-500/15 text-indigo-400", accent: "hover:border-indigo-500/50 hover:bg-indigo-500/5", iconHover: "group-hover:text-indigo-300" },
+      pdf: { label: "PDF", icon: FileText, tile: "bg-rose-500/15 text-rose-400", accent: "hover:border-rose-500/50 hover:bg-rose-500/5", iconHover: "group-hover:text-rose-300" },
+      note: { label: "Note", icon: StickyNote, tile: "bg-sky-500/15 text-sky-400", accent: "hover:border-sky-500/50 hover:bg-sky-500/5", iconHover: "group-hover:text-sky-300" },
+      transcript: { label: "Transcript", icon: FileText, tile: "bg-violet-500/15 text-violet-400", accent: "hover:border-violet-500/50 hover:bg-violet-500/5", iconHover: "group-hover:text-violet-300" },
+      video: { label: "Video", icon: Video, tile: "bg-emerald-500/15 text-emerald-400", accent: "hover:border-emerald-500/50 hover:bg-emerald-500/5", iconHover: "group-hover:text-emerald-300" },
+      link: { label: "Link", icon: Link2, tile: "bg-cyan-500/15 text-cyan-400", accent: "hover:border-cyan-500/50 hover:bg-cyan-500/5", iconHover: "group-hover:text-cyan-300" },
+    };
+    return (
+      meta[t] ?? {
+        label: "File",
+        icon: FileType2,
+        tile: "bg-cyan-500/15 text-cyan-400",
+        accent: "hover:border-cyan-500/50 hover:bg-cyan-500/5",
+        iconHover: "group-hover:text-cyan-300",
+      }
+    );
+  };
+
+  const fileExtension = (url?: string) => {
+    const match = url?.match(/\.([a-z0-9]+)(?:$|\?)/i);
+    return match ? match[1].toUpperCase() : null;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 py-8 justify-center text-sm text-muted-foreground">
@@ -1750,9 +1781,12 @@ function LessonResources({
         <div>
           <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
             <ClipboardList className="h-4 w-4 text-amber-400" /> All assignments
+            <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+              {assignments.length}
+            </span>
           </h4>
           <div className="space-y-2">
-            {assignments.map((a: any) => (
+            {assignments.map((a: any, i: number) => (
               <div
                 key={a.id}
                 className={cn(
@@ -1761,17 +1795,36 @@ function LessonResources({
                 )}
               >
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-foreground">
-                    {a.title || "Assignment"}
-                    {a.lesson_id === currentLessonId && (
-                      <span className="ml-2 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-300">
-                        Current lesson
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-500/15 text-xs font-bold text-amber-400">
+                      {a.order_index ?? i + 1}
+                    </span>
+                    <p className="truncate text-sm font-semibold text-foreground">
+                      {a.title || "Assignment"}
+                      {a.lesson_id === currentLessonId && (
+                        <span className="ml-2 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-300">
+                          Current lesson
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 pl-9">
+                    {a.difficulty && (
+                      <span className="rounded-full bg-orange-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-300 capitalize">
+                        {a.difficulty}
                       </span>
                     )}
-                  </p>
-                  {a.prompt && (
-                    <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{a.prompt}</p>
-                  )}
+                    {Number(a.points_reward) > 0 && (
+                      <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-300">
+                        {a.points_reward} XP
+                      </span>
+                    )}
+                    {a.prompt && (
+                      <p className="line-clamp-1 min-w-0 flex-1 text-xs text-muted-foreground">
+                        {a.prompt}
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <Button
                   size="sm"
@@ -1796,32 +1849,52 @@ function LessonResources({
         <div>
           <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
             <Download className="h-4 w-4 text-cyan-400" /> Downloads
+            <span className="rounded-full bg-cyan-500/15 px-2 py-0.5 text-[10px] font-bold text-cyan-300">
+              {materials.length}
+            </span>
           </h4>
           <div className="grid gap-2 sm:grid-cols-2">
-            {materials.map((m: any) => (
-              <a
-                key={m.id}
-                href={downloadUrl(m.file_url)}
-                target={m.file_url?.startsWith("http") ? "_blank" : undefined}
-                rel="noreferrer"
-                download={!m.file_url?.startsWith("http")}
-                className="group flex items-center gap-3 rounded-xl border border-border/70 bg-card p-3.5 transition-colors hover:border-cyan-500/50 hover:bg-cyan-500/5"
-              >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/15 text-cyan-400">
-                  <FileCode2 className="h-4.5 w-4.5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-foreground group-hover:text-cyan-200">
-                    {m.title || "Resource"}
-                  </p>
-                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                    {(m.material_type || "file").replace(/_/g, " ")}
-                    {m.description ? ` · ${m.description}` : ""}
-                  </p>
-                </div>
-                <Download className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-cyan-400" />
-              </a>
-            ))}
+            {materials.map((m: any) => {
+              const meta = materialMeta(m.material_type);
+              const Icon = meta.icon;
+              const ext = fileExtension(m.file_url);
+              return (
+                <a
+                  key={m.id}
+                  href={downloadUrl(m.file_url)}
+                  target={m.file_url?.startsWith("http") ? "_blank" : undefined}
+                  rel="noreferrer"
+                  download={!m.file_url?.startsWith("http")}
+                  className={cn(
+                    "group flex items-center gap-3 rounded-xl border border-border/70 bg-card p-3.5 transition-colors",
+                    meta.accent,
+                  )}
+                >
+                  <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", meta.tile)}>
+                    <Icon className="h-4.5 w-4.5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className={cn("truncate text-sm font-semibold text-foreground", meta.iconHover)}>
+                      {m.title || "Resource"}
+                    </p>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-1.5">
+                      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        {meta.label}
+                      </span>
+                      {ext && ext !== meta.label && (
+                        <span className="rounded bg-muted px-1.5 py-px text-[10px] font-bold text-muted-foreground">
+                          {ext}
+                        </span>
+                      )}
+                      {m.description && (
+                        <span className="text-[11px] text-muted-foreground/70">{m.description}</span>
+                      )}
+                    </div>
+                  </div>
+                  <Download className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-cyan-400" />
+                </a>
+              );
+            })}
           </div>
         </div>
       )}

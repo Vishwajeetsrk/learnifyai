@@ -302,8 +302,6 @@ function StudioClassroomPage() {
     }
   };
 
-  if (!project) return <div className="p-8">Course not found</div>;
-
   const currentModule = modules[activeStep];
   const isStepCompleted = completedSteps.includes(activeStep) || !currentModule?.quiz;
 
@@ -345,7 +343,7 @@ function StudioClassroomPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
             <div className="flex items-center gap-1.5 bg-orange-500/10 text-orange-600 dark:text-orange-400 px-3 py-1 rounded-full border border-orange-500/30 text-xs font-bold shadow-sm">
               <Flame className="h-3.5 w-3.5 fill-orange-500" />
               <span>{streak} Day Streak</span>
@@ -452,7 +450,7 @@ function StudioClassroomPage() {
                     className="h-full bg-gradient-to-r from-primary to-primary/70"
                     initial={{ width: 0 }}
                     animate={{
-                      width: `${((activeStep + 1) / Math.max(1, modules.length)) * 100}%`,
+                      width: `${((Math.max(activeStep, ...completedSteps) + 1) / Math.max(1, modules.length)) * 100}%`,
                     }}
                   />
                 </div>
@@ -536,7 +534,20 @@ function StudioClassroomPage() {
                                         : "border-border/80 bg-card text-foreground hover:border-primary/60 hover:bg-primary/5"
                                   }`}
                                 >
-                                  <span>{option}</span>
+                                  <span className="flex items-center gap-2.5 min-w-0">
+                                    <span
+                                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold ${
+                                        showCorrect
+                                          ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-300"
+                                          : showWrong
+                                            ? "bg-rose-500/20 text-rose-600 dark:text-rose-300"
+                                            : "bg-muted text-muted-foreground"
+                                      }`}
+                                    >
+                                      {String.fromCharCode(65 + index)}
+                                    </span>
+                                    <span className="min-w-0">{option}</span>
+                                  </span>
                                   {showCorrect && (
                                     <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                                   )}
