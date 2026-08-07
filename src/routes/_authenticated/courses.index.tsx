@@ -26,6 +26,7 @@ import {
   Cpu,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -142,7 +143,7 @@ function CoursesPage() {
       const { data, error } = await supabase
         .from("courses")
         .select(
-          "id, slug, title, description, cover_url, category, level, price_inr, instructor, duration_minutes",
+          "id, slug, title, description, cover_url, category, level, price_inr, instructor, duration_minutes, enrollment_count",
         )
         .eq("published", true)
         .order("created_at", { ascending: false });
@@ -236,7 +237,7 @@ function CoursesPage() {
         price === "all" ||
         (price === "free" && Number(c.price_inr) === 0) ||
         (price === "paid" && Number(c.price_inr) > 0);
-      const matchLevel = level === "all" || c.level === level;
+      const matchLevel = level === "all" || String(c.level).toLowerCase() === level;
       const matchCareer = careerPath === "all" || (c as any).career_path?.includes(careerPath);
       const matchQ =
         !needle ||
@@ -248,20 +249,23 @@ function CoursesPage() {
   }, [coursesQuery.data, q, cat, price, level, careerPath]);
 
   const trending = useMemo(() => {
-    return (coursesQuery.data ?? []).filter((c) => (c as any).enrollment_count > 5).slice(0, 4);
+    return (coursesQuery.data ?? [])
+      .filter((c) => c.enrollment_count > 0)
+      .sort((a, b) => b.enrollment_count - a.enrollment_count)
+      .slice(0, 4);
   }, [coursesQuery.data]);
 
   const recommended = useMemo(() => {
-    return (coursesQuery.data ?? []).filter((c) => c.level === "beginner").slice(0, 4);
+    return (coursesQuery.data ?? [])
+      .filter((c) => String(c.level).toLowerCase() === "beginner")
+      .slice(0, 4);
   }, [coursesQuery.data]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
     switch (sort) {
       case "popular":
-        return arr.sort(
-          (a, b) => ((b as any).enrollment_count ?? 0) - ((a as any).enrollment_count ?? 0),
-        );
+        return arr.sort((a, b) => b.enrollment_count - a.enrollment_count);
       case "price-low":
         return arr.sort((a, b) => Number(a.price_inr) - Number(b.price_inr));
       case "price-high":
@@ -566,13 +570,18 @@ function CoursesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
-            {sorted.map((c) => (
-              <Link
+            {sorted.map((c, i) => (
+              <motion.div
                 key={c.id}
-                to="/courses/$slug"
-                params={{ slug: c.slug }}
-                className="group rounded-2xl border border-border/80 bg-card overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: Math.min(i * 0.03, 0.3), ease: "easeOut" }}
               >
+                <Link
+                  to="/courses/$slug"
+                  params={{ slug: c.slug }}
+                  className="group rounded-2xl border border-border/80 bg-card overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between h-full"
+                >
                 <div>
                   <div className="aspect-video w-full overflow-hidden bg-muted relative border-b border-border/50">
                     {c.cover_url ? (
@@ -663,8 +672,9 @@ function CoursesPage() {
                       </Button>
                     );
                   })()}
-                </div>
+                  </div>
               </Link>
+              </motion.div>
             ))}
           </div>
         )}
@@ -683,11 +693,17 @@ function MiniCourseCard({
   cart?: Record<string, boolean>;
 }) {
   return (
-    <Link
-      to="/courses/$slug"
-      params={{ slug: course.slug }}
-      className="group rounded-xl border border-border/80 bg-card overflow-hidden hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 flex flex-col justify-between"
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="h-full"
     >
+      <Link
+        to="/courses/$slug"
+        params={{ slug: course.slug }}
+        className="group rounded-xl border border-border/80 bg-card overflow-hidden hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 flex flex-col justify-between h-full"
+      >
       <div className="aspect-video w-full overflow-hidden bg-muted relative">
         {course.cover_url ? (
           <SafeImage
@@ -722,6 +738,7 @@ function MiniCourseCard({
           </span>
         </div>
       </div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 }

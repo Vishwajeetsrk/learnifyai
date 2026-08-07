@@ -13,6 +13,8 @@ import {
   saveCanvaTemplate,
   deleteCanvaTemplate,
   seedAllTemplates,
+  fieldsToElements,
+  themeToDesign,
 } from "@/lib/canva-cert.functions";
 import {
   getCertificateStats,
@@ -7745,6 +7747,24 @@ function SettingsScreen({
     initialSettings?.cert_email_notifications === "true",
   );
   const [qrCode, setQrCode] = useState(initialSettings?.cert_qr_code === "true");
+  const [orgName, setOrgName] = useState(initialSettings?.cert_org_name || "Learnify AI");
+  const [brandColor, setBrandColor] = useState(initialSettings?.cert_brand_color || "#6B5BFB");
+  const [logoUrl, setLogoUrl] = useState(initialSettings?.cert_logo_url || "/logo.png");
+  const [emailFrom, setEmailFrom] = useState(
+    initialSettings?.cert_email_from || "support@learnifyai.in",
+  );
+  const [emailReplyTo, setEmailReplyTo] = useState(
+    initialSettings?.cert_email_reply_to || "support@learnifyai.in",
+  );
+  const [verifyDomain, setVerifyDomain] = useState(
+    initialSettings?.cert_verification_domain || "learnifyai.in",
+  );
+  const [expiryReminder, setExpiryReminder] = useState(
+    initialSettings?.cert_expiry_reminder === "true",
+  );
+  const [weeklyDigest, setWeeklyDigest] = useState(
+    initialSettings?.cert_weekly_digest === "true",
+  );
   const [settingsNav, setSettingsNav] = useState("General");
   const [saving, setSaving] = useState(false);
 
@@ -7757,6 +7777,14 @@ function SettingsScreen({
         cert_blockchain: blockchain ? "true" : "false",
         cert_email_notifications: emailNotif ? "true" : "false",
         cert_qr_code: qrCode ? "true" : "false",
+        cert_org_name: orgName,
+        cert_brand_color: brandColor,
+        cert_logo_url: logoUrl,
+        cert_email_from: emailFrom,
+        cert_email_reply_to: emailReplyTo,
+        cert_verification_domain: verifyDomain,
+        cert_expiry_reminder: expiryReminder ? "true" : "false",
+        cert_weekly_digest: weeklyDigest ? "true" : "false",
       });
       toast.success("Settings saved successfully!");
     } catch (e: any) {
@@ -7765,6 +7793,97 @@ function SettingsScreen({
       setSaving(false);
     }
   };
+
+  const saveRow = () => (
+    <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+      <Btn variant="primary" onClick={handleSave}>
+        {saving ? "Saving..." : "Save Changes"}
+      </Btn>
+    </div>
+  );
+
+  const field = (label: string, value: string, set: (v: string) => void, ph?: string) => (
+    <div>
+      <label
+        style={{ fontSize: 12, fontWeight: 600, color: TX, display: "block", marginBottom: 6 }}
+      >
+        {label}
+      </label>
+      <input
+        value={value}
+        onChange={(e) => set(e.target.value)}
+        placeholder={ph}
+        style={{
+          width: "100%",
+          border: `1px solid ${BD}`,
+          borderRadius: 8,
+          padding: "8px 12px",
+          fontSize: 13,
+          color: TX,
+          outline: "none",
+        }}
+      />
+    </div>
+  );
+
+  const toggleRow = (
+    label: string,
+    sub: string,
+    val: boolean,
+    set: (v: boolean) => void,
+  ) => (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "12px 0",
+        borderBottom: `1px solid ${BD}`,
+      }}
+    >
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>{label}</div>
+        <div style={{ fontSize: 12, color: TX2 }}>{sub}</div>
+      </div>
+      <div
+        onClick={() => set(!val)}
+        style={{
+          width: 44,
+          height: 24,
+          borderRadius: 999,
+          background: val ? P : BD,
+          position: "relative",
+          cursor: "pointer",
+          transition: "background 0.2s",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          style={{
+            width: 18,
+            height: 18,
+            borderRadius: "50%",
+            background: "white",
+            position: "absolute",
+            top: 3,
+            left: val ? 23 : 3,
+            transition: "left 0.2s",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+          }}
+        />
+      </div>
+    </div>
+  );
+
+  const NAV = [
+    { icon: <Settings size={15} />, label: "General" },
+    { icon: <Bell size={15} />, label: "Notifications" },
+    { icon: <Shield size={15} />, label: "Security" },
+    { icon: <Palette size={15} />, label: "Branding" },
+    { icon: <Mail size={15} />, label: "Email" },
+    { icon: <Globe size={15} />, label: "Domain" },
+    { icon: <Users size={15} />, label: "Team" },
+  ];
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 20 }}>
@@ -7778,15 +7897,7 @@ function SettingsScreen({
           boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
         }}
       >
-        {[
-          { icon: <Settings size={15} />, label: "General" },
-          { icon: <Bell size={15} />, label: "Notifications" },
-          { icon: <Shield size={15} />, label: "Security" },
-          { icon: <Palette size={15} />, label: "Branding" },
-          { icon: <Mail size={15} />, label: "Email" },
-          { icon: <Globe size={15} />, label: "Domain" },
-          { icon: <Users size={15} />, label: "Team" },
-        ].map((item) => (
+        {NAV.map((item) => (
           <button
             key={item.label}
             onClick={() => setSettingsNav(item.label)}
@@ -7814,275 +7925,329 @@ function SettingsScreen({
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <SectionCard title="General Settings">
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-              <div>
-                <label
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: TX,
-                    display: "block",
-                    marginBottom: 6,
-                  }}
-                >
-                  Organization Name
-                </label>
-                <input
-                  defaultValue="Learnify AI"
-                  disabled
-                  style={{
-                    width: "100%",
-                    border: `1px solid ${BD}`,
-                    borderRadius: 8,
-                    padding: "8px 12px",
-                    fontSize: 13,
-                    color: TX,
-                    outline: "none",
-                    background: "#F9FAFB",
-                  }}
-                />
-              </div>
-              <div>
-                <label
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: TX,
-                    display: "block",
-                    marginBottom: 6,
-                  }}
-                >
-                  Certificate ID Prefix
-                </label>
-                <input
-                  value={prefix}
-                  onChange={(e) => setPrefix(e.target.value)}
-                  style={{
-                    width: "100%",
-                    border: `1px solid ${BD}`,
-                    borderRadius: 8,
-                    padding: "8px 12px",
-                    fontSize: 13,
-                    color: TX,
-                    outline: "none",
-                  }}
-                />
-              </div>
-              <div>
-                <label
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: TX,
-                    display: "block",
-                    marginBottom: 6,
-                  }}
-                >
-                  Expiry Preference
-                </label>
-                <select
-                  value={expiry}
-                  onChange={(e) => setExpiry(e.target.value)}
-                  style={{
-                    width: "100%",
-                    border: `1px solid ${BD}`,
-                    borderRadius: 8,
-                    padding: "8px 12px",
-                    fontSize: 13,
-                    color: TX,
-                    outline: "none",
-                  }}
-                >
-                  <option value="No Expiry">No Expiry</option>
-                  <option value="1 Year">1 Year</option>
-                  <option value="2 Years">2 Years</option>
-                  <option value="5 Years">5 Years</option>
-                </select>
-              </div>
-              <div>
-                <label
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: TX,
-                    display: "block",
-                    marginBottom: 6,
-                  }}
-                >
-                  Timezone
-                </label>
-                <input
-                  defaultValue="Asia/Kolkata (IST)"
-                  disabled
-                  style={{
-                    width: "100%",
-                    border: `1px solid ${BD}`,
-                    borderRadius: 8,
-                    padding: "8px 12px",
-                    fontSize: 13,
-                    color: TX,
-                    outline: "none",
-                    background: "#F9FAFB",
-                  }}
-                />
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <Btn variant="primary" onClick={handleSave}>
-                {saving ? "Saving..." : "Save Changes"}
-              </Btn>
-            </div>
-          </div>
-        </SectionCard>
-
-        <SectionCard title="Notifications & Automation">
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            {[
-              {
-                label: "Email Notifications",
-                sub: "Send email to recipients when certificate is issued",
-                val: emailNotif,
-                set: setEmailNotif,
-              },
-              {
-                label: "Blockchain Verification",
-                sub: "Enable blockchain hash for tamper detection",
-                val: blockchain,
-                set: setBlockchain,
-              },
-              {
-                label: "Show QR Code",
-                sub: "Render QR Code on certificate for direct mobile scans",
-                val: qrCode,
-                set: setQrCode,
-              },
-            ].map((t) => (
-              <div
-                key={t.label}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px 0",
-                  borderBottom: `1px solid ${BD}`,
-                }}
-              >
+        {settingsNav === "General" && (
+          <SectionCard title="General Settings">
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                {field("Organization Name", orgName, setOrgName, "Learnify AI")}
+                {field("Certificate ID Prefix", prefix, setPrefix, "LAI-2026")}
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>{t.label}</div>
-                  <div style={{ fontSize: 12, color: TX2 }}>{t.sub}</div>
-                </div>
-                <div
-                  onClick={() => t.set(!t.val)}
-                  style={{
-                    width: 44,
-                    height: 24,
-                    borderRadius: 999,
-                    background: t.val ? P : BD,
-                    position: "relative",
-                    cursor: "pointer",
-                    transition: "background 0.2s",
-                    flexShrink: 0,
-                  }}
-                >
-                  <div
+                  <label
                     style={{
-                      width: 18,
-                      height: 18,
-                      borderRadius: "50%",
-                      background: "white",
-                      position: "absolute",
-                      top: 3,
-                      left: t.val ? 23 : 3,
-                      transition: "left 0.2s",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: TX,
+                      display: "block",
+                      marginBottom: 6,
+                    }}
+                  >
+                    Expiry Preference
+                  </label>
+                  <select
+                    value={expiry}
+                    onChange={(e) => setExpiry(e.target.value)}
+                    style={{
+                      width: "100%",
+                      border: `1px solid ${BD}`,
+                      borderRadius: 8,
+                      padding: "8px 12px",
+                      fontSize: 13,
+                      color: TX,
+                      outline: "none",
+                    }}
+                  >
+                    <option value="No Expiry">No Expiry</option>
+                    <option value="1 Year">1 Year</option>
+                    <option value="2 Years">2 Years</option>
+                    <option value="5 Years">5 Years</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: TX,
+                      display: "block",
+                      marginBottom: 6,
+                    }}
+                  >
+                    Timezone
+                  </label>
+                  <input
+                    defaultValue="Asia/Kolkata (IST)"
+                    disabled
+                    style={{
+                      width: "100%",
+                      border: `1px solid ${BD}`,
+                      borderRadius: 8,
+                      padding: "8px 12px",
+                      fontSize: 13,
+                      color: TX,
+                      outline: "none",
+                      background: "#F9FAFB",
                     }}
                   />
                 </div>
               </div>
-            ))}
-            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <Btn variant="primary" onClick={handleSave}>
-                {saving ? "Saving..." : "Save Changes"}
-              </Btn>
+              {toggleRow("Show QR Code", "Render QR Code on certificate for direct mobile scans", qrCode, setQrCode)}
+              {toggleRow("Blockchain Verification", "Enable blockchain hash for tamper detection", blockchain, setBlockchain)}
+              {saveRow()}
             </div>
-          </div>
-        </SectionCard>
+          </SectionCard>
+        )}
 
-        <SectionCard title="Security">
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {[
-              {
-                icon: <Lock size={16} color={P} />,
-                title: "Rate Limiting",
-                desc: "Max 60 verification requests per minute per IP",
-                badge: "Active",
-                badgeBg: SGL,
-                badgeColor: SG,
-              },
-              {
-                icon: <Shield size={16} color={IN} />,
-                title: "SSL/TLS",
-                desc: "All data encrypted in transit",
-                badge: "Active",
-                badgeBg: SGL,
-                badgeColor: SG,
-              },
-              {
-                icon: <Zap size={16} color={WO} />,
-                title: "Audit Log",
-                desc: "All actions logged with user ID and timestamp",
-                badge: "Active",
-                badgeBg: SGL,
-                badgeColor: SG,
-              },
-            ].map((s, i) => (
+        {settingsNav === "Notifications" && (
+          <SectionCard title="Notifications & Automation">
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {toggleRow("Email Notifications", "Send email to recipients when certificate is issued", emailNotif, setEmailNotif)}
+              {toggleRow("Expiry Reminder", "Email recipients 30 days before certificate expiry", expiryReminder, setExpiryReminder)}
+              {toggleRow("Weekly Digest", "Send a weekly summary of issued certificates", weeklyDigest, setWeeklyDigest)}
+              {saveRow()}
+            </div>
+          </SectionCard>
+        )}
+
+        {settingsNav === "Security" && (
+          <SectionCard title="Security">
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {[
+                {
+                  icon: <Lock size={16} color={P} />,
+                  title: "Rate Limiting",
+                  desc: "Max 60 verification requests per minute per IP",
+                  badge: "Active",
+                },
+                {
+                  icon: <Shield size={16} color={IN} />,
+                  title: "SSL/TLS",
+                  desc: "All data encrypted in transit",
+                  badge: "Active",
+                },
+                {
+                  icon: <Zap size={16} color={WO} />,
+                  title: "Audit Log",
+                  desc: "All actions logged with user ID and timestamp",
+                  badge: "Active",
+                },
+                {
+                  icon: <ShieldCheck size={16} color={SG} />,
+                  title: "Anti-Fraud Hash",
+                  desc: "Tamper-proof SHA-256 fingerprint on every certificate",
+                  badge: "Active",
+                },
+              ].map((s, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "12px 14px",
+                    border: `1px solid ${BD}`,
+                    borderRadius: 10,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 8,
+                      background: PL,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {s.icon}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>{s.title}</div>
+                    <div style={{ fontSize: 12, color: TX2 }}>{s.desc}</div>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: "3px 10px",
+                      borderRadius: 6,
+                      background: SGL,
+                      color: SG,
+                    }}
+                  >
+                    {s.badge}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+        )}
+
+        {settingsNav === "Branding" && (
+          <SectionCard title="Branding">
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                {field("Organization Name", orgName, setOrgName, "Learnify AI")}
+                <div>
+                  <label
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: TX,
+                      display: "block",
+                      marginBottom: 6,
+                    }}
+                  >
+                    Brand Accent Color
+                  </label>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <input
+                      type="color"
+                      value={brandColor}
+                      onChange={(e) => setBrandColor(e.target.value)}
+                      style={{ width: 40, height: 36, border: `1px solid ${BD}`, borderRadius: 8, cursor: "pointer" }}
+                    />
+                    <input
+                      value={brandColor}
+                      onChange={(e) => setBrandColor(e.target.value)}
+                      style={{
+                        flex: 1,
+                        border: `1px solid ${BD}`,
+                        borderRadius: 8,
+                        padding: "8px 12px",
+                        fontSize: 13,
+                        color: TX,
+                        outline: "none",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+              {field("Logo URL", logoUrl, setLogoUrl, "/logo.png")}
               <div
-                key={i}
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: 12,
-                  padding: "12px 14px",
+                  padding: "10px 14px",
+                  background: "#F8FAFC",
                   border: `1px solid ${BD}`,
                   borderRadius: 10,
                 }}
               >
-                <div
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 8,
-                    background: PL,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  {s.icon}
+                <img
+                  src={logoUrl}
+                  alt="Logo preview"
+                  style={{ width: 42, height: 42, objectFit: "contain", background: "white", borderRadius: 8, border: `1px solid ${BD}` }}
+                  onError={(e) => ((e.target as HTMLElement).style.opacity = "0.2")}
+                />
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: TX }}>Logo Preview</div>
+                  <div style={{ fontSize: 11, color: TX2 }}>Shown on issued certificates and emails.</div>
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>{s.title}</div>
-                  <div style={{ fontSize: 12, color: TX2 }}>{s.desc}</div>
-                </div>
-                <span
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 600,
-                    padding: "3px 10px",
-                    borderRadius: 6,
-                    background: s.badgeBg,
-                    color: s.badgeColor,
-                  }}
-                >
-                  {s.badge}
+              </div>
+              {saveRow()}
+            </div>
+          </SectionCard>
+        )}
+
+        {settingsNav === "Email" && (
+          <SectionCard title="Email Settings">
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                {field("From Address", emailFrom, setEmailFrom, "support@learnifyai.in")}
+                {field("Reply-To", emailReplyTo, setEmailReplyTo, "support@learnifyai.in")}
+              </div>
+              {toggleRow("Email Notifications", "Send email to recipients when certificate is issued", emailNotif, setEmailNotif)}
+              {saveRow()}
+            </div>
+          </SectionCard>
+        )}
+
+        {settingsNav === "Domain" && (
+          <SectionCard title="Verification Domain">
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {field("Custom Verification Domain", verifyDomain, setVerifyDomain, "learnifyai.in")}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "10px 14px",
+                  background: SGL,
+                  borderRadius: 10,
+                }}
+              >
+                <Globe size={16} color={SG} />
+                <span style={{ fontSize: 12, color: SG, fontWeight: 600 }}>
+                  Certificates verify at https://{verifyDomain}/verify/&lt;code&gt;
                 </span>
               </div>
-            ))}
-          </div>
-        </SectionCard>
+              {saveRow()}
+            </div>
+          </SectionCard>
+        )}
+
+        {settingsNav === "Team" && (
+          <SectionCard title="Team Access">
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[
+                { name: "Rishabh Sharma", role: "Owner", color: "#6B5BFB", tag: "O" },
+                { name: "Anjali Verma", role: "Admin", color: "#0EA5E9", tag: "A" },
+                { name: "Priya Kapoor", role: "Issuer", color: "#10B981", tag: "I" },
+              ].map((m) => (
+                <div
+                  key={m.name}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "10px 14px",
+                    border: `1px solid ${BD}`,
+                    borderRadius: 10,
+                  }}
+                >
+                  <div
+                    style={{
+                      width: 34,
+                      height: 34,
+                      borderRadius: "50%",
+                      background: `${m.color}18`,
+                      color: m.color,
+                      fontWeight: 700,
+                      fontSize: 13,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {m.tag}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>{m.name}</div>
+                    <div style={{ fontSize: 12, color: TX2 }}>{m.role}</div>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: "3px 10px",
+                      borderRadius: 6,
+                      background: PL,
+                      color: P,
+                    }}
+                  >
+                    {m.role}
+                  </span>
+                </div>
+              ))}
+              <p style={{ fontSize: 12, color: TX2, marginTop: 2 }}>
+                Manage issuers from User Management &gt; Certificates role.
+              </p>
+            </div>
+          </SectionCard>
+        )}
       </div>
     </div>
   );
@@ -8430,6 +8595,14 @@ export function CertDesignerAdmin() {
 
   // DesignerWorkspace full-screen mode
   if (showDesignerWorkspace && designerTemplate) {
+    const rawConfig = designerTemplate.fields_json;
+    const elementBased = rawConfig && Array.isArray(rawConfig.elements);
+    const openedConfig = elementBased
+      ? rawConfig
+      : {
+          elements: fieldsToElements(rawConfig || {}).elements,
+          design: themeToDesign(designerTemplate.theme_colors || undefined),
+        };
     return (
       <DesignerWorkspace
         initialTemplate={{
@@ -8438,7 +8611,7 @@ export function CertDesignerAdmin() {
           type: designerTemplate.category || "Certificate",
           layout: designerTemplate.fields_json?.design?.layout || "classic",
           bg_image_url: designerTemplate.bg_image_url || "",
-          config_json: designerTemplate.fields_json || { elements: [], design: {} },
+          config_json: openedConfig,
         }}
         onSave={async (tmpl) => {
           await doSave({

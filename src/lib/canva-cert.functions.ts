@@ -231,8 +231,8 @@ export const saveCanvaTemplate = createServerFn({ method: "POST" })
         id: z.string().uuid().optional(),
         name: z.string().min(1),
         category: z.string().default("Professional"),
-        bg_image_url: z.string().url(),
-        thumbnail_url: z.string().url().optional(),
+        bg_image_url: z.string().url().or(z.literal("")).default(""),
+        thumbnail_url: z.string().url().or(z.literal("")).optional().nullable(),
         fields_json: z.any().optional(),
         theme_colors: z.any().optional(),
       })

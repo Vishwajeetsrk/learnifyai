@@ -410,6 +410,34 @@ If none fit perfectly, suggest a custom 1-3 word capitalized category (e.g. "Fin
     }
   });
 
+/* ---------------- Course resources (materials + assignments) ---------------- */
+
+export const getCourseResources = createServerFn({ method: "GET" })
+  .validator((d: unknown) => z.object({ courseId: z.string().uuid() }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const [materialsRes, assignmentsRes] = await Promise.all([
+      supabaseAdmin
+        .from("course_materials")
+        .select("id, course_id, lesson_id, title, file_url, material_type, description, created_at")
+        .eq("course_id", data.courseId)
+        .order("created_at", { ascending: true }),
+      supabaseAdmin
+        .from("course_assignments")
+        .select(
+          "id, course_id, lesson_id, title, prompt, starter_code, difficulty, points_reward, created_at",
+        )
+        .eq("course_id", data.courseId)
+        .order("created_at", { ascending: true }),
+    ]);
+    if (materialsRes.error) throw new Error(materialsRes.error.message);
+    if (assignmentsRes.error) throw new Error(assignmentsRes.error.message);
+    return {
+      materials: materialsRes.data ?? [],
+      assignments: assignmentsRes.data ?? [],
+    };
+  });
+
 /* ---------------- Enrollment email (fire-and-forget) ---------------- */
 
 async function sendEnrollmentEmails(

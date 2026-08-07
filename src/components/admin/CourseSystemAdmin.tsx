@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { RichLessonContent } from "@/components/course/RichLessonContent";
 import {
   adminListCourses,
   adminGetCourse,
@@ -427,6 +428,177 @@ export function CourseSystemAdmin() {
   );
 }
 
+/* ─── Lesson Editor Dialog ─── */
+function LessonEditor({
+  lesson,
+  onClose,
+  doUpdate,
+}: {
+  lesson: LessonRow;
+  onClose: () => void;
+  doUpdate: any;
+}) {
+  const qc = useQueryClient();
+  const [form, setForm] = useState({
+    title: lesson.title ?? "",
+    description: lesson.description ?? "",
+    video_url: lesson.video_url ?? "",
+    duration_minutes: lesson.duration_minutes ?? 0,
+    is_preview: lesson.is_preview ?? false,
+    content_md: lesson.content_md ?? "",
+    content_translations: JSON.stringify(lesson.content_translations ?? {}, null, 2),
+  });
+  const [showPreview, setShowPreview] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    let translations: Record<string, string> = {};
+    if (form.content_translations.trim()) {
+      try {
+        translations = JSON.parse(form.content_translations);
+      } catch {
+        toast.error("Translations must be valid JSON (an object of { \"hi\": \"...\" })");
+        return;
+      }
+    }
+    setSaving(true);
+    try {
+      await doUpdate({
+        data: {
+          lessonId: lesson.id,
+          title: form.title,
+          description: form.description,
+          video_url: form.video_url,
+          duration_minutes: Number(form.duration_minutes) || 0,
+          is_preview: form.is_preview,
+          content_md: form.content_md,
+          content_translations: translations,
+        },
+      });
+      toast.success("Lesson updated");
+      qc.invalidateQueries({ queryKey: ["admin-course-detail", lesson.course_id] });
+      onClose();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+    setSaving(false);
+  };
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Edit Lesson</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 mt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">Title *</label>
+              <Input
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                placeholder="Lesson title"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Video URL</label>
+              <Input
+                value={form.video_url}
+                onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+                placeholder="https://..."
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium">Description</label>
+            <Textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              rows={2}
+            />
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={form.is_preview}
+                onChange={(e) => setForm({ ...form, is_preview: e.target.checked })}
+                className="rounded"
+              />
+              <label className="text-sm font-medium">Preview (free)</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Duration (min)</label>
+              <Input
+                type="number"
+                className="w-24 h-8"
+                value={form.duration_minutes}
+                onChange={(e) =>
+                  setForm({ ...form, duration_minutes: Number(e.target.value) })
+                }
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium">Content (Markdown + rich blocks)</label>
+            <Textarea
+              value={form.content_md}
+              onChange={(e) => setForm({ ...form, content_md: e.target.value })}
+              rows={14}
+              className="font-mono text-xs leading-relaxed"
+              placeholder={"Supports GFM tables, callouts ([!tip], [!warning], [!info], [!note]), code fences with language, and special blocks:\n\n```quiz\nQ: What is...\nA. Option 1\nB. Option 2\nCorrect: A\nExplain: ...\n```\n\n```flashcards\nQuestion | Answer\n```\n\n```diagram\ntext diagram\n```"}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Special blocks: <code>```quiz</code> (Q:, A.-D., Correct:, Explain:),{" "}
+              <code>```flashcards</code> (one <code>front | back</code> per line),{" "}
+              <code>```diagram</code> (terminal style), callouts <code>[!tip]</code> etc.
+            </p>
+          </div>
+          <div>
+            <label className="text-sm font-medium">Translations (JSON)</label>
+            <Textarea
+              value={form.content_translations}
+              onChange={(e) => setForm({ ...form, content_translations: e.target.value })}
+              rows={5}
+              className="font-mono text-xs leading-relaxed"
+              placeholder={'{ "hi": "Hindi content...", "es": "Spanish content..." }'}
+            />
+          </div>
+          {showPreview && (
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <div className="text-xs font-medium text-muted-foreground mb-2">
+                Live preview
+              </div>
+              <RichLessonContent content={form.content_md} />
+            </div>
+          )}
+        </div>
+        <DialogFooter className="mt-6">
+          <Button
+            variant="outline"
+            onClick={() => setShowPreview((v) => !v)}
+            disabled={saving}
+          >
+            <Eye className="h-4 w-4 mr-1" />
+            {showPreview ? "Hide Preview" : "Preview"}
+          </Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={saving || !form.title}>
+            {saving ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-1" />
+            ) : (
+              <Save className="h-4 w-4 mr-1" />
+            )}
+            Save Changes
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 /* ─── Course Detail (Modules + Lessons) ─── */
 function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
   const qc = useQueryClient();
@@ -449,6 +621,7 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [newLessonModuleId, setNewLessonModuleId] = useState<string | null>(null);
   const [newLessonTitle, setNewLessonTitle] = useState("");
+  const [editingLesson, setEditingLesson] = useState<LessonRow | null>(null);
 
   if (isLoading) {
     return (
@@ -605,7 +778,13 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
                             className="flex items-center gap-2 pl-8 py-2 rounded-md bg-background/50"
                           >
                             <BookOpen className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                            <span className="text-sm flex-1">{les.title}</span>
+                            <button
+                              className="text-sm flex-1 text-left hover:text-primary truncate"
+                              title="Edit lesson"
+                              onClick={() => setEditingLesson(les)}
+                            >
+                              {les.title}
+                            </button>
                             <span className="text-xs text-muted-foreground">
                               {les.duration_minutes}m
                             </span>
@@ -614,6 +793,15 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
                                 Preview
                               </Badge>
                             )}
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-5 w-5"
+                              onClick={() => setEditingLesson(les)}
+                              title="Edit lesson"
+                            >
+                              <Edit3 className="h-3 w-3" />
+                            </Button>
                             <Button
                               size="icon"
                               variant="ghost"
@@ -671,6 +859,13 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
           </div>
         </div>
       </CardContent>
+      {editingLesson && (
+        <LessonEditor
+          lesson={editingLesson}
+          onClose={() => setEditingLesson(null)}
+          doUpdate={doUpdateLesson}
+        />
+      )}
     </Card>
   );
 }

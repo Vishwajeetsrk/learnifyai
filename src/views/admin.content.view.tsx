@@ -62,6 +62,10 @@ import {
   cleanDuplicateSiteSettings,
 } from "@/lib/admin-content.functions";
 import {
+  listJobApplications,
+  updateJobApplication,
+} from "@/lib/careers.functions";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -431,6 +435,7 @@ export default function AdminContentPage() {
                     {[
                       { id: "events", label: "Events", icon: CalendarIcon },
                       { id: "jobs", label: "Jobs", icon: Briefcase },
+                      { id: "applications", label: "Applications", icon: Users },
                       { id: "design-projects", label: "Design Projects", icon: FolderTree },
                       { id: "faqs", label: "FAQs", icon: HelpCircle },
                       { id: "coupons", label: "Coupons", icon: Percent },
@@ -575,6 +580,9 @@ export default function AdminContentPage() {
               </TabsContent>
               <TabsContent value="jobs" className="mt-0">
                 <JobsManager />
+              </TabsContent>
+              <TabsContent value="applications" className="mt-0">
+                <ApplicationsManager />
               </TabsContent>
               <TabsContent value="design-projects" className="mt-0">
                 <Suspense fallback={<LazyFallback />}>
@@ -1086,6 +1094,187 @@ function EventDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ─────────────────────────── Applications ───────────────────────────
+
+type JobApplicationRow = {
+  id: string;
+  job_id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  experience: string | null;
+  resume_text: string;
+  status: "new" | "reviewed" | "shortlisted" | "rejected" | "hired";
+  notes: string | null;
+  created_at: string;
+  job_postings: { title: string; team: string; location: string } | null;
+};
+
+const APP_STATUSES = ["new", "reviewed", "shortlisted", "rejected", "hired"] as const;
+
+const APP_STATUS_STYLES: Record<string, string> = {
+  new: "bg-blue-500/10 text-blue-500",
+  reviewed: "bg-amber-500/10 text-amber-500",
+  shortlisted: "bg-violet-500/10 text-violet-500",
+  rejected: "bg-red-500/10 text-red-500",
+  hired: "bg-emerald-500/10 text-emerald-500",
+};
+
+function ApplicationsManager() {
+  const qc = useQueryClient();
+  const doList = useServerFn(listJobApplications);
+  const doUpdate = useServerFn(updateJobApplication);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [notesDraft, setNotesDraft] = useState<Record<string, string>>({});
+
+  const { data: apps = [], isLoading } = useQuery({
+    queryKey: ["admin-job-applications"],
+    queryFn: async () => {
+      const r = await doList();
+      return (r ?? []) as unknown as JobApplicationRow[];
+    },
+  });
+
+  const setStatus = async (app: JobApplicationRow, status: JobApplicationRow["status"]) => {
+    try {
+      await doUpdate({ data: { applicationId: app.id, status } });
+      toast.success(`Marked as ${status}`);
+      qc.invalidateQueries({ queryKey: ["admin-job-applications"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Update failed");
+    }
+  };
+
+  const saveNotes = async (app: JobApplicationRow) => {
+    const notes = (notesDraft[app.id] ?? "").trim();
+    try {
+      await doUpdate({ data: { applicationId: app.id, notes: notes || null } });
+      toast.success("Notes saved");
+      qc.invalidateQueries({ queryKey: ["admin-job-applications"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Save failed");
+    }
+  };
+
+  const filtered =
+    statusFilter === "all" ? apps : apps.filter((a) => a.status === statusFilter);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <p className="text-xs text-muted-foreground">
+          Applications submitted from the public /careers page.
+        </p>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            {APP_STATUSES.map((s) => (
+              <SelectItem key={s} value={s}>
+                {s}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-5 w-5 animate-spin" />
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-12 border border-dashed rounded-xl space-y-2">
+          <Users className="h-8 w-8 text-muted-foreground mx-auto" />
+          <p className="text-sm font-semibold">No applications yet</p>
+          <p className="text-xs text-muted-foreground">
+            Applications from the /careers form will appear here.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((app) => {
+            const isOpen = expanded.has(app.id);
+            return (
+              <div key={app.id} className="rounded-xl border border-border/60 bg-card">
+                <button
+                  type="button"
+                  className="w-full text-left p-4 flex items-center justify-between gap-3 hover:bg-muted/40 transition rounded-xl"
+                  onClick={() => {
+                    setExpanded((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(app.id)) next.delete(app.id);
+                      else next.add(app.id);
+                      return next;
+                    });
+                  }}
+                >
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate">{app.name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5 truncate">
+                      {app.email}
+                      {app.phone && <> · {app.phone}</>}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {app.job_postings?.title ?? "Deleted job"} ·{" "}
+                      {format(new Date(app.created_at), "PP p")}
+                      {app.experience && <> · {app.experience}</>}
+                    </div>
+                  </div>
+                  <Badge className={cn("shrink-0 capitalize", APP_STATUS_STYLES[app.status])}>
+                    {app.status}
+                  </Badge>
+                </button>
+
+                {isOpen && (
+                  <div className="px-4 pb-4 space-y-3">
+                    <div className="rounded-lg bg-muted/40 p-3">
+                      <p className="text-xs font-medium mb-1 text-muted-foreground">Resume / CV</p>
+                      <p className="text-sm whitespace-pre-wrap break-words">{app.resume_text}</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="text-xs text-muted-foreground mr-1">Status:</span>
+                      {APP_STATUSES.map((s) => (
+                        <Button
+                          key={s}
+                          size="sm"
+                          variant={app.status === s ? "default" : "outline"}
+                          className="h-7 capitalize"
+                          onClick={() => setStatus(app, s)}
+                        >
+                          {s}
+                        </Button>
+                      ))}
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Notes</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          className="h-8 text-sm"
+                          placeholder="Internal notes..."
+                          value={notesDraft[app.id] ?? app.notes ?? ""}
+                          onChange={(e) =>
+                            setNotesDraft((prev) => ({ ...prev, [app.id]: e.target.value }))
+                          }
+                        />
+                        <Button size="sm" className="h-8 shrink-0" onClick={() => saveNotes(app)}>
+                          Save
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -1361,9 +1361,11 @@ export type Database = {
         Row: {
           course_id: string;
           created_at: string;
+          difficulty: string | null;
           id: string;
           lesson_id: string | null;
           order_index: number;
+          points_reward: number | null;
           prompt: string;
           starter_code: string | null;
           title: string;
@@ -1371,9 +1373,11 @@ export type Database = {
         Insert: {
           course_id: string;
           created_at?: string;
+          difficulty?: string | null;
           id?: string;
           lesson_id?: string | null;
           order_index?: number;
+          points_reward?: number | null;
           prompt: string;
           starter_code?: string | null;
           title: string;
@@ -1381,9 +1385,11 @@ export type Database = {
         Update: {
           course_id?: string;
           created_at?: string;
+          difficulty?: string | null;
           id?: string;
           lesson_id?: string | null;
           order_index?: number;
+          points_reward?: number | null;
           prompt?: string;
           starter_code?: string | null;
           title?: string;
@@ -1394,24 +1400,30 @@ export type Database = {
         Row: {
           course_id: string | null;
           created_at: string | null;
+          description: string | null;
           file_url: string | null;
           id: string;
+          lesson_id: string | null;
           material_type: string;
           title: string;
         };
         Insert: {
           course_id?: string | null;
           created_at?: string | null;
+          description?: string | null;
           file_url?: string | null;
           id?: string;
+          lesson_id?: string | null;
           material_type: string;
           title: string;
         };
         Update: {
           course_id?: string | null;
           created_at?: string | null;
+          description?: string | null;
           file_url?: string | null;
           id?: string;
+          lesson_id?: string | null;
           material_type?: string;
           title?: string;
         };
@@ -1461,6 +1473,7 @@ export type Database = {
           created_by: string | null;
           description: string | null;
           duration_minutes: number;
+          enrollment_count: number;
           id: string;
           instructor: string;
           level: string;
@@ -1478,6 +1491,7 @@ export type Database = {
           created_by?: string | null;
           description?: string | null;
           duration_minutes?: number;
+          enrollment_count?: number;
           id?: string;
           instructor?: string;
           level?: string;
@@ -1495,6 +1509,7 @@ export type Database = {
           created_by?: string | null;
           description?: string | null;
           duration_minutes?: number;
+          enrollment_count?: number;
           id?: string;
           instructor?: string;
           level?: string;
@@ -2206,6 +2221,53 @@ export type Database = {
         };
         Relationships: [];
       };
+      job_applications: {
+        Row: {
+          created_at: string;
+          email: string;
+          experience: string | null;
+          id: string;
+          job_id: string;
+          name: string;
+          notes: string | null;
+          phone: string | null;
+          resume_text: string;
+          status: string;
+        };
+        Insert: {
+          created_at?: string;
+          email: string;
+          experience?: string | null;
+          id?: string;
+          job_id: string;
+          name: string;
+          notes?: string | null;
+          phone?: string | null;
+          resume_text: string;
+          status?: string;
+        };
+        Update: {
+          created_at?: string;
+          email?: string;
+          experience?: string | null;
+          id?: string;
+          job_id?: string;
+          name?: string;
+          notes?: string | null;
+          phone?: string | null;
+          resume_text?: string;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_applications_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "job_postings";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       lesson_comments: {
         Row: {
           body: string;
@@ -2334,6 +2396,7 @@ export type Database = {
       lessons: {
         Row: {
           content_md: string | null;
+          content_translations: Json;
           course_id: string;
           created_at: string;
           description: string | null;
@@ -2351,6 +2414,7 @@ export type Database = {
         };
         Insert: {
           content_md?: string | null;
+          content_translations?: Json;
           course_id: string;
           created_at?: string;
           description?: string | null;
@@ -2368,6 +2432,7 @@ export type Database = {
         };
         Update: {
           content_md?: string | null;
+          content_translations?: Json;
           course_id?: string;
           created_at?: string;
           description?: string | null;

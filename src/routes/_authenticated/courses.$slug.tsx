@@ -40,11 +40,19 @@ import {
   Wrench,
   GraduationCap,
   Zap,
+  Languages,
+  FileText,
+  FileCode2,
+  Download,
+  ClipboardList,
+  Target,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { LessonSocial } from "@/components/LessonSocial";
+import { RichLessonContent } from "@/components/course/RichLessonContent";
+import { SUPPORTED_LANGUAGES } from "@/i18n";
 
 import { CoursePlayer } from "@/components/CoursePlayer";
 import { AppShell } from "@/components/AppShell";
@@ -78,9 +86,10 @@ import { cn, getCleanBannerUrl } from "@/lib/utils";
 import { getProfileBorderClass } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { lessonAiHelper } from "@/lib/lesson-ai.functions";
-import { enrollFree, markCourseStarted, recomputeProgress } from "@/lib/course.functions";
+import { enrollFree, markCourseStarted, recomputeProgress, getCourseResources } from "@/lib/course.functions";
 import { awardXP, getCourseLearners } from "@/lib/gamification.functions";
 import { logDailyUsage } from "@/lib/onboarding.functions";
+import { saveEditorCode } from "@/lib/playground/projects";
 
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import {
@@ -91,7 +100,7 @@ import {
 } from "@/lib/course-player";
 import { VisualLearningPanel } from "@/components/visual-learning/VisualLearningPanel";
 
-type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "ai-agent" | "visual";
+type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "ai-agent" | "visual" | "resources";
 const VALID_TABS: CourseTab[] = [
   "notes",
   "summary",
@@ -100,6 +109,7 @@ const VALID_TABS: CourseTab[] = [
   "playground",
   "ai-agent",
   "visual",
+  "resources",
 ];
 
 export const Route = createFileRoute("/_authenticated/courses/$slug")({
@@ -934,6 +944,8 @@ function CourseDetail() {
                       message={activeVideo.message}
                       canRetry={activeVideo.reason !== "missing-url"}
                       onRetry={() => setPlayerRetry((n) => n + 1)}
+                      readingMode={activeVideo.reason === "missing-url"}
+                      lessonTitle={active?.title}
                     />
                   ) : lessons.length === 0 ? (
                     <div className="space-y-3">
@@ -985,7 +997,7 @@ function CourseDetail() {
                   courseId={course.id}
                   courseTitle={course.title}
                   courseSlug={course.slug}
-                  lesson={active}
+                  lesson={{ ...active, content_translations: toTranslations(active.content_translations) }}
                   initialTab={initialTab}
                   hasToolAccess={hasFullAccess}
                 />
@@ -1237,11 +1249,40 @@ function VideoFallback({
   message,
   canRetry,
   onRetry,
+  readingMode,
+  lessonTitle,
 }: {
   message: string;
   canRetry: boolean;
   onRetry: () => void;
+  readingMode?: boolean;
+  lessonTitle?: string;
 }) {
+  if (readingMode) {
+    return (
+      <div className="w-full h-full relative overflow-hidden grid place-items-center">
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/25 via-purple-600/15 to-transparent" />
+        <div className="absolute inset-0 opacity-[0.15] pointer-events-none">
+          <div
+            className="absolute -top-10 -left-10 h-48 w-48 rounded-full bg-indigo-500 blur-3xl"
+          />
+          <div className="absolute bottom-0 right-0 h-56 w-56 rounded-full bg-purple-500 blur-3xl" />
+        </div>
+        <div className="relative z-10 px-8 py-6 text-center space-y-3">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20 backdrop-blur">
+            <NotebookPen className="h-8 w-8 text-indigo-300" />
+          </div>
+          <p className="text-lg font-display font-bold text-foreground">
+            {lessonTitle || "Reading lesson"}
+          </p>
+          <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+            This lesson is fully interactive text — diagrams, quizzes, flashcards and code live
+            below in the Notes tab. Read, practice, then mark it complete.
+          </p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="max-w-sm space-y-3">
       <AlertTriangle className="h-8 w-8 text-primary mx-auto" />
@@ -1270,7 +1311,14 @@ type Lesson = {
   id: string;
   title: string;
   description?: string | null;
+  content_md?: string | null;
+  content_translations?: Record<string, string> | null;
 };
+
+function toTranslations(value: unknown): Record<string, string> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return value as Record<string, string>;
+}
 
 function LessonAiTabs({
   courseId,
@@ -1294,7 +1342,35 @@ function LessonAiTabs({
   const [doubtQ, setDoubtQ] = useState<string>("");
   const [busy, setBusy] = useState<"" | "summary" | "exercise" | "doubt">("");
   const [speaking, setSpeaking] = useState(false);
+  const [contentLang, setContentLang] = useState<string>("en");
+  const [myNotes, setMyNotes] = useState<string>("");
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`lesson-notes-${lesson.id}`);
+      if (saved) setMyNotes(saved);
+    } catch {
+      /* ignore */
+    }
+  }, [lesson.id]);
+
+  const saveMyNotes = (value: string) => {
+    setMyNotes(value);
+    try {
+      localStorage.setItem(`lesson-notes-${lesson.id}`, value);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const translations = lesson.content_translations ?? {};
+  const availableLangs = SUPPORTED_LANGUAGES.filter(
+    (l) => l.code === "en" || (translations[l.code] ?? "").trim().length > 0,
+  );
+  const effectiveContent =
+    contentLang !== "en" ? (translations[contentLang] ?? "") : (lesson.content_md ?? "");
+  const hasRichContent = Boolean((lesson.content_md ?? "").trim()) || Object.keys(translations).length > 0;
 
   const stripMarkdown = (raw: string) => {
     return raw
@@ -1371,19 +1447,54 @@ function LessonAiTabs({
               <TabsTrigger value="visual" className="gap-1.5 shrink-0 text-xs px-3 py-1.5 font-semibold cursor-pointer">
                 <Brain className="h-3.5 w-3.5 text-purple-400" /> Visual
               </TabsTrigger>
+              <TabsTrigger value="resources" className="gap-1.5 shrink-0 text-xs px-3 py-1.5 font-semibold cursor-pointer">
+                <FileText className="h-3.5 w-3.5 text-cyan-400" /> Resources
+              </TabsTrigger>
             </>
           )}
         </TabsList>
       </div>
 
-      <TabsContent value="notes" className="pt-4 space-y-3">
-        {lesson.description && (
-          <Button variant="outline" size="sm" onClick={() => speak(lesson.description as string)}>
-            {speaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            {speaking ? "Stop" : "Listen"}
-          </Button>
-        )}
-        {lesson.description ? (
+      <TabsContent value="notes" className="pt-4 space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          {(hasRichContent || lesson.description) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => speak(effectiveContent || (lesson.description as string))}
+            >
+              {speaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+              {speaking ? "Stop" : "Listen"}
+            </Button>
+          )}
+          {availableLangs.length > 1 && (
+            <div className="ml-auto flex items-center gap-1 rounded-xl border border-border/60 bg-muted/40 p-1">
+              <Languages className="h-3.5 w-3.5 text-muted-foreground ml-1" />
+              {availableLangs.map((l) => (
+                <button
+                  key={l.code}
+                  onClick={() => setContentLang(l.code)}
+                  className={cn(
+                    "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer",
+                    contentLang === l.code
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                  title={l.label}
+                >
+                  {l.nativeLabel}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {hasRichContent ? (
+          <RichLessonContent
+            key={`${lesson.id}-${contentLang}`}
+            content={effectiveContent || (lesson.content_md ?? "")}
+          />
+        ) : lesson.description ? (
           <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-headings:font-semibold prose-pre:p-0 prose-ul:my-1 prose-li:my-0.5">
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
               {lesson.description}
@@ -1394,6 +1505,23 @@ function LessonAiTabs({
             No instructor notes for this lesson.
           </p>
         )}
+
+        <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
+          <div className="mb-2 flex items-center gap-2">
+            <NotebookPen className="h-4 w-4 text-indigo-400" />
+            <h4 className="text-sm font-bold text-foreground">My Notes</h4>
+            <span className="text-[11px] text-muted-foreground">
+              {myNotes.trim() ? `${myNotes.trim().split(/\s+/).length} words` : "— saved on this device"}
+            </span>
+          </div>
+          <Textarea
+            placeholder="Jot down your own notes for this lesson… they are saved automatically on your device."
+            value={myNotes}
+            onChange={(e) => saveMyNotes(e.target.value)}
+            rows={3}
+            className="bg-background/70 text-sm"
+          />
+        </div>
       </TabsContent>
 
       {!hasToolAccess && <LockedCourseTools />}
@@ -1491,7 +1619,213 @@ function LessonAiTabs({
           />
         </TabsContent>
       )}
+
+      {hasToolAccess && (
+        <TabsContent value="resources" className="pt-4">
+          <LessonResources courseId={courseId} currentLessonId={lesson.id} />
+        </TabsContent>
+      )}
     </Tabs>
+  );
+}
+
+function LessonResources({
+  courseId,
+  currentLessonId,
+}: {
+  courseId: string;
+  currentLessonId: string;
+}) {
+  const getResourcesFn = useServerFn(getCourseResources);
+  const saveEditorFn = useServerFn(saveEditorCode);
+  const navigate = useNavigate();
+  const [openIdeBusy, setOpenIdeBusy] = useState<string | null>(null);
+
+  const resourcesQuery = useQuery({
+    queryKey: ["course-resources", courseId],
+    queryFn: () => getResourcesFn({ data: { courseId } }),
+  });
+
+  const materials = resourcesQuery.data?.materials ?? [];
+  const assignments = resourcesQuery.data?.assignments ?? [];
+  const isLoading = resourcesQuery.isLoading;
+
+  const currentAssignment = assignments.find((a: any) => a.lesson_id === currentLessonId);
+
+  const launchAssignment = async (a: any) => {
+    setOpenIdeBusy(a.id);
+    try {
+      const res = await saveEditorFn({
+        data: {
+          title: a.title || "Course Assignment",
+          code: a.starter_code || "",
+          language: "javascript",
+        },
+      });
+      toast.success("Assignment workspace ready!");
+      navigate({ to: "/playground/editor", search: { project: res.projectId } });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Sign in required to open the IDE");
+    } finally {
+      setOpenIdeBusy(null);
+    }
+  };
+
+  const downloadUrl = (url: string) => {
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    if (url.startsWith("/")) return `${window.location.origin}${url}`;
+    return `${window.location.origin}/${url}`;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 py-8 justify-center text-sm text-muted-foreground">
+        <Loader2 className="h-4 w-4 animate-spin" /> Loading resources…
+      </div>
+    );
+  }
+
+  if (materials.length === 0 && assignments.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border/70 bg-muted/20 p-8 text-center">
+        <FileText className="mx-auto mb-3 h-8 w-8 text-muted-foreground/60" />
+        <p className="text-sm font-medium text-foreground">No downloadable resources yet</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          The instructor hasn't attached files or assignments to this course.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {currentAssignment && (
+        <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-transparent p-5">
+          <div className="mb-2 flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-amber-300">
+              <Target className="h-4 w-4" />
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-foreground">Assignment for this lesson</h4>
+              <p className="text-xs text-muted-foreground">
+                {currentAssignment.difficulty ? (
+                  <>
+                    Difficulty: <b className="capitalize">{currentAssignment.difficulty}</b>
+                    {Number(currentAssignment.points_reward) > 0 && (
+                      <> · {currentAssignment.points_reward} XP</>
+                    )}
+                  </>
+                ) : null}
+              </p>
+            </div>
+          </div>
+          <p className="text-sm leading-relaxed text-foreground/85 whitespace-pre-wrap">
+            {currentAssignment.prompt}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {currentAssignment.starter_code ? (
+              <Button size="sm" onClick={() => launchAssignment(currentAssignment)} disabled={openIdeBusy === currentAssignment.id}>
+                {openIdeBusy === currentAssignment.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Code2 className="h-4 w-4" />
+                )}
+                Open in IDE with starter code
+              </Button>
+            ) : (
+              <Button size="sm" onClick={() => launchAssignment(currentAssignment)} disabled={openIdeBusy === currentAssignment.id}>
+                {openIdeBusy === currentAssignment.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Code2 className="h-4 w-4" />
+                )}
+                Start in IDE
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {assignments.length > 0 && (
+        <div>
+          <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
+            <ClipboardList className="h-4 w-4 text-amber-400" /> All assignments
+          </h4>
+          <div className="space-y-2">
+            {assignments.map((a: any) => (
+              <div
+                key={a.id}
+                className={cn(
+                  "flex flex-wrap items-center gap-3 rounded-xl border border-border/70 bg-card p-3.5",
+                  a.lesson_id === currentLessonId && "ring-1 ring-amber-500/40",
+                )}
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    {a.title || "Assignment"}
+                    {a.lesson_id === currentLessonId && (
+                      <span className="ml-2 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-300">
+                        Current lesson
+                      </span>
+                    )}
+                  </p>
+                  {a.prompt && (
+                    <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{a.prompt}</p>
+                  )}
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => launchAssignment(a)}
+                  disabled={openIdeBusy === a.id}
+                >
+                  {openIdeBusy === a.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Code2 className="h-3.5 w-3.5" />
+                  )}
+                  Open in IDE
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {materials.length > 0 && (
+        <div>
+          <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
+            <Download className="h-4 w-4 text-cyan-400" /> Downloads
+          </h4>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {materials.map((m: any) => (
+              <a
+                key={m.id}
+                href={downloadUrl(m.file_url)}
+                target={m.file_url?.startsWith("http") ? "_blank" : undefined}
+                rel="noreferrer"
+                download={!m.file_url?.startsWith("http")}
+                className="group flex items-center gap-3 rounded-xl border border-border/70 bg-card p-3.5 transition-colors hover:border-cyan-500/50 hover:bg-cyan-500/5"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-500/15 text-cyan-400">
+                  <FileCode2 className="h-4.5 w-4.5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-foreground group-hover:text-cyan-200">
+                    {m.title || "Resource"}
+                  </p>
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                    {(m.material_type || "file").replace(/_/g, " ")}
+                    {m.description ? ` · ${m.description}` : ""}
+                  </p>
+                </div>
+                <Download className="h-4 w-4 shrink-0 text-muted-foreground group-hover:text-cyan-400" />
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 

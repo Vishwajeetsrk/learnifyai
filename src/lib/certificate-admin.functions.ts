@@ -391,6 +391,14 @@ export const getCertSettings = createServerFn({ method: "GET" })
         "cert_blockchain",
         "cert_email_notifications",
         "cert_qr_code",
+        "cert_org_name",
+        "cert_brand_color",
+        "cert_logo_url",
+        "cert_email_from",
+        "cert_email_reply_to",
+        "cert_verification_domain",
+        "cert_expiry_reminder",
+        "cert_weekly_digest",
       ]);
 
     const settings: Record<string, string> = {
@@ -399,6 +407,14 @@ export const getCertSettings = createServerFn({ method: "GET" })
       cert_blockchain: "false",
       cert_email_notifications: "true",
       cert_qr_code: "true",
+      cert_org_name: "Learnify AI",
+      cert_brand_color: "#6B5BFB",
+      cert_logo_url: "/logo.png",
+      cert_email_from: "support@learnifyai.in",
+      cert_email_reply_to: "support@learnifyai.in",
+      cert_verification_domain: "learnifyai.in",
+      cert_expiry_reminder: "false",
+      cert_weekly_digest: "false",
     };
 
     (data ?? []).forEach((item) => {
@@ -418,6 +434,14 @@ export const saveCertSettings = createServerFn({ method: "POST" })
         cert_blockchain: z.string(),
         cert_email_notifications: z.string(),
         cert_qr_code: z.string(),
+        cert_org_name: z.string().optional(),
+        cert_brand_color: z.string().optional(),
+        cert_logo_url: z.string().optional(),
+        cert_email_from: z.string().optional(),
+        cert_email_reply_to: z.string().optional(),
+        cert_verification_domain: z.string().optional(),
+        cert_expiry_reminder: z.string().optional(),
+        cert_weekly_digest: z.string().optional(),
       })
       .parse(d),
   )

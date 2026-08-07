@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { CertElement, CertDesign } from "./types";
 import { Lock, Unlock, ChevronRight, Copy, Trash2 } from "lucide-react";
 
@@ -26,7 +26,14 @@ export function CertificatePreview({
   onDuplicateElement,
 }: CertificatePreviewProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [bgFailed, setBgFailed] = useState(false);
   const activeBgImage = design.show_bg_image !== false ? bgImageUrl : null;
+
+  useEffect(() => {
+    setBgFailed(false);
+  }, [bgImageUrl]);
+
+  const effectiveBgImage = activeBgImage && !bgFailed ? activeBgImage : null;
 
   const getPatternStyle = (pattern: string, bg: string, accent: string): React.CSSProperties => {
     switch (pattern) {
@@ -77,7 +84,7 @@ export function CertificatePreview({
   };
 
   const borderCss =
-    activeBgImage || design.border_style === "none"
+    effectiveBgImage || design.border_style === "none"
       ? "none"
       : design.border_style === "ornate"
         ? `1px solid ${design.accent_color}55`
@@ -92,9 +99,9 @@ export function CertificatePreview({
         width: 842,
         height: 595,
         ...getPatternStyle(design.background_pattern, design.bg_color, design.accent_color),
-        ...(activeBgImage
+        ...(effectiveBgImage
           ? {
-              backgroundImage: `url("${activeBgImage}")`,
+              backgroundImage: `url("${effectiveBgImage}")`,
               backgroundSize: "100% 100%",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
@@ -106,8 +113,37 @@ export function CertificatePreview({
         if (e.target === canvasRef.current) onSelect(null);
       }}
     >
+      {/* Background-image load probe (silently detects broken SVG/URLs) */}
+      {activeBgImage && (
+        <img
+          src={activeBgImage}
+          alt=""
+          aria-hidden
+          style={{ display: "none" }}
+          onLoad={() => setBgFailed(false)}
+          onError={() => setBgFailed(true)}
+        />
+      )}
+
+      {/* Premium fallback frame when the background image is missing/broken */}
+      {bgFailed && (
+        <>
+          <div
+            className="absolute inset-2 pointer-events-none"
+            style={{ border: `2px solid ${design.accent_color}aa` }}
+          />
+          <div
+            className="absolute inset-[14px] pointer-events-none"
+            style={{ border: `1px solid ${design.accent_color}44` }}
+          />
+          <div
+            className="absolute inset-[26px] pointer-events-none"
+            style={{ border: `3px double ${design.accent_color}66` }}
+          />
+        </>
+      )}
       {/* Corner Styles */}
-      {!activeBgImage && design.corner_style !== "none" && (
+      {!effectiveBgImage && design.corner_style !== "none" && (
         <>
           <div
             className="absolute top-0 left-0 pointer-events-none"
@@ -139,7 +175,7 @@ export function CertificatePreview({
       )}
 
       {/* Ornate Border */}
-      {!activeBgImage && design.border_style === "ornate" && (
+      {!effectiveBgImage && design.border_style === "ornate" && (
         <>
           <div
             className="absolute inset-2 pointer-events-none"
