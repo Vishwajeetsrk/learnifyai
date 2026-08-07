@@ -509,6 +509,17 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v5.4.1 (August 2026) — Template Mastery Resources Polish, Project Studio Upgrades & Marketplace Refinements
+
+- ✅ **Resources & Assignments Tab Fixed**: Root cause — the `course_materials` CHECK constraint only allowed `('pdf','transcript','note')`, forcing image assets to be mislabeled as "note". Migration `20270807000003_material_image_type.sql` widens the constraint to `pdf/transcript/note/image/video/link` and retags the logo + certificate pack rows to `image`. The UI now renders per-type icon tiles with friendly labels (Image/PDF/Note/Transcript/Video/Link), file-extension chips from the URL, and count badges on both headers.
+- ✅ **Assignment Cards Upgraded**: Each assignment now shows an order number, difficulty badge, XP reward chip, and prompt excerpt — with the current lesson highlighted and a "Current lesson" ring.
+- ✅ **Lesson Callout Rendering Fix**: Bare `[!tip]` / `[!warning]` / `[!info]` / `[!note]` paragraphs (not just blockquotes) now render as proper styled Callout boxes with the tag stripped, in both the course player and the admin lesson editor preview.
+- ✅ **Flashcards Icons**: Replaced emoji (💡/🙃) with premium lucide `Lightbulb`/`Brain` icons.
+- ✅ **Project Studio (`/studio/$projectId`) Upgrades**: Removed duplicate not-found guard, quiz options now show A/B/C/D letter badges with per-state colors, streak/XP pills hidden on phones (header no longer overflows ≤400px), and the progress bar now reflects completed modules instead of only the active step.
+- ✅ **Project Course Page (`/course/$projectId`)**: "Course Content" sidebar now shows a module count badge.
+- ✅ **Marketplace Career Path Pills**: Pills with zero matching courses are visually dimmed with a "No courses in this path yet" tooltip instead of looking broken.
+- ✅ **TypeScript & Build Clean**: `tsc --noEmit` exit 0 and production build succeeds.
+
 ### v5.4.0 (August 2026) — Template Mastery Course System, Job Applications Portal & Marketplace Analytics
 
 - ✅ **"Template Mastery" Free Course Seeded Live**: Complete beginner-friendly course (4 modules, 12 lessons, 10 MCQs, 3 assignments, 3 downloadable resources) shipped via migration `20270807000000_template_mastery_course.sql` — now visible on the marketplace as a published ₹0 course with its own SVG cover.
