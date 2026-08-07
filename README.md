@@ -509,6 +509,19 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ## 📋 Changelog
 
+### v5.4.0 (August 2026) — Template Mastery Course System, Job Applications Portal & Marketplace Analytics
+
+- ✅ **"Template Mastery" Free Course Seeded Live**: Complete beginner-friendly course (4 modules, 12 lessons, 10 MCQs, 3 assignments, 3 downloadable resources) shipped via migration `20270807000000_template_mastery_course.sql` — now visible on the marketplace as a published ₹0 course with its own SVG cover.
+- ✅ **Rich Lesson Content Engine**: New `RichLessonContent` renderer (`src/components/course/`) — GitHub-flavored markdown with quiz blocks, flashcards, diagrams, and callout boxes rendering beautifully inside the course player.
+- ✅ **Lesson Editor with Live Preview**: Admins can now edit `content_md` and per-language `content_translations` for any lesson directly in Admin → Content Manager, with a live rendered preview powered by the same `RichLessonContent` engine.
+- ✅ **Notes Tab Upgrade**: Course player Notes tab now shows the full lesson content (not just AI summaries) with a **Hindi/English language toggle** powered by seeded `content_translations`.
+- ✅ **Job Applications Portal**: New `job_applications` DB table with RLS + 3 seeded job postings (Developer Relations, AI Course Creator, Senior Full-Stack Engineer) via migration `20270807000001_job_applications.sql`. The Careers page Apply dialog is now fully server-backed (`submitJobApplication`), and admins get a dedicated **Applications tab** in Admin → Content Manager with a status workflow (New → Reviewed → Shortlisted → Rejected/Hired) and private notes.
+- ✅ **Certificate Designer Fixes**: Field-based Canva template configs now open correctly in the editor (converted to design elements + theme on load), a premium double-border fallback frame renders when a background image fails to load (both live preview and issue dialog), and `saveCanvaTemplate` accepts templates without background images.
+- ✅ **Certificate Settings Sidebar Fully Wired**: All 7 settings tabs (General, Notifications, Security, Branding, Email, Domain, Team) are now functional — 13 settings keys persisted to the database via `getCertSettings`/`saveCertSettings`.
+- ✅ **Marketplace Analytics**: New `enrollment_count` column on `courses` kept in sync by a database trigger (migration `20270807000002_course_enrollment_count.sql`) — the **Trending Now rail** and **Most Popular sort** now actually work with real enrollment data.
+- ✅ **Marketplace Filter Fixes & Polish**: Level filters are now case-insensitive (DB `Beginner` vs. filter chip `beginner` previously hid everything), Recommended rail matches properly, and course cards gained smooth framer-motion entrance animations with stagger.
+- ✅ **TypeScript & Build Clean**: `tsc --noEmit` exit 0 and production build succeeds.
+
 ### v5.3.0 (August 2026) — Public Portfolio Publishing, Animated 3D Avatar Fallback & Resume Extraction Overhaul
 
 - ✅ **Publish Portfolio by Username (`/p/{slug}`)**: Portfolio Builder now publishes to a real public URL (`https://www.learnifyai.in/p/vishwajeetsrk`) backed by the new `portfolios` DB table (migration `20270806000000_portfolios.sql`) with RLS. Profile photos upload to the `avatars` storage bucket, project images included, and the live page tracks view counts. Users can update or unpublish their portfolio anytime.
