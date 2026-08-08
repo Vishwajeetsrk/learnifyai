@@ -21,13 +21,13 @@ export const adminListPrizes = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const supabaseAdmin = await loadAdmin();
     await assertAdminRole(supabaseAdmin, context.userId!);
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (supabaseAdmin as any)
       .from("leaderboard_prizes")
       .select("*")
       .order("period")
       .order("rank");
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []) as any[];
   });
 
 export const adminSavePrize = createServerFn({ method: "POST" })
@@ -62,20 +62,20 @@ export const adminSavePrize = createServerFn({ method: "POST" })
       updated_at: new Date().toISOString(),
     };
     if (data.id) {
-      const { error } = await supabaseAdmin
+      const { error } = await (supabaseAdmin as any)
         .from("leaderboard_prizes")
         .update(row)
         .eq("id", data.id);
       if (error) throw new Error(error.message);
       return { id: data.id };
     }
-    const { data: inserted, error } = await supabaseAdmin
+    const { data: inserted, error } = await (supabaseAdmin as any)
       .from("leaderboard_prizes")
       .insert(row)
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    return { id: inserted!.id };
+    return { id: (inserted as any)?.id };
   });
 
 export const adminListClaims = createServerFn({ method: "GET" })
@@ -83,13 +83,13 @@ export const adminListClaims = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const supabaseAdmin = await loadAdmin();
     await assertAdminRole(supabaseAdmin, context.userId!);
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (supabaseAdmin as any)
       .from("prize_claims")
       .select("*, profiles(full_name, email, avatar_url)")
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []) as any[];
   });
 
 export const adminSetClaimStatus = createServerFn({ method: "POST" })
@@ -103,7 +103,7 @@ export const adminSetClaimStatus = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const supabaseAdmin = await loadAdmin();
     await assertAdminRole(supabaseAdmin, context.userId!);
-    const { error } = await supabaseAdmin
+    const { error } = await (supabaseAdmin as any)
       .from("prize_claims")
       .update({
         status: data.status,
@@ -118,14 +118,14 @@ export const myPendingPrizes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const supabaseAdmin = await loadAdmin();
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await (supabaseAdmin as any)
       .from("prize_claims")
       .select("*")
       .eq("user_id", context.userId!)
       .eq("status", "pending")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return data ?? [];
+    return (data ?? []) as any[];
   });
 
 export const claimPrize = createServerFn({ method: "POST" })
@@ -134,92 +134,94 @@ export const claimPrize = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const supabaseAdmin = await loadAdmin();
 
-    const { data: claim, error: claimError } = await supabaseAdmin
+    const { data: claim, error: claimError } = await (supabaseAdmin as any)
       .from("prize_claims")
       .select("*")
       .eq("id", data.claimId)
       .eq("user_id", context.userId!)
       .single();
     if (claimError || !claim) throw new Error("Prize claim not found");
-    if (claim.status !== "pending") throw new Error("Prize already claimed or expired");
+    if ((claim as any).status !== "pending") throw new Error("Prize already claimed or expired");
 
-    const { data: prizeRow } = claim.prize_id
-      ? await supabaseAdmin.from("leaderboard_prizes").select("*").eq("id", claim.prize_id).maybeSingle()
+    const { data: prizeRow } = (claim as any).prize_id
+      ? await (supabaseAdmin as any).from("leaderboard_prizes").select("*").eq("id", (claim as any).prize_id).maybeSingle()
       : { data: null };
 
     // Apply the prize by item_type. Free digital rewards only.
-    if (claim.item_type === "xp") {
-      const amount = parseInt(claim.item_value || "0", 10) || 0;
+    if ((claim as any).item_type === "xp") {
+      const amount = parseInt((claim as any).item_value || "0", 10) || 0;
       if (amount > 0) {
-        const { data: profile } = await supabaseAdmin
+        const { data: profile } = await (supabaseAdmin as any)
           .from("profiles")
           .select("xp, current_streak, highest_streak, last_active_at")
           .eq("id", context.userId!)
           .maybeSingle();
-        const xp = (profile?.xp ?? 0) + amount;
-        const { error } = await supabaseAdmin
+        const xp = ((profile as any)?.xp ?? 0) + amount;
+        const { error } = await (supabaseAdmin as any)
           .from("profiles")
           .update({ xp })
           .eq("id", context.userId!);
         if (error) throw new Error(error.message);
-        const { error: logErr } = await supabaseAdmin.from("xp_log").insert({
+        const { error: logErr } = await (supabaseAdmin as any).from("xp_log").insert({
           user_id: context.userId!,
           amount,
           source: "prize",
-          metadata: { prize: claim.prize_name, claim_id: claim.id },
+          metadata: { prize: (claim as any).prize_name, claim_id: (claim as any).id },
         });
         if (logErr) throw new Error(logErr.message);
       }
-    } else if (claim.item_type === "badge" || claim.item_type === "avatar_frame") {
+    } else if ((claim as any).item_type === "badge" || (claim as any).item_type === "avatar_frame") {
       // Grant via user_badges (badge) or avatar frame via profile flag.
-      if (claim.item_type === "badge" && claim.item_value) {
-        const { error } = await (supabaseAdmin.from("user_badges") as any).insert({
+      if ((claim as any).item_type === "badge" && (claim as any).item_value) {
+        const { error } = await (supabaseAdmin as any).from("user_badges").insert({
           user_id: context.userId!,
-          badge_id: claim.item_value,
+          badge_id: (claim as any).item_value,
         });
         if (error) {
           console.warn("badge insert:", error.message);
         }
       } else {
-        const { error } = await supabaseAdmin
+        const { error } = await (supabaseAdmin as any)
           .from("profiles")
-          .update({ prize_avatar_frame: claim.item_value || claim.prize_icon })
+          .update({ prize_avatar_frame: (claim as any).item_value || (claim as any).prize_icon })
           .eq("id", context.userId!);
         if (error) console.warn("frame update:", error.message);
       }
-    } else if (claim.item_type === "ai_credits") {
-      const amount = parseInt(claim.item_value || "0", 10) || 0;
-      const { data: bal } = await (supabaseAdmin.from("ai_credits") as any)
+    } else if ((claim as any).item_type === "ai_credits") {
+      const amount = parseInt((claim as any).item_value || "0", 10) || 0;
+      const { data: bal } = await (supabaseAdmin as any)
+        .from("ai_credits")
         .select("credits_remaining")
         .eq("user_id", context.userId!)
         .maybeSingle();
-      const remaining = (bal?.credits_remaining ?? 0) + amount;
-      const { error } = await (supabaseAdmin.from("ai_credits") as any)
+      const remaining = ((bal as any)?.credits_remaining ?? 0) + amount;
+      const { error } = await (supabaseAdmin as any)
+        .from("ai_credits")
         .upsert({
           user_id: context.userId!,
           credits_remaining: remaining,
-          credits_used: bal?.credits_used ?? 0,
+          credits_used: (bal as any)?.credits_used ?? 0,
           updated_at: new Date().toISOString(),
         })
         .eq("user_id", context.userId!);
       if (error) console.warn("credits update:", error.message);
-    } else if (claim.item_type === "premium_resume") {
-      const { error } = await supabaseAdmin.from("profiles").update({
+    } else if ((claim as any).item_type === "premium_resume") {
+      const { error } = await (supabaseAdmin as any).from("profiles").update({
         resume_premium_until: new Date(Date.now() + 365 * 86400_000).toISOString(),
       }).eq("id", context.userId!);
       if (error) console.warn("resume update:", error.message);
     }
 
-    const { error: updateErr } = await supabaseAdmin
+    const { error: updateErr } = await (supabaseAdmin as any)
       .from("prize_claims")
       .update({ status: "claimed", claimed_at: new Date().toISOString() })
-      .eq("id", claim.id);
+      .eq("id", (claim as any).id);
     if (updateErr) throw new Error(updateErr.message);
 
     return {
       success: true,
-      applied: claim.item_type,
-      prize: claim.prize_name,
-      details: prizeRow?.description ?? claim.item_value,
+      applied: (claim as any).item_type,
+      prize: (claim as any).prize_name,
+      details: (prizeRow as any)?.description ?? (claim as any).item_value,
     };
   });

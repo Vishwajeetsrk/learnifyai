@@ -1,15 +1,28 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Trophy, Flame, Star, Medal, Crown, TrendingUp, Loader2, Users } from "lucide-react";
+import {
+  Trophy,
+  Flame,
+  Star,
+  Medal,
+  Crown,
+  TrendingUp,
+  Loader2,
+  Users,
+  Gift,
+  CheckCircle2,
+} from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { getLeaderboard, getUserRank, xpToLevel, levelToRank } from "@/lib/gamification.functions";
+import { myPendingPrizes, claimPrize } from "@/lib/leaderboard-prizes.functions";
+import { toast } from "sonner";
 
 export default function LeaderboardPage() {
   const { user } = useAuth();
@@ -18,6 +31,8 @@ export default function LeaderboardPage() {
 
   const fetchLb = useServerFn(getLeaderboard);
   const fetchRank = useServerFn(getUserRank);
+  const fetchPrizes = useServerFn(myPendingPrizes);
+  const doClaim = useServerFn(claimPrize);
 
   const lb = useQuery({
     queryKey: ["leaderboard", period],
@@ -29,6 +44,37 @@ export default function LeaderboardPage() {
     queryKey: ["my-rank", user?.id],
     queryFn: () => fetchRank({ data: { userId: user!.id } }),
   });
+
+  const prizes = useQuery({
+    enabled: !!user,
+    queryKey: ["my-pending-prizes", user?.id],
+    queryFn: () => fetchPrizes().catch(() => []),
+  });
+
+  const [claiming, setClaiming] = useState<string | null>(null);
+
+  const handleClaim = async (claimId: string) => {
+    setClaiming(claimId);
+    try {
+      const r = await doClaim({ data: { claimId } });
+      toast.success(`Prize claimed! ${r.details ? `— ${r.details}` : ""}`);
+      prizes.refetch();
+      myRank.refetch();
+      lb.refetch();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Claim failed");
+    } finally {
+      setClaiming(null);
+    }
+  };
+
+  useEffect(() => {
+    if (prizes.data && prizes.data.length > 0 && window.location.search.includes("claim=1")) {
+      setTimeout(() => {
+        document.querySelector('[data-prize-banner]')?.scrollIntoView({ behavior: "smooth" });
+      }, 200);
+    }
+  }, [prizes.data]);
 
   const topUsers = lb.data ?? [];
   const my = myRank.data;
@@ -137,6 +183,60 @@ export default function LeaderboardPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Prize claims banner */}
+      {prizes.data && prizes.data.length > 0 && (
+        <div
+          data-prize-banner
+          className="rounded-2xl border-2 border-amber-300/60 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-950/20 dark:to-yellow-950/20 p-4 mb-6 shadow-sm"
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <Gift className="h-5 w-5 text-amber-500" />
+            <h3 className="font-display font-bold text-sm sm:text-base">
+              Your Leaderboard Prize{prizes.data.length > 1 ? "s" : ""}
+            </h3>
+            <Badge className="bg-amber-500 text-white text-[10px]">
+              {prizes.data.length} available
+            </Badge>
+          </div>
+          <div className="flex flex-col gap-2">
+            {prizes.data.map((p: any) => (
+              <div
+                key={p.id}
+                className="flex items-center justify-between gap-3 rounded-xl bg-white/70 dark:bg-card/70 border p-3 flex-wrap"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="text-2xl shrink-0">{p.prize_icon || "🎖️"}</span>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold truncate">
+                      {p.prize_name}{" "}
+                      <span className="text-[10px] font-normal text-muted-foreground">
+                        · {p.period === "weekly" ? "Weekly" : "All-Time"} · #{p.rank}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground line-clamp-1">
+                      {p.item_value || p.item_type}
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={() => handleClaim(p.id)}
+                  disabled={claiming === p.id}
+                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs gap-1 shrink-0"
+                >
+                  {claiming === p.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                  )}
+                  Claim Prize
+                </Button>
+              </div>
+            ))}
           </div>
         </div>
       )}

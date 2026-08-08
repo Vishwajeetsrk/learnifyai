@@ -7,7 +7,7 @@ export const Route = createFileRoute("/terms")({
       { title: "Terms of Service — Learnify AI" },
       {
         name: "description",
-        content: "Learnify AI Terms of Service — rights, billing rules, GST compliance, and user responsibilities.",
+        content: "Learnify AI Terms of Service — user rights, data control, billing rules, GST compliance, and platform terms.",
       },
       { property: "og:title", content: "Terms of Service — Learnify AI" },
       {
@@ -30,13 +30,16 @@ export const Route = createFileRoute("/terms")({
 <h2>3. GST & Tax Invoicing Compliance</h2>
 <p>All prices listed on the Platform are subject to Goods and Services Tax (GST 18% — CGST 9% + SGST 9% for intra-state transactions, or IGST 18% for inter-state transactions) under SAC Code 998431 (Online Higher Education & Technical Training Services). Tax invoices bearing our digital signature and company GSTIN are automatically issued for every transaction and accessible in your Billing Dashboard.</p>
 
-<h2>4. Grace Period & Subscription Cancellation</h2>
+<h2>4. User Data Control: Export, Edit & Deletion Rights</h2>
+<p>In alignment with the Digital Personal Data Protection Act 2023 (DPDP Act 2023), you maintain complete control over your account data. You have the right to export your learning records, edit your profile details, or request complete account and data erasure by contacting <a href="mailto:support@learnifyai.in">support@learnifyai.in</a>.</p>
+
+<h2>5. Grace Period & Subscription Cancellation</h2>
 <p>If a recurring subscription mandate fails, a 3-day grace period is granted to update payment methods. If payment is not resolved within 3 days, the account automatically transitions to the Free plan tier without losing saved course progress, code projects, or earned badges.</p>
 
-<h2>5. Intellectual Property & Course Content</h2>
+<h2>6. Intellectual Property & Course Content</h2>
 <p>All course materials, visual learning concept graphs, interactive code exercises, and AI tutors on Learnify AI are protected by intellectual property laws. Creators retain ownership of original course content published via the Creator Studio while granting Learnify AI a worldwide license to host and distribute the materials.</p>
 
-<h2>6. Grievance Redressal Mechanism</h2>
+<h2>7. Grievance Redressal Mechanism</h2>
 <p>In accordance with Indian E-Commerce regulations, consumer complaints or platform grievances can be submitted to our Nodal Officer at <a href="mailto:support@learnifyai.in">support@learnifyai.in</a> or <a href="mailto:vishwajeetsrk@gmail.com">vishwajeetsrk@gmail.com</a>. Complaints receive a ticket reference number within 48 hours and complete resolution within 30 days.</p>`}
     />
   ),
