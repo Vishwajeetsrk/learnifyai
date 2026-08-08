@@ -228,11 +228,11 @@ export const saveCanvaTemplate = createServerFn({ method: "POST" })
   .validator((d: unknown) =>
     z
       .object({
-        id: z.string().uuid().optional(),
+        id: z.string().optional(),
         name: z.string().min(1),
         category: z.string().default("Professional"),
-        bg_image_url: z.string().url().or(z.literal("")).default(""),
-        thumbnail_url: z.string().url().or(z.literal("")).optional().nullable(),
+        bg_image_url: z.string().default(""),
+        thumbnail_url: z.string().optional().nullable(),
         fields_json: z.any().optional(),
         theme_colors: z.any().optional(),
       })
@@ -259,7 +259,7 @@ export const saveCanvaTemplate = createServerFn({ method: "POST" })
       updated_at: now,
     };
 
-    if (data.id) {
+    if (data.id && data.id !== "new" && data.id !== "") {
       const { error } = await supabaseAdmin.from("canva_templates").update(row).eq("id", data.id);
       if (error) throw new Error(error.message);
       return { id: data.id };

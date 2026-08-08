@@ -94,6 +94,7 @@ import { toast } from "sonner";
 import { lessonAiHelper } from "@/lib/lesson-ai.functions";
 import { enrollFree, markCourseStarted, recomputeProgress, getCourseResources } from "@/lib/course.functions";
 import { awardXP, getCourseLearners } from "@/lib/gamification.functions";
+import { emailCourseCertificate } from "@/lib/cert-email.functions";
 import { logDailyUsage } from "@/lib/onboarding.functions";
 import { saveEditorCode } from "@/lib/playground/projects";
 import { getLessonBlocks } from "@/lib/lesson-blocks.functions";
@@ -303,11 +304,16 @@ function CourseDetail() {
     queryKey: ["cert-templates-list"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("certificate_templates")
-        .select("id, name, is_default")
+        .from("canva_templates")
+        .select("id, name, category")
         .order("name");
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []).map((t: any) => ({
+        id: t.id,
+        name: t.name,
+        category: t.category ?? "Certificate",
+        is_default: false,
+      }));
     },
   });
 
@@ -837,7 +843,7 @@ function CourseDetail() {
                 value={(course as any)?.certificate_template_id ?? ""}
                 onChange={(e) => updateCourseTemplate(e.target.value || null)}
               >
-                <option value="">No certificate template</option>
+                <option value="">Default certificate template</option>
                 {certTemplatesQuery.data.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name} {t.is_default ? "(default)" : ""}
@@ -2948,6 +2954,7 @@ function FinalTestDialog({
     null,
   );
   const testAwardXp = useServerFn(awardXP);
+  const emailCourseCert = useServerFn(emailCourseCertificate);
 
   const q = useQuery({
     queryKey: ["mcqs", courseId],
@@ -2988,6 +2995,9 @@ function FinalTestDialog({
           setLocalCelebrate(true);
           testAwardXp({ data: { userId, amount: 50, source: "test" } }).then((r) => {
             if (r.success) toast.success(`+50 XP for passing the test! 🔥`);
+          });
+          emailCourseCert({ data: { courseId } }).then((r) => {
+            if (r.success) toast.success("Certificate emailed to you ✉️");
           });
         }
       }

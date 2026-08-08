@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode, type CSSProperties, type Ref } from "react";
 import QRCode from "qrcode";
 import { Loader2, Award, Printer, Share2, Download, Mail } from "lucide-react";
 import { format } from "date-fns";
@@ -40,6 +40,51 @@ export const Route = createFileRoute("/certificates/$code")({
   ),
 });
 
+function ScaledCanvas({
+  children,
+  className,
+  style,
+  ref,
+}: {
+  children: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+  ref?: Ref<HTMLDivElement>;
+}) {
+  const scaleRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = scaleRef.current;
+    if (!el) return;
+    const update = () => setScale(el.clientWidth / 842);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={ref} className={className} style={style}>
+      <div
+        ref={scaleRef}
+        style={{ width: "100%" }}
+      >
+        <div
+          style={{
+            width: 842,
+            height: 595,
+            transform: `scale(${scale})`,
+            transformOrigin: "top left",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CertificatePage() {
   const { code } = Route.useParams();
   const { user } = useAuth();
@@ -70,12 +115,32 @@ function CertificatePage() {
 
       let template = null;
       if (certV2?.template_id) {
-        const { data: tmpl } = await supabase
-          .from("certificate_templates")
+        const { data: canva } = await supabase
+          .from("canva_templates")
           .select("*")
           .eq("id", certV2.template_id)
           .maybeSingle();
-        template = tmpl;
+        if (canva) {
+          const raw = canva as any;
+          if (Array.isArray(raw.fields_json?.elements)) {
+            template = { ...raw, config_json: raw.fields_json };
+          } else if (raw.fields_json && typeof raw.fields_json === "object") {
+            const { fieldsToElements, themeToDesign } = await import("@/lib/canva-cert.functions");
+            template = {
+              ...raw,
+              config_json: { elements: fieldsToElements(raw.fields_json), design: themeToDesign(raw.theme_colors) },
+            };
+          } else {
+            template = raw;
+          }
+        } else {
+          const { data: legacy } = await supabase
+            .from("certificate_templates")
+            .select("*")
+            .eq("id", certV2.template_id)
+            .maybeSingle();
+          template = legacy;
+        }
       }
 
       let issuerOrgLogoUrl = null;
@@ -265,17 +330,20 @@ function CertificatePage() {
         </div>
 
         {row.v2?.certificate_templates ? (
-          <div
-            ref={certRef}
+          <ScaledCanvas
             className="relative w-full mx-auto overflow-hidden shadow-2xl"
-            style={{
-              aspectRatio: "1.414 / 1",
-              background: row.v2.certificate_templates.bg_image_url
-                ? `#fdfbf5 url(${row.v2.certificate_templates.bg_image_url}) center/cover no-repeat`
-                : "#fdfbf5",
-              colorScheme: "light",
-            }}
+            ref={certRef}
+            style={{ aspectRatio: "1.414 / 1" }}
           >
+            <div
+              className="absolute inset-0"
+              style={{
+                background: row.v2.certificate_templates.bg_image_url
+                  ? `#fdfbf5 url(${row.v2.certificate_templates.bg_image_url}) center/cover no-repeat`
+                  : "#fdfbf5",
+                colorScheme: "light",
+              }}
+            />
             {row.v2.certificate_templates.config_json?.elements?.length > 0 ? (
               row.v2.certificate_templates.config_json.elements.map((el: any) => {
                 let content = el.content || "";
@@ -314,6 +382,23 @@ function CertificatePage() {
                       }}
                     >
                       <img src={logoUrl} alt="Org Logo" className="w-full h-full object-contain" />
+                    </div>
+                  );
+                }
+
+                if (el.type === "image" && el.url) {
+                  return (
+                    <div
+                      key={el.id}
+                      className="absolute"
+                      style={{
+                        left: el.x,
+                        top: el.y,
+                        width: el.width || 100,
+                        height: el.height || 60,
+                      }}
+                    >
+                      <img src={el.url} alt="" className="w-full h-full object-contain" />
                     </div>
                   );
                 }
@@ -386,7 +471,7 @@ function CertificatePage() {
                 <div className="text-[10px] font-mono mt-1 text-gray-400">{ctx.code}</div>
               </div>
             )}
-          </div>
+          </ScaledCanvas>
         ) : (
           <CertificateRender ref={certRef} design={design} ctx={ctx} />
         )}

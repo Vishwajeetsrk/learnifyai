@@ -22,20 +22,32 @@
 
 Learnify AI is a **full-stack, AI-powered learning platform** that combines intelligent tutoring, creator tools, gamification, and career growth into one premium experience.
 
-### 🎥 Platform Demo
+### 🎥 Platform Demo & Interactive Tour
 
 <div align="center">
-  <a href"https://www.learnifyai.in/" target="_blank">
+  <a href="https://www.learnifyai.in/" target="_blank">
     <img src="src/assets/learnify_demo.gif" alt="Learnify AI Platform Demo — Click to open Live Demo" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);" />
   </a>
-  <p><em>👆 Click to open the live demo</em></p>
+  <p><em>👆 Click to open the live interactive demo</em></p>
+
+  <a href="https://www.learnifyai.in/" target="_blank">
+    <img src="https://img.shields.io/badge/Watch%20Demo-Learnify%20AI%20Interactive%20Tour-6366f1?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch demo - Learnify AI Interactive Tour" />
+  </a>
 </div>
+
+> **Watch & Experience Learnify AI**  
+> Discover how intelligent tutoring, 100+ career courses, no-code block content editing, and the creator economy work together seamlessly in one unified platform.
+>
+> 🌐 **Live Application**: [https://www.learnifyai.in/](https://www.learnifyai.in/) · [https://learnifyaitool.vercel.app/](https://learnifyaitool.vercel.app/)
+
+---
 
 ### ✨ For Learners
 
 | Feature                            | Description                                                                                                                                                                                                                                      |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 🤖 **AI Tutor**                    | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)                                                                                                                                                                 |
+| 🧱 **Interactive Block Player**    | Rich block-rendered lessons featuring live YouTube/Vimeo/Loom video embeds, interactive MCQ quizzes with scoring & retry, syntax-highlighted code blocks, Mermaid.js architecture diagrams, callouts, and downloadable resources |
 | 🗺️ **91 Developer Roadmaps (roadmap.sh)** | 91 interactive developer learning tracks (AI Agents, AI Engineer, System Design, Frontend, Backend, DevOps, Cyber Security, MLOps) with real-time search, target role selection, and AI generation grounded in 90 curated roadmap definitions |
 | 💼 **Career Studio (11-in-1)**     | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder (publishes live at `/p/{username}`), **LinkedIn Optimizer**, **Career & Salary Analytics**, **Internship Tracker**, **Skill Gap Analysis**, **Career Finder (Ikigai)**, and **Skill Roadmaps** |
 | 🎓 **System Design Academy**       | 10 topics (Netflix, Uber, WhatsApp, YouTube, Twitter, Amazon, Google, Instagram, Slack, Zoom) with animated architecture diagrams, knowledge graph, voice narration, quiz                                                                        |
@@ -65,6 +77,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 
 | Feature                            | Description                                                                                                          |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 🧱 **No-Code Block Course Builder**| Full-page Notion-style course builder at `/course-builder/$courseId` with 10 block types, live video embeds, quiz builder, code editor, drag-and-drop curriculum sidebar, and real-time auto-saving |
 | 🏗️ **Creator Studio**              | Build courses, add lessons, manage quizzes and assignments                                                           |
 | 🪄 **AI Course Builder**           | Auto-generate course outlines, lessons, and thumbnails                                                               |
 | 🎓 **Certificate Templates**       | Assign certificate templates to courses from course detail page                                                      |

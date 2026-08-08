@@ -45,33 +45,48 @@ const ICON_MAP: Record<string, any> = {
 const fallbackFeatures = [
   {
     icon: Brain,
-    name: "AI Tutor",
-    description: "Personalized 1-on-1 tutoring that adapts to how you learn.",
+    name: "AI Tutor & Agents",
+    description: "Personalized 1-on-1 tutoring powered by Gemini, Groq, and OpenRouter multi-model fallbacks.",
   },
   {
     icon: BookOpen,
-    name: "Smart Notes & Slides",
-    description: "Generate flashcards, summaries, and decks from any lesson.",
+    name: "No-Code Block Course Builder",
+    description: "Full-page Notion-style course builder at /course-builder/$courseId with 10 block types, live video embeds, quiz builder, and auto-save.",
   },
   {
-    icon: Trophy,
-    name: "Gamified Progress",
-    description: "Streaks, XP, badges, and leaderboards that make learning addictive.",
+    icon: Sparkles,
+    name: "Interactive Block Player",
+    description: "Rich block-rendered lessons featuring YouTube/Vimeo/Loom embeds, MCQ quizzes with scoring & retry, code blocks, and Mermaid diagrams.",
   },
   {
-    icon: Users,
-    name: "Creator Economy",
-    description: "Coaches and creators ship courses, cohorts, and communities.",
-  },
-  {
-    icon: Wallet,
-    name: "Built-in Wallet",
-    description: "Earnings, payouts, and tipping handled natively.",
+    icon: GraduationCap,
+    name: "91 Developer Roadmaps",
+    description: "Interactive learning tracks (AI Engineer, System Design, Frontend, Backend, DevOps, Cyber Security) grounded in roadmap.sh standards.",
   },
   {
     icon: BarChart3,
-    name: "Career Intelligence",
-    description: "AI-guided paths, resume reviews, and skill graphs.",
+    name: "Career Studio (11-in-1)",
+    description: "Resume Builder, ATS Checker, Voice Interview Coach, LinkedIn Optimizer, Career Analytics, Internship Tracker, and Ikigai Finder.",
+  },
+  {
+    icon: Zap,
+    name: "System Design Academy",
+    description: "Master real-world architectures (Netflix, Uber, WhatsApp, YouTube, Twitter) with animated diagrams and knowledge graphs.",
+  },
+  {
+    icon: Trophy,
+    name: "Gamification & XP Store",
+    description: "Daily streaks, XP rewards, animated rank crowns, leaderboards, and XP Store perks.",
+  },
+  {
+    icon: Users,
+    name: "Creator Economy & Cohorts",
+    description: "Empowers educators to publish courses, launch cohorts, manage revenue, and automate certificate issuing.",
+  },
+  {
+    icon: Wallet,
+    name: "Cashfree GST Billing & Wallet",
+    description: "RBI-compliant e-mandates, INR payouts, and automated 18% GST tax invoicing (SAC Code 998431).",
   },
 ];
 
