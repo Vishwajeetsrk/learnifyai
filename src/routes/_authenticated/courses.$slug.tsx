@@ -1357,14 +1357,13 @@ function LessonAiTabs({
   const [doubtQ, setDoubtQ] = useState<string>("");
   const [busy, setBusy] = useState<"" | "summary" | "exercise" | "doubt">("");
   const [speaking, setSpeaking] = useState(false);
-  const [contentLang, setContentLang] = useState<string>("en");
   const [myNotes, setMyNotes] = useState<string>("");
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   const blocksQuery = useQuery({
     queryKey: ["lesson-blocks", lesson.id],
     queryFn: () => getLessonBlocksFn({ data: { lessonId: lesson.id } }),
-    enabled: lesson.content_format === "blocks",
+    enabled: (lesson as any).content_format === "blocks",
     staleTime: 60_000,
   });
 
@@ -1511,7 +1510,7 @@ function LessonAiTabs({
           )}
         </div>
 
-        {lesson.content_format === "blocks" && blocksQuery.data?.blocks?.length ? (
+        {(lesson as any).content_format === "blocks" && blocksQuery.data?.blocks?.length ? (
           <BlockRenderer blocks={blocksQuery.data.blocks as any} />
         ) : hasRichContent ? (
           <RichLessonContent

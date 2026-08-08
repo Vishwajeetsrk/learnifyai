@@ -238,7 +238,7 @@ export const createLesson = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     await assertCourseOwnership(supabase, data.courseId, userId);
 
-    const { data: lesson, error } = await supabase
+    const { data: lesson, error } = await (supabase as any)
       .from("lessons")
       .insert({
         course_id: data.courseId,
@@ -280,7 +280,7 @@ export const updateLesson = createServerFn({ method: "POST" })
     if (data.description !== undefined) patch.description = data.description;
     if (data.tags !== undefined) patch.tags = data.tags;
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("lessons")
       .update(patch)
       .eq("id", data.lessonId);
@@ -374,7 +374,7 @@ export const updateModule = createServerFn({ method: "POST" })
     if (data.title !== undefined) patch.title = data.title;
     if (data.description !== undefined) patch.description = data.description;
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("course_modules")
       .update(patch)
       .eq("id", data.moduleId);
@@ -509,7 +509,7 @@ export const updateCourseSettings = createServerFn({ method: "POST" })
     if (data.certificateEnabled !== undefined) patch.certificate_enabled = data.certificateEnabled;
     if (data.completionThreshold !== undefined) patch.completion_threshold = data.completionThreshold;
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("courses")
       .update(patch)
       .eq("id", data.courseId);
@@ -591,7 +591,7 @@ export const duplicateCourse = createServerFn({ method: "POST" })
         .single();
 
       for (const lesson of (mod as any).lessons ?? []) {
-        const { data: newLesson } = await supabase
+        const { data: newLesson } = await (supabase as any)
           .from("lessons")
           .insert({
             course_id: (newCourse as any).id,

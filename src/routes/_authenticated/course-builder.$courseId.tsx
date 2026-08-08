@@ -133,8 +133,8 @@ function CourseBuilderPage() {
       setLocalModules((prev) => prev.map((m) =>
         m.id === moduleId
           ? { ...m, lessons: [...m.lessons, {
-              id: res.lesson.id,
-              title: res.lesson.title,
+              id: (res.lesson as any).id,
+              title: (res.lesson as any).title,
               duration_minutes: 10,
               is_preview: false,
               is_free_preview: false,
@@ -144,7 +144,7 @@ function CourseBuilderPage() {
             }] }
           : m,
       ));
-      setSelectedLessonId(res.lesson.id);
+      setSelectedLessonId((res.lesson as any).id);
       setSelectedPanel("lesson");
       toast("Lesson added");
     } catch (e: any) {
@@ -285,31 +285,27 @@ function CourseBuilderPage() {
 
   if (isLoading) {
     return (
-      <AppShell>
-        <div className="flex items-center justify-center min-h-[100dvh]">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-indigo-400 mx-auto mb-3" />
-            <p className="text-slate-400 text-sm">Loading course editor...</p>
-          </div>
+      <div className="flex items-center justify-center min-h-[100dvh] bg-[#0f0f16]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-400 mx-auto mb-3" />
+          <p className="text-slate-400 text-sm">Loading course editor...</p>
         </div>
-      </AppShell>
+      </div>
     );
   }
 
   if (error || !localCourse) {
     return (
-      <AppShell>
-        <div className="flex items-center justify-center min-h-[100dvh]">
-          <div className="text-center">
-            <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-3" />
-            <p className="text-white font-medium mb-1">Course not found</p>
-            <p className="text-slate-400 text-sm mb-4">You don't have access to this course or it doesn't exist.</p>
-            <Button variant="outline" onClick={() => navigate({ to: "/creator" })}>
-              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Creator Hub
-            </Button>
-          </div>
+      <div className="flex items-center justify-center min-h-[100dvh] bg-[#0f0f16]">
+        <div className="text-center">
+          <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-3" />
+          <p className="text-white font-medium mb-1">Course not found</p>
+          <p className="text-slate-400 text-sm mb-4">You don't have access to this course or it doesn't exist.</p>
+          <Button variant="outline" onClick={() => navigate({ to: "/creator" })}>
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back to Creator Hub
+          </Button>
         </div>
-      </AppShell>
+      </div>
     );
   }
 
