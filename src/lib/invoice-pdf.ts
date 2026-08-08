@@ -42,6 +42,9 @@ interface BrandingData {
   template?: string | null;
   qr_enabled?: string | null;
   watermark?: string | null;
+  title?: string | null;
+  text_color?: string | null;
+  band_text_color?: string | null;
 }
 
 const DEFAULT_BRANDING: BrandingData = {
@@ -63,6 +66,9 @@ const DEFAULT_BRANDING: BrandingData = {
   template: "modern",
   qr_enabled: "true",
   watermark: "PAID",
+  title: "TAX INVOICE",
+  text_color: "#1e293b",
+  band_text_color: "#ffffff",
 };
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -132,6 +138,8 @@ export async function downloadInvoicePdf(
 
   const primary = hexToRgb(primaryHex);
   const secondary = hexToRgb(secondaryHex);
+  const textRgb = hexToRgb(branding.text_color || "#1e293b");
+  const bandRgb = hexToRgb(branding.band_text_color || "#ffffff");
 
   const pageW = 210;
   const margin = 14;
@@ -145,7 +153,7 @@ export async function downloadInvoicePdf(
   // ─── 1. HEADER GRADIENT BAND ─────────────────────────────────────────────
   if (templateStyle === "minimal") {
     // Minimalist clean thin line separator
-    doc.setDrawColor(30, 41, 59);
+    doc.setDrawColor(textRgb[0], textRgb[1], textRgb[2]);
     doc.setLineWidth(0.8);
     doc.line(margin, 24, pageW - margin, 24);
   } else if (templateStyle === "luxury") {
@@ -182,13 +190,10 @@ export async function downloadInvoicePdf(
 
   // ─── 3. COMPANY NAME & LEGAL INFO (header) ────────────────────────────────
   const textStartX = logoBase64 ? margin + 32 : margin;
-  const isDarkT =
-    templateStyle === "dark" ||
-    templateStyle === "luxury" ||
-    templateStyle === "modern" ||
-    templateStyle === "corporate";
 
-  doc.setTextColor(isDarkT ? 255 : 30, isDarkT ? 255 : 41, isDarkT ? 255 : 59);
+  const headTextRgb = templateStyle === "minimal" ? textRgb : bandRgb;
+
+  doc.setTextColor(headTextRgb[0], headTextRgb[1], headTextRgb[2]);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   const titleY = templateStyle === "minimal" ? 14 : 18;
@@ -196,7 +201,7 @@ export async function downloadInvoicePdf(
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
-  doc.setTextColor(isDarkT ? 210 : 100, isDarkT ? 210 : 110, isDarkT ? 255 : 120);
+  doc.setTextColor(headTextRgb[0], headTextRgb[1], headTextRgb[2]);
   doc.text(String(branding.legal_name || ""), textStartX, titleY + 6);
   if (branding.gstin) doc.text(`GSTIN: ${branding.gstin}`, textStartX, titleY + 12);
   if (branding.contact) doc.text(String(branding.contact), textStartX, titleY + 18);
@@ -204,12 +209,12 @@ export async function downloadInvoicePdf(
   // ─── 4. TAX INVOICE LABEL + INVOICE # (top-right) ─────────────────────────
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
-  doc.setTextColor(isDarkT ? 255 : 15, isDarkT ? 255 : 23, isDarkT ? 255 : 42);
-  doc.text("TAX INVOICE", pageW - margin, titleY, { align: "right" });
+  doc.setTextColor(headTextRgb[0], headTextRgb[1], headTextRgb[2]);
+  doc.text(branding.title || "TAX INVOICE", pageW - margin, titleY, { align: "right" });
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
-  doc.setTextColor(isDarkT ? 210 : 100, isDarkT ? 210 : 110, isDarkT ? 255 : 120);
+  doc.setTextColor(headTextRgb[0], headTextRgb[1], headTextRgb[2]);
   doc.text(`#${inv.invoice_number || ""}`, pageW - margin, titleY + 7, { align: "right" });
 
   // ─── 5. STATUS PILL ──────────────────────────────────────────────────────
@@ -264,7 +269,7 @@ export async function downloadInvoicePdf(
     doc.text(item.label, bx, infoY);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(9);
-    doc.setTextColor(templateStyle === "dark" ? 255 : 40);
+    doc.setTextColor(templateStyle === "dark" ? 255 : textRgb[0], templateStyle === "dark" ? 255 : textRgb[1], templateStyle === "dark" ? 255 : textRgb[2]);
     doc.text(item.value, bx, infoY + 5.5);
   });
 
@@ -285,7 +290,7 @@ export async function downloadInvoicePdf(
   doc.text("FROM", margin + 4, billY + 6);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
-  doc.setTextColor(templateStyle === "dark" ? 255 : 40);
+  doc.setTextColor(templateStyle === "dark" ? 255 : textRgb[0], templateStyle === "dark" ? 255 : textRgb[1], templateStyle === "dark" ? 255 : textRgb[2]);
   doc.text(String(branding.company_name || "Learnify AI"), margin + 4, billY + 12);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
@@ -302,7 +307,7 @@ export async function downloadInvoicePdf(
   doc.text("BILL TO", margin + 100, billY + 6);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
-  doc.setTextColor(templateStyle === "dark" ? 255 : 40);
+  doc.setTextColor(templateStyle === "dark" ? 255 : textRgb[0], templateStyle === "dark" ? 255 : textRgb[1], templateStyle === "dark" ? 255 : textRgb[2]);
 
   const emailTrimmed = (userEmail || "Customer").substring(0, 36);
   doc.text(emailTrimmed, margin + 100, billY + 12);
@@ -355,7 +360,7 @@ export async function downloadInvoicePdf(
     },
     bodyStyles: {
       fontSize: 8,
-      textColor: templateStyle === "dark" ? [240, 240, 240] : [50, 50, 50],
+      textColor: templateStyle === "dark" ? [240, 240, 240] : [textRgb[0], textRgb[1], textRgb[2]],
       fillColor: templateStyle === "dark" ? [30, 41, 59] : [255, 255, 255],
     },
     alternateRowStyles: {
@@ -363,7 +368,7 @@ export async function downloadInvoicePdf(
     },
     footStyles: {
       fillColor: templateStyle === "dark" ? [30, 41, 59] : [240, 240, 255],
-      textColor: templateStyle === "dark" ? [255, 255, 255] : [50, 50, 50],
+      textColor: templateStyle === "dark" ? [255, 255, 255] : [textRgb[0], textRgb[1], textRgb[2]],
       fontStyle: "bold",
       fontSize: 8.5,
     },

@@ -24,6 +24,11 @@ import {
   saveCertSettings,
   bulkIssueCertificates,
 } from "@/lib/certificate-admin.functions";
+import {
+  adminTeamMembers,
+  adminSetTeamRole,
+  adminSearchUsers,
+} from "@/lib/admin-users.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { DesignerWorkspace } from "./DesignerWorkspace";
 import { toast } from "sonner";
@@ -108,6 +113,8 @@ import {
   Image,
   Square,
   FileUp,
+  UserPlus,
+  Loader2,
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -7768,6 +7775,107 @@ function SettingsScreen({
   const [settingsNav, setSettingsNav] = useState("General");
   const [saving, setSaving] = useState(false);
 
+  // Team Access — live member management
+  const teamFn = useServerFn(adminTeamMembers);
+  const setTeamRoleFn = useServerFn(adminSetTeamRole);
+  const searchUsersFn = useServerFn(adminSearchUsers);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [teamLoading, setTeamLoading] = useState(true);
+  const [teamSearch, setTeamSearch] = useState("");
+  const [teamResults, setTeamResults] = useState<any[]>([]);
+  const [teamBusy, setTeamBusy] = useState<string | null>(null);
+
+  const TEAM_ROLE_META: Record<string, { label: string; color: string }> = {
+    super_admin: { label: "Owner", color: "#6B5BFB" },
+    admin: { label: "Admin", color: "#0EA5E9" },
+    issuer: { label: "Issuer", color: "#10B981" },
+  };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await teamFn();
+        setTeamMembers((res as any)?.members ?? []);
+      } catch {
+        /* ignore */
+      } finally {
+        setTeamLoading(false);
+      }
+    })();
+  }, [teamFn]);
+
+  useEffect(() => {
+    if (teamSearch.trim().length < 2) {
+      setTeamResults([]);
+      return;
+    }
+    const t = setTimeout(async () => {
+      try {
+        const res = await searchUsersFn({ data: { query: teamSearch.trim() } });
+        const rows = (res as any)?.rows ?? [];
+        const ids = new Set(teamMembers.map((m: any) => m.user_id));
+        setTeamResults(rows.filter((r: any) => !ids.has(r.id)));
+      } catch {
+        setTeamResults([]);
+      }
+    }, 350);
+    return () => clearTimeout(t);
+  }, [teamSearch, teamMembers, searchUsersFn]);
+
+  const teamChangeRole = async (userId: string, oldRole: string, newRole: string) => {
+    if (oldRole === newRole || !newRole) return;
+    setTeamBusy(userId);
+    try {
+      await setTeamRoleFn({ data: { userId, role: oldRole, action: "remove" } });
+      await setTeamRoleFn({ data: { userId, role: newRole, action: "add" } });
+      setTeamMembers((prev) =>
+        prev.map((m) => (m.user_id === userId ? { ...m, role: newRole } : m)),
+      );
+      toast.success(`Role updated to ${TEAM_ROLE_META[newRole]?.label ?? newRole}`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to update role");
+    } finally {
+      setTeamBusy(null);
+    }
+  };
+
+  const teamRemoveMember = async (m: any) => {
+    setTeamBusy(m.user_id);
+    try {
+      await setTeamRoleFn({ data: { userId: m.user_id, role: m.role, action: "remove" } });
+      setTeamMembers((prev) => prev.filter((x) => x.user_id !== m.user_id));
+      toast.success(`${m.full_name || "Member"} removed from team`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to remove member");
+    } finally {
+      setTeamBusy(null);
+    }
+  };
+
+  const teamAddMember = async (u: any) => {
+    setTeamBusy(u.id);
+    try {
+      await setTeamRoleFn({ data: { userId: u.id, role: "issuer", action: "add" } });
+      setTeamMembers((prev) => [
+        ...prev,
+        {
+          user_id: u.id,
+          role: "issuer",
+          full_name: u.full_name,
+          email: u.email,
+          avatar_url: u.avatar_url,
+        },
+      ]);
+      setTeamSearch("");
+      setTeamResults([]);
+      toast.success(`${u.full_name || "User"} added as Issuer`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to add member");
+    } finally {
+      setTeamBusy(null);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -8190,60 +8298,249 @@ function SettingsScreen({
         )}
 
         {settingsNav === "Team" && (
-          <SectionCard title="Team Access">
+          <SectionCard
+            title={`Team Access${
+              teamMembers.length > 0 ? ` — ${teamMembers.length} member${teamMembers.length === 1 ? "" : "s"}` : ""
+            }`}
+          >
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {[
-                { name: "Rishabh Sharma", role: "Owner", color: "#6B5BFB", tag: "O" },
-                { name: "Anjali Verma", role: "Admin", color: "#0EA5E9", tag: "A" },
-                { name: "Priya Kapoor", role: "Issuer", color: "#10B981", tag: "I" },
-              ].map((m) => (
+              {/* Add member search */}
+              <div style={{ position: "relative" }}>
                 <div
-                  key={m.name}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 12,
-                    padding: "10px 14px",
+                    gap: 8,
                     border: `1px solid ${BD}`,
                     borderRadius: 10,
+                    padding: "8px 12px",
                   }}
                 >
+                  <Search size={14} color={TX2} />
+                  <input
+                    value={teamSearch}
+                    onChange={(e) => setTeamSearch(e.target.value)}
+                    placeholder="Add member — search by name or email…"
+                    style={{
+                      flex: 1,
+                      border: "none",
+                      outline: "none",
+                      fontSize: 13,
+                      color: TX,
+                      background: "transparent",
+                    }}
+                  />
+                  {teamBusy && (
+                    <Loader2 size={14} color={P} style={{ animation: "spin 1s linear infinite" }} />
+                  )}
+                </div>
+                {teamResults.length > 0 && (
                   <div
                     style={{
-                      width: 34,
-                      height: 34,
-                      borderRadius: "50%",
-                      background: `${m.color}18`,
-                      color: m.color,
-                      fontWeight: 700,
-                      fontSize: 13,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
+                      position: "absolute",
+                      top: "calc(100% + 6px)",
+                      left: 0,
+                      right: 0,
+                      zIndex: 20,
+                      background: "#fff",
+                      border: `1px solid ${BD}`,
+                      borderRadius: 10,
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
+                      overflow: "hidden",
                     }}
                   >
-                    {m.tag}
+                    {teamResults.map((u: any) => (
+                      <button
+                        key={u.id}
+                        onClick={() => teamAddMember(u)}
+                        disabled={teamBusy === u.id}
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          padding: "9px 12px",
+                          border: "none",
+                          borderBottom: `1px solid ${BD}`,
+                          background: "transparent",
+                          cursor: "pointer",
+                          textAlign: "left",
+                        }}
+                        onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#f5f5ff")}
+                        onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "transparent")}
+                      >
+                        <div
+                          style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: "50%",
+                            background: `${P}18`,
+                            color: P,
+                            fontWeight: 700,
+                            fontSize: 12,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {(u.full_name || u.email || "?")[0]?.toUpperCase()}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>
+                            {u.full_name || "Unnamed user"}
+                          </div>
+                          <div style={{ fontSize: 11, color: TX2 }}>{u.email}</div>
+                        </div>
+                        <UserPlus size={14} color={P} />
+                      </button>
+                    ))}
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>{m.name}</div>
-                    <div style={{ fontSize: 12, color: TX2 }}>{m.role}</div>
-                  </div>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      padding: "3px 10px",
-                      borderRadius: 6,
-                      background: PL,
-                      color: P,
-                    }}
-                  >
-                    {m.role}
-                  </span>
+                )}
+              </div>
+
+              {teamLoading ? (
+                <div
+                  style={{
+                    padding: "18px 0",
+                    textAlign: "center",
+                    fontSize: 12,
+                    color: TX2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                  }}
+                >
+                  <Loader2 size={14} color={P} style={{ animation: "spin 1s linear infinite" }} />
+                  Loading team…
                 </div>
-              ))}
+              ) : teamMembers.length === 0 ? (
+                <div
+                  style={{
+                    padding: "18px 0",
+                    textAlign: "center",
+                    fontSize: 12,
+                    color: TX2,
+                  }}
+                >
+                  No team members yet. Search above to add your first member.
+                </div>
+              ) : (
+                teamMembers.map((m: any) => {
+                  const meta = TEAM_ROLE_META[m.role] ?? { label: m.role, color: TX2 };
+                  const busy = teamBusy === m.user_id;
+                  return (
+                    <div
+                      key={m.user_id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
+                        padding: "10px 14px",
+                        border: `1px solid ${BD}`,
+                        borderRadius: 10,
+                      }}
+                    >
+                      {m.avatar_url ? (
+                        <img
+                          src={m.avatar_url}
+                          alt=""
+                          style={{
+                            width: 34,
+                            height: 34,
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            flexShrink: 0,
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: 34,
+                            height: 34,
+                            borderRadius: "50%",
+                            background: `${meta.color}18`,
+                            color: meta.color,
+                            fontWeight: 700,
+                            fontSize: 13,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {(m.full_name || m.email || "?")[0]?.toUpperCase()}
+                        </div>
+                      )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>
+                          {m.full_name || "Unnamed user"}
+                        </div>
+                        <div style={{ fontSize: 12, color: TX2 }}>{m.email}</div>
+                      </div>
+                      <select
+                        value={m.role}
+                        disabled={busy}
+                        onChange={(e) => teamChangeRole(m.user_id, m.role, e.target.value)}
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          padding: "5px 8px",
+                          borderRadius: 8,
+                          border: `1px solid ${BD}`,
+                          color: TX,
+                          background: "#fff",
+                          cursor: "pointer",
+                          outline: "none",
+                        }}
+                      >
+                        <option value="super_admin">Owner</option>
+                        <option value="admin">Admin</option>
+                        <option value="issuer">Issuer</option>
+                      </select>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          padding: "3px 10px",
+                          borderRadius: 6,
+                          background: `${meta.color}12`,
+                          color: meta.color,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {meta.label}
+                      </span>
+                      <button
+                        onClick={() => teamRemoveMember(m)}
+                        disabled={busy}
+                        title="Remove from team"
+                        style={{
+                          border: "none",
+                          background: "transparent",
+                          cursor: busy ? "not-allowed" : "pointer",
+                          color: "#ef4444",
+                          opacity: busy ? 0.5 : 1,
+                          padding: 4,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        {busy ? (
+                          <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} />
+                        ) : (
+                          <Trash2 size={14} />
+                        )}
+                      </button>
+                    </div>
+                  );
+                })
+              )}
               <p style={{ fontSize: 12, color: TX2, marginTop: 2 }}>
-                Manage issuers from User Management &gt; Certificates role.
+                Owners and Admins can issue and manage certificates. Issuers can issue certificates
+                only. Role changes apply immediately.
               </p>
             </div>
           </SectionCard>

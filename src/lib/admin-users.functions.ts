@@ -249,8 +249,9 @@ export const adminDeleteUser = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-const APP_ROLES = ["super_admin", "admin", "creator", "student"] as const;
+const APP_ROLES = ["super_admin", "admin", "creator", "student", "issuer"] as const;
 const appRoleSchema = z.enum(APP_ROLES);
+const TEAM_ROLES = ["super_admin", "admin", "issuer"] as const;
 
 export const adminSetUserRoles = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -332,3 +333,102 @@ export const adminCreateUser = createServerFn({ method: "POST" })
 
 // silence unused
 void createClient;
+
+export const adminTeamMembers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context.userId);
+
+    const { data: roles, error: rolesErr } = await supabaseAdmin
+      .from("user_roles")
+      .select("user_id, role")
+      .in("role", TEAM_ROLES);
+    if (rolesErr) throw new Error(rolesErr.message);
+
+    const ids = Array.from(new Set((roles ?? []).map((r) => r.user_id)));
+    const { data: profiles } = ids.length
+      ? await supabaseAdmin
+          .from("profiles")
+          .select("id, full_name, email, avatar_url")
+          .in("id", ids)
+      : { data: [] };
+
+    const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
+    const members = (roles ?? []).map((r) => {
+      const p = profileById.get(r.user_id);
+      return {
+        user_id: r.user_id,
+        role: r.role,
+        full_name: p?.full_name ?? null,
+        email: p?.email ?? "",
+        avatar_url: p?.avatar_url ?? null,
+      };
+    });
+
+    const rank = { super_admin: 0, admin: 1, issuer: 2 } as const;
+    members.sort(
+      (a, b) =>
+        (rank[a.role as keyof typeof rank] ?? 9) - (rank[b.role as keyof typeof rank] ?? 9) ||
+        (a.full_name || "").localeCompare(b.full_name || ""),
+    );
+
+    return { members };
+  });
+
+export const adminSetTeamRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d) =>
+    z
+      .object({
+        userId: z.string().uuid(),
+        role: z.enum(TEAM_ROLES),
+        action: z.enum(["add", "remove"]),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+
+    if (data.action === "remove") {
+      if (data.userId === context.userId) {
+        throw new Error("You cannot remove your own team access");
+      }
+      if (data.role === "super_admin") {
+        const { data: owners } = await supabaseAdmin
+          .from("user_roles")
+          .select("user_id")
+          .eq("role", "super_admin");
+        if ((owners ?? []).length <= 1) {
+          throw new Error("Cannot remove the last owner");
+        }
+      }
+      const { error } = await supabaseAdmin
+        .from("user_roles")
+        .delete()
+        .eq("user_id", data.userId)
+        .eq("role", data.role);
+      if (error) throw new Error(error.message);
+      return { ok: true, action: "removed" };
+    }
+
+    const { error: insErr } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: data.userId, role: data.role }, { onConflict: "user_id,role" });
+    if (insErr) throw new Error(insErr.message);
+    return { ok: true, action: "added" };
+  });
+
+export const adminSearchUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((d) => z.object({ query: z.string().trim().min(1).max(120) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context.userId);
+    const q = `%${data.query.toLowerCase()}%`;
+    const { data: rows, error } = await supabaseAdmin
+      .from("profiles")
+      .select("id, full_name, email, avatar_url")
+      .or(`email.ilike.${q},full_name.ilike.${q}`)
+      .limit(8);
+    if (error) throw new Error(error.message);
+    return { rows: rows ?? [] };
+  });

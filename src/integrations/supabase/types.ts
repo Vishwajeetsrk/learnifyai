@@ -4634,7 +4634,7 @@ export type Database = {
       };
     };
     Enums: {
-      app_role: "super_admin" | "admin" | "creator" | "student";
+      app_role: "super_admin" | "admin" | "creator" | "student" | "issuer";
       user_role: "student" | "creator" | "coach" | "admin" | "super_admin";
     };
     CompositeTypes: {

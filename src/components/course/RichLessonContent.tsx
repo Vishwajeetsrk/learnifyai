@@ -304,17 +304,18 @@ export function RichLessonContent({ content }: { content: string }) {
     }
   };
 
+  const textOf = (node: unknown): string => {
+    if (node == null) return "";
+    if (typeof node === "string" || typeof node === "number") return String(node);
+    if (Array.isArray(node)) return node.map(textOf).join("");
+    if (typeof node === "object" && "props" in node) {
+      return textOf((node as any).props?.children);
+    }
+    return "";
+  };
+
   const parseCallout = (children: ReactNode): { type: "note" | "tip" | "warning" | "info"; rest: string } | null => {
-    const raw = Array.isArray(children)
-      ? children
-          .map((c) =>
-            typeof c === "object" && c !== null && "props" in c
-              ? String((c as any).props?.children ?? "")
-              : String(c),
-          )
-          .join("")
-      : String(children);
-    const trimmed = raw.trim();
+    const trimmed = textOf(children).trim();
     const match = /^\[!?(note|tip|warning|info|important)\]\s*/i.exec(trimmed);
     if (!match) return null;
     const kind = match[1].toLowerCase();
@@ -322,9 +323,15 @@ export function RichLessonContent({ content }: { content: string }) {
     return { type, rest: trimmed.replace(/^\[!?(note|tip|warning|info|important)\]\s*/i, "") };
   };
 
+  const renderCalloutBody = (rest: string) => (
+    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+      {rest}
+    </ReactMarkdown>
+  );
+
   const resolveCallout = (children: ReactNode) => {
     const parsed = parseCallout(children);
-    if (parsed) return <Callout type={parsed.type}>{parsed.rest}</Callout>;
+    if (parsed) return <Callout type={parsed.type}>{renderCalloutBody(parsed.rest)}</Callout>;
     return <blockquote className="border-l-4 border-indigo-400/60 bg-muted/30 py-2 pl-4 pr-3 italic text-muted-foreground">{children}</blockquote>;
   };
 
@@ -402,7 +409,7 @@ export function RichLessonContent({ content }: { content: string }) {
           h3: ({ children }) => <h3 className="mt-6 text-base font-bold text-foreground first:mt-0">{children}</h3>,
           p: ({ children }) => {
             const parsed = parseCallout(children);
-            if (parsed) return <Callout type={parsed.type}>{parsed.rest}</Callout>;
+            if (parsed) return <Callout type={parsed.type}>{renderCalloutBody(parsed.rest)}</Callout>;
             return <p className="leading-relaxed text-foreground/85">{children}</p>;
           },
           ul: ({ children }) => <ul className="list-disc space-y-1 pl-5 marker:text-indigo-400">{children}</ul>,

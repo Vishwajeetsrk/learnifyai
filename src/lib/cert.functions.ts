@@ -518,7 +518,7 @@ export const adminEmailCertificate = createServerFn({ method: "POST" })
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
-      .in("role", ["super_admin", "admin"])
+      .in("role", ["super_admin", "admin", "issuer"])
       .limit(1)
       .maybeSingle();
     if (!roleRow) throw new Error("Forbidden");
@@ -686,7 +686,7 @@ export const retryPendingCertificateEmails = createServerFn({ method: "POST" })
       .from("user_roles")
       .select("role")
       .eq("user_id", userId)
-      .in("role", ["super_admin", "admin"])
+      .in("role", ["super_admin", "admin", "issuer"])
       .limit(1)
       .maybeSingle();
     if (!roleRow) throw new Error("Forbidden");
