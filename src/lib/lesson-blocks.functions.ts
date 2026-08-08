@@ -735,7 +735,7 @@ export const adminGetAllCourses = createServerFn({ method: "GET" })
 // HELPERS (private)
 // ────────────────────────────────────────────────────────────
 
-async function assertLessonOwnership(supabase: any, lessonId: string, userId: string) {
+export async function assertLessonOwnership(supabase: any, lessonId: string, userId: string) {
   const { data: lesson } = await supabase
     .from("lessons")
     .select("course_id, courses!inner(created_by)")

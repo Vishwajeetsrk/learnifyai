@@ -27,6 +27,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { BlockType, ContentBlock } from "@/components/course/BlockRenderer";
+import { ExerciseEditorSection } from "@/components/course/ExerciseEditorSection";
 
 // ────────────────────────────────────────────────────────────
 // BLOCK DEFINITIONS
@@ -343,6 +344,11 @@ export function LessonBlockEditor({
 
         {/* Add first/next block button */}
         <AddBlockButton onAdd={(type) => addBlock(type)} />
+
+        {/* Lesson coding exercise (admin/creator editable) */}
+        <div className="pt-6">
+          <ExerciseEditorSection lessonId={lessonId} />
+        </div>
       </div>
     </div>
   );

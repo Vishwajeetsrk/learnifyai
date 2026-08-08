@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { RichLessonContent } from "@/components/course/RichLessonContent";
+import { ExerciseEditorSection } from "@/components/course/ExerciseEditorSection";
 import {
   adminListCourses,
   adminGetCourse,
@@ -576,6 +577,7 @@ function LessonEditor({
               placeholder={'{ "hi": "Hindi content...", "es": "Spanish content..." }'}
             />
           </div>
+          <ExerciseEditorSection lessonId={lesson.id} />
           {showPreview && (
             <div className="rounded-lg border bg-muted/30 p-4">
               <div className="text-xs font-medium text-muted-foreground mb-2">

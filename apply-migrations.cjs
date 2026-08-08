@@ -4,6 +4,8 @@ const fs = require("fs");
 
 const MIGRATIONS = [
   "supabase/migrations/20270808000002_cert_fk_prizes.sql",
+  "supabase/migrations/20270810000001_lesson_exercises.sql",
+  "supabase/migrations/20270810000002_exercise_seed.sql",
 ];
 
 async function main() {
