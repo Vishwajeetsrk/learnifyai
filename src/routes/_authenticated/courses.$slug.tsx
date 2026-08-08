@@ -57,6 +57,7 @@ import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { LessonSocial } from "@/components/LessonSocial";
 import { RichLessonContent } from "@/components/course/RichLessonContent";
+import { BlockRenderer } from "@/components/course/BlockRenderer";
 import { SUPPORTED_LANGUAGES } from "@/i18n";
 
 import { CoursePlayer } from "@/components/CoursePlayer";
@@ -95,6 +96,7 @@ import { enrollFree, markCourseStarted, recomputeProgress, getCourseResources } 
 import { awardXP, getCourseLearners } from "@/lib/gamification.functions";
 import { logDailyUsage } from "@/lib/onboarding.functions";
 import { saveEditorCode } from "@/lib/playground/projects";
+import { getLessonBlocks } from "@/lib/lesson-blocks.functions";
 
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import {
@@ -1341,6 +1343,8 @@ function LessonAiTabs({
   hasToolAccess: boolean;
 }) {
   const helper = useServerFn(lessonAiHelper);
+  const getLessonBlocksFn = useServerFn(getLessonBlocks);
+  const [contentLang, setContentLang] = useState<string>("en");
   const [summary, setSummary] = useState<string>("");
   const [exercise, setExercise] = useState<string>("");
   const [doubt, setDoubt] = useState<string>("");
@@ -1350,6 +1354,13 @@ function LessonAiTabs({
   const [contentLang, setContentLang] = useState<string>("en");
   const [myNotes, setMyNotes] = useState<string>("");
   const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const blocksQuery = useQuery({
+    queryKey: ["lesson-blocks", lesson.id],
+    queryFn: () => getLessonBlocksFn({ data: { lessonId: lesson.id } }),
+    enabled: lesson.content_format === "blocks",
+    staleTime: 60_000,
+  });
 
   useEffect(() => {
     try {
@@ -1494,7 +1505,9 @@ function LessonAiTabs({
           )}
         </div>
 
-        {hasRichContent ? (
+        {lesson.content_format === "blocks" && blocksQuery.data?.blocks?.length ? (
+          <BlockRenderer blocks={blocksQuery.data.blocks as any} />
+        ) : hasRichContent ? (
           <RichLessonContent
             key={`${lesson.id}-${contentLang}`}
             content={effectiveContent || (lesson.content_md ?? "")}

@@ -115,7 +115,6 @@ function buildCertEmailHtml({
 }
 
 export const issueAndEmailCertificate = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .validator((d: unknown) =>
     z
       .object({

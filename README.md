@@ -1005,6 +1005,14 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Official Skill Badges**: Added automatic, high-resolution official tech stack logos (via Devicon) to the user's Skills array in their Public Profile and Settings, replacing plain text badges with premium branded icons (e.g. React, Node.js, Python, AWS).
 - ✅ **System-Wide Enhancements**: Fixed Certificate Designer zoom mechanics, resolved Admin Dashboard mobile overflow, enabled client-side thumbnail generation for custom video uploads, and parsed raw JSON payment errors into human-readable toast notifications.
 
+### v1.7.0 (August 2026) — No-Code Course Builder & Block Engine
+
+- 🪄 **No-Code Block Course Builder (`/course-builder/$courseId`)**: Built a full-page Notion-style drag-and-drop course builder featuring a 10-type content block engine (Text, Video, Image, Quiz, Code, Callout, Divider, Embed, Diagram, File Download). Includes live YouTube/Vimeo/Loom video previews, interactive multi-question MCQ quiz builder with pass threshold and explanations, Mermaid.js diagram builder with templates, syntax-highlighted code block editor, and real-time auto-saving.
+- 🌳 **Interactive Curriculum Manager**: Integrated a drag-and-drop module and lesson tree sidebar (`CurriculumSidebar`) with inline title renaming, lesson order reordering, collapse/expand states, and 1-click free preview toggling.
+- ⚙️ **Course Metadata & Settings Panel**: Created an organized Accordion-based course settings editor (`CourseSettingsPanel`) covering course title, description, cover image, teaser trailer, INR pricing, skill level, category, multi-language support, target audience, learning outcomes, requirements, and certificate completion thresholds.
+- 👁️ **Student Block Renderer (`BlockRenderer`)**: Delivered a responsive read-only block renderer for the course player supporting all 10 block formats, lazy-loaded Mermaid.js diagrams, interactive quiz taking with scoring and retries, code copy buttons, and callout box themes.
+- 🔗 **Admin & Creator Integrations**: Added direct 🖊 block builder action buttons to both the Admin Course System table (`CourseSystemAdmin`) and Creator Hub course cards (`creator.tsx`).
+
 ### v1.6.0 (July 2026)
 
 - ✅ **Enterprise Invoice System & Live Designer**: Built a Canva-like visual Invoice Designer inside the Content Manager enabling admins to customize company information, GST numbers, logos, digital signatures, terms, watermarks, and verification QR code toggles. Added five layout templates: Modern, Minimal, Corporate, Luxury (Navy & Gold), and Dark Mode. Created a public invoice verification route `/verify/invoice/$id` directly linked to invoice records. Integrated automatic edit audits inside the `admin_audit_logs` table.

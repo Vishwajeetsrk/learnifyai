@@ -9,6 +9,8 @@ import {
   MessageSquare,
   ExternalLink,
   RefreshCw,
+  PencilRuler,
+  Plus,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { CreatorGate } from "@/components/CreatorGate";
@@ -215,8 +217,8 @@ function CreatorHub() {
           <Card className="p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display font-semibold">Your courses</h2>
-              <Button asChild variant="ghost" size="sm">
-                <Link to="/studio">Manage in Studio</Link>
+              <Button asChild size="sm" className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs h-8">
+                <Link to="/studio">+ New Course</Link>
               </Button>
             </div>
             {!overview.isLoading && !data?.courses.length ? (
@@ -258,11 +260,25 @@ function CreatorHub() {
                         )}
                       </div>
                     </div>
-                    <Button asChild variant="ghost" size="icon" aria-label="Open course">
-                      <Link to="/courses/$slug" params={{ slug: c.slug }}>
-                        <ExternalLink className="h-4 w-4" />
-                      </Link>
-                    </Button>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Button asChild variant="ghost" size="icon" aria-label="Open course" title="Preview as student">
+                        <Link to="/courses/$slug" params={{ slug: c.slug }}>
+                          <ExternalLink className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Edit in Block Builder"
+                        title="Edit in Block Builder"
+                        className="text-indigo-400 hover:text-indigo-300 hover:bg-indigo-950/30"
+                      >
+                        <Link to="/course-builder/$courseId" params={{ courseId: c.id }}>
+                          <PencilRuler className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

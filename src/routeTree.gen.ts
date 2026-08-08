@@ -101,6 +101,7 @@ import { Route as AuthenticatedCreatorSubscribersRouteImport } from './routes/_a
 import { Route as AuthenticatedCreatorEarningsRouteImport } from './routes/_authenticated/creator.earnings'
 import { Route as AuthenticatedCreatorCommentsRouteImport } from './routes/_authenticated/creator.comments'
 import { Route as AuthenticatedCoursesSlugRouteImport } from './routes/_authenticated/courses.$slug'
+import { Route as AuthenticatedCourseBuilderCourseIdRouteImport } from './routes/_authenticated/course-builder.$courseId'
 import { Route as AuthenticatedCohortsIdRouteImport } from './routes/_authenticated/cohorts.$id'
 import { Route as AuthenticatedAdminVisualLearningRouteImport } from './routes/_authenticated/admin/visual-learning'
 import { Route as AuthenticatedAdminSystemHealthRouteImport } from './routes/_authenticated/admin.system-health'
@@ -605,6 +606,12 @@ const AuthenticatedCoursesSlugRoute =
     path: '/courses/$slug',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedCourseBuilderCourseIdRoute =
+  AuthenticatedCourseBuilderCourseIdRouteImport.update({
+    id: '/course-builder/$courseId',
+    path: '/course-builder/$courseId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCohortsIdRoute = AuthenticatedCohortsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -778,6 +785,7 @@ export interface FileRoutesByFullPath {
   '/admin/system-health': typeof AuthenticatedAdminSystemHealthRoute
   '/admin/visual-learning': typeof AuthenticatedAdminVisualLearningRoute
   '/cohorts/$id': typeof AuthenticatedCohortsIdRoute
+  '/course-builder/$courseId': typeof AuthenticatedCourseBuilderCourseIdRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/creator/comments': typeof AuthenticatedCreatorCommentsRoute
   '/creator/earnings': typeof AuthenticatedCreatorEarningsRoute
@@ -884,6 +892,7 @@ export interface FileRoutesByTo {
   '/admin/system-health': typeof AuthenticatedAdminSystemHealthRoute
   '/admin/visual-learning': typeof AuthenticatedAdminVisualLearningRoute
   '/cohorts/$id': typeof AuthenticatedCohortsIdRoute
+  '/course-builder/$courseId': typeof AuthenticatedCourseBuilderCourseIdRoute
   '/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/creator/comments': typeof AuthenticatedCreatorCommentsRoute
   '/creator/earnings': typeof AuthenticatedCreatorEarningsRoute
@@ -994,6 +1003,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/system-health': typeof AuthenticatedAdminSystemHealthRoute
   '/_authenticated/admin/visual-learning': typeof AuthenticatedAdminVisualLearningRoute
   '/_authenticated/cohorts/$id': typeof AuthenticatedCohortsIdRoute
+  '/_authenticated/course-builder/$courseId': typeof AuthenticatedCourseBuilderCourseIdRoute
   '/_authenticated/courses/$slug': typeof AuthenticatedCoursesSlugRoute
   '/_authenticated/creator/comments': typeof AuthenticatedCreatorCommentsRoute
   '/_authenticated/creator/earnings': typeof AuthenticatedCreatorEarningsRoute
@@ -1104,6 +1114,7 @@ export interface FileRouteTypes {
     | '/admin/system-health'
     | '/admin/visual-learning'
     | '/cohorts/$id'
+    | '/course-builder/$courseId'
     | '/courses/$slug'
     | '/creator/comments'
     | '/creator/earnings'
@@ -1210,6 +1221,7 @@ export interface FileRouteTypes {
     | '/admin/system-health'
     | '/admin/visual-learning'
     | '/cohorts/$id'
+    | '/course-builder/$courseId'
     | '/courses/$slug'
     | '/creator/comments'
     | '/creator/earnings'
@@ -1319,6 +1331,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/system-health'
     | '/_authenticated/admin/visual-learning'
     | '/_authenticated/cohorts/$id'
+    | '/_authenticated/course-builder/$courseId'
     | '/_authenticated/courses/$slug'
     | '/_authenticated/creator/comments'
     | '/_authenticated/creator/earnings'
@@ -2036,6 +2049,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoursesSlugRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/course-builder/$courseId': {
+      id: '/_authenticated/course-builder/$courseId'
+      path: '/course-builder/$courseId'
+      fullPath: '/course-builder/$courseId'
+      preLoaderRoute: typeof AuthenticatedCourseBuilderCourseIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/cohorts/$id': {
       id: '/_authenticated/cohorts/$id'
       path: '/$id'
@@ -2287,6 +2307,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSystemDesignRoute: typeof AuthenticatedSystemDesignRouteWithChildren
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWorkspaceRoute: typeof AuthenticatedWorkspaceRoute
+  AuthenticatedCourseBuilderCourseIdRoute: typeof AuthenticatedCourseBuilderCourseIdRoute
   AuthenticatedCoursesSlugRoute: typeof AuthenticatedCoursesSlugRoute
   AuthenticatedCreatorsIdRoute: typeof AuthenticatedCreatorsIdRoute
   AuthenticatedCoursesIndexRoute: typeof AuthenticatedCoursesIndexRoute
@@ -2327,6 +2348,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSystemDesignRoute: AuthenticatedSystemDesignRouteWithChildren,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWorkspaceRoute: AuthenticatedWorkspaceRoute,
+  AuthenticatedCourseBuilderCourseIdRoute:
+    AuthenticatedCourseBuilderCourseIdRoute,
   AuthenticatedCoursesSlugRoute: AuthenticatedCoursesSlugRoute,
   AuthenticatedCreatorsIdRoute: AuthenticatedCreatorsIdRoute,
   AuthenticatedCoursesIndexRoute: AuthenticatedCoursesIndexRoute,

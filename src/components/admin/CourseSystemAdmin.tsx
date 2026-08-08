@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
 import { RichLessonContent } from "@/components/course/RichLessonContent";
 import {
   adminListCourses,
@@ -56,6 +57,7 @@ import {
   Award,
   TrendingUp,
   Settings,
+  PencilRuler,
 } from "lucide-react";
 
 type CourseRow = any;
@@ -311,10 +313,20 @@ export function CourseSystemAdmin() {
                                 setShowEditor(true);
                                 setSelectedCourseId(c.id);
                               }}
-                              title="Edit"
+                              title="Edit metadata"
                             >
                               <Edit3 className="h-4 w-4" />
                             </Button>
+                            <Link to="/course-builder/$courseId" params={{ courseId: c.id }}>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-7 w-7 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-950/30"
+                                title="Open Block Editor"
+                              >
+                                <PencilRuler className="h-4 w-4" />
+                              </Button>
+                            </Link>
                             <Button
                               size="icon"
                               variant="ghost"
