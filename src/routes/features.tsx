@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   Brain,
@@ -13,10 +14,13 @@ import {
   Zap,
   FileText,
   Loader2,
+  PlayCircle,
+  ArrowRight,
 } from "lucide-react";
 import { MarketingPage } from "@/components/MarketingPage";
 import { motion } from "framer-motion";
 import { AiToolsShowcase } from "@/components/AiToolsShowcase";
+import { WatchDemoModal } from "@/components/interactive/WatchDemoModal";
 import { usePublicFeatures } from "@/hooks/use-wcms-public";
 
 const ICON_MAP: Record<string, any> = {
@@ -111,6 +115,7 @@ export const Route = createFileRoute("/features")({
 });
 
 function FeaturesPage() {
+  const [showDemo, setShowDemo] = useState(false);
   const { data: wcmsFeatures, isLoading } = usePublicFeatures();
   const features =
     wcmsFeatures && wcmsFeatures.length > 0
@@ -124,10 +129,44 @@ function FeaturesPage() {
 
   return (
     <MarketingPage
-      eyebrow="Features"
+      eyebrow="Features & Platform Tour"
       title="Everything you need to learn faster."
       subtitle="A complete learning OS — from AI tutoring to creator tools to career growth."
     >
+      <WatchDemoModal open={showDemo} onOpenChange={setShowDemo} />
+
+      {/* INTERACTIVE TOUR BANNER */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-12 rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/80 via-purple-950/80 to-slate-900/90 p-6 md:p-8 text-white shadow-2xl relative overflow-hidden"
+      >
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold uppercase tracking-wider mb-3">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span>Learnify AI Interactive Tour</span>
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              Watch & Experience Learnify AI
+            </h2>
+            <p className="mt-2 text-sm sm:text-base text-indigo-200/90 leading-relaxed">
+              Discover how intelligent tutoring, 100+ career courses, and the creator economy work together seamlessly in one unified platform.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowDemo(true)}
+            className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold shadow-lg shadow-indigo-600/30 hover:-translate-y-0.5 transition-all cursor-pointer shrink-0"
+          >
+            <PlayCircle className="w-5 h-5 text-amber-300 animate-pulse" />
+            <span>Watch Live Interactive Demo</span>
+            <ArrowRight className="w-4 h-4 text-indigo-200" />
+          </button>
+        </div>
+      </motion.div>
+
       <motion.div
         className="flex items-center justify-center mb-6"
         initial={{ opacity: 0, scale: 0.7 }}

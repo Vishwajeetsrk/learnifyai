@@ -28,17 +28,19 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
   <a href="https://www.learnifyai.in/" target="_blank">
     <img src="src/assets/learnify_demo.gif" alt="Learnify AI Platform Demo — Click to open Live Demo" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);" />
   </a>
-  <p><em>👆 Click to open the live interactive demo</em></p>
+  <p><strong>Learnify AI Interactive Tour</strong></p>
+  <p><em>Watch & Experience Learnify AI — Discover how intelligent tutoring, 100+ career courses, and the creator economy work together.</em></p>
 
   <a href="https://www.learnifyai.in/" target="_blank">
     <img src="https://img.shields.io/badge/Watch%20Demo-Learnify%20AI%20Interactive%20Tour-6366f1?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch demo - Learnify AI Interactive Tour" />
   </a>
 </div>
 
+> **Learnify AI Interactive Tour**  
 > **Watch & Experience Learnify AI**  
-> Discover how intelligent tutoring, 100+ career courses, no-code block content editing, and the creator economy work together seamlessly in one unified platform.
+> Discover how intelligent tutoring, 100+ career courses, and the creator economy work together.
 >
-> 🌐 **Live Application**: [https://www.learnifyai.in/](https://www.learnifyai.in/) · [https://learnifyaitool.vercel.app/](https://learnifyaitool.vercel.app/)
+> 🌐 **Live Website & Interactive Tour**: [https://www.learnifyai.in/](https://www.learnifyai.in/) · [https://learnifyaitool.vercel.app/](https://learnifyaitool.vercel.app/)
 
 ---
 
