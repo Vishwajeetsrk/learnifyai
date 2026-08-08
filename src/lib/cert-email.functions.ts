@@ -143,7 +143,7 @@ export const emailCourseCertificate = createServerFn({ method: "POST" })
       .maybeSingle();
 
     const courseName = course?.title ?? "Learnify AI Program";
-    const email = cert.recipient_email ?? context.user?.email ?? "";
+    const email = cert.recipient_email ?? (context as any).user?.email ?? "";
     if (!email) return { success: false, message: "No email on file" };
 
     const certId = cert.code;

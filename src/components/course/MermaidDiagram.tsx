@@ -20,6 +20,7 @@ export default function MermaidDiagram({ definition, className }: Props) {
     let cancelled = false;
     const render = async () => {
       try {
+        // @ts-ignore - lazy loaded CDN / node package
         const mermaid = (await import("mermaid")).default;
         mermaid.initialize({
           startOnLoad: false,

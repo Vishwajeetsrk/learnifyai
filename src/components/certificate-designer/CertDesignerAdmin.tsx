@@ -13,6 +13,7 @@ import {
   saveCanvaTemplate,
   deleteCanvaTemplate,
   seedAllTemplates,
+  listSvgTemplates,
   fieldsToElements,
   themeToDesign,
 } from "@/lib/canva-cert.functions";
@@ -2098,6 +2099,7 @@ function TemplatesScreen({
   handleSeed,
   handleEdit,
   handleDelete,
+  handleNew,
   isLoading,
 }: {
   setTab: (t: string) => void;
@@ -2105,6 +2107,7 @@ function TemplatesScreen({
   handleSeed: () => void;
   handleEdit: (t: CanvaTemplate) => void;
   handleDelete: (id: string) => void;
+  handleNew: () => void;
   isLoading: boolean;
 }) {
   const [activeChip, setActiveChip] = useState("All");
@@ -2162,7 +2165,30 @@ function TemplatesScreen({
       const key = (t.bg_image_url || t.name || "").trim().toLowerCase();
       if (key && !seen.has(key)) {
         seen.add(key);
-        list.push(t);
+        list.push({
+          name: t.name,
+          badge: "SVG",
+          badgeColor: "#065F46",
+          badgeBg: "#D1FAE5",
+          bg_image_url: t.bg_image_url,
+          thumbnail_url: t.thumbnail_url || t.bg_image_url,
+          theme: "navy",
+          rating: 4.7,
+          reviews: 300,
+          downloads: "1.4k",
+          dbTemplate: {
+            id: "new",
+            name: t.name,
+            category: t.category || "Professional",
+            bg_image_url: t.bg_image_url,
+            thumbnail_url: t.thumbnail_url || t.bg_image_url,
+            fields_json: null,
+            theme_colors: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            created_by: null,
+          } as CanvaTemplate,
+        });
       }
     });
     return list;
@@ -2245,7 +2271,7 @@ function TemplatesScreen({
             <RefreshCw size={13} />
             Seed Templates
           </Btn>
-          <Btn variant="primary" onClick={() => setTab("designer")}>
+          <Btn variant="primary" onClick={handleNew}>
             <Plus size={14} />
             New Template
           </Btn>
@@ -2531,6 +2557,7 @@ function DesignerStartScreen({
         handleSeed={handleSeed}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
+        handleNew={onNewTemplate}
         isLoading={isLoading}
       />
     </div>
@@ -7617,6 +7644,7 @@ export function CertDesignerAdmin() {
             handleSeed={handleSeed}
             handleEdit={handleEdit}
             handleDelete={handleDelete}
+            handleNew={handleNew}
             isLoading={isLoading}
           />
         );

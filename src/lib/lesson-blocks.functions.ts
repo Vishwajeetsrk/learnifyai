@@ -35,7 +35,7 @@ export const getLessonBlocks = createServerFn({ method: "GET" })
   .validator((d: unknown) => z.object({ lessonId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { data: blocks, error } = await supabase
+    const { data: blocks, error } = await (supabase as any)
       .from("lesson_content_blocks")
       .select("id, type, content, order_index, created_at, updated_at")
       .eq("lesson_id", data.lessonId)
@@ -66,7 +66,7 @@ export const saveLessonBlocks = createServerFn({ method: "POST" })
     await assertLessonOwnership(supabase, data.lessonId, userId);
 
     // Delete all existing blocks for this lesson
-    const { error: delErr } = await supabase
+    const { error: delErr } = await (supabase as any)
       .from("lesson_content_blocks")
       .delete()
       .eq("lesson_id", data.lessonId);
@@ -82,14 +82,14 @@ export const saveLessonBlocks = createServerFn({ method: "POST" })
       order_index: i,
     }));
 
-    const { data: inserted, error: insErr } = await supabase
+    const { data: inserted, error: insErr } = await (supabase as any)
       .from("lesson_content_blocks")
       .insert(rows)
       .select("id, type, content, order_index");
     if (insErr) throw new Error(insErr.message);
 
     // Update lesson content_format to 'blocks'
-    await supabase
+    await (supabase as any)
       .from("lessons")
       .update({ content_format: "blocks", updated_at: new Date().toISOString() })
       .eq("id", data.lessonId);
@@ -115,12 +115,12 @@ export const addLessonBlock = createServerFn({ method: "POST" })
     await assertLessonOwnership(supabase, data.lessonId, userId);
 
     // Shift existing blocks at and after orderIndex
-    await supabase.rpc("increment_block_order", {
+    await (supabase as any).rpc("increment_block_order", {
       p_lesson_id: data.lessonId,
       p_from_index: data.orderIndex,
     }).throwOnError();
 
-    const { data: block, error } = await supabase
+    const { data: block, error } = await (supabase as any)
       .from("lesson_content_blocks")
       .insert({
         lesson_id: data.lessonId,
@@ -150,7 +150,7 @@ export const updateLessonBlock = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
 
     // Verify ownership via join
-    const { data: block } = await supabase
+    const { data: block } = await (supabase as any)
       .from("lesson_content_blocks")
       .select("lesson_id")
       .eq("id", data.blockId)
@@ -158,7 +158,7 @@ export const updateLessonBlock = createServerFn({ method: "POST" })
     if (!block) throw new Error("Block not found");
     await assertLessonOwnership(supabase, block.lesson_id, userId);
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("lesson_content_blocks")
       .update({ content: data.content })
       .eq("id", data.blockId);
@@ -177,7 +177,7 @@ export const deleteLessonBlock = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: block } = await supabase
+    const { data: block } = await (supabase as any)
       .from("lesson_content_blocks")
       .select("lesson_id")
       .eq("id", data.blockId)
@@ -185,7 +185,7 @@ export const deleteLessonBlock = createServerFn({ method: "POST" })
     if (!block) throw new Error("Block not found");
     await assertLessonOwnership(supabase, block.lesson_id, userId);
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("lesson_content_blocks")
       .delete()
       .eq("id", data.blockId);
@@ -210,7 +210,7 @@ export const reorderLessonBlocks = createServerFn({ method: "POST" })
     await assertLessonOwnership(supabase, data.lessonId, userId);
 
     const updates = data.orderedIds.map((id, i) =>
-      supabase
+      (supabase as any)
         .from("lesson_content_blocks")
         .update({ order_index: i })
         .eq("id", id)
@@ -611,14 +611,14 @@ export const duplicateCourse = createServerFn({ method: "POST" })
 
         // Copy blocks
         if ((newLesson as any)?.id) {
-          const { data: blocks } = await supabase
+          const { data: blocks } = await (supabase as any)
             .from("lesson_content_blocks")
             .select("type, content, order_index")
             .eq("lesson_id", lesson.id)
             .order("order_index");
 
           if (blocks?.length) {
-            await supabase.from("lesson_content_blocks").insert(
+            await (supabase as any).from("lesson_content_blocks").insert(
               blocks.map((b: any) => ({
                 lesson_id: (newLesson as any).id,
                 type: b.type,
@@ -654,7 +654,7 @@ export const saveQuizAttempt = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { error } = await supabase.from("user_quiz_attempts").insert({
+    const { error } = await (supabase as any).from("user_quiz_attempts").insert({
       user_id: userId,
       block_id: data.blockId,
       lesson_id: data.lessonId,
@@ -674,7 +674,7 @@ export const getQuizAttempt = createServerFn({ method: "GET" })
   .validator((d: unknown) => z.object({ blockId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: attempt } = await supabase
+    const { data: attempt } = await (supabase as any)
       .from("user_quiz_attempts")
       .select("id, score, max_score, passed, answers, attempted_at")
       .eq("user_id", userId)
