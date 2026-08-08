@@ -4,7 +4,6 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   GraduationCap,
   Clock,
-  Star,
   Search,
   Loader2,
   ShoppingCart,
@@ -24,8 +23,11 @@ import {
   Smartphone,
   ArrowRight,
   Cpu,
+  Keyboard,
+  Users,
+  BadgeCheck,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
@@ -206,7 +208,7 @@ function CoursesPage() {
       const { data, error } = await supabase
         .from("courses")
         .select(
-          "id, slug, title, description, cover_url, category, level, price_inr, instructor, duration_minutes, enrollment_count",
+          "id, slug, title, description, cover_url, category, level, price_inr, instructor, duration_minutes, enrollment_count, created_at",
         )
         .eq("published", true)
         .order("created_at", { ascending: false });
@@ -214,6 +216,53 @@ function CoursesPage() {
       return data ?? [];
     },
   });
+
+  const lessonCountsQuery = useQuery({
+    queryKey: ["lesson-counts"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("lessons").select("course_id");
+      if (error) throw error;
+      const map: Record<string, number> = {};
+      (data ?? []).forEach((r: any) => {
+        map[r.course_id as string] = (map[r.course_id as string] ?? 0) + 1;
+      });
+      return map;
+    },
+  });
+
+  const lessonCount = (id: string) => lessonCountsQuery.data?.[id] ?? 0;
+  const lessonTotal = useMemo(
+    () => Object.values(lessonCountsQuery.data ?? {}).reduce((a, b) => a + b, 0),
+    [lessonCountsQuery.data],
+  );
+  const learnerTotal = useMemo(
+    () => (coursesQuery.data ?? []).reduce((a, c) => a + Number(c.enrollment_count ?? 0), 0),
+    [coursesQuery.data],
+  );
+  const freeCount = useMemo(
+    () => (coursesQuery.data ?? []).filter((c) => Number(c.price_inr) === 0).length,
+    [coursesQuery.data],
+  );
+
+  const isNewCourse = (createdAt?: string | null) => {
+    if (!createdAt) return false;
+    const ageDays = (Date.now() - Date.parse(createdAt)) / 86_400_000;
+    return ageDays >= 0 && ageDays < 21;
+  };
+
+  const searchRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        searchRef.current?.focus();
+        searchRef.current?.select();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const enrollmentsQuery = useQuery({
     queryKey: ["enrollments", user?.id],
@@ -330,10 +379,17 @@ function CoursesPage() {
   }, [coursesQuery.data]);
 
   const recommended = useMemo(() => {
+    const trendingIds = new Set(trending.map((c) => c.id));
+    const enrolledIds = new Set(Object.keys(enrollmentsQuery.data ?? {}));
     return (coursesQuery.data ?? [])
-      .filter((c) => String(c.level).toLowerCase() === "beginner")
+      .filter(
+        (c) =>
+          String(c.level).toLowerCase() === "beginner" &&
+          !trendingIds.has(c.id) &&
+          !enrolledIds.has(c.id),
+      )
       .slice(0, 4);
-  }, [coursesQuery.data]);
+  }, [coursesQuery.data, trending, enrollmentsQuery.data]);
 
   const sorted = useMemo(() => {
     const arr = [...filtered];
@@ -363,36 +419,66 @@ function CoursesPage() {
       />
       <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div>
-            <div className="text-xs uppercase tracking-widest text-primary font-bold">
-              Marketplace
+        <div className="rounded-2xl border border-border/70 bg-gradient-to-br from-card via-card to-primary/10 overflow-hidden relative shadow-sm">
+          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
+          <div className="absolute -left-10 -bottom-20 h-40 w-40 rounded-full bg-violet-500/10 blur-3xl" aria-hidden="true" />
+          <div className="relative p-5 sm:p-7 flex flex-col gap-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <div className="text-xs uppercase tracking-widest text-primary font-bold flex items-center gap-1.5">
+                  <GraduationCap className="h-3.5 w-3.5" /> Marketplace
+                </div>
+                <h1 className="mt-1 text-2xl sm:text-3xl font-display font-bold tracking-tight text-foreground">
+                  Courses
+                </h1>
+                <p className="text-muted-foreground mt-1 text-xs sm:text-sm font-medium">
+                  Learn from world-class instructors. Track your progress.
+                </p>
+              </div>
+              <div className="relative w-full sm:w-84">
+                <Search
+                  className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <label htmlFor="course-search" className="sr-only">
+                  Search courses
+                </label>
+                <Input
+                  id="course-search"
+                  ref={searchRef}
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search courses…"
+                  className="pl-9 pr-12 h-10 text-sm rounded-xl border-border/80 bg-background/70 backdrop-blur shadow-sm"
+                />
+                <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground font-mono flex items-center gap-0.5">
+                  <Keyboard className="h-3 w-3" />K
+                </kbd>
+              </div>
             </div>
-            <h1 className="mt-1 text-2xl sm:text-3xl font-display font-bold tracking-tight text-foreground">
-              Courses
-            </h1>
-            <p className="text-muted-foreground mt-1 text-xs sm:text-sm font-medium">
-              Learn from world-class instructors. Track your progress.
-            </p>
-          </div>
-          <div className="relative w-full sm:w-84">
-            <Search
-              className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <label htmlFor="course-search" className="sr-only">
-              Search courses
-            </label>
-            <Input
-              id="course-search"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search courses…"
-              className="pl-9 pr-12 h-10 text-sm rounded-xl border-border/80 bg-card shadow-sm"
-            />
-            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground font-mono">
-              ⌘K
-            </kbd>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {[
+                { icon: Layers, label: "Lessons", value: String(lessonTotal), color: "text-primary" },
+                { icon: GraduationCap, label: "Courses", value: String(coursesQuery.data?.length ?? 0), color: "text-violet-500" },
+                { icon: BadgeCheck, label: "Free Courses", value: String(freeCount), color: "text-emerald-500" },
+                ...(learnerTotal > 0
+                  ? [{ icon: Users, label: "Learners", value: learnerTotal.toLocaleString("en-IN"), color: "text-amber-500" }]
+                  : [{ icon: Users, label: "Career Paths", value: String(CAREER_PATHS.length - 1), color: "text-amber-500" }]),
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-xl border border-border/60 bg-background/50 backdrop-blur px-3.5 py-2.5 flex items-center gap-2.5"
+                >
+                  <s.icon className={`h-4 w-4 ${s.color}`} />
+                  <div className="leading-tight">
+                    <div className="text-sm font-extrabold text-foreground tabular-nums">{s.value}</div>
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      {s.label}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -474,24 +560,51 @@ function CoursesPage() {
             </div>
           </div>
 
-          {/* Categories Pill Grid */}
+          {/* Categories Pill Row */}
           <div className="space-y-2">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
-              Categories
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
+                Categories
+              </div>
+              <span className="text-[10px] text-muted-foreground/70 font-medium">
+                {categories.length} categories
+              </span>
             </div>
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
-              {categories.map((c) => (
-                <Button
-                  key={c}
-                  size="sm"
-                  variant={cat === c ? "default" : "outline"}
-                  onClick={() => setCat(c)}
-                  className="rounded-full text-xs font-bold px-3 py-1 cursor-pointer"
-                  aria-pressed={cat === c}
-                >
-                  {c}
-                </Button>
-              ))}
+            <div
+              className="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar scroll-smooth"
+              role="group"
+              aria-label="Filter by category"
+            >
+              {categories.map((c) => {
+                const count = (coursesQuery.data ?? []).filter((x) => x.category === c).length;
+                return (
+                  <button
+                    key={c}
+                    onClick={() => setCat(c)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-xs font-bold border transition-all shrink-0 inline-flex items-center gap-1.5 cursor-pointer shadow-xs",
+                      cat === c
+                        ? "bg-primary text-primary-foreground border-primary shadow-md"
+                        : "border-border/80 bg-card text-foreground/80 hover:border-primary/40 hover:text-foreground",
+                    )}
+                    aria-pressed={cat === c}
+                  >
+                    {c}
+                    {c !== "All" && (
+                      <span
+                        className={cn(
+                          "text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none",
+                          cat === c
+                            ? "bg-primary-foreground/20 text-primary-foreground"
+                            : "bg-muted text-muted-foreground",
+                        )}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -660,7 +773,35 @@ function CoursesPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-foreground">
+                All Courses
+                <span className="ml-2 text-xs font-semibold text-muted-foreground">
+                  {sorted.length} of {filtered.length}
+                  {q ? ` for "${q}"` : ""}
+                </span>
+              </h2>
+              <button
+                onClick={() => {
+                  setQ("");
+                  setCat("All");
+                  setPrice("all");
+                  setLevel("all");
+                  setCareerPath("all");
+                  setSort("newest");
+                }}
+                className={cn(
+                  "text-[11px] font-bold px-3 py-1.5 rounded-full border transition cursor-pointer",
+                  q || cat !== "All" || price !== "all" || level !== "all" || careerPath !== "all"
+                    ? "border-primary/40 text-primary bg-primary/5 hover:bg-primary/10"
+                    : "border-border/60 text-muted-foreground/50 pointer-events-none opacity-50",
+                )}
+              >
+                Reset filters
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
             {sorted.map((c, i) => (
               <motion.div
                 key={c.id}
@@ -685,6 +826,16 @@ function CoursesPage() {
                       <div className="w-full h-full bg-gradient-to-br from-primary/15 to-violet-500/15 flex items-center justify-center text-primary/40">
                         <GraduationCap className="h-10 w-10" />
                       </div>
+                    )}
+                    {isNewCourse(c.created_at) && (
+                      <span className="absolute top-2.5 left-2.5 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-md">
+                        New
+                      </span>
+                    )}
+                    {Number(c.price_inr) === 0 && (
+                      <span className="absolute top-2.5 right-2.5 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-background/90 backdrop-blur border border-border/60 text-emerald-600 dark:text-emerald-400 shadow-sm">
+                        Free
+                      </span>
                     )}
                   </div>
                   <div className="p-4 space-y-3">
@@ -717,9 +868,9 @@ function CoursesPage() {
                     <span className="flex items-center gap-1 text-foreground/80">
                       <Clock className="h-3.5 w-3.5 text-primary" /> {c.duration_minutes} min
                     </span>
-                    <span className="flex items-center gap-1 text-amber-500 font-bold">
-                      <Star className="h-3.5 w-3.5 fill-amber-500" />
-                      4.8
+                    <span className="flex items-center gap-1 text-foreground/80">
+                      <Layers className="h-3.5 w-3.5 text-violet-500" />
+                      {lessonCount(c.id) > 0 ? `${lessonCount(c.id)} lessons` : "Live course"}
                     </span>
                     <span
                       className={cn(
@@ -732,6 +883,18 @@ function CoursesPage() {
                       {enrollmentsQuery.data?.[c.id] ? "Purchased" : inr(Number(c.price_inr))}
                     </span>
                   </div>
+                  {c.instructor && (
+                    <div className="flex items-center gap-2 pt-0.5">
+                      <img
+                        src={`https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(c.instructor)}`}
+                        alt=""
+                        className="h-5 w-5 rounded-full ring-1 ring-border bg-muted object-cover"
+                      />
+                      <span className="text-[11px] font-semibold text-muted-foreground truncate">
+                        {c.instructor}
+                      </span>
+                    </div>
+                  )}
 
                   {(() => {
                     const enrolled = enrollmentsQuery.data?.[c.id];
@@ -767,6 +930,7 @@ function CoursesPage() {
               </Link>
               </motion.div>
             ))}
+            </div>
           </div>
         )}
       </div>
