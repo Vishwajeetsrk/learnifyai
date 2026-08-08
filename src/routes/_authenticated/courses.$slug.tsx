@@ -60,6 +60,8 @@ import { RichLessonContent } from "@/components/course/RichLessonContent";
 import { BlockRenderer } from "@/components/course/BlockRenderer";
 import { SUPPORTED_LANGUAGES } from "@/i18n";
 
+export const PLATFORM_CREATOR_ID = "aa073db3-bce9-47cd-a490-40a6894a9edf";
+
 import { CoursePlayer } from "@/components/CoursePlayer";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -296,7 +298,13 @@ function CourseDetail() {
   const course = courseQuery.data?.course;
   const instructorProfile = courseQuery.data?.instructorProfile;
 
-  const creatorId = course?.created_by;
+  const instructorAvatarSrc =
+    instructorProfile?.org_logo_url || instructorProfile?.avatar_url || null;
+  const instructorName =
+    instructorProfile?.full_name || course?.instructor || "Learnify AI";
+  const instructorOrg = instructorProfile?.org_name || null;
+
+  const creatorId = course?.created_by ?? PLATFORM_CREATOR_ID;
   const isCreator = !!user && creatorId === user.id;
 
   const certTemplatesQuery = useQuery({
@@ -376,12 +384,8 @@ function CourseDetail() {
   const isSubscribed = Boolean(mySubQuery.data || localSubscribed);
 
   const displaySubscribersCount = useMemo(() => {
-    const baseCount =
-      creatorSubsQuery.data && creatorSubsQuery.data > 0
-        ? creatorSubsQuery.data
-        : 1250 + (courseQuery.data?.course?.title.length || 10) * 15;
-    return isSubscribed ? baseCount + 1 : baseCount;
-  }, [creatorSubsQuery.data, courseQuery.data?.course?.title, isSubscribed]);
+    return creatorSubsQuery.data ?? 0;
+  }, [creatorSubsQuery.data]);
 
   const toggleCreatorSub = async () => {
     const nextState = !isSubscribed;
@@ -1130,13 +1134,13 @@ function CourseDetail() {
                     params={{ id: course.created_by }}
                     className="shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-full hover:opacity-90 transition-opacity"
                   >
-                    {instructorProfile?.avatar_url ? (
+                    {instructorAvatarSrc ? (
                       <img
-                        src={instructorProfile.avatar_url}
-                        alt={instructorProfile.full_name || course.instructor}
+                        src={instructorAvatarSrc}
+                        alt={instructorName}
                         className={cn(
                           "h-12 w-12 rounded-full object-cover shrink-0 shadow-sm",
-                          getProfileBorderClass(instructorProfile.avatar_url) ||
+                          getProfileBorderClass(instructorAvatarSrc) ||
                             "border-2 border-primary/30",
                         )}
                         loading="lazy"
@@ -1144,19 +1148,17 @@ function CourseDetail() {
                       />
                     ) : (
                       <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/30 shrink-0 shadow-sm">
-                        {(instructorProfile?.full_name || course.instructor)
-                          .charAt(0)
-                          .toUpperCase()}
+                        {instructorName.charAt(0).toUpperCase()}
                       </div>
                     )}
                   </Link>
-                ) : instructorProfile?.avatar_url ? (
+                ) : instructorAvatarSrc ? (
                   <img
-                    src={instructorProfile.avatar_url}
-                    alt={instructorProfile.full_name || course.instructor}
+                    src={instructorAvatarSrc}
+                    alt={instructorName}
                     className={cn(
                       "h-12 w-12 rounded-full object-cover shrink-0 shadow-sm",
-                      getProfileBorderClass(instructorProfile.avatar_url) ||
+                      getProfileBorderClass(instructorAvatarSrc) ||
                         "border-2 border-primary/30",
                     )}
                     loading="lazy"
@@ -1164,29 +1166,34 @@ function CourseDetail() {
                   />
                 ) : (
                   <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center font-display font-bold text-lg border-2 border-primary/30 shrink-0 shadow-sm">
-                    {(instructorProfile?.full_name || course.instructor).charAt(0).toUpperCase()}
+                    {instructorName.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  {course.created_by ? (
-                    <Link
-                      to="/u/$id"
-                      params={{ id: course.created_by }}
-                      className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded inline-block max-w-full"
-                    >
-                      <h4 className="font-display font-bold text-sm text-foreground truncate">
-                        {instructorProfile?.full_name || course.instructor}
-                      </h4>
-                    </Link>
-                  ) : (
+                {course.created_by ? (
+                  <Link
+                    to="/u/$id"
+                    params={{ id: course.created_by }}
+                    className="hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded inline-block max-w-full"
+                  >
                     <h4 className="font-display font-bold text-sm text-foreground truncate">
-                      {instructorProfile?.full_name || course.instructor}
+                      {instructorName}
                     </h4>
+                  </Link>
+                ) : (
+                  <h4 className="font-display font-bold text-sm text-foreground truncate">
+                    {instructorName}
+                  </h4>
+                )}
+                <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground font-medium">
+                  <Users className="h-3.5 w-3.5 text-primary" />
+                  <span>{displaySubscribersCount.toLocaleString()} subscribers</span>
+                  {instructorOrg && (
+                    <span className="rounded-full bg-muted px-1.5 py-px text-[10px] font-bold text-foreground/80">
+                      {instructorOrg}
+                    </span>
                   )}
-                  <div className="flex items-center gap-1.5 mt-0.5 text-xs text-muted-foreground font-medium">
-                    <Users className="h-3.5 w-3.5 text-primary" />
-                    <span>{displaySubscribersCount.toLocaleString()} subscribers</span>
-                  </div>
+                </div>
                   {instructorProfile?.email && (
                     <p className="text-xs text-foreground/80 truncate mt-0.5 font-medium">
                       {instructorProfile.email}

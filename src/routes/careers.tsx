@@ -247,7 +247,11 @@ function CareersPage() {
   }, [applyJobId, roles]);
 
   const handleApplyClick = (r: JobRow, e: React.MouseEvent) => {
-    if (r.apply_url && r.apply_url.startsWith("http")) {
+    const isExternal =
+      r.apply_url &&
+      r.apply_url.startsWith("http") &&
+      !r.apply_url.includes("learnifyai.in");
+    if (isExternal) {
       return;
     }
     e.preventDefault();

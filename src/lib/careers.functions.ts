@@ -7,7 +7,7 @@ export const submitJobApplication = createServerFn({ method: "POST" })
   .validator((d: unknown) =>
     z
       .object({
-        jobId: z.string().uuid(),
+        jobId: z.string().min(1),
         name: z.string().min(2).max(200),
         email: z.string().email().max(200),
         phone: z.string().max(40).optional().nullable(),
