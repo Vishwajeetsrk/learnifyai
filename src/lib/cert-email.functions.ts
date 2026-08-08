@@ -114,7 +114,77 @@ function buildCertEmailHtml({
 </body></html>`;
 }
 
+export const emailCourseCertificate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) =>
+    z
+      .object({
+        courseId: z.string().uuid(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: cert } = await (supabaseAdmin.from("certificates") as any)
+      .select("id, code, score, total, recipient_name, recipient_email, issued_at, course_id")
+      .eq("user_id", context.userId)
+      .eq("course_id", data.courseId)
+      .order("issued_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!cert?.id) return { success: false, message: "No certificate found for this course" };
+
+    const { data: course } = await supabaseAdmin
+      .from("courses")
+      .select("title")
+      .eq("id", data.courseId)
+      .maybeSingle();
+
+    const courseName = course?.title ?? "Learnify AI Program";
+    const email = cert.recipient_email ?? context.user?.email ?? "";
+    if (!email) return { success: false, message: "No email on file" };
+
+    const certId = cert.code;
+    const issueDate = new Date(cert.issued_at).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    });
+    const scorePct = cert.total ? Math.round((cert.score / cert.total) * 100) : 100;
+    const verifyUrl = `${resolveOrigin()}/certificates/${encodeURIComponent(certId)}`;
+
+    try {
+      const { sendEmail } = await import("./cert.functions");
+      await sendEmail({
+        to: email,
+        subject: `Your certificate — ${courseName}`,
+        html: buildCertEmailHtml({
+          recipientName: cert.recipient_name ?? "Learner",
+          courseName,
+          score: scorePct,
+          certId,
+          verifyUrl,
+          issueDate,
+        }),
+      });
+      return { success: true, message: `Certificate emailed to ${email}` };
+    } catch (err: any) {
+      await supabaseAdmin.from("certificate_email_log").insert({
+        certificate_id: cert.id,
+        recipient_email: email,
+        status: "failed",
+        error: err?.message || "Email send failed",
+        sent_by: context.userId,
+        next_retry_at: new Date(Date.now() + 30_000).toISOString(),
+      });
+      return { success: false, message: "Certificate issued, email will retry" };
+    }
+  });
+
 export const issueAndEmailCertificate = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .validator((d: unknown) =>
     z
       .object({
