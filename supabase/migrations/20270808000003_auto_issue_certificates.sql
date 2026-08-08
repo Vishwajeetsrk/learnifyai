@@ -3,6 +3,8 @@
 
 alter table public.certificates add column if not exists recipient_email text;
 
+drop function if exists public.submit_final_test(uuid, jsonb);
+
 create or replace function public.submit_final_test(_course_id uuid, _answers jsonb)
 returns table (score int, total int, passed boolean, cert_code text, template_id uuid)
 language plpgsql

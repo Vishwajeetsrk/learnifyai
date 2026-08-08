@@ -35,6 +35,7 @@ import {
   Brain,
   Server,
   Compass,
+  Trophy,
 } from "lucide-react";
 
 import { Checkbox } from "@/components/ui/checkbox";
@@ -1238,6 +1239,14 @@ function AdminOverview() {
                 onClick={() => navigate({ to: "/admin/certificates" })}
               >
                 <Award className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Certificates
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="justify-start h-8 px-2 text-xs w-full cursor-pointer hover:bg-muted"
+                onClick={() => navigate({ to: "/admin/prizes" })}
+              >
+                <Trophy className="h-3.5 w-3.5 mr-2 text-emerald-500" /> Leaderboard Prizes
               </Button>
             </div>
           </div>
