@@ -58,6 +58,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🗺️ **Career Path Course Catalog**  | 9 career path filters (Frontend, Backend, Full Stack, etc.), level filters, sort, Trending/Recommended rails                                                                                                                                     |
 | 🪄 **Cheat Sheet Generator**       | Real brand logos (HTML, Supabase, Firebase, ChatGPT, etc.), timeline layout, Save to Library, beautiful Print/PDF export, Share button                                                                                                           |
 | 🎓 **12 Launch Course Categories** | Full Stack, Python, AI & Prompting, Data Science, Cyber Security, UI/UX, Resume, Interview, Roadmaps, Marketing, Freelancing, Personal Branding                                                                                                  |
+| 🎯 **11 Beginner Skill Courses**   | Free, certificate-enabled courses with rich block lessons (diagrams, code, tables, quizzes), 8 MCQs, downloadable cheat sheets, official-docs links, practice assignments with XP, and branded SVG covers — HTML/CSS, JavaScript, Python, Java, Excel, Word/PowerPoint, Power BI, Figma, VS Code + Git, ChatGPT/Claude, Google Workspace |
 | 📚 **Documentation Hub (`/docs`)** | Comprehensive platform guides for Students, Creators (Free/Paid), and Coaches (Free/Paid)                                                                                                                                                        |
 | 🎥 **Interactive Watch Demo**      | Guided modal tour covering platform features, credit usage, and creator earning model                                                                                                                                                            |
 | 📱 **Mobile App (Android & iOS)**  | Mobile app showcase with VIP early access registration                                                                                                                                                                                           |
@@ -102,6 +103,7 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                                                                                                                  |
 | 📄 **Legal Pages**            | Privacy Policy, Terms of Service, Refund Policy                                                                                                                                                    |
 | 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                                                                                                           |
+| 🧑‍🏫 **Branded Creator Identity** | Course instructor cards show the creator's brand logo + org name, a real DB-backed Subscribe button, and the live subscriber count from `creator_subscriptions`                                                                                                   |
 | 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager, blog system                                                                                                                  |
 | 🎯 **Interactive Tours**      | Role-specific product tours with spotlight cutout and auto-skip for missing targets                                                                                                                |
 
@@ -523,6 +525,17 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v5.5.0 (August 2026) — Careers Apply Fix, Branded Creator Identity & 11 New Skill Courses
+
+- ✅ **Careers Apply Dialog Fixed**: Jobs with internal `learnifyai.in` apply URLs were treated as external links, so the apply button never opened the form. The dialog now recognizes internal links and opens the server-backed application modal (validator relaxed to accept non-UUID job ids). Admin keeps the full Applications tab with status workflow and private notes.
+- ✅ **Branded Creator Identity on Course Pages**: Every course's instructor card now shows the platform brand — Learnify AI logo, org name, and a **real DB-backed Subscribe button** (`creator_subscriptions`) with the **real subscriber count** (fake 1,490 placeholder removed). Branding wired via the platform creator profile (`org_logo_url`, `org_name`).
+- ✅ **Unrelated Downloads Removed**: Template Mastery's 3 non-course downloads (3D Character Kit, Brand Logo PNG, Certificate Template Pack) deleted via migration `20270808000005_brand_fixes.sql`; internal job `apply_url` links cleared.
+- ✅ **11 New Free Skill Courses (migration `20270808000006_more_courses.sql`)**: HTML & CSS Essentials, JavaScript Zero to Pro, Python for Everyone, Java Fundamentals, Excel & Sheets Mastery, Word & PowerPoint Pro, Power BI Data Visualization, Figma UI Bootcamp, VS Code + Git Essentials, ChatGPT & Claude AI, Google Workspace Pro — each with 2 modules, 6 rich block lessons (tables, code, diagrams, quiz blocks), 8 MCQs, a downloadable cheat sheet + official docs link, and a practice assignment with XP. All free, certificate-enabled, created by the platform creator, and fully editable in Creator Studio/admin.
+- ✅ **Branded Course Logos**: 13 SVG covers shipped to `public/course-logos/` (html, css, js, python, java, excel, word, powerbi, figma, vscode, ai, google + template).
+- ✅ **Downloadable Cheat Sheets**: 11 markdown resources in `public/resources/` linked from each course's Materials tab.
+- ✅ **First Understanding + Suggestions and Tips**: Migration `20270808000007_lesson_sections.sql` added a tailored "First Understanding" primer (top) and "Suggestions and Tips" (bottom) to **all 78 lessons across 12 courses** — hand-written per lesson topic, quiz blocks untouched.
+- ✅ **TypeScript & Build Clean**: `tsc --noEmit` exit 0 and production build succeeds.
 
 ### v5.4.1 (August 2026) — Template Mastery Resources Polish, Project Studio Upgrades & Marketplace Refinements
 
