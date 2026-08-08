@@ -120,7 +120,7 @@ export const Route = createFileRoute("/api/cron/leaderboard-prizes")({
                     .replace(/\{\{prize_name\}\}/g, escapeHtml(prize.name))
                     .replace(/\{\{description\}\}/g, escapeHtml(prize.description || ""))
                     .replace(/\{\{claim_url\}\}/g, claimUrl);
-                const { sendEmail } = await import("../../lib/welcome-email.functions");
+                const { sendEmail } = await import("@/lib/welcome-email.functions");
                 await sendEmail({
                   to: profile.email,
                   subject: fill(tpl.subject || `You made the Top 3 ${firstName}! 🏆`),

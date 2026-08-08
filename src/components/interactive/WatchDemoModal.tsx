@@ -107,8 +107,7 @@ const TOUR_STEPS = [
   },
 ];
 
-const DEFAULT_VIDEO_URL =
-  "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4";
+const DEFAULT_VIDEO_URL = "/videos/Learnify_AI.mp4";
 
 export function WatchDemoModal({ open, onOpenChange }: WatchDemoModalProps) {
   const [activeStep, setActiveStep] = useState(0);
