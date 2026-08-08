@@ -64,7 +64,8 @@ Learnify AI is a **full-stack, AI-powered learning platform** that combines inte
 | 📱 **Mobile App (Android & iOS)**  | Mobile app showcase with VIP early access registration                                                                                                                                                                                           |
 | 📜 **Certificate Accreditation**   | Cryptographic QR verification with MSME Udyam, NSDC Skill India, and ISO 9001 accreditation guide                                                                                                                                                |
 | 🎥 **Advanced Video Player**       | Captions (VTT/SRT), searchable transcript, PiP, keyboard shortcuts, screenshots, bookmarking, focus/theater mode, auto-next lesson                                                                                                               |
-| 💻 **Code Playground**             | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant                                                                                                                                                          |
+| 💻 **Code Playground**             | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant                          |
+| 🧩 **In-Lesson Coding Exercises** | Curated runnable challenges inside lesson notes (Monaco + Piston), AI grading via Check with AI, hint & reference solution toggles, and **one-time XP rewards** on first pass — 18 exercises seeded across JavaScript, Python, HTML/CSS & Template Mastery, editable by admins and course creators |
 | 📝 **Smart Notes**                 | Auto-generated flashcards, summaries, and quizzes from any lesson                                                                                                                                                                                |
 | 🏆 **Gamification Engine**         | XP, streaks, badges, leaderboards, XP Store with server-side purchase tracking, interactive AI quizzes, confetti celebrations                                                                                                                    |
 | 🛍️ **XP Store**                    | Spend XP on premium perks (avatar packs, themes, discounts, credits, badges) — pay with XP or Wallet Cash, server-side purchase history, and full admin CRUD at `/admin/store` |
@@ -525,6 +526,15 @@ MIT License. See [LICENSE](LICENSE) for details.
 ---
 
 ## 📋 Changelog
+
+### v5.6.0 (August 2026) — In-Lesson Coding Exercises & Marketplace Upgrade
+
+- ✅ **In-Lesson Coding Exercises (Phase 1 of Learning Experience Upgrade)**: New `lesson_exercises` + `exercise_solves` tables (migration `20270810000001_lesson_exercises.sql`) with RLS — any signed-in learner reads, admins/super-admins and course creators (via `courses.created_by`) write. A new **Coding Exercise** card appears in every lesson's Notes tab with a Monaco editor, **Run** (local VM / Judge0 / Wandbox / Piston fallback chain), **Check with AI** (OpenRouter grader with score bar, suggestions & hints), **Hint** and **Reference solution** toggles, and a **Solved badge with one-time XP** (`recordExerciseSolve` → `awardXP`, no double rewards, streak-safe).
+- ✅ **Admin & Creator Exercise Editors**: Shared `ExerciseEditorSection` (language picker with 27 logos, instructions, starter/solution code, hint, passing grade, XP reward) embedded in both **Admin → Course System lesson dialog** and the **Creator Studio block builder** (`/course-builder/$courseId`) — full add/edit/delete, permission-checked server-side via `assertLessonOwnership`.
+- ✅ **18 Curated Exercises Seeded** (migration `20270810000002_exercise_seed.sql`): JavaScript Zero to Pro (6), Python for Everyone (4), HTML & CSS Essentials (4), Template Mastery (4) — original challenge patterns inspired by the Scrimba curriculum scan in `Learn and Developer`, written from scratch (tip calculator, closures, cart totals, async simulation, error handling, page-skeleton builders, theme toggler…).
+- ✅ **Marketplace Page Upgrade**: Courses index now shows **real stats** (lessons, learners from `enrollment_count`, free courses), **functional ⌘K / Ctrl+K search**, **"New" badges** (created < 21 days), real per-course lesson counts instead of a fake star rating, instructor row with branded avatar, horizontally scrollable category chips with live counts, and a **Reset filters** action with result count.
+- ✅ **Learning Experience Roadmap**: `plans/Learning_Experience_Upgrade_Plan.md` added — 5-phase plan (in-lesson exercises → solo projects/asides → one-click "Explain this lesson" → real-codebase resource → measurement) from the deep scan of the `Learn and Developer` resource folder.
+- ✅ **TypeScript & Build Clean**: `tsc --noEmit` exit 0 and production build succeeds.
 
 ### v5.5.0 (August 2026) — Careers Apply Fix, Branded Creator Identity & 11 New Skill Courses
 
