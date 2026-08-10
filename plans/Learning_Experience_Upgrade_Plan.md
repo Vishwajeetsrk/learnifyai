@@ -143,3 +143,36 @@ Adopt Scrimba's proven cadence in existing web-dev courses: **concept → build 
 | **P5 Measurement** | 1 day | Analytics + badge |
 
 **Recommended start: Phase 1** (reuses the most existing infra — Monaco, graders, gamification — and delivers the biggest learning-quality jump).
+
+---
+
+## 6. Phase 6 — Premium Course Covers & Full Curriculum Expansion (2026-08-10)
+
+**Status: Phase 1 shipped (in-lesson exercises live, 18 seeded).** This phase upgrades what learners see first (covers) and reads (curriculum depth), driven by the Scrimba fullstack curriculum map in `learn-fullstack-development-main/` (7 modules, 60+ lesson folders, project-per-module cadence, aside micro-lessons).
+
+### 6.1 Premium branded covers — all 12 courses
+- Generator `scripts/gen-course-covers.cjs` → 12 SVGs (800×450, consistent premium template: per-course accent gradients, glyph ring, title, tagline, FREE · level · lesson-count badges, Learnify AI mark) at `public/course-covers/<slug>.svg`.
+- Migration updates `courses.cover_url` for all 12. Served as static assets (covers are content, not UI design).
+
+### 6.2 HTML & CSS Essentials — 6 → 17 lessons, 2 → 4 modules
+- M1 HTML Foundations: + Lists/Links/Images, + Forms/Buttons (5)
+- M2 CSS: + Box Model in Action, + Responsive Design (5)
+- M3 Build Real Projects (new): Business Card, Space Exploration Page, Birthday Gift Website, NFT Landing Page (4)
+- M4 Accessible & Essential CSS (new): Text Contrast & Color, Semantic Layouts & ARIA, Portfolio Site Project (3)
+- + lesson_exercises (4) and assignments (2), project cadence per Scrimba pedagogy.
+
+### 6.3 JavaScript Zero to Pro — 6 → 16 lessons, 2 → 4 modules
+- M1 Core: + Conditions & Truthiness, + Loops & Arrays (5)
+- M2 Interactive: + Events & Click Handlers, + Templates & innerHTML (5)
+- M3 Build with JS (new): Counter App Project, Basketball Scoreboard Solo, Blackjack Game Logic (3)
+- M4 Modern JS (new): Chrome Extension Essentials, Promises & Error Handling, Build a Meme App (3)
+- + lesson_exercises (5) and assignments (3).
+
+### 6.4 "Today in the Industry" — 11 short lessons (1 per remaining course)
+Practical, memory-friendly lessons wired to current practice (AI pair programming, Copilot prompts, AI in spreadsheets, Gemini in Workspace, Figma AI, Java/Spring in 2026, Python + AI tooling, prompting at work, staying relevant as AI generates sites) — each with callouts + a quiz block + flashcards; new "Today in the Industry" module per course.
+
+### 6.5 Every new lesson follows the memory-proven template
+`## First Understanding` (3 bullets) → body (callouts `[!tip]/[!info]/[!warning]`, tables, code fences, `diagram` blocks, `quiz` blocks) → `## Suggestions and Tips`. Code lessons get an ExerciseBlock + module-end assignments.
+
+**Files**: `scripts/gen-course-covers.cjs`, 12 SVG assets, migrations `20270810000003_course_covers.sql` → `20270810000006_industry_lessons.sql` (+ apply-migrations.cjs), README v5.7.0 changelog.
+

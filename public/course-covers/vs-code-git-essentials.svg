@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1120"/>
+      <stop offset="1" stop-color="#164e63"/>
+    </linearGradient>
+    <linearGradient id="glyph" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.28" cy="0.22" r="0.95">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="#ffffff" fill-opacity="0.08"/>
+    </pattern>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#22d3ee" stroke-opacity="0.14" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="450" rx="28" fill="url(#bg)"/>
+  <rect width="800" height="450" rx="28" fill="url(#glow)"/>
+  <rect width="800" height="450" rx="28" fill="url(#dots)"/>
+  <rect width="400" height="450" x="400" fill="url(#grid)" opacity="0.6"/>
+  <circle cx="640" cy="120" r="220" fill="none" stroke="#22d3ee" stroke-opacity="0.16" stroke-width="2"/>
+  <circle cx="640" cy="120" r="170" fill="none" stroke="#22d3ee" stroke-opacity="0.12" stroke-width="2"/>
+  <circle cx="640" cy="225" r="98" fill="#0b1120" fill-opacity="0.65"/>
+  <circle cx="640" cy="225" r="98" fill="none" stroke="#22d3ee" stroke-opacity="0.6" stroke-width="8"/>
+  <text x="640" y="262" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="bold" fill="url(#glyph)">VC</text>
+  <g transform="translate(48, 40)">
+    <rect x="0" y="0" width="34" height="34" rx="9" fill="#22d3ee"/>
+    <path d="M 9 22 L 15 13 L 20 19 L 25 9 L 30 22 Z" fill="#0b1120"/>
+  </g>
+  <text x="92" y="64" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" fill="#e2e8f0">Learnify AI</text>
+  <text x="48" y="120" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="bold" fill="#f8fafc">VS Code + Git Essentials</text>
+  <text x="49" y="154" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#cbd5e1">The professional developer's daily workflow</text>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold">
+    <rect x="48" y="185" width="74" height="30" rx="15" fill="#22d3ee" fill-opacity="0.18" stroke="#22d3ee" stroke-opacity="0.55"/>
+    <text x="85" y="205" text-anchor="middle" fill="#22d3ee">FREE</text>
+    <rect x="134" y="185" width="118" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.16"/>
+    <text x="193" y="205" text-anchor="middle" fill="#cbd5e1">BEGINNER</text>
+    <rect x="264" y="185" width="132" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.16"/>
+    <text x="330" y="205" text-anchor="middle" fill="#cbd5e1">6 LESSONS</text>
+  </g>
+  <text x="48" y="330" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="#94a3b8">Certificate on completion · Interactive exercises · AI assistance</text>
+  <text x="48" y="414" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#64748b">learnifyai.in</text>
+</svg>

@@ -6,6 +6,10 @@ const MIGRATIONS = [
   "supabase/migrations/20270808000002_cert_fk_prizes.sql",
   "supabase/migrations/20270810000001_lesson_exercises.sql",
   "supabase/migrations/20270810000002_exercise_seed.sql",
+  "supabase/migrations/20270810000003_course_covers.sql",
+  "supabase/migrations/20270810000004_html_css_curriculum.sql",
+  "supabase/migrations/20270810000005_js_curriculum.sql",
+  "supabase/migrations/20270810000006_industry_lessons.sql",
 ];
 
 async function main() {
