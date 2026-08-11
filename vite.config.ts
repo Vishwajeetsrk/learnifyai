@@ -7,7 +7,7 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 // Force production environment during Vercel builds to prevent jsxDEV runtime errors
-if (process.env.VERCEL) {
+if (process.env.VERCEL || !process.env.NODE_ENV) {
   process.env.NODE_ENV = "production";
 }
 

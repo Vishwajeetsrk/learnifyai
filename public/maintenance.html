@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Learnify AI — Maintenance</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(1100px 600px at 50% -10%, #1e1b4b 0%, #0b1120 55%, #020617 100%);
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: #e2e8f0;
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+  .card { max-width: 560px; width: 100%; }
+  .card svg { width: min(440px, 86vw); height: auto; }
+  h1 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; margin-top: 1.4rem; letter-spacing: -0.02em; }
+  .accent { color: #a5b4fc; }
+  p { margin-top: 0.8rem; color: #94a3b8; line-height: 1.65; font-size: 1rem; }
+  .status {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    margin-top: 1.5rem; padding: 0.5rem 1.1rem; border-radius: 999px;
+    background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #fbbf24; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.03em;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #fbbf24; animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.8); } }
+  .actions { margin-top: 2rem; display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 0.7rem 1.6rem; border-radius: 999px;
+    font-size: 0.95rem; font-weight: 600; text-decoration: none; transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn-primary { background: linear-gradient(90deg, #6366f1, #8b5cf6); color: #fff; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(99, 102, 241, 0.45); }
+  .btn-ghost { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); color: #cbd5e1; }
+  .btn-ghost:hover { transform: translateY(-2px); background: rgba(255,255,255,0.1); }
+  footer { margin-top: 2.2rem; font-size: 0.8rem; color: #475569; }
+  footer a { color: #818cf8; text-decoration: none; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <img src="/maintenance.svg" alt="Learnify AI under maintenance" width="440" height="338">
+    <h1>We're doing a quick <span class="accent">maintenance check-up</span></h1>
+    <p>Our engineers are tuning the engines to make Learnify AI faster, smoother and smarter for you. This usually takes just a few minutes — hang tight!</p>
+    <div class="status"><span class="dot"></span> Scheduled maintenance in progress</div>
+    <div class="actions">
+      <a class="btn btn-primary" href="/" onclick="event.preventDefault(); location.reload();">Try again</a>
+      <a class="btn btn-ghost" href="mailto:support@learnifyai.in">Contact support</a>
+    </div>
+    <footer>© 2026 Learnify AI · <a href="https://www.learnifyai.in/">learnifyai.in</a></footer>
+  </div>
+</body>
+</html>
