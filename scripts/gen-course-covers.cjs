@@ -25,6 +25,18 @@ function esc(s) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+// Embed the official Learnify AI logo (icon + wordmark) rendered white,
+// mirroring how the app displays it on dark backgrounds (brightness(0) invert(1)).
+const logoPng = fs.readFileSync(path.join(__dirname, "..", "src", "assets", "learnify-logo.png")).toString("base64");
+const LOGO_W = 666;
+const LOGO_H = 375;
+const LOGO_WIDTH = 150;
+const LOGO_HEIGHT = Math.round((LOGO_H / LOGO_W) * LOGO_WIDTH);
+const LOGO_DATA_URI = `data:image/png;base64,${logoPng}`;
+const LOGO_TAG =
+  `<image href="${LOGO_DATA_URI}" width="${LOGO_WIDTH}" height="${LOGO_HEIGHT}" x="48" y="30" ` +
+  `style="filter:brightness(0) invert(1)" preserveAspectRatio="xMidYMid meet"/>`;
+
 function cover(c) {
   const accent = c.accent;
   const deep = c.deep;
@@ -58,11 +70,7 @@ function cover(c) {
   <circle cx="640" cy="225" r="98" fill="#0b1120" fill-opacity="0.65"/>
   <circle cx="640" cy="225" r="98" fill="none" stroke="${accent}" stroke-opacity="0.6" stroke-width="8"/>
   <text x="640" y="262" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="bold" fill="url(#glyph)">${esc(c.glyph)}</text>
-  <g transform="translate(48, 40)">
-    <rect x="0" y="0" width="34" height="34" rx="9" fill="${accent}"/>
-    <path d="M 9 22 L 15 13 L 20 19 L 25 9 L 30 22 Z" fill="#0b1120"/>
-  </g>
-  <text x="92" y="64" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" fill="#e2e8f0">Learnify AI</text>
+  ${LOGO_TAG}
   <text x="48" y="120" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="bold" fill="#f8fafc">${esc(c.title)}</text>
   <text x="49" y="154" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#cbd5e1">${esc(c.tagline)}</text>
   <g font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold">
