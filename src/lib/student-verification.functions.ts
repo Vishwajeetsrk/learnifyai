@@ -38,39 +38,30 @@ export const sendStudentVerificationOtp = createServerFn({ method: "POST" })
 
     if (error) throw error;
 
-    // Send OTP via email (using Resend or any email service)
-    // For now, we'll use Supabase's built-in email or a simple webhook
-    const resendKey = process.env.RESEND_API_KEY;
-    if (resendKey) {
-      try {
-        await fetch("https://api.resend.com/emails", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${resendKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            from: "Learnify AI <verification@learnifyai.in>",
-            to: data.email,
-            subject: "Your Student Verification Code",
-            html: `
-              <div style="font-family: sans-serif; max-width: 400px; margin: 0 auto; padding: 20px;">
-                <h2 style="color: #6d28d9;">Student Verification</h2>
-                <p>Your verification code is:</p>
-                <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #6d28d9; text-align: center; padding: 20px; background: #f3f4f6; border-radius: 8px;">
-                  ${otp}
-                </div>
-                <p style="color: #666; font-size: 14px;">This code expires in 10 minutes.</p>
-              </div>
-            `,
-          }),
-        });
-      } catch (e) {
-        console.error("Failed to send verification email:", e);
-      }
+    // Send OTP via email using the platform's multi-provider sendEmail
+    try {
+      const { sendEmail } = await import("./cert.functions");
+      await sendEmail({
+        to: data.email,
+        subject: "Your Learnify AI Student Verification Code",
+        html: `
+          <div style="font-family: sans-serif; max-width: 400px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #6d28d9;">Student Verification</h2>
+            <p>Your verification code is:</p>
+            <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #6d28d9; text-align: center; padding: 20px; background: #f3f4f6; border-radius: 8px;">
+              ${otp}
+            </div>
+            <p style="color: #666; font-size: 14px;">This code expires in 10 minutes.</p>
+            <p style="color: #999; font-size: 12px;">If you didn't request this, you can safely ignore this email.</p>
+          </div>
+        `,
+      });
+    } catch (e) {
+      console.error("Failed to send verification email:", e);
+      // Don't throw — the OTP is stored in DB, user can retry
     }
 
-    return { success: true, otpPreview: otp }; // otpPreview for dev only
+    return { success: true };
   });
 
 export const verifyStudentOtp = createServerFn({ method: "POST" })

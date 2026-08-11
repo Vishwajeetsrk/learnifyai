@@ -12,7 +12,7 @@ export const submitJobApplication = createServerFn({ method: "POST" })
         email: z.string().email().max(200),
         phone: z.string().max(40).optional().nullable(),
         experience: z.string().max(200).optional().nullable(),
-        resumeText: z.string().min(10).max(20000),
+        resumeText: z.string().min(5).max(20000),
       })
       .parse(d),
   )

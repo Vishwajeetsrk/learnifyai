@@ -109,7 +109,7 @@ STRICT FORMAT & CONTENT RULES:
   });
 
 const AtsInput = z.object({
-  resumeText: z.string().min(10).max(50000),
+  resumeText: z.string().min(5).max(50000),
   targetRole: z.string().min(1).max(200).optional().default("Software Engineer"),
   industry: z.string().max(200).optional().default(""),
 });

@@ -702,13 +702,13 @@ export const adminGetAllCourses = createServerFn({ method: "GET" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    // Require admin
-    const { data: profile } = await supabase
-      .from("profiles")
+    // Require admin via user_roles table
+    const { data: roles } = await supabase
+      .from("user_roles")
       .select("role")
-      .eq("id", userId)
-      .single();
-    if (!["admin", "super_admin"].includes((profile as any)?.role ?? "")) {
+      .eq("user_id", userId)
+      .in("role", ["admin", "super_admin"]);
+    if (!roles || roles.length === 0) {
       throw new Error("Admin access required");
     }
 
@@ -747,13 +747,13 @@ export async function assertLessonOwnership(supabase: any, lessonId: string, use
   const courseCreatedBy = (lesson as any).courses?.created_by;
   if (courseCreatedBy === userId) return; // owner
 
-  // Check if admin
-  const { data: profile } = await supabase
-    .from("profiles")
+  // Check if admin via user_roles table
+  const { data: roles } = await supabase
+    .from("user_roles")
     .select("role")
-    .eq("id", userId)
-    .single();
-  if (["admin", "super_admin"].includes((profile as any)?.role ?? "")) return;
+    .eq("user_id", userId)
+    .in("role", ["admin", "super_admin"]);
+  if (roles && roles.length > 0) return;
 
   throw new Error("Access denied: you do not own this course");
 }
@@ -767,12 +767,13 @@ async function assertCourseOwnership(supabase: any, courseId: string, userId: st
   if (!course) throw new Error("Course not found");
   if ((course as any).created_by === userId) return;
 
-  const { data: profile } = await supabase
-    .from("profiles")
+  // Check if admin via user_roles table
+  const { data: roles } = await supabase
+    .from("user_roles")
     .select("role")
-    .eq("id", userId)
-    .single();
-  if (["admin", "super_admin"].includes((profile as any)?.role ?? "")) return;
+    .eq("user_id", userId)
+    .in("role", ["admin", "super_admin"]);
+  if (roles && roles.length > 0) return;
 
   throw new Error("Access denied: you do not own this course");
 }
