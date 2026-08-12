@@ -151,6 +151,16 @@ function getStoredPerks(): Record<string, number> {
   }
 }
 
+function markPerkStored(perkId: string) {
+  try {
+    const perks = getStoredPerks();
+    perks[perkId] = Date.now();
+    localStorage.setItem(PURCHASED_KEY, JSON.stringify(perks));
+  } catch {
+    // localStorage unavailable — server purchases still authoritative
+  }
+}
+
 function StorePage() {
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -235,8 +245,11 @@ function StorePage() {
 
     setPurchasing(perkId);
     try {
-      await deductFn({ data: { userId: user.id, amount: cost, item: name } });
+      // Record the purchase first; only then deduct XP, so a failed
+      // record never costs the user their balance.
       await recordFn({ data: { userId: user.id, perkId, perkName: name, cost } });
+      await deductFn({ data: { userId: user.id, amount: cost, item: name } });
+      markPerkStored(perkId);
 
       confetti({
         particleCount: 100,
@@ -267,8 +280,8 @@ function StorePage() {
     try {
       if (method === "xp") {
         if (xp < 1) throw new Error("Not enough XP!");
-        await deductFn({ data: { userId: user.id, amount: 1, item: name } });
         await recordFn({ data: { userId: user.id, perkId, perkName: name, cost: 1 } });
+        await deductFn({ data: { userId: user.id, amount: 1, item: name } });
       } else {
         const costInr = avatarPurchaseItem.prime_price || 1;
         if (walletBalance < costInr)
@@ -277,6 +290,7 @@ function StorePage() {
       }
 
       // Auto-apply avatar
+      markPerkStored(perkId);
       const currentAvatarUrl = (profile as any)?.avatar_url || "";
       const borderMatch = currentAvatarUrl.match(/[?&]profile_border=([^&]+)/);
       const activeBorder = borderMatch ? borderMatch[1] : "";

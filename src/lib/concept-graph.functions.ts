@@ -44,10 +44,25 @@ export const generateConceptGraph = createServerFn({ method: "POST" })
       .replace(/```\s*/g, "")
       .trim();
     const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-    const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : { nodes: [], edges: [] };
+    let parsed: any = null;
+    if (jsonMatch) {
+      try {
+        parsed = JSON.parse(jsonMatch[0]);
+      } catch {
+        parsed = null;
+      }
+    }
 
-    const nodes = parsed.nodes || [];
-    const edges = parsed.edges || [];
+    const nodes: any[] = Array.isArray(parsed?.nodes) ? parsed.nodes : [];
+    let edges: any[] = Array.isArray(parsed?.edges) ? parsed.edges : [];
+
+    if (nodes.length === 0) {
+      throw new Error("AI returned an invalid concept map — please try again.");
+    }
+
+    // Drop edges referencing concepts that don't exist.
+    const nodeIds = new Set(nodes.map((n) => n.id));
+    edges = edges.filter((e) => nodeIds.has(e.from) && nodeIds.has(e.to));
 
     await supabaseAdmin.from("concept_graphs").upsert({
       lesson_id: data.lessonId,

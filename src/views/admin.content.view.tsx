@@ -28,25 +28,14 @@ import {
   ImageIcon,
   Sparkles,
   Menu,
-  Layout,
   Layers,
   BarChart3,
   FolderTree,
   LayoutTemplate,
   Upload,
 } from "lucide-react";
-import {
-  CertificateRender,
-  DEFAULT_DESIGN,
-  FONT_OPTIONS,
-  BORDER_STYLES,
-  CORNER_STYLES,
-  BACKGROUND_PATTERNS,
-  LAYOUTS,
-  type CertDesign,
-} from "@/components/CertificateDesign";
-import { CertificateFullPreviewDialog } from "@/components/CertificateFullPreviewDialog";
-import { Maximize2, GripVertical, PlayCircle } from "lucide-react";
+import { Gift, GripVertical, PlayCircle, CheckCircle2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/hooks/use-auth";
@@ -61,6 +50,12 @@ import {
   cleanupTestEvents,
   cleanDuplicateSiteSettings,
 } from "@/lib/admin-content.functions";
+import {
+  adminListPrizes,
+  adminSavePrize,
+  adminListClaims,
+  adminSetClaimStatus,
+} from "@/lib/leaderboard-prizes.functions";
 import {
   listJobApplications,
   updateJobApplication,
@@ -116,7 +111,6 @@ const AVATAR_URLS = {
 };
 
 // Heavy admin panels — code-split so initial admin page paints fast.
-const IssueCertificate = lazy(() => import("@/components/admin/IssueCertificate"));
 
 function LazyFallback() {
   return (
@@ -125,8 +119,6 @@ function LazyFallback() {
     </div>
   );
 }
-
-const SITE_LOGO_URL = "/favicon.ico";
 
 type EventRow = {
   id: string;
@@ -148,8 +140,6 @@ type JobRow = {
   active: boolean;
   closes_at: string | null;
 };
-
-type SectionEntry = { title: string; tab: string };
 
 const SECTION_TOURS: Record<string, { what: string; how: string; where: string }> = {
   events: {
@@ -185,12 +175,6 @@ const SECTION_TOURS: Record<string, { what: string; how: string; where: string }
     how: "Use the visual editor to customize each template. Live preview updates in real-time. Add elements like logos, signatures, and student details.",
     where:
       "Certificate templates are used when issuing certificates to students. They appear as options in the 'Issue Cert' section.",
-  },
-  "issue-cert": {
-    what: "Issue certificates to students individually or in bulk. Upload a CSV to issue to multiple students at once.",
-    how: "Use the single-issue form to award a certificate to one student, or upload a CSV file with name/email/course columns for bulk issuance.",
-    where:
-      "Students see issued certificates on their Certificates page. Each certificate has a unique verification link they can share on LinkedIn.",
   },
   faqs: {
     what: "Manage the FAQ section displayed on the Pricing page. Organize questions by category.",
@@ -272,12 +256,12 @@ const TAB_LABELS: Record<string, string> = {
   pricing: "Pricing",
   site: "Site",
   "cert-templates": "Certificates",
-  "issue-cert": "Bulk Issue",
   faqs: "FAQs",
   pages: "Pages",
   roadmap: "Roadmap",
   coupons: "Coupons",
   community: "Community Groups",
+  prizes: "Leaderboard Prizes",
   features: "Visibility",
   blog: "Blog",
   "wcms-pages": "WCMS Pages",
@@ -287,6 +271,473 @@ const TAB_LABELS: Record<string, string> = {
   "wcms-sections": "Sections",
   "promo-banner": "Promo Banner",
 };
+
+const PRIZE_TYPES = [
+  { value: "xp", label: "XP" },
+  { value: "badge", label: "Badge" },
+  { value: "avatar_frame", label: "Avatar Frame" },
+  { value: "premium_resume", label: "Premium Resume" },
+  { value: "ai_credits", label: "AI Credits" },
+  { value: "discount", label: "Discount" },
+  { value: "store_item", label: "Store Item" },
+  { value: "custom", label: "Custom" },
+];
+
+const PRIZE_ICONS = ["👑", "🥇", "🥈", "🥉", "🏆", "🏅", "⭐", "🎖️", "🎁", "💎", "🔥", "📜"];
+
+type PrizeRow = {
+  id: string;
+  period: "weekly" | "all";
+  rank: number;
+  name: string;
+  description: string;
+  icon: string;
+  item_type: string;
+  item_value: string;
+  enabled: boolean;
+};
+
+type ClaimRow = {
+  id: string;
+  user_id: string;
+  period: string;
+  period_key: string;
+  rank: number;
+  prize_name: string;
+  prize_icon: string;
+  item_type: string;
+  item_value: string;
+  status: string;
+  claimed_at: string | null;
+  created_at: string;
+  profiles?: { full_name: string | null; email: string | null; avatar_url: string | null } | null;
+};
+
+function PrizesManager() {
+  const qc = useQueryClient();
+  const [editing, setEditing] = useState<PrizeRow | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const doList = useServerFn(adminListPrizes);
+  const doSave = useServerFn(adminSavePrize);
+  const doListClaims = useServerFn(adminListClaims);
+  const doSetStatus = useServerFn(adminSetClaimStatus);
+
+  const { data: prizes = [], isLoading } = useQuery({
+    queryKey: ["admin-prizes"],
+    queryFn: () => doList().catch(() => []) as Promise<any[]>,
+  });
+
+  const { data: claims = [], refetch: refetchClaims } = useQuery({
+    queryKey: ["admin-prize-claims"],
+    queryFn: () => doListClaims().catch(() => []) as Promise<any[]>,
+  });
+
+  const toggleEnabled = async (p: PrizeRow, enabled: boolean) => {
+    try {
+      await doSave({
+        data: {
+          id: p.id,
+          period: p.period,
+          rank: p.rank,
+          name: p.name,
+          description: p.description,
+          icon: p.icon,
+          item_type: p.item_type as any,
+          item_value: p.item_value,
+          enabled,
+        },
+      });
+      toast.success(enabled ? "Prize enabled" : "Prize disabled");
+      qc.invalidateQueries({ queryKey: ["admin-prizes"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Update failed");
+    }
+  };
+
+  const setClaimStatus = async (claim: ClaimRow, status: "claimed" | "expired" | "revoked") => {
+    try {
+      await doSetStatus({ data: { id: claim.id, status } });
+      toast.success(`Claim marked ${status}`);
+      refetchClaims();
+    } catch (e: any) {
+      toast.error(e?.message || "Update failed");
+    }
+  };
+
+  const statusStyles: Record<string, string> = {
+    pending: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    claimed: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    expired: "bg-rose-500/10 text-rose-600 border-rose-500/20",
+    revoked: "bg-muted text-muted-foreground border-border/40",
+  };
+
+  const statusLabel: Record<string, string> = {
+    pending: "Pending",
+    claimed: "Claimed",
+    expired: "Expired",
+    revoked: "Revoked",
+  };
+
+  const prizeRows = (prizes ?? []) as PrizeRow[];
+  const claimRows = (claims ?? []) as ClaimRow[];
+  const weekly = prizeRows.filter((p) => p.period === "weekly").sort((a, b) => a.rank - b.rank);
+  const allTime = prizeRows.filter((p) => p.period === "all").sort((a, b) => a.rank - b.rank);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-semibold text-lg flex items-center gap-2">
+            <Gift className="h-5 w-5 text-amber-500" /> Leaderboard Prizes
+          </h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Rewards for top-3 weekly and all-time rankings. Claims are auto-created by the weekly
+            cron and granted on the leaderboard page.
+          </p>
+        </div>
+        <Button
+          onClick={() => {
+            setEditing({
+              id: "",
+              period: "weekly",
+              rank: 1,
+              name: "",
+              description: "",
+              icon: "🎖️",
+              item_type: "xp",
+              item_value: "100",
+              enabled: true,
+            });
+            setOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          New prize
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-5 w-5 animate-spin" />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { title: "Weekly (top 3)", rows: weekly, accent: "text-orange-500" },
+              { title: "All-Time (top 3)", rows: allTime, accent: "text-violet-500" },
+            ].map((group) => (
+              <div key={group.title} className="rounded-2xl border border-border/60 p-4 space-y-2">
+                <p className={`text-xs font-bold uppercase tracking-wider ${group.accent}`}>
+                  {group.title}
+                </p>
+                {group.rows.length === 0 ? (
+                  <p className="text-xs text-muted-foreground py-4 text-center">
+                    No prizes defined.
+                  </p>
+                ) : (
+                  group.rows.map((p) => (
+                    <div
+                      key={p.id}
+                      className={`flex items-center justify-between gap-3 rounded-xl border p-3 ${
+                        p.enabled ? "bg-card" : "bg-muted/30 opacity-70"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-xl shrink-0">{p.icon || "🎖️"}</span>
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold truncate flex items-center gap-2">
+                            {p.name}
+                            <span className="text-[10px] font-normal text-muted-foreground shrink-0">
+                              Rank #{p.rank}
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-muted-foreground truncate">
+                            {PRIZE_TYPES.find((t) => t.value === p.item_type)?.label ?? p.item_type}
+                            {p.item_value ? ` · ${p.item_value}` : ""}
+                            {p.description ? ` · ${p.description}` : ""}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Switch
+                          checked={p.enabled}
+                          onCheckedChange={(v) => toggleEnabled(p, v)}
+                          aria-label="Enable prize"
+                        />
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditing(p);
+                            setOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-sm flex items-center gap-2 mb-3">
+              <Users className="h-4 w-4 text-muted-foreground" /> Prize Claims
+              <Badge variant="outline" className="text-[10px]">
+                {claimRows.length}
+              </Badge>
+            </h4>
+            {claimRows.length === 0 ? (
+              <p className="text-xs text-muted-foreground py-6 text-center border rounded-xl">
+                No claims yet. Claims appear after the weekly leaderboard cron runs.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {claimRows.slice(0, 20).map((c) => (
+                  <div
+                    key={c.id}
+                    className="rounded-xl border border-border/60 p-3 flex items-center justify-between gap-3 flex-wrap"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Avatar className="h-8 w-8 shrink-0">
+                        {c.profiles?.avatar_url ? (
+                          <AvatarImage src={c.profiles.avatar_url} />
+                        ) : null}
+                        <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                          {(c.profiles?.full_name ?? "?")
+                            .split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .slice(0, 2)
+                            .toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium truncate">
+                          {c.prize_icon} {c.prize_name}
+                          <span className="text-[10px] font-normal text-muted-foreground">
+                            {" "}
+                            · {c.period === "weekly" ? "Weekly" : "All-Time"} #{c.rank}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-muted-foreground truncate">
+                          {c.profiles?.full_name ?? "User"} · {c.profiles?.email ?? c.user_id}
+                          <span className="ml-1.5">· {format(new Date(c.created_at), "dd MMM")}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Badge className={`capitalize ${statusStyles[c.status] ?? ""}`}>
+                        {statusLabel[c.status] ?? c.status}
+                      </Badge>
+                      {c.status === "pending" && (
+                        <>
+                          <Button size="sm" variant="outline" onClick={() => setClaimStatus(c, "claimed")}>
+                            <CheckCircle2 className="h-3.5 w-3.5 mr-1" /> Mark claimed
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setClaimStatus(c, "revoked")}>
+                            Revoke
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      <PrizeDialog
+        open={open}
+        onOpenChange={(v) => {
+          setOpen(v);
+          if (!v) setEditing(null);
+        }}
+        prize={editing}
+        onSaved={() => qc.invalidateQueries({ queryKey: ["admin-prizes"] })}
+      />
+    </div>
+  );
+}
+
+function PrizeDialog({
+  open,
+  onOpenChange,
+  prize,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  prize: PrizeRow | null;
+  onSaved: () => void;
+}) {
+  const [form, setForm] = useState<PrizeRow | null>(prize);
+  const [saving, setSaving] = useState(false);
+  const doSave = useServerFn(adminSavePrize);
+
+  useEffect(() => {
+    setForm(prize);
+  }, [prize]);
+
+  if (!form) return null;
+
+  const save = async () => {
+    if (!form.name.trim()) {
+      toast.error("Prize name is required");
+      return;
+    }
+    setSaving(true);
+    try {
+      await doSave({
+        data: {
+          id: form.id || undefined,
+          period: form.period,
+          rank: form.rank,
+          name: form.name.trim(),
+          description: form.description?.trim() || "",
+          icon: form.icon || "🎖️",
+          item_type: form.item_type as any,
+          item_value: form.item_value || "",
+          enabled: form.enabled,
+        },
+      });
+      toast.success(form.id ? "Prize updated" : "Prize created");
+      onSaved();
+      onOpenChange(false);
+    } catch (e: any) {
+      toast.error(e?.message || "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{form.id ? "Edit prize" : "New prize"}</DialogTitle>
+          <DialogDescription>
+            Configure the reward shown to top-3 winners on the leaderboard.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Period</Label>
+              <select
+                value={form.period}
+                onChange={(e) => setForm({ ...form, period: e.target.value as "weekly" | "all" })}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="weekly">Weekly</option>
+                <option value="all">All-Time</option>
+              </select>
+            </div>
+            <div>
+              <Label>Rank</Label>
+              <select
+                value={form.rank}
+                onChange={(e) => setForm({ ...form, rank: Number(e.target.value) })}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value={1}>1st place</option>
+                <option value={2}>2nd place</option>
+                <option value={3}>3rd place</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <Label>Prize name</Label>
+            <Input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="e.g. Weekly Champion Pack"
+            />
+          </div>
+          <div>
+            <Label>Description (shown on claim)</Label>
+            <Input
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              placeholder="+150 XP · Gold Avatar Frame · Champion Badge"
+            />
+          </div>
+          <div>
+            <Label>Icon</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                value={form.icon}
+                onChange={(e) => setForm({ ...form, icon: e.target.value })}
+                className="w-24 text-center"
+              />
+              <div className="flex gap-1 flex-wrap">
+                {PRIZE_ICONS.map((ic) => (
+                  <button
+                    key={ic}
+                    type="button"
+                    title={ic}
+                    onClick={() => setForm({ ...form, icon: ic })}
+                    className={`w-7 h-7 rounded-lg border text-sm hover:bg-muted transition-colors ${
+                      form.icon === ic ? "border-primary bg-primary/10" : "border-border"
+                    }`}
+                  >
+                    {ic}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Reward type</Label>
+              <select
+                value={form.item_type}
+                onChange={(e) => setForm({ ...form, item_type: e.target.value })}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+              >
+                {PRIZE_TYPES.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label>Reward value</Label>
+              <Input
+                value={form.item_value}
+                onChange={(e) => setForm({ ...form, item_value: e.target.value })}
+                placeholder="e.g. 150 for XP, badge id for Badge"
+              />
+            </div>
+          </div>
+          <div className="flex items-center justify-between py-1 border-t">
+            <Label className="cursor-pointer">Enabled (visible to cron & users)</Label>
+            <Switch
+              checked={form.enabled}
+              onCheckedChange={(v) => setForm({ ...form, enabled: v })}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={save} disabled={saving}>
+            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function AdminContentPage() {
   const { isAdmin, loading } = useAuth();
@@ -316,12 +767,12 @@ export default function AdminContentPage() {
     "pricing",
     "site",
     "cert-templates",
-    "issue-cert",
     "faqs",
     "pages",
     "roadmap",
     "coupons",
     "community",
+    "prizes",
     "features",
     "wcms-pages",
     "wcms-media",
@@ -410,6 +861,7 @@ export default function AdminContentPage() {
                     <SelectItem value="roadmap">Roadmap</SelectItem>
                     <SelectItem value="coupons">Coupons</SelectItem>
                     <SelectItem value="community">Community Groups</SelectItem>
+                    <SelectItem value="prizes">Leaderboard Prizes</SelectItem>
                     <SelectItem value="features">Feature Visibility</SelectItem>
                     <SelectItem value="blog">Blog</SelectItem>
                     <SelectItem value="wcms-pages">WCMS Pages</SelectItem>
@@ -510,6 +962,7 @@ export default function AdminContentPage() {
                     {[
                       { id: "cert-templates", label: "Certificates", icon: Award },
                       { id: "invoice-designer", label: "Invoice Designer", icon: FileText },
+                      { id: "prizes", label: "Leaderboard Prizes", icon: Gift },
                     ].map((item) => {
                       const Icon = item.icon;
                       const isActive = tab === item.id;
@@ -624,6 +1077,9 @@ export default function AdminContentPage() {
               </TabsContent>
               <TabsContent value="community" className="mt-0">
                 <CohortsManager />
+              </TabsContent>
+              <TabsContent value="prizes" className="mt-0">
+                <PrizesManager />
               </TabsContent>
               <TabsContent value="features" className="mt-0">
                 <FeaturesManager />
@@ -1848,7 +2304,7 @@ function PricingManager() {
       })) as any[] | null;
       const existingPlans = existing ?? [];
       for (const plan of defaults) {
-        const { yearly_price: _yp, ...planData } = plan as any;
+        const planData = plan as any;
         const match = existingPlans.find(
           (p: any) => p.name?.toLowerCase() === plan.name?.toLowerCase(),
         );
@@ -2143,7 +2599,9 @@ function PlanDialog({
               <Input
                 type="number"
                 value={form.max_courses}
-                onChange={(e) => setForm({ ...form, max_courses: Number(e.target.value) || -1 })}
+                onChange={(e) =>
+                  setForm({ ...form, max_courses: e.target.value === "" ? -1 : Number(e.target.value) })
+                }
               />
             </div>
           </div>
@@ -2677,1073 +3135,6 @@ function SiteSettingsManager() {
   );
 }
 
-// ─────────────────────────── Certificate Templates ───────────────────────────
-
-type TemplateRow = CertDesign & { id: string; name: string; is_default: boolean };
-
-const PREVIEW_CTX = {
-  name: "Ada Lovelace",
-  course: "Introduction to AI & LLMs",
-  date: "02 Jun 2026",
-  role: "Lead Engineer",
-  from: "01 Apr 2026",
-  to: "02 Jun 2026",
-  instructor: "Learnify AI",
-  code: "LRN-PREVIEW-001",
-  score: 18,
-  total: 20,
-  qrDataUrl: "",
-};
-
-function CertTemplatesManager() {
-  const qc = useQueryClient();
-  const navigate = useNavigate();
-  const [editing, setEditing] = useState<TemplateRow | null>(null);
-  const [open, setOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
-  const doAdminAction = useServerFn(adminContentAction);
-  const doQuery = useServerFn(adminContentQuery);
-
-  const { data: templates = [], isLoading } = useQuery({
-    queryKey: ["admin-cert-templates"],
-    queryFn: async () => {
-      const result = await doQuery({
-        data: { table: "certificate_templates", orderBy: "created_at", ascending: true },
-      });
-      return (result ?? []) as unknown as TemplateRow[];
-    },
-  });
-
-  const newTemplate = () => {
-    setEditing({ ...DEFAULT_DESIGN, id: "", name: "New template", is_default: false });
-    setOpen(true);
-  };
-
-  const loadPresets = async () => {
-    const presets = buildPresetTemplates();
-    try {
-      await doAdminAction({
-        data: { table: "certificate_templates", action: "insert", data: presets },
-      });
-    } catch (e: any) {
-      return toast.error(e?.message || "Failed to load presets");
-    }
-    toast.success(`${presets.length} preset templates added`);
-    qc.invalidateQueries({ queryKey: ["admin-cert-templates"] });
-  };
-
-  const removeTemplate = async () => {
-    if (!deleteId) return;
-    try {
-      await doAdminAction({
-        data: { table: "certificate_templates", action: "delete", id: deleteId },
-      });
-    } catch (e: any) {
-      return toast.error(e?.message || "Delete failed");
-    }
-    toast.success("Template deleted");
-    setDeleteId(null);
-    qc.invalidateQueries({ queryKey: ["admin-cert-templates"] });
-  };
-
-  // ── Export all templates as JSON ────────────────────────────────────────
-  const exportTemplates = () => {
-    const payload = {
-      kind: "learnify-certificate-templates",
-      version: 1,
-      exported_at: new Date().toISOString(),
-      palettes: COLOR_PALETTES,
-      templates: templates.map(
-        ({ id: _id, created_by: _cb, created_at: _ca, updated_at: _ua, ...rest }: any) => rest,
-      ),
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `learnify-cert-templates-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast.success(`${templates.length} template(s) exported`);
-  };
-
-  // ── Import templates from JSON ──────────────────────────────────────────
-  const importTemplates = async (file: File) => {
-    try {
-      const text = await file.text();
-      const json = JSON.parse(text);
-      const rows: any[] = Array.isArray(json)
-        ? json
-        : Array.isArray(json?.templates)
-          ? json.templates
-          : json?.name
-            ? [json]
-            : [];
-      if (!rows.length) return toast.error("No templates found in file");
-      const clean = rows.map((r) => {
-        const { id, created_by, created_at, updated_at, is_default, ...rest } = r ?? {};
-        return { ...rest, name: String(rest.name ?? "Imported template"), is_default: false };
-      });
-      try {
-        await doAdminAction({
-          data: { table: "certificate_templates", action: "insert", data: clean },
-        });
-      } catch (e: any) {
-        return toast.error(e?.message || "Import failed");
-      }
-      toast.success(`Imported ${clean.length} template(s)`);
-      qc.invalidateQueries({ queryKey: ["admin-cert-templates"] });
-    } catch (e: any) {
-      toast.error(e?.message ?? "Invalid JSON file");
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2 pb-4 border-b">
-        <Button variant="default" size="sm" onClick={() => navigate({ to: "/admin/certificates" })}>
-          <ShieldCheck className="h-4 w-4 mr-2" />
-          Full Designer
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.open("/admin/certificates?tab=canva", "_self")}
-        >
-          <LayoutTemplate className="h-4 w-4 mr-2" />
-          Canva Templates
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.open("/admin/certificates?tab=analytics", "_self")}
-        >
-          <BarChart3 className="h-4 w-4 mr-2" />
-          Analytics
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.open("/admin/certificates?tab=categories", "_self")}
-        >
-          <FolderTree className="h-4 w-4 mr-2" />
-          Categories
-        </Button>
-      </div>
-
-      <div className="flex flex-wrap justify-end gap-2">
-        <input
-          id="cert-import-file"
-          type="file"
-          accept="application/json,.json"
-          className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) importTemplates(f);
-            e.target.value = "";
-          }}
-        />
-        <Button
-          variant="outline"
-          onClick={() => document.getElementById("cert-import-file")?.click()}
-        >
-          Import JSON
-        </Button>
-        <Button variant="outline" onClick={exportTemplates} disabled={!templates.length}>
-          Export JSON
-        </Button>
-        <Button variant="outline" onClick={loadPresets}>
-          Load preset templates
-        </Button>
-        <Button variant="outline" onClick={() => navigate({ to: "/admin/certificates" })}>
-          <ShieldCheck className="h-4 w-4 mr-2" />
-          Open Designer
-        </Button>
-        <Button onClick={newTemplate}>
-          <Plus className="h-4 w-4 mr-2" />
-          New template
-        </Button>
-      </div>
-      {isLoading ? (
-        <div className="flex justify-center py-10">
-          <Loader2 className="h-5 w-5 animate-spin" />
-        </div>
-      ) : templates.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-10">No templates yet.</p>
-      ) : (
-        <div className="grid sm:grid-cols-2 gap-4">
-          {templates.map((t) => (
-            <div key={t.id} className="rounded-xl border border-border/60 bg-card p-4">
-              <div className="flex items-center justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="font-semibold truncate flex items-center gap-2">
-                    {t.name}
-                    {t.is_default && (
-                      <span className="text-[10px] rounded-full bg-primary/10 text-primary px-2 py-0.5">
-                        Default
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-muted-foreground">{t.font_family}</div>
-                </div>
-                <div className="flex gap-2 shrink-0">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => navigate({ to: "/admin/certificates" })}
-                    title="Edit in Certificate Designer"
-                  >
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setEditing(t);
-                      setOpen(true);
-                    }}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => setDeleteId(t.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-              <div className="mt-3 rounded-md overflow-hidden border border-border/60">
-                <div
-                  style={{
-                    transform: "scale(0.34)",
-                    transformOrigin: "top left",
-                    width: "294%",
-                    height: "200px",
-                  }}
-                >
-                  <CertificateRender design={t} ctx={PREVIEW_CTX} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <TemplateDialog
-        open={open}
-        onOpenChange={(v) => {
-          setOpen(v);
-          if (!v) setEditing(null);
-        }}
-        template={editing}
-        onSaved={() => qc.invalidateQueries({ queryKey: ["admin-cert-templates"] })}
-      />
-
-      <AlertDialog open={!!deleteId} onOpenChange={(v) => !v && setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete template?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Certificates already issued keep their saved design.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={removeTemplate}>Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-}
-
-function TemplateDialog({
-  open,
-  onOpenChange,
-  template,
-  onSaved,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  template: TemplateRow | null;
-  onSaved: () => void;
-}) {
-  const [form, setForm] = useState<TemplateRow | null>(template);
-  const [saving, setSaving] = useState(false);
-  const [fullPreviewOpen, setFullPreviewOpen] = useState(false);
-  const doAdminAction = useServerFn(adminContentAction);
-
-  useEffect(() => {
-    setForm(template);
-  }, [template]);
-
-  if (!form) return null;
-  const set = (patch: Partial<TemplateRow>) => setForm({ ...form, ...patch });
-
-  const save = async () => {
-    if (!form.name.trim()) return toast.error("Name is required");
-    setSaving(true);
-    const payload: any = {
-      name: form.name.trim(),
-      title_text: form.title_text,
-      subtitle: form.subtitle,
-      body_template: form.body_template,
-      signatory_name: form.signatory_name,
-      signatory_title: form.signatory_title,
-      accent_color: form.accent_color,
-      bg_color: form.bg_color,
-      text_color: form.text_color,
-      font_family: form.font_family,
-      logo_url: form.logo_url || null,
-      signature_url: form.signature_url || null,
-      stamp_url: form.stamp_url || null,
-      is_default: form.is_default,
-      title_font: form.title_font || null,
-      body_font: form.body_font || null,
-      title_size: form.title_size ?? 1,
-      name_size: form.name_size ?? 1,
-      body_size: form.body_size ?? 1,
-      border_style: form.border_style ?? "double",
-      border_width: form.border_width ?? 10,
-      corner_style: form.corner_style ?? "diagonal",
-      background_pattern: form.background_pattern ?? "none",
-      accent_color_2: form.accent_color_2 || null,
-      layout: form.layout ?? "classic",
-    };
-    try {
-      if (form.id) {
-        await doAdminAction({
-          data: { table: "certificate_templates", action: "update", id: form.id, data: payload },
-        });
-      } else {
-        await doAdminAction({
-          data: { table: "certificate_templates", action: "insert", data: payload },
-        });
-      }
-    } catch (e: any) {
-      setSaving(false);
-      return toast.error(e?.message || "Save failed");
-    }
-    setSaving(false);
-    toast.success(form.id ? "Template updated" : "Template created");
-    onSaved();
-    onOpenChange(false);
-  };
-
-  const exportSingle = () => {
-    const { id: _id, ...rest } = form as any;
-    const blob = new Blob(
-      [
-        JSON.stringify(
-          { kind: "learnify-certificate-templates", version: 1, templates: [rest] },
-          null,
-          2,
-        ),
-      ],
-      { type: "application/json" },
-    );
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${(form.name || "template").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-6xl w-[96vw] max-h-[92vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between gap-3">
-              <span>{form.id ? "Edit template" : "New template"}</span>
-              <Button type="button" size="sm" variant="outline" onClick={exportSingle}>
-                Export JSON
-              </Button>
-            </DialogTitle>
-            <DialogDescription>
-              Customize text, colors, fonts, borders and background. Live preview updates instantly.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid lg:grid-cols-5 gap-4">
-            {/* Preview — full width on mobile, 3 cols on lg, sticky so it stays in view */}
-            <div className="lg:col-span-3 lg:order-2 sticky top-0 lg:top-2 z-30 bg-background/95 backdrop-blur pb-2 lg:pb-0 mb-4 lg:mb-0">
-              <div className="rounded-md border border-border/60 overflow-hidden shadow-sm">
-                <div className="bg-muted/40 px-3 py-2 text-xs text-muted-foreground flex items-center justify-between">
-                  <span>Live preview · A4 landscape</span>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-[11px]"
-                    onClick={() => setFullPreviewOpen(true)}
-                  >
-                    <Maximize2 className="h-3.5 w-3.5 mr-1" /> Full
-                  </Button>
-                </div>
-                <div className="p-2 sm:p-3 bg-muted/20 flex justify-center">
-                  <div
-                    className="w-full"
-                    style={{ maxWidth: "min(100%, calc((78vh - 120px) * 1.414))" }}
-                  >
-                    <CertificateRender key={JSON.stringify(form)} design={form} ctx={PREVIEW_CTX} />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Editor */}
-            <div className="lg:col-span-2 lg:order-1 space-y-3 pr-2">
-              <div>
-                <Label>Template name</Label>
-                <Input value={form.name} onChange={(e) => set({ name: e.target.value })} />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label>Title</Label>
-                  <Input
-                    value={form.title_text}
-                    onChange={(e) => set({ title_text: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>Subtitle</Label>
-                  <Input
-                    value={form.subtitle}
-                    onChange={(e) => set({ subtitle: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label>
-                  Body (use {"{name}"} {"{course}"} {"{date}"} {"{role}"} {"{from}"} {"{to}"})
-                </Label>
-                <Textarea
-                  rows={3}
-                  value={form.body_template}
-                  onChange={(e) => set({ body_template: e.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label>Signatory name</Label>
-                  <Input
-                    value={form.signatory_name}
-                    onChange={(e) => set({ signatory_name: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>Signatory title</Label>
-                  <Input
-                    value={form.signatory_title}
-                    onChange={(e) => set({ signatory_title: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              {/* Branding */}
-              <div className="rounded-lg border border-dashed border-border/60 p-3 space-y-3 bg-muted/20">
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Branding
-                </div>
-                <div>
-                  <Label className="text-xs">Color palette</Label>
-                  <div className="mt-1 grid grid-cols-2 gap-2">
-                    {COLOR_PALETTES.map((p) => (
-                      <button
-                        type="button"
-                        key={p.name}
-                        onClick={() =>
-                          set({ accent_color: p.accent, bg_color: p.bg, text_color: p.text })
-                        }
-                        className="rounded-md border border-border/60 px-2 py-1.5 text-left hover:border-primary transition"
-                        title={p.name}
-                      >
-                        <div className="flex gap-1 mb-1">
-                          <span className="h-3 w-3 rounded-full" style={{ background: p.accent }} />
-                          <span
-                            className="h-3 w-3 rounded-full border"
-                            style={{ background: p.bg }}
-                          />
-                          <span className="h-3 w-3 rounded-full" style={{ background: p.text }} />
-                        </div>
-                        <div className="text-[10px] leading-tight">{p.name}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-4 gap-2">
-                  <div>
-                    <Label className="text-xs">Accent</Label>
-                    <Input
-                      type="color"
-                      value={form.accent_color}
-                      onChange={(e) => set({ accent_color: e.target.value })}
-                      className="h-8 p-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Accent 2</Label>
-                    <Input
-                      type="color"
-                      value={form.accent_color_2 ?? form.accent_color}
-                      onChange={(e) => set({ accent_color_2: e.target.value })}
-                      className="h-8 p-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Background</Label>
-                    <Input
-                      type="color"
-                      value={form.bg_color}
-                      onChange={(e) => set({ bg_color: e.target.value })}
-                      className="h-8 p-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">Text</Label>
-                    <Input
-                      type="color"
-                      value={form.text_color}
-                      onChange={(e) => set({ text_color: e.target.value })}
-                      className="h-8 p-1"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Typography */}
-              <div className="rounded-lg border border-dashed border-border/60 p-3 space-y-3 bg-muted/20">
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Typography
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-xs">Title font</Label>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      value={form.title_font ?? form.font_family}
-                      onChange={(e) => set({ title_font: e.target.value })}
-                    >
-                      {FONT_OPTIONS.map((f) => (
-                        <option key={f} value={f}>
-                          {f}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <Label className="text-xs">Body font</Label>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      value={form.body_font ?? form.font_family}
-                      onChange={(e) =>
-                        set({ body_font: e.target.value, font_family: e.target.value })
-                      }
-                    >
-                      {FONT_OPTIONS.map((f) => (
-                        <option key={f} value={f}>
-                          {f}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div>
-                    <Label className="text-xs">
-                      Title size ({(form.title_size ?? 1).toFixed(2)}×)
-                    </Label>
-                    <Input
-                      type="range"
-                      min={0.6}
-                      max={1.6}
-                      step={0.05}
-                      value={form.title_size ?? 1}
-                      onChange={(e) => set({ title_size: Number(e.target.value) })}
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">
-                      Name size ({(form.name_size ?? 1).toFixed(2)}×)
-                    </Label>
-                    <Input
-                      type="range"
-                      min={0.6}
-                      max={1.8}
-                      step={0.05}
-                      value={form.name_size ?? 1}
-                      onChange={(e) => set({ name_size: Number(e.target.value) })}
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">
-                      Body size ({(form.body_size ?? 1).toFixed(2)}×)
-                    </Label>
-                    <Input
-                      type="range"
-                      min={0.7}
-                      max={1.4}
-                      step={0.05}
-                      value={form.body_size ?? 1}
-                      onChange={(e) => set({ body_size: Number(e.target.value) })}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Layout & decoration */}
-              <div className="rounded-lg border border-dashed border-border/60 p-3 space-y-3 bg-muted/20">
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Layout & decoration
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label className="text-xs">Layout</Label>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm capitalize"
-                      value={form.layout ?? "classic"}
-                      onChange={(e) => set({ layout: e.target.value })}
-                    >
-                      {LAYOUTS.map((l) => (
-                        <option key={l} value={l}>
-                          {l}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <Label className="text-xs">Background pattern</Label>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm capitalize"
-                      value={form.background_pattern ?? "none"}
-                      onChange={(e) => set({ background_pattern: e.target.value })}
-                    >
-                      {BACKGROUND_PATTERNS.map((b) => (
-                        <option key={b} value={b}>
-                          {b}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <Label className="text-xs">Border style</Label>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm capitalize"
-                      value={form.border_style ?? "double"}
-                      onChange={(e) => set({ border_style: e.target.value })}
-                    >
-                      {BORDER_STYLES.map((b) => (
-                        <option key={b} value={b}>
-                          {b}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <Label className="text-xs">Corners</Label>
-                    <select
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm capitalize"
-                      value={form.corner_style ?? "diagonal"}
-                      onChange={(e) => set({ corner_style: e.target.value })}
-                    >
-                      {CORNER_STYLES.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-xs">Border width ({form.border_width ?? 10}px)</Label>
-                  <Input
-                    type="range"
-                    min={0}
-                    max={24}
-                    step={1}
-                    value={form.border_width ?? 10}
-                    onChange={(e) => set({ border_width: Number(e.target.value) })}
-                  />
-                </div>
-              </div>
-
-              {/* Assets */}
-              <div className="rounded-lg border border-dashed border-border/60 p-3 space-y-3 bg-muted/20">
-                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Assets
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-xs">Logo URL</Label>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      className="h-7 text-[11px]"
-                      onClick={() => set({ logo_url: SITE_LOGO_URL })}
-                    >
-                      Use site logo
-                    </Button>
-                  </div>
-                  <Input
-                    value={form.logo_url ?? ""}
-                    onChange={(e) => set({ logo_url: e.target.value })}
-                    placeholder="https://..."
-                  />
-                  {form.logo_url && (
-                    <img
-                      src={form.logo_url}
-                      alt="Logo preview"
-                      className="h-10 object-contain bg-white rounded border p-1"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  )}
-                </div>
-                <div>
-                  <Label className="text-xs">Signature image URL</Label>
-                  <Input
-                    value={form.signature_url ?? ""}
-                    onChange={(e) => set({ signature_url: e.target.value })}
-                    placeholder="https://...signature.png"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs">Stamp image URL</Label>
-                  <Input
-                    value={form.stamp_url ?? ""}
-                    onChange={(e) => set({ stamp_url: e.target.value })}
-                    placeholder="https://...stamp.png"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 pt-1">
-                <Switch checked={form.is_default} onCheckedChange={(v) => set({ is_default: v })} />
-                <Label className="cursor-pointer">Default template</Label>
-              </div>
-            </div>
-          </div>
-          <DialogFooter className="sticky bottom-0 -mx-6 -mb-6 px-6 py-4 bg-background/95 backdrop-blur border-t z-40 mt-6 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.05)]">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button onClick={save} disabled={saving}>
-              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Save Template
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <CertificateFullPreviewDialog
-        open={fullPreviewOpen}
-        onOpenChange={setFullPreviewOpen}
-        design={form}
-        ctx={PREVIEW_CTX}
-        title={form.name || "Certificate preview"}
-      />
-    </>
-  );
-}
-
-function buildPresetTemplates() {
-  return [
-    {
-      name: "Learnify Official (Navy + Gold)",
-      title_text: "Certificate of Completion",
-      subtitle: "This is proudly presented to",
-      body_template:
-        "for successfully completing the {course} program on {date}. This achievement reflects dedication, curiosity and rigor.",
-      signatory_name: "Learnify AI",
-      signatory_title: "Director of Learning",
-      accent_color: "#c9a84c",
-      bg_color: "#fdfbf5",
-      text_color: "#0f1b3d",
-      font_family: "Playfair Display",
-      logo_url: SITE_LOGO_URL,
-      signature_url: null,
-      stamp_url: null,
-      is_default: true,
-    },
-    {
-      name: "Executive Black & Gold",
-      title_text: "Certificate of Excellence",
-      subtitle: "Awarded to",
-      body_template: "in recognition of outstanding performance in {course}, completed on {date}.",
-      signatory_name: "Learnify AI",
-      signatory_title: "Chief Academic Officer",
-      accent_color: "#d4af37",
-      bg_color: "#0d0d0d",
-      text_color: "#f5f0e0",
-      font_family: "Cinzel",
-      logo_url: SITE_LOGO_URL,
-      signature_url: null,
-      stamp_url: null,
-      is_default: false,
-    },
-    {
-      name: "Modern Indigo",
-      title_text: "Certificate of Achievement",
-      subtitle: "This certifies that",
-      body_template:
-        "has successfully completed the {course} curriculum on {date} with distinction.",
-      signatory_name: "Learnify AI",
-      signatory_title: "Head of Programs",
-      accent_color: "#6366f1",
-      bg_color: "#ffffff",
-      text_color: "#1e1b4b",
-      font_family: "Montserrat",
-      logo_url: SITE_LOGO_URL,
-      signature_url: null,
-      stamp_url: null,
-      is_default: false,
-    },
-    {
-      name: "Editorial Cream",
-      title_text: "Certificate of Completion",
-      subtitle: "Presented to",
-      body_template: "for completing {course} on {date} as part of the Learnify AI learning track.",
-      signatory_name: "Learnify AI",
-      signatory_title: "Director of Learning",
-      accent_color: "#8b6f3d",
-      bg_color: "#f7f1e3",
-      text_color: "#2c2416",
-      font_family: "Cormorant Garamond",
-      logo_url: SITE_LOGO_URL,
-      signature_url: null,
-      stamp_url: null,
-      is_default: false,
-    },
-    {
-      name: "Calligraphic Blush",
-      title_text: "Certificate of Participation",
-      subtitle: "Awarded with appreciation to",
-      body_template: "for active participation and completion of {course} on {date}.",
-      signatory_name: "Learnify AI",
-      signatory_title: "Program Lead",
-      accent_color: "#b76e79",
-      bg_color: "#fff8f5",
-      text_color: "#3a1d24",
-      font_family: "Great Vibes",
-      logo_url: SITE_LOGO_URL,
-      signature_url: null,
-      stamp_url: null,
-      is_default: false,
-    },
-    ...EXTRA_PRESETS,
-  ];
-}
-
-const COLOR_PALETTES: { name: string; accent: string; bg: string; text: string }[] = [
-  { name: "Navy & Gold", accent: "#c9a84c", bg: "#fdfbf5", text: "#0f1b3d" },
-  { name: "Black & Gold", accent: "#d4af37", bg: "#0d0d0d", text: "#f5f0e0" },
-  { name: "Indigo Modern", accent: "#6366f1", bg: "#ffffff", text: "#1e1b4b" },
-  { name: "Emerald Prestige", accent: "#c9a84c", bg: "#f8faf7", text: "#064e3b" },
-  { name: "Burgundy Classic", accent: "#b08d57", bg: "#fbf6ef", text: "#581c1c" },
-  { name: "Slate Minimal", accent: "#64748b", bg: "#ffffff", text: "#0f172a" },
-  { name: "Rose & Charcoal", accent: "#b76e79", bg: "#fff8f5", text: "#1f1f1f" },
-  { name: "Teal Editorial", accent: "#0d9488", bg: "#f0fdfa", text: "#134e4a" },
-  { name: "Royal Purple", accent: "#a855f7", bg: "#faf5ff", text: "#3b0764" },
-  { name: "Sunset Amber", accent: "#f59e0b", bg: "#fffbeb", text: "#7c2d12" },
-  { name: "Forest & Cream", accent: "#4a6741", bg: "#f7f4ec", text: "#1c2e1a" },
-  { name: "Steel Blue", accent: "#1e40af", bg: "#f1f5f9", text: "#0c1d4f" },
-];
-
-const EXTRA_PRESETS = [
-  {
-    name: "Emerald Prestige",
-    title_text: "Certificate of Achievement",
-    subtitle: "Awarded to",
-    body_template: "in recognition of completing {course} on {date} with academic distinction.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Dean of Programs",
-    accent_color: "#c9a84c",
-    bg_color: "#f8faf7",
-    text_color: "#064e3b",
-    font_family: "Playfair Display",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Burgundy Classic",
-    title_text: "Certificate of Completion",
-    subtitle: "Proudly presented to",
-    body_template: "for the successful completion of {course} on {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Registrar",
-    accent_color: "#b08d57",
-    bg_color: "#fbf6ef",
-    text_color: "#581c1c",
-    font_family: "Cormorant Garamond",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Minimal Slate",
-    title_text: "Certificate",
-    subtitle: "This certifies that",
-    body_template: "completed {course} on {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Program Director",
-    accent_color: "#64748b",
-    bg_color: "#ffffff",
-    text_color: "#0f172a",
-    font_family: "Inter",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Teal Editorial",
-    title_text: "Certificate of Mastery",
-    subtitle: "Awarded to",
-    body_template: "for demonstrated mastery of {course} as of {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Head of Curriculum",
-    accent_color: "#0d9488",
-    bg_color: "#f0fdfa",
-    text_color: "#134e4a",
-    font_family: "Montserrat",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Royal Purple",
-    title_text: "Certificate of Honour",
-    subtitle: "Presented with distinction to",
-    body_template: "for outstanding completion of {course} on {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Academic Council",
-    accent_color: "#a855f7",
-    bg_color: "#faf5ff",
-    text_color: "#3b0764",
-    font_family: "Cinzel",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Sunset Amber",
-    title_text: "Certificate of Participation",
-    subtitle: "With appreciation to",
-    body_template: "for participating in {course} on {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Community Lead",
-    accent_color: "#f59e0b",
-    bg_color: "#fffbeb",
-    text_color: "#7c2d12",
-    font_family: "Montserrat",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Forest & Cream",
-    title_text: "Certificate of Completion",
-    subtitle: "Granted to",
-    body_template: "for completing the {course} program on {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Director of Learning",
-    accent_color: "#4a6741",
-    bg_color: "#f7f4ec",
-    text_color: "#1c2e1a",
-    font_family: "Cormorant Garamond",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Steel Blue Corporate",
-    title_text: "Professional Certificate",
-    subtitle: "This is to certify that",
-    body_template: "has completed the professional curriculum of {course} on {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Director, Professional Programs",
-    accent_color: "#1e40af",
-    bg_color: "#f1f5f9",
-    text_color: "#0c1d4f",
-    font_family: "Inter",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Rose Charcoal",
-    title_text: "Certificate of Recognition",
-    subtitle: "Awarded to",
-    body_template: "for excellence demonstrated in {course} on {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Faculty Lead",
-    accent_color: "#b76e79",
-    bg_color: "#fff8f5",
-    text_color: "#1f1f1f",
-    font_family: "Playfair Display",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Onyx Calligraphy",
-    title_text: "Certificate of Excellence",
-    subtitle: "Presented to",
-    body_template: "for exemplary work in {course}, completed {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Chancellor",
-    accent_color: "#caa472",
-    bg_color: "#111111",
-    text_color: "#f4ebd6",
-    font_family: "Great Vibes",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Ivory Academic",
-    title_text: "Diploma",
-    subtitle: "Conferred upon",
-    body_template: "having fulfilled all requirements of {course} on {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Provost",
-    accent_color: "#7a5e2b",
-    bg_color: "#fbf7ec",
-    text_color: "#2b210f",
-    font_family: "Cinzel",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-  {
-    name: "Skyline Tech",
-    title_text: "Certificate of Skill",
-    subtitle: "Issued to",
-    body_template: "for completing the {course} technical track on {date}.",
-    signatory_name: "Learnify AI",
-    signatory_title: "Head of Engineering Education",
-    accent_color: "#0ea5e9",
-    bg_color: "#f0f9ff",
-    text_color: "#0c4a6e",
-    font_family: "Inter",
-    logo_url: SITE_LOGO_URL,
-    signature_url: null,
-    stamp_url: null,
-    is_default: false,
-  },
-];
-
-// IssueCertificate moved to src/components/admin/IssueCertificate.tsx (lazy-loaded).
-
 // ─────────────────────────── FAQs ───────────────────────────
 
 type FaqRow = {
@@ -4061,7 +3452,14 @@ function FaqsManager() {
     ];
     setSaving(true);
     try {
-      for (const faq of defaults) {
+      const existingQuestions = new Set((faqs as any[]).map((f: any) => f.question?.trim()));
+      const toInsert = defaults.filter((d) => !existingQuestions.has(d.question.trim()));
+      if (toInsert.length === 0) {
+        toast.info("All default FAQs already exist");
+        setSaving(false);
+        return;
+      }
+      for (const faq of toInsert) {
         await doAdminAction({
           data: {
             table: "faqs",

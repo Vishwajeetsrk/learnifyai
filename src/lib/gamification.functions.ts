@@ -376,6 +376,35 @@ export const recordPurchase = createServerFn({ method: "POST" })
       throw new Error("Failed to record purchase");
     }
 
+    // Apply auto-grant perks so purchases are real, not just recorded.
+    try {
+      if (data.perkId === "premium-resume") {
+        await (supabaseAdmin as any)
+          .from("profiles")
+          .update({
+            resume_premium_until: new Date(Date.now() + 365 * 86400_000).toISOString(),
+          })
+          .eq("id", data.userId);
+      } else if (data.perkId === "ai-credits-500") {
+        const { data: bal } = await (supabaseAdmin as any)
+          .from("ai_credits")
+          .select("credits_remaining, credits_used")
+          .eq("user_id", data.userId)
+          .maybeSingle();
+        await (supabaseAdmin as any).from("ai_credits").upsert(
+          {
+            user_id: data.userId,
+            credits_remaining: ((bal as any)?.credits_remaining ?? 0) + 500,
+            credits_used: (bal as any)?.credits_used ?? 0,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id" },
+        );
+      }
+    } catch (grantErr: any) {
+      console.warn("[recordPurchase] auto-grant failed:", grantErr?.message);
+    }
+
     return { success: true };
   });
 

@@ -132,6 +132,86 @@ export const Route = createFileRoute("/api/cron/leaderboard-prizes")({
             }
           }
 
+          // ─── Hall of Fame: all-time top 3, awarded once ──────────────────
+          const HOF_KEY = "hall-of-fame";
+          const { data: hofDone } = await (supabaseAdmin as any)
+            .from("prize_claims")
+            .select("id")
+            .eq("period", "all")
+            .eq("period_key", HOF_KEY)
+            .limit(1)
+            .maybeSingle();
+
+          if (!hofDone) {
+            const { data: hofRanked } = await (supabaseAdmin as any)
+              .from("profiles")
+              .select("id, xp, full_name, email")
+              .order("xp", { ascending: false })
+              .limit(3);
+            const { data: hofPrizes } = await (supabaseAdmin as any)
+              .from("leaderboard_prizes")
+              .select("*")
+              .eq("period", "all")
+              .eq("enabled", true);
+            const hofPrizeMap = new Map<number, any>(
+              (hofPrizes ?? []).map((p: any) => [p.rank, p]),
+            );
+
+            for (let i = 0; i < (hofRanked ?? []).length && i < 3; i++) {
+              const user = (hofRanked ?? [])[i];
+              if (!user?.email || Number(user.xp ?? 0) <= 0) continue;
+              const prize = hofPrizeMap.get(i + 1);
+              if (!prize) continue;
+              const { error: hofErr } = await (supabaseAdmin as any)
+                .from("prize_claims")
+                .insert({
+                  user_id: user.id,
+                  period: "all",
+                  period_key: HOF_KEY,
+                  rank: i + 1,
+                  prize_id: prize.id,
+                  prize_name: prize.name,
+                  prize_icon: prize.icon,
+                  item_type: prize.item_type,
+                  item_value: prize.item_value,
+                  status: "pending",
+                });
+              if (hofErr) throw new Error(hofErr.message);
+              created++;
+              winners.push(user.id);
+              try {
+                const origin = resolveOrigin();
+                const claimUrl = `${origin}/leaderboard?claim=1`;
+                const firstName = (user.full_name ?? "Champion").split(" ")[0];
+                const { data: tpl } = await (supabaseAdmin as any)
+                  .from("email_templates")
+                  .select("subject, html_body")
+                  .eq("id", "leaderboard_winner")
+                  .maybeSingle();
+                if (tpl) {
+                  const fill = (s: string) =>
+                    s
+                      .replace(/\{\{first_name\}\}/g, firstName)
+                      .replace(/\{\{period\}\}/g, "all")
+                      .replace(/\{\{period_label\}\}/g, "of all time")
+                      .replace(/\{\{rank\}\}/g, String(i + 1))
+                      .replace(/\{\{icon\}\}/g, prize.icon || "🏆")
+                      .replace(/\{\{prize_name\}\}/g, escapeHtml(prize.name))
+                      .replace(/\{\{description\}\}/g, escapeHtml(prize.description || ""))
+                      .replace(/\{\{claim_url\}\}/g, claimUrl);
+                  const { sendEmail } = await import("@/lib/welcome-email.functions");
+                  await sendEmail({
+                    to: user.email,
+                    subject: fill(tpl.subject || `You made the Top 3 ${firstName}! 🏆`),
+                    html: fill(tpl.html_body || ""),
+                  });
+                }
+              } catch (e: any) {
+                console.warn(`[PRIZE EMAIL] failed for ${user.id}:`, e?.message);
+              }
+            }
+          }
+
           return new Response(
             JSON.stringify({ success: true, created, periodKey, winners, topXp: top3.map((t) => t[1]) }),
             { status: 200, headers: { "Content-Type": "application/json" } },

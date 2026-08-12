@@ -107,7 +107,6 @@ export default function InvoiceDesigner() {
   };
 
   const handleSave = async () => {
-    setSaving(false);
     setSaving(true);
     try {
       const rows = Object.keys(settings).map((key) => ({
@@ -316,7 +315,7 @@ export default function InvoiceDesigner() {
                   <Input
                     value={settings.invoice_website}
                     onChange={(e) => handleChange("invoice_website", e.target.value)}
-                    placeholder="https://learnifyai.com"
+                    placeholder="https://www.learnifyai.in"
                   />
                 </div>
               </TabsContent>
@@ -835,7 +834,7 @@ export default function InvoiceDesigner() {
                         Scan to Verify
                       </strong>
                       <span className="text-[8px] text-muted-foreground block leading-tight mt-0.5">
-                        Secured & tamper-proof validation on learnifyai.com.
+                        Secured & tamper-proof validation on the Learnify Hub.
                       </span>
                     </div>
                   </div>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842 595" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#043d2e"/>
+      <stop offset="1" stop-color="#0a2a22"/>
+    </linearGradient>
+    <linearGradient id="cream" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e8dfc8"/>
+      <stop offset="0.5" stop-color="#f7f0dd"/>
+      <stop offset="1" stop-color="#e8dfc8"/>
+    </linearGradient>
+  </defs>
+  <rect width="842" height="595" fill="url(#bg)"/>
+  <rect x="30" y="30" width="782" height="535" fill="none" stroke="url(#cream)" stroke-width="2"/>
+  <rect x="44" y="44" width="754" height="507" fill="none" stroke="#f7f0dd" stroke-width="0.8" opacity="0.5"/>
+  <path d="M44 44 q0 -14 14 -14 h44 l-14 14 Z" fill="#f7f0dd" opacity="0.85"/>
+  <path d="M798 44 q14 0 14 14 v44 l-14 -14 Z" fill="#f7f0dd" opacity="0.85"/>
+  <path d="M798 551 q-14 14 -14 14 h-44 l14 -14 Z" fill="#f7f0dd" opacity="0.85"/>
+  <path d="M44 551 q0 14 14 14 h-14 v-14 Z" fill="#f7f0dd" opacity="0.85"/>
+  <circle cx="130" cy="478" r="3" fill="#f7f0dd" opacity="0.6"/>
+  <circle cx="150" cy="498" r="2.5" fill="#f7f0dd" opacity="0.45"/>
+  <circle cx="170" cy="516" r="2" fill="#f7f0dd" opacity="0.35"/>
+  <circle cx="712" cy="478" r="3" fill="#f7f0dd" opacity="0.6"/>
+  <circle cx="692" cy="498" r="2.5" fill="#f7f0dd" opacity="0.45"/>
+  <circle cx="672" cy="516" r="2" fill="#f7f0dd" opacity="0.35"/>
+  <path d="M421 46 l26 10 -26 10 -26 -10 Z" fill="#f7f0dd" opacity="0.35"/>
+</svg>

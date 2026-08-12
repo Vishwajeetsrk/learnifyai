@@ -9,11 +9,14 @@ import {
   Building,
   User,
   ExternalLink,
+  Download,
 } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { downloadInvoicePdf } from "@/lib/invoice-pdf";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/verify/invoice/$id")({
   head: () => ({ meta: [{ title: "Verify Invoice — Learnify AI Verification Hub" }] }),
@@ -54,6 +57,30 @@ function VerifyInvoicePage() {
     }
   };
 
+  const downloadPdf = async (invoice: any, email: string) => {
+    try {
+      await downloadInvoicePdf(
+        {
+          invoice_number: invoice.invoice_number,
+          created_at: invoice.created_at,
+          due_date: invoice.due_date,
+          status: invoice.status,
+          amount_inr: Number(invoice.amount_inr || invoice.total_inr || 0),
+          tax_inr: Number(invoice.tax_inr || 0),
+          total_inr: Number(invoice.total_inr || 0),
+          line_items: invoice.line_items,
+          payment_method: invoice.payment_method,
+          paid_at: invoice.paid_at,
+          cashfree_order_id: invoice.cashfree_order_id,
+          gstin: invoice.gstin,
+        },
+        email,
+      );
+    } catch (e: any) {
+      toast.error(e.message || "Failed to generate PDF");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-hero flex flex-col items-center justify-center p-4 sm:p-6">
       <div className="w-full max-w-xl bg-card border border-border/60 rounded-3xl p-6 sm:p-8 shadow-card relative overflow-hidden">
@@ -77,7 +104,7 @@ function VerifyInvoicePage() {
           <div className="py-16 text-center space-y-3">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
             <p className="text-sm text-muted-foreground">
-              Verifying signature on blockchain registry...
+              Checking invoice record against the official registry...
             </p>
           </div>
         ) : q.isError ? (
@@ -213,6 +240,15 @@ function VerifyInvoicePage() {
             <div className="flex gap-3 pt-2">
               <Button asChild className="flex-1">
                 <Link to="/dashboard">Go to Dashboard</Link>
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  downloadPdf(q.data, (q.data.profiles as any)?.email || "Customer")
+                }
+                className="inline-flex items-center gap-1"
+              >
+                <Download className="h-4 w-4" /> PDF
               </Button>
               {q.data.pdf_url && (
                 <Button variant="outline" asChild>

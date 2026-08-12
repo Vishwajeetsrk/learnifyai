@@ -197,13 +197,15 @@ export const claimPrize = createServerFn({ method: "POST" })
       const remaining = ((bal as any)?.credits_remaining ?? 0) + amount;
       const { error } = await (supabaseAdmin as any)
         .from("ai_credits")
-        .upsert({
-          user_id: context.userId!,
-          credits_remaining: remaining,
-          credits_used: (bal as any)?.credits_used ?? 0,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("user_id", context.userId!);
+        .upsert(
+          {
+            user_id: context.userId!,
+            credits_remaining: remaining,
+            credits_used: (bal as any)?.credits_used ?? 0,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id" },
+        );
       if (error) console.warn("credits update:", error.message);
     } else if ((claim as any).item_type === "premium_resume") {
       const { error } = await (supabaseAdmin as any).from("profiles").update({

@@ -1,23 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1e1033"/>
-      <stop offset="1" stop-color="#4c1d95"/>
-    </linearGradient>
-    <linearGradient id="glyph" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#a259ff"/>
-      <stop offset="1" stop-color="#ff7262"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="0.3" cy="0.25" r="0.9">
-      <stop offset="0" stop-color="#a259ff" stop-opacity="0.35"/>
-      <stop offset="1" stop-color="#a259ff" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect width="800" height="450" rx="28" fill="url(#bg)"/>
-  <rect width="800" height="450" rx="28" fill="url(#glow)"/>
-  <circle cx="400" cy="210" r="118" fill="none" stroke="#a259ff" stroke-opacity="0.35" stroke-width="10"/>
-  <circle cx="400" cy="210" r="88" fill="#0b1120" fill-opacity="0.55"/>
-  <text x="400" y="243" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="bold" fill="url(#glyph)">Fg</text>
-  <text x="400" y="375" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#f1f5f9">Figma UI Bootcamp</text>
-  <text x="400" y="408" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#94a3b8">Learnify AI · 100% Free · Certificate</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <path d="M16 16a4 4 0 118 0 4 4 0 01-8 0z" fill="#1ABCFE"/>
+  <path d="M8 24a4 4 0 014-4h4v4a4 4 0 01-8 0z" fill="#0ACF83"/>
+  <path d="M16 4h-4a4 4 0 000 8h4V4z" fill="#FF7262"/>
+  <path d="M8 8a4 4 0 004 4h4V4h-4a4 4 0 00-4 4z" fill="#F24E1E"/>
+  <path d="M8 16a4 4 0 004 4h4v-8h-4a4 4 0 00-4 4z" fill="#A259FF"/>
 </svg>

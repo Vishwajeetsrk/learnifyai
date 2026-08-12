@@ -440,7 +440,8 @@ export async function downloadInvoicePdf(
 
   // ─── 11. VERIFICATION URL & QR CODE ───────────────────────────────────────
   const footerStartY = payBoxY + 25;
-  const verifyUrl = `https://learnifyai.com/verify/invoice/${inv.invoice_number || ""}`;
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://www.learnifyai.in";
+  const verifyUrl = `${origin}/verify/invoice/${inv.invoice_number || ""}`;
 
   if (branding.qr_enabled === "true") {
     try {

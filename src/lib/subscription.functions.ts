@@ -592,10 +592,7 @@ export const savePlan = createServerFn({ method: "POST" })
   .validator((d: any) => z.object({ plan: z.any() }).parse(d))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const plan = data.plan;
-    // Strip yearly_price — column may not exist in all DB versions.
-    // The frontend computes it via: plan.yearly_price || Math.round(price_inr * 12 * 0.8)
-    const { yearly_price, ...planData } = plan;
+    const planData = data.plan;
     if (planData.id) {
       const { error } = await supabaseAdmin
         .from("pricing_plans")

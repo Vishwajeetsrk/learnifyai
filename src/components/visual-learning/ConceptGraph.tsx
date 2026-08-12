@@ -29,6 +29,8 @@ interface ConceptGraphProps {
   nodes: any[];
   edges: any[];
   loading?: boolean;
+  regenerating?: boolean;
+  error?: string | null;
   onRegenerate?: () => void;
 }
 
@@ -94,6 +96,8 @@ export function ConceptGraph({
   nodes: rawNodes,
   edges: rawEdges,
   loading,
+  regenerating,
+  error,
   onRegenerate,
 }: ConceptGraphProps) {
   const initialNodes: Node[] = useMemo(
@@ -147,13 +151,29 @@ export function ConceptGraph({
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-muted-foreground gap-3">
+        <Brain className="h-10 w-10 opacity-30" />
+        <span className="text-sm max-w-md text-center">{error}</span>
+        {onRegenerate && (
+          <Button variant="outline" size="sm" onClick={onRegenerate} disabled={regenerating}>
+            {regenerating && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
+            Try Again
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   if (!rawNodes.length) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-muted-foreground gap-3">
         <Brain className="h-10 w-10 opacity-30" />
         <span className="text-sm">No concept map generated yet</span>
         {onRegenerate && (
-          <Button variant="outline" size="sm" onClick={onRegenerate}>
+          <Button variant="outline" size="sm" onClick={onRegenerate} disabled={regenerating}>
+            {regenerating && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
             Generate Concept Map
           </Button>
         )}
@@ -175,9 +195,10 @@ export function ConceptGraph({
             size="sm"
             className="h-7 w-7 p-0"
             onClick={onRegenerate}
-            title="Regenerate"
+            disabled={regenerating}
+            title={regenerating ? "Regenerating..." : "Regenerate"}
           >
-            <RotateCcw className="h-3.5 w-3.5" />
+            <RotateCcw className={`h-3.5 w-3.5 ${regenerating ? "animate-spin" : ""}`} />
           </Button>
         </div>
       )}

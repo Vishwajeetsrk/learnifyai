@@ -1,23 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#07231a"/>
-      <stop offset="1" stop-color="#14532d"/>
-    </linearGradient>
-    <linearGradient id="glyph" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#21a366"/>
-      <stop offset="1" stop-color="#41d17c"/>
-    </linearGradient>
-    <radialGradient id="glow" cx="0.3" cy="0.25" r="0.9">
-      <stop offset="0" stop-color="#21a366" stop-opacity="0.35"/>
-      <stop offset="1" stop-color="#21a366" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
-  <rect width="800" height="450" rx="28" fill="url(#bg)"/>
-  <rect width="800" height="450" rx="28" fill="url(#glow)"/>
-  <circle cx="400" cy="210" r="118" fill="none" stroke="#21a366" stroke-opacity="0.35" stroke-width="10"/>
-  <circle cx="400" cy="210" r="88" fill="#0b1120" fill-opacity="0.55"/>
-  <text x="400" y="243" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="88" font-weight="bold" fill="url(#glyph)">X</text>
-  <text x="400" y="375" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="bold" fill="#f1f5f9">Excel & Sheets Mastery</text>
-  <text x="400" y="408" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#94a3b8">Learnify AI · 100% Free · Certificate</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect x="2" y="2" width="28" height="28" rx="4" fill="#217346"/>
+  <path d="M18 8h8v16h-8z" fill="#33A65E" opacity="0.5"/>
+  <path d="M7 11l4 5-4 5h3l2.5-3.5L15 21h3l-4-5 4-5h-3l-2.5 3.5L10 11z" fill="white"/>
+  <rect x="18" y="8" width="8" height="2.5" fill="white" opacity="0.7"/>
+  <rect x="18" y="12.5" width="8" height="2.5" fill="white" opacity="0.7"/>
+  <rect x="18" y="17" width="8" height="2.5" fill="white" opacity="0.7"/>
+  <rect x="18" y="21.5" width="8" height="2.5" fill="white" opacity="0.7"/>
 </svg>

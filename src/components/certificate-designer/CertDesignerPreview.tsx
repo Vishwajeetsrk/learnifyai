@@ -88,9 +88,9 @@ const DEFAULT_PREVIEW: PreviewData = {
   badgeIndustry: "Industry Relevant",
   badgeCareer: "Career Focused",
   badgeAccess: "Lifetime Access",
-  learnifyLogo: "/Logo Learnify AI.png",
+  learnifyLogo: "/logo.png",
   signatureImage: "",
-  centerLogo: "/Logo Learnify AI.png",
+  centerLogo: "/logo.png",
 };
 
 export function CertDesignerPreview({ template, onClose }: Props) {

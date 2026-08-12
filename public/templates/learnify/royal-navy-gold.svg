@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842 595" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a0f33"/>
+      <stop offset="0.55" stop-color="#101743"/>
+      <stop offset="1" stop-color="#1a1440"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#b8912f"/>
+      <stop offset="0.5" stop-color="#f2d98a"/>
+      <stop offset="1" stop-color="#b8912f"/>
+    </linearGradient>
+  </defs>
+  <rect width="842" height="595" fill="url(#bg)"/>
+  <circle cx="640" cy="110" r="190" fill="#ffffff" opacity="0.03"/>
+  <circle cx="180" cy="500" r="230" fill="#ffffff" opacity="0.025"/>
+  <rect x="24" y="24" width="794" height="547" fill="none" stroke="url(#gold)" stroke-width="2.5"/>
+  <rect x="36" y="36" width="770" height="523" fill="none" stroke="#f2d98a" stroke-width="1" opacity="0.55"/>
+  <rect x="42" y="42" width="758" height="511" fill="none" stroke="#f2d98a" stroke-width="0.5" opacity="0.3"/>
+  <path d="M36 36 L76 36 L36 76 Z" fill="#f2d98a" opacity="0.9"/>
+  <path d="M806 36 L766 36 L806 76 Z" fill="#f2d98a" opacity="0.9"/>
+  <path d="M36 559 L76 559 L36 519 Z" fill="#f2d98a" opacity="0.9"/>
+  <path d="M806 559 L766 559 L806 519 Z" fill="#f2d98a" opacity="0.9"/>
+  <path d="M421 50 L446 58 L421 66 L396 58 Z" fill="#f2d98a" opacity="0.5"/>
+  <path d="M421 529 L446 537 L421 545 L396 537 Z" fill="#f2d98a" opacity="0.5"/>
+</svg>
