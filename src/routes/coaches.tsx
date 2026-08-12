@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { StaggerGroup, StaggerItem } from "@/components/Reveal";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/coaches")({
   head: () => ({
@@ -529,15 +530,17 @@ function CoachesPage() {
     }
   };
 
-  const { data: approvedCoaches } = useQuery({
+  const qc = useQueryClient();
+  const { data: approvedCoaches = [] } = useQuery({
     queryKey: ["approved-coaches-public"],
     queryFn: async () => {
       try {
-        const { supabase } = await import("@/integrations/supabase/client");
         const { data } = await (supabase as any)
-          .from("coach_applications")
+          .from("public_directory_entries")
           .select("*")
-          .eq("status", "approved");
+          .eq("role", "coach")
+          .order("featured", { ascending: false })
+          .order("id", { ascending: true });
         return data ?? [];
       } catch {
         return [];
@@ -545,26 +548,32 @@ function CoachesPage() {
     },
   });
 
-  const fallbackCoach = {
-    id: "coach-demo-1",
-    full_name: "Alex Rivera",
-    expertise: "Frontend Developer & SaaS Architect",
-    bio: "Senior Full-Stack Engineer & AI Educator specializing in cloud architecture and web platforms.",
-    hourly_rate: 99,
-    rating: "4.9 (42 reviews)",
-  };
+  useEffect(() => {
+    const ch = supabase
+      .channel("public-directory-coaches")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "creator_applications" },
+        () => qc.invalidateQueries({ queryKey: ["approved-coaches-public"] }),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [qc]);
 
-  const coachesList =
-    approvedCoaches && approvedCoaches.length > 0
-      ? approvedCoaches.map((c: any) => ({
-          id: c.id,
-          full_name: c.full_name || c.applicant_name || "Verified Coach",
-          expertise: c.expertise || "Tech Coach",
-          bio: c.motivation || c.bio || "1-on-1 personalized tech mentoring and code reviews.",
-          hourly_rate: c.hourly_rate || c.rate || 99,
-          rating: "5.0 (New)",
-        }))
-      : [fallbackCoach];
+  const coachesList = approvedCoaches.map((c: any) => ({
+    id: c.id,
+    full_name: c.full_name || "Verified Coach",
+    avatar_url: c.avatar_url || c.profile_avatar_url || null,
+    expertise: c.expertise || "Tech Coach",
+    bio:
+      c.bio ||
+      c.motivation?.replace(/^\[COACH APPLICATION\]\s*/, "").replace(/\s*Photo: .*$/, "") ||
+      "1-on-1 personalized tech mentoring and code reviews.",
+    hourly_rate: c.hourly_rate ?? 0,
+    featured: !!c.featured,
+  }));
 
   return (
     <MarketingPage
@@ -655,9 +664,8 @@ function CoachesPage() {
                   <div className="flex items-center gap-3">
                     <img
                       src={
-                        coach.full_name?.includes("Alex")
-                          ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80"
-                          : `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(coach.full_name)}`
+                        coach.avatar_url ||
+                        `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(coach.full_name)}`
                       }
                       alt={coach.full_name}
                       className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"
@@ -669,12 +677,19 @@ function CoachesPage() {
                       <p className="text-xs text-primary font-medium mt-0.5">{coach.expertise}</p>
                     </div>
                   </div>
-                  <Badge
-                    variant="outline"
-                    className="text-[10px] shrink-0 border-emerald-500/30 bg-emerald-500/10 text-emerald-600 font-semibold"
-                  >
-                    Verified Coach
-                  </Badge>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    {coach.featured && (
+                      <Badge className="text-[9px] bg-amber-500/15 text-amber-600 border-amber-500/30 font-semibold">
+                        ⭐ Featured
+                      </Badge>
+                    )}
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] border-emerald-500/30 bg-emerald-500/10 text-emerald-600 font-semibold"
+                    >
+                      Verified Coach
+                    </Badge>
+                  </div>
                 </div>
 
                 <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
@@ -688,12 +703,14 @@ function CoachesPage() {
                     Hourly Rate
                   </span>
                   <span className="text-sm font-bold text-foreground">
-                    ₹{coach.hourly_rate}{" "}
-                    <span className="text-xs font-normal text-muted-foreground">/ hr</span>
+                    {coach.hourly_rate > 0 ? `₹${coach.hourly_rate}` : "Free"}{" "}
+                    <span className="text-xs font-normal text-muted-foreground">
+                      {coach.hourly_rate > 0 ? "/ hr" : "sessions"}
+                    </span>
                   </span>
                 </div>
                 <Button size="sm" asChild className="gap-1">
-                  <Link to="/apply-coach">Book Session ➔</Link>
+                  <Link to="/coaching">Book Session ➔</Link>
                 </Button>
               </div>
             </div>

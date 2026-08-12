@@ -78,6 +78,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -422,6 +423,11 @@ function AdminOverview() {
       )
       .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () =>
         qc.invalidateQueries({ queryKey: ["admin", "notifications"] }),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "creator_applications" },
+        () => qc.invalidateQueries({ queryKey: ["admin", "creator-apps"] }),
       )
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "ai_usage" }, () =>
         qc.invalidateQueries({ queryKey: ["admin", "ai-cost"] }),
@@ -2372,7 +2378,14 @@ type CreatorAppRow = {
   portfolio_url: string | null;
   expertise: string | null;
   status: string;
+  role: string | null;
+  bio: string | null;
+  hourly_rate: number | null;
+  featured: boolean | null;
+  avatar_url: string | null;
+  admin_notes: string | null;
   created_at: string;
+  updated_at?: string;
   profiles?: {
     id: string;
     full_name: string | null;
@@ -2396,9 +2409,50 @@ function ApprovalsSection({
   onChanged: () => void;
 }) {
   const [detailApp, setDetailApp] = useState<CreatorAppRow | null>(null);
+  const [edit, setEdit] = useState<Record<string, any> | null>(null);
+  const getRole = (a: CreatorAppRow) =>
+    a.role || (a.motivation?.startsWith("[COACH APPLICATION]") ? "coach" : "creator");
   const pendingApps = creatorApps.filter((a) => a.status === "pending");
-  const coachApps = creatorApps.filter((a) => a.motivation?.startsWith("[COACH APPLICATION]"));
-  const creatorOnly = creatorApps.filter((a) => !a.motivation?.startsWith("[COACH APPLICATION]"));
+  const coachApps = creatorApps.filter((a) => getRole(a) === "coach");
+  const creatorOnly = creatorApps.filter((a) => getRole(a) !== "coach");
+
+  function openDetail(app: CreatorAppRow) {
+    setDetailApp(app);
+    setEdit({
+      full_name: app.profiles?.full_name || "",
+      expertise: app.expertise || "",
+      bio: app.bio || (getRole(app) === "coach" ? "" : app.motivation || ""),
+      hourly_rate: app.hourly_rate ?? 0,
+      featured: !!app.featured,
+      avatar_url: app.avatar_url || "",
+      admin_notes: app.admin_notes || "",
+    });
+  }
+
+  async function saveEdit() {
+    if (!detailApp || !edit) return;
+    const { error } = await supabase
+      .from("creator_applications")
+      .update({
+        expertise: edit.expertise?.trim() || null,
+        bio: edit.bio?.trim() || null,
+        hourly_rate:
+          getRole(detailApp) === "coach" ? Number(edit.hourly_rate) || 0 : null,
+        featured: !!edit.featured,
+        avatar_url: edit.avatar_url?.trim() || null,
+        admin_notes: edit.admin_notes?.trim() || null,
+      })
+      .eq("id", detailApp.id);
+    if (error) return toast.error(error.message);
+    const { error: profErr } = await supabase
+      .from("profiles")
+      .update({ full_name: edit.full_name?.trim() || null })
+      .eq("id", detailApp.user_id);
+    if (profErr) return toast.error(profErr.message);
+    toast.success("Directory entry updated — live on the website now");
+    setDetailApp(null);
+    onChanged();
+  }
 
   async function decideApp(a: CreatorAppRow, approve: boolean) {
     const status = approve ? "approved" : "rejected";
@@ -2430,7 +2484,7 @@ function ApprovalsSection({
   const AppCard = ({ app, type }: { app: CreatorAppRow; type: "creator" | "coach" }) => (
     <div className="px-6 py-3 border-b last:border-b-0 hover:bg-accent/20 transition-colors">
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3 min-w-0 flex-1" onClick={() => setDetailApp(app)}>
+        <div className="flex items-center gap-3 min-w-0 flex-1" onClick={() => openDetail(app)}>
           <div className="h-9 w-9 rounded-full bg-muted overflow-hidden shrink-0 ring-2 ring-border">
             {getAvatar(app) ? (
               <img src={getAvatar(app)} alt="" className="h-full w-full object-cover" />
@@ -2456,7 +2510,7 @@ function ApprovalsSection({
             size="sm"
             variant="ghost"
             className="h-7 text-xs"
-            onClick={() => setDetailApp(app)}
+            onClick={() => openDetail(app)}
           >
             <Eye className="h-3 w-3" />
           </Button>
@@ -2586,55 +2640,141 @@ function ApprovalsSection({
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Display Name
+                    </Label>
+                    <Input
+                      value={edit?.full_name ?? ""}
+                      onChange={(e) => setEdit((s) => ({ ...s, full_name: e.target.value }))}
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Expertise / Headline
+                    </Label>
+                    <Input
+                      value={edit?.expertise ?? ""}
+                      onChange={(e) => setEdit((s) => ({ ...s, expertise: e.target.value }))}
+                      placeholder="e.g. Frontend Developer & SaaS Architect"
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Expertise
-                  </p>
-                  <p className="text-sm mt-0.5">{detailApp.expertise || "Not specified"}</p>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Public Bio
+                  </Label>
+                  <Textarea
+                    rows={3}
+                    value={edit?.bio ?? ""}
+                    onChange={(e) => setEdit((s) => ({ ...s, bio: e.target.value }))}
+                    placeholder="Shown on the /creators or /coaches directory card"
+                    className="mt-1"
+                  />
+                </div>
+                {getRole(detailApp) === "coach" && (
+                  <div>
+                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Hourly Rate (₹/hr)
+                    </Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={edit?.hourly_rate ?? 0}
+                      onChange={(e) => setEdit((s) => ({ ...s, hourly_rate: e.target.value }))}
+                      className="mt-1"
+                    />
+                  </div>
+                )}
+                <div>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Avatar URL
+                  </Label>
+                  <Input
+                    value={edit?.avatar_url ?? ""}
+                    onChange={(e) => setEdit((s) => ({ ...s, avatar_url: e.target.value }))}
+                    placeholder="https://..."
+                    className="mt-1"
+                  />
+                </div>
+                <div className="flex items-center justify-between rounded-lg border bg-muted/30 px-4 py-3">
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Featured on directory
+                    </p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      Featured entries appear first with a ⭐ badge on the public page
+                    </p>
+                  </div>
+                  <Switch
+                    checked={!!edit?.featured}
+                    onCheckedChange={(v) => setEdit((s) => ({ ...s, featured: v }))}
+                  />
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Motivation
+                    Motivation (original application)
                   </p>
-                  <p className="text-sm mt-0.5 whitespace-pre-wrap">
+                  <p className="text-xs mt-0.5 whitespace-pre-wrap text-muted-foreground max-h-24 overflow-y-auto">
                     {detailApp.motivation?.replace("[COACH APPLICATION]", "").trim() ||
                       "No motivation provided"}
                   </p>
                 </div>
-                {detailApp.portfolio_url && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {detailApp.portfolio_url && (
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        Portfolio / Website
+                      </p>
+                      <a
+                        href={detailApp.portfolio_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-xs text-primary underline mt-0.5 block truncate"
+                      >
+                        {detailApp.portfolio_url}
+                      </a>
+                    </div>
+                  )}
                   <div>
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      Portfolio / Website
+                      Applied
                     </p>
-                    <a
-                      href={detailApp.portfolio_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-sm text-primary underline mt-0.5 block"
-                    >
-                      {detailApp.portfolio_url}
-                    </a>
+                    <p className="text-sm mt-0.5">
+                      {format(new Date(detailApp.created_at), "dd-MM-yyyy HH:mm")}
+                    </p>
                   </div>
-                )}
+                </div>
                 <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Applied
-                  </p>
-                  <p className="text-sm mt-0.5">
-                    {format(new Date(detailApp.created_at), "dd-MM-yyyy HH:mm")}
-                  </p>
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Admin Notes
+                  </Label>
+                  <Textarea
+                    rows={2}
+                    value={edit?.admin_notes ?? ""}
+                    onChange={(e) => setEdit((s) => ({ ...s, admin_notes: e.target.value }))}
+                    className="mt-1"
+                  />
                 </div>
               </div>
-              {detailApp.status === "pending" && (
-                <DialogFooter className="gap-2">
-                  <Button variant="outline" onClick={() => decideApp(detailApp, false)} size="sm">
-                    Reject
-                  </Button>
-                  <Button onClick={() => decideApp(detailApp, true)} size="sm">
-                    Approve
-                  </Button>
-                </DialogFooter>
-              )}
+              <DialogFooter className="gap-2">
+                {detailApp.status === "pending" && (
+                  <>
+                    <Button variant="outline" onClick={() => decideApp(detailApp, false)} size="sm">
+                      Reject
+                    </Button>
+                    <Button onClick={() => decideApp(detailApp, true)} size="sm">
+                      Approve
+                    </Button>
+                  </>
+                )}
+                <Button onClick={saveEdit} size="sm" className="gap-1.5">
+                  <Save className="h-3.5 w-3.5" /> Save Changes
+                </Button>
+              </DialogFooter>
             </>
           )}
         </DialogContent>

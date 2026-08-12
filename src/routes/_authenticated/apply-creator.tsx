@@ -78,8 +78,11 @@ function ApplyCreator() {
 
     const { error } = await supabase.from("creator_applications").insert({
       user_id: user.id,
+      role: "creator",
       motivation: finalMotivation,
       expertise: expertise.trim() || null,
+      bio: motivation.trim(),
+      avatar_url: photoUrl,
       portfolio_url: portfolio.trim() || null,
     });
     setSubmitting(false);

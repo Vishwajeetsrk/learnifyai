@@ -1532,33 +1532,48 @@ export type Database = {
       creator_applications: {
         Row: {
           admin_notes: string | null;
+          avatar_url: string | null;
+          bio: string | null;
           created_at: string;
           expertise: string | null;
+          featured: boolean;
+          hourly_rate: number | null;
           id: string;
           motivation: string;
           portfolio_url: string | null;
+          role: string;
           status: string;
           updated_at: string;
           user_id: string;
         };
         Insert: {
           admin_notes?: string | null;
+          avatar_url?: string | null;
+          bio?: string | null;
           created_at?: string;
           expertise?: string | null;
+          featured?: boolean;
+          hourly_rate?: number | null;
           id?: string;
           motivation: string;
           portfolio_url?: string | null;
+          role?: string;
           status?: string;
           updated_at?: string;
           user_id: string;
         };
         Update: {
           admin_notes?: string | null;
+          avatar_url?: string | null;
+          bio?: string | null;
           created_at?: string;
           expertise?: string | null;
+          featured?: boolean;
+          hourly_rate?: number | null;
           id?: string;
           motivation?: string;
           portfolio_url?: string | null;
+          role?: string;
           status?: string;
           updated_at?: string;
           user_id?: string;

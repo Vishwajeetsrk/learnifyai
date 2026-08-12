@@ -68,8 +68,12 @@ function ApplyCoachPage() {
 
       const { error } = await supabase.from("creator_applications").insert({
         user_id: user.id,
+        role: "coach",
         motivation: `[COACH APPLICATION] Rate: ₹${form.hourlyRate}/hr. Expertise: ${form.expertise}. Bio: ${form.bio}${photoUrl ? `. Photo: ${photoUrl}` : ""}`,
         expertise: form.expertise || null,
+        bio: form.bio,
+        hourly_rate: Number(form.hourlyRate) || 0,
+        avatar_url: photoUrl,
         portfolio_url: form.sampleVideoUrl || form.linkedinUrl || null,
         status: "pending",
       });
