@@ -544,72 +544,64 @@ function PricingPage() {
       if (sub.free) {
         toast.success("Free plan activated! Welcome to Learnify AI.");
         qc.invalidateQueries({ queryKey: ["my-subscription"] });
-      } else if (sub.use_razorpay) {
-        const loadRazorpayScript = () => {
-          return new Promise((resolve) => {
+      } else if (sub.use_razorpay && sub.short_url) {
+        // Redirect to Razorpay hosted subscription page (native recurring billing)
+        toast.info("Redirecting to Razorpay to complete subscription setup…");
+        // Brief delay so user sees the toast
+        await new Promise((r) => setTimeout(r, 800));
+        window.location.href = sub.short_url;
+      } else if (sub.use_razorpay && (sub as any).order_id) {
+        // Fallback: one-time order checkout modal (legacy path)
+        const legacySub = sub as any;
+        const loadRzpScript = () =>
+          new Promise<boolean>((resolve) => {
             if ((window as any).Razorpay) return resolve(true);
-            const script = document.createElement("script");
-            script.src = "https://checkout.razorpay.com/v1/checkout.js";
-            script.async = true;
-            script.onload = () => resolve(true);
-            script.onerror = () => resolve(false);
-            document.body.appendChild(script);
+            const s = document.createElement("script");
+            s.src = "https://checkout.razorpay.com/v1/checkout.js";
+            s.async = true;
+            s.onload = () => resolve(true);
+            s.onerror = () => resolve(false);
+            document.body.appendChild(s);
           });
-        };
 
-        const scriptLoaded = await loadRazorpayScript();
-        if (!scriptLoaded) {
-          toast.error("Razorpay SDK failed to load. Please check your internet connection.");
+        const loaded = await loadRzpScript();
+        if (!loaded) {
+          toast.error("Razorpay SDK failed to load. Please check your connection.");
           return;
         }
 
-        const options = {
-          key: sub.key_id,
-          amount: Math.round(sub.amount_inr * 100),
+        const rzp = new (window as any).Razorpay({
+          key: legacySub.key_id,
+          amount: Math.round(legacySub.amount_inr * 100),
           currency: "INR",
           name: "Learnify AI",
-          description: `${planId.toUpperCase()} Plan Subscription`,
-          order_id: sub.order_id,
-          handler: async function (response: any) {
-            setLoadingPlan(planId);
-            try {
-              const verifyRes = await fetch("/api/verify-payment", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_signature: response.razorpay_signature,
-                  amount_inr: sub.amount_inr,
-                }),
-              });
-
-              if (verifyRes.ok) {
-                toast.success("Payment verified! Subscription activated successfully.");
-                qc.invalidateQueries({ queryKey: ["my-subscription"] });
-                qc.invalidateQueries({ queryKey: ["user-subscription"] });
-                navigate({ to: "/dashboard" });
-              } else {
-                const errData = await verifyRes.json();
-                toast.error(errData.error || "Payment verification failed.");
-              }
-            } catch (err) {
-              console.error("Subscription payment verification error:", err);
-              toast.error("Verification failed. Please contact support.");
-            } finally {
-              setLoadingPlan(null);
-            }
-          },
+          description: "Plan Subscription",
+          order_id: legacySub.order_id,
           prefill: {
             name: (user?.user_metadata?.full_name as string) || "",
             email: user?.email || "",
           },
-          theme: {
-            color: "#6366F1",
+          theme: { color: "#6366F1" },
+          handler: async (response: any) => {
+            const verifyRes = await fetch("/api/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                amount_inr: sub.amount_inr,
+              }),
+            });
+            if (verifyRes.ok) {
+              toast.success("Payment verified! Subscription activated.");
+              qc.invalidateQueries({ queryKey: ["my-subscription"] });
+              navigate({ to: "/dashboard" });
+            } else {
+              toast.error("Payment verification failed. Contact support.");
+            }
           },
-        };
-
-        const rzp = new (window as any).Razorpay(options);
+        });
         rzp.open();
       } else if (sub.auth_link) {
         window.location.href = sub.auth_link;

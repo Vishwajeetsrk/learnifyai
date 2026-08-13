@@ -225,9 +225,8 @@ export const createSubscription = createServerFn({ method: "POST" })
     const realPhone = (profile as any)?.phone || (profile as any)?.phone_number || "9918231234";
 
     const { appId, secretKey } = getCreds();
-    const subId = `sub_${uid.slice(0, 8)}_${Date.now()}`;
 
-    // Direct Razorpay Standard Subscription Checkout (bypasses Cashfree profile_inactive issues)
+    // ─── Razorpay Native Subscriptions (Recurring Billing) ───────────────────
     const useRazorpayForSubs = true;
     if (useRazorpayForSubs) {
       try {
@@ -239,44 +238,123 @@ export const createSubscription = createServerFn({ method: "POST" })
           throw new Error("Razorpay credentials are not configured on the server.");
         }
 
-        const razorpay = new Razorpay({
-          key_id: keyId,
-          key_secret: keySecret,
-        });
+        const razorpay = new Razorpay({ key_id: keyId, key_secret: keySecret });
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        // Convert INR to Paise (Razorpay expects integers)
-        const paiseAmount = Math.round(finalAmount * 100);
+        // Step 1: Sync plan to Razorpay (create or reuse existing plan)
+        let rzpPlanId: string = (p as any).razorpay_plan_id || "";
 
-        const order = await razorpay.orders.create({
-          amount: paiseAmount,
-          currency: "INR",
-          receipt: subId,
+        if (!rzpPlanId) {
+          const period = p.interval?.startsWith("month") ? "monthly" : "yearly";
+          const paiseAmount = Math.round(p.price_inr * 100);
+
+          // Create the plan on Razorpay
+          const planRes = await razorpay.plans.create({
+            period,
+            interval: 1,
+            item: {
+              name: `${p.name} — Learnify AI`,
+              amount: paiseAmount,
+              currency: "INR",
+              description: (p.description || `Learnify AI ${p.name} Plan`).slice(0, 255),
+            },
+            notes: {
+              planId: data.planId,
+              source: "learnify_ai",
+            },
+          } as any);
+
+          rzpPlanId = (planRes as any).id;
+
+          // Persist razorpay_plan_id to DB
+          await supabaseAdmin
+            .from("pricing_plans")
+            .update({ razorpay_plan_id: rzpPlanId } as any)
+            .eq("id", data.planId);
+        }
+
+        // Step 2: Create the Razorpay Subscription
+        const baseUrl = process.env.VITE_APP_URL || "https://www.learnifyai.in";
+        const subId = `lfy_sub_${uid.slice(0, 8)}_${Date.now()}`;
+
+        const subscription = await (razorpay.subscriptions as any).create({
+          plan_id: rzpPlanId,
+          total_count: 0,       // 0 = indefinite recurring
+          quantity: 1,
+          customer_notify: 1,   // Razorpay sends payment reminders
+          addons: [],
           notes: {
             userId: uid,
             planId: data.planId,
             action: "subscribe",
-            billingCycle: p.interval === "year" ? "yearly" : "monthly",
+            billingCycle: p.interval?.startsWith("month") ? "monthly" : "yearly",
+            source: "learnify_pricing",
+          },
+          notify_info: {
+            notify_email: realEmail,
+            notify_phone: realPhone,
+          },
+        });
+
+        const rzpSubId: string = subscription.id;
+        const shortUrl: string = subscription.short_url;
+
+        // Step 3: Pre-create a pending subscription record in DB
+        // (will be activated by webhook subscription.activated event)
+        const periodEnd = new Date();
+        if (p.interval?.startsWith("month")) {
+          periodEnd.setMonth(periodEnd.getMonth() + 1);
+        } else {
+          periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+        }
+
+        await supabaseAdmin.from("user_subscriptions").upsert(
+          {
+            user_id: uid,
+            plan_id: data.planId,
+            status: "pending",
+            current_period_start: new Date().toISOString(),
+            current_period_end: periodEnd.toISOString(),
+            will_renew: true,
+            ai_credits_reset_at: periodEnd.toISOString(),
+            razorpay_subscription_id: rzpSubId,
+          } as any,
+          { onConflict: "user_id" },
+        );
+
+        // Log event
+        await supabaseAdmin.from("subscription_events").insert({
+          subscription_id: null,
+          user_id: uid,
+          event_type: "SUBSCRIPTION_CREATED_RAZORPAY",
+          payload: {
+            razorpay_subscription_id: rzpSubId,
+            plan_id: data.planId,
+            plan_name: p.name,
+            short_url: shortUrl,
           },
         });
 
         return {
           use_razorpay: true,
+          short_url: shortUrl,
+          razorpay_subscription_id: rzpSubId,
           amount_inr: finalAmount,
-          order_id: order.id,
-          key_id: keyId,
           free: false,
           auth_link: null,
           subscription_id: null,
         };
       } catch (err: any) {
-        console.error("Failed to initiate Razorpay subscription order:", err);
+        console.error("[subscription] Razorpay native subscription failed:", err);
         throw new Error(`Razorpay subscription failed: ${err.message}`);
       }
     }
+
     const baseUrl = process.env.VITE_APP_URL || "https://www.learnifyai.in";
     const returnUrl = `${baseUrl}/pricing?subscribe=ok`;
     const notifyUrl = `${baseUrl}/api/webhooks/cashfree-subscription`;
     const idempotencyKey = `sub_create_${uid}_${data.planId}_${Date.now()}`;
+    const subId = `sub_${uid.slice(0, 8)}_${Date.now()}`;
 
     const res = await fetch(`${getCashfreeApi()}/subscriptions`, {
       method: "POST",
