@@ -68,6 +68,9 @@ export const Route = createFileRoute("/api/create-order")({
             amount: paiseAmount,
             currency,
             receipt: generatedReceipt,
+            notes: {
+              userId: user.id,
+            },
           });
 
           return new Response(
