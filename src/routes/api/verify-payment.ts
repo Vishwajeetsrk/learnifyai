@@ -57,47 +57,57 @@ export const Route = createFileRoute("/api/verify-payment")({
             });
           }
 
-          // Process 'order.paid' event
-          if (payload.event === "order.paid") {
+          // Process 'order.paid' or 'payment.captured' events
+          if (payload.event === "order.paid" || payload.event === "payment.captured") {
             const orderObj = payload.payload?.order?.entity;
             const paymentObj = payload.payload?.payment?.entity;
 
-            if (orderObj && paymentObj) {
-              const orderId = orderObj.id;
-              const paymentId = paymentObj.id;
-              const amountInr = Number(orderObj.amount) / 100;
-              const userId = orderObj.notes?.userId;
+            let orderId = orderObj?.id;
+            let paymentId = paymentObj?.id;
+            let amountInr = 0;
+            let userId = orderObj?.notes?.userId || paymentObj?.notes?.userId;
 
-              if (userId) {
-                try {
-                  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-                  
-                  // Check if this transaction has already been recorded to prevent double crediting
-                  const description = `Top-up via Razorpay Webhook (Order: ${orderId}, Payment: ${paymentId})`;
-                  const { data: existingTx } = await supabaseAdmin
-                    .from("wallet_transactions")
-                    .select("id")
-                    .eq("description", description)
-                    .maybeSingle();
+            if (payload.event === "order.paid" && orderObj && paymentObj) {
+              orderId = orderObj.id;
+              paymentId = paymentObj.id;
+              amountInr = Number(orderObj.amount) / 100;
+            } else if (payload.event === "payment.captured" && paymentObj) {
+              orderId = paymentObj.order_id || orderId;
+              paymentId = paymentObj.id;
+              amountInr = Number(paymentObj.amount) / 100;
+            }
 
-                  if (!existingTx) {
-                    const { error: dbError } = await supabaseAdmin.from("wallet_transactions").insert({
-                      user_id: userId,
-                      amount_inr: amountInr,
-                      type: "credit",
-                      status: "completed",
-                      description,
-                    });
+            if (userId && amountInr > 0 && paymentId && orderId) {
+              try {
+                const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+                
+                // Check if this transaction has already been recorded to prevent double crediting
+                const description = `Top-up via Razorpay Webhook (Order: ${orderId}, Payment: ${paymentId})`;
+                const clientDescription = `Top-up via Razorpay (Order: ${orderId}, Payment: ${paymentId})`;
+                
+                const { data: existingTx } = await supabaseAdmin
+                  .from("wallet_transactions")
+                  .select("id")
+                  .or(`description.eq."${description}",description.eq."${clientDescription}"`)
+                  .maybeSingle();
 
-                    if (dbError) {
-                      console.error("[verify-payment webhook] Failed to save transaction:", dbError);
-                    } else {
-                      console.log(`[verify-payment webhook] Successfully credited ₹${amountInr} to user ${userId}`);
-                    }
+                if (!existingTx) {
+                  const { error: dbError } = await supabaseAdmin.from("wallet_transactions").insert({
+                    user_id: userId,
+                    amount_inr: amountInr,
+                    type: "credit",
+                    status: "completed",
+                    description,
+                  });
+
+                  if (dbError) {
+                    console.error("[verify-payment webhook] Failed to save transaction:", dbError);
+                  } else {
+                    console.log(`[verify-payment webhook] Successfully credited ₹${amountInr} to user ${userId} via ${payload.event}`);
                   }
-                } catch (dbErr) {
-                  console.error("[verify-payment webhook] Database error:", dbErr);
                 }
+              } catch (dbErr) {
+                console.error("[verify-payment webhook] Database error:", dbErr);
               }
             }
           }
