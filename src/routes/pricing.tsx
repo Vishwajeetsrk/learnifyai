@@ -601,7 +601,7 @@ function PricingPage() {
             }
           },
           prefill: {
-            name: user?.full_name || "",
+            name: (user?.user_metadata?.full_name as string) || "",
             email: user?.email || "",
           },
           theme: {
