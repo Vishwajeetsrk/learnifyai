@@ -5,6 +5,7 @@ import { useState } from "react";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { CreatorProfileSkeleton } from "@/components/Skeletons";
 import { getCleanBannerUrl } from "@/lib/utils";
+import { CourseCoverImage } from "@/components/course/CourseCoverImage";
 import {
   Bell,
   BellOff,
@@ -297,21 +298,12 @@ function CreatorProfile() {
                 className="group rounded-2xl border bg-card overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               >
                 <div className="aspect-video bg-gradient-to-br from-muted to-muted/50 overflow-hidden relative">
-                  {c.cover_url ? (
-                    <img
-                      src={getCleanBannerUrl(c.cover_url) ?? c.cover_url}
-                      alt=""
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full grid place-items-center">
-                      <GraduationCap className="h-12 w-12 text-muted-foreground/20" />
-                    </div>
-                  )}
+                  <CourseCoverImage
+                    coverUrl={c.cover_url}
+                    slug={c.slug}
+                    title={c.title}
+                    imgClassName="group-hover:scale-105 transition-transform duration-500"
+                  />
                   <div className="absolute top-2 right-2">
                     <Badge
                       variant="secondary"

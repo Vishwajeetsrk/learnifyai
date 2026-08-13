@@ -33,6 +33,14 @@
   ],
   "headers": [
     {
+      "source": "/.well-known/apple-developer-merchantid-domain-association",
+      "headers": [
+        { "key": "Content-Type", "value": "text/plain" },
+        { "key": "Cache-Control", "value": "public, max-age=0, s-maxage=0" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    },
+    {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },

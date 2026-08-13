@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Sparkles, ArrowRight, GraduationCap, BookOpen, PlayCircle, Info } from "lucide-react";
+import { Sparkles, ArrowRight, BookOpen, PlayCircle, Info } from "lucide-react";
 import { getRecommendedCourses } from "@/lib/recommendations.functions";
+import { CourseCoverImage } from "@/components/course/CourseCoverImage";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -46,18 +47,12 @@ export function RecommendedCourses() {
                 className="aspect-video bg-muted overflow-hidden block"
                 aria-label={`Open ${c.title}`}
               >
-                {c.cover_url ? (
-                  <img
-                    src={c.cover_url}
-                    alt={c.title}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition motion-reduce:transform-none"
-                  />
-                ) : (
-                  <div className="w-full h-full grid place-items-center">
-                    <GraduationCap className="h-10 w-10 text-muted-foreground" />
-                  </div>
-                )}
+                <CourseCoverImage
+                  coverUrl={c.cover_url}
+                  slug={c.slug}
+                  title={c.title}
+                  imgClassName="group-hover:scale-105 transition motion-reduce:transform-none"
+                />
               </Link>
               <div className="p-3 flex-1 flex flex-col gap-2">
                 <div className="flex items-center gap-1.5 flex-wrap">

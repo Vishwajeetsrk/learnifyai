@@ -90,6 +90,7 @@ import {
 import { FilePreview } from "@/components/FilePreview";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { getCleanBannerUrl } from "@/lib/utils";
+import { CourseCoverImage } from "@/components/course/CourseCoverImage";
 
 export const Route = createFileRoute("/u/$id")({
   head: ({ params }) => ({
@@ -1658,17 +1659,12 @@ function CourseGrid({
           className="group rounded-2xl border bg-card overflow-hidden shadow-card hover:shadow-lg transition"
         >
           <div className="aspect-video bg-muted overflow-hidden">
-            {c.cover_url ? (
-              <SafeImage
-                src={getCleanBannerUrl(c.cover_url) ?? c.cover_url}
-                alt=""
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-              />
-            ) : (
-              <div className="w-full h-full grid place-items-center">
-                <GraduationCap className="h-10 w-10 text-muted-foreground" />
-              </div>
-            )}
+            <CourseCoverImage
+              coverUrl={c.cover_url}
+              slug={c.slug}
+              title={c.title}
+              imgClassName="group-hover:scale-105 transition-transform"
+            />
           </div>
           <div className="p-4">
             {c.category && (

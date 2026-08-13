@@ -39,8 +39,7 @@ import { toast } from "sonner";
 import { enrollFree } from "@/lib/course.functions";
 import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import { getCourseLearners } from "@/lib/gamification.functions";
-import { SafeImage } from "@/components/ui/SafeImage";
-import { getCleanBannerUrl } from "@/lib/utils";
+import { CourseCoverImage } from "@/components/course/CourseCoverImage";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -816,17 +815,12 @@ function CoursesPage() {
                 >
                 <div>
                   <div className="aspect-video w-full overflow-hidden bg-muted relative border-b border-border/50">
-                    {c.cover_url ? (
-                      <SafeImage
-                        src={getCleanBannerUrl(c.cover_url) ?? c.cover_url}
-                        alt={c.title}
-                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary/15 to-violet-500/15 flex items-center justify-center text-primary/40">
-                        <GraduationCap className="h-10 w-10" />
-                      </div>
-                    )}
+                    <CourseCoverImage
+                      coverUrl={c.cover_url}
+                      slug={c.slug}
+                      title={c.title}
+                      imgClassName="group-hover:scale-105 transition-transform duration-300"
+                    />
                     {isNewCourse(c.created_at) && (
                       <span className="absolute top-2.5 left-2.5 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500 text-white shadow-md">
                         New
@@ -960,17 +954,12 @@ function MiniCourseCard({
         className="group rounded-xl border border-border/80 bg-card overflow-hidden hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 flex flex-col justify-between h-full"
       >
       <div className="aspect-video w-full overflow-hidden bg-muted relative">
-        {course.cover_url ? (
-          <SafeImage
-            src={getCleanBannerUrl(course.cover_url) ?? course.cover_url}
-            alt={course.title}
-            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary/10 to-violet-500/10 flex items-center justify-center text-primary/30">
-            <GraduationCap className="h-8 w-8" />
-          </div>
-        )}
+        <CourseCoverImage
+          coverUrl={course.cover_url}
+          slug={course.slug}
+          title={course.title}
+          imgClassName="group-hover:scale-105 transition-transform duration-300"
+        />
       </div>
       <div className="p-3 space-y-1.5">
         <p className="text-[10px] font-bold text-primary uppercase tracking-wider truncate">

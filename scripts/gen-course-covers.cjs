@@ -162,25 +162,24 @@ function loadLogo(name) {
 
 // White rounded tile + brand logo(s) replacing the old letter glyph.
 function brandBadge(c) {
-  const glow = `<circle cx="640" cy="225" r="118" fill="${c.accent}" fill-opacity="0.16"/>`;
-  const tile = `<rect x="576" y="161" width="128" height="128" rx="28" fill="#ffffff" fill-opacity="0.97"/>
-  <rect x="576" y="161" width="128" height="128" rx="28" fill="none" stroke="${c.accent}" stroke-opacity="0.9" stroke-width="3"/>`;
+  const tile = `<rect x="572" y="159" width="132" height="132" rx="28" fill="#ffffff" fill-opacity="0.97"/>
+  <rect x="572" y="159" width="132" height="132" rx="28" fill="none" stroke="${c.accent}" stroke-opacity="0.9" stroke-width="3"/>`;
   const n = c.logos.length;
-  if (n === 0) return glow + tile;
+  if (n === 0) return `<g filter="url(#tileShadow)">${tile}</g>`;
   if (n === 1) {
-    const s = 88 / 32;
+    const s = 96 / 32;
     return (
-      glow +
+      `<g filter="url(#tileShadow)">` +
       tile +
-      `<g transform="translate(596 181) scale(${s})">${loadLogo(c.logos[0])}</g>`
+      `<g transform="translate(590 177) scale(${s})">${loadLogo(c.logos[0])}</g></g>`
     );
   }
-  const s = 56 / 32;
+  const s = 60 / 32;
   const parts = c.logos.map((l, i) => {
-    const x = 584 + i * 62;
-    return `<g transform="translate(${x} 197) scale(${s})">${loadLogo(l)}</g>`;
+    const x = 578 + i * 66;
+    return `<g transform="translate(${x} 195) scale(${s})">${loadLogo(l)}</g>`;
   });
-  return glow + tile + parts.join("");
+  return `<g filter="url(#tileShadow)">` + tile + parts.join("") + `</g>`;
 }
 
 function topicsBlock(c) {
@@ -220,15 +219,14 @@ function cover(c) {
     <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
       <path d="M 60 0 L 0 0 0 60" fill="none" stroke="${accent}" stroke-opacity="0.14" stroke-width="1"/>
     </pattern>
+    <filter id="tileShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="22" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
   </defs>
   <rect width="800" height="450" rx="28" fill="url(#bg)"/>
   <rect width="800" height="450" rx="28" fill="url(#glow)"/>
   <rect width="800" height="450" rx="28" fill="url(#dots)"/>
   <rect width="400" height="450" x="400" fill="url(#grid)" opacity="0.6"/>
-  <circle cx="640" cy="120" r="220" fill="none" stroke="${accent}" stroke-opacity="0.16" stroke-width="2"/>
-  <circle cx="640" cy="120" r="170" fill="none" stroke="${accent}" stroke-opacity="0.12" stroke-width="2"/>
-  <circle cx="640" cy="225" r="98" fill="#0b1120" fill-opacity="0.65"/>
-  <circle cx="640" cy="225" r="98" fill="none" stroke="${accent}" stroke-opacity="0.6" stroke-width="8"/>
   ${brandBadge(c)}
   ${LOGO_TAG}
   <text x="48" y="122" font-family="${FONT}" font-size="42" font-weight="800" letter-spacing="-0.5" fill="#f8fafc">${esc(c.title)}</text>
