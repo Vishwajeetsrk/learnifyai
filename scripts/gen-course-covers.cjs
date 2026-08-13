@@ -64,7 +64,7 @@ const COURSES = [
     lessons: 6,
     accent: "#60a5fa",
     deep: "#1e3a8a",
-    logos: ["word"],
+    logos: ["word", "powerpoint"],
     topics: ["Styles & formatting", "Tables, images & mail merge", "Slide design & transitions", "Professional templates"],
   },
   {
@@ -162,22 +162,25 @@ function loadLogo(name) {
 
 // White rounded tile + brand logo(s) replacing the old letter glyph.
 function brandBadge(c) {
-  const tile = `<rect x="582" y="167" width="116" height="116" rx="22" fill="#ffffff" fill-opacity="0.96"/>`;
+  const glow = `<circle cx="640" cy="225" r="118" fill="${c.accent}" fill-opacity="0.16"/>`;
+  const tile = `<rect x="576" y="161" width="128" height="128" rx="28" fill="#ffffff" fill-opacity="0.97"/>
+  <rect x="576" y="161" width="128" height="128" rx="28" fill="none" stroke="${c.accent}" stroke-opacity="0.9" stroke-width="3"/>`;
   const n = c.logos.length;
-  if (n === 0) return tile;
+  if (n === 0) return glow + tile;
   if (n === 1) {
-    const s = 76 / 32;
+    const s = 88 / 32;
     return (
+      glow +
       tile +
-      `<g transform="translate(602 187) scale(${s})">${loadLogo(c.logos[0])}</g>`
+      `<g transform="translate(596 181) scale(${s})">${loadLogo(c.logos[0])}</g>`
     );
   }
-  const s = 50 / 32;
+  const s = 56 / 32;
   const parts = c.logos.map((l, i) => {
     const x = 584 + i * 62;
-    return `<g transform="translate(${x} 200) scale(${s})">${loadLogo(l)}</g>`;
+    return `<g transform="translate(${x} 197) scale(${s})">${loadLogo(l)}</g>`;
   });
-  return tile + parts.join("");
+  return glow + tile + parts.join("");
 }
 
 function topicsBlock(c) {
@@ -185,12 +188,14 @@ function topicsBlock(c) {
     .map(
       (t, i) =>
         `<circle cx="56" cy="${252 + i * 27}" r="5" fill="${c.accent}"/>
-         <text x="70" y="${256 + i * 27}" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#cbd5e1">${esc(t)}</text>`,
+         <text x="70" y="${256 + i * 27}" font-family="${FONT}" font-size="14" fill="#cbd5e1">${esc(t)}</text>`,
     )
     .join("\n  ");
-  return `<text x="48" y="232" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" letter-spacing="2" fill="#94a3b8">WHAT YOU'LL LEARN</text>
+  return `<text x="48" y="232" font-family="${FONT}" font-size="12" font-weight="bold" letter-spacing="2.5" fill="#94a3b8">WHAT YOU'LL LEARN</text>
   ${rows}`;
 }
+
+const FONT = `"Inter", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif`;
 
 function cover(c) {
   const accent = c.accent;
@@ -226,9 +231,9 @@ function cover(c) {
   <circle cx="640" cy="225" r="98" fill="none" stroke="${accent}" stroke-opacity="0.6" stroke-width="8"/>
   ${brandBadge(c)}
   ${LOGO_TAG}
-  <text x="48" y="120" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="bold" fill="#f8fafc">${esc(c.title)}</text>
-  <text x="49" y="154" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#cbd5e1">${esc(c.tagline)}</text>
-  <g font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold">
+  <text x="48" y="122" font-family="${FONT}" font-size="42" font-weight="800" letter-spacing="-0.5" fill="#f8fafc">${esc(c.title)}</text>
+  <text x="49" y="156" font-family="${FONT}" font-size="18" fill="#cbd5e1">${esc(c.tagline)}</text>
+  <g font-family="${FONT}" font-size="14" font-weight="bold">
     <rect x="48" y="185" width="74" height="30" rx="15" fill="${accent}" fill-opacity="0.18" stroke="${accent}" stroke-opacity="0.55"/>
     <text x="85" y="205" text-anchor="middle" fill="${accent}">FREE</text>
     <rect x="134" y="185" width="118" height="30" rx="15" fill="#ffffff" fill-opacity="0.06" stroke="#ffffff" stroke-opacity="0.16"/>
@@ -237,8 +242,8 @@ function cover(c) {
     <text x="330" y="205" text-anchor="middle" fill="#cbd5e1">${c.lessons} LESSONS</text>
   </g>
   ${topicsBlock(c)}
-  <text x="48" y="376" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#64748b">Certificate on completion · Interactive exercises · AI assistance</text>
-  <text x="48" y="414" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#64748b">learnifyai.in</text>
+  <text x="48" y="376" font-family="${FONT}" font-size="12" fill="#64748b">Certificate on completion · Interactive exercises · AI assistance</text>
+  <text x="48" y="414" font-family="${FONT}" font-size="13" fill="#64748b">learnifyai.in</text>
 </svg>
 `;
 }

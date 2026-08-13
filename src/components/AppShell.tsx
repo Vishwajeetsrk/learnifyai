@@ -36,8 +36,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useFeatureFlags } from "@/hooks/use-feature-flags";
 import type { ReactNode } from "react";
+const loadSupportAgent = () =>
+  import("@/components/GlobalSupportAgent").then((m) => ({ default: m.GlobalSupportAgent }));
 const GlobalSupportAgent = lazy(() =>
-  import("@/components/GlobalSupportAgent").then((m) => ({ default: m.GlobalSupportAgent })),
+  loadSupportAgent().catch((err) => {
+    console.warn("[app] Support agent chunk failed to load, retrying once…", err);
+    return loadSupportAgent().catch(() => ({ default: () => null }));
+  }),
 );
 
 interface NavItem {

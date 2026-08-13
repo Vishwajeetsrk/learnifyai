@@ -53,6 +53,7 @@ import {
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { BillingSkeleton } from "@/components/Skeletons";
+import { SubscriptionPaymentAlert } from "@/components/SubscriptionPaymentAlert";
 
 export const Route = createFileRoute("/_authenticated/billing")({
   head: () => ({ meta: [{ title: "Billing — Learnify AI" }] }),
@@ -198,7 +199,7 @@ function BillingPage() {
         .from("user_subscriptions")
         .select("*, plan:pricing_plans(*)")
         .eq("user_id", user!.id)
-        .eq("status", "active")
+        .in("status", ["active", "past_due"])
         .maybeSingle();
       return data || null;
     },
@@ -454,6 +455,19 @@ function BillingPage() {
             )}
           </div>
         </div>
+
+        {/* Past-due payment alert */}
+        {isPastDue && sub?.razorpay_subscription_id && (
+          <SubscriptionPaymentAlert
+            razorpaySubscriptionId={sub.razorpay_subscription_id}
+            planName={plan?.name || "your"}
+            userEmail={user?.email || ""}
+            userName={(user as any)?.user_metadata?.full_name || ""}
+            onSuccess={() =>
+              qc.invalidateQueries({ queryKey: ["my-subscription", user?.id] })
+            }
+          />
+        )}
 
         {/* Tabs */}
         <Tabs defaultValue="invoices" className="space-y-6">

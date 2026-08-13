@@ -191,6 +191,28 @@ export const Route = createFileRoute("/api/webhooks/razorpay-subscription")({
               break;
             }
 
+            // ── subscription.pending ───────────────────────────────────────
+            // Payment failed — Razorpay will auto-retry T+1, T+2, T+3 days
+            case "subscription.pending": {
+              await supabaseAdmin
+                .from("user_subscriptions")
+                .update({ status: "past_due" } as any)
+                .eq("razorpay_subscription_id" as any, rzpSubId);
+
+              await supabaseAdmin.from("subscription_events").insert({
+                subscription_id: null,
+                user_id: userId || null,
+                event_type: "SUBSCRIPTION_PAYMENT_FAILED",
+                payload: {
+                  razorpay_subscription_id: rzpSubId,
+                  note: "Auto-retry scheduled by Razorpay for T+1, T+2, T+3 days",
+                },
+              });
+
+              console.log(`[rzp-sub-webhook] Subscription payment pending (retrying): ${rzpSubId}`);
+              break;
+            }
+
             // ── subscription.halted ────────────────────────────────────────
             // Payment failed after all retries — subscription paused
             case "subscription.halted": {
@@ -203,7 +225,10 @@ export const Route = createFileRoute("/api/webhooks/razorpay-subscription")({
                 subscription_id: null,
                 user_id: userId || null,
                 event_type: "SUBSCRIPTION_HALTED",
-                payload: { razorpay_subscription_id: rzpSubId },
+                payload: {
+                  razorpay_subscription_id: rzpSubId,
+                  note: "All retries exhausted. Customer must update payment method.",
+                },
               });
 
               console.log(`[rzp-sub-webhook] Subscription halted: ${rzpSubId}`);

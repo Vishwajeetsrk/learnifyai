@@ -279,7 +279,7 @@ export const createSubscription = createServerFn({ method: "POST" })
 
         const subscription = await (razorpay.subscriptions as any).create({
           plan_id: rzpPlanId,
-          total_count: 0,       // 0 = indefinite recurring
+          total_count: 120,    // 120 cycles = 10 years (effectively indefinite)
           quantity: 1,
           customer_notify: 1,   // Razorpay sends payment reminders
           addons: [],

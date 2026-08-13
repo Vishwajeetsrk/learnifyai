@@ -199,45 +199,48 @@ export const Route = createFileRoute("/api/verify-payment")({
           });
         }
 
-        const { razorpay_payment_id, razorpay_order_id, razorpay_signature, amount_inr } = body;
+        const {
+          razorpay_payment_id,
+          razorpay_order_id,
+          razorpay_subscription_id,
+          razorpay_signature,
+          amount_inr,
+        } = body;
 
-        // Validate missing fields
-        if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+        // Either order_id (one-time) OR subscription_id (recurring) must be present
+        if (!razorpay_payment_id || !razorpay_signature || (!razorpay_order_id && !razorpay_subscription_id)) {
           return new Response(
             JSON.stringify({
-              error: "Missing required fields: razorpay_payment_id, razorpay_order_id, and razorpay_signature are required.",
+              error: "Missing required fields: razorpay_payment_id + razorpay_signature + (razorpay_order_id or razorpay_subscription_id).",
             }),
-            {
-              status: 400,
-              headers: { "Content-Type": "application/json" },
-            },
+            { status: 400, headers: { "Content-Type": "application/json" } },
           );
         }
 
         // Verify checkout signature
+        // Order-based:        HMAC(order_id|payment_id)
+        // Subscription-based: HMAC(payment_id|subscription_id)  ← per Razorpay docs
         const secret = process.env.RAZORPAY_KEY_SECRET;
         if (!secret) {
           console.error("Razorpay secret key is not configured.");
           return new Response(
             JSON.stringify({ error: "Razorpay credentials are not configured on the server." }),
-            {
-              status: 500,
-              headers: { "Content-Type": "application/json" },
-            },
+            { status: 500, headers: { "Content-Type": "application/json" } },
           );
         }
 
+        const sigPayload = razorpay_subscription_id
+          ? `${razorpay_payment_id}|${razorpay_subscription_id}`
+          : `${razorpay_order_id}|${razorpay_payment_id}`;
+
         const expectedSignature = createHmac("sha256", secret)
-          .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+          .update(sigPayload)
           .digest("hex");
 
         if (expectedSignature !== razorpay_signature) {
           return new Response(
             JSON.stringify({ error: "Payment verification failed. Signature mismatch." }),
-            {
-              status: 400,
-              headers: { "Content-Type": "application/json" },
-            },
+            { status: 400, headers: { "Content-Type": "application/json" } },
           );
         }
 
