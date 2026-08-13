@@ -1,7 +1,7 @@
 # Contributing to Learnify AI
 
 Thanks for your interest in contributing to **Learnify AI** — the AI-Native Learning Operating System! Here's how to get started.
-
+Support US- https://pages.razorpay.com/learnifyaisupport
 ---
 
 ## 🛠️ Development Setup
