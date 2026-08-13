@@ -644,6 +644,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Keyboard Shortcuts**: Added keydown listeners for Delete/Backspace to remove selected elements, and Escape to deselect.
 - ✅ **Desktop Drag & Drop**: Dragging image files from desktop onto the canvas either sets the background image (if dropped on background) or inserts a new draggable image element.
 
+### v4.10.0 (August 2026) — Razorpay Checkout Integration
+
+- 💳 **Razorpay Standard Checkout**: Integrated Razorpay Standard Checkout with custom order generation on `POST /api/create-order` and signature verification on `POST /api/verify-payment`.
+- 🧪 **Sandbox Test Area (`/razorpay-test`)**: Built a premium test checkout page that dynamically loads the Razorpay script, calculates GST breakdowns (CGST 9% + SGST 9% = 18%, SAC 998431), accepts test cards/UPI, and renders print-friendly GST tax invoices on successful verification.
+- 💼 **Wallet Payment Choice**: Added payment gateway selector in the wallet top-up dialog (`/wallet`) allowing users to choose between Razorpay and Cashfree, instantly crediting their balance.
+
 ### v4.9.0 (July 2026) — Zero Build Errors, NVIDIA AI Provider, 40 DB Migrations Applied
 
 - ✅ **Zero TypeScript Build Errors**: All 53 TS errors eliminated from the codebase. Fixed: nullability in Insert types across all tables (nullable → `T | null`, hasDefault → `T`, required → `T`), regenerated types.ts with 4 missing tables (`admin_audit_logs`, `concept_graphs`, `explanations_cache`, `store_items`), fixed admin.tsx ExcelJS vertical alignment `"center"`→`"middle"`, `aiReq24hQuery.data ?? 0` guard, `userMap` scope, `getAvatar` null→undefined, `creatorApps` type cast, fixed career-studio.tsx imports, portfolio-builder.tsx `any` annotation, AnnouncementBroadcast null-coalescing.

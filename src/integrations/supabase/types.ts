@@ -1529,6 +1529,49 @@ export type Database = {
           },
         ];
       };
+      course_resources: {
+        Row: {
+          course_id: string;
+          created_at: string;
+          created_by: string | null;
+          description: string | null;
+          file_url: string;
+          id: string;
+          sort_order: number;
+          title: string;
+          type: string;
+        };
+        Insert: {
+          course_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          file_url: string;
+          id?: string;
+          sort_order?: number;
+          title: string;
+          type?: string;
+        };
+        Update: {
+          course_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          file_url?: string;
+          id?: string;
+          sort_order?: number;
+          title?: string;
+          type?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "course_resources_course_id_fkey";
+            columns: ["course_id"];
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       creator_applications: {
         Row: {
           admin_notes: string | null;

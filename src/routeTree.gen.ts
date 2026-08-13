@@ -17,6 +17,7 @@ import { Route as ShowcaseRouteImport } from './routes/showcase'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as RazorpayTestRouteImport } from './routes/razorpay-test'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
@@ -44,6 +45,8 @@ import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as CourseProjectIdRouteImport } from './routes/course.$projectId'
 import { Route as CertificatesCodeRouteImport } from './routes/certificates.$code'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as ApiVerifyPaymentRouteImport } from './routes/api/verify-payment'
+import { Route as ApiCreateOrderRouteImport } from './routes/api/create-order'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedWorkspaceRouteImport } from './routes/_authenticated/workspace'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
@@ -158,6 +161,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const RefundPolicyRoute = RefundPolicyRouteImport.update({
   id: '/refund-policy',
   path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RazorpayTestRoute = RazorpayTestRouteImport.update({
+  id: '/razorpay-test',
+  path: '/razorpay-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -292,6 +300,16 @@ const CertificatesCodeRoute = CertificatesCodeRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVerifyPaymentRoute = ApiVerifyPaymentRouteImport.update({
+  id: '/api/verify-payment',
+  path: '/api/verify-payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCreateOrderRoute = ApiCreateOrderRouteImport.update({
+  id: '/api/create-order',
+  path: '/api/create-order',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
@@ -732,6 +750,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/projects': typeof ProjectsRoute
+  '/razorpay-test': typeof RazorpayTestRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
@@ -775,6 +794,8 @@ export interface FileRoutesByFullPath {
   '/wallet': typeof AuthenticatedWalletRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/create-order': typeof ApiCreateOrderRoute
+  '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/certificates/$code': typeof CertificatesCodeRoute
   '/course/$projectId': typeof CourseProjectIdRoute
@@ -843,6 +864,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/projects': typeof ProjectsRoute
+  '/razorpay-test': typeof RazorpayTestRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
@@ -884,6 +906,8 @@ export interface FileRoutesByTo {
   '/wallet': typeof AuthenticatedWalletRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/create-order': typeof ApiCreateOrderRoute
+  '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/certificates/$code': typeof CertificatesCodeRoute
   '/course/$projectId': typeof CourseProjectIdRoute
@@ -954,6 +978,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/projects': typeof ProjectsRoute
+  '/razorpay-test': typeof RazorpayTestRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
@@ -997,6 +1022,8 @@ export interface FileRoutesById {
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/create-order': typeof ApiCreateOrderRoute
+  '/api/verify-payment': typeof ApiVerifyPaymentRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/certificates/$code': typeof CertificatesCodeRoute
   '/course/$projectId': typeof CourseProjectIdRoute
@@ -1067,6 +1094,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/projects'
+    | '/razorpay-test'
     | '/refund-policy'
     | '/reset-password'
     | '/roadmap'
@@ -1110,6 +1138,8 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/workspace'
     | '/api/chat'
+    | '/api/create-order'
+    | '/api/verify-payment'
     | '/blog/$slug'
     | '/certificates/$code'
     | '/course/$projectId'
@@ -1178,6 +1208,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/projects'
+    | '/razorpay-test'
     | '/refund-policy'
     | '/reset-password'
     | '/roadmap'
@@ -1219,6 +1250,8 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/workspace'
     | '/api/chat'
+    | '/api/create-order'
+    | '/api/verify-payment'
     | '/blog/$slug'
     | '/certificates/$code'
     | '/course/$projectId'
@@ -1288,6 +1321,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/projects'
+    | '/razorpay-test'
     | '/refund-policy'
     | '/reset-password'
     | '/roadmap'
@@ -1331,6 +1365,8 @@ export interface FileRouteTypes {
     | '/_authenticated/wallet'
     | '/_authenticated/workspace'
     | '/api/chat'
+    | '/api/create-order'
+    | '/api/verify-payment'
     | '/blog/$slug'
     | '/certificates/$code'
     | '/course/$projectId'
@@ -1401,6 +1437,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ProjectsRoute: typeof ProjectsRoute
+  RazorpayTestRoute: typeof RazorpayTestRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RoadmapRoute: typeof RoadmapRoute
@@ -1410,6 +1447,8 @@ export interface RootRouteChildren {
   VerifiedCertificatesRoute: typeof VerifiedCertificatesRoute
   VerifyStudentRoute: typeof VerifyStudentRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiCreateOrderRoute: typeof ApiCreateOrderRoute
+  ApiVerifyPaymentRoute: typeof ApiVerifyPaymentRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CertificatesCodeRoute: typeof CertificatesCodeRoute
   CourseProjectIdRoute: typeof CourseProjectIdRoute
@@ -1486,6 +1525,13 @@ declare module '@tanstack/react-router' {
       path: '/refund-policy'
       fullPath: '/refund-policy'
       preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/razorpay-test': {
+      id: '/razorpay-test'
+      path: '/razorpay-test'
+      fullPath: '/razorpay-test'
+      preLoaderRoute: typeof RazorpayTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -1675,6 +1721,20 @@ declare module '@tanstack/react-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/verify-payment': {
+      id: '/api/verify-payment'
+      path: '/api/verify-payment'
+      fullPath: '/api/verify-payment'
+      preLoaderRoute: typeof ApiVerifyPaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/create-order': {
+      id: '/api/create-order'
+      path: '/api/create-order'
+      fullPath: '/api/create-order'
+      preLoaderRoute: typeof ApiCreateOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
@@ -2420,6 +2480,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ProjectsRoute: ProjectsRoute,
+  RazorpayTestRoute: RazorpayTestRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RoadmapRoute: RoadmapRoute,
@@ -2429,6 +2490,8 @@ const rootRouteChildren: RootRouteChildren = {
   VerifiedCertificatesRoute: VerifiedCertificatesRoute,
   VerifyStudentRoute: VerifyStudentRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiCreateOrderRoute: ApiCreateOrderRoute,
+  ApiVerifyPaymentRoute: ApiVerifyPaymentRoute,
   BlogSlugRoute: BlogSlugRoute,
   CertificatesCodeRoute: CertificatesCodeRoute,
   CourseProjectIdRoute: CourseProjectIdRoute,

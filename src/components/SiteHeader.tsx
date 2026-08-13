@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -14,6 +14,8 @@ export function SiteHeader() {
   const { isAuthenticated, loading } = useAuth();
   const { data: menuItems = [], isLoading: menuLoading } = usePublicMenu("main");
   const { t, ready } = useTranslation();
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  const hideLang = /^\/(course)(\/|$)/.test(path);
   const tr = (key: string, fallback: string) => {
     if (!ready) return fallback;
     const val = t(key);
@@ -61,7 +63,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <LanguageSwitcher />
+          {!hideLang && <LanguageSwitcher />}
           {isAuthenticated && !loading ? (
             <div className="hidden sm:flex items-center gap-2">
               <Button asChild variant="ghost" size="sm" className="text-muted-foreground">

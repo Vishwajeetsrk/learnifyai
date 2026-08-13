@@ -14,6 +14,7 @@ import {
   Sparkles,
   Clock3,
   Download,
+  ShieldCheck,
 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -55,6 +56,16 @@ const loadCashfree = () =>
     document.body.appendChild(script);
   });
 
+const loadRazorpay = () =>
+  new Promise((resolve) => {
+    if ((window as any).Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
 const inr = (n: number) =>
   new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -68,6 +79,7 @@ function WalletPage() {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState<string>("500");
   const [submitting, setSubmitting] = useState(false);
+  const [paymentProvider, setPaymentProvider] = useState<"cashfree" | "razorpay">("razorpay");
   const createOrder = useServerFn(createCashfreeOrder);
   const verifyTopup = useServerFn(verifyCashfreePayment);
   const canTopUp =
@@ -159,6 +171,104 @@ function WalletPage() {
   });
   const inv = invoiceSettingsQuery.data ?? {};
 
+  async function submitRazorpayTopup(amt: number) {
+    setSubmitting(true);
+    try {
+      const loaded = await loadRazorpay();
+      if (!loaded) throw new Error("Razorpay SDK failed to load");
+
+      const paiseAmount = Math.round(amt * 100);
+      const sessionToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("sb-access-token="))
+        ?.split("=")[1];
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (sessionToken) {
+        headers["Authorization"] = `Bearer ${sessionToken}`;
+      }
+
+      const orderRes = await fetch("/api/create-order", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ amount: paiseAmount }),
+      });
+
+      if (!orderRes.ok) {
+        const errData = await orderRes.json();
+        throw new Error(errData.error || "Failed to create Razorpay order");
+      }
+
+      const orderData = await orderRes.json();
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_TPC7AGGMfWNxlz",
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Learnify AI",
+        description: `Wallet Top-up: ${inr(amt)}`,
+        order_id: orderData.order_id,
+        prefill: {
+          name: user?.user_metadata?.full_name || "Valued Learner",
+          email: user?.email || "support@learnifyai.in",
+          contact: user?.phone || "9999999999",
+        },
+        theme: {
+          color: "#4f46e5",
+        },
+        handler: async function (response: any) {
+          setSubmitting(true);
+          try {
+            const verifyRes = await fetch("/api/verify-payment", {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                amount_inr: amt,
+              }),
+            });
+
+            if (!verifyRes.ok) {
+              const errData = await verifyRes.json();
+              throw new Error(errData.error || "Failed to verify Razorpay payment");
+            }
+
+            toast.success(`Successfully added ${inr(amt)} to your wallet.`);
+            qc.invalidateQueries({ queryKey: ["wallet-tx"] });
+            qc.invalidateQueries({ queryKey: ["wallet-balance"] });
+            setOpen(false);
+          } catch (err: any) {
+            toast.error(err.message || "Failed to verify Razorpay payment");
+          } finally {
+            setSubmitting(false);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            toast.info("Payment cancelled.");
+            setSubmitting(false);
+          },
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      
+      rzp.on("payment.failed", function (resp: any) {
+        toast.error(`Payment failed: ${resp.error.description}`);
+        setSubmitting(false);
+      });
+
+      rzp.open();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to initiate Razorpay top-up");
+      setSubmitting(false);
+    }
+  }
+
   async function submitTopup() {
     if (!user) return;
     if (!canTopUp)
@@ -166,6 +276,10 @@ function WalletPage() {
     const amt = Number(amount);
     if (!amt || amt < 50) return toast.error("Minimum amount is ₹50");
     if (amt > 100000) return toast.error("Maximum amount is ₹1,00,000");
+
+    if (paymentProvider === "razorpay") {
+      return submitRazorpayTopup(amt);
+    }
 
     setSubmitting(true);
     try {
@@ -335,6 +449,8 @@ function WalletPage() {
                   submitTopup={submitTopup}
                   presets={presets}
                   onClose={() => setOpen(false)}
+                  paymentProvider={paymentProvider}
+                  setPaymentProvider={setPaymentProvider}
                 />
               </Dialog>
             )}
@@ -487,6 +603,8 @@ function TopUpDialogContent({
   submitTopup,
   presets,
   onClose,
+  paymentProvider,
+  setPaymentProvider,
 }: {
   amount: string;
   setAmount: (v: string) => void;
@@ -494,12 +612,14 @@ function TopUpDialogContent({
   submitTopup: () => void;
   presets: number[];
   onClose: () => void;
+  paymentProvider: "cashfree" | "razorpay";
+  setPaymentProvider: (v: "cashfree" | "razorpay") => void;
 }) {
   return (
     <DialogContent className="sm:max-w-md">
       <DialogHeader>
         <DialogTitle>Add money to wallet</DialogTitle>
-        <DialogDescription>Top up instantly via Cashfree (card/UPI/netbanking).</DialogDescription>
+        <DialogDescription>Top up instantly via your preferred payment gateway.</DialogDescription>
       </DialogHeader>
       <div className="space-y-5">
         <div className="space-y-2">
@@ -528,11 +648,48 @@ function TopUpDialogContent({
             ))}
           </div>
         </div>
-        <div className="text-xs text-emerald-800 rounded-lg bg-emerald-50 p-3 border border-emerald-200 flex items-center gap-2">
-          <CreditCard className="h-4 w-4 shrink-0" />
-          You will be redirected to Cashfree to securely add funds instantly via card, UPI, or
-          netbanking.
+
+        <div className="space-y-2">
+          <Label>Select Payment Gateway</Label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setPaymentProvider("razorpay")}
+              className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all text-xs font-semibold ${
+                paymentProvider === "razorpay"
+                  ? "border-indigo-600 bg-indigo-50/50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300"
+                  : "border-input bg-background hover:bg-accent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <CreditCard className="h-4 w-4" />
+              Razorpay (UPI/Card/Net)
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentProvider("cashfree")}
+              className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all text-xs font-semibold ${
+                paymentProvider === "cashfree"
+                  ? "border-indigo-600 bg-indigo-50/50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300"
+                  : "border-input bg-background hover:bg-accent text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <CreditCard className="h-4 w-4" />
+              Cashfree (UPI/Card/Net)
+            </button>
+          </div>
         </div>
+
+        {paymentProvider === "cashfree" ? (
+          <div className="text-xs text-emerald-800 dark:text-emerald-300 rounded-lg bg-emerald-50 dark:bg-emerald-950/20 p-3 border border-emerald-200 dark:border-emerald-900/50 flex items-center gap-2">
+            <CreditCard className="h-4 w-4 shrink-0 text-emerald-600" />
+            <span>You will be redirected to Cashfree to securely add funds instantly via card, UPI, or netbanking.</span>
+          </div>
+        ) : (
+          <div className="text-xs text-indigo-800 dark:text-indigo-300 rounded-lg bg-indigo-50 dark:bg-indigo-950/20 p-3 border border-indigo-200 dark:border-indigo-900/50 flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-indigo-600" />
+            <span>You will pay securely via Razorpay Standard Checkout (supports UPI, Card, and Netbanking).</span>
+          </div>
+        )}
       </div>
       <DialogFooter>
         <Button variant="outline" onClick={onClose} disabled={submitting}>

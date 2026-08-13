@@ -211,11 +211,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     );
   };
 
+  const LearnerSurface = /^\/(courses|course|playground|studio|course-builder)(\/|$)/.test(path);
+
   const UserFooter = () => (
     <div className="border-t p-3 flex items-center gap-2">
       <UserAvatarMenu showName />
       <div className="ml-auto flex items-center gap-1">
-        <LanguageSwitcher />
+        {!LearnerSurface && <LanguageSwitcher />}
         <ThemeToggle />
       </div>
     </div>

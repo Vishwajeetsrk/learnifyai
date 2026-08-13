@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { CourseResourcesDialog } from "@/components/course/CourseResources";
 import {
   Dialog,
   DialogContent,
@@ -636,6 +637,7 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
   const [newLessonModuleId, setNewLessonModuleId] = useState<string | null>(null);
   const [newLessonTitle, setNewLessonTitle] = useState("");
   const [editingLesson, setEditingLesson] = useState<LessonRow | null>(null);
+  const [resourcesOpen, setResourcesOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -731,6 +733,20 @@ function CourseDetail({ courseId, doGet }: { courseId: string; doGet: any }) {
             {course.published ? "Published" : "Draft"}
           </Badge>
         </div>
+
+        <div className="mb-4 flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" onClick={() => setResourcesOpen(true)}>
+            📎 Resources
+          </Button>
+        </div>
+
+        {resourcesOpen && (
+          <CourseResourcesDialog
+            courseId={courseId}
+            courseTitle={course.title}
+            onClose={() => setResourcesOpen(false)}
+          />
+        )}
 
         {/* Modules List */}
         <div className="space-y-3">

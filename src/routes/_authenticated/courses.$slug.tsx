@@ -40,7 +40,6 @@ import {
   Wrench,
   GraduationCap,
   Zap,
-  Languages,
   FileText,
   Download,
   ClipboardList,
@@ -58,7 +57,7 @@ import rehypeRaw from "rehype-raw";
 import { LessonSocial } from "@/components/LessonSocial";
 import { RichLessonContent } from "@/components/course/RichLessonContent";
 import { BlockRenderer } from "@/components/course/BlockRenderer";
-import { SUPPORTED_LANGUAGES } from "@/i18n";
+import { CourseResourcesList } from "@/components/course/CourseResources";
 
 export const PLATFORM_CREATOR_ID = "aa073db3-bce9-47cd-a490-40a6894a9edf";
 
@@ -1363,7 +1362,6 @@ function LessonAiTabs({
 }) {
   const helper = useServerFn(lessonAiHelper);
   const getLessonBlocksFn = useServerFn(getLessonBlocks);
-  const [contentLang, setContentLang] = useState<string>("en");
   const [summary, setSummary] = useState<string>("");
   const [exercise, setExercise] = useState<string>("");
   const [doubt, setDoubt] = useState<string>("");
@@ -1398,13 +1396,8 @@ function LessonAiTabs({
     }
   };
 
-  const translations = lesson.content_translations ?? {};
-  const availableLangs = SUPPORTED_LANGUAGES.filter(
-    (l) => l.code === "en" || (translations[l.code] ?? "").trim().length > 0,
-  );
-  const effectiveContent =
-    contentLang !== "en" ? (translations[contentLang] ?? "") : (lesson.content_md ?? "");
-  const hasRichContent = Boolean((lesson.content_md ?? "").trim()) || Object.keys(translations).length > 0;
+  const effectiveContent = lesson.content_md ?? "";
+  const hasRichContent = Boolean((lesson.content_md ?? "").trim());
 
   const stripMarkdown = (raw: string) => {
     return raw
@@ -1501,33 +1494,13 @@ function LessonAiTabs({
               {speaking ? "Stop" : "Listen"}
             </Button>
           )}
-          {availableLangs.length > 1 && (
-            <div className="ml-auto flex items-center gap-1 rounded-xl border border-border/60 bg-muted/40 p-1">
-              <Languages className="h-3.5 w-3.5 text-muted-foreground ml-1" />
-              {availableLangs.map((l) => (
-                <button
-                  key={l.code}
-                  onClick={() => setContentLang(l.code)}
-                  className={cn(
-                    "rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors cursor-pointer",
-                    contentLang === l.code
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                  title={l.label}
-                >
-                  {l.nativeLabel}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         {(lesson as any).content_format === "blocks" && blocksQuery.data?.blocks?.length ? (
           <BlockRenderer blocks={blocksQuery.data.blocks as any} />
         ) : hasRichContent ? (
           <RichLessonContent
-            key={`${lesson.id}-${contentLang}`}
+            key={lesson.id}
             content={effectiveContent || (lesson.content_md ?? "")}
           />
         ) : lesson.description ? (
@@ -1749,18 +1722,6 @@ function LessonResources({
     );
   }
 
-  if (materials.length === 0 && assignments.length === 0) {
-    return (
-      <div className="rounded-2xl border border-dashed border-border/70 bg-muted/20 p-8 text-center">
-        <FileText className="mx-auto mb-3 h-8 w-8 text-muted-foreground/60" />
-        <p className="text-sm font-medium text-foreground">No downloadable resources yet</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          The instructor hasn't attached files or assignments to this course.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       {currentAssignment && (
@@ -1877,6 +1838,13 @@ function LessonResources({
           </div>
         </div>
       )}
+
+      <div>
+        <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
+          <FileText className="h-4 w-4 text-cyan-400" /> Course Resources
+        </h4>
+        <CourseResourcesList courseId={courseId} />
+      </div>
 
       {materials.length > 0 && (
         <div>

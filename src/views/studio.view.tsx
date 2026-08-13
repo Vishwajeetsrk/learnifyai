@@ -29,6 +29,7 @@ import {
   Video as VideoIcon,
   HelpCircle,
   GripVertical,
+  FileText,
 } from "lucide-react";
 import { cn, getCleanBannerUrl } from "@/lib/utils";
 import { useServerFn } from "@tanstack/react-start";
@@ -55,6 +56,7 @@ import {
   type SizeKey,
 } from "@/lib/thumbnail.functions";
 import { EnrichmentProgressDialog } from "@/components/EnrichmentProgressDialog";
+import { CourseResourcesDialog } from "@/components/course/CourseResources";
 import { ThumbnailEditor } from "@/components/ThumbnailEditor";
 import { History, AlertTriangle, Scissors, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
@@ -157,6 +159,7 @@ export default function StudioPage() {
   const [manageMcqFor, setManageMcqFor] = useState<Course | null>(null);
   const [manageAssignFor, setManageAssignFor] = useState<Course | null>(null);
   const [manageProjectsFor, setManageProjectsFor] = useState<Course | null>(null);
+  const [manageResourcesFor, setManageResourcesFor] = useState<Course | null>(null);
   const [reviewSubFor, setReviewSubFor] = useState<Course | null>(null);
   const [aiBuilderOpen, setAiBuilderOpen] = useState(false);
   const [autoCompleting, setAutoCompleting] = useState<string | null>(null);
@@ -346,6 +349,9 @@ export default function StudioPage() {
                           <Button size="sm" variant="ghost" onClick={() => setManageProjectsFor(c)}>
                             <Code2 className="h-4 w-4" /> Projects
                           </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setManageResourcesFor(c)}>
+                            <FileText className="h-4 w-4" /> Resources
+                          </Button>
                           <Button size="sm" variant="ghost" onClick={() => setReviewSubFor(c)}>
                             <FileCheck2 className="h-4 w-4" /> Subs
                           </Button>
@@ -417,6 +423,14 @@ export default function StudioPage() {
       />
 
       <SubmissionsReviewDialog course={reviewSubFor} onClose={() => setReviewSubFor(null)} />
+
+      {manageResourcesFor && (
+        <CourseResourcesDialog
+          courseId={manageResourcesFor.id}
+          courseTitle={manageResourcesFor.title}
+          onClose={() => setManageResourcesFor(null)}
+        />
+      )}
 
       <AiBuilderDialog
         open={aiBuilderOpen}
