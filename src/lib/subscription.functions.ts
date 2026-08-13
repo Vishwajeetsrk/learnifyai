@@ -226,6 +226,53 @@ export const createSubscription = createServerFn({ method: "POST" })
 
     const { appId, secretKey } = getCreds();
     const subId = `sub_${uid.slice(0, 8)}_${Date.now()}`;
+
+    // Direct Razorpay Standard Subscription Checkout (bypasses Cashfree profile_inactive issues)
+    const useRazorpayForSubs = true;
+    if (useRazorpayForSubs) {
+      try {
+        const Razorpay = (await import("razorpay")).default;
+        const keyId = process.env.RAZORPAY_KEY_ID;
+        const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+        if (!keyId || !keySecret) {
+          throw new Error("Razorpay credentials are not configured on the server.");
+        }
+
+        const razorpay = new Razorpay({
+          key_id: keyId,
+          key_secret: keySecret,
+        });
+
+        // Convert INR to Paise (Razorpay expects integers)
+        const paiseAmount = Math.round(finalAmount * 100);
+
+        const order = await razorpay.orders.create({
+          amount: paiseAmount,
+          currency: "INR",
+          receipt: subId,
+          notes: {
+            userId: uid,
+            planId: data.planId,
+            action: "subscribe",
+            billingCycle: p.interval === "year" ? "yearly" : "monthly",
+          },
+        });
+
+        return {
+          use_razorpay: true,
+          amount_inr: finalAmount,
+          order_id: order.id,
+          key_id: keyId,
+          free: false,
+          auth_link: null,
+          subscription_id: null,
+        };
+      } catch (err: any) {
+        console.error("Failed to initiate Razorpay subscription order:", err);
+        throw new Error(`Razorpay subscription failed: ${err.message}`);
+      }
+    }
     const baseUrl = process.env.VITE_APP_URL || "https://www.learnifyai.in";
     const returnUrl = `${baseUrl}/pricing?subscribe=ok`;
     const notifyUrl = `${baseUrl}/api/webhooks/cashfree-subscription`;

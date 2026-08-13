@@ -544,6 +544,73 @@ function PricingPage() {
       if (sub.free) {
         toast.success("Free plan activated! Welcome to Learnify AI.");
         qc.invalidateQueries({ queryKey: ["my-subscription"] });
+      } else if (sub.use_razorpay) {
+        const loadRazorpayScript = () => {
+          return new Promise((resolve) => {
+            if ((window as any).Razorpay) return resolve(true);
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.async = true;
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+          });
+        };
+
+        const scriptLoaded = await loadRazorpayScript();
+        if (!scriptLoaded) {
+          toast.error("Razorpay SDK failed to load. Please check your internet connection.");
+          return;
+        }
+
+        const options = {
+          key: sub.key_id,
+          amount: Math.round(sub.amount_inr * 100),
+          currency: "INR",
+          name: "Learnify AI",
+          description: `${planId.toUpperCase()} Plan Subscription`,
+          order_id: sub.order_id,
+          handler: async function (response: any) {
+            setLoadingPlan(planId);
+            try {
+              const verifyRes = await fetch("/api/verify-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                  amount_inr: sub.amount_inr,
+                }),
+              });
+
+              if (verifyRes.ok) {
+                toast.success("Payment verified! Subscription activated successfully.");
+                qc.invalidateQueries({ queryKey: ["my-subscription"] });
+                qc.invalidateQueries({ queryKey: ["user-subscription"] });
+                navigate({ to: "/dashboard" });
+              } else {
+                const errData = await verifyRes.json();
+                toast.error(errData.error || "Payment verification failed.");
+              }
+            } catch (err) {
+              console.error("Subscription payment verification error:", err);
+              toast.error("Verification failed. Please contact support.");
+            } finally {
+              setLoadingPlan(null);
+            }
+          },
+          prefill: {
+            name: user?.full_name || "",
+            email: user?.email || "",
+          },
+          theme: {
+            color: "#6366F1",
+          },
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
       } else if (sub.auth_link) {
         window.location.href = sub.auth_link;
       } else {

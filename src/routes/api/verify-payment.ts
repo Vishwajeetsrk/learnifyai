@@ -66,6 +66,7 @@ export const Route = createFileRoute("/api/verify-payment")({
             let paymentId = paymentObj?.id;
             let amountInr = 0;
             let userId = orderObj?.notes?.userId || paymentObj?.notes?.userId;
+            const notes = orderObj?.notes || paymentObj?.notes || {};
 
             if (payload.event === "order.paid" && orderObj && paymentObj) {
               orderId = orderObj.id;
@@ -77,7 +78,76 @@ export const Route = createFileRoute("/api/verify-payment")({
               amountInr = Number(paymentObj.amount) / 100;
             }
 
-            if (userId && amountInr > 0 && paymentId && orderId) {
+            const isSubscription = notes.action === "subscribe";
+            const planId = notes.planId;
+
+            if (userId && isSubscription && planId && orderId) {
+              try {
+                const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+                
+                // Check if already active
+                const { data: activeSub } = await supabaseAdmin
+                  .from("user_subscriptions")
+                  .select("id")
+                  .eq("user_id", userId)
+                  .eq("status", "active")
+                  .maybeSingle();
+
+                if (!activeSub) {
+                  const { data: plan } = await supabaseAdmin
+                    .from("pricing_plans")
+                    .select("*")
+                    .eq("id", planId)
+                    .single();
+                  const p = plan as any;
+                  if (p) {
+                    const periodEnd = new Date();
+                    if (p.interval === "year") {
+                      periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+                    } else {
+                      periodEnd.setMonth(periodEnd.getMonth() + 1);
+                    }
+
+                    const { error: insErr } = await supabaseAdmin.from("user_subscriptions").insert({
+                      user_id: userId,
+                      plan_id: planId,
+                      status: "active",
+                      current_period_start: new Date().toISOString(),
+                      current_period_end: periodEnd.toISOString(),
+                      will_renew: true,
+                      ai_credits_reset_at: periodEnd.toISOString(),
+                      cashfree_order_id: orderId,
+                    });
+
+                    if (insErr) {
+                      console.error("[verify-payment webhook subscription] Insert error:", insErr);
+                    } else {
+                      if (p.ai_credits_monthly) {
+                        await supabaseAdmin.from("ai_credits").upsert(
+                          {
+                            user_id: userId,
+                            credits_remaining: p.ai_credits_monthly,
+                            credits_used: 0,
+                            updated_at: new Date().toISOString(),
+                          },
+                          { onConflict: "user_id" },
+                        );
+                      }
+                      
+                      await supabaseAdmin.from("subscription_events").insert({
+                        subscription_id: null,
+                        user_id: userId,
+                        event_type: "SUBSCRIPTION_ACTIVATED_RAZORPAY_WEBHOOK",
+                        payload: { plan_id: planId, plan_name: p.name, order_id: orderId },
+                      });
+                      console.log(`[verify-payment webhook subscription] Activated plan ${planId} for user ${userId} via ${payload.event}`);
+                    }
+                  }
+                }
+              } catch (dbErr) {
+                console.error("[verify-payment webhook subscription] DB error:", dbErr);
+              }
+            } else if (userId && amountInr > 0 && paymentId && orderId) {
               try {
                 const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
                 
@@ -171,9 +241,107 @@ export const Route = createFileRoute("/api/verify-payment")({
           );
         }
 
-        // Credit user's wallet (idempotency check using client details)
+        // Check order details to differentiate between wallet top-ups and subscriptions
+        let isSubscription = false;
+        let planId = "";
+        let notes: any = {};
+
+        try {
+          const Razorpay = (await import("razorpay")).default;
+          const keyId = process.env.RAZORPAY_KEY_ID;
+          const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+          if (keyId && keySecret) {
+            const razorpay = new Razorpay({
+              key_id: keyId,
+              key_secret: keySecret,
+            });
+            const orderDetails = await razorpay.orders.fetch(razorpay_order_id);
+            notes = orderDetails.notes || {};
+            if (notes.action === "subscribe") {
+              isSubscription = true;
+              planId = notes.planId;
+            }
+          }
+        } catch (err) {
+          console.error("[verify-payment] Error fetching order notes from Razorpay:", err);
+        }
+
         const user = await getAuthenticatedUser(request);
-        if (user && amount_inr) {
+        
+        // Handle subscription activation
+        if (user && isSubscription && planId) {
+          try {
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            
+            // 1. Fetch pricing plan details
+            const { data: plan } = await supabaseAdmin
+              .from("pricing_plans")
+              .select("*")
+              .eq("id", planId)
+              .single();
+              
+            const p = plan as any;
+            if (p) {
+              const periodEnd = new Date();
+              if (p.interval === "year") {
+                periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+              } else {
+                periodEnd.setMonth(periodEnd.getMonth() + 1);
+              }
+              
+              // 2. Insert or update user subscription
+              const { data: activeSub } = await supabaseAdmin
+                .from("user_subscriptions")
+                .select("id")
+                .eq("user_id", user.id)
+                .eq("status", "active")
+                .maybeSingle();
+
+              if (!activeSub) {
+                const { error: insErr } = await supabaseAdmin.from("user_subscriptions").insert({
+                  user_id: user.id,
+                  plan_id: planId,
+                  status: "active",
+                  current_period_start: new Date().toISOString(),
+                  current_period_end: periodEnd.toISOString(),
+                  will_renew: true,
+                  ai_credits_reset_at: periodEnd.toISOString(),
+                  cashfree_order_id: razorpay_order_id,
+                });
+
+                if (insErr) {
+                  console.error("[verify-payment client subscription] Insert error:", insErr);
+                } else {
+                  // 3. Assign monthly AI credits
+                  if (p.ai_credits_monthly) {
+                    await supabaseAdmin.from("ai_credits").upsert(
+                      {
+                        user_id: user.id,
+                        credits_remaining: p.ai_credits_monthly,
+                        credits_used: 0,
+                        updated_at: new Date().toISOString(),
+                      },
+                      { onConflict: "user_id" },
+                    );
+                  }
+                  
+                  // 4. Log event
+                  await supabaseAdmin.from("subscription_events").insert({
+                    subscription_id: null,
+                    user_id: user.id,
+                    event_type: "SUBSCRIPTION_ACTIVATED_RAZORPAY",
+                    payload: { plan_id: planId, plan_name: p.name, order_id: razorpay_order_id },
+                  });
+                }
+              }
+            }
+          } catch (dbErr) {
+            console.error("[verify-payment client subscription] DB error:", dbErr);
+          }
+        }
+        // Handle standard wallet top-ups
+        else if (user && amount_inr) {
           try {
             const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
             const description = `Top-up via Razorpay (Order: ${razorpay_order_id}, Payment: ${razorpay_payment_id})`;
