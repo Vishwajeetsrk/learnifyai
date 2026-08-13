@@ -357,7 +357,7 @@ const FAQ_ITEMS: { q: string; a: string; category: string }[] = [
   },
   {
     q: "Is my payment information secure?",
-    a: "Absolutely. All payments are processed securely through Cashfree, a PCI-DSS compliant payment gateway. We never store your card details.",
+    a: "Absolutely. All payments are processed securely through Razorpay and Cashfree, which are PCI-DSS compliant payment gateways. We never store your card details.",
     category: "Billing",
   },
   {
@@ -1648,7 +1648,7 @@ function PricingCard({
           {hasPrice && (
             <div className="mt-3 text-center">
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider flex items-center justify-center gap-1.5">
-                <Check className="h-3 h-3 text-emerald-500" /> Securely processed by Cashfree
+                <Check className="h-3 h-3 text-emerald-500" /> Securely processed by Razorpay & Cashfree
               </span>
             </div>
           )}
