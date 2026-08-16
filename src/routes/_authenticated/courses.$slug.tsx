@@ -309,8 +309,8 @@ function CourseDetail() {
   const inCart = !!cartQuery.data;
   const isFree = courseQuery.data ? Number(courseQuery.data.course.price_inr) === 0 : false;
 
-  const creatorId = courseQuery.data?.course?.created_by ?? PLATFORM_CREATOR_ID;
-  const isCreator = !!user && creatorId === user.id;
+  const courseCreatorId = courseQuery.data?.course?.created_by ?? PLATFORM_CREATOR_ID;
+  const isCreator = !!user && courseCreatorId === user.id;
 
   // Full access if: free course, or user has active subscription, or enrolled with active/completed status, or admin, or creator
   const hasFullAccess = isFree || isEnrollmentActive || hasActiveSubscription || isAdmin || isCreator;
@@ -361,27 +361,27 @@ function CourseDetail() {
   };
 
   const creatorSubsQuery = useQuery({
-    enabled: !!creatorId,
-    queryKey: ["creator-subs-count", creatorId],
+    enabled: !!courseCreatorId,
+    queryKey: ["creator-subs-count", courseCreatorId],
     queryFn: async () => {
       const { count, error } = await supabase
         .from("creator_subscriptions")
         .select("*", { count: "exact", head: true })
-        .eq("creator_id", creatorId!);
+        .eq("creator_id", courseCreatorId!);
       if (error) throw error;
       return count ?? 0;
     },
   });
 
   const mySubQuery = useQuery({
-    enabled: !!user && !!creatorId && user.id !== creatorId,
-    queryKey: ["my-sub-to-creator", creatorId, user?.id],
+    enabled: !!user && !!courseCreatorId && user.id !== courseCreatorId,
+    queryKey: ["my-sub-to-creator", courseCreatorId, user?.id],
     queryFn: async () => {
       const { data } = await supabase
         .from("creator_subscriptions")
         .select("id")
         .eq("subscriber_id", user!.id)
-        .eq("creator_id", creatorId!)
+        .eq("creator_id", courseCreatorId!)
         .maybeSingle();
       return !!data;
     },
@@ -415,21 +415,21 @@ function CourseDetail() {
       localStorage.setItem(`sub_instructor_${slug}`, nextState ? "true" : "false");
     }
 
-    if (user && creatorId && user.id !== creatorId) {
+    if (user && courseCreatorId && user.id !== courseCreatorId) {
       try {
         if (!nextState) {
           await supabase
             .from("creator_subscriptions")
             .delete()
             .eq("subscriber_id", user.id)
-            .eq("creator_id", creatorId);
+            .eq("creator_id", courseCreatorId);
         } else {
           await supabase
             .from("creator_subscriptions")
-            .insert({ subscriber_id: user.id, creator_id: creatorId });
+            .insert({ subscriber_id: user.id, creator_id: courseCreatorId });
         }
-        qc.invalidateQueries({ queryKey: ["my-sub-to-creator", creatorId, user.id] });
-        qc.invalidateQueries({ queryKey: ["creator-subs-count", creatorId] });
+        qc.invalidateQueries({ queryKey: ["my-sub-to-creator", courseCreatorId, user.id] });
+        qc.invalidateQueries({ queryKey: ["creator-subs-count", courseCreatorId] });
       } catch {}
     }
 
