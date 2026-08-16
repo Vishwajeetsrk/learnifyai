@@ -462,18 +462,18 @@ function StudioClassroomPage() {
               <Lock className="h-8 w-8 text-primary" />
             </div>
             <Badge variant="outline" className="mb-3 border-primary/30 text-primary font-bold text-xs">
-              Career Pro Studio Access Required
+              Career Pro — Studio Access Required
             </Badge>
             <h2 className="text-2xl font-display font-bold text-foreground">
               Unlock {project?.title || "Studio Workspace"}
             </h2>
             <p className="text-muted-foreground text-xs sm:text-sm mt-2 mb-6 leading-relaxed">
-              This interactive project studio requires an active Learnify AI Pro Subscription or Course Purchase. Upgrade to access full source code, IDE execution, and AI tutoring.
+              The interactive Template Mastery Studio requires a <strong>Career Pro</strong> plan (₹499/mo) or individual course enrollment. Get full source code access, live IDE, DOM blueprints, and AI tutoring.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 w-full">
               <Link to="/pricing" className="w-full sm:w-auto flex-1">
                 <Button className="w-full bg-gradient-to-r from-primary to-purple-600 text-primary-foreground font-bold h-11 rounded-xl shadow-glow text-xs">
-                  <Sparkles className="h-4 w-4 mr-1.5" /> Upgrade to Pro (₹1,499/mo)
+                  <Sparkles className="h-4 w-4 mr-1.5" /> Career Pro — ₹499/mo
                 </Button>
               </Link>
               <Link to="/courses" className="w-full sm:w-auto flex-1">

@@ -937,12 +937,12 @@ function CourseDetail() {
                     Unlock "{active?.title || course?.title}"
                   </h3>
                   <p className="text-muted-foreground text-xs max-w-lg mt-1.5 mb-5 leading-relaxed">
-                    This lesson requires an active Learnify AI Subscription or Course Purchase. Subscribe to unlock all courses, HD videos, interactive code sandboxes, AI tutors, and certificates.
+                    This lesson is part of a paid course. Get a Pro plan (₹199/mo) to access all courses, HD videos, AI tutors and certificates — or buy this course individually.
                   </p>
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-md">
                     <Link to="/pricing" className="w-full sm:w-auto flex-1">
                       <Button className="w-full bg-gradient-to-r from-primary to-purple-600 text-primary-foreground font-bold h-10 rounded-xl shadow-glow text-xs">
-                        <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Subscribe to Pro
+                        <Sparkles className="h-3.5 w-3.5 mr-1.5" /> See Plans — from ₹199/mo
                       </Button>
                     </Link>
                     {Number(course?.price_inr || 0) > 0 && (

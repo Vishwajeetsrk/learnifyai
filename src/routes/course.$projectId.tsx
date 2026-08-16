@@ -359,10 +359,10 @@ function CourseDetailPage() {
                       className="w-full bg-gradient-to-r from-primary to-purple-600 text-primary-foreground font-semibold h-14 rounded-xl hover:opacity-90 transition-all flex flex-col items-center justify-center shadow-glow"
                     >
                       <div className="flex items-center gap-2">
-                        <Sparkles className="h-4 w-4" /> Unlock Course — Subscribe Pro
+                        <Sparkles className="h-4 w-4" /> Unlock Course — Subscribe
                       </div>
                       <div className="text-[10px] text-primary-foreground/80 font-normal uppercase tracking-wider flex items-center gap-1 mt-0.5">
-                        <Lock className="h-2.5 w-2.5" /> Career Pro Membership (₹1,499/mo)
+                        <Lock className="h-2.5 w-2.5" /> Plans from ₹199/mo · Career Pro ₹499/mo
                       </div>
                     </Link>
                   )}
