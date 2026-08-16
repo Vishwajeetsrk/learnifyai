@@ -11,15 +11,19 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyStudentRouteImport } from './routes/verify-student'
 import { Route as VerifiedCertificatesRouteImport } from './routes/verified-certificates'
+import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShowcaseRouteImport } from './routes/showcase'
+import { Route as ShippingPolicyRouteImport } from './routes/shipping-policy'
+import { Route as ShippingAndExchangeRouteImport } from './routes/shipping-and-exchange'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
 import { Route as RazorpayTestRouteImport } from './routes/razorpay-test'
 import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
@@ -29,10 +33,12 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as CreatorsRouteImport } from './routes/creators'
+import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as CoachesRouteImport } from './routes/coaches'
 import { Route as CareersRouteImport } from './routes/careers'
+import { Route as CancellationAndRefundRouteImport } from './routes/cancellation-and-refund'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -136,6 +142,11 @@ const VerifiedCertificatesRoute = VerifiedCertificatesRouteImport.update({
   path: '/verified-certificates',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
+  id: '/terms-and-conditions',
+  path: '/terms-and-conditions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
@@ -154,6 +165,16 @@ const SignupRoute = SignupRouteImport.update({
 const ShowcaseRoute = ShowcaseRouteImport.update({
   id: '/showcase',
   path: '/showcase',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShippingPolicyRoute = ShippingPolicyRouteImport.update({
+  id: '/shipping-policy',
+  path: '/shipping-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShippingAndExchangeRoute = ShippingAndExchangeRouteImport.update({
+  id: '/shipping-and-exchange',
+  path: '/shipping-and-exchange',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoadmapRoute = RoadmapRouteImport.update({
@@ -179,6 +200,11 @@ const RazorpayTestRoute = RazorpayTestRouteImport.update({
 const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -226,6 +252,11 @@ const CreatorsRoute = CreatorsRouteImport.update({
   path: '/creators',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactUsRoute = ContactUsRouteImport.update({
+  id: '/contact-us',
+  path: '/contact-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -244,6 +275,11 @@ const CoachesRoute = CoachesRouteImport.update({
 const CareersRoute = CareersRouteImport.update({
   id: '/careers',
   path: '/careers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CancellationAndRefundRoute = CancellationAndRefundRouteImport.update({
+  id: '/cancellation-and-refund',
+  path: '/cancellation-and-refund',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -757,10 +793,12 @@ const ApiPublicHooksRunRemindersRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/cancellation-and-refund': typeof CancellationAndRefundRoute
   '/careers': typeof CareersRoute
   '/coaches': typeof CoachesRoute
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
   '/creators': typeof CreatorsRoute
   '/docs': typeof DocsRoute
   '/events': typeof EventsRoute
@@ -770,15 +808,19 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/projects': typeof ProjectsRoute
   '/razorpay-test': typeof RazorpayTestRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
+  '/shipping-and-exchange': typeof ShippingAndExchangeRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
   '/achievements': typeof AuthenticatedAchievementsRoute
@@ -874,10 +916,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/cancellation-and-refund': typeof CancellationAndRefundRoute
   '/careers': typeof CareersRoute
   '/coaches': typeof CoachesRoute
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
   '/creators': typeof CreatorsRoute
   '/docs': typeof DocsRoute
   '/events': typeof EventsRoute
@@ -887,15 +931,19 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/projects': typeof ProjectsRoute
   '/razorpay-test': typeof RazorpayTestRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
+  '/shipping-and-exchange': typeof ShippingAndExchangeRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
   '/achievements': typeof AuthenticatedAchievementsRoute
@@ -991,10 +1039,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/about': typeof AboutRoute
+  '/cancellation-and-refund': typeof CancellationAndRefundRoute
   '/careers': typeof CareersRoute
   '/coaches': typeof CoachesRoute
   '/community': typeof CommunityRoute
   '/contact': typeof ContactRoute
+  '/contact-us': typeof ContactUsRoute
   '/creators': typeof CreatorsRoute
   '/docs': typeof DocsRoute
   '/events': typeof EventsRoute
@@ -1004,15 +1054,19 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/projects': typeof ProjectsRoute
   '/razorpay-test': typeof RazorpayTestRoute
   '/refund-policy': typeof RefundPolicyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
+  '/shipping-and-exchange': typeof ShippingAndExchangeRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
   '/_authenticated/achievements': typeof AuthenticatedAchievementsRoute
@@ -1110,10 +1164,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/cancellation-and-refund'
     | '/careers'
     | '/coaches'
     | '/community'
     | '/contact'
+    | '/contact-us'
     | '/creators'
     | '/docs'
     | '/events'
@@ -1123,15 +1179,19 @@ export interface FileRouteTypes {
     | '/login'
     | '/pricing'
     | '/privacy'
+    | '/privacy-policy'
     | '/projects'
     | '/razorpay-test'
     | '/refund-policy'
     | '/reset-password'
     | '/roadmap'
+    | '/shipping-and-exchange'
+    | '/shipping-policy'
     | '/showcase'
     | '/signup'
     | '/support'
     | '/terms'
+    | '/terms-and-conditions'
     | '/verified-certificates'
     | '/verify-student'
     | '/achievements'
@@ -1227,10 +1287,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/cancellation-and-refund'
     | '/careers'
     | '/coaches'
     | '/community'
     | '/contact'
+    | '/contact-us'
     | '/creators'
     | '/docs'
     | '/events'
@@ -1240,15 +1302,19 @@ export interface FileRouteTypes {
     | '/login'
     | '/pricing'
     | '/privacy'
+    | '/privacy-policy'
     | '/projects'
     | '/razorpay-test'
     | '/refund-policy'
     | '/reset-password'
     | '/roadmap'
+    | '/shipping-and-exchange'
+    | '/shipping-policy'
     | '/showcase'
     | '/signup'
     | '/support'
     | '/terms'
+    | '/terms-and-conditions'
     | '/verified-certificates'
     | '/verify-student'
     | '/achievements'
@@ -1343,10 +1409,12 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/about'
+    | '/cancellation-and-refund'
     | '/careers'
     | '/coaches'
     | '/community'
     | '/contact'
+    | '/contact-us'
     | '/creators'
     | '/docs'
     | '/events'
@@ -1356,15 +1424,19 @@ export interface FileRouteTypes {
     | '/login'
     | '/pricing'
     | '/privacy'
+    | '/privacy-policy'
     | '/projects'
     | '/razorpay-test'
     | '/refund-policy'
     | '/reset-password'
     | '/roadmap'
+    | '/shipping-and-exchange'
+    | '/shipping-policy'
     | '/showcase'
     | '/signup'
     | '/support'
     | '/terms'
+    | '/terms-and-conditions'
     | '/verified-certificates'
     | '/verify-student'
     | '/_authenticated/achievements'
@@ -1462,10 +1534,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AboutRoute: typeof AboutRoute
+  CancellationAndRefundRoute: typeof CancellationAndRefundRoute
   CareersRoute: typeof CareersRoute
   CoachesRoute: typeof CoachesRoute
   CommunityRoute: typeof CommunityRoute
   ContactRoute: typeof ContactRoute
+  ContactUsRoute: typeof ContactUsRoute
   CreatorsRoute: typeof CreatorsRoute
   DocsRoute: typeof DocsRoute
   EventsRoute: typeof EventsRoute
@@ -1475,15 +1549,19 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ProjectsRoute: typeof ProjectsRoute
   RazorpayTestRoute: typeof RazorpayTestRoute
   RefundPolicyRoute: typeof RefundPolicyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RoadmapRoute: typeof RoadmapRoute
+  ShippingAndExchangeRoute: typeof ShippingAndExchangeRoute
+  ShippingPolicyRoute: typeof ShippingPolicyRoute
   ShowcaseRoute: typeof ShowcaseRoute
   SignupRoute: typeof SignupRoute
   SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
+  TermsAndConditionsRoute: typeof TermsAndConditionsRoute
   VerifiedCertificatesRoute: typeof VerifiedCertificatesRoute
   VerifyStudentRoute: typeof VerifyStudentRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -1527,6 +1605,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VerifiedCertificatesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms-and-conditions': {
+      id: '/terms-and-conditions'
+      path: '/terms-and-conditions'
+      fullPath: '/terms-and-conditions'
+      preLoaderRoute: typeof TermsAndConditionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
@@ -1553,6 +1638,20 @@ declare module '@tanstack/react-router' {
       path: '/showcase'
       fullPath: '/showcase'
       preLoaderRoute: typeof ShowcaseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shipping-policy': {
+      id: '/shipping-policy'
+      path: '/shipping-policy'
+      fullPath: '/shipping-policy'
+      preLoaderRoute: typeof ShippingPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shipping-and-exchange': {
+      id: '/shipping-and-exchange'
+      path: '/shipping-and-exchange'
+      fullPath: '/shipping-and-exchange'
+      preLoaderRoute: typeof ShippingAndExchangeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roadmap': {
@@ -1588,6 +1687,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -1653,6 +1759,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreatorsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact-us': {
+      id: '/contact-us'
+      path: '/contact-us'
+      fullPath: '/contact-us'
+      preLoaderRoute: typeof ContactUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -1679,6 +1792,13 @@ declare module '@tanstack/react-router' {
       path: '/careers'
       fullPath: '/careers'
       preLoaderRoute: typeof CareersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cancellation-and-refund': {
+      id: '/cancellation-and-refund'
+      path: '/cancellation-and-refund'
+      fullPath: '/cancellation-and-refund'
+      preLoaderRoute: typeof CancellationAndRefundRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -2529,10 +2649,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AboutRoute: AboutRoute,
+  CancellationAndRefundRoute: CancellationAndRefundRoute,
   CareersRoute: CareersRoute,
   CoachesRoute: CoachesRoute,
   CommunityRoute: CommunityRoute,
   ContactRoute: ContactRoute,
+  ContactUsRoute: ContactUsRoute,
   CreatorsRoute: CreatorsRoute,
   DocsRoute: DocsRoute,
   EventsRoute: EventsRoute,
@@ -2542,15 +2664,19 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ProjectsRoute: ProjectsRoute,
   RazorpayTestRoute: RazorpayTestRoute,
   RefundPolicyRoute: RefundPolicyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RoadmapRoute: RoadmapRoute,
+  ShippingAndExchangeRoute: ShippingAndExchangeRoute,
+  ShippingPolicyRoute: ShippingPolicyRoute,
   ShowcaseRoute: ShowcaseRoute,
   SignupRoute: SignupRoute,
   SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
+  TermsAndConditionsRoute: TermsAndConditionsRoute,
   VerifiedCertificatesRoute: VerifiedCertificatesRoute,
   VerifyStudentRoute: VerifyStudentRoute,
   ApiChatRoute: ApiChatRoute,

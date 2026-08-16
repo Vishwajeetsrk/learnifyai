@@ -70,14 +70,14 @@ function ContactPage() {
         </form>
         <div className="space-y-5">
           <a
-            href={`mailto:${s?.contact_email ?? "hello@learnify.ai"}`}
+            href={`mailto:${s?.contact_email ?? "support.learnifyai@gmail.com"}`}
             className="flex items-start gap-4 rounded-2xl border border-border/60 bg-card p-5 hover:border-primary/40 transition"
           >
             <Mail className="h-5 w-5 text-primary mt-0.5" />
             <div>
               <h3 className="font-semibold">Email us</h3>
               <p className="text-sm text-muted-foreground">
-                {s?.contact_email ?? "hello@learnify.ai"}
+                {s?.contact_email ?? "support.learnifyai@gmail.com"}
               </p>
             </div>
           </a>

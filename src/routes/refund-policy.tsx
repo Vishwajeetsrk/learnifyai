@@ -36,7 +36,7 @@ export const Route = createFileRoute("/refund-policy")({
 <p>To request a refund:
   <ol>
     <li>Navigate to your Billing Dashboard and click <strong>Request Refund</strong>, or</li>
-    <li>Email our support team at <a href="mailto:support@learnifyai.in">support@learnifyai.in</a> with your registered email address and Cashfree Order ID.</li>
+    <li>Email our support team at <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> with your registered email address and Order/Payment ID.</li>
   </ol>
 </p>
 

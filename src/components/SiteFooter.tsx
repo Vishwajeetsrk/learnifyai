@@ -176,7 +176,7 @@ export function SiteFooter() {
         &copy; {new Date().getFullYear()} Learnify AI &middot; Learn Smarter. Grow Faster.
         <div className="mt-2">
           <Link
-            to="/support-us"
+            to="/support"
             className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
           >
             <Heart className="h-3 w-3 text-rose-500" /> Support Learnify AI — keep learning free
