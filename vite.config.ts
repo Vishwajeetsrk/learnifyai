@@ -39,6 +39,8 @@ export default defineConfig({
       external: ["nodemailer"],
     },
     build: {
+      sourcemap: false,
+      reportCompressedSize: false,
       chunkSizeWarningLimit: 2500,
       rollupOptions: {
         external: ["nodemailer", "nodemailer/lib/mailer/index.js"],
