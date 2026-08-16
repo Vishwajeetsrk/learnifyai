@@ -24,23 +24,16 @@ import {
   Sparkles,
   Copy,
   Trash2,
-} from "lucide-react";
-import Editor from "@monaco-editor/react";
-import confetti from "canvas-confetti";
-import projectsData from "@/data/projects.json";
-import { cn } from "@/lib/utils";
-import { executeCode } from "@/lib/playground.functions";
-import { aiCodeAssistant } from "@/lib/playground/ai";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import {
+  Lock,
+  ShoppingCart,
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/studio/$projectId")({
   component: StudioClassroomPage,
@@ -153,6 +146,43 @@ function StudioClassroomPage() {
   });
 
   const project = dbProject as any;
+
+  const { user, isAdmin } = useAuth();
+
+  const currentSub = useQuery({
+    enabled: !!user,
+    queryKey: ["my-subscription", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_subscriptions")
+        .select("*, plan:pricing_plans(*)")
+        .eq("user_id", user!.id)
+        .eq("status", "active")
+        .maybeSingle();
+      return data || null;
+    },
+  });
+
+  const enrollmentQuery = useQuery({
+    enabled: !!user && !!project?.id,
+    queryKey: ["studio-enrollment", project?.id, user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("enrollments")
+        .select("*")
+        .eq("user_id", user!.id)
+        .eq("course_id", project!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const isFree = Number(project?.price_inr || 0) === 0 && !project?.is_paid && project?.tier !== "pro";
+  const isEnrolled = !!enrollmentQuery.data && (enrollmentQuery.data.status === "active" || enrollmentQuery.data.status === "completed");
+  const hasActiveSubscription = !!currentSub.data && currentSub.data.status === "active";
+  const isCreator = !!user && project?.created_by === user.id;
+
+  const hasStudioAccess = isFree || isEnrolled || hasActiveSubscription || isAdmin || isCreator;
 
   const rawModules = project?.course_modules || [];
   const modules =
@@ -414,6 +444,36 @@ function StudioClassroomPage() {
 
   return (
     <div className="h-screen w-full bg-background flex flex-col font-sans overflow-hidden relative">
+      {!hasStudioAccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/85 backdrop-blur-md p-4">
+          <div className="max-w-lg w-full bg-card border border-border/80 rounded-2xl p-6 sm:p-8 shadow-2xl text-center flex flex-col items-center">
+            <div className="h-16 w-16 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mb-4 shadow-lg">
+              <Lock className="h-8 w-8 text-primary" />
+            </div>
+            <Badge variant="outline" className="mb-3 border-primary/30 text-primary font-bold text-xs">
+              Career Pro Studio Access Required
+            </Badge>
+            <h2 className="text-2xl font-display font-bold text-foreground">
+              Unlock {project?.title || "Studio Workspace"}
+            </h2>
+            <p className="text-muted-foreground text-xs sm:text-sm mt-2 mb-6 leading-relaxed">
+              This interactive project studio requires an active Learnify AI Pro Subscription or Course Purchase. Upgrade to access full source code, IDE execution, and AI tutoring.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <Link to="/pricing" className="w-full sm:w-auto flex-1">
+                <Button className="w-full bg-gradient-to-r from-primary to-purple-600 text-primary-foreground font-bold h-11 rounded-xl shadow-glow text-xs">
+                  <Sparkles className="h-4 w-4 mr-1.5" /> Upgrade to Pro (₹1,499/mo)
+                </Button>
+              </Link>
+              <Link to="/courses" className="w-full sm:w-auto flex-1">
+                <Button variant="outline" className="w-full font-bold h-11 rounded-xl text-xs">
+                  Browse Courses
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Floating XP Popup */}
       <AnimatePresence>
         {showXPPopup && (

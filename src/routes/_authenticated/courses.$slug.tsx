@@ -288,14 +288,32 @@ function CourseDetail() {
   const logDailyFn = useServerFn(logDailyUsage);
   const navigate = useNavigate();
 
+  const subscriptionQuery = useQuery({
+    enabled: !!user,
+    queryKey: ["user-active-subscription", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_subscriptions")
+        .select("*, plan:pricing_plans(*)")
+        .eq("user_id", user!.id)
+        .eq("status", "active")
+        .maybeSingle();
+      return data || null;
+    },
+  });
+
+  const hasActiveSubscription = !!subscriptionQuery.data && subscriptionQuery.data.status === "active";
   const isEnrolled = !!enrollmentQuery.data;
   const enrollmentStatus = enrollmentQuery.data?.status ?? null;
   const isEnrollmentActive = enrollmentStatus === "active" || enrollmentStatus === "completed";
   const inCart = !!cartQuery.data;
   const isFree = courseQuery.data ? Number(courseQuery.data.course.price_inr) === 0 : false;
 
-  // Full access if: free course, or enrolled with active/completed status, or admin
-  const hasFullAccess = isFree || isEnrollmentActive || isAdmin;
+  const creatorId = courseQuery.data?.course?.created_by ?? PLATFORM_CREATOR_ID;
+  const isCreator = !!user && creatorId === user.id;
+
+  // Full access if: free course, or user has active subscription, or enrolled with active/completed status, or admin, or creator
+  const hasFullAccess = isFree || isEnrollmentActive || hasActiveSubscription || isAdmin || isCreator;
   const completed = useMemo(
     () => new Set(progressRows.filter((d) => d.completed).map((d) => d.lesson_id)),
     [progressRows],
@@ -910,7 +928,38 @@ function CourseDetail() {
               </div>
             )}
             <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
-              {activeVideo?.ok && !playerLoadFailed ? (
+              {active && !(hasFullAccess || active.is_preview) ? (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-card via-background to-card border border-border/80 relative overflow-hidden">
+                  <div className="h-14 w-14 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center mb-3 shadow-lg">
+                    <Lock className="h-7 w-7 text-primary" />
+                  </div>
+                  <Badge variant="outline" className="mb-2 border-primary/30 text-primary font-bold text-xs">
+                    Premium Lesson Locked
+                  </Badge>
+                  <h3 className="text-lg sm:text-xl font-display font-bold text-foreground max-w-md">
+                    Unlock "{active?.title || course?.title}"
+                  </h3>
+                  <p className="text-muted-foreground text-xs max-w-lg mt-1.5 mb-5 leading-relaxed">
+                    This lesson requires an active Learnify AI Subscription or Course Purchase. Subscribe to unlock all courses, HD videos, interactive code sandboxes, AI tutors, and certificates.
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-md">
+                    <Link to="/pricing" className="w-full sm:w-auto flex-1">
+                      <Button className="w-full bg-gradient-to-r from-primary to-purple-600 text-primary-foreground font-bold h-10 rounded-xl shadow-glow text-xs">
+                        <Sparkles className="h-3.5 w-3.5 mr-1.5" /> Subscribe to Pro
+                      </Button>
+                    </Link>
+                    {Number(course?.price_inr || 0) > 0 && (
+                      <Button
+                        onClick={addToCart}
+                        variant="outline"
+                        className="w-full sm:w-auto flex-1 font-bold h-10 rounded-xl text-xs"
+                      >
+                        <ShoppingCart className="h-3.5 w-3.5 mr-1.5" /> Buy Course ({inr(Number(course?.price_inr))})
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ) : activeVideo?.ok && !playerLoadFailed ? (
                 <CoursePlayer
                   key={`${active?.id}-${playerRetry}-${isAdmin}-${user?.id}`}
                   mode="advanced"

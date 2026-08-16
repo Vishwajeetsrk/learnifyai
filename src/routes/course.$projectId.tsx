@@ -7,6 +7,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Play, Layout, Code2, BookOpen, Volume2, Lock, X, Sparkles } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 import projectsData from "@/data/projects.json";
 import { extractYouTubeVideoId } from "@/lib/course-player";
 
@@ -34,6 +35,43 @@ function CourseDetailPage() {
   });
 
   const project = dbProject as any;
+
+  const { user, isAdmin } = useAuth();
+  const currentSub = useQuery({
+    enabled: !!user,
+    queryKey: ["my-subscription", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_subscriptions")
+        .select("*, plan:pricing_plans(*)")
+        .eq("user_id", user!.id)
+        .eq("status", "active")
+        .maybeSingle();
+      return data || null;
+    },
+  });
+
+  const enrollmentQuery = useQuery({
+    enabled: !!user && !!project?.id,
+    queryKey: ["project-detail-enrollment", project?.id, user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("enrollments")
+        .select("*")
+        .eq("user_id", user!.id)
+        .eq("course_id", project!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const isFree = Number(project?.price_inr || 0) === 0 && !project?.is_paid && project?.tier !== "pro";
+  const isEnrolled = !!enrollmentQuery.data && (enrollmentQuery.data.status === "active" || enrollmentQuery.data.status === "completed");
+  const hasActiveSubscription = !!currentSub.data && currentSub.data.status === "active";
+  const isCreator = !!user && project?.created_by === user.id;
+
+  const hasAccess = isFree || isEnrolled || hasActiveSubscription || isAdmin || isCreator;
+
   const [activeTab, setActiveTab] = useState<"curriculum" | "tech" | "preview">("curriculum");
   const [isPlayingTeaser, setIsPlayingTeaser] = useState(false);
 
@@ -302,18 +340,32 @@ function CourseDetailPage() {
                 </div>
 
                 <div className="mt-8 space-y-3">
-                  <Link
-                    to="/studio/$projectId"
-                    params={{ projectId: project.id }}
-                    className="w-full bg-primary text-primary-foreground font-semibold h-14 rounded-xl hover:bg-primary/90 transition-all flex flex-col items-center justify-center shadow-glow"
-                  >
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4" /> Start Building Now
-                    </div>
-                    <div className="text-[10px] text-primary-foreground/80 font-normal uppercase tracking-wider flex items-center gap-1 mt-0.5">
-                      <Lock className="h-2.5 w-2.5" /> Career Pro
-                    </div>
-                  </Link>
+                  {hasAccess ? (
+                    <Link
+                      to="/studio/$projectId"
+                      params={{ projectId: project.id }}
+                      className="w-full bg-primary text-primary-foreground font-semibold h-14 rounded-xl hover:bg-primary/90 transition-all flex flex-col items-center justify-center shadow-glow"
+                    >
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="h-4 w-4" /> Start Building Now
+                      </div>
+                      <div className="text-[10px] text-primary-foreground/80 font-normal uppercase tracking-wider flex items-center gap-1 mt-0.5">
+                        Unlocked Studio Access
+                      </div>
+                    </Link>
+                  ) : (
+                    <Link
+                      to="/pricing"
+                      className="w-full bg-gradient-to-r from-primary to-purple-600 text-primary-foreground font-semibold h-14 rounded-xl hover:opacity-90 transition-all flex flex-col items-center justify-center shadow-glow"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4" /> Unlock Course — Subscribe Pro
+                      </div>
+                      <div className="text-[10px] text-primary-foreground/80 font-normal uppercase tracking-wider flex items-center gap-1 mt-0.5">
+                        <Lock className="h-2.5 w-2.5" /> Career Pro Membership (₹1,499/mo)
+                      </div>
+                    </Link>
+                  )}
                   <a
                     href={project.path}
                     target="_blank"
