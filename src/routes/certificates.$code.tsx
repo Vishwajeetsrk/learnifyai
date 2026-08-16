@@ -113,12 +113,44 @@ function CertificatePage() {
         .eq("code", code)
         .maybeSingle();
 
+      let targetTemplateId = certV2?.template_id;
+
+      // If certificate doesn't have template_id, check the course's certificate_template_id
+      if (!targetTemplateId && (row as any)?.course_id) {
+        const { data: courseRow } = await supabase
+          .from("courses")
+          .select("certificate_template_id")
+          .eq("id", (row as any).course_id)
+          .maybeSingle();
+        targetTemplateId = (courseRow as any)?.certificate_template_id ?? null;
+      }
+
+      // If still no template_id, fetch the system default template
+      if (!targetTemplateId) {
+        const { data: defaultCanva } = await (supabase as any)
+          .from("canva_templates")
+          .select("id")
+          .eq("is_default", true)
+          .maybeSingle();
+        if (defaultCanva?.id) {
+          targetTemplateId = defaultCanva.id;
+        } else {
+          // Fallback to first available template if no default flag set
+          const { data: firstCanva } = await (supabase as any)
+            .from("canva_templates")
+            .select("id")
+            .limit(1)
+            .maybeSingle();
+          if (firstCanva?.id) targetTemplateId = firstCanva.id;
+        }
+      }
+
       let template = null;
-      if (certV2?.template_id) {
-        const { data: canva } = await supabase
+      if (targetTemplateId) {
+        const { data: canva } = await (supabase as any)
           .from("canva_templates")
           .select("*")
-          .eq("id", certV2.template_id)
+          .eq("id", targetTemplateId)
           .maybeSingle();
         if (canva) {
           const raw = canva as any;
@@ -134,10 +166,10 @@ function CertificatePage() {
             template = raw;
           }
         } else {
-          const { data: legacy } = await supabase
+          const { data: legacy } = await (supabase as any)
             .from("certificate_templates")
             .select("*")
-            .eq("id", certV2.template_id)
+            .eq("id", targetTemplateId)
             .maybeSingle();
           template = legacy;
         }

@@ -1092,51 +1092,7 @@ MIT License. See [LICENSE](LICENSE) for details.
 - ✅ **Official Skill Badges**: Added automatic, high-resolution official tech stack logos (via Devicon) to the user's Skills array in their Public Profile and Settings, replacing plain text badges with premium branded icons (e.g. React, Node.js, Python, AWS).
 - ✅ **System-Wide Enhancements**: Fixed Certificate Designer zoom mechanics, resolved Admin Dashboard mobile overflow, enabled client-side thumbnail generation for custom video uploads, and parsed raw JSON payment errors into human-readable toast notifications.
 
-### v1.7.0 (August 2026) — No-Code Course Builder & Block Engine
-
-- 🪄 **No-Code Block Course Builder (`/course-builder/$courseId`)**: Built a full-page Notion-style drag-and-drop course builder featuring a 10-type content block engine (Text, Video, Image, Quiz, Code, Callout, Divider, Embed, Diagram, File Download). Includes live YouTube/Vimeo/Loom video previews, interactive multi-question MCQ quiz builder with pass threshold and explanations, Mermaid.js diagram builder with templates, syntax-highlighted code block editor, and real-time auto-saving.
-- 🌳 **Interactive Curriculum Manager**: Integrated a drag-and-drop module and lesson tree sidebar (`CurriculumSidebar`) with inline title renaming, lesson order reordering, collapse/expand states, and 1-click free preview toggling.
-- ⚙️ **Course Metadata & Settings Panel**: Created an organized Accordion-based course settings editor (`CourseSettingsPanel`) covering course title, description, cover image, teaser trailer, INR pricing, skill level, category, multi-language support, target audience, learning outcomes, requirements, and certificate completion thresholds.
 - 👁️ **Student Block Renderer (`BlockRenderer`)**: Delivered a responsive read-only block renderer for the course player supporting all 10 block formats, lazy-loaded Mermaid.js diagrams, interactive quiz taking with scoring and retries, code copy buttons, and callout box themes.
-- 🔗 **Admin & Creator Integrations**: Added direct 🖊 block builder action buttons to both the Admin Course System table (`CourseSystemAdmin`) and Creator Hub course cards (`creator.tsx`).
-
-### v4.2.0 (August 2026)
-
-- 💳 **Razorpay Native Subscriptions (`rzp_sub`)**: Transitioned from one-time orders to Razorpay's native recurring subscription system. Automated billing plan synchronization (`POST /v1/plans`), subscriber hosted checkout link redirect (`POST /v1/subscriptions`), pre-created pending subscription records, and webhook processing for `subscription.activated`, `subscription.charged`, `subscription.halted`, `subscription.cancelled`, and `subscription.completed`.
-- 📜 **Razorpay & Banking Compliance Pages**: Added 5 mandatory business compliance pages for merchant partner approval: **Terms and Conditions** ([/terms](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/terms.tsx) & [/terms-and-conditions](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/terms-and-conditions.tsx)), **Privacy Policy** ([/privacy](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/privacy.tsx) & [/privacy-policy](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/privacy-policy.tsx)), **Cancellation and Refund Policy** ([/refund-policy](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/refund-policy.tsx) & [/cancellation-and-refund](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/cancellation-and-refund.tsx)), **Shipping and Exchange Policy** ([/shipping-and-exchange](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/shipping-and-exchange.tsx) & [/shipping-policy](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/shipping-policy.tsx)), and **Contact Us** ([/contact](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/contact.tsx) & [/contact-us](file:///c:/Users/vishw/Music/Learnify%20AI/src/routes/contact-us.tsx)).
-- ✉️ **Unified Support Email**: Standardized platform customer support email to `support.learnifyai@gmail.com` across all contact forms, footer links, privacy policies, terms of service, and PDF tax invoices.
-- 🛡️ **Security & RLS Validation**: Enforced Row Level Security (RLS) on all Supabase tables, HMAC SHA-256 webhook signature verification via `RAZORPAY_WEBHOOK_SECRET`, and zero TypeScript compilation errors (`pnpm exec tsc --noEmit --skipLibCheck`).
-
-### v1.6.0 (July 2026)
-
-- ✅ **Enterprise Invoice System & Live Designer**: Built a Canva-like visual Invoice Designer inside the Content Manager enabling admins to customize company information, GST numbers, logos, digital signatures, terms, watermarks, and verification QR code toggles. Added five layout templates: Modern, Minimal, Corporate, Luxury (Navy & Gold), and Dark Mode. Created a public invoice verification route `/verify/invoice/$id` directly linked to invoice records. Integrated automatic edit audits inside the `admin_audit_logs` table.
-- ✅ **XP Store Avatar Purchase Ledger**: Replaced simple static buttons in the store page with a functional purchase selector. Clicking an owned avatar instantly updates the user's active avatar in their profile, while purchasing an avatar immediately applies it. Restructured Interactive Avatars to cost **only ₹1 Cash** (removing the XP payment option, updating listings, and centering the Cash payment button in the dialog). Added a beautiful **Purchase & Transaction History** tabbed ledger detailing both XP perk purchases and wallet transactions.
-- ✅ **Character Customization Live Preview**: Added real-time profile border styling around the visual customized character (rendering neon and animated rainbow-glow borders on the settings preview page), and mapped previously broken clothing styles (mapping `shirtOpen` to `shirtScoopNeck` and `dress` to `overall` in the DiceBear API).
-- ✅ **Advanced Video Player Translation & CC**: Added **AI Audio Tracks** and **CC Translation** selectors to the player settings menu. Users can now translate subtitles in real-time or enable AI dubbing voiceovers using synchronized browser `speechSynthesis` (supporting Hindi, Spanish, French, German, and major Indian languages). Integrated automatic subtitle generation when lessons lack pre-uploaded caption tracks, and removed the unused bookmark button from player controls.
-
-### v1.5.0 (June 2026)
-
-- ✅ **Customize Character Enhancements**: Fixed the avatar customization preview by aligning style parameters with Dicebear v7.x schemas (mapping invalid `shortHair...` / `longHair...` prefixes to `shortFlat`, `straight01`, etc.). Added an **Avatar Background Color** customizer tab supporting solid and transparent backdrops. Ensured profile border styling is preserved upon custom avatar image uploads.
-- ✅ **Unified Profile Borders**: Implemented global CSS borders for custom profiles using a unified class resolver, rendering borders cleanly across the settings page, public profile page, Kanban board assignees, and course player instructors.
-- ✅ **Gamification Header Integration**: Integrated public profile gamification stats including League level (Bronze→Diamond), Level, XP count, and active Day Streak directly into user profile pages.
-- ✅ **Playground Project Visibility**: Added interactive public/private visibility toggle badges inside the code editor top bar and the project list dashboard. This enables learners to set saved projects as public so they display under the "Projects" tab of their public user profile page.
-- ✅ **CSP Policy Fix**: Updated Vercel headers (`vercel.json`) to allow script and iframe loading from YouTube (`https://www.youtube.com` and `https://s.ytimg.com`), resolving Content Security Policy blocks on video playback.
-- ✅ **Creator Studio AI Generation Tools**: Integrated a suite of AI-powered creation tools directly into the Course Edit modal. Added "AI Thumbnail" generation supporting data URI image uploads with a premium flat shadow illustration style (`retro_flat`). Implemented "AI Lesson Generator" which dynamically creates video lessons, video URLs, and formatted lesson summaries based on the course title. Added an AI category suggestion button and dynamic category mapping dropdown.
-
-### v1.4.0 (June 2026)
-
-- 🪄 **Premium 3D Cursor**: Global custom glassmorphism cursor with particle trails and magnetic 3D hover effects.
-- 🎨 **Avatar Customizer Upgraded**: Migrated to DiceBear 9.x API for flawless high-res SVG character customization.
-- 🛡️ **Cashfree SDK CSP Fix**: Configured Content Security Policy in `vercel.json` to safely allow Cashfree checkout scripts.
-- ✅ **Email Template / Admin Page Fix**: Resolved client-side pre-bundling crash on the `/admin` page by converting literal dynamic imports of `nodemailer` to variable-based imports.
-- ✅ **Logo Upgrades**: Restored the official `learnify-logo.png` logo image with a clean dark-mode filter inversion (`dark:brightness-0 dark:invert`) to support transparent backgrounds. Added the logo to the certificates fallback render and ensured it is statically served at `/logo.png`.
-- ✅ **Pricing Plan Alignments**: Fully synchronized the home page and pricing page cards to show identical premium designs and credit counts. Free plan at ₹0 (Acquisition), Pro at ₹199/mo (casual learners), Career Pro at ₹499/mo (job-seekers), Enterprise (Custom) replaces old Team plan.
-
-### v1.3.6 (July 2026)
-
-- 🔐 **OFFICIAL GOOGLE OAUTH 2.0 CLIENT BRANDING**: Configured custom Google Cloud OAuth 2.0 Client credentials with official `Learnify AI` app name, logo, domain verification, and custom Supabase provider callback endpoints (`/auth/v1/callback`).
-- 📜 **PUBLIC CERTIFICATE VERIFICATION PORTAL (`/verify/$id`)**: Built an immutable credential verification route allowing recruiters and students to verify course certificates via unique Certificate ID or QR code lookup.
-- 🎙️ **MULTI-LANGUAGE WEB SPEECH VOICE AI NARRATOR**: Integrated browser Web Speech API narrator supporting 7 languages (`en-US`, `en-IN`, `hi-IN`, `es-ES`, `fr-FR`, `de-DE`, `ja-JP`) with speed and pitch controls.
 - 🎯 **SVG CARRIER PATH NAVIGATION & SEO BLOG EXPANSION**: Replaced emoji icons with modern Lucide SVG components across course marketplaces and published high-authority SEO technical articles.
 
 ### v1.3.5 (July 2026)
@@ -1149,6 +1105,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 💳 **CASHFREE DOMAIN WHITELISTING & ERROR GUIDANCE**: Parsed Cashfree payment domain approval errors into clear actionable notifications and added step-by-step Cashfree Merchant Dashboard Whitelisting guide to `MASTER_SETUP_AND_SEO_GUIDE.md`.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
+
+### v4.2.0 (August 2026) — Certificate Paywall & Dynamic Template Engine
+
+- 📜 **₹49 CERTIFICATE PAYWALL & PRO ACCESS**: Free plan users enjoy 100% free learning across all 11+ courses. Free users can claim and download verified certificates for ₹49 per certificate via Razorpay. Pro (₹199/mo) and Career Pro (₹499/mo) plan subscribers receive unlimited free certificate downloads across all courses.
+- 🎨 **ADMIN & CREATOR CERTIFICATE TEMPLATE SELECTION**: Admins and Course Creators can assign custom Canva certificate templates per course directly on the course page (`/courses/$slug`). Includes automatic fallback to the system default template (`is_default = true`) or clean canvas layout if no specific template is selected.
+- 🛡️ **VERIFICATION, QR & SOCIAL SHARING**: Every issued certificate features cryptographic SHA-256 code verification, dynamic QR code verification (`/certificates/$code`), 1-click **Add to LinkedIn** certificate credential integration, high-resolution PDF & PNG image export, A4 landscape print styling, and email delivery.
+- 💳 **RAZORPAY RECURRING SUBSCRIPTIONS & SECURITY**: Native Razorpay subscription flow with server-side HMAC signature verification, strict Supabase Row Level Security (RLS) policies on `certificate_payments`, lazy-loaded Canva rendering functions, and zero TypeScript compilation errors.
 
 ### v4.1.0 (July 2026) — Performance & Career Studio Overhaul
 

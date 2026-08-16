@@ -329,19 +329,19 @@ function CourseDetail() {
   const instructorOrg = instructorProfile?.org_name || null;
 
   const certTemplatesQuery = useQuery({
-    enabled: isCreator,
+    enabled: isCreator || isAdmin,
     queryKey: ["cert-templates-list"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("canva_templates")
-        .select("id, name, category")
+        .select("id, name, category, is_default")
         .order("name");
       if (error) throw error;
       return (data ?? []).map((t: any) => ({
         id: t.id,
         name: t.name,
         category: t.category ?? "Certificate",
-        is_default: false,
+        is_default: t.is_default ?? false,
       }));
     },
   });
@@ -863,21 +863,35 @@ function CourseDetail() {
               tools.
             </p>
           )}
-          {isCreator && certTemplatesQuery.data && certTemplatesQuery.data.length > 0 && (
-            <div className="mt-2 flex items-center gap-2">
+          {(isAdmin || isCreator) && certTemplatesQuery.data && certTemplatesQuery.data.length > 0 && (
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
               <Award className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               <select
                 className="h-8 rounded-md border border-input bg-background px-2 text-xs flex-1 min-w-0"
                 value={(course as any)?.certificate_template_id ?? ""}
                 onChange={(e) => updateCourseTemplate(e.target.value || null)}
               >
-                <option value="">Default certificate template</option>
+                <option value="">System default template</option>
                 {certTemplatesQuery.data.map((t) => (
                   <option key={t.id} value={t.id}>
-                    {t.name} {t.is_default ? "(default)" : ""}
+                    {t.name} {t.is_default ? "★ default" : ""}
                   </option>
                 ))}
               </select>
+              {isAdmin && (course as any)?.certificate_template_id && (
+                <button
+                  className="text-[10px] text-primary underline hover:no-underline shrink-0"
+                  onClick={async () => {
+                    const tplId = (course as any).certificate_template_id;
+                    if (!tplId) return;
+                    const { error } = await supabase.rpc("set_default_cert_template" as any, { p_id: tplId });
+                    if (error) toast.error("Failed to set default");
+                    else { toast.success("Set as system default"); qc.invalidateQueries({ queryKey: ["cert-templates-list"] }); }
+                  }}
+                >
+                  Set as system default
+                </button>
+              )}
             </div>
           )}
           {isFree && !isEnrolled && (
