@@ -393,7 +393,8 @@ function ProjectsPage() {
           .select("*")
           .order("created_at", { ascending: false });
         if (error || !data || data.length === 0) return projectsData as Project[];
-        return (data as unknown) as Project[];
+        // DB has title but no name — map name from title for Project type compatibility
+        return data.map((p: any) => ({ ...p, name: p.title })) as Project[];
       } catch {
         return projectsData as Project[];
       }
