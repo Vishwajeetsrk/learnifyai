@@ -43,6 +43,7 @@ export default defineConfig({
       reportCompressedSize: false,
       chunkSizeWarningLimit: 2500,
       rollupOptions: {
+        maxParallelFileOps: 2,
         external: ["nodemailer", "nodemailer/lib/mailer/index.js"],
         onwarn(warning, warn) {
           if (warning.code === "MODULE_LEVEL_DIRECTIVE") {
