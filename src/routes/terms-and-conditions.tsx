@@ -29,7 +29,7 @@ export const Route = createFileRoute("/terms-and-conditions")({
 <p>Users must provide accurate account information and maintain password security. Prohibited activities include account sharing, scraping content, abusing AI prompt systems, or distributing unauthorized materials.</p>
 
 <h2>5. Governing Law & Contact</h2>
-<p>These terms are governed by the laws of India. For disputes or legal inquiries, email <a href="mailto:support@learnifyai.in">support@learnifyai.in</a>.</p>`}
+<p>These terms are governed by the laws of India. For disputes or legal inquiries, email <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a>.</p>`}
     />
   ),
 });

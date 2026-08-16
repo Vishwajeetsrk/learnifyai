@@ -40,9 +40,9 @@ const DEFAULT_INVOICE_SETTINGS: Record<string, string> = {
   invoice_gstin: "29XXXXX1234X1Z5",
   invoice_prefix: "INV",
   invoice_footer:
-    "Thank you for supporting Learnify AI! For queries, contact support@learnifyai.in.",
+    "Thank you for supporting Learnify AI! For queries, contact support.learnifyai@gmail.com.",
   invoice_logo_url: "/logo.png",
-  invoice_contact: "support@learnifyai.in · +91 99182 31234",
+  invoice_contact: "support.learnifyai@gmail.com · +91 99182 31234",
   invoice_address: "102, Innovation Hub, Outer Ring Road, Bangalore, KA, 560103",
   invoice_website: "https://www.learnifyai.in",
   invoice_primary_color: "#4f46e5",

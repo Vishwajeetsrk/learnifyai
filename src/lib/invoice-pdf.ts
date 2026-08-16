@@ -54,7 +54,7 @@ const DEFAULT_BRANDING: BrandingData = {
   prefix: "INV",
   footer:
     "This is an official computer-generated invoice compliant with GST and Consumer Protection Rules 2020.",
-  contact: "support@learnifyai.in · +91 99182 31234",
+  contact: "support.learnifyai@gmail.com · +91 99182 31234",
   primary_color: "#4F46E5",
   secondary_color: "#7C3AED",
   success_color: "#22C55E",

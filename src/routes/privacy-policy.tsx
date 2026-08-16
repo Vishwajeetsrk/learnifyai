@@ -26,7 +26,7 @@ export const Route = createFileRoute("/privacy-policy")({
 <p>We share minimal necessary data with authorized payment gateways (Razorpay, Cashfree) and cloud service providers solely for payment verification, invoice issuance, and platform delivery.</p>
 
 <h2>4. Your Rights & Data Erasure</h2>
-<p>You have the right to inspect, update, or request deletion of your personal data at any time. Contact <a href="mailto:support@learnifyai.in">support@learnifyai.in</a> for privacy inquiries.</p>`}
+<p>You have the right to inspect, update, or request deletion of your personal data at any time. Contact <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> for privacy inquiries.</p>`}
     />
   ),
 });

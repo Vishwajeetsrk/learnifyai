@@ -21,7 +21,7 @@ export const Route = createFileRoute("/shipping-policy")({
 <h2>2. No Physical Delivery</h2>
 <p>There are no physical goods shipped. Access details and official tax invoices are delivered instantly to your registered email and Learnify AI account dashboard.</p>
 <h2>3. Contact Support</h2>
-<p>For support or delivery assistance, email <a href="mailto:support@learnifyai.in">support@learnifyai.in</a>.</p>`}
+<p>For support or delivery assistance, email <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a>.</p>`}
     />
   ),
 });

@@ -33,20 +33,20 @@ export const Route = createFileRoute("/shipping-and-exchange")({
 </ul>
 
 <h2>3. Digital Product Exchanges</h2>
-<p>Because all services are provisioned digitally upon purchase, traditional physical product exchanges do not apply. However, if you accidentally purchased the wrong plan or tier (e.g., selected Monthly Pro instead of Yearly Career Pro), you may request a plan adjustment within 7 days of purchase by contacting <a href="mailto:support@learnifyai.in">support@learnifyai.in</a>. Our support team will gladly upgrade or migrate your account tier accordingly.</p>
+<p>Because all services are provisioned digitally upon purchase, traditional physical product exchanges do not apply. However, if you accidentally purchased the wrong plan or tier (e.g., selected Monthly Pro instead of Yearly Career Pro), you may request a plan adjustment within 7 days of purchase by contacting <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a>. Our support team will gladly upgrade or migrate your account tier accordingly.</p>
 
 <h2>4. Service Disruptions & Non-Delivery Resolution</h2>
 <p>If you experience any delay in digital feature activation or credit provisioning after a successful payment:
   <ol>
     <li>Check your dashboard at <a href="/dashboard">https://www.learnifyai.in/dashboard</a> after logging out and back in.</li>
-    <li>If features remain locked, email your Razorpay/Cashfree Payment ID to <a href="mailto:support@learnifyai.in">support@learnifyai.in</a> or submit a ticket via our <a href="/contact">Contact Page</a>. Our technical team resolves all access issues within 24 hours.</li>
+    <li>If features remain locked, email your Razorpay/Cashfree Payment ID to <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> or submit a ticket via our <a href="/contact">Contact Page</a>. Our technical team resolves all access issues within 24 hours.</li>
   </ol>
 </p>
 
 <h2>5. Contact Information</h2>
 <p>For any queries regarding digital delivery, account provisioning, or plan exchange requests, please reach out to us:
   <ul>
-    <li><strong>Email:</strong> <a href="mailto:support@learnifyai.in">support@learnifyai.in</a> / <a href="mailto:vishwajeetsrk@gmail.com">vishwajeetsrk@gmail.com</a></li>
+    <li><strong>Email:</strong> <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> / <a href="mailto:vishwajeetsrk@gmail.com">vishwajeetsrk@gmail.com</a></li>
     <li><strong>Address:</strong> Learnify AI EdTech, India</li>
     <li><strong>Support Hours:</strong> Monday – Saturday, 9:00 AM – 7:00 PM IST</li>
   </ul>

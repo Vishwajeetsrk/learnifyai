@@ -414,7 +414,7 @@ function RazorpayTestPage() {
                 <div>
                   <h3 className="text-xl font-display font-semibold tracking-tight">LEARNIFY AI</h3>
                   <p className="text-xs text-muted-foreground mt-1">GSTIN: 27AAAAA1111A1Z1</p>
-                  <p className="text-xs text-muted-foreground">support@learnifyai.in</p>
+                  <p className="text-xs text-muted-foreground">support.learnifyai@gmail.com</p>
                 </div>
                 <div className="text-right">
                   <h4 className="text-base font-semibold text-foreground uppercase tracking-wider">

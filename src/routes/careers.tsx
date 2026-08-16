@@ -189,7 +189,7 @@ function CareersPage() {
   const search = Route.useSearch();
   const applyJobId = search.apply;
   const { data: settings } = useSiteSettings();
-  const careersEmail = settings?.careers_email || "support@learnifyai.in";
+  const careersEmail = settings?.careers_email || "support.learnifyai@gmail.com";
   const defaultJobs: JobRow[] = [
     {
       id: "job-devrel-01",
