@@ -163,9 +163,22 @@ export const createSubscription = createServerFn({ method: "POST" })
       return { auth_link: null, subscription_id: null, free: true };
     }
 
-    // Paid plan — sync to Cashfree if needed
-    if (!p.cashfree_plan_id) {
-      p.cashfree_plan_id = await doSyncPlan(data.planId);
+    // ─── Payment gateway selection (Admin-controlled in Content Manager) ────────
+    const { data: gwSetting } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("key", "payment_gateway")
+      .maybeSingle();
+    let useRazorpayForSubs = (gwSetting?.value as string) !== "cashfree";
+
+    // Paid plan — sync to Cashfree ONLY if Cashfree is explicitly selected
+    if (!useRazorpayForSubs && !p.cashfree_plan_id) {
+      try {
+        p.cashfree_plan_id = await doSyncPlan(data.planId);
+      } catch (e: any) {
+        console.warn("Cashfree plan sync failed, falling back to Razorpay:", e?.message);
+        useRazorpayForSubs = true;
+      }
     }
 
     // Apply coupon discount if provided
@@ -223,16 +236,6 @@ export const createSubscription = createServerFn({ method: "POST" })
     const realName = (profile as any)?.full_name || "Valued Learner";
     const realEmail = (profile as any)?.email || "support.learnifyai@gmail.com";
     const realPhone = (profile as any)?.phone || (profile as any)?.phone_number || "9918231234";
-
-    const { appId, secretKey } = getCreds();
-
-    // ─── Payment gateway selection (Admin-controlled) ─────────────────────────
-    const { data: gwSetting } = await supabaseAdmin
-      .from("site_settings")
-      .select("value")
-      .eq("key", "payment_gateway")
-      .maybeSingle();
-    const useRazorpayForSubs = (gwSetting?.value as string) !== "cashfree";
 
     // ─── Razorpay Native Subscriptions (Recurring Billing) ───────────────────
     if (useRazorpayForSubs) {
@@ -641,15 +644,26 @@ export const upgradeDowngrade = createServerFn({ method: "POST" })
     const isNewPaid = newPlan.interval && (newPlan.price_inr || 0) > 0;
     const isDowngrade = (newPlan.price_inr || 0) < (oldPlan.price_inr || 0);
 
-    // If upgrading to paid plan, create new Cashfree subscription
-    if (isNewPaid && !newPlan.cashfree_plan_id) {
-      await doSyncPlan(data.newPlanId);
-      const { data: refreshed } = await supabaseAdmin
-        .from("pricing_plans")
-        .select("cashfree_plan_id")
-        .eq("id", data.newPlanId)
-        .single();
-      (newPlan as any).cashfree_plan_id = (refreshed as any)?.cashfree_plan_id;
+    const { data: gwSetting } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("key", "payment_gateway")
+      .maybeSingle();
+    const useRazorpayForSubs = (gwSetting?.value as string) !== "cashfree";
+
+    // If upgrading to paid plan on Cashfree, sync plan
+    if (!useRazorpayForSubs && isNewPaid && !newPlan.cashfree_plan_id) {
+      try {
+        await doSyncPlan(data.newPlanId);
+        const { data: refreshed } = await supabaseAdmin
+          .from("pricing_plans")
+          .select("cashfree_plan_id")
+          .eq("id", data.newPlanId)
+          .single();
+        (newPlan as any).cashfree_plan_id = (refreshed as any)?.cashfree_plan_id;
+      } catch (e: any) {
+        console.warn("Cashfree plan sync failed in plan change:", e?.message);
+      }
     }
 
     // For upgrade: cancel old, create new

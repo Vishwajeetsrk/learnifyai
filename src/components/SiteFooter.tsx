@@ -42,7 +42,6 @@ const HARDCODED_SECTIONS = [
       { label: "Privacy Policy", url: "/privacy" },
       { label: "Cancellation and Refund", url: "/refund-policy" },
       { label: "Shipping and Exchange", url: "/shipping-and-exchange" },
-      { label: "Contact Us", url: "/contact" },
     ],
   },
 ];
