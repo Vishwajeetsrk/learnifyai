@@ -371,6 +371,7 @@ export const createSubscription = createServerFn({ method: "POST" })
       }
     }
 
+    const { appId, secretKey } = getCreds();
     const baseUrl = process.env.VITE_APP_URL || "https://www.learnifyai.in";
     const returnUrl = `${baseUrl}/pricing?subscribe=ok`;
     const notifyUrl = `${baseUrl}/api/webhooks/cashfree-subscription`;
