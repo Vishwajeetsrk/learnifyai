@@ -269,7 +269,7 @@ function CartPage() {
           </div>
         </div>
 
-        {q.isLoading ? (
+        {cartQuery.isLoading ? (
           <CartSkeleton />
         ) : items.length === 0 ? (
           <div className="mt-8 rounded-3xl border bg-gradient-to-br from-indigo-50 via-violet-50 to-fuchsia-50 p-12 text-center shadow-card">
@@ -377,7 +377,7 @@ function CartPage() {
                 <div className="flex flex-wrap gap-1">
                   {Object.entries(coupons)
                     .slice(0, 3)
-                    .map(([code, c]) => (
+                    .map(([code, c]: [string, any]) => (
                       <button
                         key={code}
                         onClick={() => {
