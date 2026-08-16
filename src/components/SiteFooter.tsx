@@ -31,16 +31,18 @@ const HARDCODED_SECTIONS = [
     links: [
       { label: "About", url: "/about" },
       { label: "Careers", url: "/careers" },
-      { label: "Contact", url: "/contact" },
+      { label: "Contact Us", url: "/contact" },
       { label: "FAQ", url: "/faq" },
     ],
   },
   {
-    title: "Legal",
+    title: "Legal & Compliance",
     links: [
+      { label: "Terms and Conditions", url: "/terms" },
       { label: "Privacy Policy", url: "/privacy" },
-      { label: "Terms of Service", url: "/terms" },
-      { label: "Refund Policy", url: "/refund-policy" },
+      { label: "Cancellation and Refund", url: "/refund-policy" },
+      { label: "Shipping and Exchange", url: "/shipping-and-exchange" },
+      { label: "Contact Us", url: "/contact" },
     ],
   },
 ];
