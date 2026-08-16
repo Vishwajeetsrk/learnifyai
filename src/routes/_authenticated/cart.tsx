@@ -22,11 +22,11 @@ export const Route = createFileRoute("/_authenticated/cart")({
   component: CartPage,
 });
 
-const loadCashfree = () =>
-  new Promise((resolve) => {
-    if ((window as any).Cashfree) return resolve(true);
+const loadRazorpay = () =>
+  new Promise<boolean>((resolve) => {
+    if ((window as any).Razorpay) return resolve(true);
     const script = document.createElement("script");
-    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
@@ -46,55 +46,79 @@ function CartPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const checkout = useServerFn(checkoutCart);
-  const createOrder = useServerFn(createCashfreeOrder);
-  const verifyTopup = useServerFn(verifyCashfreePayment);
-  const fetchCoupons = useServerFn(getActiveCoupons);
+
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [couponInput, setCouponInput] = useState("");
   const [paying, setPaying] = useState(false);
   const [celebration, setCelebration] = useState<{
     title: string;
     message: string;
-    to: string | null;
+    to: string;
     slug?: string;
   } | null>(null);
-  const [couponInput, setCouponInput] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
 
-  const q = useQuery({
+  const cartQuery = useQuery({
     enabled: !!user,
     queryKey: ["cart", user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cart_items")
-        .select(
-          "id, added_at, course_id, courses:course_id (id, slug, title, cover_url, price_inr, instructor, level)",
-        )
-        .eq("user_id", user!.id)
-        .order("added_at", { ascending: false });
+        .select("id, course_id, courses:course_id (id, slug, title, cover_url, price_inr)")
+        .eq("user_id", user!.id);
       if (error) throw error;
       return data ?? [];
     },
   });
 
-  const items = q.data ?? [];
-  const subtotal = items.reduce((s, it: any) => s + Number(it.courses?.price_inr ?? 0), 0);
-
-  const { data: couponsData } = useQuery({
+  const couponsQuery = useQuery({
+    enabled: !!user,
     queryKey: ["coupons"],
     queryFn: async () => {
-      const r = await fetchCoupons();
-      return r as Record<string, CouponDef> | undefined;
+      const fn = getActiveCoupons as any;
+      if (typeof fn === "function") {
+        try {
+          return await fn();
+        } catch {
+          // ignore
+        }
+      }
+      return {} as Record<string, CouponDef>;
     },
-    staleTime: 60_000,
   });
-  const coupons = couponsData ?? {};
+
+  const walletQuery = useQuery({
+    enabled: !!user,
+    queryKey: ["wallet-balance", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("wallet_transactions")
+        .select("amount_inr, type, status")
+        .eq("user_id", user!.id);
+      const completed = (data ?? []).filter((t: any) => t.status === "completed");
+      return completed.reduce(
+        (sum: number, t: any) =>
+          sum + (t.type === "credit" ? Number(t.amount_inr) : -Number(t.amount_inr)),
+        0,
+      );
+    },
+  });
+
+  const items = cartQuery.data ?? [];
+  const coupons = couponsQuery.data ?? {};
+  const walletBalance = walletQuery.data ?? 0;
+
+  const subtotal = useMemo(
+    () => items.reduce((sum: number, i: any) => sum + Number(i.courses?.price_inr || 0), 0),
+    [items],
+  );
 
   const discount = useMemo(() => {
-    if (!appliedCoupon) return 0;
+    if (!appliedCoupon || !coupons[appliedCoupon]) return 0;
     const c = coupons[appliedCoupon];
-    if (!c) return 0;
-    const raw = c.type === "percent" ? Math.floor((subtotal * c.value) / 100) : c.value;
-    return Math.min(raw, subtotal);
-  }, [appliedCoupon, subtotal, coupons]);
+    if (c.type === "percent") return Math.round((subtotal * c.value) / 100);
+    if (c.type === "fixed") return Math.min(subtotal, c.value);
+    return 0;
+  }, [appliedCoupon, coupons, subtotal]);
 
   const total = Math.max(0, subtotal - discount);
 
@@ -141,38 +165,74 @@ function CartPage() {
   const pay = async () => {
     setPaying(true);
     try {
-      const order = await createOrder({ data: { amountInr: total, email: user?.email } });
+      const loaded = await loadRazorpay();
+      if (!loaded) throw new Error("Razorpay SDK failed to load");
 
-      const loaded = await loadCashfree();
-      if (!loaded) throw new Error("Cashfree SDK failed to load");
+      const paiseAmount = Math.round(total * 100);
+      const sessionToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("sb-access-token="))
+        ?.split("=")[1];
 
-      const cashfree = new (window as any).Cashfree({ mode: "production" });
-      const result = await cashfree.checkout({
-        paymentSessionId: order.payment_session_id,
-        redirectTarget: "_modal",
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (sessionToken) {
+        headers["Authorization"] = `Bearer ${sessionToken}`;
+      }
+
+      const orderRes = await fetch("/api/create-order", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ amount: paiseAmount }),
       });
 
-      const msg = result?.paymentDetails?.paymentMessage;
-      if (!msg || msg === "USER_DROPPED") {
-        toast.info("Payment cancelled.");
-        return;
-      }
-      if (msg === "FAILED") {
-        throw new Error("Payment failed. Please try again.");
+      if (!orderRes.ok) {
+        const errData = await orderRes.json();
+        throw new Error(errData.error || "Failed to create Razorpay order");
       }
 
-      await verifyTopup({
-        data: {
-          amountInr: total,
-          method: "online",
-          cashfree_order_id: order.order_id,
+      const orderData = await orderRes.json();
+
+      const rzp = new (window as any).Razorpay({
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || orderData.key_id,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Learnify AI",
+        description: `Course Purchase (${items.length} item${items.length === 1 ? "" : "s"})`,
+        order_id: orderData.order_id,
+        prefill: {
+          name: user?.user_metadata?.full_name || "Valued Learner",
+          email: user?.email || "support.learnifyai@gmail.com",
+        },
+        theme: { color: "#6366F1" },
+        handler: async (response: any) => {
+          try {
+            const verifyRes = await fetch("/api/verify-payment", {
+              method: "POST",
+              headers,
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                amount_inr: total,
+              }),
+            });
+            if (!verifyRes.ok) {
+              const errData = await verifyRes.json();
+              throw new Error(errData.error || "Failed to verify Razorpay payment");
+            }
+            await handleCheckoutSuccess(true);
+          } catch (err: any) {
+            toast.error(err.message || "Payment verification failed");
+          } finally {
+            setPaying(false);
+          }
         },
       });
-      // skipWallet: Cashfree already collected the payment, no need to debit wallet
-      await handleCheckoutSuccess(true);
+      rzp.open();
     } catch (e: any) {
       toast.error(e?.message ?? "Checkout failed");
-    } finally {
       setPaying(false);
     }
   };

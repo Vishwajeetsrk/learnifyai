@@ -123,7 +123,7 @@ function RazorpayTestPage() {
         order_id: orderData.order_id,
         prefill: {
           name: user?.user_metadata?.full_name || "Guest Learner",
-          email: user?.email || "student@learnifyai.in",
+          email: user?.email || "support.learnifyai@gmail.com",
           contact: user?.phone || "9999999999",
         },
         theme: {
@@ -434,7 +434,7 @@ function RazorpayTestPage() {
                   <p className="text-foreground font-medium mt-1">
                     {user?.user_metadata?.full_name || "Guest Student"}
                   </p>
-                  <p className="text-muted-foreground">{user?.email || "student@learnifyai.in"}</p>
+                  <p className="text-muted-foreground">{user?.email || "support.learnifyai@gmail.com"}</p>
                 </div>
                 <div className="text-right">
                   <h5 className="font-semibold text-muted-foreground uppercase tracking-wider">

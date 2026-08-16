@@ -2317,7 +2317,7 @@ function JobDialog({
             <Input
               value={form.apply_url ?? ""}
               onChange={(e) => setForm({ ...form, apply_url: e.target.value })}
-              placeholder="mailto:careers@learnify.ai or https://..."
+              placeholder="mailto:support.learnifyai@gmail.com or https://..."
             />
           </div>
           <div className="grid grid-cols-2 gap-3 items-end">
@@ -2994,8 +2994,8 @@ function PlanDialog({
 // ─────────────────────────── Site Settings ───────────────────────────
 
 const SETTING_FIELDS: { key: string; label: string; placeholder: string }[] = [
-  { key: "contact_email", label: "Contact email", placeholder: "hello@learnify.ai" },
-  { key: "careers_email", label: "Careers email", placeholder: "careers@learnify.ai" },
+  { key: "contact_email", label: "Contact email", placeholder: "support.learnifyai@gmail.com" },
+  { key: "careers_email", label: "Careers email", placeholder: "support.learnifyai@gmail.com" },
   { key: "discord_url", label: "Discord URL", placeholder: "https://discord.gg/..." },
   {
     key: "discord_label",
@@ -3041,7 +3041,7 @@ const SETTING_FIELDS: { key: string; label: string; placeholder: string }[] = [
   {
     key: "invoice_contact",
     label: "Invoice contact (email/phone)",
-    placeholder: "hello@learnify.ai · +91 98765 43210",
+    placeholder: "support.learnifyai@gmail.com",
   },
   {
     key: "tour_video_url",

@@ -212,7 +212,7 @@ function WalletPage() {
         order_id: orderData.order_id,
         prefill: {
           name: user?.user_metadata?.full_name || "Valued Learner",
-          email: user?.email || "support@learnifyai.in",
+          email: user?.email || "support.learnifyai@gmail.com",
           contact: user?.phone || "9999999999",
         },
         theme: {

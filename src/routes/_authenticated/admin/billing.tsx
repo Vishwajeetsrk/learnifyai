@@ -2267,7 +2267,7 @@ function BillingOSPage() {
                       <Input
                         id="setting-support_email"
                         defaultValue={billingSettings.data?.support_email || ""}
-                        placeholder="support@learnify.ai"
+                        placeholder="support.learnifyai@gmail.com"
                       />
                     </div>
                     <div className="space-y-1.5">

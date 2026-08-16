@@ -6403,10 +6403,10 @@ function SettingsScreen({
   const [brandColor, setBrandColor] = useState(initialSettings?.cert_brand_color || "#6B5BFB");
   const [logoUrl, setLogoUrl] = useState(initialSettings?.cert_logo_url || "/logo.png");
   const [emailFrom, setEmailFrom] = useState(
-    initialSettings?.cert_email_from || "support@learnifyai.in",
+    initialSettings?.cert_email_from || "support.learnifyai@gmail.com",
   );
   const [emailReplyTo, setEmailReplyTo] = useState(
-    initialSettings?.cert_email_reply_to || "support@learnifyai.in",
+    initialSettings?.cert_email_reply_to || "support.learnifyai@gmail.com",
   );
   const [verifyDomain, setVerifyDomain] = useState(
     initialSettings?.cert_verification_domain || "learnifyai.in",
@@ -6909,8 +6909,8 @@ function SettingsScreen({
           <SectionCard title="Email Settings">
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                {field("From Address", emailFrom, setEmailFrom, "support@learnifyai.in")}
-                {field("Reply-To", emailReplyTo, setEmailReplyTo, "support@learnifyai.in")}
+                {field("From Address", emailFrom, setEmailFrom, "support.learnifyai@gmail.com")}
+                {field("Reply-To", emailReplyTo, setEmailReplyTo, "support.learnifyai@gmail.com")}
               </div>
               {toggleRow("Email Notifications", "Send email to recipients when certificate is issued", emailNotif, setEmailNotif)}
               {saveRow()}

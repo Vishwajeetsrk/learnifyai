@@ -736,7 +736,7 @@ export default function InvoiceDesigner() {
                   GSTIN: <strong>{settings.invoice_gstin}</strong>
                 </span>
                 <span className="text-[10px] text-muted-foreground block">
-                  Support: {settings.invoice_contact || "support@learnifyai.in"}
+                  Support: {settings.invoice_contact || "support.learnifyai@gmail.com"}
                 </span>
               </div>
 

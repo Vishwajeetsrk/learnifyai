@@ -60,7 +60,7 @@ async function sendEmail(to: string, subject: string, html: string) {
         secure: false,
         auth: { user: brevoLogin, pass: brevoKey },
       });
-      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
+      const emailFrom = process.env.EMAIL_FROM || "Learnify AI <support.learnifyai@gmail.com>";
       await transporter.sendMail({ from: emailFrom, to: [to], subject, html });
       return;
     } catch (e) {

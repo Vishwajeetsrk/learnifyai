@@ -135,7 +135,7 @@ async function sendViaBrevoApi({
   html: string;
 }) {
   const apiKey = process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY;
-  const senderEmail = process.env.BREVO_SENDER_EMAIL || "noreply@learnify.ai";
+  const senderEmail = process.env.BREVO_SENDER_EMAIL || "support.learnifyai@gmail.com";
   const senderName = process.env.BREVO_SENDER_NAME || "Learnify AI";
   if (!apiKey) throw new Error("No Brevo API key configured (BREVO_API_KEY or BREVO_SMTP_KEY)");
   const resp = await fetch("https://api.brevo.com/v3/smtp/email", {
@@ -182,7 +182,7 @@ export async function sendEmail({
   const BREVO_SMTP_LOGIN = process.env.BREVO_SMTP_LOGIN;
   const GMAIL_EMAIL = process.env.GMAIL_EMAIL;
   const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
-  const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
+  const emailFrom = process.env.EMAIL_FROM || "Learnify AI <support.learnifyai@gmail.com>";
 
   // 1. Try Gmail SMTP (app password, most reliable)
   if (GMAIL_EMAIL && GMAIL_APP_PASSWORD) {
@@ -346,7 +346,7 @@ export const testEmailSending = createServerFn({ method: "POST" })
     const BREVO_API_KEY = process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY;
     const GMAIL_EMAIL = process.env.GMAIL_EMAIL;
     const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
-    const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
+    const emailFrom = process.env.EMAIL_FROM || "Learnify AI <support.learnifyai@gmail.com>";
     const testHtml = `<div style="font-family:sans-serif;padding:24px"><h2>Test email from Learnify AI</h2><p>If you received this, email sending is working.</p></div>`;
 
     for (const email of [data.email1, data.email2]) {
@@ -390,7 +390,7 @@ export const testEmailSending = createServerFn({ method: "POST" })
             method: "POST",
             headers: { "api-key": BREVO_API_KEY, "Content-Type": "application/json" },
             body: JSON.stringify({
-              sender: { name: "Learnify AI", email: "noreply@learnify.ai" },
+              sender: { name: "Learnify AI", email: "support.learnifyai@gmail.com" },
               to: [{ email }],
               subject: "Learnify AI — test email",
               htmlContent: `<p>Test email</p>`,
