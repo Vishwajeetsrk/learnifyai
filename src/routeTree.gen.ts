@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyStudentRouteImport } from './routes/verify-student'
 import { Route as VerifiedCertificatesRouteImport } from './routes/verified-certificates'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SupportUsRouteImport } from './routes/support-us'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShowcaseRouteImport } from './routes/showcase'
@@ -140,11 +139,6 @@ const VerifiedCertificatesRoute = VerifiedCertificatesRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SupportUsRoute = SupportUsRouteImport.update({
-  id: '/support-us',
-  path: '/support-us',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SupportRoute = SupportRouteImport.update({
@@ -784,7 +778,6 @@ export interface FileRoutesByFullPath {
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
   '/support': typeof SupportRoute
-  '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
@@ -902,7 +895,6 @@ export interface FileRoutesByTo {
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
   '/support': typeof SupportRoute
-  '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
@@ -1020,7 +1012,6 @@ export interface FileRoutesById {
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
   '/support': typeof SupportRoute
-  '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
@@ -1140,7 +1131,6 @@ export interface FileRouteTypes {
     | '/showcase'
     | '/signup'
     | '/support'
-    | '/support-us'
     | '/terms'
     | '/verified-certificates'
     | '/verify-student'
@@ -1258,7 +1248,6 @@ export interface FileRouteTypes {
     | '/showcase'
     | '/signup'
     | '/support'
-    | '/support-us'
     | '/terms'
     | '/verified-certificates'
     | '/verify-student'
@@ -1375,7 +1364,6 @@ export interface FileRouteTypes {
     | '/showcase'
     | '/signup'
     | '/support'
-    | '/support-us'
     | '/terms'
     | '/verified-certificates'
     | '/verify-student'
@@ -1495,7 +1483,6 @@ export interface RootRouteChildren {
   ShowcaseRoute: typeof ShowcaseRoute
   SignupRoute: typeof SignupRoute
   SupportRoute: typeof SupportRoute
-  SupportUsRoute: typeof SupportUsRoute
   TermsRoute: typeof TermsRoute
   VerifiedCertificatesRoute: typeof VerifiedCertificatesRoute
   VerifyStudentRoute: typeof VerifyStudentRoute
@@ -1545,13 +1532,6 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/support-us': {
-      id: '/support-us'
-      path: '/support-us'
-      fullPath: '/support-us'
-      preLoaderRoute: typeof SupportUsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/support': {
@@ -2570,7 +2550,6 @@ const rootRouteChildren: RootRouteChildren = {
   ShowcaseRoute: ShowcaseRoute,
   SignupRoute: SignupRoute,
   SupportRoute: SupportRoute,
-  SupportUsRoute: SupportUsRoute,
   TermsRoute: TermsRoute,
   VerifiedCertificatesRoute: VerifiedCertificatesRoute,
   VerifyStudentRoute: VerifyStudentRoute,

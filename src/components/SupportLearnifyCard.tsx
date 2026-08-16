@@ -24,7 +24,7 @@ export function SupportLearnifyCard({ compact = false }: { compact?: boolean }) 
         <>
           <span>
             Enjoying Learnify?{" "}
-            <Link to="/support" className="text-primary underline">
+            <Link to="/support-us" className="text-primary underline">
               Support us
             </Link>{" "}
             — it keeps learning free.
@@ -39,7 +39,7 @@ export function SupportLearnifyCard({ compact = false }: { compact?: boolean }) 
             </p>
           </div>
           <Button asChild size="sm" className="rounded-xl shrink-0">
-            <Link to="/support">
+            <Link to="/support-us">
               <Heart className="h-3.5 w-3.5 mr-1.5" /> Support
             </Link>
           </Button>
@@ -51,11 +51,11 @@ export function SupportLearnifyCard({ compact = false }: { compact?: boolean }) 
 
 export function SupportCtaLink() {
   return (
-    <a
-      href="/support"
+    <Link
+      to="/support-us"
       className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
     >
       <Heart className="h-3 w-3" /> Support Learnify <ArrowUpRight className="h-3 w-3" />
-    </a>
+    </Link>
   );
 }
