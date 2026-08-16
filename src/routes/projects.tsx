@@ -393,7 +393,7 @@ function ProjectsPage() {
           .select("*")
           .order("created_at", { ascending: false });
         if (error || !data || data.length === 0) return projectsData as Project[];
-        return data as Project[];
+        return (data as unknown) as Project[];
       } catch {
         return projectsData as Project[];
       }

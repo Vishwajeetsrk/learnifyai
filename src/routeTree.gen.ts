@@ -51,7 +51,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedWorkspaceRouteImport } from './routes/_authenticated/workspace'
 import { Route as AuthenticatedWalletRouteImport } from './routes/_authenticated/wallet'
 import { Route as AuthenticatedSystemDesignRouteImport } from './routes/_authenticated/system-design'
-import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
+import { Route as AuthenticatedSupportChatRouteImport } from './routes/_authenticated/support-chat'
 import { Route as AuthenticatedSubmissionsRouteImport } from './routes/_authenticated/submissions'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedStoreRouteImport } from './routes/_authenticated/store'
@@ -87,6 +87,7 @@ import { Route as AuthenticatedPlaygroundIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
 import { Route as VerifyInvoiceIdRouteImport } from './routes/verify.invoice.$id'
 import { Route as ApiWebhooksRazorpaySubscriptionRouteImport } from './routes/api/webhooks/razorpay-subscription'
+import { Route as ApiWebhooksRazorpayContributionRouteImport } from './routes/api/webhooks/razorpay-contribution'
 import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/api/webhooks/cashfree-subscription'
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
 import { Route as ApiCronRetryCertEmailsRouteImport } from './routes/api/cron/retry-cert-emails'
@@ -334,11 +335,12 @@ const AuthenticatedSystemDesignRoute =
     path: '/system-design',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedSupportRoute = AuthenticatedSupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
+const AuthenticatedSupportChatRoute =
+  AuthenticatedSupportChatRouteImport.update({
+    id: '/support-chat',
+    path: '/support-chat',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedSubmissionsRoute =
   AuthenticatedSubmissionsRouteImport.update({
     id: '/submissions',
@@ -527,6 +529,12 @@ const ApiWebhooksRazorpaySubscriptionRoute =
   ApiWebhooksRazorpaySubscriptionRouteImport.update({
     id: '/api/webhooks/razorpay-subscription',
     path: '/api/webhooks/razorpay-subscription',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiWebhooksRazorpayContributionRoute =
+  ApiWebhooksRazorpayContributionRouteImport.update({
+    id: '/api/webhooks/razorpay-contribution',
+    path: '/api/webhooks/razorpay-contribution',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiWebhooksCashfreeSubscriptionRoute =
@@ -796,7 +804,7 @@ export interface FileRoutesByFullPath {
   '/store': typeof AuthenticatedStoreRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
-  '/support': typeof AuthenticatedSupportRoute
+  '/support-chat': typeof AuthenticatedSupportChatRoute
   '/system-design': typeof AuthenticatedSystemDesignRouteWithChildren
   '/wallet': typeof AuthenticatedWalletRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
@@ -848,6 +856,7 @@ export interface FileRoutesByFullPath {
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
+  '/api/webhooks/razorpay-contribution': typeof ApiWebhooksRazorpayContributionRoute
   '/api/webhooks/razorpay-subscription': typeof ApiWebhooksRazorpaySubscriptionRoute
   '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
   '/courses/': typeof AuthenticatedCoursesIndexRoute
@@ -910,7 +919,7 @@ export interface FileRoutesByTo {
   '/store': typeof AuthenticatedStoreRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/submissions': typeof AuthenticatedSubmissionsRoute
-  '/support': typeof AuthenticatedSupportRoute
+  '/support-chat': typeof AuthenticatedSupportChatRoute
   '/wallet': typeof AuthenticatedWalletRoute
   '/workspace': typeof AuthenticatedWorkspaceRoute
   '/api/chat': typeof ApiChatRoute
@@ -961,6 +970,7 @@ export interface FileRoutesByTo {
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
+  '/api/webhooks/razorpay-contribution': typeof ApiWebhooksRazorpayContributionRoute
   '/api/webhooks/razorpay-subscription': typeof ApiWebhooksRazorpaySubscriptionRoute
   '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
   '/courses': typeof AuthenticatedCoursesIndexRoute
@@ -1026,7 +1036,7 @@ export interface FileRoutesById {
   '/_authenticated/store': typeof AuthenticatedStoreRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/submissions': typeof AuthenticatedSubmissionsRoute
-  '/_authenticated/support': typeof AuthenticatedSupportRoute
+  '/_authenticated/support-chat': typeof AuthenticatedSupportChatRoute
   '/_authenticated/system-design': typeof AuthenticatedSystemDesignRouteWithChildren
   '/_authenticated/wallet': typeof AuthenticatedWalletRoute
   '/_authenticated/workspace': typeof AuthenticatedWorkspaceRoute
@@ -1078,6 +1088,7 @@ export interface FileRoutesById {
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
+  '/api/webhooks/razorpay-contribution': typeof ApiWebhooksRazorpayContributionRoute
   '/api/webhooks/razorpay-subscription': typeof ApiWebhooksRazorpaySubscriptionRoute
   '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
   '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
@@ -1143,7 +1154,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/studio'
     | '/submissions'
-    | '/support'
+    | '/support-chat'
     | '/system-design'
     | '/wallet'
     | '/workspace'
@@ -1195,6 +1206,7 @@ export interface FileRouteTypes {
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
+    | '/api/webhooks/razorpay-contribution'
     | '/api/webhooks/razorpay-subscription'
     | '/verify/invoice/$id'
     | '/courses/'
@@ -1257,7 +1269,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/studio'
     | '/submissions'
-    | '/support'
+    | '/support-chat'
     | '/wallet'
     | '/workspace'
     | '/api/chat'
@@ -1308,6 +1320,7 @@ export interface FileRouteTypes {
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
+    | '/api/webhooks/razorpay-contribution'
     | '/api/webhooks/razorpay-subscription'
     | '/verify/invoice/$id'
     | '/courses'
@@ -1372,7 +1385,7 @@ export interface FileRouteTypes {
     | '/_authenticated/store'
     | '/_authenticated/studio'
     | '/_authenticated/submissions'
-    | '/_authenticated/support'
+    | '/_authenticated/support-chat'
     | '/_authenticated/system-design'
     | '/_authenticated/wallet'
     | '/_authenticated/workspace'
@@ -1424,6 +1437,7 @@ export interface FileRouteTypes {
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
+    | '/api/webhooks/razorpay-contribution'
     | '/api/webhooks/razorpay-subscription'
     | '/verify/invoice/$id'
     | '/_authenticated/courses/'
@@ -1478,6 +1492,7 @@ export interface RootRouteChildren {
   ApiCronRetryCertEmailsRoute: typeof ApiCronRetryCertEmailsRoute
   ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
   ApiWebhooksCashfreeSubscriptionRoute: typeof ApiWebhooksCashfreeSubscriptionRoute
+  ApiWebhooksRazorpayContributionRoute: typeof ApiWebhooksRazorpayContributionRoute
   ApiWebhooksRazorpaySubscriptionRoute: typeof ApiWebhooksRazorpaySubscriptionRoute
   VerifyInvoiceIdRoute: typeof VerifyInvoiceIdRoute
   ApiPublicHooksRunRemindersRoute: typeof ApiPublicHooksRunRemindersRoute
@@ -1779,11 +1794,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSystemDesignRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/support': {
-      id: '/_authenticated/support'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: typeof AuthenticatedSupportRouteImport
+    '/_authenticated/support-chat': {
+      id: '/_authenticated/support-chat'
+      path: '/support-chat'
+      fullPath: '/support-chat'
+      preLoaderRoute: typeof AuthenticatedSupportChatRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/submissions': {
@@ -2029,6 +2044,13 @@ declare module '@tanstack/react-router' {
       path: '/api/webhooks/razorpay-subscription'
       fullPath: '/api/webhooks/razorpay-subscription'
       preLoaderRoute: typeof ApiWebhooksRazorpaySubscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/razorpay-contribution': {
+      id: '/api/webhooks/razorpay-contribution'
+      path: '/api/webhooks/razorpay-contribution'
+      fullPath: '/api/webhooks/razorpay-contribution'
+      preLoaderRoute: typeof ApiWebhooksRazorpayContributionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/webhooks/cashfree-subscription': {
@@ -2427,7 +2449,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedStoreRoute: typeof AuthenticatedStoreRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedSubmissionsRoute: typeof AuthenticatedSubmissionsRoute
-  AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
+  AuthenticatedSupportChatRoute: typeof AuthenticatedSupportChatRoute
   AuthenticatedSystemDesignRoute: typeof AuthenticatedSystemDesignRouteWithChildren
   AuthenticatedWalletRoute: typeof AuthenticatedWalletRoute
   AuthenticatedWorkspaceRoute: typeof AuthenticatedWorkspaceRoute
@@ -2468,7 +2490,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedStoreRoute: AuthenticatedStoreRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedSubmissionsRoute: AuthenticatedSubmissionsRoute,
-  AuthenticatedSupportRoute: AuthenticatedSupportRoute,
+  AuthenticatedSupportChatRoute: AuthenticatedSupportChatRoute,
   AuthenticatedSystemDesignRoute: AuthenticatedSystemDesignRouteWithChildren,
   AuthenticatedWalletRoute: AuthenticatedWalletRoute,
   AuthenticatedWorkspaceRoute: AuthenticatedWorkspaceRoute,
@@ -2529,6 +2551,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCronRetryCertEmailsRoute: ApiCronRetryCertEmailsRoute,
   ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,
   ApiWebhooksCashfreeSubscriptionRoute: ApiWebhooksCashfreeSubscriptionRoute,
+  ApiWebhooksRazorpayContributionRoute: ApiWebhooksRazorpayContributionRoute,
   ApiWebhooksRazorpaySubscriptionRoute: ApiWebhooksRazorpaySubscriptionRoute,
   VerifyInvoiceIdRoute: VerifyInvoiceIdRoute,
   ApiPublicHooksRunRemindersRoute: ApiPublicHooksRunRemindersRoute,

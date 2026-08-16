@@ -24,8 +24,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { supportChat } from "@/lib/support-agent.functions";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/_authenticated/support")({
-  head: () => ({ meta: [{ title: "Support — Learnify AI" }] }),
+export const Route = createFileRoute("/_authenticated/support-chat")({
+  head: () => ({ meta: [{ title: "Support Chat — Learnify AI" }] }),
   component: SupportPage,
 });
 
