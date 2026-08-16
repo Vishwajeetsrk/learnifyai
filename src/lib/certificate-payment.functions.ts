@@ -9,9 +9,9 @@ const CERT_PRICE_INR = 49;
 
 // ─── Create a ₹49 Razorpay order for a certificate ───────────────────────────
 export const createCertificateOrder = createServerFn({ method: "POST" })
-  .validator(z.object({ data: z.object({ courseId: z.string().uuid() }) }))
+  .validator(z.object({ data: z.object({ course_id: z.string().uuid() }) }))
   .handler(async ({ data: { data } }) => {
-    const { courseId } = data;
+    const { course_id: courseId } = data;
 
     // Verify auth
     const authHeader = (globalThis as any).__requestHeaders__?.get?.("authorization") || "";
@@ -92,7 +92,7 @@ export const verifyCertificatePayment = createServerFn({ method: "POST" })
   .validator(
     z.object({
       data: z.object({
-        courseId: z.string().uuid(),
+        course_id: z.string().uuid(),
         razorpay_order_id: z.string(),
         razorpay_payment_id: z.string(),
         razorpay_signature: z.string(),
@@ -100,7 +100,7 @@ export const verifyCertificatePayment = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data: { data } }) => {
-    const { courseId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
+    const { course_id: courseId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = data;
 
     // Verify HMAC signature
     const body = `${razorpay_order_id}|${razorpay_payment_id}`;

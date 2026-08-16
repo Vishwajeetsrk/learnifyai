@@ -111,7 +111,7 @@ function CertsPage() {
     queryFn: async () => {
       const courseIds = (q.data ?? []).map((c: any) => c.course_id).filter(Boolean);
       if (!courseIds.length) return { paidCourseIds: [] as string[], hasSubscription: false };
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("certificate_payments")
         .select("course_id")
         .eq("user_id", user!.id)
@@ -155,7 +155,7 @@ function CertsPage() {
         return;
       }
 
-      const result = await doCreateOrder({ data: { courseId: cert.course_id } });
+      const result = await doCreateOrder({ data: { course_id: cert.course_id } } as any);
       if ((result as any).already_paid || (result as any).subscription_included) {
         toast.success("Certificate already unlocked!");
         qc.invalidateQueries({ queryKey: ["cert-payments-paid", user?.id] });
@@ -178,12 +178,12 @@ function CertsPage() {
           try {
             await doVerify({
               data: {
-                courseId: cert.course_id,
+                course_id: cert.course_id,
                 razorpay_order_id: (result as any).order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
               },
-            });
+            } as any);
             toast.success("Payment successful! Certificate unlocked.");
             qc.invalidateQueries({ queryKey: ["cert-payments-paid", user?.id] });
           } catch (e: any) {
