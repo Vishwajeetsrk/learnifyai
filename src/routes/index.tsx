@@ -30,6 +30,7 @@ import { getPlatformStats } from "@/lib/stats.functions";
 import { ComparisonSection } from "@/components/interactive/ComparisonSection";
 import { MobileAppBanner } from "@/components/interactive/MobileAppBanner";
 import { WatchDemoModal } from "@/components/interactive/WatchDemoModal";
+import { SupportLearnifyCard } from "@/components/SupportLearnifyCard";
 import { useState, useEffect } from "react";
 
 const AiToolsShowcase = lazy(() =>
@@ -338,6 +339,13 @@ function Index() {
             </Button>
           </div>
         </Reveal>
+      </section>
+
+      {/* SUPPORT (non-intrusive) */}
+      <section className="container mx-auto px-6 pb-4">
+        <div className="max-w-md mx-auto">
+          <SupportLearnifyCard />
+        </div>
       </section>
 
       {/* AI TOOLS */}

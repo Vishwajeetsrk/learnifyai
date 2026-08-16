@@ -34,7 +34,7 @@ import {
   LayoutTemplate,
   Upload,
 } from "lucide-react";
-import { Gift, GripVertical, PlayCircle, CheckCircle2 } from "lucide-react";
+import { Gift, GripVertical, PlayCircle, CheckCircle2, HeartHandshake } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { AppShell } from "@/components/AppShell";
@@ -60,6 +60,11 @@ import {
   listJobApplications,
   updateJobApplication,
 } from "@/lib/careers.functions";
+import {
+  getContributionsAdmin,
+  addContributionAdmin,
+  updateContributionStatus,
+} from "@/lib/support.functions";
 import {
   Select,
   SelectContent,
@@ -860,6 +865,8 @@ export default function AdminContentPage() {
                     <SelectItem value="pages">Pages</SelectItem>
                     <SelectItem value="roadmap">Roadmap</SelectItem>
                     <SelectItem value="coupons">Coupons</SelectItem>
+                    <SelectItem value="applications">Applications</SelectItem>
+                    <SelectItem value="contributions">Impact / Contributions</SelectItem>
                     <SelectItem value="community">Community Groups</SelectItem>
                     <SelectItem value="prizes">Leaderboard Prizes</SelectItem>
                     <SelectItem value="features">Feature Visibility</SelectItem>
@@ -888,6 +895,7 @@ export default function AdminContentPage() {
                       { id: "events", label: "Events", icon: CalendarIcon },
                       { id: "jobs", label: "Jobs", icon: Briefcase },
                       { id: "applications", label: "Applications", icon: Users },
+                      { id: "contributions", label: "Impact / Contributions", icon: HeartHandshake },
                       { id: "design-projects", label: "Design Projects", icon: FolderTree },
                       { id: "faqs", label: "FAQs", icon: HelpCircle },
                       { id: "coupons", label: "Coupons", icon: Percent },
@@ -1036,6 +1044,9 @@ export default function AdminContentPage() {
               </TabsContent>
               <TabsContent value="applications" className="mt-0">
                 <ApplicationsManager />
+              </TabsContent>
+              <TabsContent value="contributions" className="mt-0">
+                <ContributionsManager />
               </TabsContent>
               <TabsContent value="design-projects" className="mt-0">
                 <Suspense fallback={<LazyFallback />}>
@@ -1550,6 +1561,274 @@ function EventDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ─────────────────────────── Impact / Contributions ───────────────────────────
+
+const CONTRIB_STATUS_STYLES: Record<string, string> = {
+  pending: "bg-amber-500/10 text-amber-500",
+  completed: "bg-emerald-500/10 text-emerald-500",
+  failed: "bg-red-500/10 text-red-500",
+};
+
+type ContributionRow = {
+  id: string;
+  amount_inr: number;
+  donor_name: string | null;
+  donor_email: string | null;
+  anonymous: boolean;
+  status: string;
+  reference: string | null;
+  source: string | null;
+  message: string | null;
+  created_at: string;
+};
+
+function ContributionsManager() {
+  const qc = useQueryClient();
+  const doList = useServerFn(getContributionsAdmin);
+  const doAdd = useServerFn(addContributionAdmin);
+  const doStatus = useServerFn(updateContributionStatus);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [amount, setAmount] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [reference, setReference] = useState("");
+  const [anonymous, setAnonymous] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin-contributions", statusFilter],
+    queryFn: async () => {
+      const r = await doList({ data: { status: statusFilter === "all" ? undefined : statusFilter } });
+      return (r.rows ?? []) as unknown as ContributionRow[];
+    },
+  });
+
+  const rows = data ?? [];
+  const completed = rows.filter((r) => r.status === "completed");
+  const totalInr = completed.reduce((s, r) => s + (r.amount_inr || 0), 0);
+
+  const add = async () => {
+    const amt = Number(amount);
+    if (!amt || amt <= 0) return toast.error("Enter a valid amount (₹)");
+    setSaving(true);
+    try {
+      await doAdd({
+        data: {
+          amountInr: amt,
+          donorName: name || undefined,
+          donorEmail: email || undefined,
+          anonymous,
+          reference: reference || undefined,
+        },
+      });
+      toast.success("Contribution recorded");
+      setAmount("");
+      setName("");
+      setEmail("");
+      setReference("");
+      setAnonymous(false);
+      qc.invalidateQueries({ queryKey: ["admin-contributions"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Add failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const setStatus = async (row: ContributionRow, status: string) => {
+    try {
+      await doStatus({ data: { id: row.id, status: status as any } });
+      toast.success(`Marked ${status}`);
+      qc.invalidateQueries({ queryKey: ["admin-contributions"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Update failed");
+    }
+  };
+
+  return (
+    <div className="space-y-5 max-w-3xl">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl border border-border/60 bg-card p-4 text-center">
+          <div className="font-display text-2xl font-semibold text-gradient">
+            {completed.length}
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5">Completed contributions</div>
+        </div>
+        <div className="rounded-xl border border-border/60 bg-card p-4 text-center">
+          <div className="font-display text-2xl font-semibold text-gradient">
+            ₹{totalInr.toLocaleString("en-IN")}
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5">Total (completed)</div>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border/60 bg-card p-4 space-y-3">
+        <div className="text-sm font-semibold">Record a contribution manually</div>
+        <p className="text-[11px] text-muted-foreground">
+          Use this when a Razorpay Payment Page receipt confirms a payment that the webhook hasn't
+          captured. Frontend payments are never trusted — always verify the receipt first.
+        </p>
+        <div className="grid sm:grid-cols-2 gap-2">
+          <div>
+            <Label className="text-xs">Amount (₹) *</Label>
+            <Input
+              type="number"
+              min={1}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="499"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Reference (receipt / payment id)</Label>
+            <Input
+              value={reference}
+              onChange={(e) => setReference(e.target.value)}
+              placeholder="pay_... or receipt no."
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Donor name</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Optional"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-xs">Donor email</Label>
+            <Input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Optional"
+              className="mt-1"
+            />
+          </div>
+        </div>
+        <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+          <input
+            type="checkbox"
+            checked={anonymous}
+            onChange={(e) => setAnonymous(e.target.checked)}
+            className="accent-primary"
+          />
+          Show as anonymous on the /support page
+        </label>
+        <Button onClick={add} disabled={saving || !amount}>
+          {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+          Add contribution
+        </Button>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Label className="text-xs text-muted-foreground">Status filter:</Label>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-44">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="failed">Failed</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-10">
+          <Loader2 className="h-5 w-5 animate-spin" />
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border/70 p-8 text-center text-sm text-muted-foreground">
+          No contributions yet. Share the support link and check back here.
+        </div>
+      ) : (
+        <div className="rounded-xl border border-border/60 overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 text-left text-xs uppercase tracking-wider text-muted-foreground">
+              <tr>
+                <th className="px-4 py-2.5">Amount</th>
+                <th className="px-4 py-2.5">Donor</th>
+                <th className="px-4 py-2.5 hidden sm:table-cell">Date</th>
+                <th className="px-4 py-2.5 hidden lg:table-cell">Reference</th>
+                <th className="px-4 py-2.5">Status</th>
+                <th className="px-4 py-2.5"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id} className="border-t border-border/50">
+                  <td className="px-4 py-2.5 font-semibold">
+                    ₹{r.amount_inr.toLocaleString("en-IN")}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <div className="flex flex-col">
+                      <span>{r.anonymous || !r.donor_name ? "Anonymous" : r.donor_name}</span>
+                      {r.donor_email && (
+                        <span className="text-[11px] text-muted-foreground">{r.donor_email}</span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 hidden sm:table-cell text-muted-foreground">
+                    {format(new Date(r.created_at), "dd-MM-yyyy")}
+                  </td>
+                  <td className="px-4 py-2.5 hidden lg:table-cell text-muted-foreground font-mono text-xs">
+                    {r.reference ?? "—"}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize ${
+                        CONTRIB_STATUS_STYLES[r.status] ?? "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {r.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2.5 text-right">
+                    {r.status === "completed" ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 text-xs"
+                        onClick={() => setStatus(r, "pending")}
+                      >
+                        Revert
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 text-xs text-emerald-600"
+                          onClick={() => setStatus(r, "completed")}
+                        >
+                          Confirm
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 text-xs text-red-500"
+                          onClick={() => setStatus(r, "failed")}
+                        >
+                          Fail
+                        </Button>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -2771,6 +3050,11 @@ const SETTING_FIELDS: { key: string; label: string; placeholder: string }[] = [
   },
   { key: "hero_title", label: "Hero title", placeholder: "The intelligent Career OS" },
   { key: "hero_subtitle", label: "Hero subtitle", placeholder: "AI-powered learning..." },
+  {
+    key: "payment_gateway",
+    label: "Payment gateway for subscriptions",
+    placeholder: "razorpay",
+  },
 ];
 
 function DemoVideoManager() {
@@ -3117,11 +3401,26 @@ function SiteSettingsManager() {
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </div>
-            <Input
-              value={values[key] ?? ""}
-              onChange={(e) => setValues({ ...values, [key]: e.target.value })}
-              placeholder={meta?.placeholder ?? "Value"}
-            />
+            {key === "payment_gateway" ? (
+              <Select
+                value={values[key] === "cashfree" ? "cashfree" : "razorpay"}
+                onValueChange={(v) => setValues({ ...values, [key]: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="razorpay">Razorpay (recommended)</SelectItem>
+                  <SelectItem value="cashfree">Cashfree</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                value={values[key] ?? ""}
+                onChange={(e) => setValues({ ...values, [key]: e.target.value })}
+                placeholder={meta?.placeholder ?? "Value"}
+              />
+            )}
           </div>
         );
       })}

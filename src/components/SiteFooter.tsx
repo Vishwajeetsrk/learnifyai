@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Twitter, Github, MessageSquare, Linkedin, Youtube, Instagram } from "lucide-react";
+import { Twitter, Github, MessageSquare, Linkedin, Youtube, Instagram, Heart } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { useSiteSettings } from "@/hooks/use-site-settings";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
@@ -172,6 +172,14 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-border/60 py-6 text-center text-xs text-muted-foreground">
         &copy; {new Date().getFullYear()} Learnify AI &middot; Learn Smarter. Grow Faster.
+        <div className="mt-2">
+          <Link
+            to="/support"
+            className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors"
+          >
+            <Heart className="h-3 w-3 text-rose-500" /> Support Learnify AI — keep learning free
+          </Link>
+        </div>
       </div>
     </footer>
   );

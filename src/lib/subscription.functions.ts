@@ -226,8 +226,15 @@ export const createSubscription = createServerFn({ method: "POST" })
 
     const { appId, secretKey } = getCreds();
 
+    // ─── Payment gateway selection (Admin-controlled) ─────────────────────────
+    const { data: gwSetting } = await supabaseAdmin
+      .from("site_settings")
+      .select("value")
+      .eq("key", "payment_gateway")
+      .maybeSingle();
+    const useRazorpayForSubs = (gwSetting?.value as string) !== "cashfree";
+
     // ─── Razorpay Native Subscriptions (Recurring Billing) ───────────────────
-    const useRazorpayForSubs = true;
     if (useRazorpayForSubs) {
       try {
         const Razorpay = (await import("razorpay")).default;
@@ -276,12 +283,15 @@ export const createSubscription = createServerFn({ method: "POST" })
         // Step 2: Create the Razorpay Subscription
         const baseUrl = process.env.VITE_APP_URL || "https://www.learnifyai.in";
         const subId = `lfy_sub_${uid.slice(0, 8)}_${Date.now()}`;
+        // Razorpay requires total_count >= 1 (0 is rejected) and max 100 years.
+        // Monthly: 12 cycles (1 year) | Yearly: 3 cycles (3 years)
+        const totalCycles = p.interval?.startsWith("month") ? 12 : 3;
 
         const subscription = await (razorpay.subscriptions as any).create({
           plan_id: rzpPlanId,
-          total_count: 120,    // 120 cycles = 10 years (effectively indefinite)
+          total_count: totalCycles,
           quantity: 1,
-          customer_notify: 1,   // Razorpay sends payment reminders
+          customer_notify: true,   // Razorpay sends payment reminders
           addons: [],
           notes: {
             userId: uid,
@@ -308,7 +318,15 @@ export const createSubscription = createServerFn({ method: "POST" })
           periodEnd.setFullYear(periodEnd.getFullYear() + 1);
         }
 
-        await supabaseAdmin.from("user_subscriptions").upsert(
+        // Note: user_subscriptions has NO unique constraint on user_id,
+        // so upsert({ onConflict: "user_id" }) fails. Delete stale pendings first.
+        await supabaseAdmin
+          .from("user_subscriptions")
+          .delete()
+          .eq("user_id", uid)
+          .eq("status", "pending");
+
+        const { error: insErr } = await supabaseAdmin.from("user_subscriptions").insert(
           {
             user_id: uid,
             plan_id: data.planId,
@@ -319,8 +337,8 @@ export const createSubscription = createServerFn({ method: "POST" })
             ai_credits_reset_at: periodEnd.toISOString(),
             razorpay_subscription_id: rzpSubId,
           } as any,
-          { onConflict: "user_id" },
         );
+        if (insErr) throw new Error(insErr.message);
 
         // Log event
         await supabaseAdmin.from("subscription_events").insert({
@@ -479,6 +497,20 @@ export const cancelSubscription = createServerFn({ method: "POST" })
       .single();
     if (!sub) throw new Error("No active subscription found");
 
+    const subAny = sub as any;
+    if (subAny.razorpay_subscription_id) {
+      try {
+        const Razorpay = (await import("razorpay")).default;
+        const razorpay = new Razorpay({
+          key_id: process.env.RAZORPAY_KEY_ID!,
+          key_secret: process.env.RAZORPAY_KEY_SECRET!,
+        });
+        await (razorpay.subscriptions as any).cancel(subAny.razorpay_subscription_id);
+      } catch (e: any) {
+        console.error("Razorpay subscription cancel failed:", e?.message);
+      }
+    }
+
     if (sub.cashfree_subscription_id) {
       const { appId, secretKey } = getCreds();
       const idempotencyKey = `sub_cancel_${sub.id}_${Date.now()}`;
@@ -521,6 +553,22 @@ export const resumeSubscription = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
     if (!sub) throw new Error("No cancellable subscription found");
+
+    const subAny = sub as any;
+    if (subAny.razorpay_subscription_id) {
+      const Razorpay = (await import("razorpay")).default;
+      const razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID!,
+        key_secret: process.env.RAZORPAY_KEY_SECRET!,
+      });
+      if (sub.status === "paused") {
+        await (razorpay.subscriptions as any).resume(subAny.razorpay_subscription_id);
+      } else {
+        throw new Error(
+          "Cancelled Razorpay subscriptions cannot be resumed. Please start a new subscription.",
+        );
+      }
+    }
 
     if (sub.cashfree_subscription_id) {
       const { appId, secretKey } = getCreds();
@@ -605,6 +653,20 @@ export const upgradeDowngrade = createServerFn({ method: "POST" })
     }
 
     // For upgrade: cancel old, create new
+    const currentSubAny = currentSub as any;
+    if (currentSubAny.razorpay_subscription_id) {
+      try {
+        const Razorpay = (await import("razorpay")).default;
+        const razorpay = new Razorpay({
+          key_id: process.env.RAZORPAY_KEY_ID!,
+          key_secret: process.env.RAZORPAY_KEY_SECRET!,
+        });
+        await (razorpay.subscriptions as any).cancel(currentSubAny.razorpay_subscription_id);
+      } catch (e: any) {
+        console.error("Razorpay subscription cancel failed (upgrade):", e?.message);
+      }
+    }
+
     if (currentSub.cashfree_subscription_id) {
       const { appId, secretKey } = getCreds();
       await fetch(

@@ -2748,6 +2748,30 @@ function ApprovalsSection({
                     </p>
                   </div>
                 </div>
+                <div className="rounded-lg border bg-muted/30 px-4 py-3">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Legal — applicant agrees to platform policies
+                  </p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    By approving, this {getRole(detailApp) === "coach" ? "coach" : "creator"} is
+                    onboarded under our standard policies. Share these before going live:
+                  </p>
+                  <div className="flex flex-wrap gap-3 mt-1.5">
+                    <a href="/privacy" target="_blank" className="text-xs text-primary underline">
+                      Privacy Policy
+                    </a>
+                    <a href="/terms" target="_blank" className="text-xs text-primary underline">
+                      Terms of Service
+                    </a>
+                    <a
+                      href="/refund-policy"
+                      target="_blank"
+                      className="text-xs text-primary underline"
+                    >
+                      Refund Policy
+                    </a>
+                  </div>
+                </div>
                 <div>
                   <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     Admin Notes

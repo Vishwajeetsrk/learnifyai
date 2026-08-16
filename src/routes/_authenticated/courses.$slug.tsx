@@ -114,6 +114,7 @@ import {
   buildCourseVideoEmbedUrl,
 } from "@/lib/course-player";
 import { VisualLearningPanel } from "@/components/visual-learning/VisualLearningPanel";
+import { SupportLearnifyCard } from "@/components/SupportLearnifyCard";
 
 type CourseTab = "notes" | "summary" | "doubt" | "exercise" | "playground" | "ai-agent" | "visual" | "resources";
 const VALID_TABS: CourseTab[] = [
@@ -714,6 +715,9 @@ function CourseDetail() {
               </Button>
             </Link>
           </DialogFooter>
+          <div className="pt-2">
+            <SupportLearnifyCard compact />
+          </div>
         </DialogContent>
       </Dialog>
 

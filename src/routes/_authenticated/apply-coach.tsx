@@ -272,6 +272,27 @@ function ApplyCoachPage() {
                   />
                 </div>
 
+                <div className="rounded-lg border bg-muted/30 px-4 py-3 text-xs text-muted-foreground space-y-1">
+                  <p>
+                    By applying, you agree to our{" "}
+                    <a href="/terms" target="_blank" className="text-primary underline">
+                      Terms of Service
+                    </a>
+                    ,{" "}
+                    <a href="/privacy" target="_blank" className="text-primary underline">
+                      Privacy Policy
+                    </a>{" "}
+                    and{" "}
+                    <a href="/refund-policy" target="_blank" className="text-primary underline">
+                      Refund Policy
+                    </a>
+                    .
+                  </p>
+                  <p>
+                    If approved, you may offer 1:1 coaching sessions at the hourly rate you set below.
+                  </p>
+                </div>
+
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />

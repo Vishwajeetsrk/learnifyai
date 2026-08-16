@@ -4,6 +4,7 @@ import { Calendar, Loader2, Users, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { MarketingPage } from "@/components/MarketingPage";
+import { SupportLearnifyCard } from "@/components/SupportLearnifyCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -154,6 +155,10 @@ function CommunityPage() {
           ))}
         </div>
       )}
+
+      <div className="mt-16 max-w-md mx-auto">
+        <SupportLearnifyCard />
+      </div>
     </MarketingPage>
   );
 }
