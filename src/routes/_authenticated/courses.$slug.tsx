@@ -328,9 +328,6 @@ function CourseDetail() {
     instructorProfile?.full_name || course?.instructor || "Learnify AI";
   const instructorOrg = instructorProfile?.org_name || null;
 
-  const creatorId = course?.created_by ?? PLATFORM_CREATOR_ID;
-  const isCreator = !!user && creatorId === user.id;
-
   const certTemplatesQuery = useQuery({
     enabled: isCreator,
     queryKey: ["cert-templates-list"],

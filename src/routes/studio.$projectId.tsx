@@ -26,14 +26,25 @@ import {
   Trash2,
   Lock,
   ShoppingCart,
+} from "lucide-react";
+import Editor from "@monaco-editor/react";
+import confetti from "canvas-confetti";
+import projectsData from "@/data/projects.json";
+import { cn } from "@/lib/utils";
+import { executeCode } from "@/lib/playground.functions";
+import { aiCodeAssistant } from "@/lib/playground/ai";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "lucide-react";
+} from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/use-auth";
-import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/studio/$projectId")({
   component: StudioClassroomPage,
