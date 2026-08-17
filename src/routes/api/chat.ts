@@ -210,7 +210,7 @@ export const Route = createFileRoute("/api/chat")({
           if (geminiKey) {
             cfg = PROVIDERS.gemini;
             apiKey = geminiKey;
-            providerModel = parsed.model.includes("pro") ? "gemini-2.5-pro" : "gemini-2.5-flash";
+            providerModel = parsed.model.includes("pro") ? "gemini-1.5-pro" : "gemini-2.0-flash";
           }
         }
 
@@ -267,57 +267,87 @@ Always cover: what it is, why it matters, prerequisites, step-by-step learning p
 QUALITY GUARDRAILS
 NEVER give shallow answers, a single resource, outdated stacks, generic boilerplate, or incomplete roadmaps. ALWAYS recommend scalable architecture, deployment guidance, and production-level practices.`;
 
-        const upstream = await fetch(cfg.url, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-            ...(cfg === PROVIDERS.openrouter
-              ? { "HTTP-Referer": "https://learnify.ai", "X-Title": "Learnify AI" }
-              : {}),
-          },
-          body: JSON.stringify({
-            model: providerModel,
-            stream: true,
-            stream_options: { include_usage: true },
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...(history ?? []).map((m) => {
-                let content: any = m.content;
-                if (
-                  m.role === "user" &&
-                  m.content.includes("![") &&
-                  m.content.includes("](data:image/")
-                ) {
-                  const parts: any[] = [];
-                  const imgRegex = /!\[.*?\]\((data:image\/[^;]+;base64,[^\)]+)\)/g;
-                  let lastIndex = 0;
-                  let match;
-                  while ((match = imgRegex.exec(m.content)) !== null) {
-                    const textBefore = m.content.substring(lastIndex, match.index).trim();
-                    if (textBefore) parts.push({ type: "text", text: textBefore });
-                    parts.push({ type: "image_url", image_url: { url: match[1] } });
-                    lastIndex = imgRegex.lastIndex;
-                  }
-                  const textAfter = m.content.substring(lastIndex).trim();
-                  if (textAfter) parts.push({ type: "text", text: textAfter });
+        // Candidate fallback models if primary model hits 404 or model deprecated error
+        const candidateModels = [
+          providerModel,
+          ...(cfg.keyEnv === "GROQ_API_KEY"
+            ? ["llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "llama3-70b-8192", "llama-3.1-8b-instant"]
+            : cfg.keyEnv === "GEMINI_API_KEY"
+              ? ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.5-flash"]
+              : ["google/gemini-2.0-flash-001", "meta-llama/llama-3.3-70b-instruct", "google/gemini-1.5-flash"]),
+        ];
 
-                  if (parts.length > 0) {
-                    content = parts;
-                  }
-                }
-                return { role: m.role, content };
+        let upstream: Response | null = null;
+        let lastErrorText = "";
+
+        for (const modelCandidate of candidateModels) {
+          try {
+            const res = await fetch(cfg.url, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${apiKey}`,
+                "Content-Type": "application/json",
+                ...(cfg === PROVIDERS.openrouter
+                  ? { "HTTP-Referer": "https://learnify.ai", "X-Title": "Learnify AI" }
+                  : {}),
+              },
+              body: JSON.stringify({
+                model: modelCandidate,
+                stream: true,
+                max_tokens: 4096,
+                stream_options: { include_usage: true },
+                messages: [
+                  { role: "system", content: systemPrompt },
+                  ...(history ?? []).map((m) => {
+                    let content: any = m.content;
+                    if (
+                      m.role === "user" &&
+                      m.content.includes("![") &&
+                      m.content.includes("](data:image/")
+                    ) {
+                      const parts: any[] = [];
+                      const imgRegex = /!\[.*?\]\((data:image\/[^;]+;base64,[^\)]+)\)/g;
+                      let lastIndex = 0;
+                      let match;
+                      while ((match = imgRegex.exec(m.content)) !== null) {
+                        const textBefore = m.content.substring(lastIndex, match.index).trim();
+                        if (textBefore) parts.push({ type: "text", text: textBefore });
+                        parts.push({ type: "image_url", image_url: { url: match[1] } });
+                        lastIndex = imgRegex.lastIndex;
+                      }
+                      const textAfter = m.content.substring(lastIndex).trim();
+                      if (textAfter) parts.push({ type: "text", text: textAfter });
+
+                      if (parts.length > 0) {
+                        content = parts;
+                      }
+                    }
+                    return { role: m.role, content };
+                  }),
+                ],
               }),
-            ],
-          }),
-        });
+            });
 
-        if (!upstream.ok || !upstream.body) {
-          const text = await upstream.text().catch(() => "");
-          console.error("Upstream AI error", upstream.status, text);
-          return new Response(JSON.stringify({ error: `AI provider error (${upstream.status})` }), {
-            status: 502,
-          });
+            if (res.ok && res.body) {
+              upstream = res;
+              break;
+            }
+
+            lastErrorText = await res.text().catch(() => "");
+            console.warn(`Model candidate ${modelCandidate} failed (${res.status}): ${lastErrorText.slice(0, 100)}`);
+          } catch (e: any) {
+            lastErrorText = e?.message || "network failure";
+          }
+        }
+
+        if (!upstream || !upstream.ok || !upstream.body) {
+          console.error("Upstream AI error all candidates failed", lastErrorText);
+          return new Response(
+            JSON.stringify({
+              error: `AI provider error: All model candidates failed. (${lastErrorText.slice(0, 150)})`,
+            }),
+            { status: 502, headers: { "Content-Type": "application/json" } },
+          );
         }
 
         // Tee: stream to client AND collect full text to persist as assistant message.

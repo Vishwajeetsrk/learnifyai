@@ -1106,6 +1106,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v4.6.0 (August 2026) — AI Provider Multi-Tier Model Fallback & Token Budget Engine
+
+- 🤖 **MULTI-TIER MODEL FALLBACK ENGINE**: Upgraded `src/lib/user-ai.ts` and `src/routes/api/chat.ts` with automatic candidate model retries across Groq, Gemini API, and OpenRouter. If a model endpoint returns a `404` or model deprecation error, the system seamlessly retries candidate models (*Groq: llama-3.3-70b-versatile, llama-3.1-70b-versatile, llama3-70b-8192; Gemini: gemini-2.0-flash, gemini-1.5-flash, gemini-1.5-pro; OpenRouter: gemini-2.0-flash-001, llama-3.3-70b-instruct*).
+- 💰 **TOKEN BUDGET CLAMPING (PREVENT OPENROUTER 402)**: Added safe token budget clamping (`max_tokens: Math.min(requested, 4096)`) to prevent OpenRouter 402 credit rejection errors caused by excessive maximum token requests.
+- ⚡ **ACTIVE NON-DEPRECATED DEFAULT MODELS**: Updated AI Tutor model selections in `src/routes/_authenticated/ai.tsx` to active models (*Gemini 2.0 Flash, Gemini 1.5 Flash, Gemini 1.5 Pro, Llama 3.3 70B, DeepSeek Chat*).
+
 ### v4.5.0 (August 2026) — Resume Builder Studio Design & Layout Engine Overhaul
 
 - 🎨 **GRANULAR RESUME DESIGN CONTROLS**: Fixed and connected all non-functional Design & Layout controls in `ResumeBuilderPage.tsx`. Enabled real-time reactivity across Layout Columns (`one`, `two`, `mix`), Header Position (`top`, `left`, `right`), Base Font Size (`9.5pt` to `12.5pt`), Line Height (`1.1` to `1.5`), and Page Margins (`5mm` to `25mm`).

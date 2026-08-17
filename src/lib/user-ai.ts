@@ -3,6 +3,7 @@ type ChatBody = {
   messages: Array<{ role: string; content: string }>;
   response_format?: unknown;
   temperature?: number;
+  max_tokens?: number;
 };
 
 const USER_AI_PROVIDERS = [
@@ -10,27 +11,41 @@ const USER_AI_PROVIDERS = [
     name: "Groq",
     keyEnv: "GROQ_API_KEY",
     url: "https://api.groq.com/openai/v1/chat/completions",
-    fastModel: "llama-3.3-70b-versatile",
-    proModel: "llama-3.3-70b-versatile",
-    maxRetries: 2,
+    models: [
+      "llama-3.3-70b-versatile",
+      "llama-3.1-70b-versatile",
+      "llama3-70b-8192",
+      "llama-3.1-8b-instant",
+      "mixtral-8x7b-32768",
+    ],
+    maxRetries: 1,
   },
   {
     name: "Gemini API",
     keyEnv: "GEMINI_API_KEY",
     url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-    fastModel: "gemini-2.5-flash",
-    proModel: "gemini-2.5-pro",
+    models: [
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+      "gemini-1.5-pro",
+      "gemini-2.5-flash",
+      "gemini-2.5-pro",
+    ],
     maxRetries: 1,
   },
   {
     name: "OpenRouter",
     keyEnv: "OPENROUTER_API_KEY",
     url: "https://openrouter.ai/api/v1/chat/completions",
-    fastModel: "google/gemini-2.5-flash",
-    proModel: "google/gemini-2.5-pro",
+    models: [
+      "google/gemini-2.0-flash-001",
+      "meta-llama/llama-3.3-70b-instruct",
+      "google/gemini-1.5-flash",
+      "deepseek/deepseek-chat",
+    ],
     maxRetries: 1,
   },
-] as const;
+];
 
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -46,50 +61,83 @@ export async function callUserAiChat(body: ChatBody, quality: "fast" | "pro" = "
     throw new Error(safety.reason || "Safety policy violation: Request rejected by AI Firewall.");
   }
 
+  // Ensure max_tokens is safely clamped to prevent OpenRouter 402 budget rejection errors
+  const clampedBody = {
+    ...body,
+    max_tokens: Math.min(body.max_tokens ?? 4096, 4096),
+  };
+
   const failures: string[] = [];
 
   for (const provider of USER_AI_PROVIDERS) {
     const apiKey = process.env[provider.keyEnv];
     if (!apiKey) continue;
 
-    const model = body.model ?? (quality === "pro" ? provider.proModel : provider.fastModel);
+    // Determine model candidate list for this provider
+    const candidateModels = body.model
+      ? [body.model, ...provider.models]
+      : provider.models;
+
     let lastError = "";
 
-    for (let attempt = 0; attempt <= provider.maxRetries; attempt++) {
-      if (attempt > 0) {
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 4000);
-        await sleep(delay);
-      }
+    for (const modelCandidate of candidateModels) {
+      // Strip provider prefix if present (e.g., 'gemini/gemini-2.0-flash' -> 'gemini-2.0-flash')
+      const targetModel =
+        modelCandidate.includes("/") && provider.name !== "OpenRouter"
+          ? modelCandidate.split("/").pop()!
+          : modelCandidate;
 
-      try {
-        const res = await fetch(provider.url, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-            ...(provider.name === "OpenRouter"
-              ? { Referer: "https://learnify.ai", "X-Title": "Learnify AI" }
-              : {}),
-          },
-          body: JSON.stringify({ ...body, model }),
-        });
+      for (let attempt = 0; attempt <= provider.maxRetries; attempt++) {
+        if (attempt > 0) {
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 3000);
+          await sleep(delay);
+        }
 
-        if (res.ok) return res;
+        try {
+          const res = await fetch(provider.url, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "application/json",
+              ...(provider.name === "OpenRouter"
+                ? { Referer: "https://learnify.ai", "X-Title": "Learnify AI" }
+                : {}),
+            },
+            body: JSON.stringify({ ...clampedBody, model: targetModel }),
+          });
 
-        const text = await res.text().catch(() => "");
-        lastError = `${provider.name} ${res.status}${text ? `: ${text.slice(0, 180)}` : ""}`;
+          if (res.ok) return res;
 
-        if (res.status === 429 || res.status >= 500) {
+          const text = await res.text().catch(() => "");
+          lastError = `${provider.name} (${targetModel}) ${res.status}${text ? `: ${text.slice(0, 180)}` : ""}`;
+
+          // If 404 (model not found/deprecated) or 400 invalid model, break attempt loop to try next model candidate immediately!
+          if (res.status === 404 || (res.status === 400 && text.includes("model"))) {
+            break;
+          }
+
+          if (res.status === 429 || res.status >= 500) {
+            continue;
+          }
+          break;
+        } catch (err: any) {
+          lastError = `${provider.name} network error: ${err?.message || "unknown"}`;
           continue;
         }
+      }
+
+      // If we got a valid response, we already returned. If lastError is not 404/model error, don't try all candidates endlessly unless 404.
+      if (
+        !lastError.includes("404") &&
+        !lastError.includes("not found") &&
+        !lastError.includes("does not exist") &&
+        !lastError.includes("no longer available")
+      ) {
         break;
-      } catch (err: any) {
-        lastError = `${provider.name} network error: ${err?.message || "unknown"}`;
-        continue;
       }
     }
 
-    failures.push(lastError);
+    if (lastError) failures.push(lastError);
   }
 
   if (!failures.length)
