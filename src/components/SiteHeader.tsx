@@ -63,7 +63,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          {!hideLang && <LanguageSwitcher />}
+          <LanguageSwitcher />
           {isAuthenticated && !loading ? (
             <div className="hidden sm:flex items-center gap-2">
               <Button asChild variant="ghost" size="sm" className="text-muted-foreground">

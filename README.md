@@ -1106,6 +1106,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v4.4.0 (August 2026) — 100% Global Translation Engine & Grammar Optimization
+
+- 🌐 **100% GLOBAL PAGE TRANSLATION**: Upgraded `LanguageSwitcher.tsx` with Google Translate DOM Translation Engine + `i18next` dual-core synchronization. 100% of web page DOM elements (landing pages, interactive demo cards, headers, course cards, dashboards, modals, and dynamic React components) now translate instantly when switching languages.
+- 🌍 **11 SUPPORTED LANGUAGES & COOKIE SYNC**: Full real-time translation support for English, Hindi (हिन्दी), Bengali (বাংলা), Tamil (தமிழ்), Telugu (తెలుగు), Marathi (मराठी), Gujarati (ગુજરાતી), Kannada (ಕನ್ನಡ), Spanish (Español), French (Français), and German (Deutsch). Synchronizes `googtrans` cookies, `document.documentElement.lang`, `i18n.changeLanguage(code)`, and `localStorage` preference.
+- 🎨 **CLEAN CSS OVERRIDES**: Added custom global CSS rules to completely hide Google Translate's iframe banner frame, top margin push, and tooltip popups, keeping the platform's dark mode and modern glassmorphism design 100% clean.
+- 📱 **UNIVERSAL HEADER & APPSHELL INTEGRATION**: Added `LanguageSwitcher` to both public `SiteHeader` and authenticated `AppShell` header footer, enabling learners to switch languages anywhere on the platform.
+
 ### v4.3.0 (August 2026) — Dual Payment Gateways, Cancellation Handling & Avatar Store Unlocking
 
 - 💳 **DUAL PAYMENT GATEWAY SWITCHING (CASHFREE & RAZORPAY)**: Integrated side-by-side dual-gateway support across Cart checkout and Wallet top-up. Added a platform default payment gateway configuration setting in the Billing OS Admin Panel (`/admin/billing`).

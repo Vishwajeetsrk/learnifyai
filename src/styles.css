@@ -396,3 +396,34 @@ html.dark[data-theme="noir"] {
     box-shadow: var(--shadow-card);
   }
 }
+
+/* Hide Google Translate top banner frame, tooltips, and prevent page top margin push */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+#goog-gt-tt,
+.goog-te-balloon-frame,
+.goog-tooltip,
+.goog-tooltip:hover {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+.goog-te-spinner-pos {
+  display: none !important;
+}
+
+#google_translate_element {
+  display: none !important;
+}
+
+font {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+

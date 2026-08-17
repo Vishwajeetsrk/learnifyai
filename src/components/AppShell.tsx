@@ -222,7 +222,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="border-t p-3 flex items-center gap-2">
       <UserAvatarMenu showName />
       <div className="ml-auto flex items-center gap-1">
-        {!LearnerSurface && <LanguageSwitcher />}
+        <LanguageSwitcher />
         <ThemeToggle />
       </div>
     </div>
