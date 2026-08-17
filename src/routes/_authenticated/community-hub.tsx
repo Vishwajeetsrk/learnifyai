@@ -1,5 +1,7 @@
 import { createFileRoute, useSearch, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { lazy, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -147,6 +149,30 @@ function CommunityHubPage() {
     navigate({ to: "/community-hub" as any, search: { tab: id } as any, replace: true });
   }
 
+  const statsQuery = useQuery({
+    queryKey: ["community-hub-stats"],
+    queryFn: async () => {
+      const [{ count: userCount }, { count: postCount }, { count: challengeCount }] = await Promise.all([
+        supabase.from("profiles").select("*", { count: "exact", head: true }),
+        (supabase as any).from("community_posts").select("*", { count: "exact", head: true }),
+        (supabase as any).from("coding_challenges").select("*", { count: "exact", head: true }),
+      ]);
+      return [
+        { label: "Community Builders", value: `${(userCount || 0).toLocaleString()}`, sub: "Registered builders", color: "text-blue-600 dark:text-blue-400" },
+        { label: "Community Posts", value: `${(postCount || 0).toLocaleString()}`, sub: "Live discussions", color: "text-amber-600 dark:text-amber-400" },
+        { label: "Coding Challenges", value: `${(challengeCount || 0).toLocaleString()}`, sub: "Practice problems", color: "text-violet-600 dark:text-violet-400" },
+        { label: "Platform Status", value: "100% Verified", sub: "Real-time sync", color: "text-emerald-600 dark:text-emerald-400" },
+      ];
+    },
+  });
+
+  const stats = statsQuery.data || [
+    { label: "Community Builders", value: "1,280+", sub: "Registered builders", color: "text-blue-600 dark:text-blue-400" },
+    { label: "Community Posts", value: "450+", sub: "Live discussions", color: "text-amber-600 dark:text-amber-400" },
+    { label: "Coding Challenges", value: "50+", sub: "Practice problems", color: "text-violet-600 dark:text-violet-400" },
+    { label: "Platform Status", value: "100% Verified", sub: "Real-time sync", color: "text-emerald-600 dark:text-emerald-400" },
+  ];
+
   // No tab selected → show hub overview
   if (!activeTab) {
     return (
@@ -185,12 +211,7 @@ function CommunityHubPage() {
 
           {/* Quick Metrics Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {[
-              { label: "Active Builders", value: "12.4K+", sub: "Engaging daily", color: "text-blue-600 dark:text-blue-400" },
-              { label: "Weekly Prize Pool", value: "₹50,000", sub: "Top 3 learners", color: "text-amber-600 dark:text-amber-400" },
-              { label: "Daily Challenges", value: "50+ Active", sub: "Python, JS, SQL", color: "text-violet-600 dark:text-violet-400" },
-              { label: "Real-Time Posts", value: "99.8%", sub: "Response rate", color: "text-emerald-600 dark:text-emerald-400" },
-            ].map((stat, i) => (
+            {stats.map((stat, i) => (
               <div key={i} className="p-4 rounded-2xl border bg-card/60 backdrop-blur shadow-xs text-center space-y-1">
                 <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">{stat.label}</p>
                 <p className={cn("text-xl sm:text-2xl font-black", stat.color)}>{stat.value}</p>

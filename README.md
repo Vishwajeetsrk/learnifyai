@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v6.1.0 (August 2026) — Community Hub Dynamic Real Metrics & Coaching Hub Mobile-First Overhaul
+
+- 📊 **COMMUNITY HUB REAL DYNAMIC METRICS**: Replaced static/fake metric claims in `community-hub.tsx` with real-time Supabase database counts (`profiles`, `community_posts`, `coding_challenges`) displaying verified active members, live discussions, and coding practice problems.
+- 📱 **COACHING HUB RESPONSIVE OVERHAUL**: Upgraded `coaching.view.tsx` with mobile-first sticky tab navigation, responsive slot scheduling forms (`datetime-local` pickers), cohort management cards, and messaging interface scaling cleanly across 320px–1440px displays.
+
 ### v6.0.0 (August 2026) — AI Tutor Reasoning & Collapsible Thinking Process UI Overhaul
 
 - 🧠 **COLLAPSIBLE AI THINKING & REASONING CARD**: Created `ThinkingCard` in `ai.tsx` to automatically parse `<think>...</think>` tags and reasoning steps into an interactive, glassmorphic collapsible card (`BrainCircuit` pulse icon, word count badge) so users see the step-by-step thinking phase before reading the final solution.

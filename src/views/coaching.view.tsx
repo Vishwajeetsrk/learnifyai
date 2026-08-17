@@ -318,39 +318,39 @@ export default function CoachingDashboard() {
 
   return (
     <AppShell>
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-display font-semibold mb-6">Coaching Hub</h1>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <h1 className="text-2xl sm:text-3xl font-display font-bold tracking-tight mb-6">Coaching Hub</h1>
 
-        <div className="flex gap-4 border-b mb-8 overflow-x-auto -mx-4 px-4 snap-x snap-mandatory scrollbar-none">
+        <div className="flex gap-2 sm:gap-4 border-b mb-6 sm:mb-8 overflow-x-auto no-scrollbar pb-2 flex-nowrap shrink-0">
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "scheduling" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`px-3 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 flex items-center gap-2 ${activeTab === "scheduling" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
             onClick={() => setActiveTab("scheduling")}
           >
-            <Calendar className="h-4 w-4 inline-block mr-2" /> Scheduling
+            <Calendar className="h-4 w-4" /> Scheduling
           </button>
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "messaging" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`px-3 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 flex items-center gap-2 ${activeTab === "messaging" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
             onClick={() => setActiveTab("messaging")}
           >
-            <MessageCircle className="h-4 w-4 inline-block mr-2" /> Messaging
+            <MessageCircle className="h-4 w-4" /> Messaging
           </button>
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "roadmaps" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`px-3 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 flex items-center gap-2 ${activeTab === "roadmaps" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
             onClick={() => setActiveTab("roadmaps")}
           >
-            <Compass className="h-4 w-4 inline-block mr-2" /> Roadmaps
+            <Compass className="h-4 w-4" /> Roadmaps
           </button>
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "outcomes" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`px-3 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 flex items-center gap-2 ${activeTab === "outcomes" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
             onClick={() => setActiveTab("outcomes")}
           >
-            <TrendingUp className="h-4 w-4 inline-block mr-2" /> Outcomes
+            <TrendingUp className="h-4 w-4" /> Outcomes
           </button>
           <button
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors shrink-0 snap-start ${activeTab === "cohorts" ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`px-3 py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all shrink-0 flex items-center gap-2 ${activeTab === "cohorts" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}
             onClick={() => setActiveTab("cohorts")}
           >
-            <Users className="h-4 w-4 inline-block mr-2" /> Cohorts
+            <Users className="h-4 w-4" /> Cohorts
           </button>
         </div>
 
