@@ -1106,6 +1106,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v5.0.0 (August 2026) — Internship Tracker, Skill Gap Analysis & Ikigai Career Path Engine Overhaul
+
+- 💼 **INTERNSHIP TRACKER KANBAN STAGE SWITCHER**: Upgraded `InternshipTrackerView` in `career-studio.tsx` with full stage dropdown selectors on every card (`Applied`, `Interviewing`, `Offer`, `Rejected`), sample data generator, CSV exporter, and Kanban vs List view toggles.
+- 🎯 **SKILL GAP & MULTI-ROLE READINESS ENGINE**: Fixed real-time readiness score recalculation, `Select All`, `Clear Role`, custom skill weight additions (`+15% Weight`), and multi-role side-by-side comparison matrix.
+- 🧩 **IKIGAI CAREER PATH PERSISTENT RESULTS**: Upgraded `CareerFinderView` with persistent auto-saved Ikigai results (*#1 Recommended Ikigai Path*, 94% Match Score, Market Need, Salary Band, Alternative Ikigai Paths, 4-Step Action Roadmap, and `Start Over` wizard reset).
+
 ### v4.9.0 (August 2026) — Career & Salary Analytics 2026 Intelligence Hub Overhaul
 
 - 🌍 **MULTI-CURRENCY & REGIONAL TECH HUBS**: Upgraded `CareerAnalyticsView` in `career-studio.tsx` with dynamic location multipliers (`Pan India`, `Bengaluru/NCR +15%`, `Hyderabad/Pune +8%`, `Remote/Global USD $ Rates`). Instant currency toggle between INR (₹ LPA) and USD ($ / yr).

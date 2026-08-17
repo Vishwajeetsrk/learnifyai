@@ -2712,31 +2712,21 @@ function InternshipTrackerView() {
                           </p>
                         )}
 
-                        {/* Quick Stage Move buttons */}
+                        {/* Quick Stage Move selector */}
                         <div className="pt-2 border-t flex items-center justify-between gap-1 text-[10px]">
                           <span className="text-muted-foreground flex items-center gap-1">
                             <Calendar className="h-3 w-3" /> {a.date}
                           </span>
-                          <div className="flex items-center gap-1">
-                            {stage !== "Offer" && (
-                              <button
-                                onClick={() => handleUpdateStatus(a.id, "Offer")}
-                                className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 font-bold hover:bg-emerald-500/20 cursor-pointer"
-                                title="Move to Offer"
-                              >
-                                → Offer
-                              </button>
-                            )}
-                            {stage === "Applied" && (
-                              <button
-                                onClick={() => handleUpdateStatus(a.id, "Interviewing")}
-                                className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 font-bold hover:bg-amber-500/20 cursor-pointer"
-                                title="Move to Interviewing"
-                              >
-                                → Interview
-                              </button>
-                            )}
-                          </div>
+                          <select
+                            value={a.status}
+                            onChange={(e) => handleUpdateStatus(a.id, e.target.value as any)}
+                            className="text-[10px] font-bold h-6 px-1.5 rounded border border-input bg-muted/40 cursor-pointer"
+                          >
+                            <option value="Applied">Applied</option>
+                            <option value="Interviewing">Interviewing</option>
+                            <option value="Offer">Offer</option>
+                            <option value="Rejected">Rejected</option>
+                          </select>
                         </div>
                       </Card>
                     ))
