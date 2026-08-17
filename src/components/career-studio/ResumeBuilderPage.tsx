@@ -1876,12 +1876,19 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       .join("\n\n");
 
     const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
-    const a = Object.assign(document.createElement("a"), {
-      href: URL.createObjectURL(blob),
-      download: `${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.txt`,
-    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(form.fullName || "Resume").replace(/\s+/g, "_")}_Resume.txt`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
     toast.success("Text (.txt) Resume downloaded!");
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   const resetToSampleTemplate = () => {
@@ -2020,6 +2027,12 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
               className="px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
             >
               <Download className="h-3 w-3" /> Text (.txt)
+            </button>
+            <button
+              onClick={handlePrint}
+              className="px-3 py-1.5 rounded-full bg-violet-700 hover:bg-violet-800 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+            >
+              <Printer className="h-3 w-3" /> Print
             </button>
           </div>
         </div>

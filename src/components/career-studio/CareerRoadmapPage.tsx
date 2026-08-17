@@ -26,6 +26,7 @@ import {
   Link2,
   Layers,
   Search,
+  Printer,
 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -256,24 +257,70 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
 
   const handleDownload = () => {
     if (!roadmapData && !rawContent) return;
-    if (roadmapData) {
-      const blob = new Blob([JSON.stringify(roadmapData, null, 2)], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Career_Roadmap_${form.targetRole.replace(/\s+/g, "_")}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } else if (rawContent) {
-      const blob = new Blob([rawContent], { type: "text/markdown" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Career_Roadmap_${form.targetRole.replace(/\s+/g, "_")}.md`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+    const content = roadmapData ? JSON.stringify(roadmapData, null, 2) : rawContent || "";
+    const ext = roadmapData ? "json" : "md";
+    const mime = roadmapData ? "application/json" : "text/markdown";
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Career_Roadmap_${form.targetRole.replace(/\s+/g, "_")}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
     toast.success("Roadmap downloaded!");
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!roadmapData && !rawContent) return toast.error("Generate a roadmap first");
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      let y = 15;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.setTextColor(15, 23, 42);
+      doc.text(`Career Roadmap — ${form.targetRole || "Your Role"}`, 15, y);
+      y += 8;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(70, 70, 70);
+      const content = roadmapData ? JSON.stringify(roadmapData, null, 2) : rawContent || "";
+      const lines = doc.splitTextToSize(content, 180);
+      for (let i = 0; i < lines.length; i++) {
+        if (y > 278) { doc.addPage(); y = 15; }
+        doc.text(lines[i], 15, y);
+        y += 5;
+      }
+      doc.save(`Career_Roadmap_${form.targetRole.replace(/\s+/g, "_")}.pdf`);
+      toast.success("Career Roadmap PDF downloaded!");
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to generate PDF");
+    }
+  };
+
+  const handleDownloadWord = () => {
+    if (!roadmapData && !rawContent) return toast.error("Generate a roadmap first");
+    const content = roadmapData ? JSON.stringify(roadmapData, null, 2) : rawContent || "";
+    const htmlContent = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+<head><meta charset='utf-8'><title>Career Roadmap</title>
+<style>body{font-family:Arial,sans-serif;line-height:1.6;color:#111;max-width:800px;margin:auto;padding:20px;}h1{color:#6366f1;font-size:20px;}pre{font-family:inherit;white-space:pre-wrap;word-break:break-word;}</style>
+</head><body><h1>Career Roadmap — ${form.targetRole || "Your Role"}</h1><pre>${content}</pre></body></html>`;
+    const blob = new Blob(["\ufeff", htmlContent], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Career_Roadmap_${form.targetRole.replace(/\s+/g, "_")}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success("Roadmap Word (.docx) downloaded!");
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   const mainContent = (
@@ -534,8 +581,17 @@ export function CareerRoadmapPage({ embedded = false }: { embedded?: boolean }) 
                 >
                   <Bookmark className="h-4 w-4 mr-1.5" /> Save to Profile
                 </Button>
+                <Button onClick={handleDownloadPdf} variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-1.5" /> PDF
+                </Button>
+                <Button onClick={handleDownloadWord} variant="outline" size="sm">
+                  <FileText className="h-4 w-4 mr-1.5" /> Word (.docx)
+                </Button>
                 <Button onClick={handleDownload} variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-1.5" /> Download
+                  <Download className="h-4 w-4 mr-1.5" /> JSON/MD
+                </Button>
+                <Button onClick={handlePrint} variant="outline" size="sm">
+                  <Printer className="h-4 w-4 mr-1.5" /> Print
                 </Button>
                 <Button
                   variant="outline"
