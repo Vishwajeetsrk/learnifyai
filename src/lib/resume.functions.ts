@@ -278,6 +278,24 @@ const ExtractResumeInput = z.object({
   rawText: z.string().min(1).max(100000).optional().default(""),
 });
 
+function cleanAndParseJson(text: string): any {
+  if (!text) return {};
+  let cleaned = text.trim();
+  cleaned = cleaned.replace(/^```(?:json)?/gi, "").replace(/```$/gi, "").trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch {}
+
+  const m = cleaned.match(/\{[\s\S]*\}/);
+  if (m) {
+    try {
+      const sanitized = m[0].replace(/,\s*([}\]])/g, "$1");
+      return JSON.parse(sanitized);
+    } catch {}
+  }
+  return {};
+}
+
 export const extractResumeFields = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((d: unknown) => ExtractResumeInput.parse(d || {}))
@@ -287,37 +305,23 @@ export const extractResumeFields = createServerFn({ method: "POST" })
       messages: [
         {
           role: "system",
-          content: `You are an expert resume parser. Extract structured information from the candidate's resume text. Return ONLY valid JSON matching this schema:
-{
-  "fullName": string,
-  "email": string,
-  "phone": string,
-  "linkedin": string,
-  "github": string,
-  "summary": string,
-  "experience": string,
-  "education": string,
-  "skills": string,
-  "certifications": string,
-  "projects": string,
-  "targetRole": string
-}
+          content: `You are an expert resume parser. Extract structured information from the candidate's resume text. Return ONLY a valid JSON object with keys:
+"fullName", "email", "phone", "linkedin", "github", "summary", "experience", "education", "skills", "certifications", "projects", "targetRole".
 
 STRICT RULES:
-1. experience: Extract EVERY job entry as one line each in this exact format: "Role @ Company (Start - End): Achievement bullet 1; Achievement bullet 2". Preserve ALL companies, roles, dates and achievements. NEVER omit entries and NEVER write "no experience" unless the resume truly has none.
-2. projects: Extract EVERY project as one line: "- Name (URL): Short description [tech1, tech2]". Preserve ALL project URLs verbatim.
-3. skills: List ALL skills separated by commas, grouped with "|" per category if categories exist (e.g. "HTML, CSS, JavaScript | React, Node.js | Figma, VS Code"). Include soft skills too.
-4. education: "Degree — Institution (Year)" per entry, one per line.
+1. experience: Extract EVERY job entry as one line each: "Role @ Company (Start - End): Achievements". Preserve ALL companies, roles, dates and achievements.
+2. projects: Extract EVERY project: "- Name (URL): Description [tech1, tech2]".
+3. skills: List ALL skills separated by commas, e.g. "React, Node.js, Python, AWS, SQL, Git".
+4. education: "Degree — Institution (Year)" per line.
 5. summary: 2-3 sentence professional summary.
-6. targetRole: The job title the resume targets (e.g. "Responsive Web Designer", "Full Stack Developer").
-7. Use null or "" for missing fields. No extra text, no markdown fences.`,
+6. targetRole: Target job title (e.g. "Full Stack Developer").
+7. Use "" for missing fields. Do not wrap in markdown fences.`,
         },
         {
           role: "user",
           content: `Extract structured info from this resume text:\n"""${rawText}"""`,
         },
       ],
-      response_format: { type: "json_object" },
       temperature: 0.1,
     };
 
@@ -326,6 +330,7 @@ STRICT RULES:
       email: "",
       phone: "",
       linkedin: "",
+      github: "",
       summary: "",
       experience: "",
       education: "",
@@ -340,14 +345,12 @@ STRICT RULES:
       if (res.ok) {
         const payload = await res.json();
         const content: string = payload.choices?.[0]?.message?.content ?? "{}";
-        try {
-          result = { ...result, ...JSON.parse(content) };
-        } catch {
-          const m = content.match(/\{[\s\S]*\}/);
-          if (m) result = { ...result, ...JSON.parse(m[0]) };
-        }
+        const parsed = cleanAndParseJson(content);
+        result = { ...result, ...parsed };
       }
-    } catch {}
+    } catch (err) {
+      console.warn("AI extraction warning, applying fallback regex extraction:", err);
+    }
 
     const urlRegex = /(https?:\/\/[^\s,">]+)/gi;
     const urls = Array.from(new Set(rawText.match(urlRegex) || []));
@@ -356,6 +359,10 @@ STRICT RULES:
       if (!result.linkedin) {
         const linkedinUrl = urls.find((u) => u.includes("linkedin.com"));
         if (linkedinUrl) result.linkedin = linkedinUrl;
+      }
+      if (!result.github) {
+        const githubUrl = urls.find((u) => u.includes("github.com"));
+        if (githubUrl) result.github = githubUrl;
       }
 
       const projUrls = urls.filter(
@@ -375,6 +382,22 @@ STRICT RULES:
         const missingProj = projUrls.filter((u) => !existingProj.includes(u));
         if (missingProj.length > 0) {
           result.projects = (existingProj ? existingProj + "\n" : "") + missingProj.join("\n");
+        }
+      }
+    }
+
+    if (!result.fullName || result.fullName.length < 2) {
+      const lines = rawText.split("\n").map((l) => l.trim()).filter(Boolean);
+      for (const line of lines.slice(0, 5)) {
+        if (
+          line.length > 2 &&
+          line.length < 40 &&
+          !line.includes("@") &&
+          !line.includes("http") &&
+          !/resume|curriculum|cv|phone|email/i.test(line)
+        ) {
+          result.fullName = line;
+          break;
         }
       }
     }

@@ -74,17 +74,8 @@ export function cleanResumeText(text: string): string {
           return false;
         }
       }
-      // Filter out random isolated character noise lines (e.g. ";k f B 6Q I ]Y R\&k> ot @")
-      const lettersAndDigits = line.replace(/[^a-zA-Z0-9]/g, "").length;
-      if (line.length > 10 && lettersAndDigits / line.length < 0.45) {
-        return false;
-      }
-      // Filter out lines composed mostly of repeated single characters / noise symbols
+      // Filter out lines composed strictly of symbols / noise
       if (/^[^a-zA-Z0-9]+$/.test(line)) {
-        return false;
-      }
-      // Filter out random single-character noise tokens
-      if (line.length < 4 && !/^(I|a|an|the|to|in|of|or|on|at|by|re|de|v2|v3)$/i.test(line)) {
         return false;
       }
       return true;

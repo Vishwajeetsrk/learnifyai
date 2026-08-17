@@ -221,10 +221,21 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
       const normalizeLinkedin = (val: string) => {
         if (!val) return "";
         const cleaned = val
-          .replace(/^https?:\/\//, "")
-          .replace(/^linkedin\.com\/in\//, "")
-          .replace(/\/$/, "");
+          .replace(/https?:\/\//gi, "")
+          .replace(/(www\.)?linkedin\.com\/in\//gi, "")
+          .replace(/\/$/, "")
+          .trim();
         return cleaned ? `https://linkedin.com/in/${cleaned}` : "";
+      };
+
+      const normalizeGithub = (val: string) => {
+        if (!val) return "";
+        const cleaned = val
+          .replace(/https?:\/\//gi, "")
+          .replace(/(www\.)?github\.com\//gi, "")
+          .replace(/\/$/, "")
+          .trim();
+        return cleaned ? `https://github.com/${cleaned}` : "";
       };
 
       setForm((f: any) => ({
@@ -232,16 +243,14 @@ export function PortfolioBuilderPage({ embedded = false }: { embedded?: boolean 
         fullName: fields.fullName || f.fullName,
         bio: fields.summary || f.bio,
         tagline: fields.targetRole || f.tagline,
-        socialLinks: fields.linkedin
-          ? [
-              ...new Set([
-                normalizeLinkedin(fields.linkedin),
-                ...f.socialLinks.split("\n").filter(Boolean),
-              ]),
-            ]
-              .filter(Boolean)
-              .join("\n")
-          : f.socialLinks,
+        socialLinks: [
+          normalizeLinkedin(fields.linkedin),
+          normalizeGithub(fields.github),
+          ...f.socialLinks.split("\n").filter(Boolean),
+        ]
+          .filter(Boolean)
+          .filter((v, i, a) => a.indexOf(v) === i)
+          .join("\n"),
         skills: fields.skills || f.skills,
         experience: fields.experience || f.experience,
         education: fields.education || f.education,
