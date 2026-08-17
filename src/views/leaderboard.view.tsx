@@ -372,30 +372,24 @@ export default function LeaderboardPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 sm:gap-5 shrink-0">
-                    <div className="hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground">
-                      <Flame className="h-3 w-3 text-orange-400" /> {u.current_streak ?? 0}d
+                  <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                    <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground font-semibold bg-muted/30 px-2 py-0.5 rounded-md">
+                      <Flame className="h-3 w-3 text-orange-500 shrink-0" />
+                      <span>{u.current_streak ?? 0}d</span>
                     </div>
-                    <div className="hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground">
-                      Lv.{level}
+                    <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground font-semibold bg-muted/30 px-2 py-0.5 rounded-md">
+                      <span>Lv.{level}</span>
                     </div>
-                    <div className="flex items-center gap-1 sm:gap-1.5 text-yellow-500 font-semibold text-xs sm:text-sm min-w-[60px] sm:min-w-[70px] justify-end">
-                      <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5" fill="currentColor" />
-                      {period === "weekly" ? (
-                        <span>
-                          {u.weekly_xp?.toLocaleString() ?? 0}
-                          <span className="text-[9px] sm:text-[10px] font-normal text-muted-foreground ml-0.5">
-                            XP
-                          </span>
+                    <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-extrabold text-xs sm:text-sm min-w-[55px] justify-end">
+                      <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-current shrink-0" />
+                      <span>
+                        {period === "weekly"
+                          ? (u.weekly_xp?.toLocaleString() ?? 0)
+                          : u.xp.toLocaleString()}
+                        <span className="text-[9px] font-bold text-muted-foreground ml-0.5">
+                          XP
                         </span>
-                      ) : (
-                        <span>
-                          {u.xp.toLocaleString()}
-                          <span className="text-[9px] sm:text-[10px] font-normal text-muted-foreground ml-0.5">
-                            XP
-                          </span>
-                        </span>
-                      )}
+                      </span>
                     </div>
                   </div>
                 </div>

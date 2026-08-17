@@ -1106,6 +1106,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v5.3.0 (August 2026) — Leaderboard Mobile List Badging & Community Feed Layout Overhaul
+
+- 🏆 **LEADERBOARD MOBILE MICRO-BADGES**: Upgraded `leaderboard.view.tsx` user list items with responsive streak (`3d`) and level (`Lv.16`) micro-badges visible across all screen sizes, eliminating text truncation on mobile displays.
+- 💬 **COMMUNITY FEED & POLL PROGRESS ENGINE**: Enhanced post creation, rich text formatting bar (*Bold*, *Italic*, *Headings*, *Lists*, *Colors*, *Emojis*), poll progress bars, media attachments, and real-time community chat sidebar in `community-feed.view.tsx`.
+- ⚡ **CODING CHALLENGES & INBOX NAVIGATION**: Verified interactive challenge execution modal, difficulty pills, and notification flashcard decks in `challenges.tsx` and `inbox.tsx`.
+
 ### v5.2.0 (August 2026) — Community Hub, Leaderboard, Challenges & Inbox Engine Overhaul
 
 - 💬 **COMMUNITY HUB 4-COLUMN RESPONSIVE GRID**: Upgraded `community-hub.tsx` overview with 4-column module grid (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`), quick metrics bar (*12.4K+ Active Builders*, *₹50,000 Prize Pool*, *50+ Daily Challenges*), and sticky responsive tab navigation bar.
