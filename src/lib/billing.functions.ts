@@ -221,8 +221,10 @@ export const updateBillingSetting = createServerFn({ method: "POST" })
 
     const { error } = await supabaseAdmin
       .from("billing_settings")
-      .upsert({ key: group, value: newValue, updated_at: new Date().toISOString() })
-      .eq("key", group);
+      .upsert(
+        { key: group, value: newValue, updated_at: new Date().toISOString() },
+        { onConflict: "key" },
+      );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
