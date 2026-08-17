@@ -26,12 +26,11 @@ async function checkWalletTopupPermission(userId: string) {
 
 export const createCashfreeOrder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { amountInr: number; email?: string }) =>
-    z.object({ amountInr: z.number(), email: z.string().optional() }).parse(d),
+  .validator((d: { amountInr: number; email?: string; purpose?: string }) =>
+    z.object({ amountInr: z.number().positive(), email: z.string().optional(), purpose: z.string().optional() }).parse(d),
   )
-  .handler(async ({ data: { amountInr, email }, context }) => {
+  .handler(async ({ data: { amountInr, email, purpose = "wallet" }, context }) => {
     if (!context.userId) throw new Error("Unauthorized");
-    await checkWalletTopupPermission(context.userId);
 
     const appId = process.env.CASHFREE_APP_ID;
     const secretKey = process.env.CASHFREE_SECRET_KEY;
@@ -50,7 +49,8 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
     const customerName = (profile as any)?.full_name || "Valued Learner";
     const customerEmail = email || (profile as any)?.email || "support.learnifyai@gmail.com";
 
-    const orderId = `ord_${context.userId}_${Date.now()}`;
+    const prefix = purpose === "cart" ? "cart" : "topup";
+    const orderId = `ord_${prefix}_${context.userId.slice(0, 8)}_${Date.now()}`;
 
     const res = await fetch(`${getCashfreeApi()}/orders`, {
       method: "POST",
@@ -93,18 +93,18 @@ export const createCashfreeOrder = createServerFn({ method: "POST" })
 
 export const verifyCashfreePayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .validator((d: { amountInr: number; method: string; cashfree_order_id: string }) =>
+  .validator((d: { amountInr: number; method: string; cashfree_order_id: string; purpose?: string }) =>
     z
       .object({
         amountInr: z.number(),
         method: z.string(),
         cashfree_order_id: z.string(),
+        purpose: z.string().optional(),
       })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
     if (!context.userId) throw new Error("Unauthorized");
-    await checkWalletTopupPermission(context.userId);
 
     const appId = process.env.CASHFREE_APP_ID;
     const secretKey = process.env.CASHFREE_SECRET_KEY;
@@ -139,13 +139,27 @@ export const verifyCashfreePayment = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: existingTx } = await supabaseAdmin
-      .from("wallet_transactions")
-      .select("id")
-      .eq("description", `Top-up via ${data.method} (Cashfree: ${data.cashfree_order_id})`)
-      .maybeSingle();
-
     if (orderData.order_status === "PAID") {
+      if (data.purpose === "cart") {
+        // Log payment in payment_logs for audit
+        await (supabaseAdmin as any).from("payment_logs").insert({
+          user_id: context.userId,
+          amount_inr: data.amountInr,
+          payment_method: "cashfree",
+          gateway_order_id: data.cashfree_order_id,
+          status: "success",
+          created_at: new Date().toISOString(),
+        }).catch(() => {});
+        return { success: true };
+      }
+
+      // Wallet Top-Up Purpose
+      const { data: existingTx } = await supabaseAdmin
+        .from("wallet_transactions")
+        .select("id")
+        .eq("description", `Top-up via ${data.method} (Cashfree: ${data.cashfree_order_id})`)
+        .maybeSingle();
+
       if (existingTx) return { success: true, already_processed: true };
       const { error } = await supabaseAdmin.from("wallet_transactions").insert({
         user_id: context.userId,

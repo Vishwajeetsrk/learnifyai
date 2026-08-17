@@ -1106,6 +1106,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v4.3.0 (August 2026) — Dual Payment Gateways, Cancellation Handling & Avatar Store Unlocking
+
+- 💳 **DUAL PAYMENT GATEWAY SWITCHING (CASHFREE & RAZORPAY)**: Integrated side-by-side dual-gateway support across Cart checkout and Wallet top-up. Added a platform default payment gateway configuration setting in the Billing OS Admin Panel (`/admin/billing`).
+- 🚫 **UNIVERSAL PAYMENT CANCELLATION HANDLING**: Handled window dismissals, modal cancellations (`ondismiss`, `USER_DROPPED`), and SDK errors across Cart, Wallet, Avatar store, and Subscription checkout flows. Guaranteed `paying` / `submitting` loader resets with clear user toast feedback.
+- 👤 **AVATAR M1 PAY, CLAIM & USE ENGINE**: Enhanced 3D Profile Avatar unlocking in the XP Store (`/store`). Clicking *Pay 1 XP & Claim* deducts 1 XP, records purchase, auto-applies `Avatar M1` to profile image (`avatar_url`), fires celebratory confetti, and refreshes profile UI instantly. Added explicit *Equip Avatar* action buttons for all owned avatars and direct wallet top-up helpers for ₹0 balances.
+- 📊 **BILLING & REVENUE OS ENHANCEMENTS**: Verified and updated all 11 Billing & Revenue OS admin tabs (Overview, Invoices, Payments, Subscriptions, Credits, Refunds, Taxes, Coupons, Cashfree, Subscription Analytics, Settings) with zero TypeScript compilation errors.
+
 ### v4.2.0 (August 2026) — Certificate Paywall & Dynamic Template Engine
 
 - 📜 **₹49 CERTIFICATE PAYWALL & PRO ACCESS**: Free plan users enjoy 100% free learning across all 11+ courses. Free users can claim and download verified certificates for ₹49 per certificate via Razorpay. Pro (₹199/mo) and Career Pro (₹499/mo) plan subscribers receive unlimited free certificate downloads across all courses.

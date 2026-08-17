@@ -22,6 +22,16 @@ export const Route = createFileRoute("/_authenticated/cart")({
   component: CartPage,
 });
 
+const loadCashfree = () =>
+  new Promise<boolean>((resolve) => {
+    if ((window as any).Cashfree) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
 const loadRazorpay = () =>
   new Promise<boolean>((resolve) => {
     if ((window as any).Razorpay) return resolve(true);
@@ -46,10 +56,13 @@ function CartPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const checkout = useServerFn(checkoutCart);
+  const createCfOrder = useServerFn(createCashfreeOrder);
+  const verifyCfPayment = useServerFn(verifyCashfreePayment);
 
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [couponInput, setCouponInput] = useState("");
   const [paying, setPaying] = useState(false);
+  const [paymentProvider, setPaymentProvider] = useState<"cashfree" | "razorpay">("cashfree");
   const [celebration, setCelebration] = useState<{
     title: string;
     message: string;
@@ -162,8 +175,50 @@ function CartPage() {
     }
   };
 
-  const pay = async () => {
-    setPaying(true);
+  const payWithCashfree = async () => {
+    try {
+      const loaded = await loadCashfree();
+      if (!loaded) throw new Error("Cashfree SDK failed to load");
+
+      const order = await createCfOrder({
+        data: { amountInr: total, email: user?.email, purpose: "cart" },
+      });
+
+      const cashfree = new (window as any).Cashfree({ mode: "production" });
+      const result = await cashfree.checkout({
+        paymentSessionId: order.payment_session_id,
+        redirectTarget: "_modal",
+      });
+
+      const msg = result?.paymentDetails?.paymentMessage;
+      if (!msg || msg === "USER_DROPPED") {
+        toast.info("Payment cancelled by user.");
+        setPaying(false);
+        return;
+      }
+      if (msg === "FAILED") {
+        toast.error("Payment failed. Please try again.");
+        setPaying(false);
+        return;
+      }
+
+      await verifyCfPayment({
+        data: {
+          amountInr: total,
+          method: "cashfree",
+          cashfree_order_id: order.order_id,
+          purpose: "cart",
+        },
+      });
+
+      await handleCheckoutSuccess(true);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Cashfree checkout failed");
+      setPaying(false);
+    }
+  };
+
+  const payWithRazorpay = async () => {
     try {
       const loaded = await loadRazorpay();
       if (!loaded) throw new Error("Razorpay SDK failed to load");
@@ -225,15 +280,40 @@ function CartPage() {
             await handleCheckoutSuccess(true);
           } catch (err: any) {
             toast.error(err.message || "Payment verification failed");
-          } finally {
             setPaying(false);
           }
         },
+        modal: {
+          ondismiss: function () {
+            toast.info("Payment cancelled by user.");
+            setPaying(false);
+          },
+        },
       });
+
+      rzp.on("payment.failed", function (resp: any) {
+        toast.error(`Payment failed: ${resp.error?.description || "Unknown error"}`);
+        setPaying(false);
+      });
+
       rzp.open();
     } catch (e: any) {
       toast.error(e?.message ?? "Checkout failed");
       setPaying(false);
+    }
+  };
+
+  const pay = async () => {
+    if (total === 0) {
+      setPaying(true);
+      await handleCheckoutSuccess(true);
+      return;
+    }
+    setPaying(true);
+    if (paymentProvider === "cashfree") {
+      await payWithCashfree();
+    } else {
+      await payWithRazorpay();
     }
   };
 
@@ -393,15 +473,38 @@ function CartPage() {
                 </div>
               </div>
 
-              {/* Payment method — Cashfree only */}
+              {/* Payment method selection */}
               <div className="space-y-2">
-                <label className="text-xs font-medium">Payment method</label>
-                <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-primary shrink-0" />
-                  <span>
-                    Secure checkout via <strong>Cashfree</strong> (card, UPI, netbanking).
-                  </span>
+                <label className="text-xs font-medium">Payment Gateway</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentProvider("cashfree")}
+                    className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all text-xs font-semibold ${
+                      paymentProvider === "cashfree"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-input bg-background hover:bg-accent text-muted-foreground"
+                    }`}
+                  >
+                    <CreditCard className="h-4 w-4" />
+                    Cashfree
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentProvider("razorpay")}
+                    className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all text-xs font-semibold ${
+                      paymentProvider === "razorpay"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-input bg-background hover:bg-accent text-muted-foreground"
+                    }`}
+                  >
+                    <CreditCard className="h-4 w-4" />
+                    Razorpay
+                  </button>
                 </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Secure checkout via {paymentProvider === "cashfree" ? "Cashfree" : "Razorpay"} (supports UPI, Card, Netbanking).
+                </p>
               </div>
 
               {/* Totals */}

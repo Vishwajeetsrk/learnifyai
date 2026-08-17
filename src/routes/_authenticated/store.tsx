@@ -450,17 +450,56 @@ function StorePage() {
                       )}
                     </div>
                     <p
-                      className={`text-xs font-semibold text-center truncate max-w-[96px] ${isActive ? "text-primary" : "text-muted-foreground"}`}
+                      className={`text-xs font-semibold text-center truncate max-w-[96px] ${isActive ? "text-primary font-bold" : "text-foreground"}`}
                     >
                       {item.name}
                     </p>
-                    <div className="flex items-center gap-1 text-[10px]">
+                    <div className="flex flex-col items-center gap-1 text-[10px] w-full">
                       {isActive ? (
-                        <span className="text-primary font-medium">Active</span>
+                        <Badge variant="default" className="text-[10px] py-0 h-5 bg-primary text-primary-foreground font-semibold">
+                          Active
+                        </Badge>
                       ) : owned ? (
-                        <span className="text-emerald-600 font-medium">Owned</span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-6 px-2 text-[10px] border-emerald-500 text-emerald-600 hover:bg-emerald-500 hover:text-white"
+                          disabled={isPurchasing}
+                          onClick={async () => {
+                            if (isPurchasing) return;
+                            try {
+                              const borderMatch = currentAvatarUrl.match(/[?&]profile_border=([^&]+)/);
+                              const activeBorder = borderMatch ? borderMatch[1] : "";
+                              const nextUrl = activeBorder
+                                ? `${item.image_url}?profile_border=${activeBorder}`
+                                : item.image_url;
+
+                              setPurchasing(item.id);
+                              await saveFieldFn({ data: { field: "avatar_url", value: nextUrl } });
+                              toast.success(`${item.name} equipped as active profile avatar!`);
+
+                              qc.invalidateQueries({ queryKey: ["my-profile", user?.id] });
+                              qc.invalidateQueries({ queryKey: ["profile-full"] });
+                              qc.invalidateQueries({ queryKey: ["profile-mini"] });
+                              qc.invalidateQueries({ queryKey: ["profile"] });
+                            } catch (err: any) {
+                              toast.error(err.message || "Failed to update avatar");
+                            } finally {
+                              setPurchasing(null);
+                            }
+                          }}
+                        >
+                          Equip
+                        </Button>
                       ) : (
-                        <span className="text-muted-foreground">₹{item.prime_price || 1}</span>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="h-6 px-2 text-[10px] font-medium"
+                          onClick={() => setAvatarPurchaseItem(item)}
+                        >
+                          Unlock (₹{item.prime_price || 1})
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -683,15 +722,20 @@ function StorePage() {
           </div>
           <DialogFooter className="flex flex-col gap-2 sm:flex-row">
             <Button
-              variant="outline"
-              className="flex-1 flex items-center justify-center gap-1.5 h-11"
+              variant="default"
+              className="flex-1 flex items-center justify-center gap-1.5 h-11 bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-md"
               disabled={xp < 1 || purchasing !== null}
               onClick={() => handleAvatarPurchase("xp")}
             >
-              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-              Pay 1 XP
+              {purchasing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Star className="h-4 w-4 text-white fill-white" />
+              )}
+              Pay 1 XP & Claim
             </Button>
             <Button
+              variant="outline"
               className="flex-1 flex items-center justify-center gap-1.5 h-11"
               disabled={
                 walletBalance < (avatarPurchaseItem?.prime_price || 1) || purchasing !== null
@@ -702,9 +746,19 @@ function StorePage() {
               Pay with ₹{avatarPurchaseItem?.prime_price || 1} Cash
             </Button>
           </DialogFooter>
-          <div className="text-[11px] text-center text-muted-foreground border-t pt-3">
-            Balance: <strong className="text-foreground">{xp.toLocaleString()}</strong> XP ·{" "}
-            <strong className="text-foreground">₹{walletBalance}</strong> Wallet Cash.
+          <div className="text-[11px] text-center text-muted-foreground border-t pt-3 flex items-center justify-center gap-2 flex-wrap">
+            <span>
+              Balance: <strong className="text-foreground">{xp.toLocaleString()}</strong> XP ·{" "}
+              <strong className="text-foreground">₹{walletBalance}</strong> Wallet Cash.
+            </span>
+            {walletBalance < (avatarPurchaseItem?.prime_price || 1) && (
+              <a
+                href="/wallet"
+                className="text-primary underline font-medium hover:text-primary/80"
+              >
+                Top up wallet
+              </a>
+            )}
           </div>
         </DialogContent>
       </Dialog>

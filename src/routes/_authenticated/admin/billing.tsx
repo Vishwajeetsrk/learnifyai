@@ -2109,6 +2109,38 @@ function BillingOSPage() {
               </div>
             ) : (
               <>
+                {/* Default Payment Gateway */}
+                <div className="rounded-xl border bg-card p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold">Default Payment Gateway</h3>
+                      <p className="text-xs text-muted-foreground">
+                        Select default payment processor for checkout, wallet topup, and subscriptions.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label>Primary Gateway</Label>
+                      <Select
+                        defaultValue={billingSettings.data?.default_gateway || "cashfree"}
+                        onValueChange={(v) => handleSaveSetting("default_gateway", v)}
+                      >
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select Gateway" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cashfree">Cashfree (Card / UPI / Netbanking / Payouts)</SelectItem>
+                          <SelectItem value="razorpay">Razorpay (Card / UPI / Netbanking / Recurring)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-2 pt-6 text-xs text-muted-foreground">
+                      <Shield className="h-4 w-4 text-emerald-500 shrink-0" />
+                      <span>Both gateways are active and selectable by users at checkout.</span>
+                    </div>
+                  </div>
+                </div>
                 {/* Branding */}
                 <div className="rounded-xl border bg-card p-6 space-y-4">
                   <div className="flex items-center justify-between">
