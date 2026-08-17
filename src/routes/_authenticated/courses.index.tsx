@@ -565,7 +565,7 @@ function CoursesPage() {
               <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
                 Categories
               </div>
-              <span className="text-[10px] text-muted-foreground/70 font-medium">
+              <span className="text-[10px] text-muted-foreground/80 font-semibold">
                 {categories.length} categories
               </span>
             </div>
@@ -576,6 +576,7 @@ function CoursesPage() {
             >
               {categories.map((c) => {
                 const count = (coursesQuery.data ?? []).filter((x) => x.category === c).length;
+                const zero = c !== "All" && count === 0;
                 return (
                   <button
                     key={c}
@@ -584,7 +585,9 @@ function CoursesPage() {
                       "px-3 py-1.5 rounded-full text-xs font-bold border transition-all shrink-0 inline-flex items-center gap-1.5 cursor-pointer shadow-xs",
                       cat === c
                         ? "bg-primary text-primary-foreground border-primary shadow-md"
-                        : "border-border/80 bg-card text-foreground/80 hover:border-primary/40 hover:text-foreground",
+                        : zero
+                          ? "border-border/40 bg-card/40 text-muted-foreground/50 hover:border-primary/30 hover:text-foreground"
+                          : "border-border/80 bg-card text-foreground/80 hover:border-primary/40 hover:text-foreground",
                     )}
                     aria-pressed={cat === c}
                   >
@@ -595,7 +598,9 @@ function CoursesPage() {
                           "text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none",
                           cat === c
                             ? "bg-primary-foreground/20 text-primary-foreground"
-                            : "bg-muted text-muted-foreground",
+                            : zero
+                              ? "bg-muted/50 text-muted-foreground/50"
+                              : "bg-muted text-muted-foreground",
                         )}
                       >
                         {count}

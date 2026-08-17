@@ -1106,6 +1106,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v5.4.0 (August 2026) — Courses Marketplace & Filter Engine Overhaul
+
+- 🎓 **COURSES MARKETPLACE FILTER ENGINE**: Upgraded `courses.index.tsx` category pills with intelligent count badging (`categories.map`), career path keyword mapping (*Frontend, Backend, Full Stack, AI/ML, Security, DevOps, Mobile*), price filters (*Free / Paid*), and level selectors (*Beginner / Intermediate / Advanced*).
+- ⚡ **FEATURED SYSTEM DESIGN ACADEMY**: Integrated System Design banner highlighting 10 architecture topics (*Netflix, Uber, WhatsApp, YouTube, Amazon, Google Search*) with direct route navigation.
+- 📱 **RESPONSIVE COURSE CARDS GRID**: Refactored course cards grid (`grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4`), learner avatar stacks (`CourseCardLearners`), and instant 1-click enrollment/cart triggers.
+
 ### v5.3.0 (August 2026) — Leaderboard Mobile List Badging & Community Feed Layout Overhaul
 
 - 🏆 **LEADERBOARD MOBILE MICRO-BADGES**: Upgraded `leaderboard.view.tsx` user list items with responsive streak (`3d`) and level (`Lv.16`) micro-badges visible across all screen sizes, eliminating text truncation on mobile displays.
