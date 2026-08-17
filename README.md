@@ -1087,6 +1087,10 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v7.0.0 (August 2026) — Creator Studio Action Pills Responsive Overhaul
+
+- 🎬 **CREATOR STUDIO RESPONSIVE ACTION PILLS**: Upgraded `studio.view.tsx` Course catalog action buttons (*Lessons*, *Assign.*, *Projects*, *Resources*, *Subs*, *Test*, *AI*) into color-coded badge pills (`h-7 text-xs rounded-lg gap-1`) with min-width flex wrapping to prevent layout clipping across mobile, tablet, and desktop viewports.
+
 ### v6.9.0 (August 2026) — Course Form Dialog Mobile-First Responsive Overhaul
 
 - 📝 **COURSE FORM RESPONSIVE BUTTON GRID**: Upgraded `studio.view.tsx` Course Form Dialog thumbnail action controls (*Upload*, *AI Thumbnail*, *Edit*, *Quick stock*) with a responsive 2-column/4-column button grid (`grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2`).

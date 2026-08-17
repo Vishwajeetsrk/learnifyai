@@ -339,55 +339,57 @@ export default function StudioPage() {
                         {format(new Date(c.created_at), "dd-MM-yyyy")}
                       </td>
                       <td className="px-4 md:px-6 py-3 text-right">
-                        <div className="flex items-center gap-1 justify-end flex-wrap">
-                          <Button size="sm" variant="ghost" onClick={() => setManageLessonsFor(c)}>
-                            <Video className="h-4 w-4" /> Lessons
+                        <div className="flex items-center gap-1.5 justify-end flex-wrap min-w-[320px]">
+                          <Button size="sm" variant="outline" onClick={() => setManageLessonsFor(c)} className="h-7 text-xs px-2.5 rounded-lg gap-1">
+                            <Video className="h-3.5 w-3.5 text-blue-500" /> Lessons
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setManageAssignFor(c)}>
-                            <ClipboardList className="h-4 w-4" /> Assign.
+                          <Button size="sm" variant="outline" onClick={() => setManageAssignFor(c)} className="h-7 text-xs px-2.5 rounded-lg gap-1">
+                            <ClipboardList className="h-3.5 w-3.5 text-emerald-500" /> Assign.
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setManageProjectsFor(c)}>
-                            <Code2 className="h-4 w-4" /> Projects
+                          <Button size="sm" variant="outline" onClick={() => setManageProjectsFor(c)} className="h-7 text-xs px-2.5 rounded-lg gap-1">
+                            <Code2 className="h-3.5 w-3.5 text-purple-500" /> Projects
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setManageResourcesFor(c)}>
-                            <FileText className="h-4 w-4" /> Resources
+                          <Button size="sm" variant="outline" onClick={() => setManageResourcesFor(c)} className="h-7 text-xs px-2.5 rounded-lg gap-1">
+                            <FileText className="h-3.5 w-3.5 text-amber-500" /> Resources
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setReviewSubFor(c)}>
-                            <FileCheck2 className="h-4 w-4" /> Subs
+                          <Button size="sm" variant="outline" onClick={() => setReviewSubFor(c)} className="h-7 text-xs px-2.5 rounded-lg gap-1">
+                            <FileCheck2 className="h-3.5 w-3.5 text-teal-500" /> Subs
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setManageMcqFor(c)}>
-                            <Brain className="h-4 w-4" /> Test
+                          <Button size="sm" variant="outline" onClick={() => setManageMcqFor(c)} className="h-7 text-xs px-2.5 rounded-lg gap-1">
+                            <Brain className="h-3.5 w-3.5 text-pink-500" /> Test
                           </Button>
                           <Button
                             size="sm"
-                            variant="ghost"
+                            variant="outline"
                             disabled={autoCompleting === c.id}
                             onClick={() => handleAutoComplete(c.id)}
+                            className="h-7 text-xs px-2.5 rounded-lg gap-1 bg-gradient-to-r from-violet-500/10 to-indigo-500/10 border-indigo-500/30 text-indigo-600 dark:text-indigo-400 font-bold"
                           >
                             {autoCompleting === c.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
                             ) : (
-                              <Sparkles className="h-4 w-4" />
-                            )}{" "}
+                              <Sparkles className="h-3.5 w-3.5 text-indigo-500 fill-indigo-500" />
+                            )}
                             AI
                           </Button>
                           <Button
-                            size="sm"
+                            size="icon"
                             variant="ghost"
+                            className="h-7 w-7 rounded-lg"
                             onClick={() => {
                               setCreating(false);
                               setEditing(c);
                             }}
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="h-3.5 w-3.5" />
                           </Button>
                           <Button
-                            size="sm"
+                            size="icon"
                             variant="ghost"
-                            className="text-destructive hover:text-destructive"
+                            className="h-7 w-7 rounded-lg text-destructive hover:text-destructive"
                             onClick={() => setDeletingCourse(c)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </td>
