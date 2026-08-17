@@ -3,6 +3,7 @@ import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { CurrencySelector } from "@/components/CurrencySelector";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { useAuth } from "@/hooks/use-auth";
 import { usePublicMenu } from "@/hooks/use-wcms-public";
@@ -63,6 +64,7 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          <CurrencySelector />
           <LanguageSwitcher />
           {isAuthenticated && !loading ? (
             <div className="hidden sm:flex items-center gap-2">

@@ -14,6 +14,7 @@ import { StudentJourney } from "@/components/interactive/StudentJourney";
 import { MagnificationDock } from "@/components/interactive/MagnificationDock";
 import { PricingComparisonTable } from "@/components/interactive/PricingComparisonTable";
 import { SavingsCalculator } from "@/components/interactive/SavingsCalculator";
+import { useGlobalCurrency } from "@/lib/currency";
 import { usePublicSection } from "@/hooks/use-wcms-public";
 import {
   Check,
@@ -1526,14 +1527,18 @@ function PricingCard({
   onSubscribe: (id: string) => void;
   onCancel: () => void;
 }) {
+  const { format } = useGlobalCurrency();
   const yearlyPrice = plan.yearly_price || Math.round(plan.price_inr * 12 * 0.7);
   const monthlyEquiv = hasPrice && yearlyPrice > 0 ? Math.round(yearlyPrice / 12) : 0;
   const annualSaving = hasPrice ? Math.round(plan.price_inr * 12 - yearlyPrice) : 0;
   const monthlySavings = hasPrice ? Math.round((plan.price_inr * 12 - yearlyPrice) / 12) : 0;
-  const displayPrice =
-    billingCycle === "yearly" && hasPrice
-      ? `₹${monthlyEquiv.toLocaleString("en-IN")}`
-      : plan.price_label;
+  const displayPrice = isFree
+    ? "Free"
+    : !hasPrice
+    ? plan.price_label
+    : billingCycle === "yearly" && hasPrice
+    ? format(monthlyEquiv)
+    : format(plan.price_inr);
 
   return (
     <div className="relative flex flex-col snap-start shrink-0 w-[80vw] sm:w-auto">

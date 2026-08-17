@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v7.1.0 (August 2026) — Global Multi-Currency Engine & Purchasing Power Parity (PPP) Pricing
+
+- 🌍 **GLOBAL MULTI-CURRENCY CONVERSION ENGINE**: Built `src/lib/currency.ts` supporting 9 global currencies (**INR ₹**, **USD $**, **EUR €**, **GBP £**, **AED د.إ**, **CAD C$**, **AUD A$**, **SGD S$**, **JPY ¥**) with dynamic Purchasing Power Parity (PPP) international market price adjustments.
+- 🎛️ **TOUCH-FRIENDLY CURRENCY SELECTOR**: Created `CurrencySelector.tsx` and integrated it into `SiteHeader.tsx` and `AppShell.tsx` UserFooter, providing 1-click live currency switching with real-time price updates across `pricing.tsx`, course marketplace, course player, and cart checkout.
+
 ### v7.0.0 (August 2026) — Creator Studio Action Pills Responsive Overhaul
 
 - 🎬 **CREATOR STUDIO RESPONSIVE ACTION PILLS**: Upgraded `studio.view.tsx` Course catalog action buttons (*Lessons*, *Assign.*, *Projects*, *Resources*, *Subs*, *Test*, *AI*) into color-coded badge pills (`h-7 text-xs rounded-lg gap-1`) with min-width flex wrapping to prevent layout clipping across mobile, tablet, and desktop viewports.

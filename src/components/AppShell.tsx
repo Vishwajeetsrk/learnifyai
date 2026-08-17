@@ -31,6 +31,7 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { CurrencySelector } from "@/components/CurrencySelector";
 import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -222,6 +223,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="border-t p-3 flex items-center gap-2">
       <UserAvatarMenu showName />
       <div className="ml-auto flex items-center gap-1">
+        <CurrencySelector />
         <LanguageSwitcher />
         <ThemeToggle />
       </div>

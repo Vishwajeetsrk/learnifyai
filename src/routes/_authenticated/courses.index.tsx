@@ -48,14 +48,9 @@ export const Route = createFileRoute("/_authenticated/courses/")({
   component: CoursesPage,
 });
 
-const inr = (n: number) =>
-  n === 0
-    ? "Free"
-    : new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-      }).format(n);
+import { formatCurrency } from "@/lib/currency";
+
+const inr = (n: number) => (n === 0 ? "Free" : formatCurrency(n));
 
 function CourseCardLearners({ courseId }: { courseId: string }) {
   const getLearners = useServerFn(getCourseLearners);
