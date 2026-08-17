@@ -15,6 +15,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
+import { motion } from "framer-motion";
 
 import { AppShell } from "@/components/AppShell";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -646,28 +647,57 @@ function AIPage() {
                   <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 </div>
               ) : messages.length === 0 ? (
-                <div className="text-center py-20">
-                  <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 grid place-items-center mb-4">
-                    <Sparkles className="h-6 w-6 text-primary" />
-                  </div>
-                  <h2 className="text-xl font-display font-semibold">Ask anything</h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Get explanations, code reviews, study plans, and more.
+                <div className="text-center py-16 sm:py-20">
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="mx-auto h-14 w-14 rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 grid place-items-center mb-4 shadow-sm"
+                  >
+                    <Sparkles className="h-7 w-7 text-primary animate-pulse" />
+                  </motion.div>
+                  <h2 className="text-2xl font-display font-bold tracking-tight">Ask anything</h2>
+                  <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+                    Get personalized explanations, code reviews, study plans, and multi-modal answers.
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-8 max-w-xl mx-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8 max-w-xl mx-auto">
                     {[
-                      "Explain quantum entanglement like I'm 12",
-                      "Write a Python script to scrape a webpage",
-                      "Create a 4-week study plan for AWS Solutions Architect",
-                      "What's the difference between SQL and NoSQL?",
-                    ].map((suggestion) => (
-                      <button
-                        key={suggestion}
-                        onClick={() => setInput(suggestion)}
-                        className="text-left text-sm border rounded-lg p-3 hover:bg-accent transition"
+                      {
+                        prompt: "Explain quantum entanglement like I'm 12",
+                        tag: "Physics & Science",
+                      },
+                      {
+                        prompt: "Write a Python script to scrape a webpage",
+                        tag: "Coding & Automation",
+                      },
+                      {
+                        prompt: "Create a 4-week study plan for AWS Solutions Architect",
+                        tag: "Cloud & Certification",
+                      },
+                      {
+                        prompt: "What's the difference between SQL and NoSQL?",
+                        tag: "Databases & Architecture",
+                      },
+                    ].map((suggestion, idx) => (
+                      <motion.button
+                        key={suggestion.prompt}
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: idx * 0.08, duration: 0.25 }}
+                        whileHover={{ y: -2, scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setInput(suggestion.prompt);
+                        }}
+                        className="text-left text-sm border border-border/80 bg-card/60 backdrop-blur-sm rounded-xl p-3.5 hover:border-primary/50 hover:bg-card/90 transition-all shadow-sm flex flex-col justify-between group"
                       >
-                        {suggestion}
-                      </button>
+                        <span className="font-medium text-foreground group-hover:text-primary transition-colors">
+                          {suggestion.prompt}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground font-mono mt-2 uppercase tracking-wider">
+                          {suggestion.tag} ↗
+                        </span>
+                      </motion.button>
                     ))}
                   </div>
                 </div>

@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v5.9.0 (August 2026) — AI Tutor Motion & Framer Animation Overhaul + Razorpay Default Gateway
+
+- 🤖 **AI TUTOR INTERACTIVE PROMPT CHIPS**: Upgraded `ai.tsx` empty state with Framer Motion hover elevations (`whileHover={{ y: -2, scale: 1.02 }}`), category badges (*Physics & Science*, *Coding & Automation*, *Cloud & Certification*, *Databases & Architecture*), spring tap physics (`whileTap={{ scale: 0.98 }}`), and 1-click prompt execution.
+- 💳 **RAZORPAY PRIMARY PAYMENT GATEWAY ALIGNMENT**: Enforced **Razorpay** as the primary default payment provider across cart checkout (`cart.tsx`), wallet top-ups (`wallet.tsx`), pricing subscriptions (`pricing.tsx`), and PDF tax invoice generators (`invoice-pdf.ts`).
+
 ### v5.8.0 (August 2026) — Real-Time QR Verification Engine & Email GST Invoice Automation
 
 - 🔍 **REAL-TIME QR CODE VERIFICATION**: Verified real-time smartphone QR scanning for certificates (`/verify/$id`) and GST Tax Invoices (`/verify/invoice/$id`), displaying live database records, MSME Udyam + NSDC Skill India accreditation seals, and cryptographic QR hash status (`VERIFIED`).

@@ -62,7 +62,7 @@ function CartPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
   const [couponInput, setCouponInput] = useState("");
   const [paying, setPaying] = useState(false);
-  const [paymentProvider, setPaymentProvider] = useState<"cashfree" | "razorpay">("cashfree");
+  const [paymentProvider, setPaymentProvider] = useState<"cashfree" | "razorpay">("razorpay");
   const [celebration, setCelebration] = useState<{
     title: string;
     message: string;

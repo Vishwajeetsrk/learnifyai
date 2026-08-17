@@ -429,8 +429,8 @@ export async function downloadInvoicePdf(
   const payDetails = [
     `Invoice: ${inv.invoice_number || ""}`,
     `Status: ${(inv.status || "").toUpperCase()}`,
-    ...(inv.cashfree_order_id ? [`Order ID: ${inv.cashfree_order_id}`] : []),
-    ...(inv.payment_method ? [`Method: ${inv.payment_method}`] : []),
+    ...(inv.cashfree_order_id ? [`Txn/Order ID: ${inv.cashfree_order_id}`] : []),
+    `Gateway: ${inv.payment_method || "Razorpay / UPI"}`,
   ];
   payDetails.forEach((txt, i) => {
     const col = Math.floor(i / 2);
