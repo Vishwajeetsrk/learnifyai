@@ -1106,6 +1106,14 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v4.5.0 (August 2026) — Resume Builder Studio Design & Layout Engine Overhaul
+
+- 🎨 **GRANULAR RESUME DESIGN CONTROLS**: Fixed and connected all non-functional Design & Layout controls in `ResumeBuilderPage.tsx`. Enabled real-time reactivity across Layout Columns (`one`, `two`, `mix`), Header Position (`top`, `left`, `right`), Base Font Size (`9.5pt` to `12.5pt`), Line Height (`1.1` to `1.5`), and Page Margins (`5mm` to `25mm`).
+- 🔤 **REAL-TIME FONT OFFSET STEPPERS**: Connected interactive `-` and `+` font size offset steppers for Full Name (`+1` to `+30pt`), Professional Title (`+0` to `+20pt`), and Section Headings (`+0` to `+10pt`) with instant live document rendering.
+- 🎯 **TARGETED ACCENT COLOR SELECTION**: Bound 9 accent color target checkboxes (*Name, Job title, Headings, Headings line, Header icons, Dots/bars, Dates, Entry subtitle, Link icons*) to custom element styling, allowing users to selectively apply accent colors.
+- 📐 **DETAILS ARRANGEMENT & ICON STYLING**: Enabled detail separator selection (*Icon, Bullet, Pipe |, Bar /*) and icon frame styling (*Circle Outline, No Frame, Circle Filled, Rounded Filled, Square Filled*).
+- 💾 **LOCALSTORAGE PERSISTENCE & 0 TS ERRORS**: Saved all custom design parameters to `localStorage` for instant session recovery with zero TypeScript compilation errors.
+
 ### v4.4.0 (August 2026) — 100% Global Translation Engine & Grammar Optimization
 
 - 🌐 **100% GLOBAL PAGE TRANSLATION**: Upgraded `LanguageSwitcher.tsx` with Google Translate DOM Translation Engine + `i18next` dual-core synchronization. 100% of web page DOM elements (landing pages, interactive demo cards, headers, course cards, dashboards, modals, and dynamic React components) now translate instantly when switching languages.

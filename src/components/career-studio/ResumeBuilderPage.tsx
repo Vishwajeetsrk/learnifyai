@@ -674,8 +674,17 @@ function ResumePreview({
   accentColor,
   fontFamily = "font-sans",
   layoutColumns = "one",
+  headerPosition = "top",
   headerAlign = "center",
   baseFontSize = "10.5pt",
+  nameFontSizeOffset = 11,
+  titleFontSizeOffset = 5,
+  headingFontSizeOffset = 1,
+  lineHeightVal = 1.3,
+  marginMmVal = 10,
+  accentTargets = ["name", "jobTitle", "headings", "headingsLine", "headerIcons", "dotsBars", "dates", "entrySubtitle", "linkIcons"],
+  detailsArrangement = "pipe",
+  iconStyleVal = "Icon Style: Circle Outline",
   headingCap = "uppercase",
   workOrder = "title-employer",
   skillsStyle = "compact",
@@ -685,8 +694,17 @@ function ResumePreview({
   accentColor?: string;
   fontFamily?: string;
   layoutColumns?: "one" | "two" | "mix";
+  headerPosition?: "top" | "left" | "right";
   headerAlign?: "left" | "center";
   baseFontSize?: string;
+  nameFontSizeOffset?: number;
+  titleFontSizeOffset?: number;
+  headingFontSizeOffset?: number;
+  lineHeightVal?: number;
+  marginMmVal?: number;
+  accentTargets?: string[];
+  detailsArrangement?: "icon" | "bullet" | "pipe" | "bar";
+  iconStyleVal?: string;
   headingCap?: "uppercase" | "capitalize";
   workOrder?: "title-employer" | "employer-title";
   skillsStyle?: "compact" | "badges" | "grid";
@@ -698,62 +716,97 @@ function ResumePreview({
   const isMinimal = template.id === "minimal";
   const accent = accentColor || template.accent || "#0f172a";
 
+  const hasAccent = (key: string) => accentTargets.includes(key);
+
+  const basePt = parseFloat(baseFontSize) || 10.5;
+  const namePt = `${basePt + nameFontSizeOffset}pt`;
+  const titlePt = `${basePt + titleFontSizeOffset}pt`;
+  const headingPt = `${basePt + headingFontSizeOffset}pt`;
+
   const expItems = parseExperienceEntries(form.experience || "");
   const eduItems = parseEducationEntries(form.education || "");
   const projItems = parseProjectEntries(form.projects || "");
   const skillCats = parseSkillCategories(form.skills || "");
 
+  const sepString =
+    detailsArrangement === "bullet"
+      ? " • "
+      : detailsArrangement === "bar"
+        ? " / "
+        : " | ";
+
+  const renderIconFrame = (IconComponent: any) => {
+    if (!IconComponent) return null;
+    if (iconStyleVal.includes("No Frame")) {
+      return (
+        <IconComponent
+          className="h-4 w-4 shrink-0"
+          style={{ color: hasAccent("headerIcons") ? accent : undefined }}
+        />
+      );
+    }
+    if (iconStyleVal.includes("Circle Filled")) {
+      return (
+        <div
+          className="p-1 rounded-full text-white shrink-0 shadow-xs"
+          style={{ backgroundColor: accent }}
+        >
+          <IconComponent className="h-3 w-3" />
+        </div>
+      );
+    }
+    if (iconStyleVal.includes("Rounded Filled")) {
+      return (
+        <div
+          className="p-1 rounded-md text-white shrink-0 shadow-xs"
+          style={{ backgroundColor: accent }}
+        >
+          <IconComponent className="h-3 w-3" />
+        </div>
+      );
+    }
+    if (iconStyleVal.includes("Square Filled")) {
+      return (
+        <div
+          className="p-1 rounded-none text-white shrink-0 shadow-xs"
+          style={{ backgroundColor: accent }}
+        >
+          <IconComponent className="h-3 w-3" />
+        </div>
+      );
+    }
+    // Default: Circle Outline
+    return (
+      <div
+        className="p-1 rounded-full border shrink-0"
+        style={{ borderColor: hasAccent("headerIcons") ? accent : "#cbd5e1" }}
+      >
+        <IconComponent
+          className="h-3.5 w-3.5"
+          style={{ color: hasAccent("headerIcons") ? accent : undefined }}
+        />
+      </div>
+    );
+  };
+
   const renderSectionHeader = (icon: any, label: string) => {
     const IconComponent = icon;
     const displayLabel = headingCap === "uppercase" ? label.toUpperCase() : label;
-    if (isClassic) {
-      return (
-        <div className="mb-3 pb-1 border-b-2 border-slate-800 flex items-center gap-2">
-          <IconComponent className="h-4 w-4 text-slate-800" />
-          <h3 className="text-xs font-serif font-black uppercase tracking-widest text-slate-900">
-            {displayLabel}
-          </h3>
-        </div>
-      );
-    }
-    if (isMinimal) {
-      return (
-        <div className="mb-2 pb-0.5 border-b border-black">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-black">
-            {displayLabel}
-          </h3>
-        </div>
-      );
-    }
-    if (isCreative) {
-      return (
-        <div className="mb-3 pb-1 border-b-2 border-emerald-500 flex items-center gap-2">
-          <IconComponent className="h-4 w-4 text-emerald-600" />
-          <h3 className="text-xs font-extrabold uppercase tracking-wider text-emerald-800">
-            {displayLabel}
-          </h3>
-        </div>
-      );
-    }
-    if (isModern) {
-      return (
-        <div className="mb-3 pb-1 border-b-2 border-indigo-600 flex items-center gap-2">
-          <IconComponent className="h-4 w-4 text-indigo-600" />
-          <h3 className="text-xs font-black uppercase tracking-wider text-indigo-900">
-            {displayLabel}
-          </h3>
-        </div>
-      );
-    }
+
     return (
       <div
-        className="flex items-center gap-1.5 mb-3 pb-1 border-b-2"
-        style={{ borderColor: accent }}
+        className="flex items-center gap-2 mb-3 pb-1.5 border-b-2"
+        style={{
+          borderColor: hasAccent("headingsLine") ? accent : "#0f172a",
+        }}
       >
-        <IconComponent className="h-4 w-4" style={{ color: accent }} />
+        {renderIconFrame(IconComponent)}
         <h3
-          className="text-xs font-black uppercase tracking-wider"
-          style={{ color: accent }}
+          className="font-black uppercase tracking-wider text-slate-900"
+          style={{
+            fontSize: headingPt,
+            color: hasAccent("headings") ? accent : undefined,
+          }}
         >
           {displayLabel}
         </h3>
@@ -761,455 +814,461 @@ function ResumePreview({
     );
   };
 
-  const sH = (label: string) => {
-    const displayLabel = headingCap === "uppercase" ? label.toUpperCase() : label;
-    if (isClassic) {
-      return (
-        <p className="text-[11px] font-serif font-black uppercase tracking-widest mb-2 pb-1 border-b-2 border-slate-800 text-slate-900">
-          {displayLabel}
-        </p>
-      );
-    }
-    if (isMinimal) {
-      return (
-        <p className="text-[10.5px] font-bold uppercase tracking-wider mb-2 pb-0.5 border-b border-black text-black">
-          {displayLabel}
-        </p>
-      );
-    }
-    if (isCreative) {
-      return (
-        <p className="text-[10px] font-black uppercase tracking-widest mb-2 pb-1 border-b-2 border-emerald-500 text-emerald-800">
-          {displayLabel}
-        </p>
-      );
-    }
-    if (isModern) {
-      return (
-        <p className="text-[10px] font-black uppercase tracking-widest mb-2 pb-1 border-b-2 border-indigo-600 text-indigo-900">
-          {displayLabel}
-        </p>
-      );
-    }
-    return (
-      <p
-        className="text-[10px] font-extrabold uppercase tracking-widest mb-2 pb-1 border-b"
-        style={{ color: accent, borderColor: accent + "40" }}
-      >
-        {displayLabel}
-      </p>
-    );
+  const effHeaderAlignClass =
+    headerPosition === "left"
+      ? "text-left items-start"
+      : headerPosition === "right"
+        ? "text-right items-end"
+        : headerAlign === "center"
+          ? "text-center items-center"
+          : "text-left items-start";
+
+  const renderSectionList = (
+    sections: { key: string; icon: any; title: string; node: React.ReactNode }[]
+  ) => {
+    return sections
+      .filter((s) => Boolean(s.node))
+      .map((s) => {
+        const { title, icon } = getSectionIconAndTitle(s.key, s.icon, s.title, form);
+        return (
+          <div key={s.key} className="mb-4">
+            {renderSectionHeader(icon, title)}
+            {s.node}
+          </div>
+        );
+      });
   };
+
+  // Define section nodes
+  const summaryNode = form.summary ? (
+    <p className="text-xs text-slate-700 leading-relaxed font-normal">{form.summary}</p>
+  ) : null;
+
+  const experienceNode = form.experience ? (
+    <div className="space-y-3.5">
+      {expItems.length > 0
+        ? expItems.map((item, idx) => (
+            <div key={idx} className="space-y-1">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                <div className="font-bold text-[12px] text-slate-950">
+                  {workOrder === "employer-title" ? (
+                    <>
+                      {item.company && <span>{item.company} — </span>}
+                      <span className="font-normal">{item.title}</span>
+                    </>
+                  ) : (
+                    <>
+                      {item.title}{" "}
+                      {item.company && (
+                        <span
+                          className="font-semibold"
+                          style={{ color: hasAccent("entrySubtitle") ? accent : "#334155" }}
+                        >
+                          @ {item.company}
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
+                <div
+                  className="text-[10.5px] font-bold"
+                  style={{ color: hasAccent("dates") ? accent : "#64748b" }}
+                >
+                  {item.startDate && (
+                    <span>
+                      {item.startDate} {item.endDate ? `– ${item.endDate}` : ""}
+                    </span>
+                  )}
+                  {item.location && <span className="ml-2 font-normal">| {item.location}</span>}
+                </div>
+              </div>
+              {item.bullets.length > 0 && (
+                <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
+                  {item.bullets.map((b, bIdx) => (
+                    <li key={bIdx}>{renderTextWithLinks(b)}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))
+        : renderTextWithLinks(form.experience)}
+    </div>
+  ) : null;
+
+  const educationNode = form.education ? (
+    <div className="space-y-2">
+      {eduItems.length > 0
+        ? eduItems.map((item, idx) => (
+            <div key={idx} className="flex flex-wrap items-baseline justify-between gap-x-2">
+              <div>
+                <span className="font-bold text-[12px] text-slate-950">{item.degree}</span>
+                {item.school && <span className="font-semibold text-slate-700">, {item.school}</span>}
+              </div>
+              <div
+                className="text-[10.5px] font-bold"
+                style={{ color: hasAccent("dates") ? accent : "#64748b" }}
+              >
+                {item.startDate && (
+                  <span>
+                    {item.startDate} {item.endDate ? `– ${item.endDate}` : ""}
+                  </span>
+                )}
+                {item.location && <span className="ml-2 font-normal">| {item.location}</span>}
+              </div>
+            </div>
+          ))
+        : renderTextWithLinks(form.education)}
+    </div>
+  ) : null;
+
+  const projectsNode = form.projects ? (
+    <div className="space-y-3.5">
+      {projItems.length > 0
+        ? projItems.map((item, idx) => (
+            <div key={idx} className="space-y-1">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                <div className="font-bold text-[12px] text-slate-950">
+                  {item.title}{" "}
+                  {item.subtitle && (
+                    <span className="font-semibold text-slate-600">— {item.subtitle}</span>
+                  )}
+                </div>
+                {item.dates && (
+                  <span
+                    className="text-[10.5px] font-bold"
+                    style={{ color: hasAccent("dates") ? accent : "#64748b" }}
+                  >
+                    {item.dates}
+                  </span>
+                )}
+              </div>
+              {item.techStack && (
+                <p
+                  className="text-[10.5px] font-semibold"
+                  style={{ color: hasAccent("entrySubtitle") ? accent : "#4338ca" }}
+                >
+                  Tech Stack: {item.techStack}
+                </p>
+              )}
+              {item.bullets.length > 0 && (
+                <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
+                  {item.bullets.map((b, bIdx) => (
+                    <li key={bIdx}>{renderTextWithLinks(b)}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))
+        : renderTextWithLinks(form.projects)}
+    </div>
+  ) : null;
+
+  const skillsNode = form.skills ? (
+    <div>
+      {isCreative ? (
+        <div className="flex flex-wrap gap-1.5">
+          {form.skills.split(",").map((s, i) => (
+            <span
+              key={i}
+              className="px-2 py-0.5 rounded-full text-[10px] font-bold border"
+              style={{
+                backgroundColor: hasAccent("dotsBars") ? accent + "15" : "#ecfdf5",
+                borderColor: hasAccent("dotsBars") ? accent + "40" : "#a7f3d0",
+                color: hasAccent("dotsBars") ? accent : "#065f46",
+              }}
+            >
+              {s.trim()}
+            </span>
+          ))}
+        </div>
+      ) : skillCats.length > 0 ? (
+        <div className="space-y-1 text-xs text-slate-800">
+          {skillCats.map((cat, idx) => (
+            <div key={idx} className="flex flex-wrap items-baseline gap-1">
+              <span className="font-bold text-slate-950">{cat.category}:</span>
+              <span className="text-slate-700 font-medium">{cat.skills.join(" | ")}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
+          {form.skills}
+        </div>
+      )}
+    </div>
+  ) : null;
+
+  const certificationsNode = form.certifications ? (
+    <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed space-y-1">
+      {renderTextWithLinks(form.certifications)}
+    </div>
+  ) : null;
+
+  const strengthsNode = form.strengths ? (
+    <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
+      {form.strengths}
+    </div>
+  ) : null;
+
+  const languagesNode = form.languages ? (
+    <p className="text-xs text-slate-800 font-medium">{form.languages}</p>
+  ) : null;
+
+  const awardsNode = form.awards ? (
+    <div className="text-xs text-slate-800 font-medium">{renderTextWithLinks(form.awards)}</div>
+  ) : null;
+
+  const customNode =
+    form.customSectionTitle && form.customSectionBody ? (
+      <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed space-y-1 font-medium">
+        {renderTextWithLinks(form.customSectionBody)}
+      </div>
+    ) : null;
+
+  const declarationNode = form.declaration ? (
+    <div className="pt-2 border-t border-slate-200/80">
+      <p className="text-[11px] text-slate-600 italic mb-4 leading-relaxed">{form.declaration}</p>
+      <div className="pt-2 border-t border-slate-300 w-52">
+        {form.signatureImage ? (
+          <img src={form.signatureImage} alt="Digital Signature" className="h-10 object-contain mb-1" />
+        ) : (
+          <p className="font-serif italic text-lg text-indigo-900 font-bold leading-none">
+            {form.signatoryName || form.fullName || "Alex Rivera"}
+          </p>
+        )}
+        <p className="text-[10px] text-slate-500 font-bold mt-1">
+          {form.signatoryName || form.fullName || "Alex Rivera"} (
+          {form.signatoryPlace || form.location?.split(",")[0] || "San Francisco"})
+        </p>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <div
       id="resume-preview-document"
       className={cn(
-        "w-full rounded-xl border overflow-hidden shadow-sm text-xs leading-relaxed bg-white text-slate-900 relative",
+        "w-full rounded-xl border overflow-hidden shadow-sm text-xs bg-white text-slate-900 relative transition-all",
         fontFamily,
       )}
-      style={{ minHeight: 650, fontSize: baseFontSize }}
+      style={{
+        minHeight: 650,
+        fontSize: baseFontSize,
+        lineHeight: lineHeightVal,
+        padding: `${marginMmVal}mm`,
+      }}
     >
       {/* Header */}
-      {isDreamSync ? (
-        <div
-          className={cn(
-            "px-8 py-6 border-b space-y-2 bg-slate-50/50",
-            headerAlign === "center" ? "text-center" : "text-left",
-          )}
-        >
-          {form.photo && (
-            <img
-              src={form.photo}
-              alt="Profile Photo"
-              className={cn(
-                "h-16 w-16 rounded-full object-cover border-2 shadow-sm mb-1",
-                headerAlign === "center" && "mx-auto",
-              )}
-              style={{ borderColor: accent }}
-            />
-          )}
-          <h1 className="text-2xl font-black tracking-wide text-slate-950 uppercase">
-            {form.fullName || "ALEX RIVERA"}
-          </h1>
-          {form.targetRole && (
-            <p className="text-xs font-bold text-slate-700 max-w-2xl leading-normal">
-              {form.targetRole}
-            </p>
-          )}
-          <div
-            className={cn(
-              "flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] font-medium text-slate-600 pt-1",
-              headerAlign === "center" && "justify-center",
-            )}
-          >
-            {form.email && (
-              <span className="flex items-center gap-1">
-                <Mail className="h-3 w-3 text-slate-500" />
-                {form.email}
-              </span>
-            )}
-            {form.phone && (
-              <span className="flex items-center gap-1">
-                <Phone className="h-3 w-3 text-slate-500" />
-                {form.phone}
-              </span>
-            )}
-            {form.location && (
-              <span className="flex items-center gap-1">
-                <MapPin className="h-3 w-3 text-slate-500" />
-                {form.location}
-              </span>
-            )}
-            {form.linkedin && (
-              <span className="flex items-center gap-1">
-                <Linkedin className="h-3 w-3 text-blue-600" />
-                <a href={form.linkedin} target="_blank" rel="noreferrer" className="hover:underline">
-                  LinkedIn: {form.linkedin.replace(/https?:\/\/(www\.)?linkedin\.com\/in\//, "").replace(/\/$/, "")}
-                </a>
-              </span>
-            )}
-            {form.github && (
-              <span className="flex items-center gap-1">
-                <Github className="h-3 w-3 text-slate-800" />
-                <a href={form.github} target="_blank" rel="noreferrer" className="hover:underline">
-                  GitHub: {form.github.replace(/https?:\/\/(www\.)?github\.com\//, "")}
-                </a>
-              </span>
-            )}
-            {form.website && (
-              <span className="flex items-center gap-1">
-                <Globe className="h-3 w-3 text-emerald-600" />
-                <a href={form.website} target="_blank" rel="noreferrer" className="hover:underline">
-                  {form.website.replace(/https?:\/\//, "")}
-                </a>
-              </span>
-            )}
-          </div>
-          {(form.passport || form.nationality || form.visa) && (
-            <div className="text-[10px] text-slate-500 font-medium pt-1 flex gap-3 justify-center">
-              {form.nationality && <span>Nationality: {form.nationality}</span>}
-              {form.visa && <span>Visa: {form.visa}</span>}
-              {form.passport && <span>Passport/ID: {form.passport}</span>}
-            </div>
-          )}
-        </div>
-      ) : (
-        <div
-          className="px-6 py-5 flex items-center justify-between"
-          style={{ background: template.previewBg, color: template.previewText }}
-        >
-          <div>
-            <p className="font-black text-lg">{form.fullName || "Your Name"}</p>
-            {form.targetRole && <p className="opacity-90 text-sm mt-0.5">{form.targetRole}</p>}
-            <div className="flex flex-wrap gap-3 mt-2 text-xs opacity-75">
-              {form.email && <span>{form.email}</span>}
-              {form.phone && <span>{form.phone}</span>}
-              {form.linkedin && <span>{form.linkedin}</span>}
-            </div>
-          </div>
-          {form.photo && (
-            <img
-              src={form.photo}
-              alt="Profile"
-              className="h-14 w-14 rounded-full object-cover border-2 border-white shadow"
-            />
-          )}
-        </div>
-      )}
-
-      {/* Body Content */}
       <div
         className={cn(
-          "px-8 py-6 space-y-6 relative",
-          layoutColumns === "two" && "grid grid-cols-1 md:grid-cols-2 gap-6 space-y-0",
+          "pb-5 mb-5 border-b space-y-2 flex flex-col transition-all",
+          effHeaderAlignClass,
         )}
+        style={{
+          backgroundColor: isDreamSync ? "#f8fafc" : template.previewBg,
+          color: isDreamSync ? "#0f172a" : template.previewText,
+        }}
       >
-        {/* Multi-Page A4 Cutoff Visual Indicators (Page 1, Page 2, Page 3, Page 4, Page 5, Page 6) */}
-        {[1, 2, 3, 4, 5, 6].map((pageNum) => (
-          <div
-            key={pageNum}
-            className="absolute left-0 right-0 border-y-2 border-dashed border-rose-500 flex items-center justify-between px-4 py-1.5 text-[10px] font-black text-rose-700 bg-rose-100/95 dark:bg-rose-950/95 dark:text-rose-300 pointer-events-none z-30 shadow-md print:hidden"
-            style={{ top: `${pageNum * 1050}px`, transform: "translateY(-50%)" }}
+        {form.photo && (
+          <img
+            src={form.photo}
+            alt="Profile Photo"
+            className="h-16 w-16 rounded-full object-cover border-2 shadow-sm mb-1"
+            style={{ borderColor: accent }}
+          />
+        )}
+        <h1
+          className="font-black tracking-wide uppercase transition-all"
+          style={{
+            fontSize: namePt,
+            color: hasAccent("name") ? accent : undefined,
+          }}
+        >
+          {form.fullName || "ALEX RIVERA"}
+        </h1>
+        {form.targetRole && (
+          <p
+            className="font-bold max-w-2xl leading-normal transition-all"
+            style={{
+              fontSize: titlePt,
+              color: hasAccent("jobTitle") ? accent : "#475569",
+            }}
           >
-            <span className="flex items-center gap-1.5 font-bold uppercase tracking-wide">
-              📄 Page {pageNum} Cutoff Line (A4 Paper Boundary)
+            {form.targetRole}
+          </p>
+        )}
+        <div
+          className={cn(
+            "flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] font-medium pt-1",
+            headerPosition === "right"
+              ? "justify-end"
+              : headerPosition === "left"
+                ? "justify-start"
+                : headerAlign === "center"
+                  ? "justify-center"
+                  : "justify-start",
+          )}
+        >
+          {form.email && (
+            <span className="flex items-center gap-1">
+              <Mail
+                className="h-3 w-3"
+                style={{ color: hasAccent("headerIcons") ? accent : "#64748b" }}
+              />
+              {form.email}
             </span>
-            <span className="bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider shadow-xs">
-              Page {pageNum + 1} Begins Below ↓
+          )}
+          {form.phone && (
+            <span className="flex items-center gap-1">
+              {detailsArrangement !== "icon" && <span>{sepString}</span>}
+              <Phone
+                className="h-3 w-3"
+                style={{ color: hasAccent("headerIcons") ? accent : "#64748b" }}
+              />
+              {form.phone}
             </span>
-          </div>
-        ))}
-
-        {/* Objective / Summary */}
-        {form.summary && (() => {
-          const { title, icon } = getSectionIconAndTitle("summary", FileText, "OBJECTIVE / SUMMARY", form);
-          return (
-            <div>
-              {renderSectionHeader(icon, title)}
-              <p className="text-xs text-slate-700 leading-relaxed font-normal">{form.summary}</p>
-            </div>
-          );
-        })()}
-
-        {/* Experience */}
-        {form.experience && (() => {
-          const { title, icon } = getSectionIconAndTitle("experience", Briefcase, "PROFESSIONAL EXPERIENCE", form);
-          return (
-            <div>
-              {renderSectionHeader(icon, title)}
-              <div className="space-y-3.5">
-                {expItems.length > 0
-                  ? expItems.map((item, idx) => (
-                      <div key={idx} className="space-y-1">
-                        <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-                          <div className="font-bold text-[12px] text-slate-950">
-                            {workOrder === "employer-title" ? (
-                              <>
-                                {item.company && <span>{item.company} — </span>}
-                                <span className="font-normal">{item.title}</span>
-                              </>
-                            ) : (
-                              <>
-                                {item.title}{" "}
-                                {item.company && (
-                                  <span className="font-semibold text-slate-700">@ {item.company}</span>
-                                )}
-                              </>
-                            )}
-                          </div>
-                          <div className="text-[10.5px] font-bold text-slate-500">
-                            {item.startDate && (
-                              <span>
-                                {item.startDate} {item.endDate ? `– ${item.endDate}` : ""}
-                              </span>
-                            )}
-                            {item.location && <span className="ml-2 font-normal">| {item.location}</span>}
-                          </div>
-                        </div>
-                        {item.bullets.length > 0 && (
-                          <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
-                            {item.bullets.map((b, bIdx) => (
-                              <li key={bIdx}>{renderTextWithLinks(b)}</li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    ))
-                  : renderTextWithLinks(form.experience)}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Education */}
-        {form.education && (() => {
-          const { title, icon } = getSectionIconAndTitle("education", GraduationCap, "EDUCATION", form);
-          return (
-            <div>
-              {renderSectionHeader(icon, title)}
-              <div className="space-y-2">
-                {eduItems.length > 0
-                  ? eduItems.map((item, idx) => (
-                      <div key={idx} className="flex flex-wrap items-baseline justify-between gap-x-2">
-                        <div>
-                          <span className="font-bold text-[12px] text-slate-950">{item.degree}</span>
-                          {item.school && <span className="font-semibold text-slate-700">, {item.school}</span>}
-                        </div>
-                        <div className="text-[10.5px] font-bold text-slate-500">
-                          {item.startDate && (
-                            <span>
-                              {item.startDate} {item.endDate ? `– ${item.endDate}` : ""}
-                            </span>
-                          )}
-                          {item.location && <span className="ml-2 font-normal">| {item.location}</span>}
-                        </div>
-                      </div>
-                    ))
-                  : renderTextWithLinks(form.education)}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Projects */}
-        {form.projects && (() => {
-          const { title, icon } = getSectionIconAndTitle("projects", FolderOpen, "KEY PROJECTS", form);
-          return (
-            <div>
-              {renderSectionHeader(icon, title)}
-              <div className="space-y-3.5">
-                {projItems.length > 0
-                  ? projItems.map((item, idx) => (
-                      <div key={idx} className="space-y-1">
-                        <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-                          <div className="font-bold text-[12px] text-slate-950">
-                            {item.title}{" "}
-                            {item.subtitle && (
-                              <span className="font-semibold text-slate-600">— {item.subtitle}</span>
-                            )}
-                          </div>
-                          {item.dates && <span className="text-[10.5px] font-bold text-slate-500">{item.dates}</span>}
-                        </div>
-                        {item.techStack && (
-                          <p className="text-[10.5px] text-indigo-700 font-semibold">
-                            Tech Stack: {item.techStack}
-                          </p>
-                        )}
-                        {item.bullets.length > 0 && (
-                          <ul className="list-disc list-outside ml-4 space-y-1 text-[11px] text-slate-700 leading-relaxed">
-                            {item.bullets.map((b, bIdx) => (
-                              <li key={bIdx}>{renderTextWithLinks(b)}</li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    ))
-                  : renderTextWithLinks(form.projects)}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Skills */}
-        {form.skills && (() => {
-          const { title, icon } = getSectionIconAndTitle("skills", Wrench, "TECHNICAL SKILLS & SOFT SKILLS", form);
-          return (
-            <div>
-              {renderSectionHeader(icon, title)}
-              {isCreative ? (
-                <div className="flex flex-wrap gap-1.5">
-                  {form.skills.split(",").map((s, i) => (
-                    <span
-                      key={i}
-                      className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-200"
-                    >
-                      {s.trim()}
-                    </span>
-                  ))}
-                </div>
-              ) : skillCats.length > 0 ? (
-                <div className="space-y-1 text-xs text-slate-800">
-                  {skillCats.map((cat, idx) => (
-                    <div key={idx} className="flex flex-wrap items-baseline gap-1">
-                      <span className="font-bold text-slate-950">{cat.category}:</span>
-                      <span className="text-slate-700 font-medium">{cat.skills.join(" | ")}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
-                  {form.skills}
-                </div>
-              )}
-            </div>
-          );
-        })()}
-
-        {/* Certifications */}
-        {form.certifications && (() => {
-          const { title, icon } = getSectionIconAndTitle("certifications", Award, "CERTIFICATIONS", form);
-          return (
-            <div>
-              {renderSectionHeader(icon, title)}
-              <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed space-y-1">
-                {renderTextWithLinks(form.certifications)}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Strengths */}
-        {form.strengths && (() => {
-          const { title, icon } = getSectionIconAndTitle("strengths", Star, "STRENGTHS & COMPETENCIES", form);
-          return (
-            <div>
-              {renderSectionHeader(icon, title)}
-              <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-medium">
-                {form.strengths}
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Languages & Awards */}
-        {(form.languages || form.awards) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {form.languages && (() => {
-              const { title, icon } = getSectionIconAndTitle("languages", Globe, "LANGUAGES", form);
-              return (
-                <div>
-                  {renderSectionHeader(icon, title)}
-                  <p className="text-xs text-slate-800 font-medium">{form.languages}</p>
-                </div>
-              );
-            })()}
-            {form.awards && (() => {
-              const { title, icon } = getSectionIconAndTitle("awards", Trophy, "HONORS & AWARDS", form);
-              return (
-                <div>
-                  {renderSectionHeader(icon, title)}
-                  <div className="text-xs text-slate-800 font-medium">
-                    {renderTextWithLinks(form.awards)}
-                  </div>
-                </div>
-              );
-            })()}
+          )}
+          {form.location && (
+            <span className="flex items-center gap-1">
+              {detailsArrangement !== "icon" && <span>{sepString}</span>}
+              <MapPin
+                className="h-3 w-3"
+                style={{ color: hasAccent("headerIcons") ? accent : "#64748b" }}
+              />
+              {form.location}
+            </span>
+          )}
+          {form.linkedin && (
+            <span className="flex items-center gap-1">
+              {detailsArrangement !== "icon" && <span>{sepString}</span>}
+              <Linkedin
+                className="h-3 w-3 text-blue-600"
+                style={{ color: hasAccent("linkIcons") ? accent : undefined }}
+              />
+              <a href={form.linkedin} target="_blank" rel="noreferrer" className="hover:underline">
+                LinkedIn:{" "}
+                {form.linkedin
+                  .replace(/https?:\/\/(www\.)?linkedin\.com\/in\//, "")
+                  .replace(/\/$/, "")}
+              </a>
+            </span>
+          )}
+          {form.github && (
+            <span className="flex items-center gap-1">
+              {detailsArrangement !== "icon" && <span>{sepString}</span>}
+              <Github
+                className="h-3 w-3"
+                style={{ color: hasAccent("linkIcons") ? accent : "#1e293b" }}
+              />
+              <a href={form.github} target="_blank" rel="noreferrer" className="hover:underline">
+                GitHub: {form.github.replace(/https?:\/\/(www\.)?github\.com\//, "")}
+              </a>
+            </span>
+          )}
+          {form.website && (
+            <span className="flex items-center gap-1">
+              {detailsArrangement !== "icon" && <span>{sepString}</span>}
+              <Globe
+                className="h-3 w-3 text-emerald-600"
+                style={{ color: hasAccent("linkIcons") ? accent : undefined }}
+              />
+              <a href={form.website} target="_blank" rel="noreferrer" className="hover:underline">
+                {form.website.replace(/https?:\/\//, "")}
+              </a>
+            </span>
+          )}
+        </div>
+        {(form.passport || form.nationality || form.visa) && (
+          <div className="text-[10px] text-slate-500 font-medium pt-1 flex gap-3">
+            {form.nationality && <span>Nationality: {form.nationality}</span>}
+            {form.visa && <span>Visa: {form.visa}</span>}
+            {form.passport && <span>Passport/ID: {form.passport}</span>}
           </div>
         )}
-
-        {/* Custom Section with SVG Icon */}
-        {form.customSectionTitle && form.customSectionBody && (
-          <div>
-            {renderSectionHeader(
-              form.customSectionIcon === "star"
-                ? Star
-                : form.customSectionIcon === "book"
-                  ? BookOpen
-                  : form.customSectionIcon === "globe"
-                    ? Globe
-                    : form.customSectionIcon === "shield"
-                      ? Shield
-                      : form.customSectionIcon === "code"
-                        ? Code
-                        : Award,
-              form.customSectionTitle,
-            )}
-            <div className="text-xs text-slate-800 whitespace-pre-line leading-relaxed space-y-1 font-medium">
-              {renderTextWithLinks(form.customSectionBody)}
-            </div>
-          </div>
-        )}
-
-        {/* Declaration & Digital Signature */}
-        {form.declaration && (() => {
-          const { title, icon } = getSectionIconAndTitle("declaration", PenTool, "DECLARATION & SIGNATURE", form);
-          return (
-            <div className="pt-2 border-t border-slate-200/80">
-              {renderSectionHeader(icon, title)}
-              <p className="text-[11px] text-slate-600 italic mb-4 leading-relaxed">
-                {form.declaration}
-              </p>
-              <div className="pt-2 border-t border-slate-300 w-52">
-                {form.signatureImage ? (
-                  <img
-                    src={form.signatureImage}
-                    alt="Digital Signature"
-                    className="h-10 object-contain mb-1"
-                  />
-                ) : (
-                  <p className="font-serif italic text-lg text-indigo-900 font-bold leading-none">
-                    {form.signatoryName || form.fullName || "Alex Rivera"}
-                  </p>
-                )}
-                <p className="text-[10px] text-slate-500 font-bold mt-1">
-                  {form.signatoryName || form.fullName || "Alex Rivera"} ({form.signatoryPlace || form.location?.split(",")[0] || "San Francisco"})
-                </p>
-              </div>
-            </div>
-          );
-        })()}
       </div>
+
+      {/* Multi-Page A4 Cutoff Visual Indicators */}
+      {[1, 2, 3, 4, 5, 6].map((pageNum) => (
+        <div
+          key={pageNum}
+          className="absolute left-0 right-0 border-y-2 border-dashed border-rose-500 flex items-center justify-between px-4 py-1.5 text-[10px] font-black text-rose-700 bg-rose-100/95 dark:bg-rose-950/95 dark:text-rose-300 pointer-events-none z-30 shadow-md print:hidden"
+          style={{ top: `${pageNum * 1050}px`, transform: "translateY(-50%)" }}
+        >
+          <span className="flex items-center gap-1.5 font-bold uppercase tracking-wide">
+            📄 Page {pageNum} Cutoff Line (A4 Paper Boundary)
+          </span>
+          <span className="bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider shadow-xs">
+            Page {pageNum + 1} Begins Below ↓
+          </span>
+        </div>
+      ))}
+
+      {/* Body Content Layout Column Engine */}
+      {layoutColumns === "two" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <div className="space-y-4">
+            {renderSectionList([
+              { key: "summary", icon: FileText, title: "OBJECTIVE / SUMMARY", node: summaryNode },
+              { key: "experience", icon: Briefcase, title: "PROFESSIONAL EXPERIENCE", node: experienceNode },
+              { key: "projects", icon: FolderOpen, title: "KEY PROJECTS", node: projectsNode },
+            ])}
+          </div>
+          <div className="space-y-4">
+            {renderSectionList([
+              { key: "education", icon: GraduationCap, title: "EDUCATION", node: educationNode },
+              { key: "skills", icon: Wrench, title: "TECHNICAL SKILLS & SOFT SKILLS", node: skillsNode },
+              { key: "certifications", icon: Award, title: "CERTIFICATIONS", node: certificationsNode },
+              { key: "strengths", icon: Star, title: "STRENGTHS & COMPETENCIES", node: strengthsNode },
+              { key: "languages", icon: Globe, title: "LANGUAGES", node: languagesNode },
+              { key: "awards", icon: Trophy, title: "HONORS & AWARDS", node: awardsNode },
+              { key: "custom", icon: Sparkles, title: form.customSectionTitle || "CUSTOM SECTION", node: customNode },
+              { key: "declaration", icon: PenTool, title: "DECLARATION & SIGNATURE", node: declarationNode },
+            ])}
+          </div>
+        </div>
+      ) : layoutColumns === "mix" ? (
+        <div className="space-y-6">
+          {renderSectionList([
+            { key: "summary", icon: FileText, title: "OBJECTIVE / SUMMARY", node: summaryNode },
+            { key: "experience", icon: Briefcase, title: "PROFESSIONAL EXPERIENCE", node: experienceNode },
+          ])}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start pt-2 border-t">
+            <div className="space-y-4">
+              {renderSectionList([
+                { key: "projects", icon: FolderOpen, title: "KEY PROJECTS", node: projectsNode },
+                { key: "skills", icon: Wrench, title: "TECHNICAL SKILLS & SOFT SKILLS", node: skillsNode },
+              ])}
+            </div>
+            <div className="space-y-4">
+              {renderSectionList([
+                { key: "education", icon: GraduationCap, title: "EDUCATION", node: educationNode },
+                { key: "certifications", icon: Award, title: "CERTIFICATIONS", node: certificationsNode },
+                { key: "strengths", icon: Star, title: "STRENGTHS & COMPETENCIES", node: strengthsNode },
+                { key: "languages", icon: Globe, title: "LANGUAGES", node: languagesNode },
+                { key: "awards", icon: Trophy, title: "HONORS & AWARDS", node: awardsNode },
+                { key: "custom", icon: Sparkles, title: form.customSectionTitle || "CUSTOM SECTION", node: customNode },
+                { key: "declaration", icon: PenTool, title: "DECLARATION & SIGNATURE", node: declarationNode },
+              ])}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {renderSectionList([
+            { key: "summary", icon: FileText, title: "OBJECTIVE / SUMMARY", node: summaryNode },
+            { key: "experience", icon: Briefcase, title: "PROFESSIONAL EXPERIENCE", node: experienceNode },
+            { key: "education", icon: GraduationCap, title: "EDUCATION", node: educationNode },
+            { key: "projects", icon: FolderOpen, title: "KEY PROJECTS", node: projectsNode },
+            { key: "skills", icon: Wrench, title: "TECHNICAL SKILLS & SOFT SKILLS", node: skillsNode },
+            { key: "certifications", icon: Award, title: "CERTIFICATIONS", node: certificationsNode },
+            { key: "strengths", icon: Star, title: "STRENGTHS & COMPETENCIES", node: strengthsNode },
+            { key: "languages", icon: Globe, title: "LANGUAGES", node: languagesNode },
+            { key: "awards", icon: Trophy, title: "HONORS & AWARDS", node: awardsNode },
+            { key: "custom", icon: Sparkles, title: form.customSectionTitle || "CUSTOM SECTION", node: customNode },
+            { key: "declaration", icon: PenTool, title: "DECLARATION & SIGNATURE", node: declarationNode },
+          ])}
+        </div>
+      )}
     </div>
   );
 }
@@ -1283,11 +1342,44 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   const [layoutColumns, setLayoutColumns] = useState<"one" | "two" | "mix">(() => {
     return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_cols") as any)) || "one";
   });
+  const [headerPosition, setHeaderPosition] = useState<"top" | "left" | "right">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_header_pos") as any)) || "top";
+  });
   const [headerAlign, setHeaderAlign] = useState<"left" | "center">(() => {
     return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_align") as any)) || "center";
   });
   const [baseFontSize, setBaseFontSize] = useState<"9.5pt" | "10.5pt" | "11.5pt" | "12.5pt">(() => {
     return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_font_size") as any)) || "10.5pt";
+  });
+  const [nameFontSizeOffset, setNameFontSizeOffset] = useState<number>(() => {
+    return typeof window !== "undefined" ? Number(localStorage.getItem("resume_builder_name_offset") || 11) : 11;
+  });
+  const [titleFontSizeOffset, setTitleFontSizeOffset] = useState<number>(() => {
+    return typeof window !== "undefined" ? Number(localStorage.getItem("resume_builder_title_offset") || 5) : 5;
+  });
+  const [headingFontSizeOffset, setHeadingFontSizeOffset] = useState<number>(() => {
+    return typeof window !== "undefined" ? Number(localStorage.getItem("resume_builder_heading_offset") || 1) : 1;
+  });
+  const [lineHeightVal, setLineHeightVal] = useState<number>(() => {
+    return typeof window !== "undefined" ? Number(localStorage.getItem("resume_builder_line_height") || 1.3) : 1.3;
+  });
+  const [marginMmVal, setMarginMmVal] = useState<number>(() => {
+    return typeof window !== "undefined" ? Number(localStorage.getItem("resume_builder_margin_mm") || 10) : 10;
+  });
+  const [accentTargets, setAccentTargets] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("resume_builder_accent_targets");
+      if (saved) {
+        try { return JSON.parse(saved); } catch {}
+      }
+    }
+    return ["name", "jobTitle", "headings", "headingsLine", "headerIcons", "dotsBars", "dates", "entrySubtitle", "linkIcons"];
+  });
+  const [detailsArrangement, setDetailsArrangement] = useState<"icon" | "bullet" | "pipe" | "bar">(() => {
+    return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_details_arr") as any)) || "pipe";
+  });
+  const [iconStyleVal, setIconStyleVal] = useState<string>(() => {
+    return (typeof window !== "undefined" && localStorage.getItem("resume_builder_icon_style")) || "Icon Style: Circle Outline";
   });
   const [headingCap, setHeadingCap] = useState<"uppercase" | "capitalize">(() => {
     return (typeof window !== "undefined" && (localStorage.getItem("resume_builder_cap") as any)) || "uppercase";
@@ -1371,8 +1463,17 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     localStorage.setItem("resume_builder_lang", docLanguage);
     localStorage.setItem("resume_builder_format", pageFormat);
     localStorage.setItem("resume_builder_cols", layoutColumns);
+    localStorage.setItem("resume_builder_header_pos", headerPosition);
     localStorage.setItem("resume_builder_align", headerAlign);
     localStorage.setItem("resume_builder_font_size", baseFontSize);
+    localStorage.setItem("resume_builder_name_offset", String(nameFontSizeOffset));
+    localStorage.setItem("resume_builder_title_offset", String(titleFontSizeOffset));
+    localStorage.setItem("resume_builder_heading_offset", String(headingFontSizeOffset));
+    localStorage.setItem("resume_builder_line_height", String(lineHeightVal));
+    localStorage.setItem("resume_builder_margin_mm", String(marginMmVal));
+    localStorage.setItem("resume_builder_accent_targets", JSON.stringify(accentTargets));
+    localStorage.setItem("resume_builder_details_arr", detailsArrangement);
+    localStorage.setItem("resume_builder_icon_style", iconStyleVal);
     localStorage.setItem("resume_builder_cap", headingCap);
     localStorage.setItem("resume_builder_work_order", workOrder);
     localStorage.setItem("resume_builder_skills_style", skillsStyle);
@@ -1387,8 +1488,17 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
     docLanguage,
     pageFormat,
     layoutColumns,
+    headerPosition,
     headerAlign,
     baseFontSize,
+    nameFontSizeOffset,
+    titleFontSizeOffset,
+    headingFontSizeOffset,
+    lineHeightVal,
+    marginMmVal,
+    accentTargets,
+    detailsArrangement,
+    iconStyleVal,
     headingCap,
     workOrder,
     skillsStyle,
@@ -2453,10 +2563,13 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                         {(["one", "two", "mix"] as const).map((col) => (
                           <button
                             key={col}
-                            onClick={() => setLayoutColumns(col)}
+                            onClick={() => {
+                              setLayoutColumns(col);
+                              toast.success(`Layout columns set to "${col.toUpperCase()}"`);
+                            }}
                             className={cn(
                               "flex-1 py-1 rounded capitalize transition cursor-pointer",
-                              layoutColumns === col && "bg-background shadow-xs text-primary",
+                              layoutColumns === col && "bg-background shadow-xs text-primary font-black",
                             )}
                           >
                             {col}
@@ -2470,10 +2583,13 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                         {(["top", "left", "right"] as const).map((pos) => (
                           <button
                             key={pos}
-                            onClick={() => setHeaderAlign(pos === "right" ? "center" : "left")}
+                            onClick={() => {
+                              setHeaderPosition(pos);
+                              toast.success(`Header position set to "${pos.toUpperCase()}"`);
+                            }}
                             className={cn(
                               "flex-1 py-1 rounded capitalize transition cursor-pointer",
-                              (pos === "top" ? headerAlign === "left" : true) && "bg-background shadow-xs text-primary",
+                              headerPosition === pos && "bg-background shadow-xs text-primary font-black",
                             )}
                           >
                             {pos}
@@ -2499,7 +2615,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                             onClick={() => setBaseFontSize(size)}
                             className={cn(
                               "flex-1 py-1 rounded transition cursor-pointer text-[11px]",
-                              baseFontSize === size && "bg-background shadow-xs text-primary",
+                              baseFontSize === size && "bg-background shadow-xs text-primary font-black",
                             )}
                           >
                             {size}
@@ -2510,30 +2626,66 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     <div>
                       <span className="text-[10px] text-muted-foreground font-bold block mb-1">Full Name</span>
                       <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border justify-between">
-                        <span className="font-bold px-2 text-primary">+11pt</span>
+                        <span className="font-bold px-2 text-primary">+{nameFontSizeOffset}pt</span>
                         <div className="flex gap-1">
-                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">-</button>
-                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">+</button>
+                          <button
+                            type="button"
+                            onClick={() => setNameFontSizeOffset((v) => Math.max(1, v - 1))}
+                            className="px-2.5 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted cursor-pointer"
+                          >
+                            -
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setNameFontSizeOffset((v) => Math.min(30, v + 1))}
+                            className="px-2.5 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted cursor-pointer"
+                          >
+                            +
+                          </button>
                         </div>
                       </div>
                     </div>
                     <div>
                       <span className="text-[10px] text-muted-foreground font-bold block mb-1">Professional Title</span>
                       <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border justify-between">
-                        <span className="font-bold px-2 text-primary">+5pt</span>
+                        <span className="font-bold px-2 text-primary">+{titleFontSizeOffset}pt</span>
                         <div className="flex gap-1">
-                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">-</button>
-                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">+</button>
+                          <button
+                            type="button"
+                            onClick={() => setTitleFontSizeOffset((v) => Math.max(0, v - 1))}
+                            className="px-2.5 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted cursor-pointer"
+                          >
+                            -
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setTitleFontSizeOffset((v) => Math.min(20, v + 1))}
+                            className="px-2.5 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted cursor-pointer"
+                          >
+                            +
+                          </button>
                         </div>
                       </div>
                     </div>
                     <div>
                       <span className="text-[10px] text-muted-foreground font-bold block mb-1">Section Headings</span>
                       <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border justify-between">
-                        <span className="font-bold px-2 text-primary">+1pt</span>
+                        <span className="font-bold px-2 text-primary">+{headingFontSizeOffset}pt</span>
                         <div className="flex gap-1">
-                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">-</button>
-                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">+</button>
+                          <button
+                            type="button"
+                            onClick={() => setHeadingFontSizeOffset((v) => Math.max(0, v - 1))}
+                            className="px-2.5 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted cursor-pointer"
+                          >
+                            -
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setHeadingFontSizeOffset((v) => Math.min(10, v + 1))}
+                            className="px-2.5 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted cursor-pointer"
+                          >
+                            +
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -2549,13 +2701,16 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     <div>
                       <span className="text-[10px] text-muted-foreground font-bold block mb-1">Line Height</span>
                       <div className="flex rounded-lg border p-0.5 bg-muted/40 font-bold">
-                        {["1.1", "1.2", "1.3", "1.4", "1.5"].map((lh) => (
+                        {[1.1, 1.2, 1.3, 1.4, 1.5].map((lh) => (
                           <button
                             key={lh}
-                            onClick={() => toast.success(`Line height set to ${lh}`)}
+                            onClick={() => {
+                              setLineHeightVal(lh);
+                              toast.success(`Line height set to ${lh}`);
+                            }}
                             className={cn(
                               "flex-1 py-1 rounded transition cursor-pointer text-[10px]",
-                              lh === "1.3" && "bg-background shadow-xs text-primary",
+                              lineHeightVal === lh && "bg-background shadow-xs text-primary font-black",
                             )}
                           >
                             {lh}
@@ -2566,10 +2721,22 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     <div>
                       <span className="text-[10px] text-muted-foreground font-bold block mb-1">Left & Right Margin</span>
                       <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg border justify-between">
-                        <span className="font-bold px-2 text-primary">10mm</span>
+                        <span className="font-bold px-2 text-primary">{marginMmVal}mm</span>
                         <div className="flex gap-1">
-                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">-</button>
-                          <button className="px-2 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted">+</button>
+                          <button
+                            type="button"
+                            onClick={() => setMarginMmVal((v) => Math.max(2, v - 1))}
+                            className="px-2.5 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted cursor-pointer"
+                          >
+                            -
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setMarginMmVal((v) => Math.min(25, v + 1))}
+                            className="px-2.5 py-0.5 rounded bg-background border font-bold text-xs hover:bg-muted cursor-pointer"
+                          >
+                            +
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -2582,12 +2749,42 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     <Palette className="h-3.5 w-3.5 text-primary" /> Apply Accent Color To
                   </Label>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-semibold">
-                    {["Name", "Job title", "Headings", "Headings line", "Header icons", "Dots/bars", "Dates", "Entry subtitle", "Link icons"].map((item, idx) => (
-                      <label key={item} className="flex items-center gap-2 p-1.5 rounded-lg border bg-muted/20 hover:bg-muted/40 transition cursor-pointer">
-                        <input type="checkbox" defaultChecked={idx < 5} className="rounded border-gray-300 text-primary focus:ring-primary" />
-                        <span className="text-[11px]">{item}</span>
-                      </label>
-                    ))}
+                    {[
+                      { id: "name", label: "Name" },
+                      { id: "jobTitle", label: "Job title" },
+                      { id: "headings", label: "Headings" },
+                      { id: "headingsLine", label: "Headings line" },
+                      { id: "headerIcons", label: "Header icons" },
+                      { id: "dotsBars", label: "Dots/bars" },
+                      { id: "dates", label: "Dates" },
+                      { id: "entrySubtitle", label: "Entry subtitle" },
+                      { id: "linkIcons", label: "Link icons" },
+                    ].map((item) => {
+                      const checked = accentTargets.includes(item.id);
+                      return (
+                        <label
+                          key={item.id}
+                          className={cn(
+                            "flex items-center gap-2 p-1.5 rounded-lg border transition cursor-pointer",
+                            checked ? "bg-primary/10 border-primary/40 text-primary font-bold" : "bg-muted/20 hover:bg-muted/40",
+                          )}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setAccentTargets((prev) => [...prev, item.id]);
+                              } else {
+                                setAccentTargets((prev) => prev.filter((x) => x !== item.id));
+                              }
+                            }}
+                            className="rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                          <span className="text-[11px]">{item.label}</span>
+                        </label>
+                      );
+                    })}
                   </div>
                 </Card>
 
@@ -2600,23 +2797,38 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     <div>
                       <span className="text-[10px] text-muted-foreground font-bold block mb-1">Details Arrangement</span>
                       <div className="flex rounded-lg border p-0.5 bg-muted/40 font-bold">
-                        {["Icon", "Bullet", "|", "Bar"].map((sep) => (
+                        {[
+                          { id: "icon", label: "Icon" },
+                          { id: "bullet", label: "Bullet" },
+                          { id: "pipe", label: "|" },
+                          { id: "bar", label: "Bar" },
+                        ].map((sep) => (
                           <button
-                            key={sep}
-                            onClick={() => toast.success(`Details separator set to ${sep}`)}
+                            key={sep.id}
+                            onClick={() => {
+                              setDetailsArrangement(sep.id as any);
+                              toast.success(`Details arrangement set to "${sep.label}"`);
+                            }}
                             className={cn(
                               "flex-1 py-1 rounded transition cursor-pointer text-[10px]",
-                              sep === "|" && "bg-background shadow-xs text-primary",
+                              detailsArrangement === sep.id && "bg-background shadow-xs text-primary font-black",
                             )}
                           >
-                            {sep}
+                            {sep.label}
                           </button>
                         ))}
                       </div>
                     </div>
                     <div>
                       <span className="text-[10px] text-muted-foreground font-bold block mb-1">Icon Style</span>
-                      <select className={inp}>
+                      <select
+                        className={inp}
+                        value={iconStyleVal}
+                        onChange={(e) => {
+                          setIconStyleVal(e.target.value);
+                          toast.success(`Icon style updated!`);
+                        }}
+                      >
                         <option>Icon Style: Circle Outline</option>
                         <option>Icon Style: No Frame</option>
                         <option>Icon Style: Circle Filled</option>
@@ -2636,7 +2848,11 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                     {TEMPLATES.map((t) => (
                       <button
                         key={t.id}
-                        onClick={() => setSelectedTpl(t)}
+                        onClick={() => {
+                          setSelectedTpl(t);
+                          setAccentColor(t.accent);
+                          toast.success(`Switched template to "${t.label}"!`);
+                        }}
                         className={cn(
                           "p-3.5 rounded-xl border text-left transition-all cursor-pointer relative overflow-hidden flex flex-col justify-between",
                           selectedTpl.id === t.id
@@ -2848,8 +3064,17 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
                 accentColor={accentColor}
                 fontFamily={fontFamily}
                 layoutColumns={layoutColumns}
+                headerPosition={headerPosition}
                 headerAlign={headerAlign}
                 baseFontSize={baseFontSize}
+                nameFontSizeOffset={nameFontSizeOffset}
+                titleFontSizeOffset={titleFontSizeOffset}
+                headingFontSizeOffset={headingFontSizeOffset}
+                lineHeightVal={lineHeightVal}
+                marginMmVal={marginMmVal}
+                accentTargets={accentTargets}
+                detailsArrangement={detailsArrangement}
+                iconStyleVal={iconStyleVal}
                 headingCap={headingCap}
                 workOrder={workOrder}
                 skillsStyle={skillsStyle}
