@@ -255,6 +255,7 @@ function CartPage() {
         currency: orderData.currency,
         name: "Learnify AI",
         description: `Course Purchase (${items.length} item${items.length === 1 ? "" : "s"})`,
+        image: typeof window !== "undefined" ? `${window.location.origin}/logo.png` : undefined,
         order_id: orderData.order_id,
         prefill: {
           name: user?.user_metadata?.full_name || "Valued Learner",
@@ -414,7 +415,13 @@ function CartPage() {
             </div>
 
             <div className="rounded-2xl border bg-card p-5 shadow-card h-fit sticky top-4 space-y-4">
-              <h3 className="font-display font-semibold">Order summary</h3>
+              <div className="flex items-center justify-between border-b pb-3">
+                <h3 className="font-display font-bold text-base">Order summary</h3>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/20">
+                  <img src="/logo.png" alt="Learnify AI" className="h-4 w-auto object-contain" onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }} />
+                  <span className="text-[11px] font-bold text-primary">Learnify AI</span>
+                </div>
+              </div>
 
               {/* Coupon */}
               <div className="space-y-2">

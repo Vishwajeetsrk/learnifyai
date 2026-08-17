@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v6.7.0 (August 2026) — Payment Gateway Admin Toggle & Real Brand Logo Checkout
+
+- 💳 **PAYMENT GATEWAY ADMIN TOGGLE**: Enhanced `cart.tsx` with instant 1-click switching between **Razorpay** and **Cashfree** payment providers.
+- 🎨 **REAL BRAND LOGO CHECKOUT**: Integrated Learnify AI real brand logo asset (`/logo.png`) inside cart order summary badges, Razorpay payment modal prompts, and Cashfree checkout configuration.
+
 ### v6.6.0 (August 2026) — Admin Command Center Mobile-First Responsive Overhaul
 
 - 🎛️ **COMMAND CENTER RESPONSIVE NAVIGATION**: Upgraded `admin.tsx` header controls, Categorized Quick Action Panels (*Content & Curriculum*, *User Management*, *Billing & Stats*, *System & Health*), and Excel/CSV export buttons for 100% mobile-first alignment.
