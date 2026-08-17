@@ -24,6 +24,15 @@ import {
   Zap,
   BookOpen,
   Code2,
+  Bug,
+  CalendarDays,
+  MessageSquareCode,
+  GraduationCap,
+  BarChart2,
+  TrendingUp,
+  Star,
+  Clock,
+  ArrowRight,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -66,74 +75,161 @@ export const Route = createFileRoute("/_authenticated/ai-tools")({
   component: AIToolsPage,
 });
 
-type ToolId = "quiz" | "doubt" | "career" | "reminder" | "synth" | "flashcards" | "cheatsheet";
+type ToolId =
+  | "quiz"
+  | "doubt"
+  | "career"
+  | "reminder"
+  | "synth"
+  | "flashcards"
+  | "cheatsheet"
+  | "code-explainer"
+  | "interview-prep"
+  | "bug-debugger"
+  | "study-plan";
 
 const TOOLS: {
   id: ToolId;
   title: string;
   tagline: string;
   icon: typeof Brain;
+  iconBg: string;
+  iconColor: string;
   gradient: string;
   category: "career" | "learning" | "code";
   isNew?: boolean;
+  isHot?: boolean;
+  rating: number;
 }[] = [
   {
     id: "quiz",
     title: "Quiz Generator",
-    tagline: "Custom MCQs with instant grading.",
+    tagline: "Custom MCQs with instant grading and explanations.",
     icon: Brain,
-    gradient: "from-indigo-500/15 to-fuchsia-500/10",
+    iconBg: "bg-indigo-500/15",
+    iconColor: "text-indigo-400",
+    gradient: "from-indigo-500/10 via-transparent to-fuchsia-500/8",
     category: "code",
+    rating: 4.8,
   },
   {
     id: "doubt",
     title: "Doubt Solver",
-    tagline: "Mentor-grade answers with code & pitfalls.",
+    tagline: "Mentor-grade answers with code examples & pitfalls.",
     icon: HelpCircle,
-    gradient: "from-amber-500/15 to-rose-500/10",
+    iconBg: "bg-amber-500/15",
+    iconColor: "text-amber-400",
+    gradient: "from-amber-500/10 via-transparent to-rose-500/8",
     category: "code",
+    rating: 4.9,
+    isHot: true,
+  },
+  {
+    id: "code-explainer",
+    title: "Code Explainer",
+    tagline: "Paste any code — get plain-English line-by-line breakdown.",
+    icon: MessageSquareCode,
+    iconBg: "bg-cyan-500/15",
+    iconColor: "text-cyan-400",
+    gradient: "from-cyan-500/10 via-transparent to-blue-500/8",
+    category: "code",
+    isNew: true,
+    rating: 4.7,
+  },
+  {
+    id: "bug-debugger",
+    title: "AI Bug Debugger",
+    tagline: "Paste broken code — get root cause + fixed version.",
+    icon: Bug,
+    iconBg: "bg-red-500/15",
+    iconColor: "text-red-400",
+    gradient: "from-red-500/10 via-transparent to-orange-500/8",
+    category: "code",
+    isNew: true,
+    rating: 4.6,
   },
   {
     id: "career",
     title: "Career Coach",
-    tagline: "12-week roadmap, salaries, portfolio plan.",
+    tagline: "12-week roadmap, salary benchmarks, portfolio plan.",
     icon: Briefcase,
-    gradient: "from-emerald-500/15 to-cyan-500/10",
+    iconBg: "bg-emerald-500/15",
+    iconColor: "text-emerald-400",
+    gradient: "from-emerald-500/10 via-transparent to-cyan-500/8",
     category: "career",
+    isHot: true,
+    rating: 4.9,
   },
   {
     id: "reminder",
     title: "Smart Reminders",
-    tagline: "Schedule study reminders with email + inbox.",
+    tagline: "Schedule study reminders with email + inbox alerts.",
     icon: BellRing,
-    gradient: "from-sky-500/15 to-violet-500/10",
+    iconBg: "bg-sky-500/15",
+    iconColor: "text-sky-400",
+    gradient: "from-sky-500/10 via-transparent to-violet-500/8",
     category: "career",
+    rating: 4.5,
+  },
+  {
+    id: "interview-prep",
+    title: "Interview Prep",
+    tagline: "Role-specific Q&A bank with STAR-format answer coaching.",
+    icon: GraduationCap,
+    iconBg: "bg-violet-500/15",
+    iconColor: "text-violet-400",
+    gradient: "from-violet-500/10 via-transparent to-purple-500/8",
+    category: "career",
+    isNew: true,
+    rating: 4.8,
+  },
+  {
+    id: "study-plan",
+    title: "Study Plan Generator",
+    tagline: "Generate a personalized N-week study plan for any topic.",
+    icon: CalendarDays,
+    iconBg: "bg-pink-500/15",
+    iconColor: "text-pink-400",
+    gradient: "from-pink-500/10 via-transparent to-rose-500/8",
+    category: "career",
+    isNew: true,
+    rating: 4.7,
   },
   {
     id: "synth",
     title: "Lesson Synthesizer",
-    tagline: "Notes → TL;DR, glossary, practice Qs.",
+    tagline: "Notes → TL;DR, glossary, and practice questions.",
     icon: BookOpenCheck,
-    gradient: "from-rose-500/15 to-orange-500/10",
+    iconBg: "bg-rose-500/15",
+    iconColor: "text-rose-400",
+    gradient: "from-rose-500/10 via-transparent to-orange-500/8",
     category: "learning",
+    rating: 4.6,
   },
   {
     id: "flashcards",
     title: "Auto Flashcards",
-    tagline: "Active-recall cards on any topic.",
+    tagline: "Active-recall spaced-repetition cards on any topic.",
     icon: Layers,
-    gradient: "from-teal-500/15 to-lime-500/10",
+    iconBg: "bg-teal-500/15",
+    iconColor: "text-teal-400",
+    gradient: "from-teal-500/10 via-transparent to-lime-500/8",
     category: "learning",
     isNew: true,
+    rating: 4.8,
   },
   {
     id: "cheatsheet",
     title: "Cheat Sheet Generator",
-    tagline: "Generate topic summaries with key points, comparisons, and quizzes.",
+    tagline: "Topic summaries with key points, comparisons & quizzes.",
     icon: FileText,
-    gradient: "from-violet-500/15 to-indigo-500/10",
+    iconBg: "bg-violet-500/15",
+    iconColor: "text-violet-400",
+    gradient: "from-violet-500/10 via-transparent to-indigo-500/8",
     category: "learning",
     isNew: true,
+    rating: 4.9,
+    isHot: true,
   },
 ];
 
@@ -158,14 +254,23 @@ function AIToolsPage() {
     },
   });
 
+  const totalUsage = Object.values(usageQuery.data ?? {}).reduce((a, b) => a + b, 0);
   const filteredTools = TOOLS.filter(
     (t) => categoryFilter === "all" || t.category === categoryFilter,
   );
 
+  const CATEGORY_CONFIG = {
+    all: { label: "All Tools", icon: Zap, activeClass: "bg-primary text-primary-foreground shadow" },
+    learning: { label: "Learning", icon: BookOpen, activeClass: "bg-teal-500 text-white shadow" },
+    career: { label: "Career", icon: Briefcase, activeClass: "bg-emerald-500 text-white shadow" },
+    code: { label: "Code", icon: Code2, activeClass: "bg-indigo-500 text-white shadow" },
+  };
+
   return (
     <AppShell>
       <div className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 max-w-7xl">
-        <div className="flex items-end justify-between gap-4 flex-wrap">
+        {/* ── Hero Header ── */}
+        <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
           <div>
             <div className="text-xs uppercase tracking-widest text-primary font-medium flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5" /> AI Suite
@@ -174,85 +279,157 @@ function AIToolsPage() {
               AI Tools
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Custom specialized tools built to boost your tech learning and career.
+              {TOOLS.length} specialized AI tools built to accelerate your tech learning and career growth.
             </p>
           </div>
         </div>
 
-        <Tabs defaultValue="tools" className="mt-6">
-          <TabsList>
-            <TabsTrigger value="tools">
+        {/* ── Stats Banner ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          {[
+            { label: "AI Tools", value: TOOLS.length, icon: Sparkles, color: "text-indigo-400", bg: "bg-indigo-500/10" },
+            { label: "AI Generations", value: totalUsage, icon: BarChart2, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+            { label: "Categories", value: 3, icon: Layers, color: "text-violet-400", bg: "bg-violet-500/10" },
+            { label: "New This Month", value: TOOLS.filter((t) => t.isNew).length, icon: TrendingUp, color: "text-amber-400", bg: "bg-amber-500/10" },
+          ].map((stat) => (
+            <div key={stat.label} className="flex items-center gap-3 rounded-2xl border bg-card p-3 sm:p-4 shadow-sm">
+              <div className={cn("h-9 w-9 rounded-xl grid place-items-center shrink-0", stat.bg)}>
+                <stat.icon className={cn("h-4 w-4", stat.color)} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-base sm:text-lg font-bold font-display leading-none">{stat.value}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{stat.label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <Tabs defaultValue="tools" className="mt-2">
+          <TabsList className="flex flex-wrap h-auto gap-1 p-1">
+            <TabsTrigger value="tools" className="gap-1.5">
               <Sparkles className="h-3.5 w-3.5" /> Tools
+              <Badge className="text-[9px] ml-0.5 bg-primary/20 text-primary border-0 px-1.5 py-0">{TOOLS.length}</Badge>
             </TabsTrigger>
-            <TabsTrigger value="library">
+            <TabsTrigger value="library" className="gap-1.5">
               <Layers className="h-3.5 w-3.5" /> Library
             </TabsTrigger>
-            <TabsTrigger value="history">
+            <TabsTrigger value="history" className="gap-1.5">
               <History className="h-3.5 w-3.5" /> History
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="tools" className="pt-4">
-            {/* Category Filter Chips */}
-            <div className="flex items-center gap-1.5 flex-wrap mb-5 bg-muted/40 p-1 rounded-xl max-w-md">
-              {[
-                { id: "all", label: "All Tools", icon: Zap },
-                { id: "learning", label: "Learning", icon: BookOpen },
-                { id: "career", label: "Career", icon: Briefcase },
-                { id: "code", label: "Code", icon: Code2 },
-              ].map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setCategoryFilter(c.id as any)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer",
-                    categoryFilter === c.id
-                      ? "bg-background text-foreground shadow-sm font-bold"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  <c.icon className="h-3.5 w-3.5" />
-                  <span>{c.label}</span>
-                </button>
-              ))}
+          <TabsContent value="tools" className="pt-5">
+            {/* ── Category Filters ── */}
+            <div className="flex items-center gap-2 flex-wrap mb-5">
+              {(Object.entries(CATEGORY_CONFIG) as [keyof typeof CATEGORY_CONFIG, typeof CATEGORY_CONFIG["all"]][]).map(
+                ([id, cfg]) => {
+                  const IconComp = cfg.icon;
+                  const isActive = categoryFilter === id;
+                  return (
+                    <button
+                      key={id}
+                      onClick={() => setCategoryFilter(id as any)}
+                      className={cn(
+                        "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer border",
+                        isActive
+                          ? cfg.activeClass
+                          : "border-border bg-muted/40 text-muted-foreground hover:text-foreground hover:bg-muted",
+                      )}
+                    >
+                      <IconComp className="h-3.5 w-3.5" />
+                      {cfg.label}
+                      {id !== "all" && (
+                        <span className={cn("ml-0.5 text-[10px] font-bold", isActive ? "opacity-80" : "opacity-60")}>
+                          {TOOLS.filter((t) => t.category === id).length}
+                        </span>
+                      )}
+                    </button>
+                  );
+                },
+              )}
             </div>
 
+            {/* ── Tool Cards Grid ── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {filteredTools.map((t) => {
                 const Icon = t.icon;
                 const usage = usageQuery.data?.[t.id] ?? 0;
+                const maxUsage = Math.max(...Object.values(usageQuery.data ?? { _: 1 }), 1);
                 return (
                   <button
                     key={t.id}
                     onClick={() => setOpen(t.id)}
                     className={cn(
-                      "group text-left rounded-2xl border bg-card p-4 sm:p-5 shadow-card hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col justify-between min-h-[140px] cursor-pointer",
-                      "bg-gradient-to-br",
-                      t.gradient,
+                      "group relative text-left rounded-2xl border bg-card shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 flex flex-col overflow-hidden cursor-pointer",
                     )}
                   >
-                    <div className="flex items-start gap-3 w-full">
-                      <div className="h-10 w-10 rounded-xl bg-primary/10 grid place-items-center shrink-0">
-                        <Icon className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <h3 className="font-display font-semibold leading-snug">{t.title}</h3>
-                          {t.isNew && (
-                            <Badge className="text-[9px] bg-indigo-500/20 text-indigo-400 border border-indigo-400/30 hover:bg-indigo-500/20 uppercase font-bold px-1.5 py-0">
-                              New
-                            </Badge>
-                          )}
+                    {/* Gradient BG */}
+                    <div className={cn("absolute inset-0 bg-gradient-to-br opacity-60 group-hover:opacity-100 transition-opacity duration-300", t.gradient)} />
+                    {/* Shimmer on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out pointer-events-none" />
+
+                    <div className="relative p-4 sm:p-5 flex flex-col gap-3 h-full">
+                      {/* Top Row */}
+                      <div className="flex items-start gap-3">
+                        <div className={cn("h-11 w-11 rounded-xl grid place-items-center shrink-0 border border-white/10", t.iconBg)}>
+                          <Icon className={cn("h-5 w-5", t.iconColor)} />
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-normal">
-                          {t.tagline}
-                        </p>
+                        <div className="min-w-0 flex-1 pt-0.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <h3 className="font-display font-semibold text-sm leading-snug">{t.title}</h3>
+                            {t.isNew && (
+                              <Badge className="text-[9px] bg-indigo-500/20 text-indigo-400 border border-indigo-400/30 hover:bg-indigo-500/20 uppercase font-bold px-1.5 py-0">
+                                New
+                              </Badge>
+                            )}
+                            {t.isHot && (
+                              <Badge className="text-[9px] bg-rose-500/20 text-rose-400 border border-rose-400/30 hover:bg-rose-500/20 uppercase font-bold px-1.5 py-0">
+                                Hot
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5 leading-normal line-clamp-2">
+                            {t.tagline}
+                          </p>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0 mt-0.5" />
                       </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition shrink-0" />
-                    </div>
-                    <div className="w-full mt-4 pt-2.5 border-t border-border/20 flex items-center justify-between text-[10px] text-muted-foreground">
-                      <span className="capitalize">{t.category} suite</span>
-                      <span>Used {usage} times</span>
+
+                      {/* Footer Row */}
+                      <div className="mt-auto pt-3 border-t border-border/30 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                            t.category === "code" ? "bg-indigo-500/10 text-indigo-400 border-indigo-400/20" :
+                            t.category === "career" ? "bg-emerald-500/10 text-emerald-400 border-emerald-400/20" :
+                            "bg-teal-500/10 text-teal-400 border-teal-400/20"
+                          )}>
+                            {t.category}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-0.5">
+                            <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
+                            <span className="text-[10px] text-muted-foreground font-medium">{t.rating}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            {usage > 0 ? `${usage}×` : "Try it"}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Usage progress micro-bar */}
+                      {usage > 0 && (
+                        <div className="h-0.5 w-full rounded-full bg-border/40 overflow-hidden">
+                          <div
+                            className={cn("h-full rounded-full transition-all duration-500",
+                              t.category === "code" ? "bg-indigo-400" :
+                              t.category === "career" ? "bg-emerald-400" : "bg-teal-400"
+                            )}
+                            style={{ width: `${Math.min((usage / maxUsage) * 100, 100)}%` }}
+                          />
+                        </div>
+                      )}
                     </div>
                   </button>
                 );
@@ -765,6 +942,10 @@ function ToolDialog({ tool, onClose }: { tool: ToolId; onClose: () => void }) {
         {tool === "synth" && <SynthTool />}
         {tool === "flashcards" && <FlashcardsTool />}
         {tool === "cheatsheet" && <CheatSheetTool />}
+        {tool === "code-explainer" && <CodeExplainerTool />}
+        {tool === "bug-debugger" && <BugDebuggerTool />}
+        {tool === "interview-prep" && <InterviewPrepTool />}
+        {tool === "study-plan" && <StudyPlanTool />}
 
         <DialogFooter>
           <Button variant="ghost" onClick={onClose}>
@@ -1476,6 +1657,171 @@ function CheatSheetTool() {
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ---------------- Code Explainer ---------------- */
+function CodeExplainerTool() {
+  const [code, setCode] = useState("");
+  const [lang, setLang] = useState("auto");
+  const [out, setOut] = useState("");
+  const { loading, run } = useTool();
+  const explain = async () => {
+    if (!code.trim()) return toast.error("Paste some code first");
+    const res = await run<string>(
+      { action: "doubt", subject: `Code Explainer (${lang})`, question: `Explain this code line-by-line in plain English. Highlight any gotchas or edge cases:\n\`\`\`${lang}\n${code}\n\`\`\`` },
+      (r) => r.content,
+    );
+    if (res) setOut(res);
+  };
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <Select value={lang} onValueChange={setLang}>
+          <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {["auto","javascript","typescript","python","java","c++","go","rust","sql","bash"].map((l) => (
+              <SelectItem key={l} value={l}>{l}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <span className="text-xs text-muted-foreground self-center">Select language for better accuracy</span>
+      </div>
+      <Textarea rows={6} placeholder="Paste your code here…" value={code} onChange={(e) => setCode(e.target.value)} className="font-mono text-xs" />
+      <Button onClick={explain} disabled={loading}>
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Code2 className="h-4 w-4" />}{" "}Explain Code
+      </Button>
+      {out && <div className="border rounded-lg p-4 bg-muted/20"><MarkdownBlock>{out}</MarkdownBlock></div>}
+    </div>
+  );
+}
+
+/* ---------------- Bug Debugger ---------------- */
+function BugDebuggerTool() {
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [out, setOut] = useState("");
+  const { loading, run } = useTool();
+  const debug = async () => {
+    if (!code.trim()) return toast.error("Paste your broken code");
+    const res = await run<string>(
+      {
+        action: "doubt",
+        subject: "AI Bug Debugger",
+        question: `Debug this code. Identify the root cause, explain it clearly, then provide the fixed version with comments.\n\nError message: ${error || "None"}\n\nCode:\n\`\`\`\n${code}\n\`\`\``,
+      },
+      (r) => r.content,
+    );
+    if (res) setOut(res);
+  };
+  return (
+    <div className="space-y-3">
+      <Textarea rows={6} placeholder="Paste your broken/buggy code here…" value={code} onChange={(e) => setCode(e.target.value)} className="font-mono text-xs" />
+      <Input placeholder="Error message or describe unexpected behavior (optional)" value={error} onChange={(e) => setError(e.target.value)} />
+      <Button onClick={debug} disabled={loading} className="bg-red-600 hover:bg-red-700 text-white">
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}{" "}Debug & Fix
+      </Button>
+      {out && <div className="border rounded-lg p-4 bg-muted/20"><MarkdownBlock>{out}</MarkdownBlock></div>}
+    </div>
+  );
+}
+
+/* ---------------- Interview Prep ---------------- */
+function InterviewPrepTool() {
+  const [role, setRole] = useState("");
+  const [level, setLevel] = useState("mid");
+  const [focus, setFocus] = useState("technical");
+  const [out, setOut] = useState("");
+  const { loading, run } = useTool();
+  const generate = async () => {
+    if (!role.trim()) return toast.error("Enter a target role");
+    const res = await run<string>(
+      {
+        action: "career",
+        goal: `Interview Prep for ${role} (${level}-level, ${focus})`,
+        years: level === "junior" ? 0 : level === "mid" ? 3 : 6,
+        background: `Generate 10 role-specific interview questions for a ${level}-level ${role} (${focus} focus). For each: provide a STAR-format sample answer, key points to cover, and common mistakes to avoid.`,
+      },
+      (r) => r.content,
+    );
+    if (res) setOut(res);
+  };
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <Input placeholder="Target role (e.g. SDE-2, PM, DevOps)" value={role} onChange={(e) => setRole(e.target.value)} />
+        <Select value={level} onValueChange={setLevel}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="junior">Junior (0–2 yrs)</SelectItem>
+            <SelectItem value="mid">Mid (3–5 yrs)</SelectItem>
+            <SelectItem value="senior">Senior (6+ yrs)</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={focus} onValueChange={setFocus}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="technical">Technical / DSA</SelectItem>
+            <SelectItem value="behavioral">Behavioral / STAR</SelectItem>
+            <SelectItem value="system-design">System Design</SelectItem>
+            <SelectItem value="mixed">Mixed</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <Button onClick={generate} disabled={loading} className="bg-violet-600 hover:bg-violet-700 text-white">
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}{" "}Generate Interview Q&A
+      </Button>
+      {out && <div className="border rounded-lg p-4 bg-muted/20"><MarkdownBlock>{out}</MarkdownBlock></div>}
+    </div>
+  );
+}
+
+/* ---------------- Study Plan Generator ---------------- */
+function StudyPlanTool() {
+  const [topic, setTopic] = useState("");
+  const [weeks, setWeeks] = useState("4");
+  const [level, setLevel] = useState("beginner");
+  const [goal, setGoal] = useState("");
+  const [out, setOut] = useState("");
+  const { loading, run } = useTool();
+  const generate = async () => {
+    if (!topic.trim()) return toast.error("Enter a topic to study");
+    const res = await run<string>(
+      {
+        action: "career",
+        goal: `${weeks}-Week ${topic} Study Plan`,
+        years: 0,
+        background: `Create a detailed ${weeks}-week study plan for ${topic} at ${level} level. Goal: ${goal || "Master fundamentals and build projects"}. Include weekly objectives, daily tasks, resources (books/videos/docs), projects, and progress milestones.`,
+      },
+      (r) => r.content,
+    );
+    if (res) setOut(res);
+  };
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <Input placeholder="Topic (e.g. React, ML, Docker)" value={topic} onChange={(e) => setTopic(e.target.value)} />
+        <Select value={weeks} onValueChange={setWeeks}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {["2","4","6","8","12"].map((w) => <SelectItem key={w} value={w}>{w} Weeks</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={level} onValueChange={setLevel}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="beginner">Beginner</SelectItem>
+            <SelectItem value="intermediate">Intermediate</SelectItem>
+            <SelectItem value="advanced">Advanced</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <Input placeholder="Goal (optional): e.g. Get a job, build a SaaS, pass certification" value={goal} onChange={(e) => setGoal(e.target.value)} />
+      <Button onClick={generate} disabled={loading} className="bg-pink-600 hover:bg-pink-700 text-white">
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}{" "}Generate Study Plan
+      </Button>
+      {out && <div className="border rounded-lg p-4 bg-muted/20"><MarkdownBlock>{out}</MarkdownBlock></div>}
     </div>
   );
 }

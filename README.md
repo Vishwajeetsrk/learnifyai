@@ -58,6 +58,47 @@ Learnify AI is a **full-stack, AI-powered learning and career growth platform** 
 
 ---
 
+## 🧰 AI Suite — 11 Specialized AI Tools (`/ai-tools`)
+
+The **AI Suite** is a dedicated hub of specialized, on-demand AI tools that go beyond the general AI Tutor — each purpose-built for a specific learning or career task. As of **v4.2**, the suite features **11 tools** across 3 categories with a fully upgraded premium UI (animated cards, usage progress bars, star ratings, stats banner, and colored category filters).
+
+### 🔵 Code Tools
+
+| Tool | Description | How to Use |
+| :--- | :--- | :--- |
+| 🧠 **Quiz Generator** | Generate custom MCQs with instant grading and detailed explanations. | Enter topic + difficulty → Generate → Review scored quiz with answer breakdowns. |
+| ❓ **Doubt Solver** | Mentor-grade answers with code examples, edge cases, and common pitfalls. | Enter subject (optional) + your question/error → Get expert markdown answer with code. |
+| 💬 **Code Explainer** ⭐ New | Paste any code snippet and get a plain-English, line-by-line breakdown. | Select language → Paste code → Get explanation with gotchas and edge case highlights. |
+| 🐛 **AI Bug Debugger** ⭐ New | Paste broken/buggy code to get root cause analysis + a fully fixed version with comments. | Paste code + optional error message → Get root cause analysis + fixed code with comments. |
+
+### 🟢 Career Tools
+
+| Tool | Description | How to Use |
+| :--- | :--- | :--- |
+| 💼 **Career Coach** | Generate a 12-week career roadmap with salary benchmarks and portfolio plan. | Enter target role + years experience → Get week-by-week roadmap with salary data. |
+| 🔔 **Smart Reminders** | Schedule study reminders delivered via email and in-app inbox. | Set topic + schedule → Receive timely email + in-app nudges. |
+| 🎓 **Interview Prep** ⭐ New | Role-specific Q&A bank with STAR-format answer coaching for any level. | Enter role + level + focus → Get 10 targeted Q&A pairs with STAR coaching and mistake tips. |
+| 📅 **Study Plan Generator** ⭐ New | Generate a personalized N-week study plan for any topic with daily tasks and resources. | Enter topic + weeks + level + goal → Get structured daily study plan with resources and milestones. |
+
+### 🩵 Learning Tools
+
+| Tool | Description | How to Use |
+| :--- | :--- | :--- |
+| 📝 **Lesson Synthesizer** | Transform raw notes into TL;DR, glossary, and practice questions. | Paste lesson text → Get concise summary, glossary, and practice Q&A. |
+| 🃏 **Auto Flashcards** | Generate active-recall spaced-repetition cards on any topic. | Enter topic → Get a deck of flip-reveal flashcards for active recall. |
+| 📋 **Cheat Sheet Generator** | Generate topic summaries with key points, comparisons, and embedded quizzes. | Enter topic + level → Get formatted cheat sheet saved to your Library. |
+
+### AI Suite UI Features (v4.2)
+
+- **Stats Banner**: Shows total AI tools (11), your total AI generations, category count, and new tools this month
+- **Category Filter Pills**: Colored pill filters (Code / Career / Learning) with live tool count badges
+- **Premium Cards**: Each card shows tool icon (color-coded), `New` / `Hot` badges, star rating, usage count, and a micro progress bar
+- **Hover Effects**: Card shimmer animation + `ArrowRight` slide on hover
+- **Library Tab**: Save and browse all generated Cheat Sheets
+- **History Tab**: Browse, fork, and replay all past AI tool outputs
+
+---
+
 ## 🎥 Comprehensive Feature Demos & AI Tools Guide
 
 Learnify AI 4.0 provides a complete suite of AI-native learning and career tools. Below is a detailed feature walkthrough and step-by-step usage guide:
@@ -122,8 +163,8 @@ Learnify AI 4.0 provides a complete suite of AI-native learning and career tools
 
 | Career Tool | Feature Overview & Deliverables |
 | :--- | :--- |
-| 📄 **1. Resume Builder Studio** | Multi-column ATS templates (*DreamSync Pro*, *Executive Minimal*, *Modern Tech*, *Cyberpunk*, *Designer Gallery*), custom typography, accent color picker, icon styling, and instant high-res PDF export. |
-| 📊 **2. ATS Resume Scorer** | Real-time score calculation against target job descriptions with keyword gap detection, formatting audits, and score improvement suggestions. |
+| 📄 **1. Resume Builder Studio** | Multi-column ATS templates (*DreamSync Pro*, *Executive Minimal*, *Modern Tech*, *Cyberpunk*, *Designer Gallery*), custom typography, accent color picker, icon styling, and export to **PDF**, **Word (.docx)**, **Text (.txt)**, and **Print**. |
+| 📊 **2. ATS Resume Scorer** | Real-time score calculation against target job descriptions with keyword gap detection, formatting audits, score improvement suggestions, and export to **PDF**, **Word (.docx)**, and **Text** (all cross-browser safe). |
 | 🎙️ **3. AI Voice Interview Coach** | Interactive mock interview simulator with speech recognition, customizable role scenarios, and performance score breakdown. |
 | 🗺️ **4. 91 Developer Roadmaps (roadmap.sh)** | 91 interactive developer learning tracks (*AI Engineer*, *Agentic AI*, *System Design*, *Frontend*, *Backend*, *DevOps*, *Cybersecurity*, *MLOps*) grounded in 90 curated roadmap definitions. |
 | 🌐 **5. Portfolio Builder** | Hosted live developer portfolios (`/p/{username}`) with dark mode glassmorphism, 3D skill badges, project showcases, social links normalization, and 1-click HTML export. |
@@ -133,6 +174,18 @@ Learnify AI 4.0 provides a complete suite of AI-native learning and career tools
 | 🎯 **9. Skill Gap & Multi-Role Readiness** | Side-by-side multi-role comparison grid, skill mastery toggle (`Mastered` vs `Gap +X%`), custom role builder, and direct `Learn Course →` redirect. |
 | 🧩 **10. Your Ikigai Career Path** | Auto-saved Ikigai analysis results (*#1 Recommended Path*, 94% Match Score, Market Need, Salary Band, Alternative Paths, 4-Step Action Roadmap, and wizard reset). |
 | 🗺️ **11. 14 Skill Roadmaps & Industry Guides** | Detailed 2026 roadmap breakdowns (*Generative AI*, *Agentic AI*, *UI/UX*, *Full-Stack*, *Cloud & DevOps*, *Data Engineering*, *Blockchain & Web3 Architect*, *AI Safety Specialist*, *Embedded Systems*, *QA & Automated Testing*). |
+
+### 📥 Career Studio Export Capabilities (v4.2)
+
+All major Career Studio tools now support **cross-browser-safe** multi-format exports:
+
+| Module | PDF | Word (.docx) | Text/JSON/MD | Print |
+| :--- | :---: | :---: | :---: | :---: |
+| **Resume Builder Studio** | ✅ | ✅ | ✅ (.txt) | ✅ |
+| **ATS Resume Checker** | ✅ | ✅ | ✅ (.txt) | — |
+| **Career Roadmap** | ✅ (jsPDF) | ✅ | ✅ (.json/.md) | ✅ |
+
+> **Browser Fix**: All download anchors now use the `appendChild/removeChild` DOM pattern for full Firefox & Safari compatibility.
 
 ---
 
@@ -259,12 +312,14 @@ Learnify AI's playground features **multi-language compilation** powered by Wand
 | **State**      | TanStack Query + React Context                                                  |
 | **Database**   | Supabase (PostgreSQL + Auth + Storage)                                          |
 | **AI**         | OpenRouter, Gemini, Groq, NVIDIA (multi-provider fallback)                      |
-| **Payments**   | Cashfree (Recurring Subscriptions + Wallet + Payouts)                           |
+| **Payments**   | Razorpay (primary) + Cashfree (subscriptions, wallet, payouts)                  |
+| **Currency**   | PPP-based 9-currency conversion (INR ₹, USD $, EUR €, GBP £, AED, CAD, AUD, SGD, JPY) |
 | **Embeddings** | Gemini text-embedding-004 + pgvector                                            |
 | **Email**      | Resend (primary) ←→ Gmail SMTP ←→ Brevo (fallback chain, per-provider timeouts) |
 | **Code Exec**  | Wandbox / Piston / Judge0 (multi-executor fallback)                             |
 | **Canvas**     | html2canvas (certificate capture with selection handles)                        |
-| **PDF Export** | html2canvas + browser print (high-res A4 landscape certificate generation)      |
+| **PDF Export** | jsPDF (career roadmap) + html2canvas + browser print (certificates)             |
+| **Doc Export** | Blob/MSWord HTML (cross-browser .docx generation)                               |
 | **Bulk Gen**   | JSZip (CSV → ZIP of PDFs for batch certificate issuance)                        |
 | **Testing**    | Playwright (E2E)                                                                |
 | **Deployment** | Vercel (Edge Network + Serverless Functions)                                    |
@@ -1331,6 +1386,30 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🧩 **CAREER FINDER (IKIGAI)**: Added real-time data-driven Ikigai calculation algorithm, full `localStorage` wizard state persistence (`learnify_ikigai_wizard_v2`), auto-saved badge, and custom career roadmap recommendations.
 - 🗺️ **SKILL ROADMAPS & GUIDES**: Added category filtering tabs (*AI & ML*, *Web Dev*, *Cloud & DevOps*, *Design*, *Security*, *Strategy*) across 9 industry roadmaps with phase breakdowns, milestones, portfolio project specs, and 1-click **Save to Profile**.
 - 🤖 **AI AGENT SKILLS & CODE EXECUTION**: Enhanced **Career Coach**, **Learning Assistant**, and **Market Intelligence** AI skills. Cleaned up code execution formatting in `ToolCallBadge` and updated runnable code suggestions.
+
+### v4.2.0 (August 2026) — AI Suite Expansion & Export Overhaul
+
+- 🧰 **AI SUITE EXPANDED TO 11 TOOLS**: Added 4 brand-new AI tools to the `/ai-tools` hub:
+  - 💬 **Code Explainer** — Paste any code → line-by-line plain-English breakdown with gotchas
+  - 🐛 **AI Bug Debugger** — Paste broken code + error message → root cause analysis + fixed version
+  - 🎓 **Interview Prep** — Role/level/focus selector → 10 STAR-format Q&A pairs with coaching
+  - 📅 **Study Plan Generator** — Topic + weeks + level → structured daily study plan with resources
+
+- 🎨 **AI SUITE PREMIUM UI REDESIGN**: Fully rebuilt the `/ai-tools` page with:
+  - Stats banner (total tools, AI generations, categories, new this month)
+  - Colored category filter pills with tool count badges (Code / Career / Learning)
+  - Premium animated cards with shimmer hover, colored per-tool icon, `New`/`Hot` badges, star ratings, and usage progress micro-bars
+  - Tool count badge inside the Tabs header
+
+- 📥 **CAREER STUDIO EXPORT OVERHAUL**: Added full multi-format export support:
+  - **Resume Builder**: PDF, Word (.docx), Text (.txt), Print
+  - **ATS Resume Checker**: PDF, Word (.docx), Text
+  - **Career Roadmap**: PDF (jsPDF, paginated), Word (.docx), JSON/MD, Print
+  - **Cross-browser fix**: All downloads now use `appendChild/removeChild` DOM pattern (fixes Firefox & Safari)
+
+- 💳 **RAZORPAY INTEGRATION**: Added Razorpay as the primary payment gateway alongside Cashfree for broader UPI, card, and NetBanking support.
+
+- 🐛 **DATABASE FIX**: Resolved `duplicate key value violates unique constraint "billing_settings_key_key"` by adding explicit `onConflict: "key"` in Supabase upsert calls.
 
 ### v4.0.0 (July 2026) — Major Release
 
