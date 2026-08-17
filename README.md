@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v6.9.0 (August 2026) — Course Form Dialog Mobile-First Responsive Overhaul
+
+- 📝 **COURSE FORM RESPONSIVE BUTTON GRID**: Upgraded `studio.view.tsx` Course Form Dialog thumbnail action controls (*Upload*, *AI Thumbnail*, *Edit*, *Quick stock*) with a responsive 2-column/4-column button grid (`grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2`).
+- 🎨 **THUMBNAIL & METADATA OVERHAUL**: Enhanced course slug generation, category suggestions, price (INR ₹), level tags, duration counters, and cover preview cards for 100% mobile-friendly editing.
+
 ### v6.8.0 (August 2026) — User Settings & Creator Hub Mobile-First Responsive Overhaul
 
 - ⚙️ **SETTINGS TOUCH-FRIENDLY TABS**: Refactored `settings.view.tsx` tab navigation bar (`TabsList`) with horizontal touch-scrolling (`no-scrollbar flex-nowrap shrink-0`) for seamless profile, billing, notifications, security, and branding configuration on mobile viewports.

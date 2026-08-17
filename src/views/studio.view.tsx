@@ -861,8 +861,8 @@ function CourseFormDialog({
             />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
-            <Label>Cover image / Thumbnail</Label>
-            <div className="flex gap-2 flex-wrap">
+            <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Cover Image / Thumbnail</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2">
               <Input
                 value={coverUrl}
                 onChange={(e) => {
@@ -870,9 +870,9 @@ function CourseFormDialog({
                   setCoverFailed(false);
                 }}
                 placeholder="Paste image URL, upload, or generate with AI"
-                className="min-w-[180px] flex-1"
+                className="h-10 text-xs sm:col-span-2 md:col-span-4"
               />
-              <label className="inline-flex items-center gap-1.5 rounded-md border bg-secondary px-3 text-sm font-medium hover:bg-secondary/80 cursor-pointer">
+              <label className="inline-flex items-center justify-center gap-1.5 rounded-xl border bg-secondary px-3 py-2 text-xs font-bold hover:bg-secondary/80 cursor-pointer h-10 transition">
                 <Upload className="h-4 w-4" /> Upload
                 <input
                   type="file"
@@ -892,14 +892,15 @@ function CourseFormDialog({
                   }}
                 />
               </label>
-              <Button type="button" variant="secondary" onClick={() => setAiThumbOpen(true)}>
-                <Sparkles className="h-4 w-4" /> AI Thumbnail
+              <Button type="button" variant="secondary" onClick={() => setAiThumbOpen(true)} className="h-10 text-xs font-bold rounded-xl gap-1.5">
+                <Sparkles className="h-4 w-4 text-amber-500" /> AI Thumbnail
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setEditorOpen(true)}
                 disabled={!coverUrl}
+                className="h-10 text-xs font-bold rounded-xl gap-1.5"
               >
                 <Scissors className="h-4 w-4" /> Edit
               </Button>
@@ -910,11 +911,11 @@ function CourseFormDialog({
                   const seed = encodeURIComponent(
                     (title || category || "learning").trim().toLowerCase().replace(/\s+/g, "-"),
                   );
-                  // source.unsplash.com is deprecated. Use picsum.photos which supports CORS and seeded random images.
                   await applyCoverFromSource(`https://picsum.photos/seed/${seed}/1536/1024`, {
                     expected: "1536x1024",
                   });
                 }}
+                className="h-10 text-xs font-bold rounded-xl"
               >
                 Quick stock
               </Button>
