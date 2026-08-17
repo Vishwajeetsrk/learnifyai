@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v6.3.0 (August 2026) — AI Course Builder Mobile Overhaul & Deep Learning Lesson Engine
+
+- 🤖 **MY AI COURSE BUILDER MOBILE FORM OVERHAUL**: Upgraded `studio.view.tsx` AI Course Builder dialog with 2-column responsive form grid (`grid-cols-1 sm:grid-cols-2`), touch-friendly module counters, level badges (*Beginner*, *Intermediate*, *Advanced*), gradient action buttons, and automated blueprint preview card renderer.
+- 🎓 **DEEP LEARNING & INTERACTIVE LESSON ENGINE**: Verified `courses.$slug.tsx` integrated lesson runner featuring Monaco code playground, AI exercise grader, real-time code execution, video embeds, and step-by-step learning roadmaps.
+
 ### v6.2.0 (August 2026) — Earned Certificates 100% Score & Template Mastery Interactive Showcase
 
 - 📜 **EARNED CERTIFICATES 100% VERIFIED BADGING**: Fixed percentage calculation in `certificates.tsx` so issued course completion certificates display 100% completion badges alongside government-recognized Accreditation Guides (*MSME Udyam*, *NSDC Skill India*, *ISO 9001/27001*).

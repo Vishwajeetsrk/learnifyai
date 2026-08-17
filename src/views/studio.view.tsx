@@ -1830,31 +1830,35 @@ function AiBuilderDialog({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl p-6 sm:p-8">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Wand2 className="h-5 w-5 text-primary" /> My AI Course Builder
+          <DialogTitle className="flex items-center gap-2 text-xl font-bold font-display">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 grid place-items-center">
+              <Wand2 className="h-5 w-5 text-primary animate-pulse" />
+            </div>
+            My AI Course Builder
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground mt-1">
             Generates modules → chapters → real-world examples → projects → assignments → MCQs.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3">
-          <div className="grid gap-2 sm:grid-cols-2">
+        <div className="space-y-4 mt-2">
+          <div className="grid gap-3.5 grid-cols-1 sm:grid-cols-2">
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Topic</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Topic *</Label>
               <Input
                 placeholder="e.g. Full-stack Next.js + tRPC + Prisma"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
                 maxLength={300}
+                className="h-11 rounded-xl"
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Level</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Level</Label>
               <select
-                className="w-full h-9 rounded-md border bg-background px-2 text-sm"
+                className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 value={level}
                 onChange={(e) => setLevel(e.target.value as any)}
               >
@@ -1864,49 +1868,56 @@ function AiBuilderDialog({
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label>Modules</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Modules ({count})</Label>
               <Input
                 type="number"
                 min={2}
                 max={8}
                 value={count}
                 onChange={(e) => setCount(Number(e.target.value) || 4)}
+                className="h-11 rounded-xl"
               />
             </div>
             <div className="space-y-1.5">
-              <Label>Category</Label>
-              <Input value={category} onChange={(e) => setCategory(e.target.value)} />
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Category</Label>
+              <Input value={category} onChange={(e) => setCategory(e.target.value)} className="h-11 rounded-xl" />
             </div>
             <div className="space-y-1.5">
-              <Label>Price (INR)</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Price (INR ₹)</Label>
               <Input
                 type="number"
                 min={0}
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value) || 0)}
+                className="h-11 rounded-xl"
               />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Target audience (optional)</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Target Audience (Optional)</Label>
               <Input
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
                 placeholder="e.g. junior frontend engineers learning the backend"
+                className="h-11 rounded-xl"
               />
             </div>
-            <div className="flex items-center gap-2 sm:col-span-2">
+            <div className="flex items-center gap-3 sm:col-span-2 pt-1">
               <Switch checked={published} onCheckedChange={setPublished} />
-              <Label className="!m-0">Publish immediately</Label>
+              <Label className="!m-0 text-sm font-semibold cursor-pointer">Publish immediately to catalog</Label>
             </div>
           </div>
 
-          <Button onClick={generate} disabled={busy !== ""} className="w-full">
+          <Button
+            onClick={generate}
+            disabled={busy !== ""}
+            className="w-full h-12 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-bold shadow-lg hover:opacity-95 transition-all text-sm gap-2"
+          >
             {busy === "gen" ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Sparkles className="h-4 w-4" />
-            )}{" "}
-            Generate blueprint
+            )}
+            Generate Blueprint
           </Button>
 
           {blueprint && (
