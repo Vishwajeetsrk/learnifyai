@@ -327,7 +327,7 @@ export function AgentChat({
             >
               <div
                 className={cn(
-                  "max-w-[85%] space-y-1",
+                  "max-w-[95%] sm:max-w-[85%] space-y-1 min-w-0",
                   msg.role === "assistant" && "flex items-start gap-2",
                 )}
               >

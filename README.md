@@ -1106,6 +1106,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v5.1.0 (August 2026) — Skill Roadmaps Expansion & AI Agent Skills Responsive Overhaul
+
+- 🗺️ **5 NEW 2026 CAREER ROADMAPS ADDED**: Expanded `GuidesDocsView` in `career-studio.tsx` with 5 high-demand industry roadmaps (*Blockchain & Web3 Architect*, *AI Safety & Alignment Specialist*, *Data Engineering & Pipeline Architect*, *Embedded Systems & IoT Engineer*, *QA & Automated Testing Engineer*) featuring full phase-by-phase learning paths, prerequisites, and portfolio projects.
+- 📱 **100% DEVICE-RESPONSIVE ROADMAP GRID & MODAL**: Refactored `GuidesDocsView` category filter pills with natural wrapping, card grid layout (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`), and responsive roadmap dialog viewports for mobile phones, tablets, and desktop displays.
+- 🤖 **AI AGENT SKILLS HUB RESPONSIVE ENGINE**: Upgraded `AgentHub.tsx` and `AgentChat.tsx` with adaptive container height (`min-h-[550px] h-[calc(100dvh-9rem)] max-h-[850px]`), snap-scroll tab selectors, and responsive chat bubble widths (`max-w-[95%] sm:max-w-[85%]`).
+
 ### v5.0.0 (August 2026) — Internship Tracker, Skill Gap Analysis & Ikigai Career Path Engine Overhaul
 
 - 💼 **INTERNSHIP TRACKER KANBAN STAGE SWITCHER**: Upgraded `InternshipTrackerView` in `career-studio.tsx` with full stage dropdown selectors on every card (`Applied`, `Interviewing`, `Offer`, `Rejected`), sample data generator, CSV exporter, and Kanban vs List view toggles.

@@ -4347,6 +4347,222 @@ const DETAILED_ROADMAPS: Record<
       },
     ],
   },
+  "Blockchain & Web3 Architect": {
+    targetRole: "Blockchain & Smart Contract Developer",
+    level: "Decentralized",
+    summary:
+      "Master Solidity, EVM architecture, Smart Contract security, Ethers.js, Hardhat, DeFi protocols, and decentralized app architectures.",
+    timeline: "4-6 Months",
+    salary: "₹10L - ₹32L / yr",
+    prerequisites: ["JavaScript/TypeScript", "Cryptography Basics"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: Solidity & EVM Smart Contracts",
+        duration: "Weeks 1-6",
+        skills: ["Solidity", "Ethereum", "Smart Contracts"],
+        description:
+          "Learn Solidity syntax, EVM memory layout, state variables, modifiers, events, and OpenZeppelin security standards.",
+        milestones: [
+          "Deploy ERC-20 & ERC-721 Smart Contracts on Testnet",
+          "Pass Automated Smart Contract Unit Test Suite",
+        ],
+      },
+      {
+        phaseTitle: "Phase 2: DApp Development with Ethers.js & React",
+        duration: "Weeks 7-14",
+        skills: ["Ethers.js", "Web3.js", "React", "TypeScript"],
+        description:
+          "Integrate Web3 wallets (MetaMask, WalletConnect), read contract state, execute transactions, and handle gas estimation.",
+        milestones: [
+          "Build Full-Stack Decentralized Exchange (DEX) UI",
+          "Implement Real-Time Event Listening for On-Chain Logs",
+        ],
+      },
+      {
+        phaseTitle: "Phase 3: Smart Contract Security & DeFi Protocols",
+        duration: "Weeks 15-22",
+        skills: ["Solidity", "Smart Contracts", "Security"],
+        description:
+          "Audit contracts for reentrancy attacks, integer overflow, front-running vulnerabilities, and gas optimization techniques.",
+        milestones: [
+          "Conduct Security Audit Report on Vulnerable Protocol",
+          "Deploy Production DeFi Staking & Governance Vault",
+        ],
+      },
+    ],
+    projects: [
+      {
+        title: "Decentralized Token Exchange (DEX)",
+        tech: ["Solidity", "Ethers.js", "React", "Ethereum"],
+        desc: "Automated Market Maker (AMM) contract with liquidity pool provisioning and token swap interface.",
+      },
+      {
+        title: "NFT Marketplace & Royalty Engine",
+        tech: ["Solidity", "Smart Contracts", "Web3.js"],
+        desc: "Full NFT minting, listing, bidding, and royalty distribution protocol.",
+      },
+    ],
+  },
+  "AI Safety & Alignment Specialist": {
+    targetRole: "AI Safety & Alignment Engineer",
+    level: "Research & Safety",
+    summary:
+      "Master RLHF (Reinforcement Learning from Human Feedback), Mechanistic Interpretability, Red-Teaming, Prompt Injection Defense, and AI Governance.",
+    timeline: "5-7 Months",
+    salary: "₹15L - ₹40L+ / yr",
+    prerequisites: ["Python", "PyTorch", "LLM Fundamentals"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: RLHF & Preference Modeling",
+        duration: "Weeks 1-8",
+        skills: ["RLHF", "Python", "PyTorch", "AI Safety"],
+        description:
+          "Learn Reward Model training, PPO optimization, Direct Preference Optimization (DPO), and helpfulness/harmlessness alignment datasets.",
+        milestones: [
+          "Train DPO Alignment Model on Open Source LLM Base",
+          "Evaluate Model Output Against Safety Tax Metrics",
+        ],
+      },
+      {
+        phaseTitle: "Phase 2: Red-Teaming & Jailbreak Defense",
+        duration: "Weeks 9-16",
+        skills: ["AI Safety", "Python", "Interpretability"],
+        description:
+          "Conduct adversarial prompt injection, jailbreak evaluations, toxicity filtering, and guardrail system design.",
+        milestones: [
+          "Build Automated Red-Teaming Evaluation Suite",
+          "Implement Input Firewall for LLM Security",
+        ],
+      },
+    ],
+    projects: [
+      {
+        title: "Automated LLM Red-Teaming & Firewall Toolkit",
+        tech: ["Python", "AI Safety", "PyTorch"],
+        desc: "Adversarial evaluation engine probing model safety, toxicity thresholds, and prompt injection vulnerabilities.",
+      },
+    ],
+  },
+  "Data Engineering & Pipeline Architect": {
+    targetRole: "Senior Data Engineer",
+    level: "High Throughput",
+    summary:
+      "Master Apache Spark, Kafka event streaming, Airflow orchestration, Snowflake data warehousing, dbt transformations, and PySpark ETL pipelines.",
+    timeline: "6-8 Months",
+    salary: "₹7L - ₹28L / yr",
+    prerequisites: ["Python", "Advanced SQL"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: ETL Pipelines & Data Warehousing",
+        duration: "Weeks 1-8",
+        skills: ["Python", "SQL", "Snowflake", "dbt"],
+        description:
+          "Build batch ETL data pipelines, dimensional modeling (Star & Snowflake schemas), dbt transformations, and data quality testing.",
+        milestones: [
+          "Design Production Data Warehouse on Snowflake",
+          "Automate dbt Data Transformation Tests",
+        ],
+      },
+      {
+        phaseTitle: "Phase 2: Streaming Data & Orchestration",
+        duration: "Weeks 9-18",
+        skills: ["Kafka", "Apache Spark", "Airflow", "Python"],
+        description:
+          "Implement real-time Kafka event streaming pipelines, PySpark distributed data processing, and Airflow DAG orchestration.",
+        milestones: [
+          "Build Real-Time Streaming Analytics Pipeline with Kafka & Spark",
+          "Schedule Production DAG Workflow in Airflow",
+        ],
+      },
+    ],
+    projects: [
+      {
+        title: "Real-Time Financial Streaming Pipeline",
+        tech: ["Kafka", "Apache Spark", "Airflow", "Snowflake"],
+        desc: "High-throughput event streaming pipeline processing 10,000+ events/sec into a Snowflake warehouse.",
+      },
+    ],
+  },
+  "Embedded Systems & IoT Engineer": {
+    targetRole: "Embedded Software & IoT Developer",
+    level: "Hardware & Firmware",
+    summary:
+      "Master C/C++, FreeRTOS, Microcontroller programming (ESP32, STM32), MQTT protocols, sensor integration, and IoT cloud gateways.",
+    timeline: "5-7 Months",
+    salary: "₹5L - ₹22L / yr",
+    prerequisites: ["C Basics", "Electronics Fundamentals"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: C/C++ Firmware & Microcontrollers",
+        duration: "Weeks 1-8",
+        skills: ["C/C++", "ESP32", "Raspberry Pi"],
+        description:
+          "Write bare-metal C firmware, configure GPIO, I2C, SPI, UART peripherals, interrupt service routines, and power optimization.",
+        milestones: [
+          "Flash Custom Firmware onto ESP32 Board",
+          "Read Multi-Sensor Array over I2C Protocol",
+        ],
+      },
+      {
+        phaseTitle: "Phase 2: RTOS & IoT Cloud Telemetry",
+        duration: "Weeks 9-16",
+        skills: ["RTOS", "MQTT", "C/C++"],
+        description:
+          "Learn FreeRTOS multitasking, semaphores, message queues, MQTT telemetry publishing over Wi-Fi/Cellular, and OTA updates.",
+        milestones: [
+          "Deploy Multithreaded FreeRTOS Task Manager",
+          "Connect IoT Node to AWS IoT Core Gateway",
+        ],
+      },
+    ],
+    projects: [
+      {
+        title: "Smart Environmental Sensor Telemetry Node",
+        tech: ["C/C++", "RTOS", "ESP32", "MQTT"],
+        desc: "Battery-optimized IoT sensor node publishing real-time telemetry over MQTT to cloud dashboards.",
+      },
+    ],
+  },
+  "QA & Automated Testing Engineer": {
+    targetRole: "Senior SDET / QA Automation Engineer",
+    level: "Quality First",
+    summary:
+      "Master Playwright, Cypress, API testing with Postman, CI/CD pipeline integration, end-to-end UI automation, and performance testing.",
+    timeline: "3-5 Months",
+    salary: "₹4L - ₹18L / yr",
+    prerequisites: ["JavaScript/TypeScript Basics"],
+    phases: [
+      {
+        phaseTitle: "Phase 1: E2E Automation with Playwright & Cypress",
+        duration: "Weeks 1-6",
+        skills: ["Playwright", "Cypress", "TypeScript"],
+        description:
+          "Learn Page Object Model (POM), cross-browser testing, network mocking, visual regression testing, and parallel test execution.",
+        milestones: [
+          "Build Playwright E2E Suite for SaaS App with 50+ Test Cases",
+          "Achieve 100% Automated Critical Path Coverage",
+        ],
+      },
+      {
+        phaseTitle: "Phase 2: API Automation & CI/CD Testing Pipeline",
+        duration: "Weeks 7-12",
+        skills: ["Selenium", "TypeScript", "CI/CD"],
+        description:
+          "Automate REST API testing, token authentication flows, load/stress testing, and integrate GitHub Actions test reporting.",
+        milestones: [
+          "Integrate Automated E2E Test Suite in GitHub Actions",
+          "Build Allure Test Execution Report Dashboard",
+        ],
+      },
+    ],
+    projects: [
+      {
+        title: "Enterprise Playwright E2E Test Framework",
+        tech: ["Playwright", "TypeScript", "CI/CD"],
+        desc: "Production-grade automated testing framework with Page Object Model, parallel execution, and Slack notifications.",
+      },
+    ],
+  },
 };
 
 function GuidesDocsView() {
@@ -4445,6 +4661,56 @@ function GuidesDocsView() {
       skills: ["Strategy", "Analytics", "UX Design", "Tech", "Leadership"],
       salary: "₹8L - ₹30L",
     },
+    {
+      title: "Blockchain & Web3 Architect",
+      category: "Strategy",
+      icon: Globe,
+      color: "bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400",
+      level: "Decentralized",
+      duration: "4-6 months",
+      skills: ["Solidity", "Ethereum", "Smart Contracts", "Ethers.js"],
+      salary: "₹10L - ₹32L",
+    },
+    {
+      title: "AI Safety & Alignment Specialist",
+      category: "AI & ML",
+      icon: Shield,
+      color: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400",
+      level: "Research & Safety",
+      duration: "5-7 months",
+      skills: ["RLHF", "AI Safety", "Python", "PyTorch"],
+      salary: "₹15L - ₹40L+",
+    },
+    {
+      title: "Data Engineering & Pipeline Architect",
+      category: "Cloud & DevOps",
+      icon: Database,
+      color: "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400",
+      level: "High Throughput",
+      duration: "6-8 months",
+      skills: ["Apache Spark", "Kafka", "Airflow", "Snowflake"],
+      salary: "₹7L - ₹28L",
+    },
+    {
+      title: "Embedded Systems & IoT Engineer",
+      category: "Cloud & DevOps",
+      icon: Cpu,
+      color: "bg-cyan-50 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400",
+      level: "Hardware & Firmware",
+      duration: "5-7 months",
+      skills: ["C/C++", "RTOS", "Raspberry Pi", "ESP32"],
+      salary: "₹5L - ₹22L",
+    },
+    {
+      title: "QA & Automated Testing Engineer",
+      category: "Web Dev",
+      icon: CheckCircle2,
+      color: "bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400",
+      level: "Quality First",
+      duration: "3-5 months",
+      skills: ["Playwright", "Cypress", "Selenium", "TypeScript"],
+      salary: "₹4L - ₹18L",
+    },
   ];
 
   const filteredGuides =
@@ -4455,10 +4721,10 @@ function GuidesDocsView() {
   const activeRoadmap = selectedKey ? DETAILED_ROADMAPS[selectedKey] : null;
 
   return (
-    <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-4">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-card rounded-2xl border shadow-sm">
+          <div className="p-3 bg-card rounded-2xl border shadow-sm shrink-0">
             <BookOpen className="h-6 w-6 text-primary" />
           </div>
           <div>
@@ -4469,8 +4735,8 @@ function GuidesDocsView() {
           </div>
         </div>
 
-        {/* Category Filters */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 max-w-full">
+        {/* Responsive Category Filters */}
+        <div className="flex items-center gap-1.5 flex-wrap max-w-full">
           {["All", "AI & ML", "Web Dev", "Cloud & DevOps", "Design", "Security", "Strategy"].map((cat) => (
             <button
               key={cat}
@@ -4488,53 +4754,59 @@ function GuidesDocsView() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* Grid of Roadmap Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredGuides.map((guide, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
+            transition={{ delay: i * 0.04 }}
           >
             <Card
               onClick={() => setSelectedKey(guide.title)}
-              className="rounded-2xl border shadow-sm p-6 space-y-4 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group"
+              className="rounded-2xl border shadow-sm p-5 space-y-4 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group flex flex-col justify-between h-full bg-card"
             >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-xl ${guide.color} flex items-center justify-center group-hover:scale-110 transition-transform`}
-                >
-                  {React.createElement(guide.icon as any, { className: "w-5 h-5" })}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-10 h-10 rounded-xl ${guide.color} flex items-center justify-center group-hover:scale-110 transition-transform shrink-0`}
+                  >
+                    {React.createElement(guide.icon as any, { className: "w-5 h-5" })}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest truncate">
+                      {guide.level}
+                    </p>
+                    <h3 className="font-bold text-base group-hover:text-primary transition-colors truncate">
+                      {guide.title}
+                    </h3>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-                    {guide.level}
-                  </p>
-                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">
-                    {guide.title}
-                  </h3>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2 bg-muted/60 rounded-lg text-center">
+                    <p className="text-[8px] font-bold text-muted-foreground uppercase">Timeline</p>
+                    <p className="text-xs font-bold">{guide.duration}</p>
+                  </div>
+                  <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg text-center">
+                    <p className="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">
+                      Salary
+                    </p>
+                    <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      {guide.salary}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {guide.skills.map((s) => (
+                    <SkillBadge key={s} skill={s} variant="secondary" size="sm" />
+                  ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2 bg-muted/60 rounded-lg text-center">
-                  <p className="text-[8px] font-bold text-muted-foreground uppercase">Timeline</p>
-                  <p className="text-xs font-bold">{guide.duration}</p>
-                </div>
-                <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-lg text-center">
-                  <p className="text-[8px] font-bold text-emerald-600 dark:text-emerald-400 uppercase">
-                    Salary
-                  </p>
-                  <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                    {guide.salary}
-                  </p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {guide.skills.map((s) => (
-                  <SkillBadge key={s} skill={s} variant="secondary" size="sm" />
-                ))}
-              </div>
-              <div className="pt-2 text-xs font-bold text-primary flex items-center justify-end gap-1 group-hover:translate-x-1 transition-transform">
+
+              <div className="pt-3 border-t text-xs font-bold text-primary flex items-center justify-end gap-1 group-hover:translate-x-1 transition-transform">
                 View Full Roadmap <ArrowRight className="h-3.5 w-3.5" />
               </div>
             </Card>
