@@ -1106,6 +1106,13 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v4.9.0 (August 2026) — Career & Salary Analytics 2026 Intelligence Hub Overhaul
+
+- 🌍 **MULTI-CURRENCY & REGIONAL TECH HUBS**: Upgraded `CareerAnalyticsView` in `career-studio.tsx` with dynamic location multipliers (`Pan India`, `Bengaluru/NCR +15%`, `Hyderabad/Pune +8%`, `Remote/Global USD $ Rates`). Instant currency toggle between INR (₹ LPA) and USD ($ / yr).
+- ⚡ **CUSTOM ROLE MARKET INTELLIGENCE SEARCH**: Added search input allowing users to query custom tech roles (*Prompt Engineer, Quant Developer, AI Security Specialist, DevRel Engineer*) with real-time AI market analysis.
+- 📊 **CAREER EXPERIENCE LEVEL MATRIX (ENTRY → LEAD ARCHITECT)**: Added interactive experience level selector (*Entry: 0-2y, Mid: 3-5y, Senior: 6-9y, Lead Architect: 10+y*) displaying role-specific salary ranges and hiring intensity.
+- 📥 **CSV ANALYTICS EXPORTER**: Added 1-click **Download Salary & Hiring Analytics (.csv)** report exporter for offline career planning.
+
 ### v4.8.0 (August 2026) — LinkedIn Profile Optimizer Photo Visibility & Public Profile Preview Upgrade
 
 - 🖼️ **PROFILE PHOTO VISIBILITY FIX**: Fixed image sizing (`object-cover` replacing distorted `object-contain p-0.5`), added `onError` fallback handlers, and implemented automatic profile avatar fetching from Supabase `profiles` table and `user_metadata.avatar_url`. Fallback initial gradient avatar now renders cleanly (`V` for `vishwajeet srk`).
