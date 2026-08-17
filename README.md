@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v5.6.0 (August 2026) — 100% Global Translation Engine & Google Translate Sync Overhaul
+
+- 🌐 **RESILLIENT DUAL-ENGINE TRANSLATION**: Upgraded `LanguageSwitcher.tsx` with multi-path & multi-domain `googtrans` cookie setting (`/`, `hostname`, parent domain), 150ms retry polling loop for `.goog-te-combo`, and instant location reload fallback for 100% complete DOM translation across 11 languages (*Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Spanish, French, German, English*).
+- 🎨 **ZERO-SHIFT CSS TRANSLATION LAYOUT**: Retained clean Google Translate banner suppression (`.goog-te-banner-frame`, `body { top: 0 !important; }`) to prevent page height jumps during real-time language switching.
+
 ### v5.5.0 (August 2026) — Motion, Animation & Mobile Performance Engine Overhaul
 
 - ✨ **FRAMER MOTION MICRO-ANIMATIONS**: Added staggered card entrance transitions, spring hover elevations (`whileHover={{ y: -4, scale: 1.01 }}`), and interactive tap physics (`whileTap={{ scale: 0.98 }}`) across `courses.index.tsx`.
