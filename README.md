@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v6.4.0 (August 2026) — Billing & Revenue OS Mobile-First Responsive Overhaul
+
+- 💳 **BILLING OS HORIZONTALLY SCROLLABLE TABS**: Refactored `admin/billing.tsx` tab navigation bar (`TabsList`) with touch-friendly horizontal scrolling (`no-scrollbar flex-nowrap`) and responsive text sizes for seamless navigation on 320px–1440px displays.
+- 📈 **RESPONSIVE KPI METRICS CARDS**: Enhanced `StatCard` layout with truncate text protection, compact padding (`p-3.5 sm:p-4`), and glassmorphism styling across all revenue metrics (*Total Revenue*, *MRR*, *ARR*, *Active Subscribers*, *Invoices*, *Success Rate*, *Refunds*, *Credits*).
+
 ### v6.3.0 (August 2026) — AI Course Builder Mobile Overhaul & Deep Learning Lesson Engine
 
 - 🤖 **MY AI COURSE BUILDER MOBILE FORM OVERHAUL**: Upgraded `studio.view.tsx` AI Course Builder dialog with 2-column responsive form grid (`grid-cols-1 sm:grid-cols-2`), touch-friendly module counters, level badges (*Beginner*, *Intermediate*, *Advanced*), gradient action buttons, and automated blueprint preview card renderer.

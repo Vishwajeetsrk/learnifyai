@@ -145,14 +145,14 @@ function StatCard({
   bgColor: string;
 }) {
   return (
-    <div className="rounded-xl border bg-card p-4">
-      <div className="flex items-center gap-2 mb-1">
-        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", bgColor)}>
-          <Icon className={cn("h-4 w-4", color)} />
+    <div className="rounded-xl border bg-card/60 backdrop-blur p-3.5 sm:p-4 flex flex-col justify-between shadow-xs">
+      <div className="flex items-center gap-2 mb-1.5 min-w-0">
+        <div className={cn("w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0", bgColor)}>
+          <Icon className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", color)} />
         </div>
-        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="text-[11px] sm:text-xs font-medium text-muted-foreground truncate">{label}</p>
       </div>
-      <p className="text-xl font-bold">{value}</p>
+      <p className="text-lg sm:text-xl font-bold font-display truncate tracking-tight">{value}</p>
     </div>
   );
 }
@@ -738,23 +738,23 @@ function BillingOSPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="flex-wrap h-auto">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="invoices">Invoices</TabsTrigger>
-            <TabsTrigger value="payments">Payments</TabsTrigger>
-            <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
-            <TabsTrigger value="credits">Credits</TabsTrigger>
-            <TabsTrigger value="refunds">Refunds</TabsTrigger>
-            <TabsTrigger value="taxes">Taxes</TabsTrigger>
-            <TabsTrigger value="coupons">Coupons</TabsTrigger>
-            <TabsTrigger value="cashfree">Cashfree</TabsTrigger>
+          <TabsList className="flex overflow-x-auto no-scrollbar max-w-full justify-start h-auto p-1 gap-1 flex-nowrap shrink-0 border border-border/60 bg-muted/40">
+            <TabsTrigger value="overview" className="shrink-0 text-xs sm:text-sm">Overview</TabsTrigger>
+            <TabsTrigger value="invoices" className="shrink-0 text-xs sm:text-sm">Invoices</TabsTrigger>
+            <TabsTrigger value="payments" className="shrink-0 text-xs sm:text-sm">Payments</TabsTrigger>
+            <TabsTrigger value="subscriptions" className="shrink-0 text-xs sm:text-sm">Subscriptions</TabsTrigger>
+            <TabsTrigger value="credits" className="shrink-0 text-xs sm:text-sm">Credits</TabsTrigger>
+            <TabsTrigger value="refunds" className="shrink-0 text-xs sm:text-sm">Refunds</TabsTrigger>
+            <TabsTrigger value="taxes" className="shrink-0 text-xs sm:text-sm">Taxes</TabsTrigger>
+            <TabsTrigger value="coupons" className="shrink-0 text-xs sm:text-sm">Coupons</TabsTrigger>
+            <TabsTrigger value="cashfree" className="shrink-0 text-xs sm:text-sm">Cashfree</TabsTrigger>
             <TabsTrigger
               value="analytics"
-              className="text-violet-600 dark:text-violet-400 font-bold"
+              className="shrink-0 text-xs sm:text-sm text-violet-600 dark:text-violet-400 font-bold"
             >
               Subscription Analytics
             </TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="settings" className="shrink-0 text-xs sm:text-sm">Settings</TabsTrigger>
           </TabsList>
 
           {/* ============ OVERVIEW ============ */}
