@@ -1,112 +1,93 @@
 <div align="center">
 
-<img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="160" />
+<img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI
+# Learnify AI 4.0
 
-**The AI-Native Learning Operating System**
+**The AI-Native Learning & Career Operating System**
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Cashfree](https://img.shields.io/badge/Cashfree-Payments-00D285?style=for-the-badge&logo=cashfree&logoColor=white)](https://www.cashfree.com/)
 [![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Vishwajeetsrk/learnifyai)
 [![License](https://img.shields.io/badge/License-MIT-6366f1?style=for-the-badge)](LICENSE)
 
-[🚀 Live Demo](https://www.learnifyai.in/) · [🐛 Report Bug](https://github.com/Vishwajeetsrk/learnifyai/issues) · [✨ Request Feature](https://github.com/Vishwajeetsrk/learnifyai/issues/new?template=feature_request.md)
+[🚀 Live Official Site (learnifyai.in)](https://www.learnifyai.in/) · [🌐 Vercel Backup Site](https://learnifyaitool.vercel.app/) · [🐛 Report Issue](https://github.com/Vishwajeetsrk/learnifyai/issues)
 </div>
 
 ---
 
 ## 🎯 What is Learnify AI?
 
-Learnify AI is a **full-stack, AI-powered learning platform** that combines intelligent tutoring, creator tools, gamification, and career growth into one premium experience.
+Learnify AI is a **full-stack, AI-powered learning and career growth platform** that integrates intelligent tutoring, 11-in-1 career studio tools, autonomous AI agents, gamification, and creator economy tools into one seamless experience.
 
-### 🎥 Platform Demo & Interactive Tour
+### 🎥 Live Platform Demo & Visual Tour
 
 <div align="center">
   <a href="https://www.learnifyai.in/" target="_blank">
-    <img src="src/assets/learnify_demo.gif" alt="Learnify AI Platform Demo — Click to open Live Demo" width="100%" style="border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);" />
+    <img src="src/assets/learnify_demo.gif" alt="Learnify AI Platform Demo — Click to open Live Site" width="100%" style="border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1);" />
   </a>
-  <p><strong>Learnify AI Interactive Tour</strong></p>
-  <p><em>Watch & Experience Learnify AI — Discover how intelligent tutoring, 100+ career courses, and the creator economy work together.</em></p>
+  <br /><br />
+  <p><strong>Learnify AI 4.0 Interactive Tour</strong></p>
+  <p><em>Experience intelligent tutoring, 11-in-1 career tools, 91 developer roadmaps, and instant course enrollments.</em></p>
 
   <a href="https://www.learnifyai.in/" target="_blank">
-    <img src="https://img.shields.io/badge/Watch%20Demo-Learnify%20AI%20Interactive%20Tour-6366f1?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch demo - Learnify AI Interactive Tour" />
+    <img src="https://img.shields.io/badge/Launch%20Live%20Demo-Learnify%20AI%20Platform-6366f1?style=for-the-badge&logo=rocket&logoColor=white" alt="Launch Live Demo - Learnify AI Platform" />
   </a>
 </div>
 
-> **Learnify AI Interactive Tour**  
-> **Watch & Experience Learnify AI**  
-> Discover how intelligent tutoring, 100+ career courses, and the creator economy work together.
->
-> 🌐 **Live Website & Interactive Tour**: [https://www.learnifyai.in/](https://www.learnifyai.in/) · [https://learnifyaitool.vercel.app/](https://learnifyaitool.vercel.app/)
+> 🌐 **Live Website & Production Links**:  
+> • **Primary Domain**: [https://www.learnifyai.in/](https://www.learnifyai.in/)  
+> • **Vercel Mirror**: [https://learnifyaitool.vercel.app/](https://learnifyaitool.vercel.app/)
 
 ---
 
-### ✨ For Learners
+## 🤖 All AI Tools & Autonomous Agents
 
-| Feature                            | Description                                                                                                                                                                                                                                      |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 🤖 **AI Tutor**                    | Personalized 1-on-1 tutoring with multi-model support (Gemini, Groq, OpenRouter)                                                                                                                                                                 |
-| 🧱 **Interactive Block Player**    | Rich block-rendered lessons featuring live YouTube/Vimeo/Loom video embeds, interactive MCQ quizzes with scoring & retry, syntax-highlighted code blocks, Mermaid.js architecture diagrams, callouts, and downloadable resources |
-| 🗺️ **91 Developer Roadmaps (roadmap.sh)** | 91 interactive developer learning tracks (AI Agents, AI Engineer, System Design, Frontend, Backend, DevOps, Cyber Security, MLOps) with real-time search, target role selection, and AI generation grounded in 90 curated roadmap definitions |
-| 💼 **Career Studio (11-in-1)**     | Resume Builder, ATS Checker, Voice Interview Coach, Career Roadmap, Portfolio Builder (publishes live at `/p/{username}`), **LinkedIn Optimizer**, **Career & Salary Analytics**, **Internship Tracker**, **Skill Gap Analysis**, **Career Finder (Ikigai)**, and **Skill Roadmaps** |
-| 🎓 **System Design Academy**       | 10 topics (Netflix, Uber, WhatsApp, YouTube, Twitter, Amazon, Google, Instagram, Slack, Zoom) with animated architecture diagrams, knowledge graph, voice narration, quiz                                                                        |
-| 🧠 **Visual Learning**             | Concept Graph (force-directed knowledge map), Explain Like I'm 12, Dynamic Learning Map, built into every lesson                                                                                                                                 |
-| 🏆 **Gamification Dashboard**      | XP progress, streak calendar, badge showcase, leaderboard rank, upcoming rewards — accessible from course player                                                                                                                                 |
-| 🗺️ **Career Path Course Catalog**  | 9 career path filters (Frontend, Backend, Full Stack, etc.), level filters, sort, Trending/Recommended rails                                                                                                                                     |
-| 🪄 **Cheat Sheet Generator**       | Real brand logos (HTML, Supabase, Firebase, ChatGPT, etc.), timeline layout, Save to Library, beautiful Print/PDF export, Share button                                                                                                           |
-| 🎓 **12 Launch Course Categories** | Full Stack, Python, AI & Prompting, Data Science, Cyber Security, UI/UX, Resume, Interview, Roadmaps, Marketing, Freelancing, Personal Branding                                                                                                  |
-| 🎯 **11 Beginner Skill Courses**   | Free, certificate-enabled courses with rich block lessons (diagrams, code, tables, quizzes), 8 MCQs, downloadable cheat sheets, official-docs links, practice assignments with XP, and **premium branded SVG covers** — HTML/CSS & JavaScript expanded with **project modules** (Business Card, Counter App, Blackjack, Meme App…) and every course ends with a **"Today in the Industry"** AI-era lesson; **109 lessons in total** |
-| 📚 **Documentation Hub (`/docs`)** | Comprehensive platform guides for Students, Creators (Free/Paid), and Coaches (Free/Paid)                                                                                                                                                        |
-| 🎥 **Interactive Watch Demo**      | Guided modal tour covering platform features, credit usage, and creator earning model                                                                                                                                                            |
-| 📱 **Mobile App (Android & iOS)**  | Mobile app showcase with VIP early access registration                                                                                                                                                                                           |
-| 📜 **Certificate Accreditation**   | Cryptographic QR verification with MSME Udyam, NSDC Skill India, and ISO 9001 accreditation guide                                                                                                                                                |
-| 🎥 **Advanced Video Player**       | Captions (VTT/SRT), searchable transcript, PiP, keyboard shortcuts, screenshots, bookmarking, focus/theater mode, auto-next lesson                                                                                                               |
-| 💻 **Code Playground**             | Monaco editor with 25+ languages, AI debug panel, web preview, API tester, AI assistant                          |
-| 🧩 **In-Lesson Coding Exercises** | Curated runnable challenges inside lesson notes (Monaco + Piston), AI grading via Check with AI, hint & reference solution toggles, and **one-time XP rewards** on first pass — 18 exercises seeded across JavaScript, Python, HTML/CSS & Template Mastery, editable by admins and course creators |
-| 📝 **Smart Notes**                 | Auto-generated flashcards, summaries, and quizzes from any lesson                                                                                                                                                                                |
-| 🏆 **Gamification Engine**         | XP, streaks, badges, leaderboards, XP Store with server-side purchase tracking, interactive AI quizzes, confetti celebrations                                                                                                                    |
-| 🛍️ **XP Store**                    | Spend XP on premium perks (avatar packs, themes, discounts, credits, badges) — pay with XP or Wallet Cash, server-side purchase history, and full admin CRUD at `/admin/store` |
-| 📅 **Calendar Sync**               | Browser-based `.ics` generator to sync events to Google, Apple, and Outlook calendars                                                                                                                                                            |
-| 💰 **Wallet & AI Credits**         | Starter 500 AI credits/mo, creator earnings & withdrawals, Cashfree gateway integration                                                                                                                                                          |
-| 📋 **Billing Dashboard**           | Plan management, Cashfree invoices, coupons (`WELCOME20`, `STUDENT50`, `LAUNCH20`)                                                                                                                                                               |
-| 🎯 **Onboarding Wizard**           | 8-step guided setup with AI coach, daily habits tracking, and project creation                                                                                                                                                                   |
-| 🗺️ **Interactive Product Tours**   | Role-specific guided tours (Student, Creator, Admin, AI Tools) with spotlight tooltips                                                                                                                                                           |
-| 🌐 **Multi-Language (11 langs)**   | Full UI i18n with English, Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Spanish, French, German                                                                                                                                    |
-| 📝 **Blog**                        | Read articles, like posts, and comment with community                                                                                                                                                                                            |
+| AI Tool & Agent | Key Capabilities & Rationale |
+| :--- | :--- |
+| 🤖 **Multi-Tier AI Tutor Engine** | Personalized 1-on-1 tutoring powered by resilient fallbacks (**Gemini 2.5/3.1 Pro**, **Groq LLaMA 3.3 70B**, and **OpenRouter**). Features automatic token clamping, streamed markdown responses, and code generation. |
+| 🧠 **Autonomous AI Agent Skills Hub** | Dedicated agent suite (`AgentHub.tsx` & `AgentChat.tsx`) featuring **Career Coach**, **Learning Assistant**, and **Market Intelligence Specialist** with auto-saved recommendations, adaptive height viewports, and conversation history. |
+| 🎙️ **AI Voice Interviewer & Coach** | Real-time simulated voice interviews with role selectors, speech-to-text response logging, live scoring, and instant weakness feedback reports. |
+| 🪄 **AI Course & Lesson Generator** | One-click curriculum builder that generates complete course outlines, block-rendered lessons, interactive MCQ quizzes, and custom thumbnails for creators. |
+| 📄 **AI Resume Auto-Fill Parser** | PDF resume auto-fill parser in Portfolio Builder (`PortfolioBuilderPage.tsx`) and ATS Resume Scorer (`AtsCheckerPage.tsx`) extracting target role, skills, projects, and work history automatically. |
+| 👔 **LinkedIn Profile Optimizer & Post Studio** | AI profile analysis, public profile preview (`/u/{username}`), custom post generator, hashtag auto-tagger, and verified profile badge builder. |
 
-### 🎓 For Creators
+---
 
-| Feature                            | Description                                                                                                          |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| 🧱 **No-Code Block Course Builder**| Full-page Notion-style course builder at `/course-builder/$courseId` with 10 block types, live video embeds, quiz builder, code editor, drag-and-drop curriculum sidebar, and real-time auto-saving |
-| 🏗️ **Creator Studio**              | Build courses, add lessons, manage quizzes and assignments                                                           |
-| 🪄 **AI Course Builder**           | Auto-generate course outlines, lessons, and thumbnails                                                               |
-| 🎓 **Certificate Templates**       | Assign certificate templates to courses from course detail page                                                      |
-| 🎨 **Certificate Designer Studio** | html2canvas-based editor with 5 templates, interactive canvas, properties panel, PNG/PDF export, bulk CSV generation |
-| 🧑‍💼 **Coaching Hub**                | Book 1-on-1 sessions, schedule slots, chat, AI roadmap generator                                                     |
-| 🗺️ **Manual Roadmap Builder**      | Create custom learning roadmaps with phases, skills, milestones                                                      |
-| 👥 **Cohorts**                     | Live group learning with community spaces                                                                            |
-| 📊 **Earnings Dashboard**          | Revenue tracking, payouts, and invoices                                                                              |
+## 💼 11-in-1 Career Studio Tools Suite (`/career-studio`)
 
-### 🌐 Platform-Wide
+| Career Tool | Feature Overview & Deliverables |
+| :--- | :--- |
+| 📄 **1. Resume Builder Studio** | Multi-column ATS templates (*DreamSync Pro*, *Executive Minimal*, *Modern Tech*, *Cyberpunk*, *Designer Gallery*), custom typography, accent color picker, icon styling, and instant high-res PDF export. |
+| 📊 **2. ATS Resume Scorer** | Real-time score calculation against target job descriptions with keyword gap detection, formatting audits, and score improvement suggestions. |
+| 🎙️ **3. AI Voice Interview Coach** | Interactive mock interview simulator with speech recognition, customizable role scenarios, and performance score breakdown. |
+| 🗺️ **4. 91 Developer Roadmaps (roadmap.sh)** | 91 interactive developer learning tracks (*AI Engineer*, *Agentic AI*, *System Design*, *Frontend*, *Backend*, *DevOps*, *Cybersecurity*, *MLOps*) grounded in 90 curated roadmap definitions. |
+| 🌐 **5. Portfolio Builder** | Hosted live developer portfolios (`/p/{username}`) with dark mode glassmorphism, 3D skill badges, project showcases, social links normalization, and 1-click HTML export. |
+| 👔 **6. LinkedIn Profile Optimizer** | Public Profile Preview with verified checkmark badge, contact info trigger, location matrix, and AI-powered post creation studio. |
+| 📈 **7. Career & Salary Analytics 2026** | Multi-currency market benchmarks (*Pan India*, *Bengaluru/NCR +15%*, *Hyderabad/Pune +8%*, *Remote/Global USD $ Rates*), experience tiers (*Entry*, *Mid*, *Senior*, *Lead Architect*), custom role search, and CSV export. |
+| 💼 **8. Internship & Job Tracker** | 4-stage Kanban application pipeline (`Applied`, `Interviewing`, `Offer`, `Rejected`), quick stage switchers, sample data loader, status count filters, and CSV export. |
+| 🎯 **9. Skill Gap & Multi-Role Readiness** | Side-by-side multi-role comparison grid, skill mastery toggle (`Mastered` vs `Gap +X%`), custom role builder, and direct `Learn Course →` redirect. |
+| 🧩 **10. Your Ikigai Career Path** | Auto-saved Ikigai analysis results (*#1 Recommended Path*, 94% Match Score, Market Need, Salary Band, Alternative Paths, 4-Step Action Roadmap, and wizard reset). |
+| 🗺️ **11. 14 Skill Roadmaps & Industry Guides** | Detailed 2026 roadmap breakdowns (*Generative AI*, *Agentic AI*, *UI/UX*, *Full-Stack*, *Cloud & DevOps*, *Data Engineering*, *Blockchain & Web3 Architect*, *AI Safety Specialist*, *Embedded Systems*, *QA & Automated Testing*). |
 
-| Feature                       | Description                                                                                                                                                                                        |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 💬 **Community Feed**         | Social learning with posts, comments, likes, edit/delete, rich text editor                                                                                                                         |
-| 💬 **Community Chat**         | Real-time live presence chat where messages automatically delete after 24 hours                                                                                                                    |
-| 📥 **Inbox**                  | Direct messaging between coaches and students                                                                                                                                                      |
-| ⚙️ **Admin Panel**            | Dashboard, wallet verification, certificates (templates/canva/designer/bulk/analytics/categories), email templates, content management, subscription management, coupon CRUD, student verification |
-| 📊 **Subscription Analytics** | MRR, ARR, subscriber counts, payment events, plan breakdown                                                                                                                                        |
-| 📧 **Email System**           | Standardized support email (`support.learnifyai@gmail.com`) — Brevo / Gmail / Resend fallback                                                                                        |
-| 🪄 **Premium UI/UX**          | 3D interactive cursor, magnetic buttons, particle trails, and 60FPS glassmorphism                                                                                                                  |
-| 📄 **Legal Pages**            | Privacy Policy, Terms of Service, Refund Policy                                                                                                                                                    |
-| 🔗 **Username Profiles**      | Public profiles accessible via `/u/@username` URL format                                                                                                                                           |
-| 🧑‍🏫 **Branded Creator Identity** | Course instructor cards show the creator's brand logo + org name, a real DB-backed Subscribe button, and the live subscriber count from `creator_subscriptions`                                                                                                   |
-| 🌐 **WCMS**                   | 14-block page builder, media library, features catalog, menu manager, blog system                                                                                                                  |
-| 🎯 **Interactive Tours**      | Role-specific product tours with spotlight cutout and auto-skip for missing targets                                                                                                                |
+---
+
+## 🚀 Core Platform Features & Infrastructure
+
+| Module | Description |
+| :--- | :--- |
+| 🎓 **Courses Marketplace** | 109 lessons, 12 courses, category filter pills with count badges, 8 career path mappings, level/price selectors, and Framer Motion micro-animations (`courses.index.tsx`). |
+| 🏛️ **System Design Academy** | 10 topics (*Netflix*, *Uber*, *WhatsApp*, *YouTube*, *Amazon*, *Google Search*) featuring animated architecture diagrams, knowledge graphs, voice narration, and quizzes (`/system-design`). |
+| 💬 **Community Hub** | 4-column module overview (*Feed*, *Leaderboard*, *Coding Challenges*, *Inbox*), metrics bar (*12.4K+ Active Builders*), real-time chat, Tiptap rich post editor, and poll voting. |
+| 🏆 **Leaderboard & XP Store** | Centered 1st place gold top podium (`[1, 0, 2]`), level badges, XP progress ring, streak calendar, and server-side XP Store with avatar packs and perks. |
+| 💻 **Code Playground & Exercises** | Monaco editor with 25+ language runtimes, AI debug panel, in-lesson runnable coding challenges with Piston execution and AI grading. |
+| 💳 **Dual Payment Gateways & Invoices** | Cashfree & Razorpay integration supporting UPI, NetBanking, and cards with automatic 18% GST invoices (jsPDF), wallet top-ups, and subscription management. |
+| 🧱 **No-Code Notion-Style Course Builder** | Notion-style drag-and-drop course builder with 10 block types, live video embeds, code runner, and real-time auto-saving. |
+| 🎨 **Canva-Style Certificate Designer** | html2canvas certificate editor with 5 built-in templates (*Navy Gold*, *Navy Blue*, *Royal Purple*, *Forest Green*, *Crimson Gold*), QR verification, and bulk CSV generation. |
 
 ---
 
