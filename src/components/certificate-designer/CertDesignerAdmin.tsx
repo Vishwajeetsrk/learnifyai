@@ -1109,7 +1109,7 @@ function OverviewScreen({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <KPICard
           label="Certificates Issued"
           value={totalCerts.toLocaleString()}
@@ -1233,7 +1233,7 @@ function OverviewScreen({
         </SectionCard>
 
         <SectionCard title="Quick Actions">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
             {[
               {
                 label: "Create Certificate",
@@ -7708,28 +7708,30 @@ export function CertDesignerAdmin() {
           boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 24px 0" }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 8,
-              background: PL,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            {info.icon}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 pb-2">
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: PL,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              {info.icon}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h1 style={{ fontSize: 20, fontWeight: 700, color: TX, margin: 0, lineHeight: 1.2 }}>
+                {info.title}
+              </h1>
+              <p style={{ fontSize: 13, color: TX2, margin: 0 }}>{info.subtitle}</p>
+            </div>
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: TX, margin: 0, lineHeight: 1.2 }}>
-              {info.title}
-            </h1>
-            <p style={{ fontSize: 13, color: TX2, margin: 0 }}>{info.subtitle}</p>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <Btn
               variant="outline"
               onClick={() => setShowAiModal(true)}
@@ -7798,10 +7800,9 @@ export function CertDesignerAdmin() {
 
       {/* Main Content */}
       <div
+        className="p-3 sm:p-6 max-w-7xl mx-auto"
         style={{
-          padding: activeTab === "designer" ? "16px" : "20px 24px",
           maxWidth: activeTab === "designer" ? "100%" : 1400,
-          margin: "0 auto",
         }}
       >
         {renderScreen()}

@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v5.7.0 (August 2026) — Certificate System Responsive Overhaul & GIF Demo Sync
+
+- 📜 **CERTIFICATE SYSTEM MOBILE-FIRST GRID**: Refactored `CertDesignerAdmin.tsx` KPI cards grid (`grid-cols-2 sm:grid-cols-3 lg:grid-cols-5`), Quick Actions grid (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`), and sticky header action triggers for fluid scaling across all mobile and desktop viewports.
+- 🎥 **LIVE PLATFORM GIF DEMO EMBED**: Verified integrated live preview gif (`learnify_demo.gif`) link targeting production site `https://www.learnifyai.in/`.
+
 ### v5.6.0 (August 2026) — 100% Global Translation Engine & Google Translate Sync Overhaul
 
 - 🌐 **RESILLIENT DUAL-ENGINE TRANSLATION**: Upgraded `LanguageSwitcher.tsx` with multi-path & multi-domain `googtrans` cookie setting (`/`, `hostname`, parent domain), 150ms retry polling loop for `.goog-te-combo`, and instant location reload fallback for 100% complete DOM translation across 11 languages (*Hindi, Bengali, Tamil, Telugu, Marathi, Gujarati, Kannada, Spanish, French, German, English*).
