@@ -1100,30 +1100,30 @@ function AdminOverview() {
 
   return (
     <AppShell>
-      <div className="px-4 md:px-10 py-8 max-w-7xl">
-        <div className="flex items-end justify-between flex-wrap gap-4">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b pb-6">
           <div>
-            <div className="text-xs uppercase tracking-widest text-primary font-medium">
+            <div className="text-xs uppercase tracking-widest text-primary font-bold">
               Command Center
             </div>
-            <h1 className="mt-1 text-2xl md:text-3xl font-display font-semibold tracking-tight">
-              Admin overview
+            <h1 className="mt-1 text-2xl sm:text-3xl font-display font-bold tracking-tight">
+              Admin Overview
             </h1>
-            <p className="text-muted-foreground mt-1 text-sm">Realtime view of the platform.</p>
+            <p className="text-muted-foreground mt-1 text-xs sm:text-sm font-medium">Realtime view of the platform.</p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary" className="gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live
+            <Badge variant="secondary" className="gap-1.5 px-2.5 py-1 text-xs">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" /> Live
             </Badge>
-            <Button variant="outline" size="sm" onClick={refreshAll}>
-              <RefreshCw className={`h-4 w-4 ${adminFetching > 0 ? "animate-spin" : ""}`} /> Refresh
+            <Button variant="outline" size="sm" onClick={refreshAll} className="h-9 gap-1.5 text-xs font-semibold">
+              <RefreshCw className={`h-3.5 w-3.5 ${adminFetching > 0 ? "animate-spin" : ""}`} /> Refresh
             </Button>
             <div className="flex items-center gap-2">
-              <Button size="sm" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-1.5" /> Excel
+              <Button size="sm" onClick={handleExport} className="h-9 gap-1.5 text-xs font-semibold">
+                <Download className="h-3.5 w-3.5" /> Excel
               </Button>
-              <Button size="sm" variant="outline" onClick={() => handleExportCSV()}>
-                <Download className="h-4 w-4 mr-1.5" /> CSV
+              <Button size="sm" variant="outline" onClick={() => handleExportCSV()} className="h-9 gap-1.5 text-xs font-semibold">
+                <Download className="h-3.5 w-3.5" /> CSV
               </Button>
             </div>
           </div>

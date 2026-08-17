@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v6.6.0 (August 2026) — Admin Command Center Mobile-First Responsive Overhaul
+
+- 🎛️ **COMMAND CENTER RESPONSIVE NAVIGATION**: Upgraded `admin.tsx` header controls, Categorized Quick Action Panels (*Content & Curriculum*, *User Management*, *Billing & Stats*, *System & Health*), and Excel/CSV export buttons for 100% mobile-first alignment.
+- 📱 **TABLE & METRIC RESPONSIVENESS**: Ensured zero clipping across Users table, Cohorts manager, Creator/Coach application cards, AI Cost real-time panel, and revenue trend charts on 320px–1440px displays.
+
 ### v6.5.0 (August 2026) — Subscription Analytics Mobile-First Responsive Overhaul
 
 - 📊 **SUBSCRIPTION ANALYTICS TOUCH-FRIENDLY FILTERS**: Refactored `admin/subscriptions.tsx` Date Range options (10 pills) and Report Type options (13 pills) with horizontal touch-scrolling (`no-scrollbar flex-nowrap shrink-0`) for 100% mobile-friendly filter selection.
