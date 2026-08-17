@@ -348,18 +348,18 @@ function AdminSubscriptionsPage() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-3">
           <div>
-            <Label className="text-xs mb-1 block">Date Range</Label>
-            <div className="flex flex-wrap gap-1">
+            <Label className="text-xs mb-1.5 block font-bold text-muted-foreground uppercase tracking-wider">Date Range</Label>
+            <div className="flex overflow-x-auto no-scrollbar pb-1 gap-1 flex-nowrap shrink-0 max-w-full">
               {DATE_RANGE_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => setDateRange(opt.value)}
                   className={cn(
-                    "px-3 py-1.5 text-xs rounded-lg border transition-colors",
+                    "px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors shrink-0 whitespace-nowrap",
                     dateRange === opt.value
-                      ? "bg-primary text-primary-foreground border-primary"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
                       : "bg-card text-muted-foreground border-border hover:border-primary/40",
                   )}
                 >
@@ -374,47 +374,42 @@ function AdminSubscriptionsPage() {
                 type="date"
                 value={customStart}
                 onChange={(e) => setCustomStart(e.target.value)}
-                className="h-8 text-xs w-36"
+                className="h-9 text-xs w-36"
               />
               <span className="text-muted-foreground text-xs">to</span>
               <Input
                 type="date"
                 value={customEnd}
                 onChange={(e) => setCustomEnd(e.target.value)}
-                className="h-8 text-xs w-36"
+                className="h-9 text-xs w-36"
               />
             </div>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => analytics.refetch()}
-            disabled={analytics.isFetching}
-          >
-            <RefreshCw className={cn("h-3.5 w-3.5", analytics.isFetching && "animate-spin")} />
-          </Button>
         </div>
 
         {/* Report Type Tabs */}
-        <div className="flex flex-wrap gap-1">
-          {REPORT_TYPE_OPTIONS.map((opt) => {
-            const Icon = opt.icon;
-            return (
-              <button
-                key={opt.value}
-                onClick={() => setReportType(opt.value)}
-                className={cn(
-                  "px-3 py-1.5 text-xs rounded-lg border transition-colors flex items-center gap-1.5",
-                  reportType === opt.value
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-muted-foreground border-border hover:border-primary/40",
-                )}
-              >
-                <Icon className="h-3 w-3" />
-                {opt.label}
-              </button>
-            );
-          })}
+        <div>
+          <Label className="text-xs mb-1.5 block font-bold text-muted-foreground uppercase tracking-wider">Report Type</Label>
+          <div className="flex overflow-x-auto no-scrollbar pb-1 gap-1 flex-nowrap shrink-0 max-w-full">
+            {REPORT_TYPE_OPTIONS.map((opt) => {
+              const Icon = opt.icon;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => setReportType(opt.value)}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors flex items-center gap-1.5 shrink-0 whitespace-nowrap",
+                    reportType === opt.value
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                      : "bg-card text-muted-foreground border-border hover:border-primary/40",
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {analytics.isLoading ? (
@@ -439,21 +434,21 @@ function AdminSubscriptionsPage() {
         ) : (
           <>
             {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {kpiCards.map((kpi) => (
-                <div key={kpi.label} className="rounded-xl border bg-card p-4">
-                  <div className="flex items-center gap-2 mb-1">
+                <div key={kpi.label} className="rounded-xl border bg-card/60 backdrop-blur p-3.5 sm:p-4 flex flex-col justify-between shadow-xs">
+                  <div className="flex items-center gap-2 mb-1.5 min-w-0">
                     <div
                       className={cn(
-                        "w-8 h-8 rounded-lg flex items-center justify-center",
+                        "w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shrink-0",
                         kpi.bgColor,
                       )}
                     >
-                      <kpi.icon className={cn("h-4 w-4", kpi.color)} />
+                      <kpi.icon className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4", kpi.color)} />
                     </div>
-                    <p className="text-xs text-muted-foreground">{kpi.label}</p>
+                    <p className="text-[11px] sm:text-xs font-medium text-muted-foreground truncate">{kpi.label}</p>
                   </div>
-                  <p className="text-xl font-bold">{kpi.value}</p>
+                  <p className="text-lg sm:text-xl font-bold font-display truncate tracking-tight">{kpi.value}</p>
                 </div>
               ))}
             </div>
@@ -665,32 +660,35 @@ function AdminSubscriptionsPage() {
                   data.plans.map((plan: any) => (
                     <div
                       key={plan.plan_id}
-                      className="flex items-center justify-between px-4 py-3 hover:bg-muted/30"
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 py-3 hover:bg-muted/30 transition-colors"
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-xs text-primary shrink-0">
+                          {(plan.plan_name || "P").charAt(0)}
+                        </div>
                         <div>
-                          <p className="font-medium">{plan.plan_name}</p>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="font-semibold text-sm">{plan.plan_name}</p>
+                          <p className="text-xs text-muted-foreground font-medium">
                             {plan.price_inr > 0 ? inr(plan.price_inr) : "Free"}/mo
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 text-xs">
-                        <div className="text-center min-w-[50px]">
-                          <p className="font-bold text-emerald-500">{plan.active_subscribers}</p>
-                          <p className="text-muted-foreground">Active</p>
+                      <div className="grid grid-cols-2 sm:flex sm:items-center gap-3 text-xs w-full sm:w-auto pt-1 sm:pt-0 border-t sm:border-t-0">
+                        <div className="bg-emerald-500/10 border border-emerald-500/20 p-2 sm:p-1.5 rounded-lg text-center min-w-[60px]">
+                          <p className="font-bold text-emerald-600 dark:text-emerald-400">{plan.active_subscribers}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Active</p>
                         </div>
-                        <div className="text-center min-w-[50px]">
-                          <p className="font-bold text-red-500">{plan.cancelled_count}</p>
-                          <p className="text-muted-foreground">Cancelled</p>
+                        <div className="bg-red-500/10 border border-red-500/20 p-2 sm:p-1.5 rounded-lg text-center min-w-[60px]">
+                          <p className="font-bold text-red-600 dark:text-red-400">{plan.cancelled_count}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Cancelled</p>
                         </div>
-                        <div className="text-center min-w-[50px]">
-                          <p className="font-bold text-zinc-500">{plan.expired_count}</p>
-                          <p className="text-muted-foreground">Expired</p>
+                        <div className="bg-zinc-500/10 border border-zinc-500/20 p-2 sm:p-1.5 rounded-lg text-center min-w-[60px]">
+                          <p className="font-bold text-zinc-600 dark:text-zinc-400">{plan.expired_count}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Expired</p>
                         </div>
-                        <div className="text-center min-w-[80px]">
-                          <p className="font-bold">{inr(plan.mrr)}</p>
-                          <p className="text-muted-foreground">MRR</p>
+                        <div className="bg-primary/10 border border-primary/20 p-2 sm:p-1.5 rounded-lg text-center min-w-[80px]">
+                          <p className="font-bold text-primary">{inr(plan.mrr)}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">MRR</p>
                         </div>
                       </div>
                     </div>
