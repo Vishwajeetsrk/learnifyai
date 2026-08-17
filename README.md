@@ -1106,6 +1106,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v5.2.0 (August 2026) — Community Hub, Leaderboard, Challenges & Inbox Engine Overhaul
+
+- 💬 **COMMUNITY HUB 4-COLUMN RESPONSIVE GRID**: Upgraded `community-hub.tsx` overview with 4-column module grid (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-4`), quick metrics bar (*12.4K+ Active Builders*, *₹50,000 Prize Pool*, *50+ Daily Challenges*), and sticky responsive tab navigation bar.
+- 🏆 **LEADERBOARD TOP PODIUM CENTERING**: Upgraded `leaderboard.view.tsx` with centered 1st place gold podium layout (`[1, 0, 2]`), level badges, XP counters, and responsive prize claim banners.
+- ⚡ **CODING CHALLENGES & INBOX RESPONSIVE FILTERS**: Added flexible wrapping to difficulty filters (`flex-wrap`) in `challenges.tsx` and responsive flashcard viewer in `inbox.tsx`.
+
 ### v5.1.0 (August 2026) — Skill Roadmaps Expansion & AI Agent Skills Responsive Overhaul
 
 - 🗺️ **5 NEW 2026 CAREER ROADMAPS ADDED**: Expanded `GuidesDocsView` in `career-studio.tsx` with 5 high-demand industry roadmaps (*Blockchain & Web3 Architect*, *AI Safety & Alignment Specialist*, *Data Engineering & Pipeline Architect*, *Embedded Systems & IoT Engineer*, *QA & Automated Testing Engineer*) featuring full phase-by-phase learning paths, prerequisites, and portfolio projects.

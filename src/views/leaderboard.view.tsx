@@ -23,6 +23,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { getLeaderboard, getUserRank, xpToLevel, levelToRank } from "@/lib/gamification.functions";
 import { myPendingPrizes, claimPrize } from "@/lib/leaderboard-prizes.functions";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export default function LeaderboardPage() {
   const { user } = useAuth();
@@ -265,25 +266,36 @@ export default function LeaderboardPage() {
 
       {/* Podium */}
       {topUsers.length >= 3 && (
-        <div className="flex items-end justify-center gap-3 mb-8">
-          {[0, 1, 2].map((i) => {
+        <div className="flex items-end justify-center gap-2 sm:gap-4 mb-8 pt-4">
+          {[1, 0, 2].map((i) => {
             const u = topUsers[i];
             if (!u) return null;
             const level = xpToLevel(u.xp);
             const rankInfo = levelToRank(level);
-            const heights = ["h-36", "h-28", "h-24"];
-            const badges = ["", "bg-yellow-400", "bg-slate-300", "bg-amber-600"];
+            const heights: Record<number, string> = {
+              0: "h-36 sm:h-44 bg-gradient-to-t from-yellow-500/20 via-yellow-400/10 to-card border-yellow-500/40",
+              1: "h-28 sm:h-34 bg-muted/40 border-slate-300/40",
+              2: "h-24 sm:h-28 bg-muted/30 border-amber-600/30",
+            };
+            const badgeBg: Record<number, string> = {
+              0: "bg-yellow-400 text-yellow-950 font-black ring-2 ring-yellow-300",
+              1: "bg-slate-300 text-slate-900 font-bold",
+              2: "bg-amber-600 text-white font-bold",
+            };
             return (
-              <div key={u.id} className="flex flex-col items-center gap-2 w-20 sm:w-28">
+              <div key={u.id} className="flex flex-col items-center gap-2 w-24 sm:w-32">
                 <div className="relative">
-                  <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-background shadow-md ring-2 ring-primary/20">
+                  <Avatar className={cn(
+                    "border-2 border-background shadow-md",
+                    i === 0 ? "h-14 w-14 sm:h-16 sm:w-16 ring-4 ring-yellow-400/50" : "h-10 w-10 sm:h-12 sm:w-12 ring-2 ring-primary/20"
+                  )}>
                     {u.avatar_url && <AvatarImage src={u.avatar_url} />}
-                    <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                    <AvatarFallback className="text-xs font-bold bg-primary/10 text-primary">
                       {initials(u.full_name ?? null)}
                     </AvatarFallback>
                   </Avatar>
                   <div
-                    className={`absolute -bottom-1 -right-1 h-5 w-5 rounded-full grid place-items-center text-[10px] font-bold text-white shadow ${badges[i + 1]}`}
+                    className={`absolute -bottom-1 -right-1 h-5 w-5 sm:h-6 sm:w-6 rounded-full grid place-items-center text-[10px] sm:text-xs shadow ${badgeBg[i]}`}
                   >
                     {i + 1}
                   </div>
@@ -291,20 +303,16 @@ export default function LeaderboardPage() {
                 <Link
                   to="/u/$id"
                   params={{ id: u.id }}
-                  className="text-xs font-medium text-center leading-tight line-clamp-1 hover:underline"
+                  className="text-xs font-bold text-center leading-tight line-clamp-1 hover:underline"
                 >
                   {u.full_name}
                 </Link>
                 <RankBadgeSmall name={rankInfo.name} />
                 <div
-                  className={`w-full rounded-t-xl border border-b-0 bg-card flex items-center justify-center ${heights[i]}`}
+                  className={`w-full rounded-t-2xl border border-b-0 flex flex-col items-center justify-center p-2 text-center shadow-xs ${heights[i]}`}
                 >
-                  <div className="text-center">
-                    <div className="font-bold text-xs">
-                      {(period === "weekly" ? (u.weekly_xp ?? 0) : u.xp).toLocaleString()}
-                    </div>
-                    <div className="text-[9px] text-muted-foreground">XP</div>
-                  </div>
+                  <div className="text-xs sm:text-sm font-black text-foreground">{u.xp.toLocaleString()} XP</div>
+                  <div className="text-[10px] text-muted-foreground font-semibold">Lv.{level}</div>
                 </div>
               </div>
             );

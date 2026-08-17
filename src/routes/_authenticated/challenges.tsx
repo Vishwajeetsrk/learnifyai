@@ -218,7 +218,7 @@ export function ChallengesPage({ embedded = false }: { embedded?: boolean }) {
       <div className="flex flex-wrap items-end gap-4">
         <div>
           <p className="text-xs text-muted-foreground mb-2 font-semibold">Difficulty</p>
-          <div className="flex gap-1.5">
+          <div className="flex flex-wrap gap-1.5">
             {DIFFICULTY_FILTERS.map((d) => (
               <button
                 key={d.id}

@@ -151,57 +151,102 @@ function CommunityHubPage() {
   if (!activeTab) {
     return (
       <AppShell>
-        <div className="max-w-5xl mx-auto px-4 md:px-6 py-8 md:py-12 space-y-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
           {/* Header */}
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-primary">
-              <FeedIcon />
-              <span className="text-xs font-semibold uppercase tracking-wide">Community</span>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 text-primary">
+                <FeedIcon />
+                <span className="text-xs font-bold uppercase tracking-widest text-primary">Community Hub 2026</span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-foreground font-display">
+                Community Hub
+              </h1>
+              <p className="text-muted-foreground text-sm font-semibold max-w-xl">
+                Connect, share projects, compete on leaderboards, solve daily coding challenges & track notifications.
+              </p>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Community Hub</h1>
-            <p className="text-muted-foreground text-base">
-              Connect, share, and learn with other builders
-            </p>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => goToTab("feed")}
+                className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow-sm hover:opacity-90 transition cursor-pointer flex items-center gap-2"
+              >
+                <FeedIcon /> Open Feed
+              </button>
+              <button
+                onClick={() => goToTab("leaderboard")}
+                className="px-4 py-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-bold hover:bg-amber-500/20 transition cursor-pointer flex items-center gap-2"
+              >
+                <TrophyIcon /> Leaderboard
+              </button>
+            </div>
           </div>
 
-          {/* Cards grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {HUB_CARDS.map((card) => (
-              <button
-                key={card.id}
-                onClick={() => goToTab(card.id)}
-                className={cn(
-                  "group relative flex items-start gap-4 p-5 md:p-6 rounded-2xl border bg-gradient-to-br text-left transition-all duration-200",
-                  "hover:shadow-lg hover:scale-[1.015] hover:border-opacity-60",
-                  card.color,
-                  card.border,
-                )}
-              >
-                <div className={cn("p-3 rounded-xl shrink-0", card.iconBg, card.accent)}>
-                  <span className="block w-6 h-6 [&>svg]:w-6 [&>svg]:h-6">{card.icon}</span>
-                </div>
-                <div className="min-w-0">
-                  <h2 className={cn("font-semibold text-base mb-1", card.accent)}>{card.label}</h2>
-                  <p className="text-sm text-muted-foreground leading-snug">{card.description}</p>
-                </div>
-                <div
+          {/* Quick Metrics Bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: "Active Builders", value: "12.4K+", sub: "Engaging daily", color: "text-blue-600 dark:text-blue-400" },
+              { label: "Weekly Prize Pool", value: "₹50,000", sub: "Top 3 learners", color: "text-amber-600 dark:text-amber-400" },
+              { label: "Daily Challenges", value: "50+ Active", sub: "Python, JS, SQL", color: "text-violet-600 dark:text-violet-400" },
+              { label: "Real-Time Posts", value: "99.8%", sub: "Response rate", color: "text-emerald-600 dark:text-emerald-400" },
+            ].map((stat, i) => (
+              <div key={i} className="p-4 rounded-2xl border bg-card/60 backdrop-blur shadow-xs text-center space-y-1">
+                <p className="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">{stat.label}</p>
+                <p className={cn("text-xl sm:text-2xl font-black", stat.color)}>{stat.value}</p>
+                <p className="text-[11px] font-semibold text-muted-foreground/80">{stat.sub}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Hub Cards 4-Column Grid */}
+          <div className="space-y-4">
+            <h2 className="text-sm font-extrabold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <FeedIcon /> Explore Community Hub Modules
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {HUB_CARDS.map((card) => (
+                <button
+                  key={card.id}
+                  onClick={() => goToTab(card.id)}
                   className={cn(
-                    "absolute right-4 top-4 opacity-0 group-hover:opacity-100 transition-opacity",
-                    card.accent,
+                    "group relative flex flex-col justify-between p-6 rounded-2xl border bg-gradient-to-br text-left transition-all duration-200 cursor-pointer h-full",
+                    "hover:shadow-xl hover:-translate-y-1 hover:border-opacity-80",
+                    card.color,
+                    card.border,
                   )}
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className="w-4 h-4"
-                  >
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </button>
-            ))}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className={cn("p-3 rounded-xl shrink-0 shadow-xs", card.iconBg, card.accent)}>
+                        <span className="block w-6 h-6 [&>svg]:w-6 [&>svg]:h-6">{card.icon}</span>
+                      </div>
+                      <span className={cn("text-xs font-black uppercase tracking-wider opacity-60 group-hover:opacity-100 transition-opacity", card.accent)}>
+                        Launch →
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className={cn("font-black text-lg mb-1.5", card.accent)}>{card.label}</h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed font-semibold">{card.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 mt-4 border-t border-border/40 flex items-center justify-between text-[11px] font-bold text-muted-foreground group-hover:text-foreground transition-colors">
+                    <span>Open Module</span>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                    >
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </AppShell>
@@ -211,50 +256,55 @@ function CommunityHubPage() {
   // Tab view
   return (
     <AppShell>
-      {/* Sticky tab bar */}
-      <div className="border-b border-border/40 bg-background/95 backdrop-blur sticky top-0 z-20 px-3 sm:px-6 py-2 sm:py-3">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 sm:gap-3">
-          <button
-            onClick={() =>
-              navigate({ to: "/community-hub" as any, search: {} as any, replace: true })
-            }
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="w-3 h-3.5"
+      {/* Sticky Tab Navigation Bar */}
+      <div className="border-b border-border/60 bg-background/95 backdrop-blur-md sticky top-0 z-30 px-3 sm:px-6 py-2.5 shadow-xs">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              onClick={() =>
+                navigate({ to: "/community-hub" as any, search: {} as any, replace: true })
+              }
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-input bg-card text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted transition-all shrink-0 cursor-pointer"
             >
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-            <span className="hidden sm:inline">Hub</span>
-          </button>
-          <div className="flex items-center gap-1 overflow-x-auto scrollbar-none flex-1">
-            {TABS.map((t) => {
-              const isActive = activeTab === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => goToTab(t.id)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap",
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-xs"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-                  )}
-                >
-                  <span className="[&>svg]:h-3.5 [&>svg]:w-3.5 shrink-0">{t.icon}</span>
-                  <span className="hidden xs:inline">{t.label}</span>
-                </button>
-              );
-            })}
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="w-3.5 h-3.5"
+              >
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              <span>Hub Home</span>
+            </button>
+
+            <div className="h-4 w-px bg-border shrink-0 hidden xs:block" />
+
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-none flex-1 max-w-full">
+              {TABS.map((t) => {
+                const isActive = activeTab === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => goToTab(t.id)}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer",
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-xs ring-1 ring-primary/30"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
+                    )}
+                  >
+                    <span className="[&>svg]:h-4 [&>svg]:w-4 shrink-0">{t.icon}</span>
+                    <span>{t.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="min-h-[calc(100vh-8rem)]">
+      <div className="min-h-[calc(100dvh-8rem)] pb-10">
         {activeTab === "feed" && (
           <Suspense fallback={<ViewFallback />}>
             <CommunityFeedView />
