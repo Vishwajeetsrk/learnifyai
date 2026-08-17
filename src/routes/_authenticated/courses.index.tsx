@@ -463,10 +463,14 @@ function CoursesPage() {
                 ...(learnerTotal > 0
                   ? [{ icon: Users, label: "Learners", value: learnerTotal.toLocaleString("en-IN"), color: "text-amber-500" }]
                   : [{ icon: Users, label: "Career Paths", value: String(CAREER_PATHS.length - 1), color: "text-amber-500" }]),
-              ].map((s) => (
-                <div
+              ].map((s, idx) => (
+                <motion.div
                   key={s.label}
-                  className="rounded-xl border border-border/60 bg-background/50 backdrop-blur px-3.5 py-2.5 flex items-center gap-2.5"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.25, delay: idx * 0.05 }}
+                  whileHover={{ y: -2, scale: 1.02 }}
+                  className="rounded-xl border border-border/60 bg-background/50 backdrop-blur px-3.5 py-2.5 flex items-center gap-2.5 shadow-xs transition-shadow hover:shadow-md"
                 >
                   <s.icon className={`h-4 w-4 ${s.color}`} />
                   <div className="leading-tight">
@@ -475,16 +479,22 @@ function CoursesPage() {
                       {s.label}
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Featured System Design Academy Banner */}
-        <div className="rounded-2xl border border-primary/40 bg-gradient-to-r from-primary/15 via-card to-background p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg hover:border-primary/60 transition-all">
+        {/* Featured System Design Academy Banner with Motion */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: "easeOut" }}
+          whileHover={{ scale: 1.005 }}
+          className="rounded-2xl border border-primary/40 bg-gradient-to-r from-primary/15 via-card to-background p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg hover:shadow-xl hover:border-primary/60 transition-all group"
+        >
           <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-primary text-primary-foreground grid place-items-center shrink-0 shadow-md shadow-primary/30">
+            <div className="h-12 w-12 rounded-2xl bg-primary text-primary-foreground grid place-items-center shrink-0 shadow-md shadow-primary/30 group-hover:scale-110 transition-transform">
               <Cpu className="h-6 w-6" />
             </div>
             <div>
@@ -502,14 +512,14 @@ function CoursesPage() {
           <Button
             asChild
             size="sm"
-            className="gap-2 shrink-0 shadow-md font-bold rounded-full px-5 cursor-pointer"
+            className="gap-2 shrink-0 shadow-md font-bold rounded-full px-5 cursor-pointer group-hover:bg-primary/90 transition-colors"
           >
             <Link to="/system-design" className="inline-flex items-center gap-2">
               <span>Explore System Design</span>
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>
-        </div>
+        </motion.div>
 
         {/* Filter Toolbar */}
         <div className="space-y-4">

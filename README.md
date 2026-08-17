@@ -1106,6 +1106,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v5.5.0 (August 2026) — Motion, Animation & Mobile Performance Engine Overhaul
+
+- ✨ **FRAMER MOTION MICRO-ANIMATIONS**: Added staggered card entrance transitions, spring hover elevations (`whileHover={{ y: -4, scale: 1.01 }}`), and interactive tap physics (`whileTap={{ scale: 0.98 }}`) across `courses.index.tsx`.
+- ⚡ **LAZY LOADING & PERFORMANCE OPTIMIZATION**: Optimized image blur-up loading, skeleton placeholders (`Skeleton`), and query memoization (`useMemo`) for instant 60fps scrolling and fast page loads.
+- 📱 **MOBILE-FIRST RESPONSIVE INTERFACE**: Enhanced mobile touch targets (>44px), smooth horizontal scrollbars (`no-scrollbar scroll-smooth`), and glassmorphism backdrop blurs.
+
 ### v5.4.0 (August 2026) — Courses Marketplace & Filter Engine Overhaul
 
 - 🎓 **COURSES MARKETPLACE FILTER ENGINE**: Upgraded `courses.index.tsx` category pills with intelligent count badging (`categories.map`), career path keyword mapping (*Frontend, Backend, Full Stack, AI/ML, Security, DevOps, Mobile*), price filters (*Free / Paid*), and level selectors (*Beginner / Intermediate / Advanced*).
