@@ -10,6 +10,12 @@ import {
   ImagePlus,
   X,
   Zap,
+  BrainCircuit,
+  ChevronDown,
+  ChevronUp,
+  Copy,
+  Check,
+  Lightbulb,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -86,6 +92,84 @@ const MODELS = [
   },
   { id: "openrouter/deepseek/deepseek-chat", label: "OpenRouter — DeepSeek Chat", vision: false },
 ];
+
+function parseThinkingAndAnswer(content: string): { thinking: string | null; answer: string } {
+  if (!content) return { thinking: null, answer: "" };
+  const thinkMatch = content.match(/<think>([\s\S]*?)<\/think>/i);
+  if (thinkMatch) {
+    const thinking = thinkMatch[1].trim();
+    const answer = content.replace(/<think>[\s\S]*?<\/think>/i, "").trim();
+    return { thinking, answer };
+  }
+  if (content.includes("Thinking Process:") || content.includes("Reasoning Step:")) {
+    const parts = content.split(/(?:Final Answer|Final Solution|Summary):/i);
+    if (parts.length >= 2) {
+      return { thinking: parts[0].trim(), answer: parts.slice(1).join("\n").trim() };
+    }
+  }
+  return { thinking: null, answer: content };
+}
+
+function ThinkingCard({ thinking }: { thinking: string }) {
+  const [open, setOpen] = useState(false);
+  const wordsCount = thinking.split(/\s+/).filter(Boolean).length;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mb-3.5 rounded-xl border border-indigo-500/20 bg-indigo-950/20 backdrop-blur-sm overflow-hidden text-xs transition-all shadow-sm"
+    >
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-3.5 py-2.5 text-indigo-300 hover:text-indigo-200 bg-indigo-500/10 hover:bg-indigo-500/15 transition-colors font-medium"
+      >
+        <div className="flex items-center gap-2">
+          <BrainCircuit className="h-4 w-4 text-indigo-400 animate-pulse shrink-0" />
+          <span className="font-semibold text-indigo-200">AI Reasoning & Thinking Process</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/25 text-indigo-300 font-mono">
+            {wordsCount} words
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5 text-indigo-400">
+          <span className="text-[11px]">{open ? "Hide Details" : "Show Thinking"}</span>
+          {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+        </div>
+      </button>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          className="px-4 py-3 border-t border-indigo-500/20 bg-background/50 text-muted-foreground whitespace-pre-wrap font-mono text-[11px] leading-relaxed max-h-72 overflow-y-auto"
+        >
+          {thinking}
+        </motion.div>
+      )}
+    </motion.div>
+  );
+}
+
+function CopyMessageButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const onCopy = () => {
+    void navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast.success("Response copied to clipboard!");
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <button
+      type="button"
+      onClick={onCopy}
+      className="mt-2.5 inline-flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1 rounded-md bg-muted/40 hover:bg-muted/80 border border-border/50"
+    >
+      {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+      <span>{copied ? "Copied" : "Copy Response"}</span>
+    </button>
+  );
+}
 
 function AIPage() {
   const { user } = useAuth();
@@ -702,51 +786,66 @@ function AIPage() {
                   </div>
                 </div>
               ) : (
-                messages.map((m) => (
-                  <div
-                    key={m.id}
-                    className={cn("flex gap-3", m.role === "user" && "flex-row-reverse")}
-                  >
-                    {m.role === "user" ? (
-                      <Avatar className="h-8 w-8 shrink-0 ring-2 ring-primary/20">
-                        {userAvatar && <AvatarImage src={userAvatar} alt={userName} />}
-                        <AvatarFallback className="bg-foreground text-background text-xs font-semibold">
-                          {userInitial}
-                        </AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <div className="h-8 w-8 shrink-0 rounded-full grid place-items-center text-xs font-semibold bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
-                        AI
-                      </div>
-                    )}
-                    <div
-                      className={cn(
-                        "rounded-2xl px-4 py-3 max-w-[85%]",
-                        m.role === "user" ? "bg-primary text-primary-foreground" : "bg-card border",
-                      )}
+                messages.map((m) => {
+                  const { thinking, answer } = m.role === "assistant" ? parseThinkingAndAnswer(m.content) : { thinking: null, answer: m.content };
+                  return (
+                    <motion.div
+                      key={m.id}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={cn("flex gap-3", m.role === "user" && "flex-row-reverse")}
                     >
+                      {m.role === "user" ? (
+                        <Avatar className="h-8 w-8 shrink-0 ring-2 ring-primary/20">
+                          {userAvatar && <AvatarImage src={userAvatar} alt={userName} />}
+                          <AvatarFallback className="bg-foreground text-background text-xs font-semibold">
+                            {userInitial}
+                          </AvatarFallback>
+                        </Avatar>
+                      ) : (
+                        <div className="h-8 w-8 shrink-0 rounded-full grid place-items-center text-xs font-semibold bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-sm">
+                          AI
+                        </div>
+                      )}
                       <div
                         className={cn(
-                          "prose prose-sm max-w-none prose-pre:bg-muted prose-pre:text-foreground prose-code:before:hidden prose-code:after:hidden prose-img:rounded-lg prose-img:my-2",
-                          m.role === "user"
-                            ? "prose-invert prose-p:text-primary-foreground"
-                            : "dark:prose-invert",
+                          "rounded-2xl px-4 py-3 max-w-[92%] sm:max-w-[85%] shadow-sm transition-all",
+                          m.role === "user" ? "bg-primary text-primary-foreground" : "bg-card border border-border/80",
                         )}
                       >
-                        {m.content ? (
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            rehypePlugins={m.role === "assistant" ? [rehypeHighlight] : []}
-                          >
-                            {m.content}
-                          </ReactMarkdown>
-                        ) : (
-                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        {m.role === "assistant" && thinking && (
+                          <ThinkingCard thinking={thinking} />
                         )}
+
+                        <div
+                          className={cn(
+                            "prose prose-sm max-w-none prose-pre:bg-muted/90 prose-pre:text-foreground prose-code:before:hidden prose-code:after:hidden prose-img:rounded-lg prose-img:my-2",
+                            m.role === "user"
+                              ? "prose-invert prose-p:text-primary-foreground"
+                              : "dark:prose-invert",
+                          )}
+                        >
+                          {answer ? (
+                            <>
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                rehypePlugins={m.role === "assistant" ? [rehypeHighlight] : []}
+                              >
+                                {answer}
+                              </ReactMarkdown>
+                              {m.role === "assistant" && <CopyMessageButton text={answer} />}
+                            </>
+                          ) : (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground py-1">
+                              <BrainCircuit className="h-4 w-4 animate-spin text-primary shrink-0" />
+                              <span>AI is analyzing & synthesizing answer...</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))
+                    </motion.div>
+                  );
+                })
               )}
             </div>
           </div>

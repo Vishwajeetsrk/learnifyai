@@ -1087,6 +1087,12 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v6.0.0 (August 2026) — AI Tutor Reasoning & Collapsible Thinking Process UI Overhaul
+
+- 🧠 **COLLAPSIBLE AI THINKING & REASONING CARD**: Created `ThinkingCard` in `ai.tsx` to automatically parse `<think>...</think>` tags and reasoning steps into an interactive, glassmorphic collapsible card (`BrainCircuit` pulse icon, word count badge) so users see the step-by-step thinking phase before reading the final solution.
+- 📋 **ONE-CLICK RESPONSE COPYING**: Added `CopyMessageButton` under AI responses with instant clipboard copy and toast notification.
+- 🤖 **SYSTEM PROMPT REASONING ENHANCEMENT**: Updated `chat.ts` system prompt to instruct models to generate structured analysis and architecture thinking prior to delivering technical code and study roadmaps.
+
 ### v5.9.0 (August 2026) — AI Tutor Motion & Framer Animation Overhaul + Razorpay Default Gateway
 
 - 🤖 **AI TUTOR INTERACTIVE PROMPT CHIPS**: Upgraded `ai.tsx` empty state with Framer Motion hover elevations (`whileHover={{ y: -2, scale: 1.02 }}`), category badges (*Physics & Science*, *Coding & Automation*, *Cloud & Certification*, *Databases & Architecture*), spring tap physics (`whileTap={{ scale: 0.98 }}`), and 1-click prompt execution.
