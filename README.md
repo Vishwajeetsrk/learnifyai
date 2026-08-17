@@ -1106,6 +1106,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v4.8.0 (August 2026) — LinkedIn Profile Optimizer Photo Visibility & Public Profile Preview Upgrade
+
+- 🖼️ **PROFILE PHOTO VISIBILITY FIX**: Fixed image sizing (`object-cover` replacing distorted `object-contain p-0.5`), added `onError` fallback handlers, and implemented automatic profile avatar fetching from Supabase `profiles` table and `user_metadata.avatar_url`. Fallback initial gradient avatar now renders cleanly (`V` for `vishwajeet srk`).
+- 🌟 **AUTHENTIC PUBLIC PROFILE PREVIEW**: Upgraded Live Preview card in `career-studio.tsx` with circular camera overlay, verified checkmark badge (`CheckCircle2`), pronouns pill `(He/Him)`, location, contact info modal trigger, `500+ connections`, and full LinkedIn action buttons (`Open to Work`, `Message`, `More Options`, `Share Profile`).
+
 ### v4.7.0 (August 2026) — Portfolio Builder Resume Auto-Fill & Extraction Engine Overhaul
 
 - 📄 **PORTFOLIO RESUME AUTO-FILL EXTRACTION**: Upgraded `src/lib/file-parser.ts`, `src/lib/resume.functions.ts`, and `PortfolioBuilderPage.tsx` with robust text parsing, `cleanAndParseJson` sanitization, and fallback regex field extractors. Uploading a PDF, DOCX, or TXT resume now reliably populates Full Name, Bio, Tagline, Skills, Projects, Work Experience, Education, and Social Links.

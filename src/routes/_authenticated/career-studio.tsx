@@ -317,6 +317,7 @@ function LinkedInOptimizerView() {
   const { user } = useAuth();
 
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [photoError, setPhotoError] = useState(false);
   const [bannerBg, setBannerBg] = useState(
     "linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#312e81 100%)",
   );
@@ -373,6 +374,35 @@ function LinkedInOptimizerView() {
 
   const photoRef = useRef<HTMLInputElement>(null);
 
+  // Auto-fetch profile photo from Supabase or user metadata if missing
+  useEffect(() => {
+    if (!user) return;
+    const metaPhoto = user.user_metadata?.avatar_url as string | undefined;
+    if (metaPhoto && !profilePhoto) {
+      setProfilePhoto(metaPhoto);
+      setPhotoError(false);
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("avatar_url")
+          .eq("id", user.id)
+          .maybeSingle();
+        if (!cancelled && data?.avatar_url && !profilePhoto) {
+          setProfilePhoto(data.avatar_url);
+          setPhotoError(false);
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
   // Persistence: Load from LocalStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem("learnify_linkedin_profile_v2");
@@ -389,7 +419,10 @@ function LinkedInOptimizerView() {
         if (data.projects) setProjects(data.projects);
         if (data.education) setEducation(data.education);
         if (data.featuredItems) setFeaturedItems(data.featuredItems);
-        if (data.profilePhoto) setProfilePhoto(data.profilePhoto);
+        if (data.profilePhoto) {
+          setProfilePhoto(data.profilePhoto);
+          setPhotoError(false);
+        }
         if (data.bannerBg) setBannerBg(data.bannerBg);
       } catch {
         // ignore fallback
@@ -429,6 +462,7 @@ function LinkedInOptimizerView() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       setProfilePhoto(ev.target?.result as string);
+      setPhotoError(false);
       toast.success("Profile photo uploaded!");
     };
     reader.readAsDataURL(file);
@@ -685,15 +719,16 @@ function LinkedInOptimizerView() {
               </div>
               <div className="px-5 pb-5 pt-3 -mt-10 flex items-end gap-4">
                 <div className="relative shrink-0">
-                  {profilePhoto ? (
+                  {profilePhoto && !photoError ? (
                     <img
                       src={profilePhoto}
                       alt="Profile"
-                      className="h-20 w-20 rounded-full border-4 border-card bg-gradient-to-br from-muted to-muted/60 object-contain p-0.5 shadow-xl"
+                      onError={() => setPhotoError(true)}
+                      className="h-20 w-20 rounded-full border-4 border-card bg-slate-900 object-cover shadow-xl"
                     />
                   ) : (
-                    <div className="h-20 w-20 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-xl">
-                      {name?.charAt(0) || "?"}
+                    <div className="h-20 w-20 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white flex items-center justify-center font-black text-2xl shadow-xl">
+                      {name?.trim() ? name.trim().charAt(0).toUpperCase() : "V"}
                     </div>
                   )}
                   <button
@@ -1168,29 +1203,43 @@ function LinkedInOptimizerView() {
             <div className="px-6 pb-6 -mt-14">
               <div className="flex items-end justify-between flex-wrap gap-4">
                 <div className="flex items-end gap-4">
-                  {profilePhoto ? (
-                    <img
-                      src={profilePhoto}
-                      alt={name}
-                      className="h-28 w-28 rounded-full border-4 border-card bg-gradient-to-br from-muted to-muted/60 object-contain p-0.5 shadow-2xl"
-                    />
-                  ) : (
-                    <div className="h-28 w-28 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-4xl shadow-2xl">
-                      {name?.charAt(0) || "?"}
-                    </div>
-                  )}
+                  <div className="relative group shrink-0">
+                    {profilePhoto && !photoError ? (
+                      <img
+                        src={profilePhoto}
+                        alt={name}
+                        onError={() => setPhotoError(true)}
+                        className="h-28 w-28 rounded-full border-4 border-card bg-slate-900 object-cover shadow-2xl transition group-hover:brightness-90"
+                      />
+                    ) : (
+                      <div className="h-28 w-28 rounded-full border-4 border-card bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white flex items-center justify-center font-black text-4xl shadow-2xl">
+                        {name?.trim() ? name.trim().charAt(0).toUpperCase() : "V"}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => photoRef.current?.click()}
+                      className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition cursor-pointer"
+                      title="Upload photo"
+                    >
+                      <Camera className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                   <div className="pb-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <h3 className="font-black text-2xl text-foreground">{name || "Your Name"}</h3>
-                      <CheckCircle2 className="h-5 w-5 text-blue-500 fill-blue-500/20" />
+                      <CheckCircle2 className="h-5 w-5 text-blue-500 fill-blue-500/20 shrink-0" />
                       {pronouns && (
-                        <span className="text-xs text-muted-foreground font-semibold">
+                        <span className="text-xs text-muted-foreground font-semibold px-2 py-0.5 rounded-full bg-muted">
                           ({pronouns})
                         </span>
                       )}
                     </div>
-                    {headline && <p className="text-sm font-semibold mt-1 max-w-xl text-foreground/90">{headline}</p>}
-                    <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground font-medium flex-wrap">
+                    {headline && (
+                      <p className="text-sm font-semibold mt-1 max-w-xl text-foreground/90 leading-snug">
+                        {headline}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground font-medium flex-wrap">
                       {location && (
                         <span className="flex items-center gap-1">
                           <Globe className="h-3.5 w-3.5 text-muted-foreground" />
@@ -1200,15 +1249,24 @@ function LinkedInOptimizerView() {
                       <span className="text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer">
                         500+ connections
                       </span>
+                      <span
+                        onClick={() => toast.info(`Contact info: ${name} · ${location}`)}
+                        className="text-blue-600 dark:text-blue-400 font-bold hover:underline cursor-pointer"
+                      >
+                        Contact info
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 pb-1">
-                  <Badge className="bg-emerald-500 text-white font-bold text-xs px-3 py-1">
+                <div className="flex items-center gap-2 pb-1 flex-wrap">
+                  <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-full shadow-sm cursor-pointer">
                     Open to Work
                   </Badge>
-                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-full">
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-full shadow-sm">
+                    Message
+                  </Button>
+                  <Button size="sm" variant="outline" className="font-bold text-xs rounded-full">
                     More Options
                   </Button>
                 </div>
