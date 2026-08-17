@@ -246,7 +246,7 @@ function CertsPage() {
         ) : (
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {certs.map((c: any) => {
-              const pct = c.total ? Math.round((c.score / c.total) * 100) : 0;
+              const pct = (c.score && c.total) ? Math.round((c.score / c.total) * 100) : 100;
               const category = c.courses?.category || "Programming";
               const title = c.courses?.title || "Certificate Course";
               const formattedDate = format(new Date(c.issued_at), "dd MMM yyyy");
@@ -351,7 +351,7 @@ function CertsPage() {
             verification. To upgrade your platform certificates with government-recognized
             accreditation in India, apply through these official portals:
           </p>
-          <div className="grid md:grid-cols-3 gap-4 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
             <div className="p-3.5 rounded-xl border bg-muted/30">
               <div className="font-semibold text-foreground mb-1">1. MSME Udyam Registration</div>
               <p className="text-muted-foreground text-[11px]">

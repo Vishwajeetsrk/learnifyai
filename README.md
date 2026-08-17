@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v6.2.0 (August 2026) — Earned Certificates 100% Score & Template Mastery Interactive Showcase
+
+- 📜 **EARNED CERTIFICATES 100% VERIFIED BADGING**: Fixed percentage calculation in `certificates.tsx` so issued course completion certificates display 100% completion badges alongside government-recognized Accreditation Guides (*MSME Udyam*, *NSDC Skill India*, *ISO 9001/27001*).
+- 🎨 **TEMPLATE MASTERY INTERACTIVE SHOWCASE**: Verified `projects.tsx` live interactive template playground featuring 47+ website designs, Framer Motion spring hover animations, lazy iframe covers, 1-click prompt generator, and direct launch triggers.
+
 ### v6.1.0 (August 2026) — Community Hub Dynamic Real Metrics & Coaching Hub Mobile-First Overhaul
 
 - 📊 **COMMUNITY HUB REAL DYNAMIC METRICS**: Replaced static/fake metric claims in `community-hub.tsx` with real-time Supabase database counts (`profiles`, `community_posts`, `coding_challenges`) displaying verified active members, live discussions, and coding practice problems.
