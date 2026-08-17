@@ -1087,6 +1087,11 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🔔 **CASHFREE WEBHOOK ENDPOINT TEST VERIFICATION**: Added `GET` and `HEAD` ping handlers to `/api/webhooks/cashfree` and `/api/webhooks/cashfree-subscription` to allow instant `HTTP 200 OK` validation when testing endpoints inside the Cashfree Merchant Dashboard.
 - 🚀 **GOOGLE SEARCH RANK #1 JSON-LD SCHEMA**: Enhanced root `index.tsx` metadata with `EducationalOrganization`, `WebSite` (`SearchAction`), and `SoftwareApplication` Schema.org JSON-LD graphs for top search engine indexing.
 
+### v6.8.0 (August 2026) — User Settings & Creator Hub Mobile-First Responsive Overhaul
+
+- ⚙️ **SETTINGS TOUCH-FRIENDLY TABS**: Refactored `settings.view.tsx` tab navigation bar (`TabsList`) with horizontal touch-scrolling (`no-scrollbar flex-nowrap shrink-0`) for seamless profile, billing, notifications, security, and branding configuration on mobile viewports.
+- 🎨 **CREATOR HUB TOUCH NAVIGATION**: Upgraded `CreatorTabs.tsx` navigation bar (*Hub*, *Earnings*, *Subscribers*, *Comments*, *Settings*) with horizontal touch-scrolling and responsive course card list alignment on 320px–1440px displays.
+
 ### v6.7.0 (August 2026) — Payment Gateway Admin Toggle & Real Brand Logo Checkout
 
 - 💳 **PAYMENT GATEWAY ADMIN TOGGLE**: Enhanced `cart.tsx` with instant 1-click switching between **Razorpay** and **Cashfree** payment providers.

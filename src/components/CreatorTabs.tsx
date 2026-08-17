@@ -14,7 +14,7 @@ export function CreatorTabs() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   return (
     <div className="border-b sticky top-0 z-30 bg-background/85 backdrop-blur -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10">
-      <nav className="flex gap-1 overflow-x-auto" aria-label="Creator sections">
+      <nav className="flex gap-1 overflow-x-auto no-scrollbar flex-nowrap py-1" aria-label="Creator sections">
         {tabs.map((t) => {
           const active = t.exact ? path === t.to : path === t.to || path.startsWith(t.to + "/");
           const Icon = t.icon;

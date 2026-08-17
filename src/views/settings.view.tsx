@@ -1348,26 +1348,26 @@ export default function SettingsPage() {
 
         <Tabs defaultValue="profile" className="w-full">
           <TabsList
-            className={`${isPhone ? "grid grid-cols-2" : isAdmin ? "grid grid-cols-5" : "grid grid-cols-4"} w-full md:w-auto`}
+            className="flex overflow-x-auto no-scrollbar max-w-full justify-start h-auto p-1 gap-1 flex-nowrap shrink-0 border border-border/60 bg-muted/40"
           >
-            <TabsTrigger value="profile">
+            <TabsTrigger value="profile" className="shrink-0 text-xs sm:text-sm">
               <UserIcon className="h-4 w-4" />
               <span className="ml-1.5">{t("settings.tabs.profile")}</span>
             </TabsTrigger>
-            <TabsTrigger value="billing">
+            <TabsTrigger value="billing" className="shrink-0 text-xs sm:text-sm">
               <Wallet className="h-4 w-4" />
               <span className="ml-1.5">{t("settings.tabs.billing")}</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications">
+            <TabsTrigger value="notifications" className="shrink-0 text-xs sm:text-sm">
               <Bell className="h-4 w-4" />
               <span className="ml-1.5">{t("settings.tabs.notifications")}</span>
             </TabsTrigger>
-            <TabsTrigger value="settings">
+            <TabsTrigger value="settings" className="shrink-0 text-xs sm:text-sm">
               <SettingsIcon className="h-4 w-4" />
               <span className="ml-1.5">{t("settings.tabs.settings")}</span>
             </TabsTrigger>
             {isAdmin && (
-              <TabsTrigger value="branding">
+              <TabsTrigger value="branding" className="shrink-0 text-xs sm:text-sm">
                 <Building2 className="h-4 w-4" />
                 <span className="ml-1.5">{t("settings.tabs.branding")}</span>
               </TabsTrigger>
