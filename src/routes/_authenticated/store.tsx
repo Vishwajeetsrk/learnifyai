@@ -720,47 +720,68 @@ function StorePage() {
                 "A professional avatar for your Learnify profile."}
             </p>
           </div>
-          <DialogFooter className="flex flex-col gap-2 sm:flex-row">
-            <Button
-              variant="default"
-              className="flex-1 flex items-center justify-center gap-1.5 h-11 bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-md"
-              disabled={xp < 1 || purchasing !== null}
-              onClick={() => handleAvatarPurchase("xp")}
-            >
-              {purchasing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Star className="h-4 w-4 text-white fill-white" />
-              )}
-              Pay 1 XP & Claim
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1 flex items-center justify-center gap-1.5 h-11"
-              disabled={
-                walletBalance < (avatarPurchaseItem?.prime_price || 1) || purchasing !== null
-              }
-              onClick={() => handleAvatarPurchase("wallet")}
-            >
-              <CreditCard className="h-4 w-4" />
-              Pay with ₹{avatarPurchaseItem?.prime_price || 1} Cash
-            </Button>
-          </DialogFooter>
-          <div className="text-[11px] text-center text-muted-foreground border-t pt-3 flex items-center justify-center gap-2 flex-wrap">
-            <span>
-              Balance: <strong className="text-foreground">{xp.toLocaleString()}</strong> XP ·{" "}
-              <strong className="text-foreground">₹{walletBalance}</strong> Wallet Cash.
-            </span>
-            {walletBalance < (avatarPurchaseItem?.prime_price || 1) && (
-              <a
-                href="/wallet"
-                className="text-primary underline font-medium hover:text-primary/80"
+          <div className="flex flex-col gap-3 border-t pt-4">
+            {/* Balance display */}
+            <div className="flex items-center justify-between text-sm rounded-xl bg-muted/50 px-4 py-2.5">
+              <span className="text-muted-foreground">Your balance</span>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1 font-semibold text-amber-600">
+                  <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                  {xp.toLocaleString()} XP
+                </span>
+                <span className="text-muted-foreground">·</span>
+                <span className="flex items-center gap-1 font-semibold text-emerald-600">
+                  <CreditCard className="h-3.5 w-3.5" />
+                  ₹{walletBalance} Wallet
+                </span>
+              </div>
+            </div>
+            {/* Payment buttons */}
+            <div className="flex flex-col gap-2">
+              <Button
+                variant="default"
+                className="w-full flex items-center justify-center gap-1.5 h-11 bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-md"
+                disabled={xp < 1 || purchasing !== null}
+                onClick={() => handleAvatarPurchase("xp")}
+                title={xp < 1 ? "You need at least 1 XP to claim this avatar" : ""}
               >
-                Top up wallet
-              </a>
-            )}
+                {purchasing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Star className="h-4 w-4 text-white fill-white" />
+                )}
+                Pay 1 XP &amp; Claim
+              </Button>
+              {walletBalance >= (avatarPurchaseItem?.prime_price || 1) ? (
+                <Button
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-1.5 h-11"
+                  disabled={purchasing !== null}
+                  onClick={() => handleAvatarPurchase("wallet")}
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Pay with ₹{avatarPurchaseItem?.prime_price || 1} Cash
+                </Button>
+              ) : (
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 text-[11px] text-amber-600 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg px-3 py-2">
+                    <CreditCard className="h-3.5 w-3.5 shrink-0" />
+                    <span>
+                      Wallet balance too low. You need <strong>₹{avatarPurchaseItem?.prime_price || 1}</strong> — top up to pay with cash.
+                    </span>
+                  </div>
+                  <a href="/wallet" className="block">
+                    <Button variant="outline" className="w-full h-11 border-primary text-primary hover:bg-primary hover:text-white transition-colors gap-1.5">
+                      <CreditCard className="h-4 w-4" />
+                      Top Up Wallet
+                    </Button>
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
         </DialogContent>
+
       </Dialog>
     </AppShell>
   );

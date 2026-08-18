@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Award, Download, Mail, ExternalLink, ShieldCheck, Lock, Sparkles } from "lucide-react";
+import { Award, Lock, Sparkles, Share2, ExternalLink, ShieldCheck } from "lucide-react";
 import { format } from "date-fns";
 import { AppShell } from "@/components/AppShell";
 import { CertificatesListSkeleton } from "@/components/Skeletons";
@@ -292,29 +292,23 @@ function CertsPage() {
                     <div className="pt-2 border-t flex items-center gap-1.5">
                       {unlocked ? (
                         <>
-                          <Button asChild size="sm" variant="outline" className="flex-1 text-xs gap-1">
+                          <Button asChild size="sm" className="flex-1 text-xs gap-1 bg-primary text-white hover:bg-primary/90">
                             <Link to="/certificates/$code" params={{ code: c.code }}>
-                              <ExternalLink className="h-3.5 w-3.5" /> View
+                              <ExternalLink className="h-3.5 w-3.5" /> View & Download
                             </Link>
                           </Button>
-                          <Button asChild size="sm" variant="outline" className="text-xs px-2.5">
-                            <Link
-                              to="/verify/$id"
-                              params={{ id: c.code }}
-                              title="Verify Credential"
-                            >
-                              <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
-                            </Link>
-                          </Button>
-                          <Button asChild size="sm" variant="outline" className="text-xs px-2.5">
-                            <Link
-                              to="/certificates/$code"
-                              params={{ code: c.code }}
-                              search={{ download: 1 } as any}
-                              title="Download PDF"
-                            >
-                              <Download className="h-3.5 w-3.5" />
-                            </Link>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs px-2.5"
+                            title="Share Certificate"
+                            onClick={() => {
+                              const url = `${window.location.origin}/certificates/${c.code}`;
+                              navigator.clipboard.writeText(url);
+                              toast.success("Certificate link copied!");
+                            }}
+                          >
+                            <Share2 className="h-3.5 w-3.5" />
                           </Button>
                         </>
                       ) : (

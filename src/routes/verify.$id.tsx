@@ -133,20 +133,7 @@ function CertificateVerificationPage() {
         return MOCK_CERTS[id];
       }
 
-      // Fallback format if valid code pattern
-      if (id.startsWith("LRN-") || id.startsWith("CERT-") || id.length >= 6) {
-        return {
-          code: id.toUpperCase(),
-          recipient_name: "Alex Rivera",
-          course_title: "Full-Stack AI Engineering & Autonomous Agents",
-          course_instructor: "Vishwajeet (Founder & CEO)",
-          issued_at: "2026-05-25T00:00:00Z",
-          score: 98,
-          total: 100,
-          grade: "Distinction (98%)",
-        };
-      }
-
+      // No certificate found anywhere
       return null;
     },
   });

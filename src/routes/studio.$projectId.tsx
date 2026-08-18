@@ -327,7 +327,47 @@ function StudioClassroomPage() {
   const runCodeFn = useServerFn(executeCode);
   const runAiFn = useServerFn(aiCodeAssistant);
 
-  const isHtmlLike = /<\s*(html|head|body|div|section|h1|ul|li|p)\b/i.test(editorCode.trim());
+  const isHtmlLike = /(<\s*(html|head|body|div|section|h1|ul|li|p)\b|import\s+React|require\s*\()/i.test(editorCode.trim());
+
+  // Wrap JSX/React code in a proper HTML document with CDN React + Babel + require polyfill
+  const buildSrcDoc = (code: string): string => {
+    const hasHtmlDoc = /<!DOCTYPE|<html/i.test(code);
+    if (hasHtmlDoc) return code;
+    const hasReact = /require\s*\(['"]react|import\s+React|import\s+{.*}\s+from\s+['"]react/i.test(code);
+    if (!hasReact && /<\s*(html|head|body)\b/i.test(code)) return code;
+    // Wrap JSX/React code with CDN deps + Babel transpiler
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>body{margin:0;font-family:sans-serif;background:#fff}</style>
+  <script>
+    // require() polyfill for browser
+    window.require = function(mod) {
+      if (mod === 'react' || mod === 'React') return window.React;
+      if (mod === 'react-dom' || mod === 'ReactDOM') return window.ReactDOM;
+      if (mod === 'react-dom/client') return window.ReactDOM;
+      console.warn('require: module not found:', mod);
+      return {};
+    };
+    window.module = { exports: {} };
+    window.exports = window.module.exports;
+    window.process = { env: { NODE_ENV: 'development' } };
+  </script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-presets="react,typescript">
+${code}
+  </script>
+</body>
+</html>`;
+  };
   const synthRef = useRef<SpeechSynthesis | null>(null);
 
   // Gamification State
@@ -359,6 +399,15 @@ function StudioClassroomPage() {
       }
     }
   }, [activeStep, modules]);
+
+  // Auto-update live preview on step change if code is HTML/React
+  useEffect(() => {
+    if (modules[activeStep]?.code_snippet) {
+      const code = modules[activeStep].code_snippet;
+      const isHtml = /(<\s*(html|head|body|div|section|h1|ul|li|p)\b|import\s+React|require\s*\()/i.test(code.trim());
+      if (isHtml) setLiveSrcDoc(buildSrcDoc(code));
+    }
+  }, [activeStep]);
 
   const handleQuizAnswer = (index: number, correctIndex: number) => {
     if (selectedAnswer !== null) return; // Already answered
@@ -406,7 +455,7 @@ function StudioClassroomPage() {
   const handleRun = async () => {
     if (!editorCode) return;
     if (isHtmlLike) {
-      setLiveSrcDoc(editorCode);
+      setLiveSrcDoc(buildSrcDoc(editorCode));
       setConsoleLog("");
       return;
     }
@@ -877,10 +926,10 @@ function StudioClassroomPage() {
             <div className="flex-1 bg-white relative overflow-hidden">
               {isHtmlLike ? (
                 <iframe
-                  srcDoc={liveSrcDoc || editorCode}
+                  srcDoc={liveSrcDoc || buildSrcDoc(editorCode)}
                   className="w-full h-full border-0"
                   title="Live HTML Preview"
-                  sandbox="allow-scripts allow-same-origin"
+                  sandbox="allow-scripts allow-same-origin allow-forms"
                 />
               ) : (
                 <iframe
