@@ -1727,15 +1727,15 @@ function AllCertsScreen({
       </div>
 
       <div
+        className="overflow-x-auto no-scrollbar"
         style={{
           background: "white",
           border: `1px solid ${BD}`,
           borderRadius: 12,
-          overflow: "hidden",
           boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
         }}
       >
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table style={{ width: "100%", minWidth: 650, borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ borderBottom: `1px solid ${BD}`, background: BG }}>
               <th style={{ padding: "10px 16px", textAlign: "left", width: 36 }}>
@@ -2896,7 +2896,8 @@ function BulkIssueScreen({ courses = [], templates = [] }: { courses: any[]; tem
           <div style={{ fontSize: 12, color: TX2, marginBottom: 12 }}>
             Map your CSV columns to certificate fields
           </div>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="overflow-x-auto no-scrollbar">
+          <table style={{ width: "100%", minWidth: 450, borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: BG }}>
                 {["Certificate Field", "CSV Column", "Preview"].map((h) => (
@@ -2962,6 +2963,7 @@ function BulkIssueScreen({ courses = [], templates = [] }: { courses: any[]; tem
           </table>
         </div>
       </div>
+    </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Step 3 */}
@@ -3757,15 +3759,15 @@ function AnalyticsCertificates({ BD, TX, TX2, TX3, P, SGL, SG, ER }: any) {
         </div>
       </div>
       <div
+        className="overflow-x-auto no-scrollbar"
         style={{
           background: "white",
           border: `1px solid ${BD}`,
           borderRadius: 12,
-          overflow: "hidden",
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         }}
       >
-        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+        <table style={{ width: "100%", minWidth: 600, borderCollapse: "collapse", textAlign: "left" }}>
           <thead>
             <tr style={{ background: "#F8FAFC", borderBottom: `1px solid ${BD}` }}>
               <th
@@ -4162,15 +4164,15 @@ function AnalyticsRecipients({ BD, TX, TX2, TX3, P }: any) {
         />
       </div>
       <div
+        className="overflow-x-auto no-scrollbar"
         style={{
           background: "white",
           border: `1px solid ${BD}`,
           borderRadius: 12,
-          overflow: "hidden",
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         }}
       >
-        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+        <table style={{ width: "100%", minWidth: 650, borderCollapse: "collapse", textAlign: "left" }}>
           <thead>
             <tr style={{ background: "#F8FAFC", borderBottom: `1px solid ${BD}` }}>
               <th
@@ -4315,15 +4317,15 @@ function AnalyticsVerification({ BD, TX, TX2, TX3, SGL, SG, ER }: any) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <h3 style={{ fontSize: 15, fontWeight: 700, color: TX }}>Live Verification Logs</h3>
       <div
+        className="overflow-x-auto no-scrollbar"
         style={{
           background: "white",
           border: `1px solid ${BD}`,
           borderRadius: 12,
-          overflow: "hidden",
           boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
         }}
       >
-        <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
+        <table style={{ width: "100%", minWidth: 650, borderCollapse: "collapse", textAlign: "left" }}>
           <thead>
             <tr style={{ background: "#F8FAFC", borderBottom: `1px solid ${BD}` }}>
               <th
@@ -5931,16 +5933,15 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
 
       {/* Main Categories Table and Details Panel */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <div className="lg:col-span-8"
+        <div className="lg:col-span-8 overflow-x-auto no-scrollbar"
           style={{
             background: "white",
             border: `1px solid ${BD}`,
             borderRadius: 12,
-            overflow: "hidden",
             boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
           }}
         >
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table style={{ width: "100%", minWidth: 650, borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ background: BG, borderBottom: `1px solid ${BD}` }}>
                 {[

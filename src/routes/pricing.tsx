@@ -63,19 +63,36 @@ export const Route = createFileRoute("/pricing")({
   }),
   head: () => ({
     meta: [
-      { title: "Pricing — Learnify AI" },
+      { title: "Pricing & Plans — Learnify AI | Affordable Learning & Career OS" },
       {
         name: "description",
         content:
-          "AI-Powered Learning, Career Growth, Certificates, Resume Building, Interview Preparation and Career Coaching — All in One Platform.",
+          "Transparent pricing for Learnify AI. Access interactive AI courses, verifiable certificates, AI resume builder, career coaching, and smart tutoring. Start free.",
       },
-      { property: "og:title", content: "Pricing — Learnify AI" },
+      {
+        name: "keywords",
+        content:
+          "Learnify AI pricing, AI learning subscription, coding courses India, Learnify cost, career pro plan",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Pricing & Plans — Learnify AI" },
       {
         property: "og:description",
         content:
           "Simple, transparent pricing. Start free, upgrade when you're ready. 10,000+ learners trust Learnify AI.",
       },
+      { property: "og:url", content: "https://www.learnifyai.in/pricing" },
+      { property: "og:image", content: "https://www.learnifyai.in/logo.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Pricing & Plans — Learnify AI" },
+      {
+        name: "twitter:description",
+        content:
+          "Simple, transparent pricing. Start free, upgrade when you're ready. 10,000+ learners trust Learnify AI.",
+      },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/pricing" }],
   }),
   component: PricingPage,
 });

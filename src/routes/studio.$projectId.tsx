@@ -47,6 +47,16 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/studio/$projectId")({
+  head: ({ params }) => ({
+    meta: [
+      { title: `Template Mastery Studio #${params.projectId} — Learnify AI` },
+      {
+        name: "description",
+        content: `Interactive Code Studio & UI Preview for template project ${params.projectId} on Learnify AI.`,
+      },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: StudioClassroomPage,
 });
 

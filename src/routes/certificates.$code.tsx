@@ -31,7 +31,31 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export const Route = createFileRoute("/certificates/$code")({
-  head: () => ({ meta: [{ title: "Certificate — Learnify AI" }] }),
+  head: ({ params }) => ({
+    meta: [
+      { title: `Certificate of Completion #${params.code} — Learnify AI` },
+      {
+        name: "description",
+        content: `Official Certificate of Completion #${params.code} issued by Learnify AI. High-resolution verifiable credential with permanent verification link.`,
+      },
+      { property: "og:type", content: "article" },
+      { property: "og:title", content: `Certificate of Completion #${params.code} — Learnify AI` },
+      {
+        property: "og:description",
+        content: `View and verify official Learnify AI course completion credential #${params.code}.`,
+      },
+      { property: "og:url", content: `https://www.learnifyai.in/certificates/${params.code}` },
+      { property: "og:image", content: "https://www.learnifyai.in/logo.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: `Certificate #${params.code} — Learnify AI` },
+      {
+        name: "twitter:description",
+        content: `Official certificate of completion verified on Learnify AI.`,
+      },
+      { name: "robots", content: "index, follow" },
+    ],
+    links: [{ rel: "canonical", href: `https://www.learnifyai.in/certificates/${params.code}` }],
+  }),
   component: CertificatePage,
   errorComponent: ({ error }) => (
     <div className="min-h-screen grid place-items-center p-10 text-center">

@@ -12,19 +12,36 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/creators")({
   head: () => ({
     meta: [
-      { title: "Creators — Learnify AI" },
+      { title: "Course Creators & Educators Platform — Learnify AI" },
       {
         name: "description",
         content:
-          "Build a course, grow an audience, and earn — with AI tooling that does the heavy lifting.",
+          "Build AI-enhanced courses, grow a global student audience, and earn automated revenue with instant wallet payouts on Learnify AI.",
       },
-      { property: "og:title", content: "Creators — Learnify AI" },
+      {
+        name: "keywords",
+        content:
+          "course creator platform, sell online courses, AI course builder, educator payouts India, Learnify creators",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Course Creators & Educators Platform — Learnify AI" },
       {
         property: "og:description",
         content:
-          "Launch a course in days, not months. Built-in audience, payouts, and AI co-pilot.",
+          "Launch courses in days, not months. Built-in audience, automated payouts, and AI co-pilot on Learnify AI.",
       },
+      { property: "og:url", content: "https://www.learnifyai.in/creators" },
+      { property: "og:image", content: "https://www.learnifyai.in/logo.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Course Creators & Educators Platform — Learnify AI" },
+      {
+        name: "twitter:description",
+        content:
+          "Launch courses in days, not months. Built-in audience, automated payouts, and AI co-pilot on Learnify AI.",
+      },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/creators" }],
   }),
   component: CreatorsPage,
 });

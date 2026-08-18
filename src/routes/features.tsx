@@ -97,19 +97,36 @@ const fallbackFeatures = [
 export const Route = createFileRoute("/features")({
   head: () => ({
     meta: [
-      { title: "Features — Learnify AI" },
+      { title: "Features & AI Tools — Learnify AI | Intelligent Learning OS" },
       {
         name: "description",
         content:
-          "Everything Learnify AI gives you: AI tutoring, smart notes, gamified progress, creator economy, wallet, and career intelligence.",
+          "Discover Learnify AI's complete suite: AI Tutor & Agents, Notion-style Course Builder, Gamified XP Store, Verifiable Credentials, Career Studio, and Cashfree Billing.",
       },
-      { property: "og:title", content: "Features — Learnify AI" },
+      {
+        name: "keywords",
+        content:
+          "AI learning features, AI tutor, interactive courses, verifiable certificates, career studio, resume builder",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Features & AI Tools — Learnify AI" },
       {
         property: "og:description",
         content:
-          "AI tutoring, smart notes, gamified progress, wallet, and career intelligence — all in one platform.",
+          "AI tutoring, smart notes, gamified progress, verifiable certificates, and career studio — all in one platform.",
       },
+      { property: "og:url", content: "https://www.learnifyai.in/features" },
+      { property: "og:image", content: "https://www.learnifyai.in/logo.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Features & AI Tools — Learnify AI" },
+      {
+        name: "twitter:description",
+        content:
+          "AI tutoring, smart notes, gamified progress, verifiable certificates, and career studio — all in one platform.",
+      },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/features" }],
   }),
   component: FeaturesPage,
 });

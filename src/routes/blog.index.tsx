@@ -21,13 +21,36 @@ import { motion } from "framer-motion";
 export const Route = createFileRoute("/blog/")({
   head: () => ({
     meta: [
-      { title: "Blog — Learnify AI" },
+      { title: "Learnify AI Blog — AI Engineering, Tech Careers & Tutorials" },
       {
         name: "description",
         content:
+          "Explore the latest insights, roadmaps, tutorials, and career advice for modern developers, AI engineers, and tech creators from the Learnify AI team.",
+      },
+      {
+        name: "keywords",
+        content:
+          "AI engineering blog, full-stack AI roadmap, coding tutorials, career guides, Learnify AI articles",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Learnify AI Blog — AI Engineering & Tech Careers" },
+      {
+        property: "og:description",
+        content:
           "Insights, tutorials, career advice, and platform updates from the Learnify AI team.",
       },
+      { property: "og:url", content: "https://www.learnifyai.in/blog" },
+      { property: "og:image", content: "https://www.learnifyai.in/logo.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Learnify AI Blog — AI Engineering & Tech Careers" },
+      {
+        name: "twitter:description",
+        content:
+          "Insights, tutorials, career advice, and platform updates from the Learnify AI team.",
+      },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/blog" }],
   }),
   component: BlogIndexPage,
 });

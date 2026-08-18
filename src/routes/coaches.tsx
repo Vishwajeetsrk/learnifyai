@@ -25,18 +25,36 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/coaches")({
   head: () => ({
     meta: [
-      { title: "Coaches — Learnify AI" },
+      { title: "AI Coaches & Mentors Platform — Learnify AI" },
       {
         name: "description",
-        content: "Offer 1-on-1 coaching with built-in scheduling, messaging, and payments.",
+        content:
+          "Offer 1-on-1 career coaching, code reviews, and mentorship with built-in smart scheduling, messaging, and automated payouts on Learnify AI.",
       },
-      { property: "og:title", content: "Coaches — Learnify AI" },
+      {
+        name: "keywords",
+        content:
+          "tech coaching, coding mentors, career guidance, 1-on-1 mentorship, Learnify coaches",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "AI Coaches & Mentors Platform — Learnify AI" },
       {
         property: "og:description",
         content:
-          "All the tools you need to run a coaching practice — without the spreadsheet juggling.",
+          "All the tools you need to run a high-impact coaching practice — smart scheduling, messaging, and instant payouts.",
       },
+      { property: "og:url", content: "https://www.learnifyai.in/coaches" },
+      { property: "og:image", content: "https://www.learnifyai.in/logo.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "AI Coaches & Mentors Platform — Learnify AI" },
+      {
+        name: "twitter:description",
+        content:
+          "All the tools you need to run a high-impact coaching practice on Learnify AI.",
+      },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/coaches" }],
   }),
   component: CoachesPage,
 });

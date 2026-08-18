@@ -25,7 +25,31 @@ import { CertificateRender, DEFAULT_DESIGN, type CertDesign } from "@/components
 import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-pdf";
 
 export const Route = createFileRoute("/verify/$id")({
-  head: () => ({ meta: [{ title: "Verify Credential — Learnify AI" }] }),
+  head: ({ params }) => ({
+    meta: [
+      { title: `Verify Credential #${params.id} — Learnify AI Verification OS` },
+      {
+        name: "description",
+        content: `Official cryptographic verification of Learnify AI credential ${params.id}. Verify student identity, course completion, issued date, and digital signature.`,
+      },
+      { property: "og:type", content: "article" },
+      { property: "og:title", content: `Verified Certificate #${params.id} — Learnify AI` },
+      {
+        property: "og:description",
+        content: `Official verified certificate on Learnify AI platform. Authenticity confirmed with tamper-evident digital seal.`,
+      },
+      { property: "og:url", content: `https://www.learnifyai.in/verify/${params.id}` },
+      { property: "og:image", content: "https://www.learnifyai.in/logo.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: `Verified Credential #${params.id} — Learnify AI` },
+      {
+        name: "twitter:description",
+        content: `Official verified certificate on Learnify AI. Authenticity guaranteed.`,
+      },
+      { name: "robots", content: "index, follow" },
+    ],
+    links: [{ rel: "canonical", href: `https://www.learnifyai.in/verify/${params.id}` }],
+  }),
   component: CertificateVerificationPage,
 });
 

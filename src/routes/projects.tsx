@@ -37,13 +37,36 @@ import projectsData from "@/data/projects.json";
 export const Route = createFileRoute("/projects")({
   head: () => ({
     meta: [
-      { title: "Design Projects Showcase — Learnify AI" },
+      { title: "Design Projects & UI Templates Showcase — Learnify AI" },
       {
         name: "description",
         content:
+          "Explore 47 interactive website design templates, micro-sites, and UX prototypes built with next-generation aesthetics on Learnify AI.",
+      },
+      {
+        name: "keywords",
+        content:
+          "web design templates, UI showcase, frontend prototypes, Learnify AI projects, design library",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Design Projects & UI Templates Showcase — Learnify AI" },
+      {
+        property: "og:description",
+        content:
           "Explore 47 interactive website design templates, micro-sites, and UX prototypes built with next-generation aesthetics.",
       },
+      { property: "og:url", content: "https://www.learnifyai.in/projects" },
+      { property: "og:image", content: "https://www.learnifyai.in/logo.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Design Projects & UI Templates Showcase — Learnify AI" },
+      {
+        name: "twitter:description",
+        content:
+          "Explore 47 interactive website design templates, micro-sites, and UX prototypes built with next-generation aesthetics.",
+      },
+      { name: "robots", content: "index, follow" },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/projects" }],
   }),
   component: ProjectsPage,
 });
