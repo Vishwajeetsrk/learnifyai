@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { CertificateRender, DEFAULT_DESIGN, type CertDesign } from "@/components/CertificateDesign";
 import { downloadElementAsPdf, downloadElementAsImage } from "@/lib/certificate-pdf";
+import { logCertificateVerification } from "@/lib/cert.functions";
 
 export const Route = createFileRoute("/verify/$id")({
   head: ({ params }) => ({
@@ -172,6 +173,14 @@ function CertificateVerificationPage() {
     })
       .then(setQrDataUrl)
       .catch(() => setQrDataUrl(""));
+
+    // Log verification attempt to verification log and audit logs
+    logCertificateVerification({
+      data: {
+        certificateCode: cert.code || id,
+        certificateId: (cert as any).id || null,
+      },
+    }).catch(() => {});
   }, [cert, id]);
 
   const shareVerification = () => {

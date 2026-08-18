@@ -773,19 +773,21 @@ export const retryPendingCertificateEmails = createServerFn({ method: "POST" })
     return { retried, succeeded, failed };
   });
 
-export const getCertificateAnalytics = createServerFn({ method: "GET" }).handler(async () => {
-  const supabase = (await import("@/integrations/supabase/client")).supabase;
+export const getCertificateAnalytics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  const [certsResult, templatesResult, emailResult, auditResult] = await Promise.all([
-    supabase.from("certificates").select("id, issued_at, course_id, courses:course_id(title)"),
-    supabase.from("certificate_templates").select("id"),
-    supabase.from("certificate_email_log").select("id, status"),
-    supabase
-      .from("certificate_audit_log")
-      .select("id, action, course_title, created_at")
-      .order("created_at", { ascending: false })
-      .limit(10),
-  ]);
+    const [certsResult, templatesResult, emailResult, auditResult] = await Promise.all([
+      supabaseAdmin.from("certificates").select("id, issued_at, course_id, courses:course_id(title)"),
+      supabaseAdmin.from("canva_templates").select("id"),
+      supabaseAdmin.from("certificate_email_log").select("id, status"),
+      supabaseAdmin
+        .from("certificate_audit_log")
+        .select("id, action, course_title, created_at")
+        .order("created_at", { ascending: false })
+        .limit(10),
+    ]);
 
   const certs = certsResult.data ?? [];
   const totalIssued = certs.length;
@@ -816,11 +818,54 @@ export const getCertificateAnalytics = createServerFn({ method: "GET" }).handler
       count: 1,
     }));
 
-  return {
-    totalIssued,
-    totalVerified,
-    activeTemplates,
-    monthlyGrowth,
-    recentIssues,
-  };
-});
+    return {
+      totalIssued,
+      totalVerified,
+      activeTemplates,
+      monthlyGrowth,
+      recentIssues,
+    };
+  });
+
+export const logCertificateVerification = createServerFn({ method: "POST" })
+  .validator((d: unknown) =>
+    z
+      .object({
+        certificateCode: z.string().min(1),
+        certificateId: z.string().optional().nullable(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { getRequestHeader } = await import("@tanstack/react-start/server");
+      const ip =
+        getRequestHeader("x-forwarded-for")?.split(",")[0]?.trim() ||
+        getRequestHeader("x-real-ip") ||
+        "127.0.0.1";
+      const ua = getRequestHeader("user-agent") || "Browser";
+
+      let targetCertId = data.certificateId;
+      if (!targetCertId) {
+        const { data: certRow } = await supabaseAdmin
+          .from("certificates")
+          .select("id")
+          .eq("code", data.certificateCode)
+          .maybeSingle();
+        targetCertId = certRow?.id;
+      }
+
+      if (targetCertId) {
+        await supabaseAdmin.from("certificate_verifications").insert({
+          certificate_id: targetCertId,
+          verified_at: new Date().toISOString(),
+          verifier_ip: ip,
+          user_agent: ua,
+        });
+      }
+    } catch {
+      /* non-critical log */
+    }
+    return { success: true };
+  });
