@@ -589,16 +589,17 @@ export default function InvoiceDesigner() {
             </Badge>
           </div>
 
-          <div
-            className={`w-full border rounded-2xl p-8 shadow-2xl transition-all duration-300 font-sans aspect-[1/1.4] overflow-hidden relative ${
-              templateStyle === "dark"
-                ? "bg-slate-900 text-slate-100 border-slate-700"
-                : templateStyle === "luxury"
-                  ? "bg-[#faf9f6] border-[#d4af37]/60"
-                  : "bg-white border-border/80"
-            }`}
-            style={{ color: templateStyle === "dark" ? undefined : textColor }}
-          >
+          <div className="overflow-x-auto pb-4 no-scrollbar">
+            <div
+              className={`w-full min-w-[320px] sm:min-w-0 border rounded-2xl p-4 sm:p-8 shadow-2xl transition-all duration-300 font-sans aspect-[1/1.4] relative ${
+                templateStyle === "dark"
+                  ? "bg-slate-900 text-slate-100 border-slate-700"
+                  : templateStyle === "luxury"
+                    ? "bg-[#faf9f6] border-[#d4af37]/60"
+                    : "bg-white border-border/80"
+              }`}
+              style={{ color: templateStyle === "dark" ? undefined : textColor }}
+            >
             {/* Watermark Label */}
             {settings.invoice_watermark && (
               <div
@@ -876,5 +877,6 @@ export default function InvoiceDesigner() {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }

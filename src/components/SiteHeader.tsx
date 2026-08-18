@@ -62,10 +62,12 @@ export function SiteHeader() {
           )}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <ThemeToggle />
-          <CurrencySelector />
-          <LanguageSwitcher />
+          <div className="hidden sm:flex items-center gap-1.5">
+            <CurrencySelector />
+            <LanguageSwitcher />
+          </div>
           {isAuthenticated && !loading ? (
             <div className="hidden sm:flex items-center gap-2">
               <Button asChild variant="ghost" size="sm" className="text-muted-foreground">
@@ -109,37 +111,47 @@ export function SiteHeader() {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="w-80 bg-background border-l border-border p-6 flex flex-col justify-between"
+                className="w-80 bg-background border-l border-border p-6 flex flex-col justify-between overflow-y-auto"
               >
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between border-b border-border/40 pb-4">
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between border-b border-border/40 pb-3">
                     <SheetTitle className="text-left font-display font-semibold text-lg text-foreground">
                       Navigation Menu
                     </SheetTitle>
                   </div>
-                  <nav className="flex flex-col gap-4 text-base font-medium text-muted-foreground">
+                  <nav className="flex flex-col gap-1 text-sm font-medium text-muted-foreground">
                     {navItems.map((item: any) => (
                       <SheetClose asChild key={item.id || item.label}>
                         <Link
                           to={item.url || "/"}
                           preload="intent"
-                          className="hover:text-foreground py-2 transition border-b border-border/20 text-left"
+                          className="hover:text-foreground hover:bg-accent/50 px-3 py-2.5 rounded-xl transition text-left flex items-center justify-between"
                         >
-                          {item.label}
+                          <span>{item.label}</span>
                         </Link>
                       </SheetClose>
                     ))}
                   </nav>
                 </div>
+
                 <div className="border-t border-border/40 pt-4 flex flex-col gap-3">
+                  {/* Mobile Currency & Language Selector */}
+                  <div className="flex items-center justify-between bg-muted/40 p-2.5 rounded-xl border border-border/50">
+                    <span className="text-xs font-medium text-muted-foreground">Currency & Lang</span>
+                    <div className="flex items-center gap-1.5">
+                      <CurrencySelector />
+                      <LanguageSwitcher />
+                    </div>
+                  </div>
+
                   {isAuthenticated && !loading ? (
                     <>
-                      <div className="flex items-center justify-between px-1">
+                      <div className="flex items-center justify-between px-1 py-1">
                         <span className="text-xs font-semibold text-muted-foreground">Account</span>
-                        <UserAvatarMenu size="sm" />
+                        <UserAvatarMenu showName size="sm" />
                       </div>
                       <SheetClose asChild>
-                        <Button asChild variant="outline" className="w-full">
+                        <Button asChild variant="outline" className="w-full h-10 font-semibold">
                           <Link to="/dashboard" preload="intent">
                             Dashboard
                           </Link>
@@ -149,7 +161,7 @@ export function SiteHeader() {
                   ) : (
                     <>
                       <SheetClose asChild>
-                        <Button asChild variant="outline" className="w-full">
+                        <Button asChild variant="outline" className="w-full h-10 font-semibold">
                           <Link to="/login" preload="intent">
                             {tr("nav.signIn", "Sign in")}
                           </Link>
@@ -158,7 +170,7 @@ export function SiteHeader() {
                       <SheetClose asChild>
                         <Button
                           asChild
-                          className="w-full bg-foreground text-background hover:bg-foreground/90"
+                          className="w-full h-10 font-semibold bg-foreground text-background hover:bg-foreground/90"
                         >
                           <Link to="/signup" preload="intent">
                             {tr("nav.getStarted", "Get Started")}

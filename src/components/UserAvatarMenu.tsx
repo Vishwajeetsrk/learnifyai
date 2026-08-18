@@ -75,9 +75,9 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
           </AvatarFallback>
         </Avatar>
         {showName && (
-          <div className="hidden sm:block text-left min-w-0">
-            <div className="text-xs font-medium truncate max-w-[140px]">{name}</div>
-            <div className="text-[10px] text-muted-foreground">{isAdmin ? "Admin" : "Member"}</div>
+          <div className="text-left min-w-0 flex-1">
+            <div className="text-xs font-semibold text-foreground truncate max-w-[140px]">{name}</div>
+            <div className="text-[10px] font-medium text-muted-foreground">{isAdmin ? "Admin" : "Member"}</div>
           </div>
         )}
       </DropdownMenuTrigger>

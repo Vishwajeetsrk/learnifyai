@@ -220,12 +220,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   const LearnerSurface = /^\/(courses|course|playground|studio|course-builder)(\/|$)/.test(path);
 
   const UserFooter = () => (
-    <div className="border-t p-3 flex items-center gap-2">
-      <UserAvatarMenu showName />
-      <div className="ml-auto flex items-center gap-1">
-        <CurrencySelector />
-        <LanguageSwitcher />
-        <ThemeToggle />
+    <div className="border-t p-3 space-y-2 bg-card/60">
+      <div className="flex items-center justify-between gap-2">
+        <UserAvatarMenu showName className="w-full min-w-0" />
+      </div>
+      <div className="flex items-center justify-between gap-1.5 pt-2 border-t border-border/40">
+        <CurrencySelector className="flex-1 min-w-0" />
+        <div className="flex items-center gap-1 shrink-0">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   );

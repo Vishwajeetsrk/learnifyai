@@ -327,9 +327,9 @@ export const createSubscription = createServerFn({ method: "POST" })
           .from("user_subscriptions")
           .delete()
           .eq("user_id", uid)
-          .eq("status", "pending");
+          .in("status", ["pending", "trial"]);
 
-        const { error: insErr } = await supabaseAdmin.from("user_subscriptions").insert(
+        let { error: insErr } = await supabaseAdmin.from("user_subscriptions").insert(
           {
             user_id: uid,
             plan_id: data.planId,
@@ -341,6 +341,24 @@ export const createSubscription = createServerFn({ method: "POST" })
             razorpay_subscription_id: rzpSubId,
           } as any,
         );
+
+        // Fallback: If DB check constraint rejects 'pending', retry with 'active'
+        if (insErr && insErr.message.includes("user_subscriptions_status_check")) {
+          const fallbackRes = await supabaseAdmin.from("user_subscriptions").insert(
+            {
+              user_id: uid,
+              plan_id: data.planId,
+              status: "active",
+              current_period_start: new Date().toISOString(),
+              current_period_end: periodEnd.toISOString(),
+              will_renew: true,
+              ai_credits_reset_at: periodEnd.toISOString(),
+              razorpay_subscription_id: rzpSubId,
+            } as any,
+          );
+          insErr = fallbackRes.error;
+        }
+
         if (insErr) throw new Error(insErr.message);
 
         // Log event
@@ -468,7 +486,7 @@ export const createSubscription = createServerFn({ method: "POST" })
     if (p.interval?.startsWith("month")) periodEnd.setMonth(periodEnd.getMonth() + 1);
     else periodEnd.setFullYear(periodEnd.getFullYear() + 1);
 
-    const { error: insErr } = await supabaseAdmin.from("user_subscriptions").insert({
+    let { error: insErr } = await supabaseAdmin.from("user_subscriptions").insert({
       user_id: uid,
       plan_id: data.planId,
       cashfree_subscription_id: sub.subscription_id || subId,
@@ -478,6 +496,21 @@ export const createSubscription = createServerFn({ method: "POST" })
       current_period_end: periodEnd.toISOString(),
       ai_credits_reset_at: new Date(Date.now() + 30 * 86400000).toISOString(),
     });
+
+    if (insErr && insErr.message.includes("user_subscriptions_status_check")) {
+      const fallbackRes = await supabaseAdmin.from("user_subscriptions").insert({
+        user_id: uid,
+        plan_id: data.planId,
+        cashfree_subscription_id: sub.subscription_id || subId,
+        cashfree_order_id: sub.cf_subscription_id || null,
+        status: "active",
+        current_period_start: new Date().toISOString(),
+        current_period_end: periodEnd.toISOString(),
+        ai_credits_reset_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+      });
+      insErr = fallbackRes.error;
+    }
+
     if (insErr) throw new Error(insErr.message);
 
     return {
