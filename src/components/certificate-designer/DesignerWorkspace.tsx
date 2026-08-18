@@ -409,9 +409,9 @@ export function DesignerWorkspace({ initialTemplate, onSave, onClose }: Designer
   const selectedEl = elements.find((e) => e.id === selectedId);
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col md:flex-row overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-[#F8FAFC] flex flex-col overflow-hidden">
       {/* Top Bar */}
-      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-10">
+      <header className="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0 z-10 w-full">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
             <ArrowLeft className="h-4 w-4" />

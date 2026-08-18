@@ -433,14 +433,16 @@ export const updateAllTemplateFields = createServerFn({ method: "POST" })
 const CANVAS_W = 842;
 const CANVAS_H = 595;
 
-export function fieldsToElements(fieldsJson: Record<string, any>): {
+export function fieldsToElements(fieldsJson?: Record<string, any> | null): {
   elements: Record<string, any>[];
   design: Record<string, any>;
 } {
   let idx = 0;
   const elements: Record<string, any>[] = [];
+  const sourceFields =
+    fieldsJson && Object.keys(fieldsJson).length > 0 ? fieldsJson : DEFAULT_FIELDS;
 
-  for (const [name, f] of Object.entries(fieldsJson)) {
+  for (const [name, f] of Object.entries(sourceFields)) {
     idx++;
     const id = String(idx);
     const align = f.align || "center";
