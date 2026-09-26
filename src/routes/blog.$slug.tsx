@@ -11,8 +11,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import { BlogPostContent } from "@/components/blog/BlogPostContent";
+import { FREE_COURSES_GUIDE_POST } from "@/lib/canonical-blog";
 
 const FALLBACK_POSTS: Record<string, any> = {
+  "ultimate-guide-free-courses-certificates-2026": FREE_COURSES_GUIDE_POST,
+  "free-courses-certificates-guide-2026": FREE_COURSES_GUIDE_POST,
   "full-stack-ai-engineer-roadmap-2026": {
     id: "fb-1",
     title: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
@@ -190,12 +194,16 @@ export const Route = createFileRoute("/blog/$slug")({
   },
   loader: async ({ params }) => {
     try {
+      const searchSlugs = [params.slug];
+      if (params.slug === "free-courses-certificates-guide-2026" || params.slug === "free-courses-guide") {
+        searchSlugs.push("ultimate-guide-free-courses-certificates-2026");
+      }
       const { data } = await supabase
         .from("blog_posts")
         .select(
           "id, title, slug, content, excerpt, featured_image, author_id, published_at, created_at, profiles!author_id(full_name)",
         )
-        .eq("slug", params.slug)
+        .in("slug", searchSlugs)
         .eq("published", true)
         .maybeSingle();
 
@@ -204,8 +212,8 @@ export const Route = createFileRoute("/blog/$slug")({
       // Ignore database errors
     }
 
-    const fallback = FALLBACK_POSTS[params.slug];
-    if (fallback) return { post: fallback };
+    const fallback = FALLBACK_POSTS[params.slug] || FALLBACK_POSTS["ultimate-guide-free-courses-certificates-2026"];
+    if (fallback && (params.slug in FALLBACK_POSTS || params.slug.includes("free-course"))) return { post: fallback };
 
     return { post: null };
   },
@@ -368,10 +376,7 @@ function BlogPostPage() {
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed">{post.excerpt}</p>
           )}
 
-          <div
-            className="prose prose-lg dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
+          <BlogPostContent content={post.content} />
 
           <div className="mt-12 pt-8 border-t flex items-center gap-6">
             <button

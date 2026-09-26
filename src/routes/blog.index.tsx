@@ -17,6 +17,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { getCleanBannerUrl } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { FREE_COURSES_GUIDE_POST } from "@/lib/canonical-blog";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -45,6 +46,7 @@ function readingTime(text: string) {
 }
 
 const FALLBACK_POSTS = [
+  FREE_COURSES_GUIDE_POST,
   {
     id: "fb-1",
     title: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",

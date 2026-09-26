@@ -17,12 +17,16 @@ import {
   ExternalLink,
   RefreshCw,
   FileText,
+  Code2,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
+import { FREE_COURSES_GUIDE_POST } from "@/lib/canonical-blog";
 import {
   Dialog,
   DialogContent,
@@ -65,6 +69,7 @@ export default function BlogManager() {
   const [editing, setEditing] = useState<BlogPost | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [editorMode, setEditorMode] = useState<"rich" | "markdown">("rich");
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ["blog-posts"],
@@ -96,13 +101,41 @@ export default function BlogManager() {
       featured_image: "",
       published: false,
     });
+    setEditorMode("rich");
     setOpen(true);
   };
 
   const openEdit = (post: BlogPost) => {
     setEditing(post);
     setForm({ ...post });
+    if (post.content && (post.content.trim().startsWith("#") || post.content.includes("## "))) {
+      setEditorMode("markdown");
+    } else {
+      setEditorMode("rich");
+    }
     setOpen(true);
+  };
+
+  const togglePublish = async (post: BlogPost) => {
+    try {
+      const newStatus = !post.published;
+      await doAdminAction({
+        data: {
+          table: "blog_posts",
+          action: "update",
+          id: post.id,
+          data: {
+            published: newStatus,
+            published_at:
+              newStatus && !post.published_at ? new Date().toISOString() : post.published_at,
+          },
+        },
+      });
+      toast.success(newStatus ? "Post published live" : "Post moved to draft");
+      qc.invalidateQueries({ queryKey: ["blog-posts"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to update publish status");
+    }
   };
 
   const slugify = (s: string) =>
@@ -150,6 +183,14 @@ export default function BlogManager() {
 
   const seedDefaultPosts = async () => {
     const defaults = [
+      {
+        title: FREE_COURSES_GUIDE_POST.title,
+        slug: FREE_COURSES_GUIDE_POST.slug,
+        excerpt: FREE_COURSES_GUIDE_POST.excerpt,
+        featured_image: FREE_COURSES_GUIDE_POST.featured_image,
+        published: true,
+        content: FREE_COURSES_GUIDE_POST.content,
+      },
       {
         title: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
         slug: "full-stack-ai-engineer-roadmap-2026",
@@ -200,7 +241,7 @@ export default function BlogManager() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <p className="text-sm text-muted-foreground">
-          Create and manage blog posts with the rich text editor.
+          Create, edit, publish, and manage blog posts with rich text or markdown.
         </p>
         <div className="flex gap-2">
           {!posts?.length && (
@@ -252,24 +293,65 @@ export default function BlogManager() {
               )}
               <div className="min-w-0 flex-1">
                 <div className="font-semibold truncate flex items-center gap-2">
-                  {post.title}
-                  {post.published ? (
-                    <Eye className="h-3 w-3 text-green-500" />
-                  ) : (
-                    <EyeOff className="h-3 w-3 text-muted-foreground" />
-                  )}
+                  <span className="truncate">{post.title}</span>
+                  <span
+                    className={cn(
+                      "text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0",
+                      post.published
+                        ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
+                        : "bg-muted text-muted-foreground border border-border/50"
+                    )}
+                  >
+                    {post.published ? "Published" : "Draft"}
+                  </span>
                 </div>
-                <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-2">
-                  <span>/blog/{post.slug}</span>
+                <div className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-[11px] text-primary/80">/blog/{post.slug}</span>
                   <span>· {format(new Date(post.created_at), "PP")}</span>
-                  {post.excerpt && <span className="truncate max-w-[200px]">· {post.excerpt}</span>}
+                  {post.excerpt && <span className="truncate max-w-[240px]">· {post.excerpt}</span>}
                 </div>
               </div>
-              <div className="flex gap-2 shrink-0">
-                <Button size="sm" variant="outline" onClick={() => openEdit(post)}>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  asChild
+                  title="View post in new tab"
+                  className="h-8 w-8 p-0"
+                >
+                  <a href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
+                  </a>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => togglePublish(post)}
+                  title={post.published ? "Unpublish (Move to draft)" : "Publish live"}
+                  className="h-8 w-8 p-0"
+                >
+                  {post.published ? (
+                    <Eye className="h-3.5 w-3.5 text-green-500" />
+                  ) : (
+                    <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => openEdit(post)}
+                  title="Edit post"
+                  className="h-8 w-8 p-0"
+                >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => setDeleteId(post.id)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setDeleteId(post.id)}
+                  title="Delete post"
+                  className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10"
+                >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
@@ -334,16 +416,55 @@ export default function BlogManager() {
               />
             </div>
             <div>
-              <Label>Content</Label>
-              <Suspense
-                fallback={<div className="h-[300px] rounded-xl border bg-muted animate-pulse" />}
-              >
-                <RichTextEditor
-                  content={form.content || ""}
-                  onChange={(html) => setForm({ ...form, content: html })}
-                  placeholder="Start writing your blog post..."
+              <div className="flex items-center justify-between mb-1.5">
+                <Label>Content</Label>
+                <div className="flex items-center rounded-lg border bg-muted/40 p-0.5 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setEditorMode("rich")}
+                    className={cn(
+                      "px-2.5 py-1 rounded-md transition-all font-medium flex items-center gap-1.5",
+                      editorMode === "rich"
+                        ? "bg-background text-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Sparkles className="h-3 w-3" /> Visual Editor
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditorMode("markdown")}
+                    className={cn(
+                      "px-2.5 py-1 rounded-md transition-all font-medium flex items-center gap-1.5",
+                      editorMode === "markdown"
+                        ? "bg-background text-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Code2 className="h-3 w-3" /> Markdown / Raw HTML
+                  </button>
+                </div>
+              </div>
+
+              {editorMode === "rich" ? (
+                <Suspense
+                  fallback={<div className="h-[300px] rounded-xl border bg-muted animate-pulse" />}
+                >
+                  <RichTextEditor
+                    content={form.content || ""}
+                    onChange={(html) => setForm({ ...form, content: html })}
+                    placeholder="Start writing your blog post..."
+                  />
+                </Suspense>
+              ) : (
+                <Textarea
+                  rows={16}
+                  value={form.content || ""}
+                  onChange={(e) => setForm({ ...form, content: e.target.value })}
+                  placeholder="# Write your post in Markdown..."
+                  className="font-mono text-xs leading-relaxed min-h-[350px]"
                 />
-              </Suspense>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Switch
