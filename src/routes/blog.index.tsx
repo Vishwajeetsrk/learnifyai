@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import {
@@ -11,13 +11,19 @@ import {
   TrendingUp,
   Rss,
   Tag,
+  Pen,
+  Zap,
+  Star,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { supabase } from "@/integrations/supabase/client";
 import { getCleanBannerUrl } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { FREE_COURSES_GUIDE_POST } from "@/lib/canonical-blog";
+import { VerticalCutReveal } from "@/components/ui/vertical-cut-reveal";
+import { TimelineContent } from "@/components/ui/timeline-animation";
+import { useRef } from "react";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -32,13 +38,6 @@ export const Route = createFileRoute("/blog/")({
   }),
   component: BlogIndexPage,
 });
-
-const CATEGORIES = [
-  { label: "All", value: "all", icon: Rss },
-  { label: "Career", value: "career", icon: TrendingUp },
-  { label: "AI & Learning", value: "ai", icon: Sparkles },
-  { label: "Tutorials", value: "tutorial", icon: BookOpen },
-];
 
 function readingTime(text: string) {
   const words = (text || "").split(/\s+/).length;
@@ -91,6 +90,41 @@ const FALLBACK_POSTS = [
   },
 ];
 
+const EDITORIAL_HIGHLIGHTS = [
+  {
+    title: "Free AI Course Directory — 100+ Resources",
+    badge: "New",
+    badgeColor: "#6366F1",
+    date: "Sep 2026",
+    description: "Curated list of the best free AI & ML resources across Coursera, edX, and more.",
+    icon: <Sparkles className="h-4 w-4 text-indigo-500" />,
+  },
+  {
+    title: "Full-Stack AI Engineer Roadmap",
+    badge: "Trending",
+    badgeColor: "#10B981",
+    date: "Jul 2026",
+    description: "TanStack Start + React 19 + Supabase — the 2026 production stack guide.",
+    icon: <TrendingUp className="h-4 w-4 text-emerald-500" />,
+  },
+  {
+    title: "LangGraph Autonomous Agent Tutorial",
+    badge: "Deep Dive",
+    badgeColor: "#F59E0B",
+    date: "Jul 2026",
+    description: "Multi-agent systems, human-in-the-loop, and production error handling patterns.",
+    icon: <Zap className="h-4 w-4 text-amber-500" />,
+  },
+  {
+    title: "Cashfree vs Razorpay: India SaaS Guide",
+    badge: "Research",
+    badgeColor: "#8B5CF6",
+    date: "Jul 2026",
+    description: "Fees, GST compliance, and subscription APIs compared for Indian developers.",
+    icon: <Star className="h-4 w-4 text-violet-500" />,
+  },
+];
+
 function BlogIndexPage() {
   const {
     data: rawPosts,
@@ -102,7 +136,7 @@ function BlogIndexPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("id, title, slug, excerpt, featured_image, published_at, created_at, content")
+        .select("id, title, slug, excerpt, featured_image, published_at, created_at, content, tags")
         .eq("published", true)
         .order("published_at", { ascending: false });
       if (error) {
@@ -121,27 +155,128 @@ function BlogIndexPage() {
   const featured = posts[0];
   const rest = posts.slice(1);
 
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const timelineInView = useInView(timelineRef, { once: true, margin: "-80px" });
+
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-[100dvh] bg-background flex flex-col">
       <SiteHeader />
 
       <main className="flex-1">
-        {/* Hero */}
-        <section className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-primary/5 to-background py-20 text-center">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.08)_0%,transparent_70%)]" />
-          <div className="relative mx-auto max-w-2xl px-4">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
-              <Rss className="h-3.5 w-3.5" />
-              Learnify AI Blog
+        {/* ===== PREMIUM HERO ===== */}
+        <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-primary/5 via-background to-background py-24 md:py-32">
+          {/* Ambient blobs */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            <div className="absolute -top-24 left-1/4 h-96 w-96 rounded-full bg-primary/8 blur-[100px]" />
+            <div className="absolute top-10 right-1/4 h-64 w-64 rounded-full bg-indigo-400/6 blur-[80px]" />
+          </div>
+
+          <div className="relative mx-auto max-w-5xl px-6">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              {/* Left — headline + CTA */}
+              <div>
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/8 px-3.5 py-1.5 text-xs font-semibold text-primary"
+                >
+                  <Rss className="h-3.5 w-3.5" />
+                  Learnify AI Editorial
+                </motion.div>
+
+                <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.08] mb-6">
+                  <VerticalCutReveal delay={0.1}>Learn. Build.</VerticalCutReveal>{" "}
+                  <br />
+                  <span className="bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-700 bg-clip-text text-transparent">
+                    <VerticalCutReveal delay={0.45}>Launch Your Career.</VerticalCutReveal>
+                  </span>
+                </h1>
+
+                <motion.p
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.55 }}
+                  className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8 max-w-md"
+                >
+                  Insights, tutorials, career guides, and platform updates —
+                  written by the team building the future of learning.
+                </motion.p>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.7 }}
+                  className="flex flex-wrap items-center gap-3"
+                >
+                  <Link
+                    to="/blog"
+                    className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-5 py-2.5 text-sm font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all"
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    Browse All Articles
+                  </Link>
+                  <a
+                    href="mailto:support.learnifyai@gmail.com?subject=Blog Contribution"
+                    className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-muted-foreground hover:border-primary/40 hover:text-foreground hover:-translate-y-0.5 transition-all"
+                  >
+                    <Pen className="h-4 w-4" />
+                    Write for Us
+                  </a>
+                </motion.div>
+
+                {/* Stats row */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.85 }}
+                  className="mt-8 flex items-center gap-6 text-xs text-muted-foreground"
+                >
+                  {[
+                    { value: `${posts.length}+`, label: "Articles" },
+                    { value: "10K+", label: "Monthly Readers" },
+                    { value: "Weekly", label: "New Posts" },
+                  ].map((s) => (
+                    <div key={s.label} className="flex flex-col items-center gap-0.5 text-center">
+                      <span className="text-base font-bold text-foreground">{s.value}</span>
+                      <span>{s.label}</span>
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
+
+              {/* Right — Editorial Timeline */}
+              <div ref={timelineRef}>
+                <motion.div
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={timelineInView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur p-6 shadow-sm"
+                >
+                  <div className="flex items-center gap-2 mb-5 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                    <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                    What's Hot
+                  </div>
+                  <TimelineContent
+                    items={EDITORIAL_HIGHLIGHTS}
+                    dotColor="hsl(262 83% 58%)"
+                    lineColor="hsl(262 83% 58%)"
+                  />
+                  <div className="mt-4 pt-4 border-t border-border/40">
+                    <Link
+                      to="/blog"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                    >
+                      View all articles <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                </motion.div>
+              </div>
             </div>
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Learn. Build. Launch.</h1>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Insights, tutorials, career advice, and platform updates — written by the team
-              building the future of learning.
-            </p>
           </div>
         </section>
 
+        {/* ===== MAIN CONTENT ===== */}
         <div className="mx-auto max-w-6xl px-4 py-16 space-y-16">
           {isLoading && (
             <div className="flex justify-center py-20">
@@ -157,19 +292,6 @@ function BlogIndexPage() {
                 onClick={() => void refetch()}
                 className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent transition-colors"
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-4 h-4"
-                >
-                  <polyline points="23 4 23 10 17 10" />
-                  <polyline points="1 20 1 14 7 14" />
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                </svg>
                 Retry
               </button>
             </div>
@@ -195,7 +317,7 @@ function BlogIndexPage() {
               <Link
                 to="/blog/$slug"
                 params={{ slug: (featured as any).slug }}
-                className="group grid gap-6 overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm transition hover:shadow-xl hover:border-primary/30 md:grid-cols-2"
+                className="group grid gap-0 overflow-hidden rounded-3xl border border-border/60 bg-card shadow-sm transition hover:shadow-2xl hover:border-primary/30 md:grid-cols-[1.1fr_0.9fr]"
               >
                 {/* Cover image */}
                 <div className="relative h-64 md:h-auto overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
@@ -203,22 +325,23 @@ function BlogIndexPage() {
                     <img
                       src={getCleanBannerUrl((featured as any).featured_image) ?? undefined}
                       alt={(featured as any).title}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center">
                       <BookOpen className="h-16 w-16 text-primary/20" />
                     </div>
                   )}
+                  {/* Overlay badge */}
+                  <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-background/80 backdrop-blur-sm border border-border/40 px-3 py-1.5 text-[10px] font-semibold">
+                    <Tag className="h-3 w-3 text-primary" />
+                    {(featured as any).tags?.[0] || "Article"}
+                  </div>
                 </div>
 
                 {/* Text */}
-                <div className="flex flex-col justify-center gap-4 p-8">
+                <div className="flex flex-col justify-center gap-4 p-8 md:p-10">
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                      <Tag className="h-3 w-3" />
-                      {(featured as any).tags?.[0] || "Article"}
-                    </span>
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
                       {format(
@@ -235,7 +358,7 @@ function BlogIndexPage() {
                     </span>
                   </div>
 
-                  <h2 className="text-2xl font-bold tracking-tight group-hover:text-primary transition-colors">
+                  <h2 className="text-2xl font-bold tracking-tight leading-tight group-hover:text-primary transition-colors">
                     {(featured as any).title}
                   </h2>
 
@@ -245,7 +368,7 @@ function BlogIndexPage() {
                     </p>
                   )}
 
-                  <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                  <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary mt-2">
                     Read Article
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </div>
@@ -267,12 +390,12 @@ function BlogIndexPage() {
                     key={post.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
+                    transition={{ delay: i * 0.07 }}
                   >
                     <Link
                       to="/blog/$slug"
                       params={{ slug: post.slug }}
-                      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition hover:shadow-lg hover:border-primary/30"
+                      className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition hover:shadow-xl hover:border-primary/30 hover:-translate-y-0.5"
                     >
                       {/* Cover image */}
                       <div className="relative h-44 overflow-hidden bg-gradient-to-br from-primary/8 to-primary/4">
@@ -329,6 +452,37 @@ function BlogIndexPage() {
               </div>
             </div>
           )}
+
+          {/* Newsletter CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="rounded-3xl border border-primary/15 bg-gradient-to-br from-primary/5 via-background to-indigo-500/5 p-10 md:p-14 text-center relative overflow-hidden"
+          >
+            <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-primary/6 blur-3xl" />
+            <div className="absolute bottom-0 left-0 h-32 w-32 rounded-full bg-indigo-400/6 blur-2xl" />
+            <div className="relative">
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-1.5 text-xs font-semibold text-primary mb-4">
+                <Rss className="h-3.5 w-3.5" />
+                Stay Updated
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
+                Get the Best Articles Delivered
+              </h2>
+              <p className="text-muted-foreground text-sm max-w-md mx-auto mb-6">
+                Join 10,000+ learners who get weekly career tips, AI tutorials, and course updates
+                from the Learnify AI team.
+              </p>
+              <a
+                href="mailto:support.learnifyai@gmail.com?subject=Newsletter Subscription"
+                className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-6 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all"
+              >
+                Subscribe via Email
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+          </motion.div>
         </div>
       </main>
 

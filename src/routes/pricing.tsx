@@ -59,6 +59,7 @@ import {
   cancelUserSubscription,
 } from "@/lib/payments/payment.functions";
 import { ContextualLegalNotice } from "@/components/legal/ContextualLegalNotice";
+import { TestimonialsMarquee } from "@/components/ui/testimonials-with-marquee";
 
 export const Route = createFileRoute("/pricing")({
   validateSearch: (s: Record<string, unknown>): { subscribe?: string; coupon?: string } => ({
@@ -1069,19 +1070,48 @@ function PricingPage() {
           </div>
         </section>
 
-        {/* ========== TESTIMONIALS ========== */}
-        <section className="container mx-auto px-6 py-16 md:py-20 max-w-6xl">
-          <div className="text-center mb-12">
+        {/* ========== TESTIMONIALS (Marquee) ========== */}
+        <section className="py-16 md:py-20 overflow-hidden">
+          <div className="container mx-auto px-6 text-center mb-12 max-w-6xl">
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/8 border border-primary/20 px-4 py-1.5 text-xs font-semibold text-primary mb-4">
+              <Star className="h-3.5 w-3.5" />
+              Student Stories
+            </div>
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Loved by Learners</h2>
-            <p className="mt-3 text-muted-foreground">
-              Real stories from students who transformed their careers.
+            <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
+              Real stories from students who transformed their careers with Learnify AI.
             </p>
           </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+          {/* Avatar stack */}
+          <div className="flex justify-center gap-1 mb-8">
+            {cmsTestimonialItems.slice(0, 5).map((t: any) => (
+              <img
+                key={t.name}
+                src={t.avatar || `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(t.name)}`}
+                alt={t.name}
+                title={t.name}
+                className="h-10 w-10 rounded-full border-2 border-background shadow-md object-cover -ml-2 first:ml-0 hover:scale-110 transition-transform"
+                onError={(e) => { (e.target as HTMLImageElement).src = `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(t.name)}`; }}
+              />
+            ))}
+            <div className="h-10 w-10 rounded-full border-2 border-background bg-primary/10 flex items-center justify-center -ml-2 text-[10px] font-bold text-primary">
+              +{Math.max(0, cmsTestimonialItems.length - 5)}K
+            </div>
+          </div>
+
+          <TestimonialsMarquee
+            items={cmsTestimonialItems}
+            speed={35}
+            pauseOnHover
+            onItemClick={(item) => setSelectedTestimonial(item)}
+          />
+
+          {/* Fake (legacy) grid for the dialog trigger only — hidden but accessible */}
+          <div className="hidden">
             {cmsTestimonialItems.map((t: any, i: number) => (
               <div
                 key={t.name}
-                className="rounded-2xl border bg-card p-6 relative group cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
                 onClick={() => setSelectedTestimonial(t)}
               >
                 <Quote className="h-8 w-8 text-primary/10 absolute top-4 right-4" />
@@ -1606,6 +1636,32 @@ function PricingCard({
               )}
             </div>
           ) : null}
+
+          {/* Social proof: avatar stack */}
+          <div className="flex items-center gap-2.5 mt-3 mb-1">
+            <div className="flex -space-x-2">
+              {["Arjun","Meera","Rahul","Divya"].map((seed, i) => (
+                <img
+                  key={i}
+                  src={`https://api.dicebear.com/10.x/avataaars/svg?seed=${plan.name}-${seed}`}
+                  alt={seed}
+                  className="h-6 w-6 rounded-full border-2 border-background object-cover"
+                  style={{ zIndex: 4 - i }}
+                />
+              ))}
+            </div>
+            <span className="text-[11px] text-muted-foreground font-medium">
+              {plan.name === "Enterprise"
+                ? "Used by colleges & companies"
+                : plan.name === "Free"
+                ? "10K+ learners started here"
+                : plan.name === "Pro"
+                ? "5,000+ active Pro learners"
+                : plan.name === "Career Pro"
+                ? "2,000+ job seekers enrolled"
+                : "Trusted by students"}
+            </span>
+          </div>
 
           {/* Outcome badges */}
           {!isEnterprise && hasPrice && (
