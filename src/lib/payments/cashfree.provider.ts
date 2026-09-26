@@ -63,7 +63,7 @@ export class CashfreeProvider implements PaymentProvider {
       customer_details: {
         customer_id: params.userId,
         customer_name: params.customerName || "Valued Learner",
-        customer_email: params.customerEmail || "support@learnifyai.in",
+        customer_email: params.customerEmail || "support.learnifyai@gmail.com",
         customer_phone: params.customerPhone || "9918231234",
       },
       order_note: params.notes ? JSON.stringify(params.notes) : undefined,
@@ -156,7 +156,7 @@ export class CashfreeProvider implements PaymentProvider {
         customer_details: {
           customer_id: params.userId,
           customer_name: params.customerName || "Valued Learner",
-          customer_email: params.customerEmail || "support@learnifyai.in",
+          customer_email: params.customerEmail || "support.learnifyai@gmail.com",
           customer_phone: params.customerPhone || "9918231234",
         },
         plan_details: {

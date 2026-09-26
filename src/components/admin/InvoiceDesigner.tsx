@@ -40,9 +40,9 @@ const DEFAULT_INVOICE_SETTINGS: Record<string, string> = {
   invoice_gstin: "29XXXXX1234X1Z5",
   invoice_prefix: "INV",
   invoice_footer:
-    "Thank you for supporting Learnify AI! For queries, contact support@learnifyai.in.",
+    "Thank you for supporting Learnify AI! For queries, contact support.learnifyai@gmail.com.",
   invoice_logo_url: "/logo.png",
-  invoice_contact: "support@learnifyai.in · +91 99182 31234",
+  invoice_contact: "support.learnifyai@gmail.com · +91 99182 31234",
   invoice_address: "102, Innovation Hub, Outer Ring Road, Bangalore, KA, 560103",
   invoice_website: "https://www.learnifyai.in",
   invoice_primary_color: "#4f46e5",
@@ -289,7 +289,7 @@ export default function InvoiceDesigner() {
                   <Input
                     value={settings.invoice_contact}
                     onChange={(e) => handleChange("invoice_contact", e.target.value)}
-                    placeholder="support@learnifyai.com"
+                    placeholder="support.learnifyai@gmail.com"
                   />
                 </div>
                 <div className="space-y-2">
@@ -659,7 +659,7 @@ export default function InvoiceDesigner() {
                   GSTIN: <strong>{settings.invoice_gstin}</strong>
                 </span>
                 <span className="text-[10px] text-muted-foreground block">
-                  Support: {settings.invoice_contact || "support@learnifyai.in"}
+                  Support: {settings.invoice_contact || "support.learnifyai@gmail.com"}
                 </span>
               </div>
 

@@ -81,7 +81,7 @@ const DOC_CONTENTS: Record<string, string> = {
 <p>We process personal data solely to administer accounts, deliver educational features, compute AI credit balances, issue verifiable completion credentials, and prevent platform abuse. We do not sell or monetize personal data to third-party ad networks.</p>
 
 <h3>4. Data Retention & Deletion</h3>
-<p>You may request data export or complete account deletion at any time by contacting support@learnifyai.in. Upon verified request, personal identifiable information is securely purged in accordance with statutory retention obligations.</p>
+<p>You may request data export or complete account deletion at any time by contacting support.learnifyai@gmail.com. Upon verified request, personal identifiable information is securely purged in accordance with statutory retention obligations.</p>
 
 <h3>5. Regional Localization & Zero-GPS Detection</h3>
 <p>Learnify AI does not collect or store precise GPS geolocation data, latitude, or longitude to determine your country, language, or currency. Localization relies solely on authenticated profile preferences, browser language settings, and coarse network IP-country headers. Pricing is canonically denominated in Indian Rupees (INR ₹), and multi-currency processing is handled by certified payment gateways (Razorpay and Cashfree) without persisting card credentials.</p>
@@ -101,7 +101,7 @@ const DOC_CONTENTS: Record<string, string> = {
 </ul>
 
 <h3>3. How to Submit a Refund Request</h3>
-<p>Submit your request through Account &rarr; Billing & Payments &rarr; Request Refund, or write to <a href="mailto:support@learnifyai.in">support@learnifyai.in</a> including your internal payment ID, provider transaction reference, registered email, and detailed reason. All exception requests are investigated within 2 to 3 business days.</p>
+<p>Submit your request through Account &rarr; Billing & Payments &rarr; Request Refund, or write to <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> including your internal payment ID, provider transaction reference, registered email, and detailed reason. All exception requests are investigated within 2 to 3 business days.</p>
 
 <h3>4. Cancellation Mechanism</h3>
 <p>You can cancel auto-renewal at any time via Account &rarr; Billing & Payments. Cancellations take effect at the conclusion of your current billing period; no partial-month fees are withheld or prematurely terminated.</p>
@@ -157,7 +157,7 @@ const DOC_CONTENTS: Record<string, string> = {
 <p>Learners retain full ownership of software code, project solutions, and personal resumes created independently using Learnify AI tools. By sharing projects publicly in the Showcase or Community, you grant Learnify AI a non-exclusive license to host and display your project.</p>
 
 <h3>3. Copyright Infringement Claims</h3>
-<p>If you believe content on Learnify AI infringes your copyright, submit a formal notice to <a href="mailto:support@learnifyai.in">support@learnifyai.in</a> with evidence of ownership and specific URL references.</p>
+<p>If you believe content on Learnify AI infringes your copyright, submit a formal notice to <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> with evidence of ownership and specific URL references.</p>
 `,
 
   "community-guidelines": `
@@ -180,7 +180,7 @@ const DOC_CONTENTS: Record<string, string> = {
 <h3>1. Designated Support & Grievance Contact</h3>
 <p>In accordance with Indian Information Technology and E-Commerce consumer guidelines, Learnify AI provides designated channels for grievance escalation and dispute resolution:</p>
 <ul>
-  <li><strong>Email:</strong> <a href="mailto:support@learnifyai.in">support@learnifyai.in</a></li>
+  <li><strong>Email:</strong> <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a></li>
   <li><strong>Response Window:</strong> Acknowledged with ticket number within 48 business hours.</li>
   <li><strong>Resolution Target:</strong> Maximum of 30 calendar days for consumer grievances.</li>
 </ul>
@@ -300,8 +300,8 @@ function LegalCenterPage() {
                 </div>
                 <p>
                   Need clarification regarding any policy or billing term? Our support team is available at{" "}
-                  <a href="mailto:support@learnifyai.in" className="text-primary underline">
-                    support@learnifyai.in
+                  <a href="mailto:support.learnifyai@gmail.com" className="text-primary underline">
+                    support.learnifyai@gmail.com
                   </a>
                   .
                 </p>

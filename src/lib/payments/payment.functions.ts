@@ -86,7 +86,7 @@ export const initiateCheckout = createServerFn({ method: "POST" })
       .eq("id", userId)
       .single();
 
-    const customerEmail = profile?.email || "customer@learnifyai.in";
+    const customerEmail = profile?.email || "support.learnifyai@gmail.com";
     const customerName = profile?.full_name || "Valued Learner";
     const customerPhone = profile?.phone || profile?.phone_number || "9999999999";
 
@@ -368,7 +368,7 @@ export const requestRefund = createServerFn({ method: "POST" })
 
     if (error) {
       console.error("[Refund Request Error]", error);
-      throw new Error("Failed to submit refund request. Please contact support@learnifyai.in.");
+      throw new Error("Failed to submit refund request. Please contact support.learnifyai@gmail.com.");
     }
 
     return {

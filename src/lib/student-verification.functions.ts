@@ -50,7 +50,7 @@ export const sendStudentVerificationOtp = createServerFn({ method: "POST" })
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: "Learnify AI <verification@learnifyai.in>",
+            from: process.env.EMAIL_FROM || "Learnify AI <support.learnifyai@gmail.com>",
             to: data.email,
             subject: "Your Student Verification Code",
             html: `

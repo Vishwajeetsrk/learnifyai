@@ -7,7 +7,7 @@ async function sendEmail(data: {
   html: string;
 }): Promise<{ ok: boolean; error?: string }> {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
-  const EMAIL_FROM = process.env.EMAIL_FROM || "Learnify AI <billing@learnify.ai>";
+  const EMAIL_FROM = process.env.EMAIL_FROM || "Learnify AI <support.learnifyai@gmail.com>";
 
   if (RESEND_API_KEY) {
     try {

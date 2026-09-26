@@ -38,7 +38,7 @@ export const Route = createFileRoute("/refund-policy")({
 <p>You may cancel subscription auto-renewal at any time from Account &rarr; Billing & Payments. Upon cancellation, your auto-renewal is terminated, and you retain complete, uninterrupted access to your paid features and credits until the end of your current billing period.</p>
 
 <h2>4. Submitting a Request</h2>
-<p>To request an exception review, navigate to your Billing Dashboard and submit a request under 'Request Refund', or email <a href="mailto:support@learnifyai.in">support@learnifyai.in</a> with your internal payment ID, provider reference (Razorpay/Cashfree), and reason. Validated exceptions are processed to the original payment source within 5–7 business days.</p>`}
+<p>To request an exception review, navigate to your Billing Dashboard and submit a request under 'Request Refund', or email <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a> with your internal payment ID, provider reference (Razorpay/Cashfree), and reason. Validated exceptions are processed to the original payment source within 5–7 business days.</p>`}
     />
   ),
 });

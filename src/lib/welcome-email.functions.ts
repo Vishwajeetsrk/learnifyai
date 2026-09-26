@@ -38,7 +38,7 @@ export async function sendEmail({
   const BREVO_SMTP_LOGIN = process.env.BREVO_SMTP_LOGIN;
   const GMAIL_EMAIL = process.env.GMAIL_EMAIL;
   const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD;
-  const emailFrom = process.env.EMAIL_FROM || "Learnify AI <noreply@learnify.ai>";
+  const emailFrom = process.env.EMAIL_FROM || "Learnify AI <support.learnifyai@gmail.com>";
   const gmailFrom = GMAIL_EMAIL ? `"Learnify AI" <${GMAIL_EMAIL}>` : emailFrom;
 
   // 1. Try Resend REST API (most reliable, domain-verified)
@@ -77,7 +77,7 @@ export async function sendEmail({
           Accept: "application/json",
         },
         body: JSON.stringify({
-          sender: { name: "Learnify AI", email: "noreply@learnify.ai" },
+          sender: { name: "Learnify AI", email: "support.learnifyai@gmail.com" },
           to: [{ email: to }],
           subject,
           htmlContent: html,

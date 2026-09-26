@@ -221,7 +221,7 @@ export const createSubscription = createServerFn({ method: "POST" })
       .eq("id", uid)
       .maybeSingle();
     const realName = (profile as any)?.full_name || "Valued Learner";
-    const realEmail = (profile as any)?.email || "support@learnifyai.in";
+    const realEmail = (profile as any)?.email || "support.learnifyai@gmail.com";
     const realPhone = (profile as any)?.phone || (profile as any)?.phone_number || "9918231234";
 
     const { appId, secretKey } = getCreds();

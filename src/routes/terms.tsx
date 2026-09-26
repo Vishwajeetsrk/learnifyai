@@ -34,7 +34,7 @@ export const Route = createFileRoute("/terms")({
 <p>Failed renewal attempts are subject to a 3-day grace period. Accounts with unresolved payments after the grace period transition to the Free tier without loss of saved progress or earned certificates.</p>
 
 <h2>5. Grievance Redressal & Support</h2>
-<p>In accordance with Indian consumer protection and e-commerce rules, questions, dispute notices, or platform grievances can be submitted to <a href="mailto:support@learnifyai.in">support@learnifyai.in</a>. Detailed policy disclosures are maintained in our <a href="/legal">Legal Center</a>.</p>`}
+<p>In accordance with Indian consumer protection and e-commerce rules, questions, dispute notices, or platform grievances can be submitted to <a href="mailto:support.learnifyai@gmail.com">support.learnifyai@gmail.com</a>. Detailed policy disclosures are maintained in our <a href="/legal">Legal Center</a>.</p>`}
     />
   ),
 });
