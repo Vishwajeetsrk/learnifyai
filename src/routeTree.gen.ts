@@ -21,6 +21,7 @@ import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LegalRouteImport } from './routes/legal'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -83,6 +84,7 @@ import { Route as AuthenticatedSystemDesignIndexRouteImport } from './routes/_au
 import { Route as AuthenticatedPlaygroundIndexRouteImport } from './routes/_authenticated/playground.index'
 import { Route as AuthenticatedCoursesIndexRouteImport } from './routes/_authenticated/courses.index'
 import { Route as VerifyInvoiceIdRouteImport } from './routes/verify.invoice.$id'
+import { Route as ApiWebhooksRazorpayRouteImport } from './routes/api/webhooks/razorpay'
 import { Route as ApiWebhooksCashfreeSubscriptionRouteImport } from './routes/api/webhooks/cashfree-subscription'
 import { Route as ApiWebhooksCashfreeRouteImport } from './routes/api/webhooks/cashfree'
 import { Route as ApiCronRetryCertEmailsRouteImport } from './routes/api/cron/retry-cert-emails'
@@ -175,6 +177,11 @@ const PricingRoute = PricingRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalRoute = LegalRouteImport.update({
+  id: '/legal',
+  path: '/legal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
@@ -501,6 +508,11 @@ const VerifyInvoiceIdRoute = VerifyInvoiceIdRouteImport.update({
   path: '/verify/invoice/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWebhooksRazorpayRoute = ApiWebhooksRazorpayRouteImport.update({
+  id: '/api/webhooks/razorpay',
+  path: '/api/webhooks/razorpay',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWebhooksCashfreeSubscriptionRoute =
   ApiWebhooksCashfreeSubscriptionRouteImport.update({
     id: '/api/webhooks/cashfree-subscription',
@@ -707,6 +719,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/legal': typeof LegalRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -796,6 +809,7 @@ export interface FileRoutesByFullPath {
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
+  '/api/webhooks/razorpay': typeof ApiWebhooksRazorpayRoute
   '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
   '/courses/': typeof AuthenticatedCoursesIndexRoute
   '/playground/': typeof AuthenticatedPlaygroundIndexRoute
@@ -815,6 +829,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/legal': typeof LegalRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -902,6 +917,7 @@ export interface FileRoutesByTo {
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
+  '/api/webhooks/razorpay': typeof ApiWebhooksRazorpayRoute
   '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
   '/courses': typeof AuthenticatedCoursesIndexRoute
   '/playground': typeof AuthenticatedPlaygroundIndexRoute
@@ -923,6 +939,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/legal': typeof LegalRoute
   '/login': typeof LoginRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -1012,6 +1029,7 @@ export interface FileRoutesById {
   '/api/cron/retry-cert-emails': typeof ApiCronRetryCertEmailsRoute
   '/api/webhooks/cashfree': typeof ApiWebhooksCashfreeRoute
   '/api/webhooks/cashfree-subscription': typeof ApiWebhooksCashfreeSubscriptionRoute
+  '/api/webhooks/razorpay': typeof ApiWebhooksRazorpayRoute
   '/verify/invoice/$id': typeof VerifyInvoiceIdRoute
   '/_authenticated/courses/': typeof AuthenticatedCoursesIndexRoute
   '/_authenticated/playground/': typeof AuthenticatedPlaygroundIndexRoute
@@ -1033,6 +1051,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/features'
     | '/forgot-password'
+    | '/legal'
     | '/login'
     | '/pricing'
     | '/privacy'
@@ -1122,6 +1141,7 @@ export interface FileRouteTypes {
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
+    | '/api/webhooks/razorpay'
     | '/verify/invoice/$id'
     | '/courses/'
     | '/playground/'
@@ -1141,6 +1161,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/features'
     | '/forgot-password'
+    | '/legal'
     | '/login'
     | '/pricing'
     | '/privacy'
@@ -1228,6 +1249,7 @@ export interface FileRouteTypes {
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
+    | '/api/webhooks/razorpay'
     | '/verify/invoice/$id'
     | '/courses'
     | '/playground'
@@ -1248,6 +1270,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/features'
     | '/forgot-password'
+    | '/legal'
     | '/login'
     | '/pricing'
     | '/privacy'
@@ -1337,6 +1360,7 @@ export interface FileRouteTypes {
     | '/api/cron/retry-cert-emails'
     | '/api/webhooks/cashfree'
     | '/api/webhooks/cashfree-subscription'
+    | '/api/webhooks/razorpay'
     | '/verify/invoice/$id'
     | '/_authenticated/courses/'
     | '/_authenticated/playground/'
@@ -1358,6 +1382,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   FeaturesRoute: typeof FeaturesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  LegalRoute: typeof LegalRoute
   LoginRoute: typeof LoginRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -1386,6 +1411,7 @@ export interface RootRouteChildren {
   ApiCronRetryCertEmailsRoute: typeof ApiCronRetryCertEmailsRoute
   ApiWebhooksCashfreeRoute: typeof ApiWebhooksCashfreeRoute
   ApiWebhooksCashfreeSubscriptionRoute: typeof ApiWebhooksCashfreeSubscriptionRoute
+  ApiWebhooksRazorpayRoute: typeof ApiWebhooksRazorpayRoute
   VerifyInvoiceIdRoute: typeof VerifyInvoiceIdRoute
   ApiPublicHooksRunRemindersRoute: typeof ApiPublicHooksRunRemindersRoute
 }
@@ -1474,6 +1500,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal': {
+      id: '/legal'
+      path: '/legal'
+      fullPath: '/legal'
+      preLoaderRoute: typeof LegalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/forgot-password': {
@@ -1908,6 +1941,13 @@ declare module '@tanstack/react-router' {
       path: '/verify/invoice/$id'
       fullPath: '/verify/invoice/$id'
       preLoaderRoute: typeof VerifyInvoiceIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/webhooks/razorpay': {
+      id: '/api/webhooks/razorpay'
+      path: '/api/webhooks/razorpay'
+      fullPath: '/api/webhooks/razorpay'
+      preLoaderRoute: typeof ApiWebhooksRazorpayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/webhooks/cashfree-subscription': {
@@ -2350,6 +2390,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   FeaturesRoute: FeaturesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  LegalRoute: LegalRoute,
   LoginRoute: LoginRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
@@ -2378,6 +2419,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCronRetryCertEmailsRoute: ApiCronRetryCertEmailsRoute,
   ApiWebhooksCashfreeRoute: ApiWebhooksCashfreeRoute,
   ApiWebhooksCashfreeSubscriptionRoute: ApiWebhooksCashfreeSubscriptionRoute,
+  ApiWebhooksRazorpayRoute: ApiWebhooksRazorpayRoute,
   VerifyInvoiceIdRoute: VerifyInvoiceIdRoute,
   ApiPublicHooksRunRemindersRoute: ApiPublicHooksRunRemindersRoute,
 }

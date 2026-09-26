@@ -21,7 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/legal" as any)({
+export const Route = createFileRoute("/legal")({
   validateSearch: (s: Record<string, unknown>): { doc?: string; q?: string } => ({
     doc: s.doc as string | undefined,
     q: s.q as string | undefined,

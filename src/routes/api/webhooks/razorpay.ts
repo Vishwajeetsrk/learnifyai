@@ -24,7 +24,7 @@ function verifyRazorpaySignature(rawBody: string, signature: string | null): boo
   }
 }
 
-export const Route = createFileRoute("/api/webhooks/razorpay" as any)({
+export const Route = createFileRoute("/api/webhooks/razorpay")({
   server: {
     handlers: {
       GET: async () => {
