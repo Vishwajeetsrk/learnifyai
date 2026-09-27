@@ -448,16 +448,392 @@ export function CourseBrandLogo({
     );
   }
 
+  // Next.js
+  if (norm.includes("nextjs") || norm.includes("next.js") || norm === "next") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="Next.js Logo"
+      >
+        <circle cx="16" cy="16" r="14" fill="#000000" />
+        <path
+          d="M21.5 22.5L12.8 11.2H11V20.8H12.8V13.8L20.3 23.6C20.7 23.3 21.1 22.9 21.5 22.5Z"
+          fill="url(#nextjs_grad)"
+        />
+        <rect x="19.2" y="11.2" width="1.8" height="9.6" fill="#FFFFFF" />
+        <defs>
+          <linearGradient id="nextjs_grad" x1="16.5" y1="16" x2="22" y2="23" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#FFFFFF" />
+            <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+      </svg>
+    );
+  }
+
+  // Node.js
+  if (norm.includes("nodejs") || norm.includes("node.js") || norm === "node") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="Node.js Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="#18181B" />
+        <path
+          d="M16 6L24.5 11V21L16 26L7.5 21V11L16 6Z"
+          fill="#339933"
+        />
+        <path
+          d="M16 10L21.5 13.2V19.8L16 23L10.5 19.8V13.2L16 10Z"
+          fill="#5FA04E"
+        />
+        <path
+          d="M16 13L19 14.8V18.2L16 20L13 18.2V14.8L16 13Z"
+          fill="#FFFFFF"
+        />
+      </svg>
+    );
+  }
+
+  // TypeScript
+  if (norm.includes("typescript") || norm === "ts") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="TypeScript Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="4" fill="#3178C6" />
+        <path
+          d="M7 12H17M12 12V22"
+          stroke="#FFFFFF"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+        <path
+          d="M24 13.5C23 12.5 21.2 12 19.5 12.5C18 13 17.5 14.2 17.5 15.5C17.5 17.5 19.5 18 21.5 18.5C23.2 19 24 19.5 24 20.5C24 21.8 22.8 22.5 21 22.5C19 22.5 17.5 21.5 17 20"
+          stroke="#FFFFFF"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+
+  // Docker
+  if (norm.includes("docker")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="Docker Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="#0DB7ED" />
+        <path
+          d="M6 14H8V16H6V14ZM9 14H11V16H9V14ZM12 14H14V16H12V14ZM9 11H11V13H9V11ZM12 11H14V13H12V11ZM15 11H17V13H15V11ZM15 14H17V16H15V14ZM18 14H20V16H18V14Z"
+          fill="#FFFFFF"
+        />
+        <path
+          d="M27 16.5C26.5 16.2 25.5 16.2 24.8 16.5C24.5 15.5 23.5 14.8 22 14.8H5C4.5 17.5 6 23 13 23C20 23 23.5 19.5 25.5 18C26.5 18 27.5 17.5 27 16.5Z"
+          fill="#FFFFFF"
+        />
+      </svg>
+    );
+  }
+
+  // AWS
+  if (norm.includes("aws") || norm.includes("amazon")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="AWS Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="#232F3E" />
+        <path
+          d="M10 12L8 18H9.8L10.3 16.5H12.7L13.2 18H15L13 12H10ZM10.7 15L11.5 12.8L12.3 15H10.7Z"
+          fill="#FFFFFF"
+        />
+        <path
+          d="M15.5 13.5L16.8 18H18.2L19.5 14.2L20.8 18H22.2L23.5 13.5H21.8L21 16.5L19.8 13.5H18.2L17 16.5L16.2 13.5H15.5Z"
+          fill="#FFFFFF"
+        />
+        <path
+          d="M7 21C11.5 24 19 24 24 21M24 21L21.5 22M24 21V23.5"
+          stroke="#FF9900"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  // Azure
+  if (norm.includes("azure")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="Microsoft Azure Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="#0078D4" />
+        <path
+          d="M7 23.5L14 7H18L10.5 23.5H7ZM15.5 18L17.5 13.5L25 23.5H19.5L15.5 18Z"
+          fill="#FFFFFF"
+        />
+      </svg>
+    );
+  }
+
+  // Firebase
+  if (norm.includes("firebase")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="Firebase Logo"
+      >
+        <path d="M7 23L10.5 6L14 12L7 23Z" fill="#FFA000" />
+        <path d="M19 9L15 14L19 23L25 21L19 9Z" fill="#F57C00" />
+        <path d="M14 12L19 23H7L14 12Z" fill="#FFCA28" />
+      </svg>
+    );
+  }
+
+  // Supabase
+  if (norm.includes("supabase")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="Supabase Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="#1C1C1C" />
+        <path
+          d="M17.5 5.5L7 17.5H15L14 26.5L24.5 14.5H16.5L17.5 5.5Z"
+          fill="#3ECF8E"
+        />
+      </svg>
+    );
+  }
+
+  // PostgreSQL
+  if (norm.includes("postgres") || norm.includes("postgresql")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="PostgreSQL Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="#336791" />
+        <path
+          d="M16 8C12 8 9 10.5 9 14.5C9 17.5 10.5 19.5 12.5 20.5V23.5H14.5V20.8C15 20.9 15.5 21 16 21C20.5 21 23 18 23 14.5C23 10.5 20 8 16 8ZM14.5 13.5C14.5 12.7 15.2 12 16 12C16.8 12 17.5 12.7 17.5 13.5C17.5 14.3 16.8 15 16 15C15.2 15 14.5 14.3 14.5 13.5Z"
+          fill="#FFFFFF"
+        />
+      </svg>
+    );
+  }
+
+  // MySQL / SQL
+  if (norm.includes("mysql") || norm === "sql" || norm.includes("database")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="SQL Database Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="#00618A" />
+        <ellipse cx="16" cy="9" rx="8" ry="3" fill="#E48E00" />
+        <path
+          d="M8 9V14C8 15.6 11.6 17 16 17C20.4 17 24 15.6 24 14V9"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+        />
+        <path
+          d="M8 14V19C8 20.6 11.6 22 16 22C20.4 22 24 20.6 24 19V14"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+        />
+        <path
+          d="M8 19V24C8 25.6 11.6 27 16 27C20.4 27 24 25.6 24 24V19"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+        />
+      </svg>
+    );
+  }
+
+  // Tailwind CSS
+  if (norm.includes("tailwind")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="Tailwind CSS Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="#0F172A" />
+        <path
+          d="M11.5 13.5C12.5 11 14.5 10 17.5 10C21.5 10 22 13 23.5 13.5C24.5 14 25.5 13.5 26.5 12C25.5 14.5 23.5 15.5 20.5 15.5C16.5 15.5 16 12.5 14.5 12C13.5 11.5 12.5 12 11.5 13.5ZM6.5 19.5C7.5 17 9.5 16 12.5 16C16.5 16 17 19 18.5 19.5C19.5 20 20.5 19.5 21.5 18C20.5 20.5 18.5 21.5 15.5 21.5C11.5 21.5 11 18.5 9.5 18C8.5 17.5 7.5 18 6.5 19.5Z"
+          fill="#38BDF8"
+        />
+      </svg>
+    );
+  }
+
+  // GitHub
+  if (norm.includes("github")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="GitHub Logo"
+      >
+        <circle cx="16" cy="16" r="14" fill="#181717" />
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M16 6C10.48 6 6 10.48 6 16C6 20.42 8.87 24.17 12.84 25.49C13.34 25.58 13.52 25.27 13.52 25.01C13.52 24.78 13.51 23.99 13.51 23.16C10.73 23.77 10.14 22.01 10.14 22.01C9.68 20.86 9.03 20.55 9.03 20.55C8.12 19.93 9.1 19.94 9.1 19.94C10.1 20.01 10.63 20.97 10.63 20.97C11.52 22.5 12.97 22.06 13.54 21.8C13.63 21.15 13.89 20.71 14.17 20.46C11.95 20.21 9.62 19.35 9.62 15.53C9.62 14.44 10.01 13.55 10.65 12.85C10.55 12.6 10.21 11.58 10.75 10.23C10.75 10.23 11.59 9.96 13.5 11.25C14.3 11.03 15.15 10.92 16 10.91C16.85 10.92 17.7 11.03 18.5 11.25C20.41 9.96 21.25 10.23 21.25 10.23C21.79 11.58 21.45 12.6 21.35 12.85C21.99 13.55 22.38 14.44 22.38 15.53C22.38 19.36 20.04 20.2 17.81 20.45C18.17 20.76 18.49 21.37 18.49 22.31C18.49 23.66 18.48 24.75 18.48 25.01C18.48 25.27 18.66 25.59 19.17 25.49C23.13 24.16 26 20.41 26 16C26 10.48 21.52 6 16 6Z"
+          fill="#FFFFFF"
+        />
+      </svg>
+    );
+  }
+
+  // AI / Machine Learning
+  if (norm.includes("ai") || norm.includes("machine-learning") || norm.includes("deep-learning")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="Artificial Intelligence Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="#4F46E5" />
+        <circle cx="16" cy="16" r="3.5" fill="#FFFFFF" />
+        <circle cx="9" cy="10" r="2.2" fill="#A5B4FC" />
+        <circle cx="23" cy="10" r="2.2" fill="#A5B4FC" />
+        <circle cx="9" cy="22" r="2.2" fill="#A5B4FC" />
+        <circle cx="23" cy="22" r="2.2" fill="#A5B4FC" />
+        <path
+          d="M10.8 11.5L13.8 14M21.2 11.5L18.2 14M10.8 20.5L13.8 18M21.2 20.5L18.2 18M16 6.5V12.5M16 19.5V25.5"
+          stroke="#FFFFFF"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+
+  // Cybersecurity / Security
+  if (norm.includes("cyber") || norm.includes("security")) {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn("shrink-0", className)}
+        role="img"
+        aria-label="Cybersecurity Logo"
+      >
+        <rect x="2" y="2" width="28" height="28" rx="6" fill="#0F172A" />
+        <path
+          d="M16 6L24 9.5V16C24 21.2 20.6 25 16 26.5C11.4 25 8 21.2 8 16V9.5L16 6Z"
+          fill="#10B981"
+        />
+        <path
+          d="M16 10L21 12.5V16.5C21 19.5 18.8 22 16 23.2C13.2 22 11 19.5 11 16.5V12.5L16 10Z"
+          fill="#064E3B"
+        />
+        <path
+          d="M14 16L15.5 17.5L18.5 14.5"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
   // Generic Fallback
   return (
     <div
       style={{ width: size, height: size }}
       className={cn(
-        "rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs uppercase",
+        "rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-600/20 border border-indigo-500/30 flex items-center justify-center text-foreground font-bold text-xs uppercase shadow-sm",
         className,
       )}
     >
-      {norm.slice(0, 2) || "CO"}
+      {norm.slice(0, 2) || "AI"}
     </div>
   );
 }

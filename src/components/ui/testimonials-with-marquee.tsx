@@ -1,9 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useRef } from "react";
 import { motion, useAnimationFrame, useMotionValue } from "framer-motion";
-import { Star, Award, Quote } from "lucide-react";
+import { Quote, Award, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getRealHumanAvatar } from "@/lib/real-avatars";
 
 export interface TestimonialItem {
   name: string;
@@ -64,12 +65,12 @@ function TestimonialCard({
         <img
           src={
             item.avatar ||
-            `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(item.name)}`
+            getRealHumanAvatar(item.name)
           }
           alt={item.name}
           className="h-9 w-9 rounded-full object-cover shrink-0 border border-primary/20 shadow-sm"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(item.name)}`;
+            (e.target as HTMLImageElement).src = getRealHumanAvatar(item.name);
           }}
         />
         <div className="min-w-0">

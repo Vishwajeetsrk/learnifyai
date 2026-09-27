@@ -7,6 +7,7 @@ import { MarketingPage } from "@/components/MarketingPage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StaggerGroup, StaggerItem } from "@/components/Reveal";
+import { getRealHumanAvatar } from "@/lib/real-avatars";
 
 export const Route = createFileRoute("/creators")({
   head: () => ({
@@ -568,9 +569,7 @@ function CreatorsPage() {
                   <div className="flex items-center gap-3">
                     <img
                       src={
-                        creator.full_name?.includes("Alex")
-                          ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80"
-                          : `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(creator.full_name)}`
+                        creator.avatar_url || getRealHumanAvatar(creator.full_name)
                       }
                       alt={creator.full_name}
                       className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"

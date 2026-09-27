@@ -7,6 +7,7 @@ import { MarketingPage } from "@/components/MarketingPage";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getRealHumanAvatar } from "@/lib/real-avatars";
 
 export const Route = createFileRoute("/community")({
   head: () => ({
@@ -139,7 +140,7 @@ function CommunityPage() {
                       <img
                         key={i}
                         className="inline-block h-6 w-6 rounded-full ring-2 ring-card bg-muted object-cover"
-                        src={`https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(name)}`}
+                        src={getRealHumanAvatar(name)}
                         alt={name}
                         title={`Member ${name}`}
                       />

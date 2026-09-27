@@ -44,23 +44,66 @@ export function getCourseBrands(slug: string = "", title: string = ""): KnownBra
   if (norm.includes("python")) {
     return ["python"];
   }
-  if (norm.includes("java") && !norm.includes("javascript")) {
-    return ["java"];
+  if (norm.includes("typescript") || norm.includes("ts-")) {
+    return ["typescript" as KnownBrand];
   }
   if (norm.includes("javascript") || norm.includes("js")) {
     return ["javascript"];
   }
-  if (norm.includes("figma")) {
+  if (norm.includes("nextjs") || norm.includes("next.js") || norm.includes("next")) {
+    return ["nextjs" as KnownBrand];
+  }
+  if (norm.includes("react")) {
+    return ["react"];
+  }
+  if (norm.includes("nodejs") || norm.includes("node.js") || norm.includes("node")) {
+    return ["nodejs" as KnownBrand];
+  }
+  if (norm.includes("docker") || norm.includes("container")) {
+    return ["docker" as KnownBrand];
+  }
+  if (norm.includes("aws") || norm.includes("amazon")) {
+    return ["aws" as KnownBrand];
+  }
+  if (norm.includes("azure")) {
+    return ["azure" as KnownBrand];
+  }
+  if (norm.includes("firebase")) {
+    return ["firebase" as KnownBrand];
+  }
+  if (norm.includes("supabase")) {
+    return ["supabase" as KnownBrand];
+  }
+  if (norm.includes("postgres") || norm.includes("postgresql")) {
+    return ["postgresql" as KnownBrand];
+  }
+  if (norm.includes("mysql") || norm.includes("sql") || norm.includes("database")) {
+    return ["mysql" as KnownBrand];
+  }
+  if (norm.includes("tailwind")) {
+    return ["tailwindcss" as KnownBrand];
+  }
+  if (norm.includes("git") || norm.includes("github")) {
+    return ["github" as KnownBrand];
+  }
+  if (norm.includes("java") && !norm.includes("javascript")) {
+    return ["java"];
+  }
+  if (norm.includes("figma") || norm.includes("ui/ux") || norm.includes("design")) {
     return ["figma"];
   }
   if (norm.includes("google") || norm.includes("workspace")) {
     return ["google-workspace"];
   }
-  if (norm.includes("react")) {
-    return ["react"];
+  if (norm.includes("cyber") || norm.includes("security") || norm.includes("ethical-hacking")) {
+    return ["cybersecurity" as unknown as KnownBrand];
+  }
+  if (norm.includes("ai") || norm.includes("machine-learning") || norm.includes("deep-learning") || norm.includes("neural")) {
+    return ["ai" as unknown as KnownBrand];
   }
 
-  return brands;
+  // Default to AI / Tech if nothing else matched
+  return ["chatgpt"];
 }
 
 export function CourseCardVisual({
@@ -76,34 +119,43 @@ export function CourseCardVisual({
   const hasValidCustomCover = Boolean(cleanCover && !isSvgPath);
 
   // Gradient themes matching brand colors
-  const primaryBrand = brands[0];
-  let gradientClass = "from-slate-900 via-indigo-950/70 to-slate-900";
-  let accentBorder = "border-primary/20";
+  const primaryBrand = String(brands[0] || "");
+  let gradientClass = "from-slate-900 via-indigo-950/80 to-slate-900";
+  let accentBorder = "border-primary/30";
 
-  if (primaryBrand?.includes("excel")) {
+  if (primaryBrand.includes("excel")) {
     gradientClass = "from-[#082817] via-[#0E4728] to-[#061C10]";
-    accentBorder = "border-emerald-500/30";
-  } else if (primaryBrand?.includes("word")) {
+    accentBorder = "border-emerald-500/40";
+  } else if (primaryBrand.includes("word") || primaryBrand.includes("typescript")) {
     gradientClass = "from-[#081E3D] via-[#103A70] to-[#05152B]";
-    accentBorder = "border-blue-500/30";
-  } else if (primaryBrand?.includes("powerpoint")) {
+    accentBorder = "border-blue-500/40";
+  } else if (primaryBrand.includes("powerpoint")) {
     gradientClass = "from-[#331108] via-[#5C1D0C] to-[#240A04]";
-    accentBorder = "border-rose-500/30";
-  } else if (primaryBrand?.includes("power-bi")) {
+    accentBorder = "border-rose-500/40";
+  } else if (primaryBrand.includes("power-bi") || primaryBrand.includes("javascript")) {
     gradientClass = "from-[#2A230B] via-[#4D3F12] to-[#1C1706]";
-    accentBorder = "border-amber-500/30";
-  } else if (primaryBrand?.includes("python")) {
+    accentBorder = "border-amber-500/40";
+  } else if (primaryBrand.includes("python")) {
     gradientClass = "from-[#0B1E2E] via-[#15344F] to-[#091825]";
-    accentBorder = "border-sky-500/30";
-  } else if (primaryBrand?.includes("figma")) {
+    accentBorder = "border-sky-500/40";
+  } else if (primaryBrand.includes("figma")) {
     gradientClass = "from-[#1F1329] via-[#352245] to-[#140B1B]";
-    accentBorder = "border-purple-500/30";
-  } else if (primaryBrand?.includes("chatgpt")) {
+    accentBorder = "border-purple-500/40";
+  } else if (primaryBrand.includes("chatgpt") || primaryBrand.includes("supabase")) {
     gradientClass = "from-[#06261E] via-[#0D4033] to-[#041A14]";
-    accentBorder = "border-emerald-500/30";
-  } else if (primaryBrand?.includes("html") || primaryBrand?.includes("git")) {
+    accentBorder = "border-emerald-500/40";
+  } else if (primaryBrand.includes("html") || primaryBrand.includes("git")) {
     gradientClass = "from-[#2B1109] via-[#4F2011] to-[#1C0A04]";
-    accentBorder = "border-orange-500/30";
+    accentBorder = "border-orange-500/40";
+  } else if (primaryBrand.includes("react") || primaryBrand.includes("docker") || primaryBrand.includes("tailwind")) {
+    gradientClass = "from-[#061B2E] via-[#0B355A] to-[#041220]";
+    accentBorder = "border-cyan-500/40";
+  } else if (primaryBrand.includes("nodejs")) {
+    gradientClass = "from-[#0A220E] via-[#123E1B] to-[#061709]";
+    accentBorder = "border-green-500/40";
+  } else if (primaryBrand.includes("aws") || primaryBrand.includes("azure")) {
+    gradientClass = "from-[#141C2A] via-[#1F2C42] to-[#0E131E]";
+    accentBorder = "border-amber-500/40";
   }
 
   return (

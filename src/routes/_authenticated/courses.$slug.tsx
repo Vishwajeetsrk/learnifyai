@@ -48,6 +48,7 @@ import { LessonSocial } from "@/components/LessonSocial";
 import { VoiceNarrationPlayer } from "@/components/VoiceNarrationPlayer";
 
 import { CoursePlayer } from "@/components/CoursePlayer";
+import { getRealHumanAvatar } from "@/lib/real-avatars";
 import { CourseBrandLogo } from "@/components/courses/CourseBrandLogo";
 import { getCourseBrands } from "@/components/courses/CourseCardVisual";
 import { AppShell } from "@/components/AppShell";
@@ -779,7 +780,7 @@ function CourseDetail() {
                       <img
                         src={
                           l.avatar_url ||
-                          `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`
+                          getRealHumanAvatar(l.full_name || l.user_id)
                         }
                         alt=""
                         className="h-full w-full object-cover"

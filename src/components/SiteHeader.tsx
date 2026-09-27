@@ -32,6 +32,7 @@ export function SiteHeader() {
     { label: tr("nav.coaches", "Coaches"), url: "/coaches" },
     { label: tr("nav.projects", "Projects"), url: "/projects" },
     { label: tr("nav.pricing", "Pricing"), url: "/pricing" },
+    { label: tr("nav.supportUs", "Support Us"), url: "/support-us" },
     { label: tr("nav.blog", "Blog"), url: "/blog" },
   ];
   const navItems = (menuItems.length > 0 ? menuItems : fallbackNav).filter(

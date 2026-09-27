@@ -21,6 +21,7 @@ import {
   Zap,
   Users,
   Rocket,
+  Heart,
   ArrowRight,
   Sparkles,
   Star,
@@ -60,6 +61,7 @@ import {
 } from "@/lib/payments/payment.functions";
 import { ContextualLegalNotice } from "@/components/legal/ContextualLegalNotice";
 import { TestimonialsMarquee } from "@/components/ui/testimonials-with-marquee";
+import { getRealHumanAvatar } from "@/lib/real-avatars";
 
 export const Route = createFileRoute("/pricing")({
   validateSearch: (s: Record<string, unknown>): { subscribe?: string; coupon?: string } => ({
@@ -434,7 +436,7 @@ function PricingPage() {
         AVATAR_MAP[item.name] ||
         (typeof item.avatar === "string" && item.avatar.startsWith("http") ? item.avatar : null) ||
         (typeof item.avatar === "string" && item.avatar.startsWith("data:") ? item.avatar : null) ||
-        `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(item.name || "Student")}`,
+        getRealHumanAvatar(item.name || "Student"),
     }));
   }, [rawTestimonials]);
   const cmsHeroContent = cmsHero?.content;
@@ -1070,6 +1072,32 @@ function PricingPage() {
           </div>
         </section>
 
+        {/* ========== SPONSOR A CAREER INITIATIVE BANNER ========== */}
+        <section className="py-8">
+          <div className="container mx-auto px-6 max-w-4xl">
+            <div className="rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-indigo-500/5 to-primary/10 p-6 md:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+              <div className="space-y-2 text-center sm:text-left">
+                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary uppercase tracking-wider">
+                  <Heart className="h-3.5 w-3.5 fill-red-500 text-red-500 animate-pulse" />
+                  Sponsor a Career Initiative
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold tracking-tight text-foreground font-display">
+                  Help Us Build a Free Career-Learning Ecosystem
+                </h3>
+                <p className="text-xs md:text-sm text-muted-foreground max-w-xl">
+                  Support ambitious students facing financial barriers, with a special focus on care leavers. 
+                  Sponsor free courses, mentorship, and career resources.
+                </p>
+              </div>
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shrink-0 shadow-md">
+                <Link to="/support-us">
+                  Support Us &rarr;
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
         {/* ========== TESTIMONIALS (Marquee) ========== */}
         <section className="py-16 md:py-20 overflow-hidden">
           <div className="container mx-auto px-6 text-center mb-12 max-w-6xl">
@@ -1088,11 +1116,11 @@ function PricingPage() {
             {cmsTestimonialItems.slice(0, 5).map((t: any) => (
               <img
                 key={t.name}
-                src={t.avatar || `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(t.name)}`}
+                src={t.avatar || getRealHumanAvatar(t.name)}
                 alt={t.name}
                 title={t.name}
                 className="h-10 w-10 rounded-full border-2 border-background shadow-md object-cover -ml-2 first:ml-0 hover:scale-110 transition-transform"
-                onError={(e) => { (e.target as HTMLImageElement).src = `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(t.name)}`; }}
+                onError={(e) => { (e.target as HTMLImageElement).src = getRealHumanAvatar(t.name); }}
               />
             ))}
             <div className="h-10 w-10 rounded-full border-2 border-background bg-primary/10 flex items-center justify-center -ml-2 text-[10px] font-bold text-primary">
@@ -1138,7 +1166,7 @@ function PricingPage() {
                     className="h-10 w-10 rounded-full object-cover shrink-0 border border-primary/20 shadow-sm"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(t.name || "Student")}`;
+                      target.src = getRealHumanAvatar(t.name || "Student");
                     }}
                   />
                   <div className="min-w-0">
@@ -1192,7 +1220,7 @@ function PricingPage() {
                   className="h-12 w-12 rounded-full object-cover shrink-0 border border-primary/20 shadow-sm"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    target.src = `https://api.dicebear.com/10.x/avataaars/svg?seed=${encodeURIComponent(selectedTestimonial.name || "Student")}`;
+                    target.src = getRealHumanAvatar(selectedTestimonial.name || "Student");
                   }}
                 />
                 <div>
@@ -1643,7 +1671,7 @@ function PricingCard({
               {["Arjun","Meera","Rahul","Divya"].map((seed, i) => (
                 <img
                   key={i}
-                  src={`https://api.dicebear.com/10.x/avataaars/svg?seed=${plan.name}-${seed}`}
+                  src={getRealHumanAvatar(seed)}
                   alt={seed}
                   className="h-6 w-6 rounded-full border-2 border-background object-cover"
                   style={{ zIndex: 4 - i }}

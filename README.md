@@ -2,7 +2,7 @@
 
 <img src="src/assets/learnify-logo.png" alt="Learnify AI Logo" width="180" style="margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(99, 102, 241, 0.25));" />
 
-# Learnify AI 4.1
+# Learnify AI 4.4
 
 **The AI-Native Learning & Career Operating System**
 
@@ -1361,6 +1361,30 @@ MIT License. See [LICENSE](LICENSE) for details.
 - 🌍 **11 SUPPORTED LANGUAGES & COOKIE SYNC**: Full real-time translation support for English, Hindi (हिन्दी), Bengali (বাংলা), Tamil (தமிழ்), Telugu (తెలుగు), Marathi (मराठी), Gujarati (ગુજરાતી), Kannada (ಕನ್ನಡ), Spanish (Español), French (Français), and German (Deutsch). Synchronizes `googtrans` cookies, `document.documentElement.lang`, `i18n.changeLanguage(code)`, and `localStorage` preference.
 - 🎨 **CLEAN CSS OVERRIDES**: Added custom global CSS rules to completely hide Google Translate's iframe banner frame, top margin push, and tooltip popups, keeping the platform's dark mode and modern glassmorphism design 100% clean.
 - 📱 **UNIVERSAL HEADER & APPSHELL INTEGRATION**: Added `LanguageSwitcher` to both public `SiteHeader` and authenticated `AppShell` header footer, enabling learners to switch languages anywhere on the platform.
+
+### v4.4.0 (September 2026) — Authentic Human Avatars, Sponsor a Career / Support Us, Course Brand Logos & 2026 Free Courses Flagship Guide
+
+- 👤 **AUTHENTIC HUMAN AVATARS (NO CARTOONS)**:
+  - Completely replaced all cartoon, vector, and Dicebear avatars across the entire platform with authentic, high-resolution human portrait photography.
+  - Implemented `src/lib/real-avatars.ts` utility providing deterministic, diverse human portraits mapped to user names, roles, or stable hash indices.
+  - Updated all touchpoints: Pricing page social proof stacks, testimonials marquee, Community cohort members, Coaches directory, Creators showcase, Course learner reviews, and default fallback avatars (`DefaultAvatar.tsx`).
+
+- 💝 **"SUPPORT US & SPONSOR A CAREER" CAMPAIGN (`/support-us`)**:
+  - Launched a dedicated donation and career sponsorship experience at `/support-us` (with `/sponsor` alias).
+  - Features real-time milestone goal tracker (`₹ 0 of ₹ 1,00,000 collected`), impact metrics, and 3-step career transformation pillars (*Learn → Build → Present*).
+  - Preset contribution tiers (₹500, ₹1,000, ₹2,500, ₹5,000, ₹10,000) and custom amounts with multi-country phone code support.
+  - Direct, secure checkout integration linking to the official hosted Razorpay page: `https://pages.razorpay.com/learnifyaisupport`.
+  - Added "Support Us / Sponsor" links in platform header, footer, and pricing page callout banner.
+
+- 🎨 **CANONICAL COURSE BRAND LOGOS & PREMIUM CARD COVERS**:
+  - Replaced generic course icon SVGs and plain graduation caps with official, canonical tech brand marks.
+  - Added official SVG icons (`CourseBrandLogo.tsx`) for Next.js, Node.js, TypeScript, Docker, AWS, Azure, Firebase, Supabase, PostgreSQL, MySQL/SQL, Tailwind CSS, GitHub, AI/ML, and Cybersecurity.
+  - Enhanced course card cover renderer (`CourseCardVisual.tsx`) with dynamic keyword recognition, rich mesh gradients, and micro-grid pattern backdrops.
+
+- 📖 **FLAGSHIP GUIDE & RESPONSIVE BLOG ENGINE**:
+  - Published comprehensive 41-platform reference guide: *"The Ultimate Guide to Free Courses, Free Certificates & High-Value Skills in 2026"*.
+  - Completely redesigned `BlogPostContent.tsx` with mobile-first responsive scrollable tables, custom styled bullet indicators, numbered step badges, generous typography spacing, and contextual illustrative visual breaks.
+  - Verified Admin Content Manager (`BlogManager.tsx`, `admin.content.view.tsx`) with dual rich-text and markdown editor modes, instant publishing toggles, slug aliases, and pre-seeded templates.
 
 ### v4.3.0 (August 2026) — Dual Payment Gateways, Cancellation Handling & Avatar Store Unlocking
 

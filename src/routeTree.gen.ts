@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as VerifyStudentRouteImport } from './routes/verify-student'
 import { Route as VerifiedCertificatesRouteImport } from './routes/verified-certificates'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SupportUsRouteImport } from './routes/support-us'
+import { Route as SponsorRouteImport } from './routes/sponsor'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as ShowcaseRouteImport } from './routes/showcase'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
@@ -132,6 +134,16 @@ const VerifiedCertificatesRoute = VerifiedCertificatesRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportUsRoute = SupportUsRouteImport.update({
+  id: '/support-us',
+  path: '/support-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SponsorRoute = SponsorRouteImport.update({
+  id: '/sponsor',
+  path: '/sponsor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SignupRoute = SignupRouteImport.update({
@@ -729,6 +741,8 @@ export interface FileRoutesByFullPath {
   '/roadmap': typeof RoadmapRoute
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
+  '/sponsor': typeof SponsorRoute
+  '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
@@ -839,6 +853,8 @@ export interface FileRoutesByTo {
   '/roadmap': typeof RoadmapRoute
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
+  '/sponsor': typeof SponsorRoute
+  '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
@@ -949,6 +965,8 @@ export interface FileRoutesById {
   '/roadmap': typeof RoadmapRoute
   '/showcase': typeof ShowcaseRoute
   '/signup': typeof SignupRoute
+  '/sponsor': typeof SponsorRoute
+  '/support-us': typeof SupportUsRoute
   '/terms': typeof TermsRoute
   '/verified-certificates': typeof VerifiedCertificatesRoute
   '/verify-student': typeof VerifyStudentRoute
@@ -1061,6 +1079,8 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/showcase'
     | '/signup'
+    | '/sponsor'
+    | '/support-us'
     | '/terms'
     | '/verified-certificates'
     | '/verify-student'
@@ -1171,6 +1191,8 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/showcase'
     | '/signup'
+    | '/sponsor'
+    | '/support-us'
     | '/terms'
     | '/verified-certificates'
     | '/verify-student'
@@ -1280,6 +1302,8 @@ export interface FileRouteTypes {
     | '/roadmap'
     | '/showcase'
     | '/signup'
+    | '/sponsor'
+    | '/support-us'
     | '/terms'
     | '/verified-certificates'
     | '/verify-student'
@@ -1392,6 +1416,8 @@ export interface RootRouteChildren {
   RoadmapRoute: typeof RoadmapRoute
   ShowcaseRoute: typeof ShowcaseRoute
   SignupRoute: typeof SignupRoute
+  SponsorRoute: typeof SponsorRoute
+  SupportUsRoute: typeof SupportUsRoute
   TermsRoute: typeof TermsRoute
   VerifiedCertificatesRoute: typeof VerifiedCertificatesRoute
   VerifyStudentRoute: typeof VerifyStudentRoute
@@ -1437,6 +1463,20 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support-us': {
+      id: '/support-us'
+      path: '/support-us'
+      fullPath: '/support-us'
+      preLoaderRoute: typeof SupportUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sponsor': {
+      id: '/sponsor'
+      path: '/sponsor'
+      fullPath: '/sponsor'
+      preLoaderRoute: typeof SponsorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/signup': {
@@ -2400,6 +2440,8 @@ const rootRouteChildren: RootRouteChildren = {
   RoadmapRoute: RoadmapRoute,
   ShowcaseRoute: ShowcaseRoute,
   SignupRoute: SignupRoute,
+  SponsorRoute: SponsorRoute,
+  SupportUsRoute: SupportUsRoute,
   TermsRoute: TermsRoute,
   VerifiedCertificatesRoute: VerifiedCertificatesRoute,
   VerifyStudentRoute: VerifyStudentRoute,

@@ -97,6 +97,10 @@ Class Central's current guide lists CS50 courses among Harvard's free-certificat
 
 ---
 
+![Computer Science Fundamentals & Coding Environments](https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&q=80)
+
+---
+
 # 4. freeCodeCamp — Full-Stack Development
 
 **Website:** https://www.freecodecamp.org/learn
@@ -173,6 +177,10 @@ Kaggle is particularly useful because you can move from **learning → notebook 
 
 ---
 
+![Data Science, Python Notebooks & Machine Learning Workflows](https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80)
+
+---
+
 # 7. IBM SkillsBuild — AI, Cybersecurity, Data & Cloud
 
 **Website:** https://skillsbuild.org/
@@ -242,6 +250,10 @@ Your provided direct course link:
 https://anthropic.skilljar.com/claude-101
 
 **Best for:** AI developers, prompt/workflow builders and agent developers.
+
+---
+
+![Modern AI Engineering, Prompt Workflows & LLM Agents](https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80)
 
 ---
 
@@ -367,6 +379,10 @@ Some Microsoft certifications require passing a paid exam, while Microsoft Appli
 
 ---
 
+![Cloud Computing Infrastructure, Serverless & Enterprise Architectures](https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80)
+
+---
+
 # 15. Cisco Networking Academy — Networking & Cybersecurity
 
 **Website:** https://www.netacad.com/
@@ -449,6 +465,10 @@ Semrush Academy focuses heavily on SEO, digital marketing and content strategy.
 Class Central currently lists dozens of Semrush courses with free certificates.
 
 **Best for:** SEO professionals, content creators and digital marketers.
+
+---
+
+![Digital Growth, Technical SEO & Career Proof Marketing](https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80)
 
 ---
 
@@ -641,6 +661,10 @@ AWS Skill Builder currently provides more than 1,000 free learning resources cov
 **Important:** Free training does not mean every AWS certification exam is free.
 
 **Best for:** Cloud engineers, developers and DevOps professionals.
+
+---
+
+![GPU Computing, Neural Network Acceleration & Hardware Architecture](https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=1200&q=80)
 
 ---
 
@@ -906,6 +930,10 @@ Beyond those, Analytics Vidhya also maintains a free Data Analyst Learning Path 
 | Claude Academy         | Claude / AI / MCP         | https://academy.claude.com/                            |
 | IBM SkillsBuild        | AI / technology           | https://skillsbuild.org/                               |
 | Analytics Vidhya       | Data Science / AI / ML    | https://www.analyticsvidhya.com/                       |
+
+---
+
+![High-Value Tech Skills, Software Architecture & Career Roadmaps](https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80)
 
 ---
 
@@ -1194,6 +1222,10 @@ For example:
 That creates much stronger evidence than simply listing:
 
 > “Completed 20 online courses.”
+
+---
+
+![Developer Learning Journey, Continuous Growth & Engineering Mastery](https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80)
 
 ---
 

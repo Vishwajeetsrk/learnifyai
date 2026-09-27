@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { StaggerGroup, StaggerItem } from "@/components/Reveal";
+import { getRealHumanAvatar } from "@/lib/real-avatars";
 
 export const Route = createFileRoute("/coaches")({
   head: () => ({
@@ -655,9 +656,7 @@ function CoachesPage() {
                   <div className="flex items-center gap-3">
                     <img
                       src={
-                        coach.full_name?.includes("Alex")
-                          ? "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80"
-                          : `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(coach.full_name)}`
+                        coach.avatar_url || getRealHumanAvatar(coach.full_name)
                       }
                       alt={coach.full_name}
                       className="h-12 w-12 rounded-xl bg-primary/10 border border-primary/20 object-cover"

@@ -23,6 +23,7 @@ import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { getRealHumanAvatar } from "@/lib/real-avatars";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -71,7 +72,7 @@ function CourseCardLearners({ courseId }: { courseId: string }) {
             className="inline-block h-5 w-5 rounded-full ring-2 ring-card bg-muted object-cover"
             src={
               l.avatar_url ||
-              `https://api.dicebear.com/10.x/adventurer/svg?seed=${encodeURIComponent(l.full_name || l.user_id)}`
+              getRealHumanAvatar(l.full_name || l.user_id)
             }
             alt=""
           />

@@ -31,6 +31,7 @@ const HARDCODED_SECTIONS = [
     links: [
       { label: "About", url: "/about" },
       { label: "Careers", url: "/careers" },
+      { label: "Support Us / Sponsor", url: "/support-us" },
       { label: "Contact", url: "/contact" },
       { label: "FAQ", url: "/faq" },
     ],

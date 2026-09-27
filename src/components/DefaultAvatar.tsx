@@ -1,26 +1,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
-const DEFAULT_AVATARS = [
-  "/avatars/avatar-f1.svg",
-  "/avatars/avatar-f2.svg",
-  "/avatars/avatar-f3.svg",
-  "/avatars/avatar-m1.svg",
-  "/avatars/avatar-m2.svg",
-  "/avatars/avatar-m3.svg",
-];
-
-function hashName(name: string): number {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) {
-    h = ((h << 5) - h + name.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h);
-}
+import { getRealHumanAvatar } from "@/lib/real-avatars";
 
 export function getDefaultAvatar(name?: string | null): string {
-  const idx = name ? hashName(name) % DEFAULT_AVATARS.length : 0;
-  return DEFAULT_AVATARS[idx];
+  return getRealHumanAvatar(name);
 }
 
 interface DefaultAvatarProps {

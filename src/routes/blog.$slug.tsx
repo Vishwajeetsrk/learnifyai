@@ -17,6 +17,10 @@ import { FREE_COURSES_GUIDE_POST } from "@/lib/canonical-blog";
 const FALLBACK_POSTS: Record<string, any> = {
   "ultimate-guide-free-courses-certificates-2026": FREE_COURSES_GUIDE_POST,
   "free-courses-certificates-guide-2026": FREE_COURSES_GUIDE_POST,
+  "the-ultimate-guide-to-free-courses-free-certificates-high-value-skills-in-2026": FREE_COURSES_GUIDE_POST,
+  "free-courses-certificates-skills-2026": FREE_COURSES_GUIDE_POST,
+  "guide-free-courses-2026": FREE_COURSES_GUIDE_POST,
+  "free-courses-2026": FREE_COURSES_GUIDE_POST,
   "full-stack-ai-engineer-roadmap-2026": {
     id: "fb-1",
     title: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
