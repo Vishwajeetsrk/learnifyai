@@ -82,7 +82,7 @@ import { cn, getCleanBannerUrl } from "@/lib/utils";
 import { getProfileBorderClass } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import { lessonAiHelper } from "@/lib/lesson-ai.functions";
-import { enrollFree, markCourseStarted, recomputeProgress } from "@/lib/course.functions";
+import { enrollFree, markCourseStarted, recomputeProgress, getCourseWithLessons } from "@/lib/course.functions";
 import { awardXP, getCourseLearners } from "@/lib/gamification.functions";
 import { logDailyUsage } from "@/lib/onboarding.functions";
 
@@ -175,6 +175,8 @@ function CourseDetail() {
   const { tab: initialTab } = Route.useSearch();
   const { user, isAdmin } = useAuth();
   const qc = useQueryClient();
+  const getCourseWithLessonsFn = useServerFn(getCourseWithLessons);
+
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [speed, setSpeed] = useState<number>(1);
   const [enrollCelebration, setEnrollCelebration] = useState(false);
@@ -185,6 +187,15 @@ function CourseDetail() {
   const courseQuery = useQuery({
     queryKey: ["course", slug],
     queryFn: async () => {
+      try {
+        const res = await getCourseWithLessonsFn({ data: { slug } });
+        if (res && res.course) {
+          return res;
+        }
+      } catch (serverErr) {
+        console.warn("[courseQuery] Server fetch fallback to client:", serverErr);
+      }
+
       const { data: course, error } = await supabase
         .from("courses")
         .select("*")
@@ -205,9 +216,15 @@ function CourseDetail() {
 
       if (lessonsResult.error) throw lessonsResult.error;
 
+      const lessons = (lessonsResult.data ?? []).map((l: any) => ({
+        ...l,
+        description: l.description || (l as any).content_md || "",
+        content_md: (l as any).content_md || l.description || "",
+      }));
+
       return {
         course,
-        lessons: lessonsResult.data ?? [],
+        lessons,
         instructorProfile: profileResult.data,
       };
     },
@@ -1334,6 +1351,18 @@ function LessonAiTabs({
     setSpeaking(true);
   };
 
+  const [activeTab, setActiveTab] = useState(initialTab ?? "notes");
+  const [ideCode, setIdeCode] = useState<string | undefined>(undefined);
+  const [ideLang, setIdeLang] = useState<string | undefined>(undefined);
+
+  const lessonContent = (lesson as any).content_md || lesson.description || "";
+
+  const handleRunInIde = (code: string, language?: string) => {
+    setIdeCode(code);
+    if (language) setIdeLang(language.toLowerCase());
+    setActiveTab("playground");
+  };
+
   const run = async (action: "summary" | "exercise" | "doubt") => {
     setBusy(action);
     try {
@@ -1344,7 +1373,7 @@ function LessonAiTabs({
           lessonId: lesson.id,
           courseTitle,
           lessonTitle: lesson.title,
-          lessonDescription: lesson.description ?? "",
+          lessonDescription: lessonContent,
           question: action === "doubt" ? doubtQ : undefined,
         },
       });
@@ -1356,16 +1385,6 @@ function LessonAiTabs({
     } finally {
       setBusy("");
     }
-  };
-
-  const [activeTab, setActiveTab] = useState(initialTab ?? "notes");
-  const [ideCode, setIdeCode] = useState<string | undefined>(undefined);
-  const [ideLang, setIdeLang] = useState<string | undefined>(undefined);
-
-  const handleRunInIde = (code: string, language?: string) => {
-    setIdeCode(code);
-    if (language) setIdeLang(language.toLowerCase());
-    setActiveTab("playground");
   };
 
   return (
@@ -1398,9 +1417,9 @@ function LessonAiTabs({
       </div>
 
       <TabsContent value="notes" className="pt-4 space-y-3">
-        {lesson.description && (
+        {lessonContent && (
           <div className="flex items-center justify-between gap-2 pb-1">
-            <Button variant="outline" size="sm" onClick={() => speak(lesson.description as string)} className="text-xs h-7">
+            <Button variant="outline" size="sm" onClick={() => speak(lessonContent)} className="text-xs h-7">
               {speaking ? <VolumeX className="h-3.5 w-3.5 mr-1" /> : <Volume2 className="h-3.5 w-3.5 mr-1" />}
               {speaking ? "Stop Narration" : "Listen to Notes"}
             </Button>
@@ -1414,9 +1433,9 @@ function LessonAiTabs({
             </Button>
           </div>
         )}
-        {lesson.description ? (
+        {lessonContent ? (
           <InteractiveLessonContent
-            content={lesson.description}
+            content={lessonContent}
             onRunInIde={handleRunInIde}
           />
         ) : (
@@ -1515,21 +1534,12 @@ function LessonAiTabs({
       )}
 
       {hasToolAccess && (
-        <TabsContent value="playground" className="pt-4">
-          <CodePlayground
-            course={{ id: courseId, title: courseTitle, slug: courseSlug }}
-            exerciseText={exercise}
-          />
-        </TabsContent>
-      )}
-
-      {hasToolAccess && (
         <TabsContent value="visual" className="pt-4">
           <VisualLearningPanel
             lessonId={lesson.id}
             courseId={courseId}
             lessonTitle={lesson.title}
-            lessonContent={lesson.description ?? ""}
+            lessonContent={lessonContent}
           />
         </TabsContent>
       )}

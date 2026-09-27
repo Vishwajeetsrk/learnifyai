@@ -4,16 +4,19 @@ import React, { useState, useRef } from "react";
 import {
   Bold,
   Italic,
-  Heading1,
+  Strikethrough,
+  Highlighter,
   Heading2,
   Heading3,
   List,
   ListOrdered,
+  CheckSquare,
   Quote,
   Code2,
   Table,
-  Link2,
+  Link as LinkIcon,
   Image as ImageIcon,
+  Minus,
   HelpCircle,
   BarChart2,
   Lightbulb,
@@ -21,7 +24,7 @@ import {
   Edit3,
   Sparkles,
   Play,
-  Check,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -157,6 +160,26 @@ export function RichLessonEditor({
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7"
+                onClick={() => insertText("~~", "~~", "strikethrough text")}
+                title="Strikethrough"
+              >
+                <Strikethrough className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => insertText("<mark>", "</mark>", "highlighted text")}
+                title="Highlight"
+              >
+                <Highlighter className="h-3.5 w-3.5 text-amber-500" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
                 onClick={() => insertText("`", "`", "code")}
                 title="Inline Code"
               >
@@ -215,10 +238,68 @@ export function RichLessonEditor({
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7"
+                onClick={() => insertText("- [ ] ", "", "Task checklist")}
+                title="Task Checklist"
+              >
+                <CheckSquare className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
                 onClick={() => insertText("> ", "", "Important note")}
                 title="Blockquote"
               >
                 <Quote className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+
+            {/* Insert Media & Links */}
+            <div className="flex items-center gap-0.5 px-1 border-r border-border/50">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => insertText("[", "](https://example.com)", "Link title")}
+                title="Insert Link"
+              >
+                <LinkIcon className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => insertText("![", "](https://images.unsplash.com/...)", "Image description")}
+                title="Insert Image"
+              >
+                <ImageIcon className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => insertSnippet("---")}
+                title="Horizontal Divider"
+              >
+                <Minus className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() =>
+                  insertSnippet(
+                    "<details>\n<summary>Click to view solution & tips</summary>\n\nWrite detailed collapsible hints, step-by-step solutions or references here.\n\n</details>"
+                  )
+                }
+                title="Insert Collapsible Accordion"
+              >
+                <ChevronDown className="h-3.5 w-3.5" />
               </Button>
             </div>
 

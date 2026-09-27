@@ -546,3 +546,55 @@ export const getMarketplaceStats = createServerFn({ method: "GET" }).handler(
   },
 );
 
+/* ─── Public/Student: Get Course With Lessons (Bypasses RLS read barriers) ─── */
+export const getCourseWithLessons = createServerFn({ method: "GET" })
+  .validator((d: unknown) =>
+    z
+      .object({
+        slug: z.string(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+      const { data: course, error: cErr } = await supabaseAdmin
+        .from("courses")
+        .select("*")
+        .eq("slug", data.slug)
+        .single();
+
+      if (cErr || !course) {
+        throw new Error(cErr?.message || "Course not found");
+      }
+
+      const [lessonsResult, profileResult] = await Promise.all([
+        supabaseAdmin
+          .from("lessons")
+          .select("*")
+          .eq("course_id", course.id)
+          .order("order_index", { ascending: true }),
+        course.created_by
+          ? supabaseAdmin.from("profiles").select("*").eq("id", course.created_by).maybeSingle()
+          : Promise.resolve({ data: null }),
+      ]);
+
+      const lessons = (lessonsResult.data ?? []).map((l: any) => ({
+        ...l,
+        description: l.description || l.content_md || "",
+        content_md: l.content_md || l.description || "",
+      }));
+
+      return {
+        course,
+        lessons,
+        instructorProfile: profileResult.data ?? null,
+      };
+    } catch (err: any) {
+      console.error("[getCourseWithLessons] Error:", err);
+      throw new Error(err?.message || "Failed to load course");
+    }
+  });
+
+

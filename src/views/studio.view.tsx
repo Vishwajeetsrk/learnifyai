@@ -1284,7 +1284,9 @@ function LessonForm({
   onSaved: () => void;
 }) {
   const [title, setTitle] = useState(lesson?.title ?? "");
-  const [description, setDescription] = useState(lesson?.description ?? "");
+  const [description, setDescription] = useState(
+    (lesson as any)?.content_md || lesson?.description || "",
+  );
   const [videoUrl, setVideoUrl] = useState(lesson?.video_url ?? "");
   const [duration, setDuration] = useState(lesson?.duration_minutes ?? 5);
   const [orderIndex, setOrderIndex] = useState(lesson?.order_index ?? nextOrder);
@@ -1395,6 +1397,7 @@ function LessonForm({
       course_id: courseId,
       title: title.trim(),
       description: description.trim() || null,
+      content_md: description.trim() || null,
       video_url: videoUrl.trim() || null,
       duration_minutes: Number(duration) || 0,
       order_index: Number(orderIndex) || 0,
