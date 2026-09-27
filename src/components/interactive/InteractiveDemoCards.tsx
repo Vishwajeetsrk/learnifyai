@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 type DemoCard = {
   id: string;
@@ -205,7 +206,7 @@ const DEMOS: DemoCard[] = [
     gradient: "from-pink-500/10 to-pink-600/5",
     badge: { label: "Placement Booster", color: "#EC4899" },
     time: "2 Minutes",
-    route: "/playground/interview" as const,
+    route: "/interview" as const,
     benefits: [
       "AI Interviewer",
       "Voice Simulation",
@@ -1081,6 +1082,33 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
   const { user } = useAuth();
   const [open, setOpen] = useState<string | null>(null);
   const [activityIdx, setActivityIdx] = useState(0);
+  const [actionVideos, setActionVideos] = useState<
+    Record<string, { videoUrl: string; autoplay?: boolean }>
+  >({});
+
+  useEffect(() => {
+    let isMounted = true;
+    supabase
+      .from("site_settings")
+      .select("value")
+      .eq("key", "action_demo_videos")
+      .maybeSingle()
+      .then((res: any) => {
+        const data = res?.data;
+        if (!isMounted || !data?.value) return;
+        try {
+          const parsed = typeof data.value === "string" ? JSON.parse(data.value) : data.value;
+          if (parsed && typeof parsed === "object") {
+            setActionVideos(parsed);
+          }
+        } catch (e) {
+          console.error("Error parsing action_demo_videos", e);
+        }
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -1145,6 +1173,7 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
         {DEMOS.map((demo, i) => {
           const isOpen = open === demo.id;
           const Icon = demo.icon;
+          const toolVideo = actionVideos[demo.id];
           return (
             <motion.div
               key={demo.id}
@@ -1156,14 +1185,29 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
               transition={{ duration: 0.4, delay: i * 0.06 }}
               whileHover={{ y: -4 }}
             >
-              {/* Screenshot area */}
+              {/* Screenshot / Video area */}
               <div
                 className={cn(
                   "relative aspect-video bg-gradient-to-br flex items-center justify-center overflow-hidden",
                   demo.gradient,
                 )}
               >
-                {demo.id === "certificate" ? (
+                {toolVideo?.videoUrl ? (
+                  <div className="relative w-full h-full bg-black group/video">
+                    <video
+                      src={toolVideo.videoUrl}
+                      autoPlay={toolVideo.autoplay ?? true}
+                      loop
+                      muted
+                      playsInline
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur text-[10px] font-semibold text-white border border-white/15">
+                      <Play className="w-2.5 h-2.5 fill-primary text-primary" />
+                      DEMO VIDEO
+                    </div>
+                  </div>
+                ) : demo.id === "certificate" ? (
                   <img
                     src="/certificate%200.png"
                     alt="Certificate"
@@ -1178,13 +1222,13 @@ export function InteractiveDemoCards({ className }: InteractiveDemoCardsProps) {
                   </div>
                 )}
                 <div
-                  className="absolute top-2 right-2 text-[9px] font-medium px-2 py-0.5 rounded-full text-white shadow-sm"
+                  className="absolute top-2 right-2 text-[9px] font-medium px-2 py-0.5 rounded-full text-white shadow-sm z-10"
                   style={{ background: demo.color }}
                 >
                   {demo.time}
                 </div>
                 {/* Preview button - always visible on mobile, hover on desktop */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all duration-300 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center z-10">
                   <div
                     className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg cursor-pointer opacity-80 hover:opacity-100 transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100"
                     style={{ background: demo.color }}

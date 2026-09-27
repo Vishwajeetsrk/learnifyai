@@ -60,12 +60,42 @@ function InterviewPage() {
   return (
     <AppShell>
       <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Navigation Switcher Banner */}
+        <div className="mb-6 p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+              <Award className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-foreground">
+                Looking for Conversational AI Mock Interviews?
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Practice voice & video questions with our Human AI Interviewer Panel at Career Studio.
+              </p>
+            </div>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-xs border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 shrink-0 cursor-pointer"
+            onClick={() => (window.location.href = "/career-studio?tab=interview")}
+          >
+            Go to AI Mock Interview <ChevronRight className="h-3.5 w-3.5 ml-1" />
+          </Button>
+        </div>
+
         <div className="flex items-center gap-3 mb-6">
           <Zap className="h-6 w-6 text-primary" />
           <div>
-            <h1 className="font-display text-2xl font-semibold">Interview Mode</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-display text-2xl font-semibold">Coding Assessment (OA)</h1>
+              <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">
+                IDE & Test Cases
+              </Badge>
+            </div>
             <p className="text-sm text-muted-foreground">
-              Timed coding assessments with test cases and scoring.
+              Timed, hands-on programming assessments with automated test case evaluation and scoring.
             </p>
           </div>
         </div>

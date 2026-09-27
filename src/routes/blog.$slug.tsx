@@ -13,6 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { BlogPostContent } from "@/components/blog/BlogPostContent";
 import { FREE_COURSES_GUIDE_POST } from "@/lib/canonical-blog";
+import { BLOG_POSTS_DATA } from "@/lib/blog-posts-data";
+import { Clock, ShieldCheck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const FALLBACK_POSTS: Record<string, any> = {
   "ultimate-guide-free-courses-certificates-2026": FREE_COURSES_GUIDE_POST,
@@ -21,86 +24,7 @@ const FALLBACK_POSTS: Record<string, any> = {
   "free-courses-certificates-skills-2026": FREE_COURSES_GUIDE_POST,
   "guide-free-courses-2026": FREE_COURSES_GUIDE_POST,
   "free-courses-2026": FREE_COURSES_GUIDE_POST,
-  "full-stack-ai-engineer-roadmap-2026": {
-    id: "fb-1",
-    title: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
-    slug: "full-stack-ai-engineer-roadmap-2026",
-    excerpt:
-      "Master TanStack Start, React 19, Supabase, LangChain, and Vercel AI SDK to build production-grade AI SaaS applications.",
-    featured_image:
-      "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
-    published_at: "2026-07-20T10:00:00Z",
-    created_at: "2026-07-20T10:00:00Z",
-    profiles: { full_name: "Learnify AI Editorial Team" },
-    content: `
-      <h2>The Shift in Modern Software Engineering</h2>
-      <p>The role of the software engineer is evolving rapidly. In 2026, Full-Stack AI Engineering combines traditional frontend and backend architecture with autonomous LLM agents, vector database RAG pipelines, and serverless edge functions.</p>
-      
-      <h2>Core Tech Stack for 2026</h2>
-      <ul>
-        <li><strong>Frontend Framework:</strong> TanStack Start + React 19 for type-safe SSR routing and server actions.</li>
-        <li><strong>Database & Auth:</strong> Supabase (PostgreSQL, Row Level Security, Realtime, Storage).</li>
-        <li><strong>AI SDKs & Orchestration:</strong> Vercel AI SDK, LangChain, Groq Llama-3 70B, and Google Gemini API.</li>
-        <li><strong>Payments & Invoicing:</strong> Cashfree Payment Gateway with 18% GST tax invoicing (SAC 998431).</li>
-      </ul>
-
-      <h2>Step 1: Master Type-Safe Full-Stack React</h2>
-      <p>Start by building responsive web applications using Tailwind CSS v4, Lucide SVG icons, and TanStack Start server functions. Wrap all server payloads in structured objects for end-to-end type safety.</p>
-
-      <h2>Step 2: Implement Vector RAG & Autonomous Agents</h2>
-      <p>Store embeddings in Supabase <code>pgvector</code> to allow your AI agents to query documentation, codebases, and custom user data contextually in real time.</p>
-    `,
-  },
-  "autonomous-ai-agents-langgraph-python": {
-    id: "fb-2",
-    title: "Building Production Autonomous AI Agents with LangGraph & Python",
-    slug: "autonomous-ai-agents-langgraph-python",
-    excerpt:
-      "Step-by-step guide to stateful multi-agent systems, human-in-the-loop workflows, and error handling in Python.",
-    featured_image:
-      "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80",
-    published_at: "2026-07-18T10:00:00Z",
-    created_at: "2026-07-18T10:00:00Z",
-    profiles: { full_name: "Alex Rivera, Lead Architect" },
-    content: `
-      <h2>Why LangGraph for Multi-Agent Systems?</h2>
-      <p>Autonomous agents are no longer just single-prompt scripts. Modern applications require stateful multi-agent graphs where specialized agents collaborate, review code, and trigger human-in-the-loop approvals.</p>
-
-      <h2>Key Architectural Patterns</h2>
-      <ul>
-        <li><strong>State Graphs:</strong> Pass typed state dictionaries between node agents.</li>
-        <li><strong>Human-in-the-Loop Interruption:</strong> Pause graph execution before high-risk database writes or payment payouts.</li>
-        <li><strong>Persistence Checkpoints:</strong> Save graph state automatically in PostgreSQL for fault-tolerant execution.</li>
-      </ul>
-
-      <h2>Production Best Practices</h2>
-      <p>Always enforce strict timeout limits (5000ms max), rate limit AI prompts per user IP, and fallback to fast open-source models like Groq Llama-3 when primary APIs encounter rate limits.</p>
-    `,
-  },
-  "cashfree-vs-razorpay-india-saas": {
-    id: "fb-3",
-    title: "Comparing Cashfree vs Razorpay for Indian EdTech & SaaS Applications",
-    slug: "cashfree-vs-razorpay-india-saas",
-    excerpt:
-      "A deep dive into transaction fees, GST invoicing compliance, subscription APIs, and merchant domain whitelisting in India.",
-    featured_image:
-      "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
-    published_at: "2026-07-15T10:00:00Z",
-    created_at: "2026-07-15T10:00:00Z",
-    profiles: { full_name: "Learnify Finance & Legal Team" },
-    content: `
-      <h2>Choosing the Right Payment Gateway in India</h2>
-      <p>Selecting a payment gateway for Indian SaaS and EdTech startups requires evaluating transaction fees, GST tax invoicing compliance, subscription auto-debit APIs, and domain approval speed.</p>
-
-      <h2>Key Comparison Matrix</h2>
-      <ul>
-        <li><strong>Transaction Fees:</strong> Cashfree offers competitive 1.9% rates for UPI and Credit/Debit cards vs Razorpay's 2.0%.</li>
-        <li><strong>GST Invoicing:</strong> Cashfree provides native SAC 998431 tax breakdown (CGST 9% + SGST 9% or IGST 18%) on all payment receipts.</li>
-        <li><strong>Domain Whitelisting:</strong> Cashfree features streamlined domain verification for custom '.in' and '.com' domains.</li>
-        <li><strong>RBI e-Mandates:</strong> Both support recurring subscription mandates for monthly EdTech plans.</li>
-      </ul>
-    `,
-  },
+  ...BLOG_POSTS_DATA,
 };
 
 export const Route = createFileRoute("/blog/$slug")({
@@ -361,26 +285,83 @@ function BlogPostPage() {
             <ArrowLeft className="h-4 w-4" /> Back to blog
           </Link>
 
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">{post.title}</h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight mb-5 leading-tight font-display">
+            {post.title}
+          </h1>
 
-          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-8">
-            <span className="flex items-center gap-1">
-              <Calendar className="h-3.5 w-3.5" />
-              {format(new Date(post.published_at || post.created_at), "PPP")}
-            </span>
-            {(post as any).profiles?.full_name && (
-              <span className="flex items-center gap-1">
-                <User className="h-3.5 w-3.5" />
-                {(post as any).profiles.full_name}
+          {/* Author Header Bar */}
+          <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground mb-8 pb-6 border-b border-border/60">
+            <div className="flex items-center gap-3">
+              <img
+                src={post.author_avatar || "/avatars/Vishwajeet.jpeg"}
+                alt="Vishwajeet"
+                className="h-12 w-12 rounded-full object-cover ring-2 ring-primary/30 shadow-md"
+              />
+              <div>
+                <div className="font-bold text-foreground text-sm flex items-center gap-2">
+                  <span>{post.author_name || (post as any).profiles?.full_name || "Vishwajeet"}</span>
+                  <Badge variant="secondary" className="text-[10px] py-0 px-2 bg-primary/10 text-primary border-primary/20 font-semibold">
+                    Author
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {post.author_role || "Founder & AI Architect · Learnify AI"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5 text-primary" />
+                {format(new Date(post.published_at || post.created_at), "PPP")}
               </span>
-            )}
+              <span>·</span>
+              <span className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-primary" />
+                {post.reading_time || 12} min read
+              </span>
+            </div>
           </div>
 
           {post.excerpt && (
-            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">{post.excerpt}</p>
+            <p className="text-lg text-muted-foreground mb-8 leading-relaxed font-medium">{post.excerpt}</p>
           )}
 
           <BlogPostContent content={post.content} />
+
+          {/* About the Author Card */}
+          <div className="my-12 p-6 rounded-2xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/5 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5">
+            <img
+              src="/avatars/Vishwajeet.jpeg"
+              alt="Vishwajeet"
+              className="h-20 w-20 rounded-2xl object-cover ring-2 ring-primary/30 shadow-md shrink-0"
+            />
+            <div className="text-center sm:text-left space-y-1.5">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                <h3 className="font-display font-bold text-base text-foreground">Vishwajeet</h3>
+                <Badge variant="outline" className="text-[10px] font-semibold text-primary border-primary/30">
+                  Founder &amp; AI Architect
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Building Learnify AI to democratize hands-on software masteries, AI agent engineering, and verifiable career growth for millions of learners across India and globally.
+              </p>
+              <div className="pt-2 flex items-center justify-center sm:justify-start gap-3 text-xs">
+                <a
+                  href="https://github.com/Vishwajeetsrk/learnifyai"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  GitHub @Vishwajeetsrk
+                </a>
+                <span className="text-muted-foreground">·</span>
+                <Link to="/courses" className="font-medium text-muted-foreground hover:text-foreground">
+                  Explore Masteries
+                </Link>
+              </div>
+            </div>
+          </div>
 
           <div className="mt-12 pt-8 border-t flex items-center gap-6">
             <button

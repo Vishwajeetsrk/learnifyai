@@ -15,6 +15,7 @@ import {
   Settings,
   X,
   Eye,
+  EyeOff,
   Award,
   HelpCircle,
   Send,
@@ -1681,6 +1682,20 @@ function PricingManager() {
     }
   };
 
+  const togglePlanActive = async (p: PlanRow) => {
+    const nextActive = !p.active;
+    try {
+      await doSavePlan({ data: { plan: { ...p, active: nextActive } } });
+      toast.success(
+        nextActive ? `"${p.name}" is now visible to users` : `"${p.name}" is now hidden`,
+      );
+      qc.invalidateQueries({ queryKey: ["admin-plans"] });
+      qc.invalidateQueries({ queryKey: ["pricing-plans"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to toggle plan visibility");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end gap-2">
@@ -1718,8 +1733,8 @@ function PricingManager() {
                       </span>
                     )}
                     {!p.active && (
-                      <span className="text-xs rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
-                        Hidden
+                      <span className="text-xs rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 px-2 py-0.5 font-medium">
+                        Hidden from Users
                       </span>
                     )}
                   </div>
@@ -1740,7 +1755,29 @@ function PricingManager() {
                         : ` · No recurring billing`}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 shrink-0 w-full sm:w-auto">
+                <div className="grid grid-cols-3 sm:flex sm:flex-row gap-2 shrink-0 w-full sm:w-auto">
+                  <Button
+                    size="sm"
+                    variant={p.active ? "outline" : "secondary"}
+                    className={cn(
+                      "w-full cursor-pointer",
+                      !p.active && "border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20",
+                    )}
+                    onClick={() => togglePlanActive(p)}
+                    title={p.active ? "Hide Plan from Pricing Page" : "Unhide Plan (Make Visible)"}
+                  >
+                    {p.active ? (
+                      <>
+                        <EyeOff className="h-3.5 w-3.5 sm:mr-0 mr-1 text-muted-foreground" />
+                        <span className="sm:hidden">Hide</span>
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-3.5 w-3.5 sm:mr-0 mr-1" />
+                        <span className="sm:hidden">Unhide</span>
+                      </>
+                    )}
+                  </Button>
                   {!p.cashfree_plan_id && p.price_inr > 0 && p.interval && (
                     <Button
                       size="sm"
@@ -1777,16 +1814,16 @@ function PricingManager() {
                       setOpen(true);
                     }}
                   >
-                    <Pencil className="h-3.5 w-3.5 sm:mr-0 mr-2" />{" "}
+                    <Pencil className="h-3.5 w-3.5 sm:mr-0 mr-1" />{" "}
                     <span className="sm:hidden">Edit</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    className="w-full"
+                    className="w-full text-red-500 hover:text-red-600 hover:bg-red-500/10 border-red-500/20"
                     onClick={() => setDeleteId(p.id)}
                   >
-                    <Trash2 className="h-3.5 w-3.5 sm:mr-0 mr-2" />{" "}
+                    <Trash2 className="h-3.5 w-3.5 sm:mr-0 mr-1" />{" "}
                     <span className="sm:hidden">Delete</span>
                   </Button>
                 </div>
@@ -2131,11 +2168,27 @@ function DemoVideoManager() {
   const [videoUrl, setVideoUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [activeSection, setActiveSection] = useState<"tour" | "tools">("tools");
+  const [selectedToolId, setSelectedToolId] = useState("ai-tutor");
+  const [actionVideos, setActionVideos] = useState<Record<string, { videoUrl: string; autoplay: boolean }>>({});
+  const [toolVideoUrl, setToolVideoUrl] = useState("");
+  const [toolAutoplay, setToolAutoplay] = useState(true);
+
   const doQuery = useServerFn(adminContentQuery);
   const doUpsert = useServerFn(adminContentUpsert);
   const doAdminAction = useServerFn(adminContentAction);
 
-  const { data, isLoading } = useQuery({
+  const ACTION_TOOLS = [
+    { id: "ai-tutor", name: "AI Tutor", description: "Personal AI teacher, notes & study help" },
+    { id: "resume", name: "Resume Builder", description: "ATS-friendly resume creation in minutes" },
+    { id: "ats", name: "ATS Checker", description: "Resume scanner and scoring feedback" },
+    { id: "mock-interview", name: "Mock Interview", description: "AI voice and video interview prep" },
+    { id: "roadmap", name: "Career Roadmap", description: "Step-by-step career path milestones" },
+    { id: "certificate", name: "Certificate Generator", description: "Verified credentials with QR codes" },
+  ];
+
+  // Tour Video Query
+  const { data: tourData, isLoading: isTourLoading } = useQuery({
     queryKey: ["admin-demo-video"],
     queryFn: async () => {
       const result = await doQuery({
@@ -2150,11 +2203,42 @@ function DemoVideoManager() {
     },
   });
 
-  useEffect(() => {
-    if (data !== undefined) setVideoUrl(data);
-  }, [data]);
+  // Action Tools Video Query
+  const { data: actionVideosData } = useQuery({
+    queryKey: ["admin-action-demo-videos"],
+    queryFn: async () => {
+      const result = await doQuery({
+        data: {
+          table: "site_settings",
+          columns: "value",
+          eqFilter: { column: "key", value: "action_demo_videos" },
+          single: true,
+        },
+      });
+      const val = (result as any)?.value;
+      if (!val) return {};
+      try {
+        return typeof val === "string" ? JSON.parse(val) : val;
+      } catch {
+        return {};
+      }
+    },
+  });
 
-  const save = async () => {
+  useEffect(() => {
+    if (tourData !== undefined) setVideoUrl(tourData);
+  }, [tourData]);
+
+  useEffect(() => {
+    if (actionVideosData) {
+      setActionVideos(actionVideosData);
+      const cur = actionVideosData[selectedToolId];
+      setToolVideoUrl(cur?.videoUrl || "");
+      setToolAutoplay(cur?.autoplay ?? true);
+    }
+  }, [actionVideosData, selectedToolId]);
+
+  const saveTourVideo = async () => {
     setSaving(true);
     try {
       await doUpsert({
@@ -2164,10 +2248,8 @@ function DemoVideoManager() {
           onConflict: "key",
         },
       });
-      toast.success("Demo video saved");
+      toast.success("Tour demo video saved");
       qc.invalidateQueries({ queryKey: ["admin-demo-video"] });
-      qc.invalidateQueries({ queryKey: ["admin-site-settings"] });
-      qc.invalidateQueries({ queryKey: ["site-settings"] });
     } catch (e: any) {
       toast.error(e?.message || "Save failed");
     } finally {
@@ -2175,18 +2257,16 @@ function DemoVideoManager() {
     }
   };
 
-  const remove = async () => {
-    if (!window.confirm("Remove the demo video?")) return;
+  const removeTourVideo = async () => {
+    if (!window.confirm("Remove the tour video?")) return;
     setSaving(true);
     try {
       await doAdminAction({
         data: { table: "site_settings", action: "delete", id: "tour_video_url", matchKey: "key" },
       });
       setVideoUrl("");
-      toast.success("Demo video removed");
+      toast.success("Tour demo video removed");
       qc.invalidateQueries({ queryKey: ["admin-demo-video"] });
-      qc.invalidateQueries({ queryKey: ["admin-site-settings"] });
-      qc.invalidateQueries({ queryKey: ["site-settings"] });
     } catch (e: any) {
       toast.error(e?.message || "Delete failed");
     } finally {
@@ -2194,7 +2274,59 @@ function DemoVideoManager() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const saveToolVideo = async () => {
+    setSaving(true);
+    try {
+      const updated = {
+        ...actionVideos,
+        [selectedToolId]: {
+          videoUrl: toolVideoUrl.trim(),
+          autoplay: toolAutoplay,
+        },
+      };
+      await doUpsert({
+        data: {
+          table: "site_settings",
+          data: { key: "action_demo_videos", value: JSON.stringify(updated) },
+          onConflict: "key",
+        },
+      });
+      setActionVideos(updated);
+      toast.success(`Video saved for ${ACTION_TOOLS.find((t) => t.id === selectedToolId)?.name}`);
+      qc.invalidateQueries({ queryKey: ["admin-action-demo-videos"] });
+      qc.invalidateQueries({ queryKey: ["site-settings-action-demo-videos"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const removeToolVideo = async () => {
+    setSaving(true);
+    try {
+      const updated = { ...actionVideos };
+      delete updated[selectedToolId];
+      await doUpsert({
+        data: {
+          table: "site_settings",
+          data: { key: "action_demo_videos", value: JSON.stringify(updated) },
+          onConflict: "key",
+        },
+      });
+      setActionVideos(updated);
+      setToolVideoUrl("");
+      toast.success("Demo video removed. Card reverted to interactive demo.");
+      qc.invalidateQueries({ queryKey: ["admin-action-demo-videos"] });
+      qc.invalidateQueries({ queryKey: ["site-settings-action-demo-videos"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Remove failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToolVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("video/")) return toast.error("Please select a video file");
@@ -2202,14 +2334,14 @@ function DemoVideoManager() {
     setUploading(true);
     try {
       const ext = file.name.split(".").pop() || "mp4";
-      const path = `demo-videos/tour-${Date.now()}.${ext}`;
+      const path = `demo-videos/${selectedToolId}-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("media")
         .upload(path, file, { contentType: file.type });
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("media").getPublicUrl(path);
-      setVideoUrl(urlData.publicUrl);
-      toast.success("Video uploaded! Click Save to apply.");
+      setToolVideoUrl(urlData.publicUrl);
+      toast.success("Video uploaded! Click 'Save Tool Video' to apply.");
     } catch (e: any) {
       toast.error(e?.message || "Upload failed");
     } finally {
@@ -2217,98 +2349,227 @@ function DemoVideoManager() {
     }
   };
 
-  if (isLoading)
-    return (
-      <div className="flex justify-center py-10">
-        <Loader2 className="h-5 w-5 animate-spin" />
-      </div>
-    );
-
-  const isYouTube = videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be");
-  const isMP4 = videoUrl.endsWith(".mp4") || videoUrl.includes("media/storage");
+  const currentTool = ACTION_TOOLS.find((t) => t.id === selectedToolId) || ACTION_TOOLS[0];
 
   return (
-    <div className="space-y-5 max-w-2xl">
-      <div className="rounded-xl border border-border/60 bg-card p-5 space-y-4">
-        <div>
-          <h3 className="font-semibold text-lg">Demo / Tour Video</h3>
-          <p className="text-sm text-muted-foreground">
-            This video plays in the "Watch Demo" modal on the homepage. Supports YouTube embeds or
-            direct MP4 URLs.
-          </p>
-        </div>
+    <div className="space-y-6 max-w-3xl">
+      {/* Sub-navigation */}
+      <div className="flex gap-2 border-b border-border/60 pb-3">
+        <Button
+          size="sm"
+          variant={activeSection === "tools" ? "default" : "outline"}
+          onClick={() => setActiveSection("tools")}
+          className="cursor-pointer text-xs"
+        >
+          See Learnify AI In Action (6 Tools)
+        </Button>
+        <Button
+          size="sm"
+          variant={activeSection === "tour" ? "default" : "outline"}
+          onClick={() => setActiveSection("tour")}
+          className="cursor-pointer text-xs"
+        >
+          Global Platform Tour Video
+        </Button>
+      </div>
 
-        {/* Current video preview */}
-        {videoUrl && (
-          <div className="rounded-lg overflow-hidden border bg-black aspect-video">
-            {isYouTube ? (
-              <iframe
-                src={videoUrl.replace("watch?v=", "embed/")}
-                className="w-full h-full"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-              />
-            ) : (
-              <video src={videoUrl} controls className="w-full h-full object-contain" />
-            )}
+      {activeSection === "tools" ? (
+        <div className="rounded-xl border border-border/60 bg-card p-5 space-y-5">
+          <div>
+            <h3 className="font-semibold text-lg">"See Learnify AI In Action" Video Demos</h3>
+            <p className="text-sm text-muted-foreground">
+              Manage autoplay demo videos for each of the 6 core product showcases. Videos autoplay
+              silently on the landing page with interactive click previews.
+            </p>
           </div>
-        )}
 
-        {/* URL input */}
-        <div className="space-y-2">
-          <Label>Video URL</Label>
-          <div className="flex gap-2">
+          {/* Tool selector pills */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {ACTION_TOOLS.map((t) => {
+              const isSelected = selectedToolId === t.id;
+              const hasVideo = !!actionVideos[t.id]?.videoUrl;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedToolId(t.id);
+                    const cfg = actionVideos[t.id];
+                    setToolVideoUrl(cfg?.videoUrl || "");
+                    setToolAutoplay(cfg?.autoplay ?? true);
+                  }}
+                  className={cn(
+                    "p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between",
+                    isSelected
+                      ? "border-primary bg-primary/5 ring-1 ring-primary shadow-xs"
+                      : "border-border/80 hover:bg-muted/40",
+                  )}
+                >
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span className="font-bold text-xs truncate">{t.name}</span>
+                    {hasVideo ? (
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Video Active" />
+                    ) : (
+                      <span className="text-[10px] text-muted-foreground">Default</span>
+                    )}
+                  </div>
+                  <span className="text-[10px] text-muted-foreground line-clamp-1">
+                    {t.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Tool Editor */}
+          <div className="border border-border/80 rounded-xl p-4 bg-muted/20 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-bold text-sm text-foreground">{currentTool.name} Demo Video</h4>
+                <p className="text-xs text-muted-foreground">{currentTool.description}</p>
+              </div>
+              {actionVideos[selectedToolId]?.videoUrl && (
+                <Badge variant="outline" className="text-emerald-500 bg-emerald-500/10 border-emerald-500/30 text-xs">
+                  Video Active
+                </Badge>
+              )}
+            </div>
+
+            {/* Video preview */}
+            {toolVideoUrl && (
+              <div className="rounded-lg overflow-hidden border bg-black aspect-video max-h-60 mx-auto">
+                <video
+                  src={toolVideoUrl}
+                  controls
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
+
+            {/* URL input */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Video URL (MP4 / WebM)</Label>
+              <Input
+                value={toolVideoUrl}
+                onChange={(e) => setToolVideoUrl(e.target.value)}
+                placeholder="https://.../demo.mp4"
+                className="text-xs"
+              />
+            </div>
+
+            {/* File upload */}
+            <div className="flex items-center gap-3">
+              <input
+                type="file"
+                accept="video/*"
+                onChange={handleToolVideoUpload}
+                className="hidden"
+                id="action-tool-video-upload"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById("action-tool-video-upload")?.click()}
+                disabled={uploading}
+                className="text-xs cursor-pointer"
+              >
+                {uploading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                ) : (
+                  <Upload className="h-3.5 w-3.5 mr-1.5" />
+                )}
+                {uploading ? "Uploading..." : "Upload MP4 Video"}
+              </Button>
+              <span className="text-[11px] text-muted-foreground">Max 50MB</span>
+            </div>
+
+            {/* Autoplay toggle */}
+            <div className="flex items-center justify-between pt-2 border-t border-border/50">
+              <div>
+                <Label className="text-xs font-semibold cursor-pointer">Autoplay on Homepage</Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Silently loops in the card on landing page
+                </p>
+              </div>
+              <Switch checked={toolAutoplay} onCheckedChange={setToolAutoplay} />
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-2 pt-2">
+              <Button
+                size="sm"
+                onClick={saveToolVideo}
+                disabled={saving || !toolVideoUrl.trim()}
+                className="text-xs cursor-pointer"
+              >
+                {saving && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
+                Save Tool Video
+              </Button>
+              {actionVideos[selectedToolId]?.videoUrl && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={removeToolVideo}
+                  disabled={saving}
+                  className="text-xs text-red-500 hover:text-red-600 border-red-500/30 cursor-pointer"
+                >
+                  <Trash2 className="h-3.5 w-3.5 mr-1" />
+                  Remove Video
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Global Platform Tour Video */
+        <div className="rounded-xl border border-border/60 bg-card p-5 space-y-4">
+          <div>
+            <h3 className="font-semibold text-lg">Global Platform Tour Video</h3>
+            <p className="text-sm text-muted-foreground">
+              This video plays in the "Watch Demo" modal on the homepage. Supports YouTube embeds or
+              direct MP4 URLs.
+            </p>
+          </div>
+
+          {videoUrl && (
+            <div className="rounded-lg overflow-hidden border bg-black aspect-video max-h-60 mx-auto">
+              {videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be") ? (
+                <iframe
+                  src={videoUrl.replace("watch?v=", "embed/")}
+                  className="w-full h-full"
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                />
+              ) : (
+                <video src={videoUrl} controls className="w-full h-full object-contain" />
+              )}
+            </div>
+          )}
+
+          <div className="space-y-1.5">
+            <Label className="text-xs">Video URL</Label>
             <Input
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=... or https://example.com/video.mp4"
-              className="flex-1"
+              className="text-xs"
             />
           </div>
-        </div>
 
-        {/* File upload */}
-        <div className="space-y-2">
-          <Label>Or upload a video file</Label>
-          <div className="flex items-center gap-2">
-            <input
-              type="file"
-              accept="video/*"
-              onChange={handleFileUpload}
-              className="hidden"
-              id="demo-video-upload"
-            />
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => document.getElementById("demo-video-upload")?.click()}
-              disabled={uploading}
-            >
-              {uploading ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Upload className="h-4 w-4 mr-2" />
-              )}
-              {uploading ? "Uploading..." : "Choose Video"}
+          <div className="flex gap-2 pt-2">
+            <Button size="sm" onClick={saveTourVideo} disabled={saving || !videoUrl.trim()}>
+              {saving && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
+              Save Tour Video
             </Button>
-            <span className="text-xs text-muted-foreground">Max 50MB · MP4, WebM</span>
+            {videoUrl && (
+              <Button size="sm" variant="outline" onClick={removeTourVideo} disabled={saving}>
+                <Trash2 className="h-3.5 w-3.5 mr-1" />
+                Remove
+              </Button>
+            )}
           </div>
         </div>
-
-        {/* Actions */}
-        <div className="flex gap-2 pt-2">
-          <Button onClick={save} disabled={saving || !videoUrl.trim()}>
-            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Save Video
-          </Button>
-          {videoUrl && (
-            <Button variant="outline" onClick={remove} disabled={saving}>
-              <Trash2 className="h-4 w-4 mr-2" />
-              Remove
-            </Button>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

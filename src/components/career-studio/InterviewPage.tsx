@@ -42,7 +42,6 @@ import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { generateInterviewQuestion, evaluateInterviewAnswer } from "@/lib/resume.functions";
-import { ThreeAvatarCanvas } from "@/components/career-studio/ThreeAvatarCanvas";
 import { Link } from "@tanstack/react-router";
 
 const JOB_ROLES = [
@@ -164,163 +163,179 @@ const DEFAULT_PRESET: Question = {
   followUp: "How do cross-platform frameworks impact this choice?",
 };
 
-/* ── Interactive SVG Talking Avatar ── */
-function SVGAvatar({ viseme, avatarModel }: { viseme: string; avatarModel: string }) {
-  const isSarah = avatarModel === "sarah";
-  const name = isSarah ? "Sarah Jenkins" : "Alex Rivera";
-  const role = isSarah ? "Senior Engineering Interviewer" : "Technical Recruitment Lead";
+export interface HumanInterviewer {
+  id: "priya" | "vikram" | "anjali" | "rishabh";
+  name: string;
+  role: string;
+  company: string;
+  avatarUrl: string;
+  gender: "female" | "male";
+  bio: string;
+  badge: string;
+}
 
-  const VISEMES: Record<string, string> = {
-    X: "M45 56 Q50 59 55 56", // closed smile
-    A: "M44 56 Q50 61 56 56 Q50 58 44 56 Z", // slightly open
-    B: "M43 56 Q50 63 57 56 Q50 57 43 56 Z", // more open
-    C: "M44 56 Q50 65 56 56 Q50 59 44 56 Z", // wide open vertical
-    D: "M42 56 Q50 68 58 56 Q50 58 42 56 Z", // very wide open
-    E: "M45 55 Q50 58 55 55 Q50 61 45 55 Z", // wide horizontal narrow vertical
-    O: "M46 56 Q50 62 54 56 Q50 51 46 56 Z", // rounded circle
-  };
+export const HUMAN_INTERVIEWERS: HumanInterviewer[] = [
+  {
+    id: "priya",
+    name: "Priya Kapoor",
+    role: "Principal AI & Systems Architect",
+    company: "Ex-Google / Cloud AI",
+    avatarUrl: "/avatars/Priya-Kapoor.png",
+    gender: "female",
+    bio: "Evaluates architectural trade-offs, system scalability, and core algorithmic precision.",
+    badge: "Staff Architect",
+  },
+  {
+    id: "vikram",
+    name: "Vikram Singh",
+    role: "Director of Engineering",
+    company: "Ex-Amazon / Web Services",
+    avatarUrl: "/avatars/Vikram-Singh.png",
+    gender: "male",
+    bio: "Focuses on high-scale backend design, production resilience, and leadership maturity.",
+    badge: "Director",
+  },
+  {
+    id: "anjali",
+    name: "Anjali Verma",
+    role: "Lead Technical Hiring Manager",
+    company: "Ex-Meta / Tech Recruiting",
+    avatarUrl: "/avatars/Anjali-Verma.png",
+    gender: "female",
+    bio: "Specializes in behavioral assessments, team leadership, and the STAR framework.",
+    badge: "Hiring Lead",
+  },
+  {
+    id: "rishabh",
+    name: "Rishabh Sharma",
+    role: "Staff Software Engineer",
+    company: "Ex-Microsoft / Azure",
+    avatarUrl: "/avatars/Rishabh-Sharma.png",
+    gender: "male",
+    bio: "Deep-dives into distributed systems, data structures, concurrency, and debugging.",
+    badge: "Staff Engineer",
+  },
+];
 
+/* ── Realistic Human AI Interviewer Video Tile ── */
+function HumanInterviewerDisplay({
+  interviewer,
+  aiSpeaking,
+  evaluating,
+  isRecording,
+}: {
+  interviewer: HumanInterviewer;
+  aiSpeaking: boolean;
+  evaluating: boolean;
+  isRecording: boolean;
+}) {
   return (
-    <div className="flex flex-col items-center justify-center p-4">
-      <svg
-        className="w-24 h-24 drop-shadow-xl"
-        viewBox="0 0 100 100"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Background Circle */}
-        <circle cx="50" cy="50" r="48" fill={isSarah ? "url(#sarah-grad)" : "url(#alex-grad)"} />
-
-        {/* Neck */}
-        <rect x="46" y="65" width="8" height="12" fill="#FDBA74" rx="2" />
-
-        {/* Head/Face */}
-        <path
-          d="M50 25 C36 25 33 36 33 48 C33 60 38 70 50 70 C62 70 67 60 67 48 C67 36 64 25 50 25 Z"
-          fill="#FDBA74"
-        />
-
-        {/* Hair */}
-        {isSarah ? (
-          /* Female/Sarah Hair Style */
-          <>
-            <path
-              d="M50 22 C34 22 30 30 30 45 C35 44 40 36 50 36 C60 36 65 44 70 45 C70 30 66 22 50 22 Z"
-              fill="#451a03"
+    <div className="relative w-full h-full min-h-[260px] sm:min-h-[290px] rounded-2xl overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-black border border-slate-800 flex flex-col justify-between p-4 shadow-xl">
+      {/* Live Conference Header */}
+      <div className="w-full flex items-center justify-between z-10">
+        <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-700/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-slate-200 shadow-sm">
+          <span className="relative flex h-2 w-2">
+            <span
+              className={cn(
+                "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+                aiSpeaking ? "bg-emerald-400" : "bg-indigo-400",
+              )}
             />
-            <path d="M30 40 C30 55 32 64 35 66 C35 50 33 45 33 40 Z" fill="#451a03" />
-            <path d="M70 40 C70 55 68 64 65 66 C65 50 67 45 67 40 Z" fill="#451a03" />
-          </>
-        ) : (
-          /* Male/Alex Hair Style */
-          <path
-            d="M50 21 C36 21 34 26 34 32 C38 32 44 26 50 28 C56 26 62 32 66 32 C66 26 64 21 50 21 Z"
-            fill="#1e293b"
-          />
+            <span
+              className={cn(
+                "relative inline-flex rounded-full h-2 w-2",
+                aiSpeaking ? "bg-emerald-500" : "bg-indigo-500",
+              )}
+            />
+          </span>
+          <span>{interviewer.name}</span>
+          <span className="text-[10px] text-muted-foreground font-normal border-l border-slate-700 pl-2">
+            {interviewer.badge}
+          </span>
+        </div>
+
+        <Badge
+          variant="outline"
+          className="text-[10px] bg-slate-900/80 border-slate-700 text-slate-300 backdrop-blur-md"
+        >
+          {evaluating ? "Evaluating" : aiSpeaking ? "Speaking" : isRecording ? "Listening" : "Ready"}
+        </Badge>
+      </div>
+
+      {/* Human Portrait with Audio Waveforms and Speaking Glow */}
+      <div className="flex-1 flex flex-col items-center justify-center my-3 relative">
+        {/* Glow halo when speaking */}
+        {aiSpeaking && (
+          <div className="absolute w-36 h-36 rounded-full bg-indigo-500/20 blur-xl animate-pulse" />
         )}
 
-        {/* Eyes (Blinking Animation via CSS Class) */}
-        <ellipse
-          cx="43"
-          cy="46"
-          rx="3"
-          ry="3"
-          fill="#1E293B"
-          className="animate-blink"
-          style={{ transformOrigin: "43px 46px" }}
-        />
-        <ellipse
-          cx="57"
-          cy="46"
-          rx="3"
-          ry="3"
-          fill="#1E293B"
-          className="animate-blink"
-          style={{ transformOrigin: "57px 46px" }}
-        />
-
-        {/* Eyebrows */}
-        <path
-          d="M39 41 C41 40 44 41 45 42"
-          stroke={isSarah ? "#451a03" : "#1e293b"}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-        <path
-          d="M61 41 C59 40 56 41 55 42"
-          stroke={isSarah ? "#451a03" : "#1e293b"}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-        />
-
-        {/* Mouth (Talking / Lip Sync viseme Morphing) */}
-        {viseme === "X" ? (
-          <path
-            d={VISEMES.X}
-            stroke="#be123c"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            fill="none"
-          />
-        ) : (
-          <path d={VISEMES[viseme] || VISEMES.X} fill="#be123c" />
-        )}
-
-        {/* Glasses for Sarah */}
-        {isSarah && (
-          <>
-            <rect
-              x="37"
-              y="43"
-              width="11"
-              height="7"
-              rx="2"
-              stroke="#0f172a"
-              strokeWidth="1.2"
-              fill="none"
-            />
-            <rect
-              x="52"
-              y="43"
-              width="11"
-              height="7"
-              rx="2"
-              stroke="#0f172a"
-              strokeWidth="1.2"
-              fill="none"
-            />
-            <line x1="48" y1="46" x2="52" y2="46" stroke="#0f172a" strokeWidth="1.2" />
-          </>
-        )}
-
-        <defs>
-          <linearGradient
-            id="sarah-grad"
-            x1="0"
-            y1="0"
-            x2="100"
-            y2="100"
-            gradientUnits="userSpaceOnUse"
+        <div className="relative">
+          <div
+            className={cn(
+              "w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-2 transition-all duration-300 shadow-2xl relative bg-slate-800",
+              aiSpeaking
+                ? "border-emerald-500 ring-4 ring-emerald-500/20 scale-105"
+                : "border-slate-700/80 ring-1 ring-slate-800",
+            )}
           >
-            <stop stopColor="#6366F1" />
-            <stop offset="1" stopColor="#EC4899" />
-          </linearGradient>
-          <linearGradient
-            id="alex-grad"
-            x1="0"
-            y1="0"
-            x2="100"
-            y2="100"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop stopColor="#3B82F6" />
-            <stop offset="1" stopColor="#10B981" />
-          </linearGradient>
-        </defs>
-      </svg>
+            <img
+              src={interviewer.avatarUrl}
+              alt={interviewer.name}
+              className="w-full h-full object-cover object-top"
+              onError={(e) => {
+                (e.currentTarget as HTMLElement).style.display = "none";
+              }}
+            />
+          </div>
 
-      <div className="mt-2 text-sm font-bold">{name}</div>
-      <div className="text-[10px] text-muted-foreground font-semibold">{role}</div>
+          {/* Voice Waveform Overlay under portrait */}
+          {aiSpeaking ? (
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-end justify-center gap-1 bg-slate-950/95 border border-emerald-500/50 px-3 py-1 rounded-full backdrop-blur-md shadow-lg">
+              <span className="w-1 h-3 bg-emerald-400 rounded-full animate-bounce [animation-delay:0ms]" />
+              <span className="w-1 h-5 bg-emerald-400 rounded-full animate-bounce [animation-delay:150ms]" />
+              <span className="w-1 h-4 bg-emerald-400 rounded-full animate-bounce [animation-delay:300ms]" />
+              <span className="w-1 h-6 bg-emerald-400 rounded-full animate-bounce [animation-delay:200ms]" />
+              <span className="w-1 h-3 bg-emerald-400 rounded-full animate-bounce [animation-delay:400ms]" />
+            </div>
+          ) : isRecording ? (
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-slate-950/95 border border-indigo-500/50 px-3 py-0.5 rounded-full backdrop-blur-md shadow-lg text-[10px] text-indigo-300 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-ping" />
+              <span>Listening to you...</span>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="mt-3 text-center">
+          <p className="text-sm font-bold text-slate-100">{interviewer.name}</p>
+          <p className="text-xs text-slate-400">{interviewer.role} · {interviewer.company}</p>
+        </div>
+      </div>
+
+      {/* Live Conference Status bar */}
+      <div className="w-full z-10">
+        <div className="bg-slate-900/90 border border-slate-800 rounded-xl px-3 py-1.5 text-center text-xs text-slate-300 backdrop-blur-md">
+          {evaluating ? (
+            <span className="text-yellow-400 flex items-center justify-center gap-1.5 font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-yellow-400 animate-ping" />
+              Analyzing candidate response & evaluating criteria...
+            </span>
+          ) : aiSpeaking ? (
+            <span className="text-emerald-400 flex items-center justify-center gap-1.5 font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+              Interviewer is asking question...
+            </span>
+          ) : isRecording ? (
+            <span className="text-red-400 flex items-center justify-center gap-1.5 font-medium">
+              <span className="h-1.5 w-1.5 rounded-full bg-red-400 animate-ping" />
+              Recording your speech. Click "Stop Answer" when finished.
+            </span>
+          ) : (
+            <span className="text-slate-400">
+              Ready for your answer. Use voice answer or text response below.
+            </span>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -339,7 +354,15 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
   const [customRole, setCustomRole] = useState(() => {
     return (typeof window !== "undefined" && localStorage.getItem("interview_custom_role")) || "";
   });
-  const [avatarModel, setAvatarModel] = useState<"eric" | "sarah" | "alex">("eric");
+  const [interviewerId, setInterviewerId] = useState<"priya" | "vikram" | "anjali" | "rishabh">(() => {
+    return (
+      (typeof window !== "undefined" &&
+        (localStorage.getItem("interview_interviewer_id") as any)) ||
+      "priya"
+    );
+  });
+  const selectedInterviewer =
+    HUMAN_INTERVIEWERS.find((i) => i.id === interviewerId) || HUMAN_INTERVIEWERS[0];
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(() => {
     return (typeof window !== "undefined" && (localStorage.getItem("interview_difficulty") as any)) || "medium";
   });
@@ -416,13 +439,14 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
     localStorage.setItem("interview_custom_role", customRole);
     localStorage.setItem("interview_difficulty", difficulty);
     localStorage.setItem("interview_mode", mode);
+    localStorage.setItem("interview_interviewer_id", interviewerId);
     localStorage.setItem("interview_question_index", String(questionIndex));
     localStorage.setItem("interview_user_answer", userAnswer);
     if (currentQuestion) localStorage.setItem("interview_current_question", JSON.stringify(currentQuestion));
     if (previousQuestions) localStorage.setItem("interview_prev_questions", JSON.stringify(previousQuestions));
     if (evaluation) localStorage.setItem("interview_evaluation", JSON.stringify(evaluation));
     if (scores) localStorage.setItem("interview_scores", JSON.stringify(scores));
-  }, [step, role, customRole, difficulty, mode, questionIndex, userAnswer, currentQuestion, previousQuestions, evaluation, scores]);
+  }, [step, role, customRole, difficulty, mode, interviewerId, questionIndex, userAnswer, currentQuestion, previousQuestions, evaluation, scores]);
   const [aiSpeaking, setAiSpeaking] = useState(false);
   const [viseme, setViseme] = useState("X");
 
@@ -506,7 +530,19 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
       synthRef.current.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 0.95;
-      utterance.pitch = 1.0;
+      utterance.pitch = selectedInterviewer.gender === "female" ? 1.05 : 0.95;
+
+      const voices = synthRef.current.getVoices?.() || [];
+      if (voices.length > 0) {
+        const preferredVoice = voices.find((v: any) =>
+          selectedInterviewer.gender === "female"
+            ? /female|samantha|zira|victoria|karen|google.*us.*female/i.test(v.name)
+            : /male|david|alex|daniel|george|google.*us.*male/i.test(v.name),
+        );
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+        }
+      }
 
       utterance.onstart = () => setAiSpeaking(true);
       utterance.onend = () => setAiSpeaking(false);
@@ -514,7 +550,7 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
 
       synthRef.current.speak(utterance);
     },
-    [isMuted],
+    [isMuted, selectedInterviewer],
   );
 
   const startVoiceRecognition = useCallback(() => {
@@ -551,25 +587,91 @@ export function InterviewPage({ embedded = false }: { embedded?: boolean }) {
     }
   }, []);
 
-  const toggleCamera = () => {
-    if (videoStream) {
-      const tracks = videoStream.getVideoTracks();
-      tracks.forEach((track) => {
-        track.enabled = !track.enabled;
+  const toggleCamera = async () => {
+    try {
+      if (!videoStream) {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          toast.error("Media devices not supported in this browser");
+          return;
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: micActive,
+        });
+        setVideoStream(stream);
+        setCameraActive(true);
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        toast.success("Webcam stream started");
+        return;
+      }
+
+      const videoTracks = videoStream.getVideoTracks();
+      if (videoTracks.length === 0) {
+        const newStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        const videoTrack = newStream.getVideoTracks()[0];
+        if (videoTrack) {
+          videoStream.addTrack(videoTrack);
+          setCameraActive(true);
+          if (videoRef.current) {
+            videoRef.current.srcObject = videoStream;
+          }
+          toast.success("Webcam feed started");
+          return;
+        }
+      }
+
+      const nextState = !cameraActive;
+      videoTracks.forEach((track) => {
+        track.enabled = nextState;
       });
-      setCameraActive(!cameraActive);
-      toast.success(cameraActive ? "Webcam feed paused" : "Webcam feed started");
+      setCameraActive(nextState);
+      toast.success(nextState ? "Webcam feed started" : "Webcam feed paused");
+    } catch (err: any) {
+      console.error("Camera access error:", err);
+      toast.error("Could not access camera. Please allow camera permissions in your browser.");
     }
   };
 
-  const toggleMic = () => {
-    if (videoStream) {
-      const tracks = videoStream.getAudioTracks();
-      tracks.forEach((track) => {
-        track.enabled = !track.enabled;
+  const toggleMic = async () => {
+    try {
+      if (!videoStream) {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          toast.error("Media devices not supported in this browser");
+          return;
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: cameraActive,
+        });
+        setVideoStream(stream);
+        setMicActive(true);
+        toast.success("Microphone active");
+        return;
+      }
+
+      const audioTracks = videoStream.getAudioTracks();
+      if (audioTracks.length === 0) {
+        const newStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const audioTrack = newStream.getAudioTracks()[0];
+        if (audioTrack) {
+          videoStream.addTrack(audioTrack);
+          setMicActive(true);
+          toast.success("Microphone activated");
+          return;
+        }
+      }
+
+      const nextState = !micActive;
+      audioTracks.forEach((track) => {
+        track.enabled = nextState;
       });
-      setMicActive(!micActive);
-      toast.success(micActive ? "Microphone muted" : "Microphone active");
+      setMicActive(nextState);
+      toast.success(nextState ? "Microphone active" : "Microphone muted");
+    } catch (err: any) {
+      console.error("Mic access error:", err);
+      toast.error("Could not access microphone. Please allow audio permissions in your browser.");
     }
   };
 
@@ -867,25 +969,69 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-card p-6 space-y-3">
-            <h2 className="font-semibold flex items-center gap-2">
-              <Target className="h-4 w-4 text-primary" /> AI Interviewer Avatar
-            </h2>
-            <div className="p-4 rounded-xl border border-primary/40 bg-primary/5 flex items-center gap-4 relative overflow-hidden shadow-sm">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center text-white font-black text-xl shadow-md shrink-0">
-                EV
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-foreground">Eric Vance</span>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-extrabold border border-emerald-500/20">
-                    3D Interactive Avatar
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Senior Technical Lead & AI Interviewer · Waving, Lip-Sync, Smiling & Observing
-                </p>
-              </div>
+          <div className="rounded-2xl border bg-card p-6 space-y-4">
+            <div>
+              <h2 className="font-semibold flex items-center gap-2 text-base">
+                <Target className="h-4 w-4 text-primary" /> Select Human AI Interviewer
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Choose an expert interviewer tailored to your target industry and technical depth.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {HUMAN_INTERVIEWERS.map((interviewer) => {
+                const isSelected = interviewer.id === interviewerId;
+                return (
+                  <button
+                    key={interviewer.id}
+                    type="button"
+                    onClick={() => setInterviewerId(interviewer.id)}
+                    className={cn(
+                      "p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between relative group",
+                      isSelected
+                        ? "border-primary bg-primary/5 shadow-sm ring-2 ring-primary"
+                        : "border-border hover:border-primary/40 hover:bg-muted/30",
+                    )}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-12 h-12 rounded-full overflow-hidden border border-slate-700 bg-slate-800 shrink-0">
+                        <img
+                          src={interviewer.avatarUrl}
+                          alt={interviewer.name}
+                          className="w-full h-full object-cover object-top"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).style.display = "none";
+                          }}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold truncate text-foreground">
+                          {interviewer.name}
+                        </p>
+                        <p className="text-[11px] text-primary font-medium truncate">
+                          {interviewer.company}
+                        </p>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-muted-foreground line-clamp-2 mb-2">
+                      {interviewer.bio}
+                    </p>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50 text-[10px]">
+                      <span className="font-bold text-muted-foreground">{interviewer.role}</span>
+                      {isSelected ? (
+                        <span className="text-primary font-black">Selected</span>
+                      ) : (
+                        <span className="text-muted-foreground group-hover:text-foreground">
+                          Choose
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -947,133 +1093,166 @@ ${scores.map((sc, i) => `Q${i + 1}: ${sc}/100`).join("\n")}
             </div>
           ) : currentQuestion ? (
             <div className="space-y-4">
-              {/* Talking Avatar & Candidate Feed Grid */}
+              {/* Human AI Interviewer & Candidate Feed Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Talking AI Interviewer */}
-                <div className="rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 via-card to-purple-950/30 p-4 flex flex-col items-center justify-center relative overflow-hidden shadow-lg min-h-[240px]">
-                  <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-2.5 py-0.5 rounded-full text-[10px] font-bold backdrop-blur-md z-10">
-                    <span
-                      className={cn(
-                        "w-2 h-2 rounded-full bg-indigo-400",
-                        aiSpeaking && "animate-ping",
-                      )}
-                    />
-                    AI Interactor:{" "}
-                    {avatarModel === "eric"
-                      ? "Eric (3D Technical Lead)"
-                      : avatarModel === "sarah"
-                        ? "Sarah (Senior Tech Lead)"
-                        : "Alex (Recruitment Lead)"}
-                  </div>
+                {/* Real Human AI Interviewer */}
+                <HumanInterviewerDisplay
+                  interviewer={selectedInterviewer}
+                  aiSpeaking={aiSpeaking}
+                  evaluating={evaluating}
+                  isRecording={isRecording}
+                />
 
-                  {avatarModel === "eric" ? (
-                    <ThreeAvatarCanvas
-                      aiSpeaking={aiSpeaking}
-                      viseme={viseme}
-                      className="w-full h-56"
-                    />
-                  ) : (
-                    <SVGAvatar viseme={viseme} avatarModel={avatarModel} />
-                  )}
-
-                  <div className="absolute bottom-3 whitespace-nowrap bg-slate-900/90 text-indigo-300 border border-indigo-500/30 text-[9px] font-extrabold px-2.5 py-0.5 rounded-full shadow-md z-10">
-                    {evaluating
-                      ? "Evaluating..."
-                      : aiSpeaking
-                        ? `${avatarModel === "eric" ? "Eric" : avatarModel === "sarah" ? "Sarah" : "Alex"} is Speaking...`
-                        : isRecording
-                          ? "Listening..."
-                          : "Standing By..."}
-                  </div>
-                </div>
-
-                {/* Candidate Feed */}
-                <div className="rounded-2xl border border-slate-800 bg-slate-950 p-3 flex flex-col justify-between relative overflow-hidden shadow-lg min-h-[220px]">
+                {/* Candidate Video & Audio Feed */}
+                <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 flex flex-col justify-between relative overflow-hidden shadow-xl min-h-[260px] sm:min-h-[290px]">
+                  {/* Status Bar */}
                   <div className="w-full flex items-center justify-between z-10 mb-2">
-                    <div className="flex items-center gap-1.5 bg-red-500/90 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold">
-                      <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-                      {mode === "video" ? "LIVE CAMERA" : "AUDIO READY"}
+                    <div className="flex items-center gap-2 bg-slate-900/90 border border-slate-700/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-slate-200">
+                      <span
+                        className={cn(
+                          "w-2 h-2 rounded-full",
+                          cameraActive ? "bg-emerald-500 animate-pulse" : "bg-slate-500",
+                        )}
+                      />
+                      <span>{cameraActive ? "Webcam Active (HD)" : "Webcam Off"}</span>
                     </div>
+
                     <Badge
                       variant="outline"
                       className={cn(
-                        "text-[10px] flex items-center gap-1",
-                        isRecording ? "border-red-500/50 text-red-400" : "border-slate-700 text-slate-300",
+                        "text-[10px] flex items-center gap-1.5 px-2.5 py-0.5 backdrop-blur-md",
+                        isRecording
+                          ? "border-red-500/50 bg-red-500/10 text-red-400"
+                          : micActive
+                            ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
+                            : "border-slate-700 bg-slate-900 text-slate-400",
                       )}
                     >
-                      <span className={cn("h-1.5 w-1.5 rounded-full", isRecording ? "bg-red-500 animate-pulse" : "bg-slate-500")} />
-                      {isRecording ? "RECORDING" : "STANDBY"}
+                      <span
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full",
+                          isRecording
+                            ? "bg-red-500 animate-ping"
+                            : micActive
+                              ? "bg-emerald-400"
+                              : "bg-slate-500",
+                        )}
+                      />
+                      {isRecording ? "MIC RECORDING" : micActive ? "MIC ON" : "MIC MUTED"}
                     </Badge>
                   </div>
 
+                  {/* Video Screen */}
                   <div
-                    className="w-full flex-1 flex flex-col items-center justify-center relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800"
-                    style={{ minHeight: 140 }}
+                    className="w-full flex-1 flex flex-col items-center justify-center relative rounded-xl overflow-hidden bg-slate-900/90 border border-slate-800 my-1"
+                    style={{ minHeight: 160 }}
                   >
-                    {mode === "video" && cameraActive && (
-                      <video
-                        ref={videoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        className="w-full h-full object-cover rounded-xl"
-                      />
-                    )}
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className={cn(
+                        "w-full h-full object-cover rounded-xl",
+                        cameraActive ? "block" : "hidden",
+                      )}
+                    />
 
-                    {(!cameraActive || mode !== "video") && (
-                      <div className="flex flex-col items-center justify-center p-4 text-center">
-                        <VideoOff className="h-8 w-8 mb-1.5 text-slate-500" />
-                        <span className="text-xs font-bold text-slate-300">Camera Stream Off</span>
-                        <span className="text-[10px] text-slate-500 mt-0.5">
-                          Microphone connected & ready
-                        </span>
+                    {!cameraActive && (
+                      <div className="flex flex-col items-center justify-center p-4 text-center space-y-2">
+                        <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+                          <VideoOff className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-200">Webcam feed is off</p>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            Click "Camera On" below or continue with audio/text
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={toggleCamera}
+                          className="h-7 text-xs border-indigo-500/40 text-indigo-300 hover:bg-indigo-500/10"
+                        >
+                          <Video className="h-3.5 w-3.5 mr-1" />
+                          Turn Camera On
+                        </Button>
                       </div>
                     )}
                   </div>
 
                   {/* Feed Controls */}
-                  <div className="w-full flex items-center justify-between pt-2.5 border-t border-slate-800 mt-2 text-xs">
-                    <div className="flex gap-2">
+                  <div className="w-full flex items-center justify-between pt-2.5 border-t border-slate-800 text-xs">
+                    <div className="flex items-center gap-2">
                       <Button
                         size="sm"
-                        variant="ghost"
+                        variant={micActive ? "secondary" : "destructive"}
                         onClick={toggleMic}
-                        className="h-7 w-7 p-0 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200"
+                        className={cn(
+                          "h-8 px-2.5 text-xs font-semibold gap-1.5 transition-all cursor-pointer",
+                          micActive
+                            ? "bg-slate-800 hover:bg-slate-700 text-slate-100"
+                            : "bg-red-600/90 hover:bg-red-700 text-white",
+                        )}
+                        title={micActive ? "Mute Microphone" : "Unmute Microphone"}
                       >
                         {micActive ? (
-                          <Mic className="h-3.5 w-3.5" />
+                          <>
+                            <Mic className="h-3.5 w-3.5 text-emerald-400" />
+                            <span>Mic On</span>
+                          </>
                         ) : (
-                          <MicOff className="h-3.5 w-3.5 text-red-400" />
+                          <>
+                            <MicOff className="h-3.5 w-3.5" />
+                            <span>Mic Off</span>
+                          </>
                         )}
                       </Button>
-                      {mode === "video" && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={toggleCamera}
-                          className="h-7 w-7 p-0 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-200"
-                        >
-                          {cameraActive ? (
-                            <Video className="h-3.5 w-3.5" />
-                          ) : (
+
+                      <Button
+                        size="sm"
+                        variant={cameraActive ? "secondary" : "outline"}
+                        onClick={toggleCamera}
+                        className={cn(
+                          "h-8 px-2.5 text-xs font-semibold gap-1.5 transition-all cursor-pointer",
+                          cameraActive
+                            ? "bg-slate-800 hover:bg-slate-700 text-slate-100"
+                            : "border-slate-700 text-slate-300 hover:bg-slate-800",
+                        )}
+                        title={cameraActive ? "Turn Camera Off" : "Turn Camera On"}
+                      >
+                        {cameraActive ? (
+                          <>
+                            <Video className="h-3.5 w-3.5 text-emerald-400" />
+                            <span>Camera On</span>
+                          </>
+                        ) : (
+                          <>
                             <VideoOff className="h-3.5 w-3.5 text-red-400" />
-                          )}
-                        </Button>
-                      )}
+                            <span>Camera Off</span>
+                          </>
+                        )}
+                      </Button>
                     </div>
 
                     <Button
                       size="sm"
                       variant={isRecording ? "destructive" : "default"}
-                      className="h-7 text-xs font-bold rounded-lg px-3"
+                      className="h-8 text-xs font-bold rounded-lg px-3 cursor-pointer"
                       onClick={isRecording ? stopVoiceRecognition : startVoiceRecognition}
                     >
                       {isRecording ? (
-                        <MicOff className="h-3.5 w-3.5 mr-1" />
+                        <>
+                          <MicOff className="h-3.5 w-3.5 mr-1 animate-pulse" />
+                          <span>Stop & Submit</span>
+                        </>
                       ) : (
-                        <Mic className="h-3.5 w-3.5 mr-1" />
+                        <>
+                          <Mic className="h-3.5 w-3.5 mr-1" />
+                          <span>Voice Answer</span>
+                        </>
                       )}
-                      {isRecording ? "Stop Answer" : "Start Answer"}
                     </Button>
                   </div>
                 </div>

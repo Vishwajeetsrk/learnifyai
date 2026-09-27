@@ -400,144 +400,110 @@ function CoursesPage() {
           </Button>
         </div>
 
-        {/* Filter Toolbar */}
-        <div className="space-y-5">
-          {/* Career Path Horizontal Scrollable Bar with Live Non-Zero Counts */}
-          <div className="space-y-2">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
-              Career Path Tracks
-            </div>
-            <div className="flex items-center gap-2 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar scroll-smooth">
-              {CANONICAL_CAREER_PATHS.map((p) => {
-                const IconComp = p.icon;
-                const active = careerPath === p.id;
-                const pathCount = careerPathCounts[p.id] ?? 0;
-                return (
-                  <button
-                    key={p.id}
-                    onClick={() => setCareerPath(p.id)}
-                    className={cn(
-                      "px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all shrink-0 inline-flex items-center gap-2 cursor-pointer shadow-xs",
-                      active
-                        ? "bg-primary text-primary-foreground border-primary shadow-md"
-                        : "border-border/80 bg-card text-foreground/80 hover:border-primary/40 hover:text-foreground",
-                    )}
-                    aria-pressed={active}
-                  >
-                    <IconComp className="h-3.5 w-3.5" />
-                    <span>{p.label}</span>
-                    <span
-                      className={cn(
-                        "text-[10px] px-1.5 py-0.2 rounded-full font-mono",
-                        active ? "bg-white/20 text-white" : "bg-muted text-muted-foreground",
-                      )}
-                    >
-                      {pathCount}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Dynamic Categories Pill Grid with Accurate Live Counts */}
-          <div className="space-y-2">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
-              Subject Categories
-            </div>
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
-              {categories.map((c) => (
-                <Button
-                  key={c}
-                  size="sm"
-                  variant={cat === c ? "default" : "outline"}
-                  onClick={() => setCat(c)}
-                  className="rounded-full text-xs font-bold px-3 py-1 cursor-pointer gap-1.5"
-                  aria-pressed={cat === c}
+        {/* Simplified & Clean Filter Toolbar */}
+        <div className="space-y-3.5 bg-card/60 border border-border/80 rounded-2xl p-4 shadow-xs">
+          {/* Top Curated Category Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar scroll-smooth">
+            {CANONICAL_CAREER_PATHS.slice(0, 8).map((p) => {
+              const IconComp = p.icon;
+              const active = careerPath === p.id;
+              const pathCount = careerPathCounts[p.id] ?? 0;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setCareerPath(p.id)}
+                  className={cn(
+                    "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 inline-flex items-center gap-1.5 cursor-pointer",
+                    active
+                      ? "bg-primary text-primary-foreground shadow-xs"
+                      : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                  aria-pressed={active}
                 >
-                  <span>{c}</span>
+                  <IconComp className="h-3.5 w-3.5" />
+                  <span>{p.label}</span>
                   <span
                     className={cn(
-                      "text-[10px] px-1.5 py-0.2 rounded-full font-mono",
-                      cat === c ? "bg-white/20 text-white" : "bg-muted text-muted-foreground",
+                      "text-[10px] px-1.5 py-0.2 rounded-md font-mono font-medium",
+                      active ? "bg-white/20 text-white" : "bg-background/80 text-muted-foreground",
                     )}
                   >
-                    {categoryCounts[c] ?? 0}
+                    {pathCount}
                   </span>
-                </Button>
-              ))}
-            </div>
+                </button>
+              );
+            })}
           </div>
 
-          {/* Secondary Filters */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-border/60">
-            <div className="flex flex-wrap items-center gap-5">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
-                  Level
-                </span>
-                <div className="flex gap-1.5" role="group" aria-label="Filter by level">
-                  {(["all", "beginner", "intermediate", "advanced"] as const).map((l) => (
-                    <button
-                      key={l}
-                      onClick={() => setLevel(l)}
-                      className={cn(
-                        "px-2.5 py-1 rounded-full text-[11px] font-bold border capitalize transition cursor-pointer",
-                        level === l
-                          ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                          : "border-border/80 bg-card text-muted-foreground hover:text-foreground",
-                      )}
-                      aria-pressed={level === l}
-                    >
-                      {l}
-                    </button>
-                  ))}
-                </div>
+          {/* Quick Filters Row */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-border/60">
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Price Filter Toggle */}
+              <div className="inline-flex items-center bg-muted/60 p-1 rounded-xl border border-border/60 text-xs">
+                {(
+                  [
+                    { id: "all", label: "All Pricing" },
+                    { id: "free", label: "Free" },
+                    { id: "paid", label: "Pro" },
+                  ] as { id: PriceFilter; label: string }[]
+                ).map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => setPrice(p.id)}
+                    className={cn(
+                      "px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer",
+                      price === p.id
+                        ? "bg-primary text-primary-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {p.label}
+                  </button>
+                ))}
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
-                  Price
-                </span>
-                <div className="flex gap-1.5" role="group" aria-label="Filter by price">
-                  {(
-                    [
-                      { id: "all", label: "All" },
-                      { id: "free", label: "Free" },
-                      { id: "paid", label: "Paid" },
-                    ] as { id: PriceFilter; label: string }[]
-                  ).map((p) => (
-                    <button
-                      key={p.id}
-                      onClick={() => setPrice(p.id)}
-                      className={cn(
-                        "px-2.5 py-1 rounded-full text-[11px] font-bold border transition cursor-pointer",
-                        price === p.id
-                          ? "bg-primary text-primary-foreground border-primary shadow-xs"
-                          : "border-border/80 bg-card text-muted-foreground hover:text-foreground",
-                      )}
-                      aria-pressed={price === p.id}
-                    >
-                      {p.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
+
+              {/* Level Dropdown */}
+              <select
+                value={level}
+                onChange={(e) => setLevel(e.target.value as any)}
+                className="h-8 px-3 rounded-xl text-xs font-semibold border border-border/80 bg-background text-foreground cursor-pointer shadow-xs"
+                aria-label="Filter by level"
+              >
+                <option value="all">All Difficulty Levels</option>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
+              </select>
+
+              {(careerPath !== "all" || price !== "all" || level !== "all" || q) && (
+                <button
+                  onClick={() => {
+                    setCareerPath("all");
+                    setCat("All");
+                    setPrice("all");
+                    setLevel("all");
+                    setQ("");
+                  }}
+                  className="text-xs text-muted-foreground hover:text-primary underline cursor-pointer ml-1"
+                >
+                  Reset filters
+                </button>
+              )}
             </div>
 
+            {/* Sort Dropdown */}
             <div className="flex items-center gap-2">
-              <span className="text-[11px] uppercase tracking-wider text-muted-foreground font-bold">
-                Sort
-              </span>
+              <span className="text-xs text-muted-foreground font-medium hidden sm:inline">Sort:</span>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortFilter)}
-                className="h-8 px-3 rounded-xl text-xs font-bold border border-border/80 bg-card text-foreground cursor-pointer shadow-xs"
+                className="h-8 px-3 rounded-xl text-xs font-semibold border border-border/80 bg-background text-foreground cursor-pointer shadow-xs"
                 aria-label="Sort courses"
               >
-                <option value="newest">Newest</option>
                 <option value="popular">Most Popular</option>
-                <option value="price-low">Price: Low–High</option>
-                <option value="price-high">Price: High–Low</option>
+                <option value="newest">Newest First</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
               </select>
             </div>
           </div>

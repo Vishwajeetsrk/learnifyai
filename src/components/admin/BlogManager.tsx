@@ -27,6 +27,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { FREE_COURSES_GUIDE_POST } from "@/lib/canonical-blog";
+import { BLOG_POSTS_DATA } from "@/lib/blog-posts-data";
+import { generateDeepResearchBlogPost } from "@/lib/admin-content.functions";
 import {
   Dialog,
   DialogContent,
@@ -64,12 +66,20 @@ export default function BlogManager() {
   const qc = useQueryClient();
   const doAdminAction = useServerFn(adminContentAction);
   const doQuery = useServerFn(adminContentQuery);
+  const doGenerateBlog = useServerFn(generateDeepResearchBlogPost);
+
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editing, setEditing] = useState<BlogPost | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [editorMode, setEditorMode] = useState<"rich" | "markdown">("rich");
+
+  // AI Deep Research Blog Dialog States
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [aiTopic, setAiTopic] = useState("");
+  const [aiKeywords, setAiKeywords] = useState("");
+  const [aiGenerating, setAiGenerating] = useState(false);
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ["blog-posts"],
@@ -181,6 +191,38 @@ export default function BlogManager() {
     }
   };
 
+  const handleGenerateBlog = async () => {
+    if (!aiTopic.trim()) return toast.error("Please enter a research topic");
+    setAiGenerating(true);
+    try {
+      const res = await doGenerateBlog({
+        data: {
+          topic: aiTopic.trim(),
+          keywords: aiKeywords.trim() || undefined,
+        },
+      });
+      if (res?.post) {
+        setForm({
+          title: res.post.title,
+          slug: res.post.slug,
+          excerpt: res.post.excerpt,
+          featured_image: res.post.featured_image,
+          content: res.post.content,
+          published: false,
+        });
+        setEditorMode("markdown");
+        setAiDialogOpen(false);
+        setEditing(null);
+        setOpen(true);
+        toast.success("Deep research blog drafted! Review, edit with word tools, and publish.");
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Generation failed");
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
   const seedDefaultPosts = async () => {
     const defaults = [
       {
@@ -191,46 +233,21 @@ export default function BlogManager() {
         published: true,
         content: FREE_COURSES_GUIDE_POST.content,
       },
-      {
-        title: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
-        slug: "full-stack-ai-engineer-roadmap-2026",
-        excerpt:
-          "Master TanStack Start, React 19, Supabase, LangChain, and Vercel AI SDK to build production-grade AI SaaS applications.",
-        featured_image:
-          "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
+      ...BLOG_POSTS_DATA.map((p: any) => ({
+        title: p.title,
+        slug: p.slug,
+        excerpt: p.excerpt,
+        featured_image: p.featured_image,
         published: true,
-        content:
-          "<h2>The Shift in Modern Software Engineering</h2><p>In 2026, Full-Stack AI Engineering combines React 19, Supabase pgvector, and LLM agent pipelines.</p>",
-      },
-      {
-        title: "Building Production Autonomous AI Agents with LangGraph & Python",
-        slug: "autonomous-ai-agents-langgraph-python",
-        excerpt:
-          "Step-by-step guide to stateful multi-agent systems, human-in-the-loop workflows, and error handling in Python.",
-        featured_image:
-          "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80",
-        published: true,
-        content:
-          "<h2>Multi-Agent Graph State Machines</h2><p>Pass typed state dictionaries between node agents with persistence checkpoints.</p>",
-      },
-      {
-        title: "Comparing Cashfree vs Razorpay for Indian EdTech & SaaS Applications",
-        slug: "cashfree-vs-razorpay-india-saas",
-        excerpt:
-          "A deep dive into transaction fees, GST invoicing compliance, subscription APIs, and merchant domain whitelisting in India.",
-        featured_image:
-          "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1200&q=80",
-        published: true,
-        content:
-          "<h2>Indian Payment Gateway Comparison</h2><p>Cashfree offers 1.9% rates with native 18% GST SAC 998431 tax breakdown on invoices.</p>",
-      },
+        content: p.content,
+      })),
     ];
 
     try {
       for (const d of defaults) {
         await doAdminAction({ data: { table: "blog_posts", action: "insert", data: d } });
       }
-      toast.success("Default blog posts seeded!");
+      toast.success("Default blog posts with full research seeded!");
       qc.invalidateQueries({ queryKey: ["blog-posts"] });
     } catch (e: any) {
       toast.error(e?.message || "Seeding failed");
@@ -239,15 +256,24 @@ export default function BlogManager() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
         <p className="text-sm text-muted-foreground">
-          Create, edit, publish, and manage blog posts with rich text or markdown.
+          Deep technical research blogs with tables, diagrams, SEO metadata, and rich editing.
         </p>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setAiDialogOpen(true)}
+            className="border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 cursor-pointer"
+          >
+            <Sparkles className="h-3.5 w-3.5 mr-1.5 text-indigo-400" />
+            AI Deep Research Writer
+          </Button>
           {!posts?.length && (
             <Button variant="outline" size="sm" onClick={seedDefaultPosts}>
               <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-              Seed Default Posts
+              Seed Canonical Posts
             </Button>
           )}
           <Button onClick={openNew}>
@@ -534,6 +560,92 @@ export default function BlogManager() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* AI Deep Research Writer Dialog */}
+      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-indigo-400" />
+              AI Deep Research Blog Writer
+            </DialogTitle>
+            <DialogDescription>
+              Generate a publication-grade, deeply researched 2026 technical blog with architecture diagrams, comparison tables, code examples, and SEO keywords.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label>Research Topic / Headline</Label>
+              <Input
+                placeholder="e.g. How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap"
+                value={aiTopic}
+                onChange={(e) => setAiTopic(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Target SEO Keywords (Optional)</Label>
+              <Input
+                placeholder="e.g. TanStack Start, React 19, LangGraph, Supabase pgvector"
+                value={aiKeywords}
+                onChange={(e) => setAiKeywords(e.target.value)}
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">
+                Quick 2026 Research Ideas
+              </Label>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
+                  "Building Production Autonomous AI Agents with LangGraph & Python",
+                  "Comparing Cashfree vs Razorpay for Indian EdTech & SaaS Applications",
+                  "Building Real-Time Bidirectional Voice Agents with WebSockets",
+                  "Next-Gen Vector Search: pgvector vs Qdrant vs Milvus in 2026",
+                ].map((idea) => (
+                  <button
+                    key={idea}
+                    type="button"
+                    onClick={() => setAiTopic(idea)}
+                    className="text-[11px] px-2.5 py-1 rounded-lg border border-border/80 bg-muted/40 hover:bg-muted text-left transition truncate max-w-full cursor-pointer"
+                  >
+                    {idea}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setAiDialogOpen(false)}
+              disabled={aiGenerating}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleGenerateBlog}
+              disabled={aiGenerating || !aiTopic.trim()}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+            >
+              {aiGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deep Researching & Drafting...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate Deep Blog
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
