@@ -56,6 +56,7 @@ import {
 } from "@/lib/thumbnail.functions";
 import { EnrichmentProgressDialog } from "@/components/EnrichmentProgressDialog";
 import { ThumbnailEditor } from "@/components/ThumbnailEditor";
+import { RichLessonEditor } from "@/components/courses/RichLessonEditor";
 import { History, AlertTriangle, Scissors, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -1501,29 +1502,12 @@ function LessonForm({
         />
       </div>
       <div className="space-y-1.5 sm:col-span-2">
-        <div className="flex items-center justify-between">
-          <Label>Description</Label>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleAiWriteNotes}
-            disabled={generatingNotes}
-            className="h-7 text-[10px] flex items-center gap-1.5 text-primary hover:text-primary hover:bg-primary/5 px-2"
-          >
-            {generatingNotes ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
-            ) : (
-              <Sparkles className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-            )}
-            AI Write Notes
-          </Button>
-        </div>
-        <Textarea
-          rows={3}
-          maxLength={2000}
+        <Label>Lesson Content &amp; Notes (Rich Formatting, Tables, Code &amp; Quizzes)</Label>
+        <RichLessonEditor
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={setDescription}
+          onAiGenerate={handleAiWriteNotes}
+          isAiGenerating={generatingNotes}
         />
       </div>
       <div className="flex items-center gap-2 sm:col-span-2">

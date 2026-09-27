@@ -45,12 +45,12 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { LessonSocial } from "@/components/LessonSocial";
-import { VoiceNarrationPlayer } from "@/components/VoiceNarrationPlayer";
 
 import { CoursePlayer } from "@/components/CoursePlayer";
 import { getRealHumanAvatar } from "@/lib/real-avatars";
 import { CourseBrandLogo } from "@/components/courses/CourseBrandLogo";
 import { getCourseBrands } from "@/components/courses/CourseCardVisual";
+import { InteractiveLessonContent } from "@/components/courses/InteractiveLessonContent";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -882,10 +882,6 @@ function CourseDetail() {
                     </span>
                   )}
                 </div>
-                <VoiceNarrationPlayer
-                  text={`${active.title}. ${active.description || active.content_md || ""}`}
-                  title={active.title}
-                />
               </div>
             )}
             <div className="aspect-video rounded-2xl border bg-black overflow-hidden">
@@ -1362,12 +1358,25 @@ function LessonAiTabs({
     }
   };
 
+  const [activeTab, setActiveTab] = useState(initialTab ?? "notes");
+  const [ideCode, setIdeCode] = useState<string | undefined>(undefined);
+  const [ideLang, setIdeLang] = useState<string | undefined>(undefined);
+
+  const handleRunInIde = (code: string, language?: string) => {
+    setIdeCode(code);
+    if (language) setIdeLang(language.toLowerCase());
+    setActiveTab("playground");
+  };
+
   return (
-    <Tabs defaultValue={hasToolAccess ? (initialTab ?? "notes") : "notes"} className="mt-2">
+    <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)} className="mt-2">
       <div className="w-full overflow-x-auto scrollbar-none pb-1">
         <TabsList className="inline-flex w-max items-center justify-start gap-1 p-1 bg-muted/40 rounded-xl border border-border/50">
           <TabsTrigger value="notes" className="gap-1.5 shrink-0 text-xs px-3 py-1.5 font-semibold cursor-pointer">
-            <NotebookPen className="h-3.5 w-3.5 text-indigo-400" /> Notes
+            <NotebookPen className="h-3.5 w-3.5 text-indigo-400" /> Lesson Content &amp; Notes
+          </TabsTrigger>
+          <TabsTrigger value="playground" className="gap-1.5 shrink-0 text-xs px-3 py-1.5 font-semibold cursor-pointer">
+            <Code2 className="h-3.5 w-3.5 text-rose-400" /> Code IDE &amp; Playground
           </TabsTrigger>
           {hasToolAccess && (
             <>
@@ -1378,13 +1387,10 @@ function LessonAiTabs({
                 <Send className="h-3.5 w-3.5 text-emerald-400" /> Ask AI
               </TabsTrigger>
               <TabsTrigger value="exercise" className="gap-1.5 shrink-0 text-xs px-3 py-1.5 font-semibold cursor-pointer">
-                <PlayCircle className="h-3.5 w-3.5 text-sky-400" /> Exercise
-              </TabsTrigger>
-              <TabsTrigger value="playground" className="gap-1.5 shrink-0 text-xs px-3 py-1.5 font-semibold cursor-pointer">
-                <Code2 className="h-3.5 w-3.5 text-rose-400" /> Playground
+                <PlayCircle className="h-3.5 w-3.5 text-sky-400" /> AI Exercise
               </TabsTrigger>
               <TabsTrigger value="visual" className="gap-1.5 shrink-0 text-xs px-3 py-1.5 font-semibold cursor-pointer">
-                <Brain className="h-3.5 w-3.5 text-purple-400" /> Visual
+                <Brain className="h-3.5 w-3.5 text-purple-400" /> Visual Blueprint
               </TabsTrigger>
             </>
           )}
@@ -1393,22 +1399,43 @@ function LessonAiTabs({
 
       <TabsContent value="notes" className="pt-4 space-y-3">
         {lesson.description && (
-          <Button variant="outline" size="sm" onClick={() => speak(lesson.description as string)}>
-            {speaking ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            {speaking ? "Stop" : "Listen"}
-          </Button>
+          <div className="flex items-center justify-between gap-2 pb-1">
+            <Button variant="outline" size="sm" onClick={() => speak(lesson.description as string)} className="text-xs h-7">
+              {speaking ? <VolumeX className="h-3.5 w-3.5 mr-1" /> : <Volume2 className="h-3.5 w-3.5 mr-1" />}
+              {speaking ? "Stop Narration" : "Listen to Notes"}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setActiveTab("playground")}
+              className="text-xs h-7 text-indigo-500 hover:text-indigo-600 gap-1 font-medium"
+            >
+              <Code2 className="h-3.5 w-3.5" /> Open Code IDE
+            </Button>
+          </div>
         )}
         {lesson.description ? (
-          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-headings:font-semibold prose-pre:p-0 prose-ul:my-1 prose-li:my-0.5">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-              {lesson.description}
-            </ReactMarkdown>
-          </div>
+          <InteractiveLessonContent
+            content={lesson.description}
+            onRunInIde={handleRunInIde}
+          />
         ) : (
-          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-            No instructor notes for this lesson.
-          </p>
+          <div className="rounded-xl border border-dashed border-border/70 p-6 text-center text-sm text-muted-foreground space-y-2">
+            <p>No written notes for this lesson yet.</p>
+            <Button size="sm" variant="outline" onClick={() => setActiveTab("playground")} className="gap-1.5 text-xs">
+              <Code2 className="h-3.5 w-3.5" /> Practice in Code IDE
+            </Button>
+          </div>
         )}
+      </TabsContent>
+
+      <TabsContent value="playground" className="pt-4">
+        <CodePlayground
+          course={{ id: courseId, title: courseTitle, slug: courseSlug }}
+          exerciseText={exercise}
+          injectedCode={ideCode}
+          injectedLang={ideLang}
+        />
       </TabsContent>
 
       {!hasToolAccess && <LockedCourseTools />}
@@ -1693,8 +1720,24 @@ const WEB_DEFAULTS = {
   js: 'console.log("preview ready");',
 };
 
-function CodePlayground({ course, exerciseText }: { course?: any; exerciseText?: string }) {
+function CodePlayground({
+  course,
+  exerciseText,
+  injectedCode,
+  injectedLang,
+}: {
+  course?: any;
+  exerciseText?: string;
+  injectedCode?: string;
+  injectedLang?: string;
+}) {
   const defaultMode = useMemo(() => {
+    if (injectedLang) {
+      const l = injectedLang.toLowerCase();
+      if (l === "html" || l === "css" || l === "web" || l === "html5" || l === "css3") return "web";
+      if (l === "sql" || l === "database") return "database";
+      return "code";
+    }
     if (!course) return "code";
     const title = (course.title || "").toLowerCase();
     const slug = (course.slug || "").toLowerCase();
@@ -1726,13 +1769,26 @@ function CodePlayground({ course, exerciseText }: { course?: any; exerciseText?:
       return "database";
     }
     return "code";
-  }, [course]);
+  }, [course, injectedLang]);
 
   const [mode, setMode] = useState<"code" | "web" | "database" | "api" | "tools">(defaultMode);
 
   useEffect(() => {
-    setMode(defaultMode);
-  }, [defaultMode]);
+    if (injectedLang) {
+      const l = injectedLang.toLowerCase();
+      if (l === "html" || l === "css" || l === "web" || l === "html5" || l === "css3") {
+        setMode("web");
+        return;
+      }
+      if (l === "sql" || l === "database") {
+        setMode("database");
+        return;
+      }
+      setMode("code");
+    } else {
+      setMode(defaultMode);
+    }
+  }, [defaultMode, injectedLang, injectedCode]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -1769,7 +1825,12 @@ function CodePlayground({ course, exerciseText }: { course?: any; exerciseText?:
         </button>
       </div>
       {mode === "code" ? (
-        <CodeMode course={course} exerciseText={exerciseText} />
+        <CodeMode
+          course={course}
+          exerciseText={exerciseText}
+          injectedCode={injectedCode}
+          injectedLang={injectedLang}
+        />
       ) : mode === "web" ? (
         <WebMode />
       ) : mode === "database" ? (
@@ -1783,8 +1844,24 @@ function CodePlayground({ course, exerciseText }: { course?: any; exerciseText?:
   );
 }
 
-function CodeMode({ course, exerciseText }: { course?: any; exerciseText?: string }) {
+function CodeMode({
+  course,
+  exerciseText,
+  injectedCode,
+  injectedLang,
+}: {
+  course?: any;
+  exerciseText?: string;
+  injectedCode?: string;
+  injectedLang?: string;
+}) {
   const defaultLang = useMemo(() => {
+    if (injectedLang) {
+      const match = PLAYGROUND_LANGS.find(
+        (l) => l.id.toLowerCase() === injectedLang.toLowerCase()
+      );
+      if (match) return match.id;
+    }
     if (!course) return "python";
     const title = (course.title || "").toLowerCase();
     const slug = (course.slug || "").toLowerCase();
@@ -1820,16 +1897,25 @@ function CodeMode({ course, exerciseText }: { course?: any; exerciseText?: strin
     if (title.includes("sql") || slug.includes("sql")) return "sql";
 
     return "python";
-  }, [course]);
+  }, [course, injectedLang]);
 
   const [lang, setLang] = useState(defaultLang);
-  const [code, setCode] = useState(PLAYGROUND_DEFAULTS[defaultLang] ?? PLAYGROUND_DEFAULTS.python);
+  const [code, setCode] = useState(
+    injectedCode || PLAYGROUND_DEFAULTS[defaultLang] || PLAYGROUND_DEFAULTS.python
+  );
 
   useEffect(() => {
-    setLang(defaultLang);
-    setCode(PLAYGROUND_DEFAULTS[defaultLang] ?? PLAYGROUND_DEFAULTS.python);
+    if (injectedCode) {
+      setCode(injectedCode);
+      if (injectedLang) {
+        setLang(injectedLang.toLowerCase());
+      }
+    } else {
+      setLang(defaultLang);
+      setCode(PLAYGROUND_DEFAULTS[defaultLang] ?? PLAYGROUND_DEFAULTS.python);
+    }
     setOutput(null);
-  }, [defaultLang]);
+  }, [defaultLang, injectedCode, injectedLang]);
   const [stdin, setStdin] = useState("");
   const [running, setRunning] = useState(false);
   const [output, setOutput] = useState<{ stdout: string; stderr: string; code: number } | null>(
