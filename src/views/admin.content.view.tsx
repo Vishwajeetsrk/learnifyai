@@ -2399,7 +2399,7 @@ function DemoVideoManager() {
                     setToolAutoplay(cfg?.autoplay ?? true);
                   }}
                   className={cn(
-                    "p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between",
+                    "p-2.5 rounded-xl border text-left transition-[color,background-color,border-color,box-shadow,transform] cursor-pointer flex flex-col justify-between",
                     isSelected
                       ? "border-primary bg-primary/5 ring-1 ring-primary shadow-xs"
                       : "border-border/80 hover:bg-muted/40",
