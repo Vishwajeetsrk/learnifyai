@@ -25,6 +25,8 @@ import {
   Sparkles,
   Play,
   ChevronDown,
+  FileSpreadsheet,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -335,6 +337,38 @@ export function RichLessonEditor({
               >
                 <Play className="h-3 w-3 text-emerald-500 fill-emerald-500" />
                 Code &amp; IDE
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  insertSnippet(
+                    "```excel\n=SUM(B2:B5)\n```"
+                  )
+                }
+                className="h-7 px-2 text-[11px] gap-1"
+                title="Insert interactive Excel & Spreadsheet simulator block"
+              >
+                <FileSpreadsheet className="h-3 w-3 text-emerald-600" />
+                Excel Simulator
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  insertSnippet(
+                    "```diagram\n  ┌──────────────────────────────────────┐\n  │ Ribbon: Home / Insert / Formulas ... │\n  ├──────────────────────────────────────┤\n  │ Name box  │  fx function bar          │\n  ├──────┬───────────────────────────────┤\n  │      │   A   B   C    D             │\n  │  R1  │  Name  Score  Grade           │\n  │  R2  │  Vish   85    Pass            │\n  │  R3  │  Nisha  92    Pass            │\n  ├──────┴───────────────────────────────┤\n  │ Sheet tabs:  Sheet1 | Sheet2         │\n  └──────────────────────────────────────┘\n```"
+                  )
+                }
+                className="h-7 px-2 text-[11px] gap-1"
+                title="Insert Architecture Map / Diagram"
+              >
+                <Layers className="h-3 w-3 text-sky-500" />
+                Diagram
               </Button>
 
               <Button

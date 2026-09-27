@@ -36,6 +36,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import RoadmapBuilder from "@/components/admin/RoadmapBuilder";
+import { cn } from "@/lib/utils";
 
 export default function CoachingDashboard() {
   const { user, isCreator } = useAuth();
@@ -45,8 +46,18 @@ export default function CoachingDashboard() {
   >("scheduling");
 
   // Scheduling State
-  const [newSlotStart, setNewSlotStart] = useState("");
-  const [newSlotEnd, setNewSlotEnd] = useState("");
+  const getTomorrowDefault = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const [slotDate, setSlotDate] = useState(getTomorrowDefault());
+  const [slotTime, setSlotTime] = useState("10:00");
+  const [slotDuration, setSlotDuration] = useState(60);
   const [newSlotPrice, setNewSlotPrice] = useState("0");
   const [newSlotMeetingLink, setNewSlotMeetingLink] = useState("");
   const [selectedCoachId, setSelectedCoachId] = useState<string | null>(null);
@@ -159,20 +170,23 @@ export default function CoachingDashboard() {
   });
 
   const addSlot = async () => {
-    if (!user || !newSlotStart || !newSlotEnd) return;
+    if (!user) return;
     try {
+      const startTime = new Date(`${slotDate}T${slotTime}`);
+      if (isNaN(startTime.getTime())) {
+        return toast.error("Please select a valid date and start time");
+      }
+      const endTime = new Date(startTime.getTime() + slotDuration * 60000);
+
       const { error } = await supabase.from("coaching_slots" as any).insert({
         coach_id: user.id,
-        start_time: new Date(newSlotStart).toISOString(),
-        end_time: new Date(newSlotEnd).toISOString(),
-        price_inr: parseFloat(newSlotPrice),
+        start_time: startTime.toISOString(),
+        end_time: endTime.toISOString(),
+        price_inr: parseFloat(newSlotPrice) || 0,
         meeting_link: newSlotMeetingLink.trim() || null,
       });
       if (error) throw error;
-      toast.success("Slot added");
-      setNewSlotStart("");
-      setNewSlotEnd("");
-      setNewSlotPrice("0");
+      toast.success("Availability slot added to calendar!");
       setNewSlotMeetingLink("");
       qc.invalidateQueries({ queryKey: ["my-coaching-slots"] });
     } catch (e: any) {
@@ -514,64 +528,170 @@ export default function CoachingDashboard() {
               <div className="bg-card rounded-2xl border p-6 flex flex-col h-full">
                 <h3 className="font-semibold text-lg mb-4">My Availability</h3>
 
-                <div className="bg-accent/30 border border-border/50 rounded-xl p-4 mb-6">
-                  <h4 className="text-sm font-medium mb-3">Add New Slot</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        Start Time
+                <div className="bg-gradient-to-br from-card to-accent/20 border border-border/70 rounded-2xl p-5 mb-6 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between border-b pb-3">
+                    <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                      <Calendar className="h-4 w-4 text-primary" /> Add Availability Slot
+                    </h4>
+                    <span className="text-[11px] text-muted-foreground font-medium">
+                      Set when learners can book you
+                    </span>
+                  </div>
+
+                  {/* Date selection + quick presets */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-primary" /> Session Date
                       </label>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const d = new Date();
+                            const yyyy = d.getFullYear();
+                            const mm = String(d.getMonth() + 1).padStart(2, "0");
+                            const dd = String(d.getDate()).padStart(2, "0");
+                            setSlotDate(`${yyyy}-${mm}-${dd}`);
+                          }}
+                          className="text-[10px] px-2 py-0.5 rounded border hover:bg-muted text-muted-foreground"
+                        >
+                          Today
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSlotDate(getTomorrowDefault())}
+                          className="text-[10px] px-2 py-0.5 rounded border hover:bg-muted text-muted-foreground"
+                        >
+                          Tomorrow
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const d = new Date();
+                            d.setDate(d.getDate() + 3);
+                            const yyyy = d.getFullYear();
+                            const mm = String(d.getMonth() + 1).padStart(2, "0");
+                            const dd = String(d.getDate()).padStart(2, "0");
+                            setSlotDate(`${yyyy}-${mm}-${dd}`);
+                          }}
+                          className="text-[10px] px-2 py-0.5 rounded border hover:bg-muted text-muted-foreground"
+                        >
+                          +3 Days
+                        </button>
+                      </div>
+                    </div>
+                    <Input
+                      type="date"
+                      className="h-10 text-xs sm:text-sm font-medium"
+                      value={slotDate}
+                      onChange={(e) => setSlotDate(e.target.value)}
+                    />
+                  </div>
+
+                  {/* Time + Duration */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-foreground">Start Time</label>
                       <Input
-                        type="datetime-local"
-                        className="h-10"
-                        value={newSlotStart}
-                        onChange={(e) => setNewSlotStart(e.target.value)}
+                        type="time"
+                        className="h-10 text-xs sm:text-sm font-medium"
+                        value={slotTime}
+                        onChange={(e) => setSlotTime(e.target.value)}
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        End Time
-                      </label>
-                      <Input
-                        type="datetime-local"
-                        className="h-10"
-                        value={newSlotEnd}
-                        onChange={(e) => setNewSlotEnd(e.target.value)}
-                      />
+                      <label className="text-xs font-semibold text-foreground">Duration</label>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {[30, 45, 60, 90].map((dur) => (
+                          <button
+                            key={dur}
+                            type="button"
+                            onClick={() => setSlotDuration(dur)}
+                            className={cn(
+                              "h-10 rounded-md border text-xs font-semibold transition-all",
+                              slotDuration === dur
+                                ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                : "bg-card hover:bg-accent text-muted-foreground"
+                            )}
+                          >
+                            {dur}m
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div className="mb-4">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                      Meeting Link (Google Meet / Zoom)
-                    </label>
+
+                  {/* Meeting link + generator */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-foreground">
+                        Meeting Link (Google Meet / Zoom)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setNewSlotMeetingLink("https://meet.google.com/new")}
+                        className="text-[10px] text-primary hover:underline font-medium"
+                      >
+                        + Generate Google Meet link
+                      </button>
+                    </div>
                     <Input
                       type="url"
-                      className="h-10 mt-1.5"
+                      className="h-10 text-xs font-mono"
                       placeholder="https://meet.google.com/xxx-xxxx-xxx"
                       value={newSlotMeetingLink}
                       onChange={(e) => setNewSlotMeetingLink(e.target.value)}
                     />
                   </div>
-                  <div className="flex flex-col sm:flex-row items-end gap-4">
-                    <div className="space-y-1.5 w-full sm:w-1/4">
-                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        Price (₹)
-                      </label>
-                      <Input
-                        type="number"
-                        className="h-10"
-                        placeholder="e.g. 500"
-                        value={newSlotPrice}
-                        onChange={(e) => setNewSlotPrice(e.target.value)}
-                      />
+
+                  {/* Price + Add Button */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-foreground">Session Fee</label>
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                      {[
+                        { label: "Free (₹0)", val: "0" },
+                        { label: "₹299", val: "299" },
+                        { label: "₹499", val: "499" },
+                        { label: "₹999", val: "999" },
+                        { label: "₹1499", val: "1499" },
+                      ].map((chip) => (
+                        <button
+                          key={chip.val}
+                          type="button"
+                          onClick={() => setNewSlotPrice(chip.val)}
+                          className={cn(
+                            "text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer",
+                            newSlotPrice === chip.val
+                              ? "bg-primary/10 border-primary text-primary font-bold"
+                              : "border-border text-muted-foreground hover:bg-accent"
+                          )}
+                        >
+                          {chip.label}
+                        </button>
+                      ))}
                     </div>
-                    <Button
-                      onClick={addSlot}
-                      disabled={!newSlotStart || !newSlotEnd}
-                      className="w-full sm:w-3/4 h-10"
-                    >
-                      Add Slot to Calendar
-                    </Button>
+                    <div className="flex flex-col sm:flex-row items-center gap-3">
+                      <div className="relative w-full sm:w-1/3">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                          ₹
+                        </span>
+                        <Input
+                          type="number"
+                          className="h-10 pl-7 text-xs font-semibold"
+                          placeholder="0"
+                          value={newSlotPrice}
+                          onChange={(e) => setNewSlotPrice(e.target.value)}
+                        />
+                      </div>
+                      <Button
+                        onClick={addSlot}
+                        disabled={!slotDate || !slotTime}
+                        className="w-full sm:w-2/3 h-10 shadow-sm font-semibold gap-1.5"
+                      >
+                        <CalendarPlus className="h-4 w-4" /> Add Slot to Calendar
+                      </Button>
+                    </div>
                   </div>
                 </div>
 

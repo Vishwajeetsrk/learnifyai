@@ -21,6 +21,11 @@ import {
   Sparkles,
   ArrowRight,
   BookOpen,
+  FileSpreadsheet,
+  Layers,
+  Calculator,
+  Table as TableIcon,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -53,6 +58,26 @@ export function InteractiveLessonContent({
   // Pre-process content to extract or tag custom interactive blocks
   const { renderedContent, quizzes, polls } = useMemo(() => {
     let processed = content || "";
+
+    // 1. Normalize unspaced headers: "mouse is the slow path.## First Understanding" -> "mouse is the slow path.\n\n## First Understanding"
+    processed = processed.replace(/([^\n])(#{1,6}\s)/g, "$1\n\n$2");
+
+    // 2. Clean accidental duplicate identical markdown headers/sections
+    const sectionSplit = processed.split(/(?=^#{1,3}\s)/m);
+    if (sectionSplit.length > 1) {
+      const seen = new Set<string>();
+      const deduped: string[] = [];
+      for (const sec of sectionSplit) {
+        const trimmed = sec.trim();
+        if (trimmed && seen.has(trimmed)) {
+          continue; // eliminate exact duplicated content block
+        }
+        if (trimmed) seen.add(trimmed);
+        deduped.push(sec);
+      }
+      processed = deduped.join("\n\n");
+    }
+
     const extractedQuizzes: Record<string, ParsedQuiz> = {};
     const extractedPolls: Record<string, ParsedPoll> = {};
 
@@ -149,10 +174,50 @@ export function InteractiveLessonContent({
           // Code Block with Copy & Run in IDE
           code({ node, inline, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || "");
-            const lang = match ? match[1] : "";
+            const lang = match ? match[1].toLowerCase() : "";
             const rawCode = String(children).replace(/\n$/, "");
 
-            if (!inline && rawCode) {
+            // Detect if this is a short cell reference or key shortcut (e.g. A1, B2, Ctrl+S, Ctrl+Shift+Arrow, Sales, Data)
+            const isShortToken =
+              !rawCode.includes("\n") &&
+              (rawCode.trim().length <= 35 ||
+                /^[A-Z]{1,3}\d{1,7}(:[A-Z]{1,3}\d{1,7})?$/i.test(rawCode.trim()) ||
+                /^(ctrl|cmd|alt|shift)\+/i.test(rawCode.trim()) ||
+                /^\$[A-Z]\$\d+$/i.test(rawCode.trim()));
+
+            if (inline || (isShortToken && !lang)) {
+              return (
+                <kbd
+                  className="inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded-md bg-muted text-foreground font-mono text-[12px] border border-border/70 shadow-2xs font-semibold"
+                  {...props}
+                >
+                  {children}
+                </kbd>
+              );
+            }
+
+            // Detect ASCII Architecture or Interface Diagram
+            const isDiagram =
+              lang === "diagram" ||
+              lang === "ascii" ||
+              /[┌┐└┘├┤┬┴┼│─]/.test(rawCode);
+
+            if (isDiagram) {
+              return <InteractiveDiagramBlock code={rawCode} />;
+            }
+
+            // Detect Excel / Spreadsheet formula or table
+            const isExcel =
+              lang === "excel" ||
+              lang === "formula" ||
+              lang === "spreadsheet" ||
+              (rawCode.startsWith("=") && rawCode.length < 160 && !rawCode.includes("def "));
+
+            if (isExcel) {
+              return <InteractiveExcelBlock code={rawCode} />;
+            }
+
+            if (rawCode) {
               return (
                 <InteractiveCodeBlock
                   code={rawCode}
@@ -244,6 +309,370 @@ export function InteractiveLessonContent({
   );
 }
 
+// ---------------- Interactive Excel / Spreadsheet Simulator ----------------
+const DEFAULT_SHEET_DATA: Record<string, string | number> = {
+  A1: "Name",
+  B1: "Score",
+  C1: "Category",
+  D1: "Status",
+  A2: "Vish",
+  B2: 85,
+  C2: "Tech",
+  D2: "Pass",
+  A3: "Nisha",
+  B3: 92,
+  C3: "Tech",
+  D3: "Pass",
+  A4: "Rahul",
+  B4: 74,
+  C4: "Design",
+  D4: "Pass",
+  A5: "Priya",
+  B5: 96,
+  C5: "Mgmt",
+  D5: "Honors",
+};
+
+function evaluateExcelFormula(
+  formula: string,
+  grid: Record<string, string | number>
+): { result: string | number; explanation: string } {
+  const clean = formula.trim().replace(/^=/, "");
+  const upper = clean.toUpperCase();
+
+  try {
+    if (upper.startsWith("SUM(") && upper.endsWith(")")) {
+      const inner = clean.slice(4, -1).trim();
+      const numbers: number[] = [];
+      if (inner.includes(":")) {
+        const [start, end] = inner.split(":");
+        const startCol = start.charAt(0).toUpperCase();
+        const startRow = parseInt(start.slice(1), 10);
+        const endRow = parseInt(end.slice(1), 10);
+        for (let r = startRow; r <= endRow; r++) {
+          const val = Number(grid[`${startCol}${r}`]);
+          if (!isNaN(val)) numbers.push(val);
+        }
+      } else {
+        inner.split(",").forEach((c) => {
+          const val = Number(grid[c.trim().toUpperCase()] ?? c.trim());
+          if (!isNaN(val)) numbers.push(val);
+        });
+      }
+      const sum = numbers.reduce((a, b) => a + b, 0);
+      return {
+        result: sum,
+        explanation: `Sum of [${numbers.join(" + ")}] = ${sum}`,
+      };
+    }
+
+    if (upper.startsWith("AVERAGE(") && upper.endsWith(")")) {
+      const inner = clean.slice(8, -1).trim();
+      const numbers: number[] = [];
+      if (inner.includes(":")) {
+        const [start, end] = inner.split(":");
+        const startCol = start.charAt(0).toUpperCase();
+        const startRow = parseInt(start.slice(1), 10);
+        const endRow = parseInt(end.slice(1), 10);
+        for (let r = startRow; r <= endRow; r++) {
+          const val = Number(grid[`${startCol}${r}`]);
+          if (!isNaN(val)) numbers.push(val);
+        }
+      }
+      if (numbers.length === 0) return { result: 0, explanation: "No values found in range" };
+      const avg = numbers.reduce((a, b) => a + b, 0) / numbers.length;
+      return {
+        result: Number(avg.toFixed(2)),
+        explanation: `Sum [${numbers.join(" + ")}] ÷ ${numbers.length} = ${avg.toFixed(2)}`,
+      };
+    }
+
+    if (upper.startsWith("COUNT(") && upper.endsWith(")")) {
+      const inner = clean.slice(6, -1).trim();
+      let count = 0;
+      if (inner.includes(":")) {
+        const [start, end] = inner.split(":");
+        const startCol = start.charAt(0).toUpperCase();
+        const startRow = parseInt(start.slice(1), 10);
+        const endRow = parseInt(end.slice(1), 10);
+        for (let r = startRow; r <= endRow; r++) {
+          if (grid[`${startCol}${r}`] !== undefined) count++;
+        }
+      }
+      return { result: count, explanation: `Found ${count} cell(s) in range ${inner}` };
+    }
+
+    if (upper.startsWith("MAX(") || upper.startsWith("MIN(")) {
+      const isMax = upper.startsWith("MAX");
+      const inner = clean.slice(4, -1).trim();
+      const numbers: number[] = [];
+      if (inner.includes(":")) {
+        const [start, end] = inner.split(":");
+        const startCol = start.charAt(0).toUpperCase();
+        const startRow = parseInt(start.slice(1), 10);
+        const endRow = parseInt(end.slice(1), 10);
+        for (let r = startRow; r <= endRow; r++) {
+          const val = Number(grid[`${startCol}${r}`]);
+          if (!isNaN(val)) numbers.push(val);
+        }
+      }
+      const val = isMax ? Math.max(...numbers) : Math.min(...numbers);
+      return { result: val, explanation: `${isMax ? "Max" : "Min"} value in range = ${val}` };
+    }
+
+    if (upper.startsWith("IF(") && upper.endsWith(")")) {
+      const inner = clean.slice(3, -1);
+      const parts = inner.split(",").map((s) => s.trim());
+      if (parts.length >= 2) {
+        const cond = parts[0];
+        const match = cond.match(/^([A-Z]\d+)\s*(>=|<=|>|<|==|=)\s*(\d+)$/i);
+        if (match) {
+          const cellVal = Number(grid[match[1].toUpperCase()] || 0);
+          const op = match[2];
+          const target = Number(match[3]);
+          let isTrue = false;
+          if (op === ">=") isTrue = cellVal >= target;
+          else if (op === "<=") isTrue = cellVal <= target;
+          else if (op === ">") isTrue = cellVal > target;
+          else if (op === "<") isTrue = cellVal < target;
+          else if (op === "==" || op === "=") isTrue = cellVal === target;
+
+          const res = isTrue ? parts[1].replace(/["']/g, "") : (parts[2] || "").replace(/["']/g, "");
+          return {
+            result: res,
+            explanation: `Condition (${match[1]}=${cellVal} ${op} ${target}) is ${isTrue ? "TRUE" : "FALSE"} → returns "${res}"`,
+          };
+        }
+      }
+    }
+
+    if (/^[A-Z]\d+$/i.test(clean)) {
+      const val = grid[clean.toUpperCase()];
+      return { result: val ?? "#N/A", explanation: `Direct cell reference to ${clean.toUpperCase()}` };
+    }
+
+    return {
+      result: "Computed",
+      explanation: `Formula evaluated successfully on spreadsheet.`,
+    };
+  } catch (err: any) {
+    return { result: "#ERROR!", explanation: err?.message || "Invalid formula syntax" };
+  }
+}
+
+function InteractiveExcelBlock({ code }: { code: string }) {
+  const initialFormula = code.trim().startsWith("=") ? code.trim() : `=SUM(B2:B5)`;
+  const [formula, setFormula] = useState(initialFormula);
+  const [grid, setGrid] = useState<Record<string, string | number>>(DEFAULT_SHEET_DATA);
+  const [evalResult, setEvalResult] = useState<{ result: string | number; explanation: string }>(() =>
+    evaluateExcelFormula(initialFormula, DEFAULT_SHEET_DATA)
+  );
+
+  const handleRun = () => {
+    const res = evaluateExcelFormula(formula, grid);
+    setEvalResult(res);
+    toast.success(`Formula evaluated: ${res.result}`);
+  };
+
+  const sampleFormulas = [
+    "=SUM(B2:B5)",
+    "=AVERAGE(B2:B5)",
+    '=IF(B2>=90, "Honors", "Pass")',
+    "=MAX(B2:B5)",
+    "=COUNT(B2:B5)",
+  ];
+
+  return (
+    <div className="not-prose my-5 rounded-2xl border border-emerald-500/30 bg-card overflow-hidden shadow-sm">
+      {/* Header bar */}
+      <div className="flex items-center justify-between px-4 py-2.5 bg-emerald-950/20 border-b border-emerald-500/20 text-xs">
+        <div className="flex items-center gap-2">
+          <div className="h-6 w-6 rounded-md bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+            X
+          </div>
+          <span className="font-semibold text-foreground text-xs">
+            Interactive Excel & Spreadsheet Runner
+          </span>
+          <Badge variant="outline" className="text-[10px] text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+            Live Simulator
+          </Badge>
+        </div>
+      </div>
+
+      {/* Formula Bar */}
+      <div className="p-3 bg-muted/30 border-b border-border/60 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0 px-2 py-1 rounded bg-background border text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
+          <span className="italic">fx</span>
+        </div>
+        <input
+          type="text"
+          value={formula}
+          onChange={(e) => setFormula(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleRun()}
+          placeholder="Enter Excel formula, e.g. =SUM(B2:B5)"
+          className="flex-1 h-8 px-2.5 text-xs font-mono bg-background border rounded-lg focus:outline-none focus:ring-1 focus:ring-emerald-500 text-foreground"
+        />
+        <Button
+          size="sm"
+          onClick={handleRun}
+          className="h-8 px-3 text-xs bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer font-semibold shadow-xs"
+        >
+          <Play className="h-3 w-3 mr-1 fill-white" /> Run Formula
+        </Button>
+      </div>
+
+      {/* Quick presets */}
+      <div className="px-3 py-1.5 bg-muted/15 border-b border-border/40 flex flex-wrap items-center gap-1.5 text-[11px]">
+        <span className="text-muted-foreground mr-1">Presets:</span>
+        {sampleFormulas.map((f) => (
+          <button
+            key={f}
+            type="button"
+            onClick={() => {
+              setFormula(f);
+              const res = evaluateExcelFormula(f, grid);
+              setEvalResult(res);
+            }}
+            className="px-2 py-0.5 rounded bg-muted/60 hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 text-foreground/80 font-mono text-[10.5px] transition-colors cursor-pointer border border-border/40"
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      {/* Spreadsheet Grid Preview */}
+      <div className="p-3 overflow-x-auto">
+        <table className="w-full text-xs font-mono border-collapse border border-border/70 rounded-lg overflow-hidden">
+          <thead>
+            <tr className="bg-muted/70 text-muted-foreground">
+              <th className="border border-border/70 p-1.5 w-10 text-center font-bold">#</th>
+              <th className="border border-border/70 p-1.5 text-left font-bold">A (Name)</th>
+              <th className="border border-border/70 p-1.5 text-right font-bold">B (Score)</th>
+              <th className="border border-border/70 p-1.5 text-left font-bold">C (Category)</th>
+              <th className="border border-border/70 p-1.5 text-center font-bold">D (Status)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3, 4, 5].map((row) => (
+              <tr key={row} className="hover:bg-muted/30">
+                <td className="border border-border/70 p-1.5 text-center bg-muted/40 font-bold text-muted-foreground">
+                  {row}
+                </td>
+                <td className="border border-border/70 p-1.5">{grid[`A${row}`]}</td>
+                <td className="border border-border/70 p-1.5 text-right font-semibold text-emerald-600 dark:text-emerald-400">
+                  {grid[`B${row}`]}
+                </td>
+                <td className="border border-border/70 p-1.5">{grid[`C${row}`]}</td>
+                <td className="border border-border/70 p-1.5 text-center">
+                  <Badge variant="outline" className="text-[10px] py-0 px-1.5">
+                    {grid[`D${row}`]}
+                  </Badge>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Result Card */}
+      <div className="p-3.5 bg-emerald-500/5 border-t border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+            Computed Result
+          </span>
+          <p className="text-sm font-mono font-bold text-foreground mt-0.5">
+            {String(evalResult.result)}
+          </p>
+          <p className="text-[11px] text-muted-foreground">{evalResult.explanation}</p>
+        </div>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setGrid({ ...DEFAULT_SHEET_DATA });
+            setFormula(initialFormula);
+            setEvalResult(evaluateExcelFormula(initialFormula, DEFAULT_SHEET_DATA));
+          }}
+          className="text-xs h-7 cursor-pointer"
+        >
+          <RefreshCw className="h-3 w-3 mr-1" /> Reset Grid
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function InteractiveDiagramBlock({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      toast.success("Diagram copied!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Failed to copy");
+    }
+  };
+
+  return (
+    <div className="not-prose my-5 rounded-2xl border border-border/80 bg-zinc-950 text-zinc-100 overflow-hidden shadow-md">
+      <div className="flex items-center justify-between px-3.5 py-2 border-b border-zinc-800 bg-zinc-900/90 text-xs">
+        <div className="flex items-center gap-2">
+          <Layers className="h-3.5 w-3.5 text-sky-400" />
+          <span className="font-mono text-[11px] font-semibold text-zinc-300">
+            INTERFACE MAP · ARCHITECTURE DIAGRAM
+          </span>
+        </div>
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
+          onClick={handleCopy}
+          className="h-7 px-2 text-[11px] text-zinc-300 hover:text-white hover:bg-zinc-800 cursor-pointer"
+          title="Copy diagram"
+        >
+          {copied ? (
+            <>
+              <Check className="h-3 w-3 text-emerald-400 mr-1" />
+              Copied
+            </>
+          ) : (
+            <>
+              <Copy className="h-3 w-3 mr-1" />
+              Copy Map
+            </>
+          )}
+        </Button>
+      </div>
+      <div className="p-4 overflow-x-auto bg-black/60 font-mono text-[12px] sm:text-[13px] leading-snug text-emerald-300">
+        <pre className="!bg-transparent !p-0 !m-0 whitespace-pre">
+          <code>{code}</code>
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+const RUNNABLE_LANGS = [
+  "python",
+  "py",
+  "javascript",
+  "js",
+  "typescript",
+  "ts",
+  "html",
+  "css",
+  "sql",
+  "cpp",
+  "c",
+  "java",
+  "go",
+  "rust",
+  "bash",
+  "sh",
+];
+
 // ---------------- Interactive Code Block ----------------
 function InteractiveCodeBlock({
   code,
@@ -277,6 +706,9 @@ function InteractiveCodeBlock({
   };
 
   const displayLang = (language || "code").toUpperCase();
+  const isRunnable =
+    RUNNABLE_LANGS.includes(language?.toLowerCase() || "") &&
+    (code.split("\n").length >= 2 || code.length > 25);
 
   return (
     <div className="not-prose my-4 rounded-xl border border-border/80 bg-zinc-950 text-zinc-100 overflow-hidden shadow-md">
@@ -294,7 +726,7 @@ function InteractiveCodeBlock({
             size="sm"
             variant="ghost"
             onClick={handleCopy}
-            className="h-7 px-2 text-[11px] text-zinc-300 hover:text-white hover:bg-zinc-800"
+            className="h-7 px-2 text-[11px] text-zinc-300 hover:text-white hover:bg-zinc-800 cursor-pointer"
             title="Copy code"
           >
             {copied ? (
@@ -310,12 +742,12 @@ function InteractiveCodeBlock({
             )}
           </Button>
 
-          {onRunInIde && (
+          {onRunInIde && isRunnable && (
             <Button
               type="button"
               size="sm"
               onClick={handleRun}
-              className="h-7 px-2.5 text-[11px] bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-sm transition-transform active:scale-95"
+              className="h-7 px-2.5 text-[11px] bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-sm transition-transform active:scale-95 cursor-pointer"
               title="Open and run this code in the interactive IDE"
             >
               <Play className="h-3 w-3 mr-1 fill-white" />

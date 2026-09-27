@@ -49,7 +49,25 @@ function SystemDesignTopicPage() {
   const { refresh } = useLearningProgress();
   const topic = getTopic(topicId);
 
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    if (topic?.sections) {
+      topic.sections.forEach((s, idx) => {
+        initial[s.id] = idx === 0; // First section open by default so content is instantly visible
+      });
+    }
+    return initial;
+  });
+
+  const allOpen = topic?.sections?.length ? topic.sections.every((s) => openSections[s.id]) : false;
+  const toggleAllSections = () => {
+    const next: Record<string, boolean> = {};
+    const targetState = !allOpen;
+    topic?.sections?.forEach((s) => {
+      next[s.id] = targetState;
+    });
+    setOpenSections(next);
+  };
   const [showQuiz, setShowQuiz] = useState(false);
   const [quizCompleted, setQuizCompleted] = useState(false);
   const [completedLesson, setCompletedLesson] = useState(false);
@@ -184,9 +202,19 @@ function SystemDesignTopicPage() {
 
         {/* Learning sections */}
         <div className="space-y-3">
-          <h2 className="text-sm font-semibold flex items-center gap-2">
-            <BookOpen className="h-4 w-4 text-primary" /> Lesson Content
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-primary" /> Lesson Content
+            </h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleAllSections}
+              className="h-7 text-xs text-muted-foreground hover:text-foreground"
+            >
+              {allOpen ? "Collapse All" : "Expand All Sections"}
+            </Button>
+          </div>
           <div className="space-y-2">
             {topic.sections.map((section) => (
               <LearningCard

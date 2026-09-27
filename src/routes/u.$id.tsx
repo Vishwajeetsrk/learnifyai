@@ -556,7 +556,7 @@ function PublicProfilePage() {
   const name = profile.full_name ?? "Learner";
   const initials = name
     .split(" ")
-    .map((s) => s[0])
+    .map((s: string) => s[0])
     .slice(0, 2)
     .join("")
     .toUpperCase();
@@ -703,6 +703,32 @@ function PublicProfilePage() {
             )}
           </div>
 
+        {/* Profile Content or Private Profile Notice */}
+        {(q.data as any).is_private ? (
+          <div className="mt-8 px-4 sm:px-6 lg:px-10">
+            <div className="p-8 sm:p-12 rounded-2xl border border-border/80 bg-card/60 backdrop-blur-sm text-center max-w-lg mx-auto shadow-sm space-y-4">
+              <div className="h-16 w-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto text-primary">
+                <Shield className="h-8 w-8" />
+              </div>
+              <h2 className="text-xl font-bold tracking-tight text-foreground">This Profile is Private</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {profile.full_name || "This user"} has chosen to protect their courses, certifications, achievements, and activity from public view.
+              </p>
+              <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                <Link to="/courses">
+                  <Button variant="outline" size="sm" className="rounded-xl">
+                    <GraduationCap className="h-4 w-4 mr-1.5" /> Explore Courses
+                  </Button>
+                </Link>
+                <Link to="/">
+                  <Button size="sm" className="rounded-xl">
+                    Back to Home
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8 border-t pt-8">
             {/* Left Column: Bio, Tabs */}
             <div className="lg:col-span-8 space-y-6">
@@ -1631,6 +1657,7 @@ function PublicProfilePage() {
               </div>
             </div>
           </div>
+        )}
         </div>
       </div>
     </AppShell>

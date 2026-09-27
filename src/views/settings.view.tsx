@@ -34,6 +34,9 @@ import {
   Youtube,
   Gamepad2,
   Music2,
+  Shield,
+  Link as LinkIcon,
+  Languages,
 } from "lucide-react";
 import { SkillBadge, SKILL_LOGOS } from "@/components/SkillBadge";
 import { format } from "date-fns";
@@ -153,6 +156,7 @@ export default function SettingsPage() {
   const [links, setLinks] = useState<SocialLinks>({});
   const [showBanner, setShowBanner] = useState<boolean>(true);
   const [nameColor, setNameColor] = useState<string>("");
+  const [isPrivate, setIsPrivate] = useState<boolean>(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [avatarSignedUrl, setAvatarSignedUrl] = useState<string | null>(null);
@@ -644,6 +648,30 @@ export default function SettingsPage() {
     }
   }
 
+  async function toggleProfilePrivacy(checked: boolean) {
+    setIsPrivate(checked);
+    try {
+      const currentUiPrefs =
+        profileQ.data?.ui_prefs && typeof profileQ.data.ui_prefs === "object"
+          ? (profileQ.data.ui_prefs as Record<string, any>)
+          : {};
+      await doSaveField({
+        data: { field: "ui_prefs", value: { ...currentUiPrefs, is_private: checked } },
+      });
+      try {
+        await doSaveField({ data: { field: "is_private", value: checked } });
+      } catch {
+        /* is_private column may be stored inside ui_prefs */
+      }
+      toast.success(checked ? "Profile visibility set to Private" : "Profile visibility set to Public");
+      await qc.invalidateQueries({ queryKey: ["profile-full"] });
+      await qc.invalidateQueries({ queryKey: ["public-profile"] });
+    } catch (e: any) {
+      setIsPrivate(!checked);
+      toast.error(e?.message ?? "Failed to update profile privacy");
+    }
+  }
+
   /* ── Parse existing avatar into cartoon controls ── */
   useEffect(() => {
     if (!cartoonOpen) return;
@@ -1013,6 +1041,7 @@ export default function SettingsPage() {
     setSkills(p.skills ?? []);
     setLinks((p.social_links ?? {}) as SocialLinks);
     setNameColor((p as any).name_color ?? "");
+    setIsPrivate(Boolean((p as any).is_private || p?.ui_prefs?.is_private));
     setPrefs((prev) => ({ ...prev, ...((p.notif_prefs ?? {}) as Partial<NotifPrefs>) }));
     setPayout((p.payout_destination ?? { method: "bank" }) as Payout);
     setDefaults(
@@ -2480,6 +2509,85 @@ export default function SettingsPage() {
                 <Field label="Email">
                   <Input value={user?.email ?? ""} disabled />
                 </Field>
+
+                {/* Public Profile Vanity URL & Quick Copy */}
+                <div className="sm:col-span-2 p-4 rounded-xl border border-primary/20 bg-primary/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-primary shrink-0" />
+                      <span className="text-xs font-bold text-foreground">Your Public Profile Link</span>
+                      <Badge variant="outline" className="text-[10px] bg-background">
+                        {isPrivate ? "Private Mode" : "Public"}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-mono truncate">
+                      {typeof window !== "undefined" ? window.location.origin : "https://www.learnifyai.in"}/u/{username || user?.id}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs gap-1.5 bg-background shadow-xs hover:bg-muted"
+                      onClick={() => {
+                        const host = typeof window !== "undefined" ? window.location.origin : "https://www.learnifyai.in";
+                        const url = `${host}/u/${username || user?.id}`;
+                        navigator.clipboard.writeText(url);
+                        toast.success("Profile link copied to clipboard!");
+                      }}
+                    >
+                      <LinkIcon className="h-3.5 w-3.5" /> Copy Link
+                    </Button>
+                    <Link
+                      to="/u/$id"
+                      params={{ id: username || user?.id || "" }}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button type="button" size="sm" className="h-8 text-xs gap-1.5">
+                        <ExternalLink className="h-3.5 w-3.5" /> View
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Profile Privacy & Visibility Toggle */}
+                <div className="sm:col-span-2 p-4 rounded-xl border border-border bg-card flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-primary shrink-0" />
+                      <span className="text-xs font-bold text-foreground">Profile Visibility (Public / Private)</span>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "text-[10px]",
+                          isPrivate
+                            ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
+                            : "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                        )}
+                      >
+                        {isPrivate ? "Private Profile" : "Public Profile"}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      {isPrivate
+                        ? "Your courses, certificates, achievements, and activity are protected from unauthorized visitors. Visitors will see a secure private profile banner."
+                        : "Anyone with your link or username can view your completed certifications, learning progress, and projects."}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      {isPrivate ? "Private" : "Public"}
+                    </span>
+                    <Switch
+                      checked={isPrivate}
+                      onCheckedChange={toggleProfilePrivacy}
+                      aria-label="Toggle profile visibility"
+                    />
+                  </div>
+                </div>
+
                 <Field label="Website">
                   <Input
                     value={website}
@@ -3074,6 +3182,73 @@ export default function SettingsPage() {
                     India (IN) · Asia/Kolkata
                   </div>
                 </Field>
+              </div>
+
+              {/* Live Translation Verification & Quality Inspector */}
+              <div className="rounded-xl border border-border/80 bg-accent/20 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Languages className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-bold text-foreground">Live Translation Verification</span>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/30 flex items-center gap-1 font-mono">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Active: {i18n.language || "en"}
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Verify how your UI strings and headings render across Indian and international regional locales:
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 rounded-lg border bg-background space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground">Hero Headline</span>
+                    <p className="font-semibold text-foreground">{t("hero_title", "Learn Without Limits")}</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg border bg-background space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground">Call To Action</span>
+                    <p className="font-semibold text-foreground">{t("btn_get_started", "Get Started")}</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg border bg-background space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground">Navigation: Courses</span>
+                    <p className="font-semibold text-foreground">{t("nav_courses", "Courses")}</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg border bg-background space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground">Save Action</span>
+                    <p className="font-semibold text-foreground">{t("btn_save", "Save Changes")}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                  <span className="text-[10px] text-muted-foreground font-medium">Quick Test:</span>
+                  {[
+                    { code: "en", label: "English" },
+                    { code: "hi", label: "हिन्दी" },
+                    { code: "bn", label: "বাংলা" },
+                    { code: "ta", label: "தமிழ்" },
+                    { code: "te", label: "తెలుగు" },
+                    { code: "es", label: "Español" },
+                  ].map((testLang) => (
+                    <button
+                      key={testLang.code}
+                      type="button"
+                      onClick={() => {
+                        i18n.changeLanguage(testLang.code);
+                        localStorage.setItem("learnify-lang", testLang.code);
+                        if (typeof document !== "undefined") {
+                          document.documentElement.lang = testLang.code;
+                        }
+                        toast.success(`Tested ${testLang.label} (${testLang.code})`);
+                      }}
+                      className={cn(
+                        "text-[10px] px-2 py-0.5 rounded-md border transition-all cursor-pointer",
+                        (i18n.language?.split("-")[0] || "en") === testLang.code
+                          ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
+                          : "bg-background hover:bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {testLang.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-[11px] text-muted-foreground space-y-1">

@@ -3,10 +3,12 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 
 export const getPublicProfile = createServerFn({ method: "GET" })
-  .validator((input: { id: string }) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: { id: string }) =>
+    z.object({ id: z.string().min(1).max(100) }).parse(input)
+  )
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const id = data.id;
+    const rawId = data.id.trim();
 
     const request = getRequest();
     let currentUserId: string | null = null;
@@ -40,8 +42,85 @@ export const getPublicProfile = createServerFn({ method: "GET" })
       }
     }
 
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawId);
+
+    // Resolve profile
+    let profileData: any = null;
+    if (isUuid) {
+      const { data } = await supabaseAdmin
+        .from("profiles")
+        .select(
+          "id, full_name, avatar_url, bio, created_at, banner_url, social_links, username, location, work, education, skills, email, website, xp, current_streak, ui_prefs"
+        )
+        .eq("id", rawId)
+        .maybeSingle();
+      profileData = data;
+    } else {
+      // Lookup by username
+      const { data } = await supabaseAdmin
+        .from("profiles")
+        .select(
+          "id, full_name, avatar_url, bio, created_at, banner_url, social_links, username, location, work, education, skills, email, website, xp, current_streak, ui_prefs"
+        )
+        .ilike("username", rawId)
+        .maybeSingle();
+      profileData = data;
+
+      // Fallback: search by name or custom handle
+      if (!profileData) {
+        const { data: fallback } = await supabaseAdmin
+          .from("profiles")
+          .select(
+            "id, full_name, avatar_url, bio, created_at, banner_url, social_links, username, location, work, education, skills, email, website, xp, current_streak, ui_prefs"
+          )
+          .or(`username.ilike.${rawId},full_name.ilike.${rawId}`)
+          .limit(1)
+          .maybeSingle();
+        profileData = fallback;
+      }
+    }
+
+    if (!profileData) return null;
+
+    const id = profileData.id;
+    const isOwner = currentUserId === id;
+    const isPrivate = (profileData as any).is_private === true || (profileData.ui_prefs as any)?.is_private === true;
+
+    // If profile is set to Private and visitor is not the owner, hide confidential activity
+    if (isPrivate && !isOwner) {
+      return {
+        profile: {
+          id: profileData.id,
+          full_name: profileData.full_name,
+          avatar_url: profileData.avatar_url,
+          username: profileData.username,
+          bio: "This profile is private.",
+          created_at: profileData.created_at,
+          is_private: true,
+          social_links: null,
+          skills: [],
+          location: null,
+          work: null,
+          education: null,
+          email: null,
+          website: null,
+          xp: 0,
+          current_streak: 0,
+          banner_url: profileData.banner_url,
+        },
+        is_private: true,
+        subscribers: 0,
+        likes: 0,
+        certificates: 0,
+        enrolled: [],
+        created: [],
+        projects: [],
+        posts: [],
+        roles: [],
+      };
+    }
+
     const [
-      profileRes,
       subRes,
       likesRes,
       enrollRes,
@@ -51,13 +130,6 @@ export const getPublicProfile = createServerFn({ method: "GET" })
       postsRes,
       rolesRes,
     ] = await Promise.all([
-      supabaseAdmin
-        .from("profiles")
-        .select(
-          "id, full_name, avatar_url, bio, created_at, banner_url, social_links, username, location, work, education, skills, email, website, xp, current_streak",
-        )
-        .eq("id", id)
-        .maybeSingle(),
       supabaseAdmin
         .from("creator_subscriptions")
         .select("*", { count: "exact", head: true })
@@ -87,7 +159,7 @@ export const getPublicProfile = createServerFn({ method: "GET" })
         let query = (supabaseAdmin as any)
           .from("playground_projects")
           .select(
-            "id, title, description, language, template, is_public, tags, screenshot_url, created_at, updated_at, project_likes(id, user_id, user:user_id(id, full_name)), project_comments(id, user_id, content, created_at), github, image_url",
+            "id, title, description, language, template, is_public, tags, screenshot_url, created_at, updated_at, project_likes(id, user_id, user:user_id(id, full_name)), project_comments(id, user_id, content, created_at), github, image_url"
           )
           .eq("user_id", id);
         if (currentUserId !== id) {
@@ -104,7 +176,7 @@ export const getPublicProfile = createServerFn({ method: "GET" })
           likes:post_likes(id, user_id, user:user_id(id, full_name, avatar_url)),
           comments:post_comments(id, content, author_id, created_at, author:author_id(id, full_name, avatar_url)),
           saves:post_saves(id, user_id)
-        `,
+        `
         )
         .eq("author_id", id)
         .order("created_at", { ascending: false })
@@ -112,10 +184,9 @@ export const getPublicProfile = createServerFn({ method: "GET" })
       supabaseAdmin.from("user_roles").select("role").eq("user_id", id),
     ]);
 
-    if (!profileRes.data) return null;
-
     return {
-      profile: profileRes.data,
+      profile: profileData,
+      is_private: false,
       subscribers: subRes.count ?? 0,
       likes: likesRes.count ?? 0,
       certificates: certsRes.count ?? 0,
