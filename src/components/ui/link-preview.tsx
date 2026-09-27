@@ -1,7 +1,6 @@
 "use client";
 
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
-import { encode } from "qss";
 import React, { useState, useEffect } from "react";
 import {
   AnimatePresence,
@@ -67,18 +66,18 @@ export function LinkPreview({
 
   let src = "";
   if (!isStatic) {
-    const params = {
+    const searchParams = new URLSearchParams({
       url,
-      screenshot: true,
-      meta: false,
+      screenshot: "true",
+      meta: "false",
       embed: "screenshot.url",
       colorScheme: isDark ? "dark" : "light",
-      "viewport.isMobile": true,
-      "viewport.deviceScaleFactor": 1,
-      "viewport.width": width * 2,
-      "viewport.height": height * 2,
-    };
-    src = `https://api.microlink.io/?${encode(params)}`;
+      "viewport.isMobile": "true",
+      "viewport.deviceScaleFactor": "1",
+      "viewport.width": String(width * 2),
+      "viewport.height": String(height * 2),
+    });
+    src = `https://api.microlink.io/?${searchParams.toString()}`;
   } else {
     src = imageSrc;
   }
