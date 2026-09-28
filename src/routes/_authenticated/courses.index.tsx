@@ -415,7 +415,7 @@ function CoursesPage() {
                   key={p.id}
                   onClick={() => setCareerPath(p.id)}
                   className={cn(
-                    "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 inline-flex items-center gap-1.5 cursor-pointer",
+                    "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-[color,background-color,border-color,box-shadow,transform] shrink-0 inline-flex items-center gap-1.5 cursor-pointer",
                     active
                       ? "bg-primary text-primary-foreground shadow-xs"
                       : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground",
