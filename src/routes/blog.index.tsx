@@ -211,14 +211,14 @@ function BlogIndexPage() {
                 >
                   <Link
                     to="/blog"
-                    className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-5 py-2.5 text-sm font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all"
+                    className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-5 py-2.5 text-sm font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-[color,background-color,border-color,box-shadow,transform]"
                   >
                     <BookOpen className="h-4 w-4" />
                     Browse All Articles
                   </Link>
                   <a
                     href="mailto:support.learnifyai@gmail.com?subject=Blog Contribution"
-                    className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-muted-foreground hover:border-primary/40 hover:text-foreground hover:-translate-y-0.5 transition-all"
+                    className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-muted-foreground hover:border-primary/40 hover:text-foreground hover:-translate-y-0.5 transition-[color,background-color,border-color,box-shadow,transform]"
                   >
                     <Pen className="h-4 w-4" />
                     Write for Us
@@ -476,7 +476,7 @@ function BlogIndexPage() {
               </p>
               <a
                 href="mailto:support.learnifyai@gmail.com?subject=Newsletter Subscription"
-                className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-6 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-all"
+                className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-6 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:shadow-lg transition-[color,background-color,border-color,box-shadow,transform]"
               >
                 Subscribe via Email
                 <ArrowRight className="h-4 w-4" />
