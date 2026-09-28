@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   adminListCourses,
   adminGetCourse,
@@ -15,6 +16,15 @@ import {
   adminDeleteLesson,
   adminCourseAnalytics,
 } from "@/lib/admin-courses.functions";
+import {
+  useAdminDraft,
+  AutosaveStatusBadge,
+  DraftRecoveryBanner,
+} from "@/lib/admin-editor-workspace";
+import { CANONICAL_BRANDS, formatCourseDuration, getCanonicalBrand } from "@/lib/brand-registry";
+import { CourseBrandLogo } from "@/components/courses/CourseBrandLogo";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -111,6 +121,42 @@ export function CourseSystemAdmin() {
     enabled: tab === "analytics",
   });
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // URL state synchronization for ?edit=
+  const searchParams = new URLSearchParams(location.search);
+  const editParam = searchParams.get("edit");
+
+  useEffect(() => {
+    if (editParam) {
+      setSelectedCourseId(editParam === "new" ? null : editParam);
+      setShowEditor(true);
+    }
+  }, [editParam]);
+
+  const openEditor = (id: string | null) => {
+    setSelectedCourseId(id);
+    setShowEditor(true);
+    navigate({
+      search: (prev: any) => ({
+        ...prev,
+        edit: id || "new",
+      }),
+    } as any);
+  };
+
+  const closeEditor = () => {
+    setShowEditor(false);
+    navigate({
+      search: (prev: any) => {
+        const next = { ...prev };
+        delete next.edit;
+        return next;
+      },
+    } as any);
+  };
+
   const filtered = useMemo(() => {
     const needle = search.trim().toLowerCase();
     return courses.filter(
@@ -127,7 +173,7 @@ export function CourseSystemAdmin() {
       await doCreate({ data: form });
       toast.success("Course created");
       qc.invalidateQueries({ queryKey: ["admin-courses"] });
-      setShowEditor(false);
+      closeEditor();
     } catch (e: any) {
       toast.error(e.message);
     }
@@ -689,6 +735,8 @@ function CourseEditor({
 }) {
   const qc = useQueryClient();
   const doUpdate = useServerFn(adminUpdateCourse);
+  const [activeTab, setActiveTab] = useState<"general" | "curriculum" | "pricing" | "certificate">("general");
+  const [saving, setSaving] = useState(false);
 
   const isEdit = !!courseId && courseId !== "new";
 
@@ -702,163 +750,390 @@ function CourseEditor({
     enabled: isEdit,
   });
 
-  const [form, setForm] = useState({
-    title: existing?.title ?? "",
-    slug: existing?.slug ?? "",
-    description: existing?.description ?? "",
-    category: existing?.category ?? "General",
-    level: existing?.level ?? "beginner",
-    price_inr: existing?.price_inr ?? 0,
-    instructor: existing?.instructor ?? "Learnify AI",
-    cover_url: existing?.cover_url ?? "",
-    duration_minutes: existing?.duration_minutes ?? 0,
-    published: existing?.published ?? false,
+  const { data: certTemplates = [] } = useQuery({
+    queryKey: ["certificate-templates-list"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("certificate_templates")
+        .select("id, name, is_default")
+        .order("name");
+      return data ?? [];
+    },
   });
 
-  const [saving, setSaving] = useState(false);
+  const initialValues = useMemo(() => {
+    return {
+      title: existing?.title ?? "",
+      slug: existing?.slug ?? "",
+      description: existing?.description ?? "",
+      category: existing?.category ?? "General",
+      level: (existing?.level as "beginner" | "intermediate" | "advanced") ?? "beginner",
+      price_inr: existing?.price_inr ?? 0,
+      instructor: existing?.instructor ?? "Learnify AI",
+      cover_url: existing?.cover_url ?? "",
+      duration_minutes: existing?.duration_minutes ?? 0,
+      published: existing?.published ?? false,
+      certificate_template_id: existing?.certificate_template_id ?? null,
+      technology: existing?.technology ?? "",
+    };
+  }, [existing]);
+
+  const {
+    formData: form,
+    updateField,
+    status,
+    lastSavedAt,
+    saveDraftNow,
+    clearDraft,
+    restoreDraft,
+    discardRecoverableDraft,
+    hasRecoverableDraft,
+    recoverableDraftDate,
+  } = useAdminDraft<typeof initialValues>({
+    module: "courses",
+    recordId: courseId || "new",
+    initialData: initialValues,
+    getTitle: (d) => d?.title || "Untitled Course",
+    onServerSave: async (draftData) => {
+      if (!draftData.title?.trim() || !courseId || courseId === "new") return;
+      await doUpdate({
+        data: {
+          courseId,
+          title: draftData.title.trim(),
+          slug: draftData.slug?.trim() || draftData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+          description: draftData.description ?? "",
+          category: draftData.category ?? "General",
+          level: draftData.level ?? "beginner",
+          price_inr: Number(draftData.price_inr) || 0,
+          instructor: draftData.instructor ?? "Learnify AI",
+          cover_url: draftData.cover_url ?? "",
+          duration_minutes: Number(draftData.duration_minutes) || 0,
+          published: !!draftData.published,
+          certificate_template_id: draftData.certificate_template_id || null,
+          technology: draftData.technology || null,
+        },
+      });
+    },
+    enabled: true,
+  });
+
+  const durationInfo = useMemo(() => {
+    return formatCourseDuration(Number(form.duration_minutes) || 0);
+  }, [form.duration_minutes]);
 
   const handleSave = async () => {
+    if (!form.title?.trim() || !form.slug?.trim()) {
+      toast.error("Title and slug are required");
+      return;
+    }
     setSaving(true);
     try {
+      const payload = {
+        title: form.title.trim(),
+        slug: form.slug.trim(),
+        description: form.description ?? "",
+        category: form.category ?? "General",
+        level: form.level ?? "beginner",
+        price_inr: Number(form.price_inr) || 0,
+        instructor: form.instructor ?? "Learnify AI",
+        cover_url: form.cover_url ?? "",
+        duration_minutes: Number(form.duration_minutes) || 0,
+        published: !!form.published,
+        certificate_template_id: form.certificate_template_id || null,
+        technology: form.technology || null,
+      };
+
       if (isEdit) {
-        await doUpdate({ data: { courseId: courseId!, ...form } });
+        await doUpdate({ data: { courseId: courseId!, ...payload } });
         toast.success("Course updated");
         qc.invalidateQueries({ queryKey: ["admin-courses"] });
         qc.invalidateQueries({ queryKey: ["admin-course-detail", courseId] });
       } else {
-        await onCreate(form);
+        await onCreate(payload);
       }
+      await clearDraft();
       onClose();
     } catch (e: any) {
       toast.error(e.message);
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? "Edit Course" : "Create Course"}</DialogTitle>
+      <DialogContent className="max-w-2xl max-h-[88vh] overflow-y-auto p-0">
+        <DialogHeader className="p-6 pb-3 border-b bg-card">
+          <div className="flex items-center justify-between pr-4">
+            <div>
+              <DialogTitle className="text-xl font-bold">
+                {isEdit ? "Edit Course" : "Create New Course"}
+              </DialogTitle>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Autosaved continuously. Switch tabs freely without losing changes.
+              </p>
+            </div>
+            <AutosaveStatusBadge status={status} lastSavedAt={lastSavedAt} />
+          </div>
         </DialogHeader>
-        <div className="space-y-4 mt-4">
-          <div>
-            <label className="text-sm font-medium">Title *</label>
-            <Input
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              placeholder="Course title"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium">Slug *</label>
-              <Input
-                value={form.slug}
-                onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                placeholder="course-slug"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Category</label>
-              <Select
-                value={form.category}
-                onValueChange={(v) => setForm({ ...form, category: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div>
-            <label className="text-sm font-medium">Description</label>
-            <Textarea
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="Course description"
-              rows={3}
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium">Level</label>
-              <Select value={form.level} onValueChange={(v: any) => setForm({ ...form, level: v })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {LEVELS.map((l) => (
-                    <SelectItem key={l} value={l}>
-                      {l.charAt(0).toUpperCase() + l.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm font-medium">Price (INR)</label>
-              <Input
-                type="number"
-                value={form.price_inr}
-                onChange={(e) => setForm({ ...form, price_inr: Number(e.target.value) })}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Duration (min)</label>
-              <Input
-                type="number"
-                value={form.duration_minutes}
-                onChange={(e) => setForm({ ...form, duration_minutes: Number(e.target.value) })}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium">Instructor</label>
-              <Input
-                value={form.instructor}
-                onChange={(e) => setForm({ ...form, instructor: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Cover URL</label>
-              <Input
-                value={form.cover_url}
-                onChange={(e) => setForm({ ...form, cover_url: e.target.value })}
-                placeholder="https://..."
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={form.published}
-              onChange={(e) => setForm({ ...form, published: e.target.checked })}
-              className="rounded"
-            />
-            <label className="text-sm font-medium">Published</label>
-          </div>
+
+        <div className="p-6 space-y-4">
+          <DraftRecoveryBanner
+            hasRecoverableDraft={hasRecoverableDraft}
+            recoverableDraftDate={recoverableDraftDate}
+            onRestore={restoreDraft}
+            onDiscard={discardRecoverableDraft}
+          />
+
+          <Tabs value={activeTab} onValueChange={(v: any) => setActiveTab(v)}>
+            <TabsList className="grid grid-cols-4 w-full">
+              <TabsTrigger value="general" className="text-xs">General & Brand</TabsTrigger>
+              <TabsTrigger value="curriculum" className="text-xs">Schedule</TabsTrigger>
+              <TabsTrigger value="pricing" className="text-xs">Pricing & Access</TabsTrigger>
+              <TabsTrigger value="certificate" className="text-xs">Certificate</TabsTrigger>
+            </TabsList>
+
+            {/* Tab: General & Brand */}
+            <TabsContent value="general" className="space-y-4 mt-4">
+              <div>
+                <label className="text-sm font-medium">Title *</label>
+                <Input
+                  value={form.title}
+                  onChange={(e) => {
+                    updateField("title", e.target.value);
+                    if (!isEdit && !form.slug) {
+                      updateField("slug", e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+                    }
+                  }}
+                  placeholder="e.g. Microsoft Excel & Sheets Mastery"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Slug *</label>
+                  <Input
+                    value={form.slug}
+                    onChange={(e) => updateField("slug", e.target.value)}
+                    placeholder="e.g. excel-mastery"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Category</label>
+                  <Select
+                    value={form.category}
+                    onValueChange={(v) => updateField("category", v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Canonical Brand Selector */}
+              <div>
+                <label className="text-sm font-medium flex items-center justify-between">
+                  <span>Canonical Technology / Software Brand</span>
+                  {form.technology && (
+                    <span className="text-xs text-primary font-semibold flex items-center gap-1.5">
+                      <CourseBrandLogo brand={form.technology} size={16} />
+                      {getCanonicalBrand(form.technology)?.canonicalName || form.technology}
+                    </span>
+                  )}
+                </label>
+                <Select
+                  value={form.technology || "none"}
+                  onValueChange={(v) => updateField("technology", v === "none" ? "" : v)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select official software / brand" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Generic / None</SelectItem>
+                    {CANONICAL_BRANDS.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>
+                        <div className="flex items-center gap-2">
+                          <CourseBrandLogo brand={b.id} size={16} />
+                          <span>{b.canonicalName}</span>
+                          <span className="text-[10px] text-muted-foreground ml-1">({b.category})</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Connects this course to canonical official brand vector marks across the marketplace.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <Textarea
+                  value={form.description}
+                  onChange={(e) => updateField("description", e.target.value)}
+                  placeholder="Comprehensive course overview and syllabus highlights..."
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Cover Image URL</label>
+                <Input
+                  value={form.cover_url}
+                  onChange={(e) => updateField("cover_url", e.target.value)}
+                  placeholder="https://images.unsplash.com/..."
+                />
+              </div>
+            </TabsContent>
+
+            {/* Tab: Curriculum & Schedule */}
+            <TabsContent value="curriculum" className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Level</label>
+                  <Select
+                    value={form.level}
+                    onValueChange={(v: any) => updateField("level", v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LEVELS.map((l) => (
+                        <SelectItem key={l} value={l}>
+                          {l.charAt(0).toUpperCase() + l.slice(1)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Total Duration (minutes)</label>
+                  <Input
+                    type="number"
+                    value={form.duration_minutes}
+                    onChange={(e) => updateField("duration_minutes", Number(e.target.value))}
+                  />
+                </div>
+              </div>
+
+              {/* Dynamic Duration Normalization Card */}
+              <div className="p-3.5 rounded-xl border border-primary/20 bg-primary/5 flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-semibold text-foreground">Normalized Marketplace Schedule</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {durationInfo.schedulePace}
+                  </div>
+                </div>
+                <Badge variant="secondary" className="font-bold">
+                  {durationInfo.totalDuration}
+                </Badge>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Instructor</label>
+                <Input
+                  value={form.instructor}
+                  onChange={(e) => updateField("instructor", e.target.value)}
+                  placeholder="e.g. Learnify AI Faculty"
+                />
+              </div>
+            </TabsContent>
+
+            {/* Tab: Pricing & Access */}
+            <TabsContent value="pricing" className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Price (INR)</label>
+                  <Input
+                    type="number"
+                    value={form.price_inr}
+                    onChange={(e) => updateField("price_inr", Number(e.target.value))}
+                    placeholder="0 for 100% Free"
+                  />
+                  <span className="text-[11px] text-muted-foreground">
+                    {Number(form.price_inr) === 0 ? "Displayed as FREE to all students" : `₹${form.price_inr}`}
+                  </span>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Visibility & Status</label>
+                  <div className="flex items-center gap-2 mt-2">
+                    <input
+                      type="checkbox"
+                      id="course-published-checkbox"
+                      checked={form.published}
+                      onChange={(e) => updateField("published", e.target.checked)}
+                      className="rounded h-4 w-4"
+                    />
+                    <label htmlFor="course-published-checkbox" className="text-sm font-medium cursor-pointer">
+                      Published on Marketplace
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Tab: Certificate */}
+            <TabsContent value="certificate" className="space-y-4 mt-4">
+              <div>
+                <label className="text-sm font-medium">Certificate Template</label>
+                <Select
+                  value={form.certificate_template_id || "default"}
+                  onValueChange={(v) => updateField("certificate_template_id", v === "default" ? null : v)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Auto-Assign Default Platform Template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Auto-Assign Default Platform Template</SelectItem>
+                    {certTemplates.map((t: any) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.name} {t.is_default ? "(Platform Default)" : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
+                  When a learner completes 100% of this course's lessons and quizzes, a verified credential with a unique tamper-proof verification ID will be generated using this template.
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
-        <DialogFooter className="mt-6">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
+
+        <DialogFooter className="p-4 border-t bg-muted/20 flex items-center justify-between sm:justify-between w-full">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              saveDraftNow();
+              toast.success("Draft saved locally");
+            }}
+          >
+            Save Draft
           </Button>
-          <Button onClick={handleSave} disabled={saving || !form.title || !form.slug}>
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-1" />
-            ) : (
-              <Save className="h-4 w-4 mr-1" />
-            )}
-            {isEdit ? "Save Changes" : "Create Course"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={saving || !form.title || !form.slug}>
+              {saving ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-1" />
+              ) : (
+                <Save className="h-4 w-4 mr-1" />
+              )}
+              {isEdit ? "Save Changes" : "Create Course"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

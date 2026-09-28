@@ -39,6 +39,7 @@ import {
   getCareerPathCounts,
 } from "@/lib/course-taxonomy";
 import { CourseCardVisual } from "@/components/courses/CourseCardVisual";
+import { formatCourseDuration } from "@/lib/brand-registry";
 
 export const Route = createFileRoute("/_authenticated/courses/")({
   head: () => ({ meta: [{ title: "Courses & Masteries — Learnify AI" }] }),
@@ -266,11 +267,12 @@ function CoursesPage() {
   }, [filtered, sort]);
 
   const stats = statsQuery.data ?? {
-    totalCourses: coursesQuery.data?.length ?? 12,
-    totalLessons: 109,
+    totalCourses: coursesQuery.data?.length ?? 0,
+    totalLessons: 0,
     totalFreeCourses: (coursesQuery.data ?? []).filter((c) => Number(c.price_inr) === 0).length,
-    totalLearners: 1,
+    totalLearners: 0,
   };
+  const isStatsLoading = statsQuery.isLoading && !statsQuery.data;
 
   return (
     <AppShell>
@@ -326,8 +328,8 @@ function CoursesPage() {
               <GraduationCap className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-display font-extrabold text-foreground">
-                {stats.totalCourses}
+              <div className="text-xl sm:text-2xl font-display font-extrabold text-foreground min-h-[32px] flex items-center">
+                {isStatsLoading ? <Skeleton className="h-6 w-12 rounded" /> : stats.totalCourses}
               </div>
               <div className="text-xs text-muted-foreground font-semibold">Total Courses</div>
             </div>
@@ -338,8 +340,8 @@ function CoursesPage() {
               <BookOpen className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-display font-extrabold text-foreground">
-                {stats.totalLessons}
+              <div className="text-xl sm:text-2xl font-display font-extrabold text-foreground min-h-[32px] flex items-center">
+                {isStatsLoading ? <Skeleton className="h-6 w-12 rounded" /> : stats.totalLessons}
               </div>
               <div className="text-xs text-muted-foreground font-semibold">Lessons Available</div>
             </div>
@@ -350,8 +352,8 @@ function CoursesPage() {
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-display font-extrabold text-emerald-500">
-                {stats.totalFreeCourses}
+              <div className="text-xl sm:text-2xl font-display font-extrabold text-emerald-500 min-h-[32px] flex items-center">
+                {isStatsLoading ? <Skeleton className="h-6 w-12 rounded" /> : stats.totalFreeCourses}
               </div>
               <div className="text-xs text-muted-foreground font-semibold">Free Courses</div>
             </div>
@@ -362,8 +364,8 @@ function CoursesPage() {
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-xl sm:text-2xl font-display font-extrabold text-foreground">
-                {stats.totalLearners.toLocaleString()}
+              <div className="text-xl sm:text-2xl font-display font-extrabold text-foreground min-h-[32px] flex items-center">
+                {isStatsLoading ? <Skeleton className="h-6 w-12 rounded" /> : stats.totalLearners.toLocaleString()}
               </div>
               <div className="text-xs text-muted-foreground font-semibold">Active Learners</div>
             </div>
@@ -651,21 +653,21 @@ function CoursesPage() {
 
                 <div className="p-4 pt-0 border-t border-border/40 mt-3 space-y-3">
                   <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold pt-3">
-                    <span className="flex items-center gap-1 text-foreground/80">
-                      <Clock className="h-3.5 w-3.5 text-primary" /> {c.duration_minutes} min
-                    </span>
-                    <span className="flex items-center gap-1 text-muted-foreground font-medium">
-                      <BookOpen className="h-3.5 w-3.5 text-primary/70" />{" "}
-                      {statsQuery.data?.courseLessonCounts?.[c.id] ||
-                        (c.slug === "template-mastery"
-                          ? 13
-                          : c.slug === "html-css-essentials"
-                            ? 17
-                            : c.slug === "javascript-zero-to-pro"
-                              ? 16
-                              : 7)}{" "}
-                      lessons
-                    </span>
+                    {(() => {
+                      const durInfo = formatCourseDuration(c.duration_minutes);
+                      const lessonCount = statsQuery.data?.courseLessonCounts?.[c.id] ?? 0;
+                      return (
+                        <>
+                          <span className="flex items-center gap-1 text-foreground/80 font-medium">
+                            <Clock className="h-3.5 w-3.5 text-primary shrink-0" /> {durInfo.totalDuration}
+                          </span>
+                          <span className="flex items-center gap-1 text-muted-foreground font-medium">
+                            <BookOpen className="h-3.5 w-3.5 text-primary/70 shrink-0" />{" "}
+                            {lessonCount > 0 ? `${lessonCount} lessons` : "Self-paced"}
+                          </span>
+                        </>
+                      );
+                    })()}
                     <span
                       className={cn(
                         "font-extrabold text-sm ml-auto",

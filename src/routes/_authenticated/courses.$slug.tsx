@@ -40,6 +40,7 @@ import {
   Wrench,
   GraduationCap,
   Zap,
+  BookOpen,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -50,6 +51,7 @@ import { CoursePlayer } from "@/components/CoursePlayer";
 import { getRealHumanAvatar } from "@/lib/real-avatars";
 import { CourseBrandLogo } from "@/components/courses/CourseBrandLogo";
 import { getCourseBrands } from "@/components/courses/CourseCardVisual";
+import { formatCourseDuration } from "@/lib/brand-registry";
 import { InteractiveLessonContent } from "@/components/courses/InteractiveLessonContent";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -151,16 +153,7 @@ const inr = (n: number) =>
       }).format(n);
 
 function formatDuration(minutes: number) {
-  if (!minutes) return "0m";
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  const hoursStr = hours > 0 ? `${hours}h` : "";
-  const minutesStr = remainingMinutes > 0 ? `${remainingMinutes}m` : "";
-  const durationStr = [hoursStr, minutesStr].filter(Boolean).join(" ");
-
-  // Estimate daily learning load (assuming ~45 mins of dedicated focus/study per day)
-  const daysLoad = Math.max(1, Math.ceil(minutes / 45));
-  return `${durationStr} (${daysLoad} ${daysLoad === 1 ? "day" : "days"} load)`;
+  return formatCourseDuration(minutes).totalDuration;
 }
 
 function formatLessonTime(minutes: number) {
@@ -734,7 +727,7 @@ function CourseDetail() {
         durationMs={1400}
         onDone={() => setEnrollCelebration(false)}
       />
-      <div className="px-4 sm:px-6 lg:px-10 py-6 max-w-7xl">
+      <div className="px-4 sm:px-6 lg:px-10 py-6 pb-24 md:pb-32 max-w-7xl mx-auto space-y-6">
         <Link
           to="/courses"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -745,9 +738,19 @@ function CourseDetail() {
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{course.category}</Badge>
           <Badge variant="outline">{course.level}</Badge>
-          <span className="text-xs text-muted-foreground flex items-center gap-1">
-            <Clock className="h-3 w-3" /> {formatDuration(course.duration_minutes)}
-          </span>
+          {(() => {
+            const dur = formatCourseDuration(course.duration_minutes);
+            return (
+              <>
+                <span className="text-xs text-muted-foreground flex items-center gap-1 font-medium bg-muted/40 px-2.5 py-0.5 rounded-full border border-border/40">
+                  <Clock className="h-3 w-3 text-primary" /> {dur.totalDuration}
+                </span>
+                <span className="text-xs text-muted-foreground font-medium bg-muted/40 px-2.5 py-0.5 rounded-full border border-border/40">
+                  📅 {dur.schedulePace}
+                </span>
+              </>
+            );
+          })()}
           <span className="text-xs font-semibold ml-auto">
             {isEnrolled || isEnrollmentActive ? "Purchased" : inr(Number(course.price_inr))}
           </span>
@@ -841,20 +844,31 @@ function CourseDetail() {
             </p>
           )}
           {isCreator && certTemplatesQuery.data && certTemplatesQuery.data.length > 0 && (
-            <div className="mt-2 flex items-center gap-2">
-              <Award className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+            <div className="mt-2.5 p-2.5 rounded-xl border border-border/70 bg-card/60 backdrop-blur space-y-1.5 text-left">
+              <div className="flex items-center justify-between text-xs font-semibold text-foreground">
+                <span className="flex items-center gap-1.5">
+                  <Award className="h-3.5 w-3.5 text-primary" /> Certificate Template
+                </span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Creator Mode</span>
+              </div>
               <select
-                className="h-8 rounded-md border border-input bg-background px-2 text-xs flex-1 min-w-0"
+                className="h-8 rounded-lg border border-input bg-background px-2 text-xs w-full cursor-pointer"
                 value={(course as any)?.certificate_template_id ?? ""}
                 onChange={(e) => updateCourseTemplate(e.target.value || null)}
               >
-                <option value="">No certificate template</option>
+                <option value="">Default Platform Certificate (Automatic)</option>
                 {certTemplatesQuery.data.map((t) => (
                   <option key={t.id} value={t.id}>
-                    {t.name} {t.is_default ? "(default)" : ""}
+                    {t.name} {t.is_default ? "(Default)" : ""}
                   </option>
                 ))}
               </select>
+            </div>
+          )}
+          {!isCreator && (
+            <div className="mt-2.5 flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 px-3 py-1.5 rounded-xl border border-border/50">
+              <Award className="h-4 w-4 text-amber-500 shrink-0" />
+              <span>Official Learnify AI Completion Certificate Included</span>
             </div>
           )}
           {isFree && !isEnrolled && (
@@ -951,7 +965,9 @@ function CourseDetail() {
                   {playerLoadFailed ? (
                     <VideoFallback
                       message="The video player could not load this lesson. Check the URL, your connection, or retry the embed."
+                      reason="load-failed"
                       canRetry
+                      isAdmin={isAdmin}
                       onRetry={() => {
                         setPlayerLoadFailed(false);
                         setPlayerRetry((n) => n + 1);
@@ -960,7 +976,9 @@ function CourseDetail() {
                   ) : activeVideo && !activeVideo.ok ? (
                     <VideoFallback
                       message={activeVideo.message}
+                      reason={activeVideo.reason}
                       canRetry={activeVideo.reason !== "missing-url"}
+                      isAdmin={isAdmin}
                       onRetry={() => setPlayerRetry((n) => n + 1)}
                     />
                   ) : lessons.length === 0 ? (
@@ -1029,15 +1047,30 @@ function CourseDetail() {
             <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-sm space-y-4">
               <h3 className="font-display font-bold text-sm text-foreground">Course Details</h3>
               <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="rounded-xl bg-muted/30 border border-border/40 p-3">
-                  <span className="text-muted-foreground block mb-0.5 text-[11px] font-medium">
-                    Duration
-                  </span>
-                  <span className="font-bold flex items-center gap-1.5 text-foreground">
-                    <Clock className="h-3.5 w-3.5 text-primary" />
-                    {formatDuration(course.duration_minutes)}
-                  </span>
-                </div>
+                {(() => {
+                  const dur = formatCourseDuration(course.duration_minutes);
+                  return (
+                    <>
+                      <div className="rounded-xl bg-muted/30 border border-border/40 p-3">
+                        <span className="text-muted-foreground block mb-0.5 text-[11px] font-medium">
+                          Duration
+                        </span>
+                        <span className="font-bold flex items-center gap-1.5 text-foreground">
+                          <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
+                          {dur.totalDuration}
+                        </span>
+                      </div>
+                      <div className="rounded-xl bg-muted/30 border border-border/40 p-3">
+                        <span className="text-muted-foreground block mb-0.5 text-[11px] font-medium">
+                          Pace & Schedule
+                        </span>
+                        <span className="font-bold text-foreground text-[11px] truncate block" title={dur.schedulePace}>
+                          {dur.schedulePace}
+                        </span>
+                      </div>
+                    </>
+                  );
+                })()}
                 <div className="rounded-xl bg-muted/30 border border-border/40 p-3">
                   <span className="text-muted-foreground block mb-0.5 text-[11px] font-medium">
                     Level
@@ -1050,11 +1083,11 @@ function CourseDetail() {
                   </span>
                   <span className="font-bold capitalize text-foreground">{course.category}</span>
                 </div>
-                <div className="rounded-xl bg-muted/30 border border-border/40 p-3">
-                  <span className="text-muted-foreground block mb-0.5 text-[11px] font-medium">
-                    Lessons
+                <div className="rounded-xl bg-muted/30 border border-border/40 p-3 col-span-2 flex items-center justify-between">
+                  <span className="text-muted-foreground text-[11px] font-medium">
+                    Total Curriculum
                   </span>
-                  <span className="font-bold text-foreground">{lessons.length} lessons</span>
+                  <span className="font-bold text-foreground">{lessons.length} structured lessons</span>
                 </div>
               </div>
             </div>
@@ -1263,25 +1296,51 @@ function CourseDetail() {
 
 function VideoFallback({
   message,
+  reason,
   canRetry,
   onRetry,
+  isAdmin,
 }: {
   message: string;
+  reason?: "missing-url" | "invalid-url" | "load-failed";
   canRetry: boolean;
   onRetry: () => void;
+  isAdmin?: boolean;
 }) {
+  if (reason === "missing-url") {
+    return (
+      <div className="max-w-md p-6 rounded-2xl bg-card/60 border border-border/70 backdrop-blur-md space-y-3 text-center">
+        <div className="h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto">
+          <BookOpen className="h-6 w-6" />
+        </div>
+        <p className="font-display font-bold text-base text-foreground">Interactive & Reading Lesson</p>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          This lesson is designed for in-depth guided reading, interactive code exercises, notes, and AI tutor assistance. Explore the learning tabs below!
+        </p>
+        {isAdmin && (
+          <div className="pt-2">
+            <Button asChild size="sm" variant="outline" className="text-xs rounded-xl">
+              <Link to="/studio">
+                <NotebookPen className="h-3.5 w-3.5 mr-1" /> Attach / Edit Video
+              </Link>
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-sm space-y-3">
-      <AlertTriangle className="h-8 w-8 text-primary mx-auto" />
-      <p className="font-medium text-foreground">Video can’t load</p>
-      <p>{message}</p>
-      <p className="text-xs">
-        If the video is quota-limited or restricted by YouTube, ask an admin or creator to refresh
-        the lesson video status.
+    <div className="max-w-sm space-y-3 p-6 text-center">
+      <AlertTriangle className="h-8 w-8 text-amber-500 mx-auto" />
+      <p className="font-display font-bold text-sm text-foreground">Video Playback Notice</p>
+      <p className="text-xs text-muted-foreground">{message}</p>
+      <p className="text-[11px] text-muted-foreground/80">
+        If this video is restricted or temporarily unavailable, try retrying or contact course support.
       </p>
       {canRetry && (
-        <Button size="sm" variant="secondary" onClick={onRetry}>
-          <RefreshCcw className="h-4 w-4" /> Retry player
+        <Button size="sm" variant="secondary" onClick={onRetry} className="rounded-xl mt-2">
+          <RefreshCcw className="h-3.5 w-3.5 mr-1.5" /> Retry player
         </Button>
       )}
     </div>

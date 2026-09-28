@@ -167,16 +167,16 @@ export function GlobalSupportAgent() {
 
   const isAdminRoute = path.startsWith("/admin");
   const isLeft = path.startsWith("/studio"); // Studio keeps left, admin stays right to avoid blocking sidebar
-  const [adminMinimized, setAdminMinimized] = useState(() => {
+  const [minimized, setMinimized] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("learnify_support_minimized") === "true";
     }
     return false;
   });
 
-  const toggleAdminMinimize = (e: React.MouseEvent) => {
+  const toggleMinimize = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setAdminMinimized((prev) => {
+    setMinimized((prev) => {
       const next = !prev;
       localStorage.setItem("learnify_support_minimized", String(next));
       return next;
@@ -185,16 +185,16 @@ export function GlobalSupportAgent() {
 
   if (!user || !user.email) return null;
 
-  // In admin mode, if minimized, show a tiny unobtrusive floating pill
-  if (isAdminRoute && adminMinimized && !open) {
+  // When minimized, show a tiny unobtrusive floating pill
+  if (minimized && !open) {
     return (
-      <div className="fixed bottom-4 right-4 z-40">
+      <div className={cn("fixed bottom-4 z-40", isLeft ? "left-4" : "right-4")}>
         <button
           onClick={() => {
-            setAdminMinimized(false);
+            setMinimized(false);
             localStorage.setItem("learnify_support_minimized", "false");
           }}
-          className="px-2.5 py-1 text-[11px] font-medium rounded-full bg-card/90 border shadow-md hover:bg-card flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition cursor-pointer"
+          className="px-2.5 py-1 text-[11px] font-medium rounded-full bg-card/90 border shadow-md hover:bg-card flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition cursor-pointer backdrop-blur"
           title="Show Support Assistant"
         >
           <Bot className="h-3.5 w-3.5 text-primary" />
@@ -455,16 +455,14 @@ export function GlobalSupportAgent() {
               <div className="text-[10px] font-bold text-foreground">Learnify Support</div>
               <div className="text-[8px] text-muted-foreground">Online Assistant</div>
             </div>
-            {isAdminRoute && (
-              <button
-                type="button"
-                onClick={toggleAdminMinimize}
-                className="ml-1 p-0.5 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/50 transition cursor-pointer"
-                title="Minimize assistant in admin view"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={toggleMinimize}
+              className="ml-1 p-0.5 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/50 transition cursor-pointer"
+              title="Minimize support assistant"
+            >
+              <X className="h-3 w-3" />
+            </button>
           </div>
           <button
             onClick={() => setOpen(true)}

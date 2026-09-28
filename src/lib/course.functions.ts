@@ -501,30 +501,46 @@ export const getMarketplaceStats = createServerFn({ method: "GET" }).handler(
     try {
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-      const [coursesRes, freeRes, lessonsRes, enrollRes, profilesRes, lessonsRows] = await Promise.all([
-        supabaseAdmin.from("courses").select("id", { count: "exact", head: true }).eq("published", true),
-        supabaseAdmin.from("courses").select("id", { count: "exact", head: true }).eq("published", true).eq("price_inr", 0),
-        supabaseAdmin.from("lessons").select("id", { count: "exact", head: true }),
-        supabaseAdmin.from("enrollments").select("user_id", { count: "exact", head: true }),
-        supabaseAdmin.from("profiles").select("id", { count: "exact", head: true }),
-        supabaseAdmin.from("lessons").select("course_id"),
-      ]);
+      // 1. Fetch only published courses
+      const { data: publishedCourses, error: courseErr } = await supabaseAdmin
+        .from("courses")
+        .select("id, price_inr")
+        .eq("published", true);
 
-      const totalCourses = coursesRes.count ?? 12;
-      const totalFreeCourses = freeRes.count ?? 11;
-      const totalLessons = lessonsRes.count ?? 109;
-      const enrollmentsCount = enrollRes.count ?? 0;
-      const profilesCount = profilesRes.count ?? 0;
+      if (courseErr) throw courseErr;
 
-      // Authentic learners count based on real user activity
-      const totalLearners = Math.max(enrollmentsCount, profilesCount, 1);
+      const publishedList = publishedCourses || [];
+      const totalCourses = publishedList.length;
+      const totalFreeCourses = publishedList.filter((c) => Number(c.price_inr) === 0).length;
+      const publishedIds = publishedList.map((c) => c.id);
 
+      // 2. Fetch only lessons belonging to published courses
+      let totalLessons = 0;
       const courseLessonCounts: Record<string, number> = {};
-      for (const l of lessonsRows.data || []) {
-        if (l.course_id) {
-          courseLessonCounts[l.course_id] = (courseLessonCounts[l.course_id] || 0) + 1;
+
+      if (publishedIds.length > 0) {
+        const { data: lessonsData, error: lessonErr } = await supabaseAdmin
+          .from("lessons")
+          .select("id, course_id")
+          .in("course_id", publishedIds);
+
+        if (!lessonErr && lessonsData) {
+          totalLessons = lessonsData.length;
+          for (const l of lessonsData) {
+            if (l.course_id) {
+              courseLessonCounts[l.course_id] = (courseLessonCounts[l.course_id] || 0) + 1;
+            }
+          }
         }
       }
+
+      // 3. Count distinct active learners with real enrollments
+      const { data: enrollments } = await supabaseAdmin
+        .from("enrollments")
+        .select("user_id");
+
+      const uniqueLearners = new Set((enrollments || []).map((e) => e.user_id).filter(Boolean));
+      const totalLearners = uniqueLearners.size;
 
       return {
         totalCourses,
@@ -536,10 +552,10 @@ export const getMarketplaceStats = createServerFn({ method: "GET" }).handler(
     } catch (err) {
       console.error("[getMarketplaceStats] Error:", err);
       return {
-        totalCourses: 12,
-        totalLessons: 109,
-        totalFreeCourses: 11,
-        totalLearners: 1,
+        totalCourses: 0,
+        totalLessons: 0,
+        totalFreeCourses: 0,
+        totalLearners: 0,
         courseLessonCounts: {},
       };
     }

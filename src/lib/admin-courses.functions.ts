@@ -72,13 +72,16 @@ export const adminCreateCourse = createServerFn({ method: "POST" })
         cover_url: z.string().max(500).optional(),
         duration_minutes: z.number().min(0).default(0),
         published: z.boolean().default(false),
+        certificate_template_id: z.string().uuid().nullable().optional(),
+        technology: z.string().max(100).nullable().optional(),
       })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { technology, ...insertData } = data;
     const { error } = await supabase.from("courses").insert({
-      ...data,
+      ...insertData,
       created_by: userId,
     });
     if (error) throw new Error(error.message);
@@ -102,12 +105,14 @@ export const adminUpdateCourse = createServerFn({ method: "POST" })
         cover_url: z.string().max(500).optional(),
         duration_minutes: z.number().min(0).optional(),
         published: z.boolean().optional(),
+        certificate_template_id: z.string().uuid().nullable().optional(),
+        technology: z.string().max(100).nullable().optional(),
       })
       .parse(d),
   )
   .handler(async ({ data, context }) => {
     const { supabase } = context;
-    const { courseId, ...updates } = data;
+    const { courseId, technology, ...updates } = data;
     const { error } = await supabase.from("courses").update(updates).eq("id", courseId);
     if (error) throw new Error(error.message);
     return { ok: true };
