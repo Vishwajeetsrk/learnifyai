@@ -3239,7 +3239,7 @@ export default function SettingsPage() {
                         toast.success(`Tested ${testLang.label} (${testLang.code})`);
                       }}
                       className={cn(
-                        "text-[10px] px-2 py-0.5 rounded-md border transition-all cursor-pointer",
+                        "text-[10px] px-2 py-0.5 rounded-md border transition-[color,background-color,border-color,box-shadow,transform] cursor-pointer",
                         (i18n.language?.split("-")[0] || "en") === testLang.code
                           ? "bg-primary text-primary-foreground border-primary font-bold shadow-xs"
                           : "bg-background hover:bg-muted text-muted-foreground"
