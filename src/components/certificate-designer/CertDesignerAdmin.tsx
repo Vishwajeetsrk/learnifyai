@@ -180,50 +180,9 @@ const barData = [
   { date: "—", downloads: 0, shares: 0 },
 ];
 
-const recentCerts = [
-  {
-    id: "LRN-ZLHYTD-MQQJFAA5",
-    course: "React Supabase CRUD Tutorial",
-    name: "Alex Rivera",
-    status: "Issued",
-    date: "May 25, 2026",
-    time: "Issued 6/23/2026",
-    theme: "navy",
-  },
-  {
-    id: "LRN-SKR0ZR-MQP0YW81",
-    course: "Full-Stack Development with Next.js 14",
-    name: "Sarah Jenkins",
-    status: "Issued",
-    date: "May 25, 2026",
-    time: "Issued 6/22/2026",
-    theme: "blue",
-  },
-  {
-    id: "LRN-E8VQ17-MQI10MPU",
-    course: "AI for Beginners: Mastering Prompt Engineering",
-    name: "Michael Chen",
-    status: "Issued",
-    date: "May 25, 2026",
-    time: "Issued 6/17/2026",
-    theme: "teal",
-  },
-  {
-    id: "871E5B8565704342",
-    course: "Next.js 15 Basics",
-    name: "Learner",
-    status: "Issued",
-    date: "May 25, 2026",
-    time: "Issued 6/15/2026",
-    theme: "purple",
-  },
-];
+const recentCerts: any[] = [];
 
-const verifyActivity = [
-  { id: "LRN-ZLHYTD-MQQJFAA5", msg: "Verified successfully", time: "2 min ago" },
-  { id: "LRN-SKR0ZR-MQP0YW81", msg: "Verified successfully", time: "8 min ago" },
-  { id: "LRN-E8VQ17-MQI10MPU", msg: "QR Code scanned", time: "15 min ago" },
-];
+const verifyActivity: any[] = [];
 
 const MOCK_TEMPLATES = [
   {
@@ -479,48 +438,7 @@ const CATS_DATA = [
   },
 ];
 
-const VERIFY_LIST = [
-  {
-    name: "Alex Rivera",
-    email: "alex.rivera@example.com",
-    id: "LAI-2026-000124",
-    status: "Verified",
-    time: "2 min ago",
-    theme: "navy",
-  },
-  {
-    name: "Sarah Johnson",
-    email: "sarah.j@example.com",
-    id: "LAI-2026-000123",
-    status: "Verified",
-    time: "6 min ago",
-    theme: "blue",
-  },
-  {
-    name: "Michael Brown",
-    email: "michael.b@example.com",
-    id: "LAI-2026-000122",
-    status: "Invalid",
-    time: "12 min ago",
-    theme: "teal",
-  },
-  {
-    name: "Emily Davis",
-    email: "emily.d@example.com",
-    id: "LAI-2026-000121",
-    status: "Pending",
-    time: "18 min ago",
-    theme: "rose",
-  },
-  {
-    name: "David Lee",
-    email: "david.lee@example.com",
-    id: "LAI-2026-000120",
-    status: "Verified",
-    time: "25 min ago",
-    theme: "purple",
-  },
-];
+const VERIFY_LIST: any[] = [];
 
 // ─── Shared Components ───────────────────────────────────────────────────────
 
@@ -2515,7 +2433,7 @@ function DesignerCanvasScreen() {
   const [canvasElements, setCanvasElements] = useState([
     {
       id: "recipient",
-      text: "Alex Rivera",
+      text: "{student_name}",
       fontFamily: "Great Vibes",
       fontSize: 80,
       fontColor: "#ffffff",
@@ -2963,7 +2881,7 @@ function DesignerCanvasScreen() {
           fontSize="18"
           fontFamily="sans-serif"
         >
-          Alex Rivera
+          Vishwajeet
         </text>
         <text
           x="832"
@@ -3846,7 +3764,7 @@ function DesignerCanvasScreen() {
               setCanvasElements([
                 {
                   id: "recipient",
-                  text: "Alex Rivera",
+                  text: "{student_name}",
                   fontFamily: "Great Vibes",
                   fontSize: 80,
                   fontColor: "#ffffff",

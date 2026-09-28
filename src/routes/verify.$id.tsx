@@ -38,115 +38,96 @@ function CertificateVerificationPage() {
   const { data: cert, isLoading } = useQuery({
     queryKey: ["certificate-verify", id],
     queryFn: async () => {
-      // 1. Try get_certificate_by_code RPC or certificates table
-      const { data: rpcData } = await supabase.rpc("get_certificate_by_code", {
-        _code: id,
-      });
-      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
-      if (row) return row;
+      if (!id || typeof id !== "string") return null;
+      const cleanId = id.trim();
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanId);
 
-      // 2. Try certificates table directly by code or id
-      const { data: certRow } = await supabase
-        .from("certificates")
-        .select("*, courses:course_id(title, instructor, category)")
-        .or(`code.eq.${id},id.eq.${id}`)
-        .maybeSingle();
+      // 1. Try get_certificate_by_code RPC
+      try {
+        const { data: rpcData } = await supabase.rpc("get_certificate_by_code", {
+          _code: cleanId,
+        });
+        const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+        if (row) {
+          return {
+            ...row,
+            status: (row as any).status || ((row as any).revoked_at ? "revoked" : "verified"),
+          };
+        }
+      } catch (err) {
+        console.warn("RPC verification check fallback:", err);
+      }
 
-      if (certRow) {
-        return {
-          code: certRow.code,
-          recipient_name: (certRow as any).learner_name || (certRow as any).recipient_name || "Learner",
-          course_title: (certRow as any).courses?.title || "Learnify Course",
-          course_instructor: (certRow as any).courses?.instructor || "Learnify Instructor",
-          issued_at: certRow.issued_at,
-          score: certRow.score,
-          total: certRow.total,
-          design_snapshot: certRow.design_snapshot,
-        };
+      // 2. Try certificates table directly by code or id safely
+      try {
+        let certQuery = supabase
+          .from("certificates")
+          .select("*, courses:course_id(title, instructor, category), profiles:user_id(full_name, email)");
+
+        if (isUuid) {
+          certQuery = certQuery.or(`id.eq.${cleanId},code.ilike.${cleanId}`);
+        } else {
+          certQuery = certQuery.ilike("code", cleanId);
+        }
+
+        const { data: certRow } = await certQuery.maybeSingle();
+
+        if (certRow) {
+          return {
+            id: certRow.id,
+            code: certRow.code,
+            recipient_name: (certRow as any).learner_name || (certRow as any).recipient_name || (certRow as any).profiles?.full_name || "Verified Learner",
+            course_title: (certRow as any).courses?.title || "Learnify Course",
+            course_instructor: (certRow as any).courses?.instructor || "Learnify Instructor",
+            issued_at: certRow.issued_at,
+            score: certRow.score ?? 100,
+            total: certRow.total ?? 100,
+            design_snapshot: certRow.design_snapshot,
+            status: (certRow as any).status || ((certRow as any).revoked_at ? "revoked" : "verified"),
+            revoked_at: (certRow as any).revoked_at,
+            revocation_reason: (certRow as any).revocation_reason,
+          };
+        }
+      } catch (err) {
+        console.warn("Certificates direct lookup error:", err);
       }
 
       // 3. Try user_certificates table
-      const { data: userCert } = await (supabase as any)
-        .from("user_certificates")
-        .select("*, course:courses(*), user:profiles(*)")
-        .or(`id.eq.${id},certificate_number.eq.${id}`)
-        .maybeSingle();
+      try {
+        let userCertQuery = (supabase as any)
+          .from("user_certificates")
+          .select("*, course:courses(title, instructor, category), user:profiles(full_name, email)");
 
-      if (userCert) {
-        return {
-          code: userCert.certificate_number || userCert.id,
-          recipient_name: userCert.recipient_name || userCert.user?.full_name || "Learner",
-          course_title: userCert.course_title || userCert.course?.title || "Learnify AI Program",
-          course_instructor: userCert.instructor_name || "Learnify Instructor",
-          issued_at: userCert.issue_date || new Date().toISOString(),
-          score: userCert.score ? parseInt(userCert.score) : 98,
-          total: 100,
-          grade: userCert.grade || "Distinction (98%)",
-        };
+        if (isUuid) {
+          userCertQuery = userCertQuery.or(`id.eq.${cleanId},certificate_number.ilike.${cleanId}`);
+        } else {
+          userCertQuery = userCertQuery.ilike("certificate_number", cleanId);
+        }
+
+        const { data: userCert } = await userCertQuery.maybeSingle();
+
+        if (userCert) {
+          return {
+            id: userCert.id,
+            code: userCert.certificate_number || userCert.id,
+            recipient_name: userCert.recipient_name || userCert.user?.full_name || "Verified Learner",
+            course_title: userCert.course_title || userCert.course?.title || "Learnify AI Program",
+            course_instructor: userCert.instructor_name || userCert.course?.instructor || "Learnify Instructor",
+            issued_at: userCert.issue_date || userCert.created_at || new Date().toISOString(),
+            score: userCert.score ? parseInt(userCert.score) : 100,
+            total: 100,
+            grade: userCert.grade || "Distinction",
+            design_snapshot: userCert.design_snapshot,
+            status: userCert.status || (userCert.revoked_at ? "revoked" : "verified"),
+            revoked_at: userCert.revoked_at,
+            revocation_reason: userCert.revocation_reason,
+          };
+        }
+      } catch (err) {
+        console.warn("user_certificates lookup error:", err);
       }
 
-      // 4. Known mock certificates fallback
-      const MOCK_CERTS: Record<string, any> = {
-        "LRN-ZLHYTD-MQQJFAA5": {
-          code: "LRN-ZLHYTD-MQQJFAA5",
-          recipient_name: "Alex Rivera",
-          course_title: "React Supabase CRUD Tutorial",
-          course_instructor: "Vishwajeet (Founder & CEO)",
-          issued_at: "2026-06-23T00:00:00Z",
-          score: 100,
-          total: 100,
-          category: "Programming",
-        },
-        "LRN-SKR0ZR-MQP0YW81": {
-          code: "LRN-SKR0ZR-MQP0YW81",
-          recipient_name: "Sarah Jenkins",
-          course_title: "Full-Stack Development with Next.js 14",
-          course_instructor: "Vishwajeet (Founder & CEO)",
-          issued_at: "2026-06-22T00:00:00Z",
-          score: 100,
-          total: 100,
-          category: "Engineering",
-        },
-        "LRN-E8VQ17-MQI10MPU": {
-          code: "LRN-E8VQ17-MQI10MPU",
-          recipient_name: "Michael Chen",
-          course_title: "AI for Beginners: Mastering Prompt Engineering",
-          course_instructor: "Vishwajeet (Founder & CEO)",
-          issued_at: "2026-06-17T00:00:00Z",
-          score: 95,
-          total: 100,
-          category: "AI & Data",
-        },
-        "871E5B8565704342": {
-          code: "871E5B8565704342",
-          recipient_name: "Learner",
-          course_title: "Next.js 15 Basics",
-          course_instructor: "Vishwajeet (Founder & CEO)",
-          issued_at: "2026-06-15T00:00:00Z",
-          score: 100,
-          total: 100,
-          category: "Programming",
-        },
-      };
-
-      if (MOCK_CERTS[id]) {
-        return MOCK_CERTS[id];
-      }
-
-      // Fallback format if valid code pattern
-      if (id.startsWith("LRN-") || id.startsWith("CERT-") || id.length >= 6) {
-        return {
-          code: id.toUpperCase(),
-          recipient_name: "Alex Rivera",
-          course_title: "Full-Stack AI Engineering & Autonomous Agents",
-          course_instructor: "Vishwajeet (Founder & CEO)",
-          issued_at: "2026-05-25T00:00:00Z",
-          score: 98,
-          total: 100,
-          grade: "Distinction (98%)",
-        };
-      }
-
+      // Truly nonexistent credential - return null (never mock fake certificates)
       return null;
     },
   });
@@ -210,8 +191,8 @@ function CertificateVerificationPage() {
         };
 
   const ctx = {
-    name: cert?.recipient_name || cert?.learner_name || "Verified Student",
-    course: cert?.course_title || "Learnify AI Certification",
+    name: (cert as any)?.recipient_name || (cert as any)?.learner_name || "Verified Student",
+    course: (cert as any)?.course_title || "Learnify AI Certification",
     date: issueDate,
     role: "Certified Specialist",
     from: "",
@@ -252,6 +233,29 @@ function CertificateVerificationPage() {
             </div>
             <Button asChild variant="outline">
               <Link to="/courses">Browse Official Courses</Link>
+            </Button>
+          </Card>
+        ) : cert.status === "revoked" ? (
+          <Card className="p-8 text-center space-y-4 border-destructive/40 bg-destructive/10">
+            <div className="w-12 h-12 rounded-full bg-destructive/20 text-destructive grid place-items-center mx-auto">
+              <Award className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-destructive text-destructive-foreground mb-2">
+                Credential Revoked
+              </div>
+              <h2 className="text-xl font-bold text-foreground">Certificate Has Been Revoked</h2>
+              <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+                This certificate record (<code className="font-mono text-xs bg-muted px-1.5 py-0.5 rounded">{cert.code || id}</code>) was revoked by administration and is no longer recognized as an active credential.
+              </p>
+              {cert.revocation_reason && (
+                <p className="text-xs text-muted-foreground mt-2 italic">
+                  Reason: {cert.revocation_reason}
+                </p>
+              )}
+            </div>
+            <Button asChild variant="outline">
+              <Link to="/courses">Browse Current Courses</Link>
             </Button>
           </Card>
         ) : (

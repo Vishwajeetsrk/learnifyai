@@ -83,7 +83,7 @@ const DEFAULT_SECTIONS: Section[] = [
       {
         name: "AI Credits / month",
         columns: [
-          { type: "text", value: "500" },
+          { type: "text", value: "100" },
           { type: "text", value: "10,000" },
           { type: "text", value: "25,000" },
           { type: "text", value: "Custom" },

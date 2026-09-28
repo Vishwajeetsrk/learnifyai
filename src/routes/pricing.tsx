@@ -150,7 +150,7 @@ const DEFAULT_TIERS: Plan[] = [
     id: "default-student",
     name: "Student",
     price_label: "₹159",
-    description: "Exclusive academic pricing for verified college and university students.",
+    description: "Academic pricing for verified students: 20% off standard Pro pricing (₹159/mo vs ₹199/mo).",
     features: [
       "Access to all Free & Student courses",
       "10,000 AI credits / month",
@@ -566,9 +566,13 @@ function PricingPage() {
           amount: Math.round(checkout.amount * 100),
           currency: "INR",
           name: "Learnify AI",
-          description: `${checkout.notes?.planName || "Plan"} Subscription`,
+          description:
+            checkout.discountAmount && checkout.discountAmount > 0
+              ? `${checkout.notes?.planName || "Plan"} (Base: ₹${checkout.baseAmount} - ₹${checkout.discountAmount} discount)`
+              : `${checkout.notes?.planName || "Plan"} Subscription`,
           order_id: checkout.orderId,
           prefill: checkout.prefill,
+          notes: checkout.notes,
           theme: { color: "#6366f1" },
           handler: async function (response: any) {
             try {
@@ -778,7 +782,7 @@ function PricingPage() {
               </div>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              No credit card required · Cancel anytime · 30-day money-back guarantee
+              No credit card required for Free · Cancel renewal anytime · Transparent pricing
             </p>
           </div>
         </section>
@@ -832,17 +836,17 @@ function PricingPage() {
                 {learnerCount.toLocaleString("en-IN")} learners started this month
               </div>
               <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
-                Try Learnify Risk-Free
+                Experience Learnify AI Today
               </h2>
               <p className="text-muted-foreground text-sm mb-6 max-w-md mx-auto">
-                Start your 30-day money-back trial. Cancel anytime.
+                Start on the Free tier or upgrade to unlock unlimited AI learning & career tools.
               </p>
               <div className="flex flex-wrap justify-center gap-6 mb-8">
                 {[
-                  { label: "30-Day Money-Back", desc: "Full refund within 30 days" },
-                  { label: "No Credit Card", desc: "For free plan registration" },
-                  { label: "Cancel Anytime", desc: "No questions asked" },
                   { label: "Instant Access", desc: "Start learning in seconds" },
+                  { label: "No Credit Card", desc: "For free plan registration" },
+                  { label: "Transparent Billing", desc: "Cancel renewal anytime" },
+                  { label: "Verified Credentials", desc: "Verifiable certificates & badges" },
                 ].map((item) => (
                   <div key={item.label} className="flex items-center gap-2 text-left">
                     <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
@@ -1492,7 +1496,7 @@ function PricingPage() {
                 </div>
               </div>
               <p className="mt-6 text-sm text-white/60">
-                Cancel Anytime · 30-Day Money-Back Guarantee
+                Instant Activation · Transparent Billing · Cancel Renewal Anytime
               </p>
             </div>
           </div>
@@ -1503,10 +1507,14 @@ function PricingPage() {
           <div className="text-center space-y-2">
             <div className="flex items-center justify-center gap-2">
               <CreditCard className="h-5 w-5 text-primary" />
-              <span className="text-sm font-semibold">Secure payments powered by Cashfree</span>
+              <span className="text-sm font-semibold">Secure payments powered by Razorpay & Cashfree</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              All plans include a 30-day money-back guarantee. No credit card required for Free.{" "}
+              Digital subscriptions activate instantly upon successful verification. Review our{" "}
+              <Link to="/refund-policy" className="text-primary underline underline-offset-2 hover:opacity-80 transition">
+                Refund Policy
+              </Link>{" "}
+              for exception reviews. No credit card required for Free tier.{" "}
               <a
                 href="mailto:support.learnifyai@gmail.com"
                 className="text-primary underline underline-offset-2 hover:opacity-80 transition"

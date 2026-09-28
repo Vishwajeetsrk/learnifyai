@@ -158,6 +158,9 @@ export const initiateCheckout = createServerFn({ method: "POST" })
       provider: data.provider,
       orderId: orderResult.orderId,
       amount: finalAmount,
+      baseAmount: priceInr,
+      discountAmount: Math.max(0, priceInr - finalAmount),
+      appliedCoupon: appliedCoupon || null,
       currency: "INR",
       keyId: data.provider === "razorpay" ? (process.env.RAZORPAY_KEY_ID || "") : undefined,
       paymentSessionId: orderResult.paymentSessionId,
@@ -170,6 +173,9 @@ export const initiateCheckout = createServerFn({ method: "POST" })
       notes: {
         planName,
         planId: data.planId,
+        basePrice: `₹${priceInr}`,
+        discount: priceInr > finalAmount ? `-₹${priceInr - finalAmount}` : "₹0",
+        payable: `₹${finalAmount}`,
       },
     };
   });

@@ -181,22 +181,19 @@ function CertsPage() {
           </div>
         )}
 
-        {/* Certificate Governance & Legal Licensing */}
+        {/* Certificate Governance & Legal Licensing Guidance */}
         <div className="mt-12 p-6 rounded-2xl border bg-card shadow-sm space-y-4">
           <div className="flex items-center gap-2 text-primary font-bold text-sm">
-            <ShieldCheck className="w-5 h-5 text-emerald-500" /> Certificate Accreditation & Legal
-            Licensing Guide
+            <ShieldCheck className="w-5 h-5 text-emerald-500" /> Learnify AI Certification Guidance & External Accreditation Resources
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Learnify AI certificates feature cryptographic SHA-256 signatures and QR code instant
-            verification. To upgrade your platform certificates with government-recognized
-            accreditation in India, apply through these official portals:
+            Learnify AI issues cryptographically verifiable course completion credentials with unique verification codes and QR lookups. For institutions and educators seeking independent statutory or international accreditation for external curriculum programs, consult these official portals:
           </p>
           <div className="grid md:grid-cols-3 gap-4 text-xs">
             <div className="p-3.5 rounded-xl border bg-muted/30">
-              <div className="font-semibold text-foreground mb-1">1. MSME Udyam Registration</div>
+              <div className="font-semibold text-foreground mb-1">1. MSME Udyam Portal</div>
               <p className="text-muted-foreground text-[11px]">
-                Free official registration for Indian educational technology platforms.
+                Official Government of India portal for micro, small, and medium enterprise registration.
               </p>
               <a
                 href="https://udyamregistration.gov.in"
@@ -204,15 +201,15 @@ function CertsPage() {
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-primary hover:underline font-medium mt-2"
               >
-                Apply on Udyam Portal <ExternalLink className="w-3 h-3" />
+                Official Udyam Portal <ExternalLink className="w-3 h-3" />
               </a>
             </div>
             <div className="p-3.5 rounded-xl border bg-muted/30">
               <div className="font-semibold text-foreground mb-1">
-                2. Skill India / NSDC Partner
+                2. Skill India / NSDC
               </div>
               <p className="text-muted-foreground text-[11px]">
-                Partner with NSDC for official Skill India recognized certificates.
+                National Skill Development Corporation guidance for vocational skill training partnerships.
               </p>
               <a
                 href="https://nsdcindia.org"
@@ -220,13 +217,13 @@ function CertsPage() {
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-primary hover:underline font-medium mt-2"
               >
-                NSDC Partner Portal <ExternalLink className="w-3 h-3" />
+                NSDC Official Portal <ExternalLink className="w-3 h-3" />
               </a>
             </div>
             <div className="p-3.5 rounded-xl border bg-muted/30">
-              <div className="font-semibold text-foreground mb-1">3. ISO 9001 / ISO 27001</div>
+              <div className="font-semibold text-foreground mb-1">3. ISO Standards</div>
               <p className="text-muted-foreground text-[11px]">
-                Quality management and data security compliance for global accreditation.
+                International Organization for Standardization specifications for quality (9001) and security (27001).
               </p>
               <a
                 href="https://www.iso.org"
@@ -234,10 +231,13 @@ function CertsPage() {
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-primary hover:underline font-medium mt-2"
               >
-                ISO Certification Guide <ExternalLink className="w-3 h-3" />
+                ISO Official Portal <ExternalLink className="w-3 h-3" />
               </a>
             </div>
           </div>
+          <p className="text-[11px] text-muted-foreground/80 italic border-t pt-3">
+            Disclaimer: Learnify AI certificates verify curriculum and practical project completion on Learnify AI. External accreditation and licensing are separate statutory certifications awarded directly by respective authorities.
+          </p>
         </div>
       </div>
     </AppShell>

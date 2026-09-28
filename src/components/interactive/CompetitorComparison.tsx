@@ -21,7 +21,7 @@ const FEATURES = [
   { name: "Internship Tools", values: [true, false, false, false] },
   { name: "LinkedIn Optimization", values: [true, false, false, false] },
   { name: "Career Analytics", values: [true, false, false, false] },
-  { name: "Price (Monthly)", values: ["₹199–₹4,999", "₹3,999+", "Free–₹1,599", "$20/mo"] },
+  { name: "Price (Monthly)", values: ["₹199 / ₹499", "₹3,999+", "Free–₹1,599", "$20/mo"] },
 ];
 
 export function CompetitorComparison() {

@@ -55,42 +55,143 @@ function CertificatePage() {
   const q = useQuery({
     queryKey: ["cert", code],
     queryFn: async () => {
-      const { data: rpcData, error } = await supabase.rpc("get_certificate_by_code", {
-        _code: code,
-      });
-      if (error) throw error;
-      const row = Array.isArray(rpcData) ? rpcData[0] : rpcData;
-      if (!row) throw new Error("Certificate not found");
+      if (!code || typeof code !== "string") throw new Error("Certificate code is required");
+      const cleanCode = code.trim();
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(cleanCode);
 
-      const { data: certV2 } = await supabase
-        .from("certificates")
-        .select("template_id")
-        .eq("code", code)
-        .maybeSingle();
+      let row: any = null;
 
+      // 1. Try get_certificate_by_code RPC
+      try {
+        const { data: rpcData } = await supabase.rpc("get_certificate_by_code", {
+          _code: cleanCode,
+        });
+        const rpcRow = Array.isArray(rpcData) ? rpcData[0] : rpcData;
+        if (rpcRow) row = rpcRow;
+      } catch (err) {
+        console.warn("RPC get_certificate_by_code error, checking table directly:", err);
+      }
+
+      // 2. Direct lookup on certificates table
+      if (!row) {
+        try {
+          let query = supabase
+            .from("certificates")
+            .select("*, courses:course_id(title, instructor, category), profiles:user_id(full_name, email)");
+
+          if (isUuid) {
+            query = query.or(`id.eq.${cleanCode},code.ilike.${cleanCode}`);
+          } else {
+            query = query.ilike("code", cleanCode);
+          }
+
+          const { data: certRow } = await query.maybeSingle();
+          if (certRow) {
+            row = {
+              id: certRow.id,
+              code: certRow.code,
+              user_id: certRow.user_id,
+              course_id: certRow.course_id,
+              score: certRow.score ?? 100,
+              total: certRow.total ?? 100,
+              issued_at: certRow.issued_at,
+              learner_name: (certRow as any).learner_name || (certRow as any).recipient_name || (certRow as any).profiles?.full_name || "Learner",
+              learner_email: (certRow as any).learner_email || (certRow as any).profiles?.email || "",
+              course_title: (certRow as any).courses?.title || "Learnify Course",
+              course_instructor: (certRow as any).courses?.instructor || "Learnify Instructor",
+              course_category: (certRow as any).courses?.category || "General",
+              design_snapshot: certRow.design_snapshot,
+              recipient_name: (certRow as any).recipient_name || (certRow as any).learner_name || (certRow as any).profiles?.full_name,
+              role_title: (certRow as any).role_title || "Certified Specialist",
+              date_from: (certRow as any).date_from,
+              date_to: (certRow as any).date_to,
+              notes: (certRow as any).notes,
+              template_id: (certRow as any).template_id,
+              status: (certRow as any).status || ((certRow as any).revoked_at ? "revoked" : "verified"),
+              revoked_at: (certRow as any).revoked_at,
+            };
+          }
+        } catch (err) {
+          console.warn("Certificates table lookup error:", err);
+        }
+      }
+
+      // 3. Direct lookup on user_certificates table
+      if (!row) {
+        try {
+          let query = (supabase as any)
+            .from("user_certificates")
+            .select("*, course:courses(title, instructor, category), user:profiles(full_name, email)");
+
+          if (isUuid) {
+            query = query.or(`id.eq.${cleanCode},certificate_number.ilike.${cleanCode}`);
+          } else {
+            query = query.ilike("certificate_number", cleanCode);
+          }
+
+          const { data: userCert } = await query.maybeSingle();
+          if (userCert) {
+            row = {
+              id: userCert.id,
+              code: userCert.certificate_number || userCert.id,
+              user_id: userCert.user_id,
+              course_id: userCert.course_id,
+              score: userCert.score ? parseInt(userCert.score) : 100,
+              total: 100,
+              issued_at: userCert.issue_date || userCert.created_at || new Date().toISOString(),
+              learner_name: userCert.recipient_name || userCert.user?.full_name || "Learner",
+              learner_email: userCert.user?.email || "",
+              course_title: userCert.course_title || userCert.course?.title || "Learnify AI Program",
+              course_instructor: userCert.instructor_name || userCert.course?.instructor || "Learnify Instructor",
+              course_category: userCert.course?.category || "Technology",
+              design_snapshot: userCert.design_snapshot,
+              recipient_name: userCert.recipient_name || userCert.user?.full_name || "Learner",
+              role_title: "Certified Specialist",
+              template_id: userCert.template_id,
+              status: userCert.status || (userCert.revoked_at ? "revoked" : "verified"),
+              revoked_at: userCert.revoked_at,
+            };
+          }
+        } catch (err) {
+          console.warn("user_certificates lookup error:", err);
+        }
+      }
+
+      if (!row) throw new Error(`Certificate record not found for "${cleanCode}"`);
+
+      // Template lookup
+      const effectiveTemplateId = row.template_id || (row as any).v2?.template_id;
       let template = null;
-      if (certV2?.template_id) {
-        const { data: tmpl } = await supabase
-          .from("certificate_templates")
-          .select("*")
-          .eq("id", certV2.template_id)
-          .maybeSingle();
-        template = tmpl;
+      if (effectiveTemplateId) {
+        try {
+          const { data: tmpl } = await supabase
+            .from("certificate_templates")
+            .select("*")
+            .eq("id", effectiveTemplateId)
+            .maybeSingle();
+          template = tmpl;
+        } catch (err) {
+          console.warn("Template fetch error:", err);
+        }
       }
 
       let issuerOrgLogoUrl = null;
       if ((row as any).created_by) {
-        const { data: issuerProfile } = await supabase
-          .from("profiles")
-          .select("org_logo_url")
-          .eq("id", (row as any).created_by)
-          .maybeSingle();
-        issuerOrgLogoUrl = issuerProfile?.org_logo_url ?? null;
+        try {
+          const { data: issuerProfile } = await supabase
+            .from("profiles")
+            .select("org_logo_url")
+            .eq("id", (row as any).created_by)
+            .maybeSingle();
+          issuerOrgLogoUrl = issuerProfile?.org_logo_url ?? null;
+        } catch (err) {
+          console.warn("Issuer profile error:", err);
+        }
       }
 
       return {
         ...row,
-        v2: certV2 ? { ...certV2, certificate_templates: template } : null,
+        v2: template ? { template_id: effectiveTemplateId, certificate_templates: template } : null,
         issuer_org_logo_url: issuerOrgLogoUrl,
       } as any;
     },
@@ -98,11 +199,11 @@ function CertificatePage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const url = window.location.origin + `/certificates/${code}`;
+    const url = window.location.origin + `/verify/${q.data?.code || code}`;
     QRCode.toDataURL(url, { margin: 1, width: 220, color: { dark: "#0f1b3d", light: "#ffffff" } })
       .then(setQrDataUrl)
       .catch(() => setQrDataUrl(""));
-  }, [code]);
+  }, [code, q.data?.code]);
 
   useEffect(() => {
     if (user?.email) setEmailTo(user.email);

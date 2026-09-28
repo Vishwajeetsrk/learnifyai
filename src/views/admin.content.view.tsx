@@ -1677,7 +1677,7 @@ function PricingManager() {
         price_inr: 0,
         yearly_price: null,
         interval: null,
-        ai_credits_monthly: 500,
+        ai_credits_monthly: 100,
         max_courses: 3,
         description: "1–3 free courses, limited daily AI credits, community access.",
         features: [
@@ -1687,7 +1687,7 @@ function PricingManager() {
           "Basic progress tracking",
           "Basic certificates",
           "Email support",
-          "500 AI credits / month",
+          "100 AI credits / month",
           "Course notes & summaries",
           "Basic quiz access",
         ],
