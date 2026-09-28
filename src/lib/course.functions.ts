@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { deduplicateLessonSections } from "@/lib/lesson-content-cleaner";
 
 /* ---------------- Checkout: wallet → enrollment ---------------- */
 
@@ -596,11 +597,14 @@ export const getCourseWithLessons = createServerFn({ method: "GET" })
           : Promise.resolve({ data: null }),
       ]);
 
-      const lessons = (lessonsResult.data ?? []).map((l: any) => ({
-        ...l,
-        description: l.description || l.content_md || "",
-        content_md: l.content_md || l.description || "",
-      }));
+      const lessons = (lessonsResult.data ?? []).map((l: any) => {
+        const cleanContent = deduplicateLessonSections(l.content_md || l.description || "");
+        return {
+          ...l,
+          description: cleanContent,
+          content_md: cleanContent,
+        };
+      });
 
       return {
         course,

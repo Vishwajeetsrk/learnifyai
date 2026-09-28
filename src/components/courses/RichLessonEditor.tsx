@@ -446,7 +446,7 @@ export function RichLessonEditor({
       )}
 
       {activeTab === "preview" && (
-        <div className="p-4 min-h-[300px] max-h-[500px] overflow-y-auto bg-card">
+        <div className="p-4 min-h-[280px] bg-card">
           {value.trim() ? (
             <InteractiveLessonContent content={value} />
           ) : (

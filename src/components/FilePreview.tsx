@@ -69,10 +69,10 @@ function PdfPreview({ url, fileName }: { url: string; fileName: string }) {
 
   return (
     <div className={cn("flex flex-col h-full", fullscreen && "fixed inset-0 z-50 bg-background")}>
-      <div className="flex items-center justify-between gap-2 px-3 py-2 border-b bg-card shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center justify-between gap-2 px-3 py-2 border-b bg-card shrink-0 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-2 min-w-0 shrink">
           <FileText className="h-4 w-4 text-red-500 shrink-0" />
-          <span className="text-xs font-medium truncate">{fileName}</span>
+          <span className="text-xs font-medium truncate max-w-[140px] sm:max-w-xs">{fileName}</span>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <Button

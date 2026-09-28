@@ -1325,16 +1325,16 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (!parsed.fullName || parsed.fullName === "ALEX RIVERA" || parsed.fullName === "Alex Rivera" || parsed.email === "alex.rivera@example.com") {
-            localStorage.removeItem("resume_builder_form");
-            return ATS_DEFAULT_FORM;
-          }
           return { ...ATS_DEFAULT_FORM, ...parsed };
         } catch {}
       }
     }
     return ATS_DEFAULT_FORM;
   });
+
+  const [autosaveStatus, setAutosaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
+  const [lastSavedTime, setLastSavedTime] = useState<string>("just now");
+  const [mobilePane, setMobilePane] = useState<"editor" | "preview">("editor");
 
   const [drafts, setDrafts] = useState<SavedDraft[]>(() => {
     if (typeof window !== "undefined") {
@@ -1356,9 +1356,27 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
   });
   const [activeDraftId, setActiveDraftId] = useState<string>("draft-default");
 
+  // Debounced autosave
   useEffect(() => {
     if (typeof window === "undefined") return;
-    localStorage.setItem("resume_builder_form", JSON.stringify(form));
+    setAutosaveStatus("saving");
+    const timer = setTimeout(() => {
+      localStorage.setItem("resume_builder_form", JSON.stringify(form));
+      setAutosaveStatus("saved");
+      setLastSavedTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [form]);
+
+  // Flush to storage on browser tab blur/switch
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden" && typeof window !== "undefined") {
+        localStorage.setItem("resume_builder_form", JSON.stringify(form));
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [form]);
 
   useEffect(() => {
@@ -1807,6 +1825,23 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Autosave Status Indicator */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border text-xs font-semibold shadow-2xs">
+              {autosaveStatus === "saving" ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin text-amber-500" />
+                  <span className="text-amber-600 dark:text-amber-400">Saving draft...</span>
+                </>
+              ) : (
+                <>
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-emerald-700 dark:text-emerald-400 font-medium">
+                    Autosaved ({lastSavedTime})
+                  </span>
+                </>
+              )}
+            </div>
+
             {/* Version Draft Manager */}
             <div className="flex items-center gap-1.5 bg-muted/40 p-1 rounded-xl border">
               <History className="h-3.5 w-3.5 text-muted-foreground ml-1.5" />
@@ -1911,13 +1946,36 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
             >
               <Download className="h-3 w-3" /> Text (.txt)
             </button>
+            {/* Mobile View Switcher (Editor vs Preview) */}
+            <div className="flex xl:hidden items-center bg-muted p-1 rounded-xl border">
+              <button
+                type="button"
+                onClick={() => setMobilePane("editor")}
+                className={cn(
+                  "px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1",
+                  mobilePane === "editor" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground",
+                )}
+              >
+                <Edit3 className="h-3 w-3" /> Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobilePane("preview")}
+                className={cn(
+                  "px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1",
+                  mobilePane === "preview" ? "bg-card text-foreground shadow-xs" : "text-muted-foreground",
+                )}
+              >
+                <Eye className="h-3 w-3" /> Preview ({liveAts.score}%)
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Main Dual-Pane Studio Layout */}
         <div className="grid xl:grid-cols-[1fr_520px] gap-6">
           {/* Left Editor / Controls */}
-          <div className="space-y-4">
+          <div className={cn("space-y-4", mobilePane === "preview" && "hidden xl:block")}>
             {activeTab === "content" && (
               <div className="space-y-3">
                 {/* 1. Personal Details Accordion */}
@@ -2814,7 +2872,7 @@ export function ResumeBuilderPage({ embedded = false }: { embedded?: boolean }) 
           </div>
 
           {/* Right Live Document Preview */}
-          <div className="sticky top-20 space-y-3">
+          <div className={cn("sticky top-20 space-y-3", mobilePane === "editor" && "hidden xl:block")}>
             {/* Real-time Live ATS Score Gauge Header */}
             <div className="flex items-center justify-between bg-muted/40 p-3 rounded-xl border text-xs gap-2">
               <div className="flex items-center gap-2">

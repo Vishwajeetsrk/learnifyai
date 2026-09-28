@@ -166,7 +166,9 @@ export function GlobalSupportAgent() {
   };
 
   const isAdminRoute = path.startsWith("/admin");
-  const isLeft = path.startsWith("/studio"); // Studio keeps left, admin stays right to avoid blocking sidebar
+  const isStudioRoute = path.startsWith("/studio");
+  const isCareerRoute = path.startsWith("/career-studio") || path.startsWith("/resume-builder") || path.startsWith("/portfolio-builder");
+  const isLeft = isStudioRoute; // Studio keeps left, admin stays right to avoid blocking sidebar
   const [minimized, setMinimized] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("learnify_support_minimized") === "true";
@@ -188,7 +190,7 @@ export function GlobalSupportAgent() {
   // When minimized, show a tiny unobtrusive floating pill
   if (minimized && !open) {
     return (
-      <div className={cn("fixed bottom-4 z-40", isLeft ? "left-4" : "right-4")}>
+      <div className={cn("fixed z-40", isCareerRoute ? "bottom-20 right-4" : "bottom-4", isLeft ? "left-4" : "right-4")}>
         <button
           onClick={() => {
             setMinimized(false);
@@ -211,7 +213,8 @@ export function GlobalSupportAgent() {
       dragMomentum={false}
       dragElastic={0.1}
       className={cn(
-        "fixed bottom-20 md:bottom-6 z-40 flex-col pointer-events-auto flex",
+        "fixed z-40 flex-col pointer-events-auto flex",
+        isCareerRoute ? "bottom-24 md:bottom-20" : "bottom-20 md:bottom-6",
         isLeft ? "left-4 md:left-6 items-start" : "right-4 md:right-6 items-end",
       )}
       style={{ touchAction: "none" }}

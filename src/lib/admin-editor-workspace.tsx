@@ -185,6 +185,7 @@ export function listAllActiveDrafts(): Array<{
 export interface UseAdminDraftOptions<T> {
   module: string;
   recordId: string | "new";
+  subrecordId?: string | null;
   initialData: T;
   getTitle?: (data: T) => string;
   onServerSave?: (data: T) => Promise<any>;
@@ -195,13 +196,16 @@ export interface UseAdminDraftOptions<T> {
 export function useAdminDraft<T extends Record<string, any>>({
   module,
   recordId,
+  subrecordId,
   initialData,
   getTitle,
   onServerSave,
   autoSaveServerInterval = 2000,
   enabled = true,
 }: UseAdminDraftOptions<T>) {
-  const editorKey = `${module}:${recordId || "new"}`;
+  const editorKey = subrecordId
+    ? `${module}:${subrecordId}:${recordId || "new"}`
+    : `${module}:${recordId || "new"}`;
 
   const [formData, setFormData] = useState<T>(initialData);
   const [isDirty, setIsDirty] = useState(false);

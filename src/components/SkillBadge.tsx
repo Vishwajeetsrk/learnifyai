@@ -120,12 +120,34 @@ export const SKILL_LOGOS: Record<
   Vercel: { simpleIcons: "vercel" },
   Netlify: { simpleIcons: "netlify" },
   "VS Code": { devicon: "vscode/vscode-original.svg" },
+  VSCode: { devicon: "vscode/vscode-original.svg" },
   "Command Line": { lucide: Terminal },
   "UI/UX": { lucide: Palette },
   "API Design": { lucide: Share2 },
+
+  // Enterprise Software & Productivity
+  "MS Excel": { simpleIcons: "microsoftexcel" },
+  Excel: { simpleIcons: "microsoftexcel" },
+  "MS Word": { simpleIcons: "microsoftword" },
+  Word: { simpleIcons: "microsoftword" },
+  "MS PowerPoint": { simpleIcons: "microsoftpowerpoint" },
+  PowerPoint: { simpleIcons: "microsoftpowerpoint" },
+  Salesforce: { simpleIcons: "salesforce" },
+  "Power BI": { simpleIcons: "powerbi" },
+  ChatGPT: { simpleIcons: "openai" },
+  Gemini: { simpleIcons: "google" },
+  Perplexity: { simpleIcons: "perplexity" },
+  Slack: { simpleIcons: "slack" },
+  Notion: { simpleIcons: "notion" },
+  Jira: { simpleIcons: "jira" },
+  Trello: { simpleIcons: "trello" },
+  Postman: { simpleIcons: "postman" },
+  WordPress: { simpleIcons: "wordpress" },
+  Wix: { simpleIcons: "wix" },
+  Razorpay: { simpleIcons: "razorpay" },
 };
 
-function getNormalizedLogo(skill: string) {
+export function getNormalizedLogo(skill: string) {
   if (SKILL_LOGOS[skill]) return SKILL_LOGOS[skill];
 
   // Fuzzy match
@@ -137,6 +159,11 @@ function getNormalizedLogo(skill: string) {
   }
 
   // Common keyword matchers
+  if (lower.includes("excel")) return SKILL_LOGOS["Excel"];
+  if (lower.includes("word") && !lower.includes("press")) return SKILL_LOGOS["Word"];
+  if (lower.includes("powerpoint")) return SKILL_LOGOS["PowerPoint"];
+  if (lower.includes("salesforce")) return SKILL_LOGOS["Salesforce"];
+  if (lower.includes("power bi") || lower.includes("powerbi")) return SKILL_LOGOS["Power BI"];
   if (lower.includes("python")) return SKILL_LOGOS["Python"];
   if (lower.includes("react")) return SKILL_LOGOS["React"];
   if (lower.includes("next")) return SKILL_LOGOS["Next.js"];

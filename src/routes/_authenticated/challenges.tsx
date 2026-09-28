@@ -259,6 +259,24 @@ export function ChallengesPage({ embedded = false }: { embedded?: boolean }) {
       {/* Challenges List */}
       {challenges.isLoading ? (
         <ChallengesSkeleton />
+      ) : challenges.isError ? (
+        <div className="text-center py-16 bg-card border border-rose-500/20 rounded-2xl space-y-3 p-6">
+          <div className="h-12 w-12 rounded-full bg-rose-500/10 text-rose-500 grid place-items-center mx-auto">
+            <Code2 className="h-6 w-6" />
+          </div>
+          <p className="text-sm font-bold text-foreground">Unable to load coding challenges</p>
+          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+            There was an issue loading the challenges list. Please try again.
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => challenges.refetch()}
+            className="rounded-xl font-bold cursor-pointer gap-1.5"
+          >
+            Retry
+          </Button>
+        </div>
       ) : data.length === 0 ? (
         <div className="text-center py-20 bg-card border border-border/80 rounded-2xl">
           <Code2 className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />

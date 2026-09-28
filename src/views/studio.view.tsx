@@ -57,6 +57,13 @@ import {
 import { EnrichmentProgressDialog } from "@/components/EnrichmentProgressDialog";
 import { ThumbnailEditor } from "@/components/ThumbnailEditor";
 import { RichLessonEditor } from "@/components/courses/RichLessonEditor";
+import {
+  useAdminDraft,
+  AutosaveStatusBadge,
+  DraftRecoveryBanner,
+} from "@/lib/admin-editor-workspace";
+import { deduplicateLessonSections } from "@/lib/lesson-content-cleaner";
+import { formatCourseDuration } from "@/lib/brand-registry";
 import { History, AlertTriangle, Scissors, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -146,6 +153,58 @@ type Lesson = {
   is_preview: boolean;
 };
 
+interface StudioActiveSession {
+  courseId?: string | null;
+  action?: "edit" | "lessons" | "mcqs" | "assignments" | "projects" | "new" | null;
+  lessonId?: string | null;
+}
+
+const STUDIO_SESSION_KEY = "learnify_studio_active_session";
+
+function saveStudioSession(session: StudioActiveSession) {
+  if (typeof window === "undefined") return;
+  try {
+    if (!session.courseId && !session.action && !session.lessonId) {
+      localStorage.removeItem(STUDIO_SESSION_KEY);
+      const url = new URL(window.location.href);
+      url.searchParams.delete("course");
+      url.searchParams.delete("action");
+      url.searchParams.delete("lesson");
+      window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
+      return;
+    }
+    localStorage.setItem(STUDIO_SESSION_KEY, JSON.stringify(session));
+    const url = new URL(window.location.href);
+    if (session.courseId) url.searchParams.set("course", session.courseId);
+    else url.searchParams.delete("course");
+    if (session.action) url.searchParams.set("action", session.action);
+    else url.searchParams.delete("action");
+    if (session.lessonId) url.searchParams.set("lesson", session.lessonId);
+    else url.searchParams.delete("lesson");
+    window.history.replaceState({}, "", url.pathname + url.search);
+  } catch {
+    /* quota/security */
+  }
+}
+
+function loadStudioSession(): StudioActiveSession {
+  if (typeof window === "undefined") return {};
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const courseId = params.get("course");
+    const action = params.get("action") as StudioActiveSession["action"];
+    const lessonId = params.get("lesson");
+    if (courseId || action || lessonId) {
+      return { courseId, action, lessonId };
+    }
+    const saved = localStorage.getItem(STUDIO_SESSION_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    /* ignore */
+  }
+  return {};
+}
+
 export default function StudioPage() {
   const { user, isAdmin, isCreator, loading } = useAuth();
   const navigate = useNavigate();
@@ -155,6 +214,7 @@ export default function StudioPage() {
   const [creating, setCreating] = useState(false);
   const [deletingCourse, setDeletingCourse] = useState<Course | null>(null);
   const [manageLessonsFor, setManageLessonsFor] = useState<Course | null>(null);
+  const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [manageMcqFor, setManageMcqFor] = useState<Course | null>(null);
   const [manageAssignFor, setManageAssignFor] = useState<Course | null>(null);
   const [manageProjectsFor, setManageProjectsFor] = useState<Course | null>(null);
@@ -191,6 +251,36 @@ export default function StudioPage() {
       return (data ?? []) as Course[];
     },
   });
+
+  // Restore active workspace session from URL / localStorage on load
+  useEffect(() => {
+    if (!coursesQuery.data || coursesQuery.data.length === 0) return;
+    const session = loadStudioSession();
+    if (!session.action && !session.courseId) return;
+
+    if (session.action === "new") {
+      setCreating(true);
+      return;
+    }
+
+    if (session.courseId) {
+      const found = coursesQuery.data.find((c) => c.id === session.courseId);
+      if (found) {
+        if (session.action === "edit") {
+          setEditing(found);
+        } else if (session.action === "lessons") {
+          setManageLessonsFor(found);
+          if (session.lessonId) setActiveLessonId(session.lessonId);
+        } else if (session.action === "mcqs") {
+          setManageMcqFor(found);
+        } else if (session.action === "assignments") {
+          setManageAssignFor(found);
+        } else if (session.action === "projects") {
+          setManageProjectsFor(found);
+        }
+      }
+    }
+  }, [coursesQuery.data]);
 
   const filtered = useMemo(() => {
     const s = search.toLowerCase().trim();
@@ -237,6 +327,7 @@ export default function StudioPage() {
         const issues = await getCourseVideoIssues(c.id);
         if (issues.length) {
           setManageLessonsFor(c);
+          saveStudioSession({ courseId: c.id, action: "lessons" });
           return toast.error(
             `Fix ${issues.length} lesson video URL${issues.length === 1 ? "" : "s"} before publishing.`,
           );
@@ -284,6 +375,7 @@ export default function StudioPage() {
               onClick={() => {
                 setEditing(null);
                 setCreating(true);
+                saveStudioSession({ action: "new" });
               }}
             >
               <Plus className="h-4 w-4" /> New course
@@ -338,19 +430,48 @@ export default function StudioPage() {
                       </td>
                       <td className="px-4 md:px-6 py-3 text-right">
                         <div className="flex items-center gap-1 justify-end flex-wrap">
-                          <Button size="sm" variant="ghost" onClick={() => setManageLessonsFor(c)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setManageLessonsFor(c);
+                              setActiveLessonId(null);
+                              saveStudioSession({ courseId: c.id, action: "lessons" });
+                            }}
+                          >
                             <Video className="h-4 w-4" /> Lessons
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setManageAssignFor(c)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setManageAssignFor(c);
+                              saveStudioSession({ courseId: c.id, action: "assignments" });
+                            }}
+                          >
                             <ClipboardList className="h-4 w-4" /> Assign.
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setManageProjectsFor(c)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setManageProjectsFor(c);
+                              saveStudioSession({ courseId: c.id, action: "projects" });
+                            }}
+                          >
                             <Code2 className="h-4 w-4" /> Projects
                           </Button>
                           <Button size="sm" variant="ghost" onClick={() => setReviewSubFor(c)}>
                             <FileCheck2 className="h-4 w-4" /> Subs
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setManageMcqFor(c)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              setManageMcqFor(c);
+                              saveStudioSession({ courseId: c.id, action: "mcqs" });
+                            }}
+                          >
                             <Brain className="h-4 w-4" /> Test
                           </Button>
                           <Button
@@ -372,6 +493,7 @@ export default function StudioPage() {
                             onClick={() => {
                               setCreating(false);
                               setEditing(c);
+                              saveStudioSession({ courseId: c.id, action: "edit" });
                             }}
                           >
                             <Pencil className="h-4 w-4" />
@@ -400,13 +522,32 @@ export default function StudioPage() {
         onClose={() => {
           setCreating(false);
           setEditing(null);
+          saveStudioSession({});
         }}
         course={editing}
         userId={user?.id ?? null}
         onSaved={() => qc.invalidateQueries({ queryKey: ["studio-courses"] })}
       />
 
-      <LessonsDialog course={manageLessonsFor} onClose={() => setManageLessonsFor(null)} />
+      <LessonsDialog
+        course={manageLessonsFor}
+        activeLessonId={activeLessonId}
+        onClose={() => {
+          setManageLessonsFor(null);
+          setActiveLessonId(null);
+          saveStudioSession({});
+        }}
+        onSelectLesson={(lessonId) => {
+          setActiveLessonId(lessonId);
+          if (manageLessonsFor) {
+            saveStudioSession({
+              courseId: manageLessonsFor.id,
+              action: "lessons",
+              lessonId,
+            });
+          }
+        }}
+      />
 
       <McqDialog course={manageMcqFor} onClose={() => setManageMcqFor(null)} />
 
@@ -510,6 +651,19 @@ export default function StudioPage() {
   );
 }
 
+interface CourseDraftData {
+  title: string;
+  slug: string;
+  description: string;
+  category: string;
+  level: string;
+  price: number;
+  instructor: string;
+  duration: number;
+  coverUrl: string;
+  published: boolean;
+}
+
 function CourseFormDialog({
   open,
   onClose,
@@ -523,46 +677,51 @@ function CourseFormDialog({
   userId: string | null;
   onSaved: () => void;
 }) {
-  const navigate = useNavigate();
-  const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("General");
   const suggestCategoryFn = useServerFn(suggestCourseCategory);
   const [suggestingCategory, setSuggestingCategory] = useState(false);
-
-  async function handleSuggestCategory() {
-    if (!title.trim()) return;
-    setSuggestingCategory(true);
-    try {
-      const res = await suggestCategoryFn({
-        data: {
-          title,
-          description,
-        },
-      });
-      if (res?.category) {
-        setCategory(res.category);
-        toast.success(`Category suggested: ${res.category}`);
-      }
-    } catch (err: any) {
-      toast.error(err?.message ?? "Failed to suggest category");
-    } finally {
-      setSuggestingCategory(false);
-    }
-  }
-  const [level, setLevel] = useState("Beginner");
-  const [price, setPrice] = useState(0);
-  const [instructor, setInstructor] = useState("Learnify AI");
-  const [duration, setDuration] = useState(0);
-  const [coverUrl, setCoverUrl] = useState("");
-  const [published, setPublished] = useState(false);
   const [saving, setSaving] = useState(false);
   const [coverFailed, setCoverFailed] = useState(false);
   const [aiThumbOpen, setAiThumbOpen] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const historyKey = `thumb-history:${course?.id ?? "new"}`;
+
+  const initialCourseData: CourseDraftData = useMemo(
+    () => ({
+      title: course?.title ?? "",
+      slug: course?.slug ?? "",
+      description: course?.description ?? "",
+      category: course?.category ?? "General",
+      level: course?.level ?? "Beginner",
+      price: Number(course?.price_inr ?? 0),
+      instructor: course?.instructor ?? "Learnify AI",
+      duration: course?.duration_minutes ?? 0,
+      coverUrl: getCleanBannerUrl(course?.cover_url ?? null) ?? course?.cover_url ?? "",
+      published: course?.published ?? false,
+    }),
+    [course],
+  );
+
+  const {
+    formData: draft,
+    updateField,
+    updateAll,
+    status: draftStatus,
+    lastSavedAt,
+    isDirty,
+    saveDraftNow,
+    clearDraft,
+    restoreDraft,
+    discardRecoverableDraft,
+    hasRecoverableDraft,
+    recoverableDraftDate,
+  } = useAdminDraft<CourseDraftData>({
+    module: "studio_course",
+    recordId: course?.id || "new",
+    initialData: initialCourseData,
+    enabled: open,
+    getTitle: (d) => d.title || (course ? `Edit: ${course.title}` : "New Course"),
+  });
 
   // Load history on open / course change
   useEffect(() => {
@@ -573,6 +732,31 @@ function CourseFormDialog({
       setHistory([]);
     }
   }, [historyKey, open]);
+
+  // Load profile defaults if new course and empty title
+  useEffect(() => {
+    if (!course && userId && open && !draft.title) {
+      (async () => {
+        try {
+          const { data } = await supabase
+            .from("profiles")
+            .select("default_course_settings")
+            .eq("id", userId)
+            .single();
+          if (data?.default_course_settings) {
+            const d = data.default_course_settings as any;
+            updateAll({
+              category: d.category || draft.category,
+              level: d.level || draft.level,
+              price: d.price_inr !== undefined ? d.price_inr : draft.price,
+            });
+          }
+        } catch {
+          /* ignore */
+        }
+      })();
+    }
+  }, [course, userId, open]);
 
   function pushHistory(url: string) {
     if (!url) return;
@@ -600,67 +784,42 @@ function CourseFormDialog({
       }
     }
     setCoverFailed(false);
-    setCoverUrl(url);
+    updateField("coverUrl", url);
     pushHistory(url);
   }
 
-  useEffect(() => {
-    if (course) {
-      setTitle(course.title);
-      setSlug(course.slug);
-      setDescription(course.description ?? "");
-      setCategory(course.category);
-      setLevel(course.level);
-      setPrice(Number(course.price_inr));
-      setInstructor(course.instructor);
-      setDuration(course.duration_minutes);
-      setCoverUrl(getCleanBannerUrl(course.cover_url) ?? course.cover_url ?? "");
-      setPublished(course.published);
-    } else {
-      setTitle("");
-      setSlug("");
-      setDescription("");
-      setCategory("General");
-      setLevel("Beginner");
-      setPrice(0);
-      setInstructor("Learnify AI");
-      setDuration(0);
-      setCoverUrl("");
-      setPublished(false);
-      if (userId) {
-        (async () => {
-          try {
-            const { data } = await supabase
-              .from("profiles")
-              .select("default_course_settings")
-              .eq("id", userId)
-              .single();
-            if (data?.default_course_settings) {
-              const d = data.default_course_settings as any;
-              if (d.category) setCategory(d.category);
-              if (d.level) setLevel(d.level);
-              if (d.price_inr !== undefined) setPrice(d.price_inr);
-            }
-          } catch {
-            /* ignore */
-          }
-        })();
+  async function handleSuggestCategory() {
+    if (!draft.title.trim()) return;
+    setSuggestingCategory(true);
+    try {
+      const res = await suggestCategoryFn({
+        data: {
+          title: draft.title,
+          description: draft.description,
+        },
+      });
+      if (res?.category) {
+        updateField("category", res.category);
+        toast.success(`Category suggested: ${res.category}`);
       }
+    } catch (err: any) {
+      toast.error(err?.message ?? "Failed to suggest category");
+    } finally {
+      setSuggestingCategory(false);
     }
-    setCoverFailed(false);
-  }, [course, open]);
+  }
 
   async function save() {
-    if (!title.trim()) return toast.error("Title required");
-    const finalSlug = slugify(slug.trim() || title);
+    if (!draft.title.trim()) return toast.error("Title required");
+    const finalSlug = slugify(draft.slug.trim() || draft.title);
     if (!finalSlug) return toast.error("Add a valid course URL slug");
-    if (published && coverUrl.trim() && coverFailed)
+    if (draft.published && draft.coverUrl.trim() && coverFailed)
       return toast.error("Cover image is not visible. Replace the image URL before publishing.");
-    if (published && !course)
+    if (draft.published && !course)
       return toast.error(
         "Create the course as draft first, then add lessons with valid videos before publishing.",
       );
-    if (published && course) {
+    if (draft.published && course) {
       try {
         const issues = await getCourseVideoIssues(course.id);
         if (issues.length)
@@ -673,21 +832,22 @@ function CourseFormDialog({
     }
     setSaving(true);
     const payload = {
-      title: title.trim(),
+      title: draft.title.trim(),
       slug: finalSlug,
-      description: description.trim() || null,
-      category: category.trim() || "General",
-      level: level.trim() || "Beginner",
-      price_inr: Number(price) || 0,
-      instructor: instructor.trim() || "Learnify AI",
-      duration_minutes: Number(duration) || 0,
-      cover_url: coverUrl.trim() || null,
-      published,
+      description: draft.description.trim() || null,
+      category: draft.category.trim() || "General",
+      level: draft.level.trim() || "Beginner",
+      price_inr: Number(draft.price) || 0,
+      instructor: draft.instructor.trim() || "Learnify AI",
+      duration_minutes: Number(draft.duration) || 0,
+      cover_url: draft.coverUrl.trim() || null,
+      published: draft.published,
     };
     if (course) {
       const { error } = await supabase.from("courses").update(payload).eq("id", course.id);
       setSaving(false);
       if (error) return toast.error(error.message);
+      clearDraft();
       toast.success("Course updated");
       onSaved();
       onClose();
@@ -702,6 +862,7 @@ function CourseFormDialog({
       .single();
     setSaving(false);
     if (insertErr) return toast.error(insertErr.message);
+    clearDraft();
     toast.success(
       "Course created! Now add lessons with videos, assignments, and the final test MCQs.",
       { duration: 6000 },
@@ -711,349 +872,414 @@ function CourseFormDialog({
   }
 
   async function copyCourseUrl() {
-    await navigator.clipboard?.writeText(courseUrlForSlug(slugify(slug || title)));
+    await navigator.clipboard?.writeText(courseUrlForSlug(slugify(draft.slug || draft.title)));
     toast.success("Course URL copied");
   }
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{course ? "Edit course" : "New course"}</DialogTitle>
-          <DialogDescription>
-            Course details — visible to learners when published.
-          </DialogDescription>
+      <DialogContent className="max-w-3xl w-[96vw] max-h-[92vh] flex flex-col p-0 gap-0 overflow-hidden rounded-2xl border bg-background shadow-2xl">
+        <DialogHeader className="px-6 py-4 border-b flex items-center justify-between shrink-0 bg-muted/20">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-primary shrink-0" />
+            <div>
+              <DialogTitle className="text-base font-display font-semibold">
+                {course ? "Edit Course" : "New Course"}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                Course details — visible to learners when published.
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label>Title</Label>
-            <Input
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                if (!course && !slug) setSlug(slugify(e.target.value));
-              }}
-              maxLength={120}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Slug</Label>
-            <div className="flex gap-2">
+
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-4">
+          <DraftRecoveryBanner
+            hasRecoverableDraft={hasRecoverableDraft}
+            recoverableDraftDate={recoverableDraftDate}
+            onRestore={restoreDraft}
+            onDiscard={discardRecoverableDraft}
+          />
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Title</Label>
               <Input
-                value={slug}
-                onChange={(e) => setSlug(slugify(e.target.value))}
-                maxLength={80}
-                placeholder="my-course-name"
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setSlug(slugify(title))}
-                disabled={!title.trim()}
-              >
-                Generate
-              </Button>
-            </div>
-            <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-2.5 py-2 text-[11px]">
-              <Link2 className="h-3.5 w-3.5 text-primary shrink-0" />
-              <a
-                href={courseUrlForSlug(slugify(slug || title))}
-                target="_blank"
-                rel="noreferrer"
-                className="font-mono text-primary hover:underline truncate"
-              >
-                {courseUrlForSlug(slugify(slug || title))}
-              </a>
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                className="h-7 w-7 shrink-0"
-                onClick={copyCourseUrl}
-                aria-label="Copy course URL"
-              >
-                <Copy className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              Lowercase letters, numbers, and dashes only. Confirm this URL before saving.
-            </p>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Category</Label>
-            <div className="flex gap-2">
-              <Input
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                maxLength={50}
-                list="course-categories-list"
-                placeholder="e.g. Development"
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleSuggestCategory}
-                disabled={suggestingCategory || !title.trim()}
-              >
-                {suggestingCategory ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Sparkles className="h-4 w-4" />
-                )}
-                AI
-              </Button>
-            </div>
-            <datalist id="course-categories-list">
-              <option value="Development" />
-              <option value="Design" />
-              <option value="Marketing" />
-              <option value="AI & Data" />
-              <option value="Business" />
-              <option value="Personal Growth" />
-            </datalist>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Level</Label>
-            <Input
-              value={level}
-              onChange={(e) => setLevel(e.target.value)}
-              maxLength={30}
-              placeholder="Beginner/Intermediate/Advanced"
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Price (INR)</Label>
-            <Input
-              type="number"
-              min={0}
-              value={price}
-              onChange={(e) => setPrice(Number(e.target.value))}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Instructor</Label>
-            <Input
-              value={instructor}
-              onChange={(e) => setInstructor(e.target.value)}
-              maxLength={80}
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Duration (mins)</Label>
-            <Input
-              type="number"
-              min={0}
-              value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
-            />
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label>Cover image / Thumbnail</Label>
-            <div className="flex gap-2 flex-wrap">
-              <Input
-                value={coverUrl}
+                value={draft.title}
                 onChange={(e) => {
-                  setCoverUrl(e.target.value);
-                  setCoverFailed(false);
+                  const val = e.target.value;
+                  if (!course && !draft.slug) {
+                    updateAll({ title: val, slug: slugify(val) });
+                  } else {
+                    updateField("title", val);
+                  }
                 }}
-                placeholder="Paste image URL, upload, or generate with AI"
-                className="min-w-[180px] flex-1"
+                maxLength={120}
+                placeholder="e.g. Modern Full-Stack Development with Next.js"
               />
-              <label className="inline-flex items-center gap-1.5 rounded-md border bg-secondary px-3 text-sm font-medium hover:bg-secondary/80 cursor-pointer">
-                <Upload className="h-4 w-4" /> Upload
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={async (e) => {
-                    const f = e.target.files?.[0];
-                    e.target.value = "";
-                    if (!f) return;
-                    if (f.size > 8 * 1024 * 1024) return toast.error("Image too large (max 8MB)");
-                    try {
-                      const dataUrl = await resizeImageToDataUrl(f, 1536, 0.85);
-                      await applyCoverFromSource(dataUrl, { expected: "1536x1024" });
-                    } catch (err: any) {
-                      toast.error(err?.message ?? "Could not read image");
-                    }
-                  }}
-                />
-              </label>
-              <Button type="button" variant="secondary" onClick={() => setAiThumbOpen(true)}>
-                <Sparkles className="h-4 w-4" /> AI Thumbnail
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setEditorOpen(true)}
-                disabled={!coverUrl}
-              >
-                <Scissors className="h-4 w-4" /> Edit
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={async () => {
-                  const seed = encodeURIComponent(
-                    (title || category || "learning").trim().toLowerCase().replace(/\s+/g, "-"),
-                  );
-                  // source.unsplash.com is deprecated. Use picsum.photos which supports CORS and seeded random images.
-                  await applyCoverFromSource(`https://picsum.photos/seed/${seed}/1536/1024`, {
-                    expected: "1536x1024",
-                  });
-                }}
-              >
-                Quick stock
-              </Button>
             </div>
-            {coverUrl && !coverFailed ? (
-              <div className="mt-2 overflow-hidden rounded-md border bg-muted relative group">
-                <img
-                  src={coverUrl}
-                  alt="Cover preview"
-                  className="w-full max-h-48 object-cover"
-                  loading="lazy"
-                  decoding="async"
-                  onLoad={() => setCoverFailed(false)}
-                  onError={() => setCoverFailed(true)}
+
+            <div className="space-y-1.5">
+              <Label>Slug</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={draft.slug}
+                  onChange={(e) => updateField("slug", slugify(e.target.value))}
+                  maxLength={80}
+                  placeholder="my-course-name"
                 />
                 <Button
                   type="button"
-                  size="icon"
-                  variant="destructive"
-                  className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => {
-                    setCoverUrl("");
-                    setCoverFailed(false);
-                  }}
-                  title="Remove image"
+                  variant="secondary"
+                  onClick={() => updateField("slug", slugify(draft.title))}
+                  disabled={!draft.title.trim()}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  Generate
                 </Button>
               </div>
-            ) : coverFailed ? (
-              <p className="text-[11px] text-destructive flex items-center gap-1">
-                <AlertTriangle className="h-3 w-3" /> Cover image is not loading. Replace the URL
-                before publishing.
-              </p>
-            ) : (
-              <p className="text-[11px] text-muted-foreground">
-                Tip: 1536×1024 (or 1200×630) works best on cards and social shares.
-              </p>
-            )}
-
-            {history.length > 0 && (
-              <div className="mt-2 rounded-lg border bg-muted/30 p-2">
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="text-[11px] font-medium flex items-center gap-1.5">
-                    <History className="h-3 w-3" /> Version history ({history.length})
-                  </div>
-                  <button
-                    type="button"
-                    className="text-[10px] text-muted-foreground hover:text-destructive"
-                    onClick={() => {
-                      try {
-                        localStorage.removeItem(historyKey);
-                      } catch {}
-                      setHistory([]);
-                    }}
-                  >
-                    Clear
-                  </button>
-                </div>
-                <div className="flex gap-1.5 overflow-x-auto pb-1">
-                  {history.map((u, i) => (
-                    <div key={i} className="relative shrink-0 group">
-                      <img
-                        src={u}
-                        alt={`v${i + 1}`}
-                        className="h-14 w-24 object-cover rounded-md border"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCoverFailed(false);
-                          setCoverUrl(u);
-                          toast.success(`Reverted to v${i + 1}`);
-                        }}
-                        className="absolute inset-0 grid place-items-center bg-black/60 text-white text-[10px] opacity-0 group-hover:opacity-100 rounded-md transition"
-                        title="Revert to this version"
-                      >
-                        <span className="flex items-center gap-1">
-                          <RotateCcw className="h-3 w-3" /> Revert
-                        </span>
-                      </button>
-                    </div>
-                  ))}
-                </div>
+              <div className="flex items-center gap-2 rounded-md border bg-muted/40 px-2.5 py-2 text-[11px]">
+                <Link2 className="h-3.5 w-3.5 text-primary shrink-0" />
+                <a
+                  href={courseUrlForSlug(slugify(draft.slug || draft.title))}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono text-primary hover:underline truncate"
+                >
+                  {courseUrlForSlug(slugify(draft.slug || draft.title))}
+                </a>
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7 shrink-0"
+                  onClick={copyCourseUrl}
+                  aria-label="Copy course URL"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
               </div>
-            )}
+              <p className="text-[11px] text-muted-foreground">
+                Lowercase letters, numbers, and dashes only. Confirm this URL before saving.
+              </p>
+            </div>
 
-            <AiThumbnailDialog
-              open={aiThumbOpen}
-              onClose={() => setAiThumbOpen(false)}
-              courseId={course?.id ?? null}
-              defaultTitle={title}
-              defaultCategory={category}
-              defaultDescription={description}
-              onApply={async (url) => {
-                await applyCoverFromSource(url, { expected: "1536x1024", skipValidate: false });
-                setAiThumbOpen(false);
-              }}
-            />
-            <ThumbnailEditor
-              open={editorOpen}
-              onClose={() => setEditorOpen(false)}
-              image={coverUrl || null}
-              onApply={(url) => applyCoverFromSource(url, { skipValidate: true })}
-            />
-          </div>
-          <div className="space-y-1.5 sm:col-span-2">
-            <Label>Description</Label>
-            <Textarea
-              rows={4}
-              maxLength={1000}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-          <div className="flex items-center gap-2 sm:col-span-2">
-            <Switch checked={published} onCheckedChange={setPublished} />
-            <Label className="!m-0">Published</Label>
-          </div>
-          <div className="sm:col-span-2 rounded-xl border border-indigo-100 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-950/20 p-4 text-sm space-y-1.5">
-            <p className="font-medium text-foreground">After saving the course:</p>
-            <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
-              <li>
-                Click <strong>Lessons</strong> to add video content — each lesson can have a YouTube
-                or direct video URL
-              </li>
-              <li>
-                Click <strong>Assign.</strong> for practical tasks and projects
-              </li>
-              <li>
-                Click <strong>Test</strong> to add MCQs — students must pass (≥70%) to claim their
-                certificate
-              </li>
-            </ul>
+            <div className="space-y-1.5">
+              <Label>Category</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={draft.category}
+                  onChange={(e) => updateField("category", e.target.value)}
+                  maxLength={50}
+                  list="course-categories-list"
+                  placeholder="e.g. Development"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleSuggestCategory}
+                  disabled={suggestingCategory || !draft.title.trim()}
+                >
+                  {suggestingCategory ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                  AI
+                </Button>
+              </div>
+              <datalist id="course-categories-list">
+                <option value="Development" />
+                <option value="Design" />
+                <option value="Marketing" />
+                <option value="AI & Data" />
+                <option value="Business" />
+                <option value="Personal Growth" />
+              </datalist>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Level</Label>
+              <Input
+                value={draft.level}
+                onChange={(e) => updateField("level", e.target.value)}
+                maxLength={30}
+                placeholder="Beginner/Intermediate/Advanced"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Price (INR)</Label>
+              <Input
+                type="number"
+                min={0}
+                value={draft.price}
+                onChange={(e) => updateField("price", Number(e.target.value))}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Instructor</Label>
+              <Input
+                value={draft.instructor}
+                onChange={(e) => updateField("instructor", e.target.value)}
+                maxLength={80}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Duration (mins)</Label>
+              <Input
+                type="number"
+                min={0}
+                value={draft.duration}
+                onChange={(e) => updateField("duration", Number(e.target.value))}
+              />
+            </div>
+
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Cover image / Thumbnail</Label>
+              <div className="flex gap-2 flex-wrap">
+                <Input
+                  value={draft.coverUrl}
+                  onChange={(e) => {
+                    updateField("coverUrl", e.target.value);
+                    setCoverFailed(false);
+                  }}
+                  placeholder="Paste image URL, upload, or generate with AI"
+                  className="min-w-[180px] flex-1"
+                />
+                <label className="inline-flex items-center gap-1.5 rounded-md border bg-secondary px-3 text-sm font-medium hover:bg-secondary/80 cursor-pointer">
+                  <Upload className="h-4 w-4" /> Upload
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const f = e.target.files?.[0];
+                      e.target.value = "";
+                      if (!f) return;
+                      if (f.size > 8 * 1024 * 1024) return toast.error("Image too large (max 8MB)");
+                      try {
+                        const dataUrl = await resizeImageToDataUrl(f, 1536, 0.85);
+                        await applyCoverFromSource(dataUrl, { expected: "1536x1024" });
+                      } catch (err: any) {
+                        toast.error(err?.message ?? "Could not read image");
+                      }
+                    }}
+                  />
+                </label>
+                <Button type="button" variant="secondary" onClick={() => setAiThumbOpen(true)}>
+                  <Sparkles className="h-4 w-4" /> AI Thumbnail
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setEditorOpen(true)}
+                  disabled={!draft.coverUrl}
+                >
+                  <Scissors className="h-4 w-4" /> Edit
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={async () => {
+                    const seed = encodeURIComponent(
+                      (draft.title || draft.category || "learning").trim().toLowerCase().replace(/\s+/g, "-"),
+                    );
+                    await applyCoverFromSource(`https://picsum.photos/seed/${seed}/1536/1024`, {
+                      expected: "1536x1024",
+                    });
+                  }}
+                >
+                  Quick stock
+                </Button>
+              </div>
+
+              {draft.coverUrl && !coverFailed ? (
+                <div className="mt-2 overflow-hidden rounded-md border bg-muted relative group">
+                  <img
+                    src={draft.coverUrl}
+                    alt="Cover preview"
+                    className="w-full max-h-48 object-cover"
+                    loading="lazy"
+                    decoding="async"
+                    onLoad={() => setCoverFailed(false)}
+                    onError={() => setCoverFailed(true)}
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="destructive"
+                    className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => {
+                      updateField("coverUrl", "");
+                      setCoverFailed(false);
+                    }}
+                    title="Remove image"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : coverFailed ? (
+                <p className="text-[11px] text-destructive flex items-center gap-1">
+                  <AlertTriangle className="h-3 w-3" /> Cover image is not loading. Replace the URL
+                  before publishing.
+                </p>
+              ) : (
+                <p className="text-[11px] text-muted-foreground">
+                  Tip: 1536×1024 (or 1200×630) works best on cards and social shares.
+                </p>
+              )}
+
+              {history.length > 0 && (
+                <div className="mt-2 rounded-lg border bg-muted/30 p-2">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="text-[11px] font-medium flex items-center gap-1.5">
+                      <History className="h-3 w-3" /> Version history ({history.length})
+                    </div>
+                    <button
+                      type="button"
+                      className="text-[10px] text-muted-foreground hover:text-destructive"
+                      onClick={() => {
+                        try {
+                          localStorage.removeItem(historyKey);
+                        } catch {}
+                        setHistory([]);
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div className="flex gap-1.5 overflow-x-auto pb-1">
+                    {history.map((u, i) => (
+                      <div key={i} className="relative shrink-0 group">
+                        <img
+                          src={u}
+                          alt={`v${i + 1}`}
+                          className="h-14 w-24 object-cover rounded-md border"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCoverFailed(false);
+                            updateField("coverUrl", u);
+                            toast.success(`Reverted to v${i + 1}`);
+                          }}
+                          className="absolute inset-0 grid place-items-center bg-black/60 text-white text-[10px] opacity-0 group-hover:opacity-100 rounded-md transition"
+                          title="Revert to this version"
+                        >
+                          <span className="flex items-center gap-1">
+                            <RotateCcw className="h-3 w-3" /> Revert
+                          </span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <AiThumbnailDialog
+                open={aiThumbOpen}
+                onClose={() => setAiThumbOpen(false)}
+                courseId={course?.id ?? null}
+                defaultTitle={draft.title}
+                defaultCategory={draft.category}
+                defaultDescription={draft.description}
+                onApply={async (url) => {
+                  await applyCoverFromSource(url, { expected: "1536x1024", skipValidate: false });
+                  setAiThumbOpen(false);
+                }}
+              />
+              <ThumbnailEditor
+                open={editorOpen}
+                onClose={() => setEditorOpen(false)}
+                image={draft.coverUrl || null}
+                onApply={(url) => applyCoverFromSource(url, { skipValidate: true })}
+              />
+            </div>
+
+            <div className="space-y-1.5 sm:col-span-2">
+              <Label>Description</Label>
+              <Textarea
+                rows={4}
+                maxLength={1000}
+                value={draft.description}
+                onChange={(e) => updateField("description", e.target.value)}
+                placeholder="Detailed curriculum overview, target audience, prerequisites, and learning outcomes..."
+              />
+            </div>
+
+            <div className="flex items-center gap-2 sm:col-span-2">
+              <Switch
+                checked={draft.published}
+                onCheckedChange={(val) => updateField("published", val)}
+              />
+              <Label className="!m-0">Published</Label>
+            </div>
+
+            <div className="sm:col-span-2 rounded-xl border border-indigo-100 bg-indigo-50/50 dark:border-indigo-900 dark:bg-indigo-950/20 p-4 text-sm space-y-1.5">
+              <p className="font-medium text-foreground">Course publishing workflow:</p>
+              <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                <li>
+                  Click <strong>Lessons</strong> to manage chapters & videos (YouTube or uploaded MP4)
+                </li>
+                <li>
+                  Click <strong>Assign.</strong> for hands-on tasks and deliverables
+                </li>
+                <li>
+                  Click <strong>Test</strong> to configure assessment MCQs for student certificates
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={saving}>
-            Cancel
-          </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save
-          </Button>
-        </DialogFooter>
+
+        <div className="shrink-0 px-6 py-3 border-t bg-muted/20 flex flex-wrap items-center justify-between gap-3">
+          <AutosaveStatusBadge
+            status={draftStatus}
+            lastSavedAt={lastSavedAt}
+            isDirty={isDirty}
+            onRetry={saveDraftNow}
+          />
+          <div className="flex items-center gap-2 ml-auto">
+            <Button variant="ghost" onClick={onClose} disabled={saving}>
+              Cancel
+            </Button>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={async () => {
+                await saveDraftNow();
+                toast.success("Draft saved");
+              }}
+              disabled={saving}
+            >
+              Save Draft
+            </Button>
+            <Button onClick={save} disabled={saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+              {course ? "Update Course" : "Create Course"}
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-function LessonsDialog({ course, onClose }: { course: Course | null; onClose: () => void }) {
+function LessonsDialog({
+  course,
+  activeLessonId,
+  onClose,
+  onSelectLesson,
+}: {
+  course: Course | null;
+  activeLessonId?: string | null;
+  onClose: () => void;
+  onSelectLesson?: (lessonId: string | null) => void;
+}) {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Lesson | null>(null);
   const [adding, setAdding] = useState(false);
@@ -1074,7 +1300,31 @@ function LessonsDialog({ course, onClose }: { course: Course | null; onClose: ()
     },
   });
 
+  // Sync activeLessonId with editing/adding state
+  useEffect(() => {
+    if (!activeLessonId) {
+      if (editing || adding) {
+        setEditing(null);
+        setAdding(false);
+      }
+      return;
+    }
+    if (activeLessonId === "new") {
+      setAdding(true);
+      setEditing(null);
+      return;
+    }
+    if (lessonsQuery.data && lessonsQuery.data.length > 0) {
+      const match = lessonsQuery.data.find((l) => l.id === activeLessonId);
+      if (match) {
+        setEditing(match);
+        setAdding(false);
+      }
+    }
+  }, [activeLessonId, lessonsQuery.data]);
+
   async function removeLesson(l: Lesson) {
+    if (!confirm(`Delete lesson "${l.title}"?`)) return;
     const { error } = await supabase.from("lessons").delete().eq("id", l.id);
     if (error) return toast.error(error.message);
     toast.success("Lesson removed");
@@ -1112,54 +1362,93 @@ function LessonsDialog({ course, onClose }: { course: Course | null; onClose: ()
 
   return (
     <Dialog open={!!course} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-primary" /> {course?.title} · Lessons
-          </DialogTitle>
-          <DialogDescription>Manage the lesson plan for this course.</DialogDescription>
+      <DialogContent className="max-w-4xl w-[96vw] h-[92vh] max-h-[900px] flex flex-col p-0 gap-0 overflow-hidden rounded-2xl border bg-background shadow-2xl">
+        <DialogHeader className="px-6 py-4 border-b flex items-center justify-between shrink-0 bg-muted/20">
+          <div className="flex items-center gap-2 min-w-0">
+            <BookOpen className="h-5 w-5 text-primary shrink-0" />
+            <div className="min-w-0">
+              <DialogTitle className="text-base font-display font-semibold truncate">
+                {course?.title}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground truncate">
+                {editing
+                  ? `Editing Lesson: ${editing.title}`
+                  : adding
+                    ? "New Lesson"
+                    : `Curriculum · ${lessonsQuery.data?.length ?? 0} lessons`}
+              </DialogDescription>
+            </div>
+          </div>
+          {editing || adding ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setEditing(null);
+                setAdding(false);
+                onSelectLesson?.(null);
+              }}
+              className="gap-1 text-xs"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Back to Lessons
+            </Button>
+          ) : null}
         </DialogHeader>
 
-        {course &&
-          (editing || adding ? (
-            <LessonForm
-              lesson={editing}
-              courseId={course.id}
-              courseTitle={course.title}
-              nextOrder={lessonsQuery.data?.length ?? 0}
-              onCancel={() => {
-                setEditing(null);
-                setAdding(false);
-              }}
-              onSaved={() => {
-                setEditing(null);
-                setAdding(false);
-                qc.invalidateQueries({ queryKey: ["studio-lessons"] });
-              }}
-            />
-          ) : (
-            <>
+        {course && (editing || adding) ? (
+          <LessonForm
+            lesson={editing}
+            courseId={course.id}
+            courseTitle={course.title}
+            nextOrder={lessonsQuery.data?.length ?? 0}
+            onCancel={() => {
+              setEditing(null);
+              setAdding(false);
+              onSelectLesson?.(null);
+            }}
+            onSaved={() => {
+              setEditing(null);
+              setAdding(false);
+              onSelectLesson?.(null);
+              qc.invalidateQueries({ queryKey: ["studio-lessons"] });
+            }}
+          />
+        ) : course ? (
+          <>
+            <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-4">
               <YouTubeToolbar
                 courseId={course.id}
                 onDone={() => qc.invalidateQueries({ queryKey: ["studio-lessons"] })}
               />
-              <div className="flex justify-end">
-                <Button size="sm" onClick={() => setAdding(true)}>
-                  <Plus className="h-4 w-4" /> Add lesson
+              <div className="flex justify-between items-center pt-2">
+                <span className="text-xs text-muted-foreground font-medium">
+                  Drag & drop handle to reorder curriculum
+                </span>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    setAdding(true);
+                    onSelectLesson?.("new");
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-1" /> Add lesson
                 </Button>
               </div>
+
               {lessonsQuery.isLoading ? (
-                <div className="p-6 grid place-items-center">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <div className="p-8 grid place-items-center">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
               ) : (lessonsQuery.data ?? []).length === 0 ? (
-                <div className="p-6 text-center text-sm text-muted-foreground">No lessons yet.</div>
+                <div className="p-10 text-center text-sm text-muted-foreground border rounded-xl bg-muted/10">
+                  No lessons yet. Add your first lesson above or use YouTube tools.
+                </div>
               ) : (
                 <DragDropContext onDragEnd={handleLessonReorder}>
                   <Droppable droppableId="lessons">
                     {(provided) => (
                       <ul
-                        className="space-y-2 mt-2"
+                        className="space-y-2"
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                       >
@@ -1169,32 +1458,55 @@ function LessonsDialog({ course, onClose }: { course: Course | null; onClose: ()
                               <li
                                 ref={dragProvided.innerRef}
                                 {...dragProvided.draggableProps}
-                                className="flex items-center justify-between gap-3 border rounded-lg px-3 py-2"
+                                className="flex items-center justify-between gap-3 border rounded-xl px-4 py-3 bg-card hover:border-primary/40 transition-colors"
                               >
-                                <div className="flex items-center gap-2 min-w-0">
+                                <div className="flex items-center gap-3 min-w-0">
                                   <button
                                     {...dragProvided.dragHandleProps}
-                                    className="shrink-0 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing"
+                                    className="shrink-0 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing p-1 rounded hover:bg-muted"
+                                    title="Drag to reorder"
                                   >
                                     <GripVertical className="h-4 w-4" />
                                   </button>
                                   <div className="min-w-0">
-                                    <div className="text-sm font-medium truncate">
-                                      {idx + 1}. {l.title}
+                                    <div className="text-sm font-medium truncate flex items-center gap-2">
+                                      <span>
+                                        {idx + 1}. {l.title}
+                                      </span>
+                                      {l.is_preview && (
+                                        <Badge
+                                          variant="outline"
+                                          className="text-[10px] bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
+                                        >
+                                          Free Preview
+                                        </Badge>
+                                      )}
                                     </div>
-                                    <div className="text-xs text-muted-foreground truncate">
-                                      {l.duration_minutes} min{l.is_preview ? " · Preview" : ""}
+                                    <div className="text-xs text-muted-foreground truncate flex items-center gap-2 mt-0.5">
+                                      <span>{l.duration_minutes} min</span>
+                                      {l.video_url && (
+                                        <span className="text-[11px] text-primary flex items-center gap-1">
+                                          <VideoIcon className="h-3 w-3" /> Attached
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-1 shrink-0">
-                                  <Button size="icon" variant="ghost" onClick={() => setEditing(l)}>
-                                    <Pencil className="h-4 w-4" />
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      setEditing(l);
+                                      onSelectLesson?.(l.id);
+                                    }}
+                                  >
+                                    <Pencil className="h-4 w-4 mr-1" /> Edit
                                   </Button>
                                   <Button
                                     size="icon"
                                     variant="ghost"
-                                    className="text-destructive"
+                                    className="text-destructive hover:text-destructive"
                                     onClick={() => removeLesson(l)}
                                   >
                                     <Trash2 className="h-4 w-4" />
@@ -1210,26 +1522,15 @@ function LessonsDialog({ course, onClose }: { course: Course | null; onClose: ()
                   </Droppable>
                 </DragDropContext>
               )}
-            </>
-          ))}
+            </div>
 
-        <DialogFooter>
-          {editing || adding ? (
-            <Button
-              variant="outline"
-              onClick={() => {
-                setEditing(null);
-                setAdding(false);
-              }}
-            >
-              <ArrowLeft className="h-4 w-4" /> Back
-            </Button>
-          ) : (
-            <Button variant="outline" onClick={onClose}>
-              Close
-            </Button>
-          )}
-        </DialogFooter>
+            <div className="shrink-0 px-6 py-3 border-t bg-muted/20 flex justify-end">
+              <Button variant="outline" onClick={onClose}>
+                Close
+              </Button>
+            </div>
+          </>
+        ) : null}
       </DialogContent>
     </Dialog>
   );
@@ -1268,6 +1569,15 @@ function generateVideoThumbnail(file: File): Promise<string> {
   });
 }
 
+interface LessonDraftData {
+  title: string;
+  description: string;
+  videoUrl: string;
+  duration: number;
+  orderIndex: number;
+  isPreview: boolean;
+}
+
 function LessonForm({
   lesson,
   courseId,
@@ -1283,16 +1593,43 @@ function LessonForm({
   onCancel: () => void;
   onSaved: () => void;
 }) {
-  const [title, setTitle] = useState(lesson?.title ?? "");
-  const [description, setDescription] = useState(
-    (lesson as any)?.content_md || lesson?.description || "",
+  const initialLessonData: LessonDraftData = useMemo(
+    () => ({
+      title: lesson?.title ?? "",
+      description: deduplicateLessonSections(
+        (lesson as any)?.content_md || lesson?.description || "",
+      ),
+      videoUrl: lesson?.video_url ?? "",
+      duration: lesson?.duration_minutes ?? 5,
+      orderIndex: lesson?.order_index ?? nextOrder,
+      isPreview: lesson?.is_preview ?? false,
+    }),
+    [lesson, nextOrder],
   );
-  const [videoUrl, setVideoUrl] = useState(lesson?.video_url ?? "");
-  const [duration, setDuration] = useState(lesson?.duration_minutes ?? 5);
-  const [orderIndex, setOrderIndex] = useState(lesson?.order_index ?? nextOrder);
-  const [isPreview, setIsPreview] = useState(lesson?.is_preview ?? false);
+
+  const {
+    formData: draft,
+    updateField,
+    updateAll,
+    status: draftStatus,
+    lastSavedAt,
+    isDirty,
+    saveDraftNow,
+    clearDraft,
+    restoreDraft,
+    discardRecoverableDraft,
+    hasRecoverableDraft,
+    recoverableDraftDate,
+  } = useAdminDraft<LessonDraftData>({
+    module: "studio_lesson",
+    recordId: lesson?.id || "new",
+    subrecordId: courseId,
+    initialData: initialLessonData,
+    getTitle: (d) => d.title || (lesson ? `Lesson: ${lesson.title}` : "New Lesson"),
+  });
+
   const [saving, setSaving] = useState(false);
-  const videoError = useMemo(() => validateLessonVideoUrl(videoUrl), [videoUrl]);
+  const videoError = useMemo(() => validateLessonVideoUrl(draft.videoUrl), [draft.videoUrl]);
 
   const searchVideoFn = useServerFn(searchYoutubeVideo);
   const generateNotesFn = useServerFn(generateLessonNotes);
@@ -1307,7 +1644,6 @@ function LessonForm({
     if (f.size > 200 * 1024 * 1024) return toast.error("Video too large (max 200MB)");
     setUploadingVideo(true);
     try {
-      // 1. Generate thumbnail
       let thumbDataUrl: string | null = null;
       try {
         thumbDataUrl = await generateVideoThumbnail(f);
@@ -1315,16 +1651,14 @@ function LessonForm({
         console.warn("Could not generate thumbnail", err);
       }
 
-      // 2. Upload video
       const ext = f.name.split(".").pop();
       const path = `lesson_videos/${courseId}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("community-uploads").upload(path, f);
       if (error) throw error;
       const { data } = supabase.storage.from("community-uploads").getPublicUrl(path);
-      setVideoUrl(data.publicUrl);
+      updateField("videoUrl", data.publicUrl);
       toast.success("Video uploaded successfully");
 
-      // 3. Upload thumbnail if generated (optional feature: update course cover if empty)
       if (thumbDataUrl) {
         const { data: courseData } = await supabase
           .from("courses")
@@ -1332,7 +1666,6 @@ function LessonForm({
           .eq("id", courseId)
           .single();
         if (courseData && !courseData.cover_url) {
-          // If course has no cover, let's upload the thumbnail and set it as cover!
           const thumbBlob = await (await fetch(thumbDataUrl)).blob();
           const thumbPath = `course_covers/${courseId}/thumb_${Date.now()}.jpg`;
           await supabase.storage
@@ -1351,12 +1684,12 @@ function LessonForm({
   }
 
   async function handleAiFindVideo() {
-    if (!title.trim()) return toast.error("Please enter a lesson title first.");
+    if (!draft.title.trim()) return toast.error("Please enter a lesson title first.");
     setSearchingVideo(true);
     try {
-      const res = await searchVideoFn({ data: { query: title } });
+      const res = await searchVideoFn({ data: { query: draft.title } });
       if (res && res.url) {
-        setVideoUrl(res.url);
+        updateField("videoUrl", res.url);
         toast.success(`Found video: ${res.title}`);
       } else {
         toast.error("No video found for this title.");
@@ -1369,17 +1702,17 @@ function LessonForm({
   }
 
   async function handleAiWriteNotes() {
-    if (!title.trim()) return toast.error("Please enter a lesson title first.");
+    if (!draft.title.trim()) return toast.error("Please enter a lesson title first.");
     setGeneratingNotes(true);
     try {
       const res = await generateNotesFn({
         data: {
-          title: title.trim(),
+          title: draft.title.trim(),
           courseTitle: courseTitle || "General Course",
         },
       });
       if (res && res.notes) {
-        setDescription(res.notes);
+        updateField("description", deduplicateLessonSections(res.notes));
         toast.success("AI generated summary and notes!");
       }
     } catch (e: any) {
@@ -1390,140 +1723,190 @@ function LessonForm({
   }
 
   async function save() {
-    if (!title.trim()) return toast.error("Title required");
+    if (!draft.title.trim()) return toast.error("Title required");
     if (videoError) return toast.error(videoError);
     setSaving(true);
+    const cleanedContent = deduplicateLessonSections(draft.description.trim());
     const payload = {
       course_id: courseId,
-      title: title.trim(),
-      description: description.trim() || null,
-      content_md: description.trim() || null,
-      video_url: videoUrl.trim() || null,
-      duration_minutes: Number(duration) || 0,
-      order_index: Number(orderIndex) || 0,
-      is_preview: isPreview,
+      title: draft.title.trim(),
+      description: cleanedContent || null,
+      content_md: cleanedContent || null,
+      video_url: draft.videoUrl.trim() || null,
+      duration_minutes: Number(draft.duration) || 0,
+      order_index: Number(draft.orderIndex) || 0,
+      is_preview: draft.isPreview,
     };
     const { error } = lesson
       ? await supabase.from("lessons").update(payload).eq("id", lesson.id)
       : await supabase.from("lessons").insert(payload);
     setSaving(false);
     if (error) return toast.error(error.message);
+    clearDraft();
     toast.success(lesson ? "Lesson updated" : "Lesson added");
     onSaved();
   }
 
+  function handleCancel() {
+    if (isDirty) {
+      if (
+        !window.confirm(
+          "You have unsaved edits in this lesson. Your draft is saved locally. Close editor?",
+        )
+      ) {
+        return;
+      }
+    }
+    onCancel();
+  }
+
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <div className="space-y-1.5 sm:col-span-2">
-        <Label>Title</Label>
-        <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} />
-      </div>
-      <div className="space-y-1.5 sm:col-span-2">
-        <Label>Video URL (YouTube link or direct video)</Label>
-        <div className="flex gap-2">
-          <Input
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-            placeholder="https://www.youtube.com/watch?v=…"
-            aria-invalid={!!videoError}
-            className="flex-1"
-          />
-          <label
-            className={cn(
-              "h-10 px-3 text-xs shrink-0 flex items-center gap-1.5 border rounded-md font-medium cursor-pointer transition",
-              uploadingVideo ? "opacity-50 cursor-not-allowed bg-muted" : "hover:bg-secondary",
-            )}
-          >
-            {uploadingVideo ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Upload className="h-3.5 w-3.5" />
-            )}
-            Upload MP4
-            <input
-              type="file"
-              accept="video/mp4,video/webm"
-              className="hidden"
-              onChange={handleVideoUpload}
-              disabled={uploadingVideo}
+    <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-4">
+        <DraftRecoveryBanner
+          hasRecoverableDraft={hasRecoverableDraft}
+          recoverableDraftDate={recoverableDraftDate}
+          onRestore={restoreDraft}
+          onDiscard={discardRecoverableDraft}
+        />
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Lesson Title</Label>
+            <Input
+              value={draft.title}
+              onChange={(e) => updateField("title", e.target.value)}
+              maxLength={120}
+              placeholder="e.g. 01. Introduction and Setup"
             />
-          </label>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={handleAiFindVideo}
-            disabled={searchingVideo}
-            className="h-10 text-xs shrink-0 flex items-center gap-1.5 bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary"
-          >
-            {searchingVideo ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Youtube className="h-3.5 w-3.5 text-red-500 fill-red-500" />
-            )}
-            AI Find
-          </Button>
-        </div>
-        <div className="flex items-center justify-center py-2">
-          <div className="w-16 h-16">
-            <img
-              src="/illustrations/uploading.svg"
-              alt=""
-              className="w-full h-full"
-              loading="lazy"
+          </div>
+
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Video URL (YouTube link or uploaded MP4)</Label>
+            <div className="flex gap-2">
+              <Input
+                value={draft.videoUrl}
+                onChange={(e) => updateField("videoUrl", e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=…"
+                aria-invalid={!!videoError}
+                className="flex-1"
+              />
+              <label
+                className={cn(
+                  "h-10 px-3 text-xs shrink-0 flex items-center gap-1.5 border rounded-md font-medium cursor-pointer transition",
+                  uploadingVideo ? "opacity-50 cursor-not-allowed bg-muted" : "hover:bg-secondary",
+                )}
+              >
+                {uploadingVideo ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Upload className="h-3.5 w-3.5" />
+                )}
+                Upload MP4
+                <input
+                  type="file"
+                  accept="video/mp4,video/webm"
+                  className="hidden"
+                  onChange={handleVideoUpload}
+                  disabled={uploadingVideo}
+                />
+              </label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAiFindVideo}
+                disabled={searchingVideo}
+                className="h-10 text-xs shrink-0 flex items-center gap-1.5 bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary"
+              >
+                {searchingVideo ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Youtube className="h-3.5 w-3.5 text-red-500 fill-red-500" />
+                )}
+                AI Find
+              </Button>
+            </div>
+            {videoError && !uploadingVideo ? (
+              <p className="text-[11px] text-destructive">{videoError}</p>
+            ) : draft.videoUrl && !videoError ? (
+              <p className="text-[11px] text-emerald-600 flex items-center gap-1">
+                <CheckCircle2 className="h-3 w-3" /> Playable video attached
+              </p>
+            ) : uploadingVideo ? (
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <Loader2 className="h-3 w-3 animate-spin" /> Uploading and generating thumbnail...
+              </p>
+            ) : null}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Duration (minutes)</Label>
+            <Input
+              type="number"
+              min={0}
+              value={draft.duration}
+              onChange={(e) => updateField("duration", Number(e.target.value))}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Order Index</Label>
+            <Input
+              type="number"
+              min={0}
+              value={draft.orderIndex}
+              onChange={(e) => updateField("orderIndex", Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Switch
+              checked={draft.isPreview}
+              onCheckedChange={(val) => updateField("isPreview", val)}
+            />
+            <Label className="!m-0">Free Preview Lesson (accessible before enrollment)</Label>
+          </div>
+
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Lesson Content &amp; Notes (Rich Markdown, Tables, Code Blocks, Quizzes)</Label>
+            <RichLessonEditor
+              value={draft.description}
+              onChange={(val) => updateField("description", val)}
+              onAiGenerate={handleAiWriteNotes}
+              isAiGenerating={generatingNotes}
             />
           </div>
         </div>
-        {videoError && !uploadingVideo ? (
-          <p className="text-[11px] text-destructive">{videoError}</p>
-        ) : videoUrl && !videoError ? (
-          <p className="text-[11px] text-emerald-600 flex items-center gap-1">
-            <CheckCircle2 className="h-3 w-3" /> Playable video URL
-          </p>
-        ) : uploadingVideo ? (
-          <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-            <Loader2 className="h-3 w-3 animate-spin" /> Uploading and generating thumbnail...
-          </p>
-        ) : null}
       </div>
-      <div className="space-y-1.5">
-        <Label>Duration (mins)</Label>
-        <Input
-          type="number"
-          min={0}
-          value={duration}
-          onChange={(e) => setDuration(Number(e.target.value))}
+
+      <div className="shrink-0 px-6 py-3 border-t bg-muted/20 flex flex-wrap items-center justify-between gap-3">
+        <AutosaveStatusBadge
+          status={draftStatus}
+          lastSavedAt={lastSavedAt}
+          isDirty={isDirty}
+          onRetry={saveDraftNow}
         />
-      </div>
-      <div className="space-y-1.5">
-        <Label>Order</Label>
-        <Input
-          type="number"
-          min={0}
-          value={orderIndex}
-          onChange={(e) => setOrderIndex(Number(e.target.value))}
-        />
-      </div>
-      <div className="space-y-1.5 sm:col-span-2">
-        <Label>Lesson Content &amp; Notes (Rich Formatting, Tables, Code &amp; Quizzes)</Label>
-        <RichLessonEditor
-          value={description}
-          onChange={setDescription}
-          onAiGenerate={handleAiWriteNotes}
-          isAiGenerating={generatingNotes}
-        />
-      </div>
-      <div className="flex items-center gap-2 sm:col-span-2">
-        <Switch checked={isPreview} onCheckedChange={setIsPreview} />
-        <Label className="!m-0">Free preview lesson</Label>
-      </div>
-      <div className="sm:col-span-2 flex justify-end gap-2 pt-2">
-        <Button variant="outline" onClick={onCancel} disabled={saving}>
-          Cancel
-        </Button>
-        <Button onClick={save} disabled={saving || !!videoError}>
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Save lesson
-        </Button>
+        <div className="flex items-center gap-2 ml-auto">
+          <Button variant="ghost" onClick={handleCancel} disabled={saving}>
+            Cancel
+          </Button>
+          <Button
+            variant="outline"
+            type="button"
+            onClick={async () => {
+              await saveDraftNow();
+              toast.success("Draft saved");
+            }}
+            disabled={saving}
+          >
+            Save Draft
+          </Button>
+          <Button onClick={save} disabled={saving || !!videoError}>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+            {lesson ? "Update Lesson" : "Save Lesson"}
+          </Button>
+        </div>
       </div>
     </div>
   );

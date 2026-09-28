@@ -146,11 +146,79 @@ const TABS = [
 function CareerStudioHub() {
   const search: { tab?: string } = useSearch({ strict: false });
   const navigate = useNavigate();
-  const activeTab = search.tab || "resume";
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (search.tab) return search.tab;
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("learnify_career_studio_active_tab");
+      if (saved && TABS.some((t) => t.id === saved)) return saved;
+    }
+    return "resume";
+  });
   const [menuOpen, setMenuOpen] = useState(false);
+  const [visitedTabs, setVisitedTabs] = useState<Set<string>>(() => new Set([activeTab]));
+
+  // Sync URL search param with activeTab
+  useEffect(() => {
+    if (search.tab && search.tab !== activeTab) {
+      setActiveTab(search.tab);
+    }
+  }, [search.tab, activeTab]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("learnify_career_studio_active_tab", activeTab);
+    }
+    setVisitedTabs((prev) => {
+      if (prev.has(activeTab)) return prev;
+      const next = new Set(prev);
+      next.add(activeTab);
+      return next;
+    });
+  }, [activeTab]);
+
+  const switchTab = (tabId: string) => {
+    setActiveTab(tabId);
+    navigate({
+      to: "/career-studio" as any,
+      search: { tab: tabId } as any,
+      replace: true,
+    });
+    setMenuOpen(false);
+  };
 
   const activeTabInfo = TABS.find((t) => t.id === activeTab) || TABS[0];
   const ActiveIcon = activeTabInfo.icon;
+
+  const renderModuleContent = (tabId: string) => {
+    switch (tabId) {
+      case "resume":
+        return <ResumeBuilderPage embedded />;
+      case "ats":
+        return <AtsCheckerPage embedded />;
+      case "interview":
+        return <InterviewPage embedded />;
+      case "roadmap":
+        return <CareerRoadmapPage embedded />;
+      case "portfolio":
+        return <PortfolioBuilderPage embedded />;
+      case "linkedin":
+        return <LinkedInOptimizerView />;
+      case "analytics":
+        return <CareerAnalyticsView />;
+      case "internships":
+        return <InternshipTrackerView />;
+      case "skillgap":
+        return <SkillGapView />;
+      case "ikigai":
+        return <CareerFinderView />;
+      case "guides":
+        return <GuidesDocsView />;
+      case "agents":
+        return <AgentHub />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <AppShell>
@@ -173,7 +241,7 @@ function CareerStudioHub() {
           <Dialog open={menuOpen} onOpenChange={setMenuOpen}>
             <DialogTrigger asChild>
               <button
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-sm border border-white/20 transition-colors backdrop-blur-sm"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-sm border border-white/20 transition-colors backdrop-blur-sm cursor-pointer"
                 aria-label="Open Career Studio menu"
               >
                 <svg
@@ -203,16 +271,9 @@ function CareerStudioHub() {
                   return (
                     <button
                       key={t.id}
-                      onClick={() => {
-                        navigate({
-                          to: "/career-studio" as any,
-                          search: { tab: t.id } as any,
-                          replace: true,
-                        });
-                        setMenuOpen(false);
-                      }}
+                      onClick={() => switchTab(t.id)}
                       className={cn(
-                        "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all active:scale-95",
+                        "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all active:scale-95 cursor-pointer",
                         isActive
                           ? "bg-primary/10 border-primary text-primary shadow-sm"
                           : "bg-muted/30 border-border/60 hover:bg-muted/60 text-foreground",
@@ -238,29 +299,30 @@ function CareerStudioHub() {
         </div>
       </div>
 
-      {/* ── Content (Lazy Suspense Loaded) ── */}
+      {/* ── Content (Keep-Alive Preserved Tab Workspace) ── */}
       <div className="min-h-[calc(100dvh-8rem)] pb-10">
-        <React.Suspense
-          fallback={
-            <div className="p-16 text-center text-sm font-bold text-muted-foreground flex flex-col items-center justify-center gap-3">
-              <Loader2 className="h-7 w-7 animate-spin text-primary" />
-              <span>Loading Studio Module...</span>
+        {TABS.map((t) => {
+          if (!visitedTabs.has(t.id)) return null;
+          const isCurrent = activeTab === t.id;
+          return (
+            <div
+              key={t.id}
+              className={cn("w-full", isCurrent ? "block" : "hidden")}
+              aria-hidden={!isCurrent}
+            >
+              <React.Suspense
+                fallback={
+                  <div className="p-16 text-center text-sm font-bold text-muted-foreground flex flex-col items-center justify-center gap-3">
+                    <Loader2 className="h-7 w-7 animate-spin text-primary" />
+                    <span>Loading {t.label}...</span>
+                  </div>
+                }
+              >
+                {renderModuleContent(t.id)}
+              </React.Suspense>
             </div>
-          }
-        >
-          {activeTab === "resume" && <ResumeBuilderPage embedded />}
-          {activeTab === "ats" && <AtsCheckerPage embedded />}
-          {activeTab === "interview" && <InterviewPage embedded />}
-          {activeTab === "roadmap" && <CareerRoadmapPage embedded />}
-          {activeTab === "portfolio" && <PortfolioBuilderPage embedded />}
-          {activeTab === "linkedin" && <LinkedInOptimizerView />}
-          {activeTab === "analytics" && <CareerAnalyticsView />}
-          {activeTab === "internships" && <InternshipTrackerView />}
-          {activeTab === "skillgap" && <SkillGapView />}
-          {activeTab === "ikigai" && <CareerFinderView />}
-          {activeTab === "guides" && <GuidesDocsView />}
-          {activeTab === "agents" && <AgentHub />}
-        </React.Suspense>
+          );
+        })}
       </div>
     </AppShell>
   );
@@ -2334,7 +2396,7 @@ function InternshipTrackerView() {
 
       {/* KANBAN BOARD VIEW */}
       {viewMode === "kanban" && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="flex overflow-x-auto pb-4 gap-4 md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-x-visible snap-x snap-mandatory scrollbar-thin">
           {(["Applied", "Interviewing", "Offer", "Rejected"] as const).map((stage) => {
             const stageApps = filteredApps.filter((a) => a.status === stage);
             const stageColors: Record<string, string> = {
@@ -2344,7 +2406,7 @@ function InternshipTrackerView() {
               Rejected: "border-t-rose-500",
             };
             return (
-              <div key={stage} className={cn("rounded-2xl border bg-muted/20 p-3 space-y-3 border-t-4", stageColors[stage])}>
+              <div key={stage} className={cn("min-w-[280px] md:min-w-0 snap-start flex-1 shrink-0 rounded-2xl border bg-muted/20 p-3 space-y-3 border-t-4", stageColors[stage])}>
                 <div className="flex items-center justify-between px-1">
                   <h4 className="font-extrabold text-xs uppercase tracking-wider text-foreground flex items-center gap-2">
                     {stage}
@@ -4171,7 +4233,7 @@ function GuidesDocsView() {
         </div>
 
         {/* Category Filters */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1 max-w-full">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full scrollbar-none shrink-0 flex-nowrap">
           {["All", "AI & ML", "Web Dev", "Cloud & DevOps", "Design", "Security", "Strategy"].map((cat) => (
             <button
               key={cat}
