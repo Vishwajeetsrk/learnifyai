@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useEffect, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
+import { useLocation, useNavigate } from "@tanstack/react-router";
 import { adminContentAction, adminContentQuery } from "@/lib/admin-content.functions";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -19,6 +19,8 @@ import {
   FileText,
   Code2,
   Sparkles,
+  Save,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +31,11 @@ import { cn } from "@/lib/utils";
 import { FREE_COURSES_GUIDE_POST } from "@/lib/canonical-blog";
 import { BLOG_POSTS_DATA } from "@/lib/blog-posts-data";
 import { generateDeepResearchBlogPost } from "@/lib/admin-content.functions";
+import {
+  useAdminDraft,
+  AutosaveStatusBadge,
+  DraftRecoveryBanner,
+} from "@/lib/admin-editor-workspace";
 import {
   Dialog,
   DialogContent,
@@ -49,7 +56,7 @@ import {
 
 const RichTextEditor = lazy(() => import("./RichTextEditor"));
 
-type BlogPost = {
+export type BlogPost = {
   id: string;
   title: string;
   slug: string;
@@ -62,8 +69,389 @@ type BlogPost = {
   created_at: string;
 };
 
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+
+// ─── Sub-Component: BlogEditorModal ──────────────────────────────────────────
+
+interface BlogEditorModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  editing: BlogPost | null;
+  onSaved: () => void;
+  initialOverride?: Partial<BlogPost> | null;
+}
+
+function BlogEditorModal({
+  open,
+  onOpenChange,
+  editing,
+  onSaved,
+  initialOverride,
+}: BlogEditorModalProps) {
+  const doAdminAction = useServerFn(adminContentAction);
+
+  const initialValues: Partial<BlogPost> = useMemo(() => {
+    if (initialOverride) return initialOverride;
+    if (editing) return { ...editing };
+    return {
+      title: "",
+      slug: "",
+      content: "",
+      excerpt: "",
+      featured_image: "",
+      published: false,
+    };
+  }, [editing, initialOverride]);
+
+  const [editorMode, setEditorMode] = useState<"rich" | "markdown">(() => {
+    const c = initialValues.content || "";
+    return c.trim().startsWith("#") || c.includes("## ") ? "markdown" : "rich";
+  });
+
+  const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+
+  // Connect to persistent Admin Editor Workspace
+  const {
+    formData,
+    updateField,
+    updateAll,
+    status,
+    lastSavedAt,
+    isDirty,
+    saveDraftNow,
+    clearDraft,
+    restoreDraft,
+    discardRecoverableDraft,
+    hasRecoverableDraft,
+    recoverableDraftDate,
+  } = useAdminDraft<Partial<BlogPost>>({
+    module: "blog",
+    recordId: editing?.id || "new",
+    initialData: initialValues,
+    getTitle: (d) => d.title || "Untitled Blog Post",
+    onServerSave: async (draftData) => {
+      if (!draftData.title?.trim()) return; // Don't autosave empty title to server
+      const slug = draftData.slug?.trim() || slugify(draftData.title);
+      const payload = {
+        title: draftData.title.trim(),
+        slug,
+        content: draftData.content || "",
+        excerpt: draftData.excerpt?.trim() || null,
+        featured_image: draftData.featured_image?.trim() || null,
+        published: !!draftData.published,
+        published_at: draftData.published ? (editing?.published_at || new Date().toISOString()) : null,
+      };
+
+      if (editing?.id) {
+        await doAdminAction({
+          data: { table: "blog_posts", action: "update", id: editing.id, data: payload },
+        });
+      }
+    },
+    enabled: open,
+  });
+
+  // Handle Save Draft (Explicit manual draft save)
+  const handleSaveDraft = async () => {
+    if (!formData.title?.trim()) {
+      toast.error("Title is required to save a draft");
+      return;
+    }
+    setSaving(true);
+    try {
+      const slug = formData.slug?.trim() || slugify(formData.title);
+      const payload = {
+        title: formData.title.trim(),
+        slug,
+        content: formData.content || "",
+        excerpt: formData.excerpt?.trim() || null,
+        featured_image: formData.featured_image?.trim() || null,
+        published: false, // Explicitly keep as draft
+        published_at: editing?.published_at || null,
+      };
+
+      if (editing) {
+        await doAdminAction({
+          data: { table: "blog_posts", action: "update", id: editing.id, data: payload },
+        });
+      } else {
+        await doAdminAction({
+          data: { table: "blog_posts", action: "insert", data: payload },
+        });
+      }
+
+      await saveDraftNow();
+      toast.success("Draft saved successfully!");
+      onSaved();
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save draft");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Handle Publish Live
+  const handlePublishLive = async () => {
+    if (!formData.title?.trim()) {
+      toast.error("Title is required to publish");
+      return;
+    }
+    setPublishing(true);
+    try {
+      const slug = formData.slug?.trim() || slugify(formData.title);
+      const payload = {
+        title: formData.title.trim(),
+        slug,
+        content: formData.content || "",
+        excerpt: formData.excerpt?.trim() || null,
+        featured_image: formData.featured_image?.trim() || null,
+        published: true, // Publish live!
+        published_at: editing?.published_at || new Date().toISOString(),
+      };
+
+      if (editing) {
+        await doAdminAction({
+          data: { table: "blog_posts", action: "update", id: editing.id, data: payload },
+        });
+      } else {
+        await doAdminAction({
+          data: { table: "blog_posts", action: "insert", data: payload },
+        });
+      }
+
+      clearDraft();
+      toast.success("Post published live!");
+      onSaved();
+      onOpenChange(false);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to publish post");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  // Handle Live Preview
+  const handlePreview = () => {
+    const slug = formData.slug || slugify(formData.title || "preview");
+    window.open(`/blog/${slug}?preview=true`, "_blank");
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[92vh] flex flex-col p-0 overflow-hidden rounded-2xl shadow-2xl">
+        {/* Header */}
+        <DialogHeader className="p-6 pb-4 border-b bg-card/60 backdrop-blur-md shrink-0">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <DialogTitle className="text-xl font-display font-bold">
+                {editing ? "Edit Blog Post" : "Create New Post"}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                Autosaved continuously. Switch tabs freely without losing changes.
+              </DialogDescription>
+            </div>
+            {/* Real-Time Autosave Indicator Badge */}
+            <div className="flex items-center gap-2">
+              <AutosaveStatusBadge
+                status={status}
+                lastSavedAt={lastSavedAt}
+                isDirty={isDirty}
+                onRetry={saveDraftNow}
+              />
+            </div>
+          </div>
+
+          {/* Recoverable Draft Notice */}
+          {hasRecoverableDraft && recoverableDraftDate && (
+            <div className="mt-3">
+              <DraftRecoveryBanner
+                date={recoverableDraftDate}
+                onRestore={restoreDraft}
+                onDiscard={discardRecoverableDraft}
+              />
+            </div>
+          )}
+        </DialogHeader>
+
+        {/* Scrollable Form Body */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Post Title</Label>
+              <Input
+                value={formData.title || ""}
+                onChange={(e) => {
+                  const title = e.target.value;
+                  updateField("title", title);
+                  if (!editing && (!formData.slug || formData.slug === slugify(formData.title || ""))) {
+                    updateField("slug", slugify(title));
+                  }
+                }}
+                placeholder="The Ultimate Guide to..."
+                className="font-medium"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">URL Slug</Label>
+              <Input
+                value={formData.slug || ""}
+                onChange={(e) => updateField("slug", e.target.value)}
+                placeholder="ultimate-guide-..."
+                className="font-mono text-xs"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Excerpt / Summary</Label>
+            <Textarea
+              rows={2}
+              value={formData.excerpt || ""}
+              onChange={(e) => updateField("excerpt", e.target.value)}
+              placeholder="Short 1-2 sentence preview for search engines and cards..."
+              className="text-xs resize-none"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Featured Image URL</Label>
+            <Input
+              value={formData.featured_image || ""}
+              onChange={(e) => updateField("featured_image", e.target.value)}
+              placeholder="https://images.unsplash.com/..."
+              className="text-xs"
+            />
+          </div>
+
+          {/* Editor Header: Visual vs Markdown */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-semibold">Article Content</Label>
+              <div className="flex items-center rounded-lg border bg-muted/40 p-0.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setEditorMode("rich")}
+                  className={cn(
+                    "px-3 py-1 rounded-md transition-all font-medium flex items-center gap-1.5 cursor-pointer",
+                    editorMode === "rich"
+                      ? "bg-background text-foreground shadow-xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Sparkles className="h-3 w-3 text-indigo-400" /> Visual Editor
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditorMode("markdown")}
+                  className={cn(
+                    "px-3 py-1 rounded-md transition-all font-medium flex items-center gap-1.5 cursor-pointer",
+                    editorMode === "markdown"
+                      ? "bg-background text-foreground shadow-xs font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Code2 className="h-3 w-3 text-sky-400" /> Markdown / Raw HTML
+                </button>
+              </div>
+            </div>
+
+            {editorMode === "rich" ? (
+              <Suspense
+                fallback={<div className="h-[380px] rounded-xl border bg-muted/40 animate-pulse" />}
+              >
+                <RichTextEditor
+                  content={formData.content || ""}
+                  onChange={(html) => updateField("content", html)}
+                  placeholder="Start writing or paste your article..."
+                />
+              </Suspense>
+            ) : (
+              <Textarea
+                rows={18}
+                value={formData.content || ""}
+                onChange={(e) => updateField("content", e.target.value)}
+                placeholder="# Write your post in Markdown..."
+                className="font-mono text-xs leading-relaxed min-h-[420px] bg-slate-950/20"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Sticky Footer Action Bar */}
+        <DialogFooter className="p-4 px-6 border-t bg-card/80 backdrop-blur-md flex items-center justify-between sm:justify-between w-full shrink-0">
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+            >
+              Close
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handlePreview}
+              className="text-xs"
+            >
+              <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
+              Preview
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleSaveDraft}
+              disabled={saving || publishing}
+              className="border-indigo-500/30 hover:bg-indigo-500/10 text-indigo-300 font-medium"
+            >
+              {saving ? (
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <Save className="h-3.5 w-3.5 mr-1.5" />
+              )}
+              Save Draft
+            </Button>
+
+            <Button
+              type="button"
+              size="sm"
+              onClick={handlePublishLive}
+              disabled={saving || publishing}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-sm"
+            >
+              {publishing ? (
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+              )}
+              {editing?.published ? "Update Live" : "Publish Live"}
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Main Component: BlogManager ─────────────────────────────────────────────
+
 export default function BlogManager() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const doAdminAction = useServerFn(adminContentAction);
   const doQuery = useServerFn(adminContentQuery);
   const doGenerateBlog = useServerFn(generateDeepResearchBlogPost);
@@ -71,9 +459,8 @@ export default function BlogManager() {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editing, setEditing] = useState<BlogPost | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [initialOverride, setInitialOverride] = useState<Partial<BlogPost> | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [editorMode, setEditorMode] = useState<"rich" | "markdown">("rich");
 
   // AI Deep Research Blog Dialog States
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
@@ -81,6 +468,7 @@ export default function BlogManager() {
   const [aiKeywords, setAiKeywords] = useState("");
   const [aiGenerating, setAiGenerating] = useState(false);
 
+  // Fetch blog posts
   const { data: posts, isLoading } = useQuery({
     queryKey: ["blog-posts"],
     queryFn: async () => {
@@ -92,38 +480,60 @@ export default function BlogManager() {
     },
   });
 
-  const [form, setForm] = useState<Partial<BlogPost>>({
-    title: "",
-    slug: "",
-    content: "",
-    excerpt: "",
-    featured_image: "",
-    published: false,
-  });
+  // Deep-link check on mount / URL changes
+  useEffect(() => {
+    const search = location.search as any;
+    const editParam = search?.edit;
+    if (!editParam) return;
+
+    if (editParam === "new") {
+      setEditing(null);
+      setInitialOverride(null);
+      setOpen(true);
+    } else if (posts && posts.length > 0) {
+      const found = posts.find((p) => p.id === editParam);
+      if (found) {
+        setEditing(found);
+        setInitialOverride(null);
+        setOpen(true);
+      }
+    }
+  }, [location.search, posts]);
 
   const openNew = () => {
     setEditing(null);
-    setForm({
-      title: "",
-      slug: "",
-      content: "",
-      excerpt: "",
-      featured_image: "",
-      published: false,
-    });
-    setEditorMode("rich");
+    setInitialOverride(null);
     setOpen(true);
+    navigate({
+      to: "/admin/content",
+      search: (prev: any) => ({ ...prev, tab: "blog", edit: "new" }),
+      replace: true,
+    });
   };
 
   const openEdit = (post: BlogPost) => {
     setEditing(post);
-    setForm({ ...post });
-    if (post.content && (post.content.trim().startsWith("#") || post.content.includes("## "))) {
-      setEditorMode("markdown");
-    } else {
-      setEditorMode("rich");
-    }
+    setInitialOverride(null);
     setOpen(true);
+    navigate({
+      to: "/admin/content",
+      search: (prev: any) => ({ ...prev, tab: "blog", edit: post.id }),
+      replace: true,
+    });
+  };
+
+  const handleModalClose = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) {
+      navigate({
+        to: "/admin/content",
+        search: (prev: any) => {
+          const { edit, ...rest } = prev || {};
+          return { ...rest, tab: "blog" };
+        },
+        replace: true,
+      });
+    }
   };
 
   const togglePublish = async (post: BlogPost) => {
@@ -148,46 +558,20 @@ export default function BlogManager() {
     }
   };
 
-  const slugify = (s: string) =>
-    s
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .trim();
-
-  const save = async () => {
-    if (!form.title?.trim()) return toast.error("Title required");
-    const slug = form.slug?.trim() || slugify(form.title);
-    setSaving(true);
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    setDeleting(true);
     try {
-      const payload = {
-        title: form.title.trim(),
-        slug,
-        content: form.content || "",
-        excerpt: form.excerpt?.trim() || null,
-        featured_image: form.featured_image?.trim() || null,
-        published: !!form.published,
-        published_at:
-          form.published && !editing?.published_at
-            ? new Date().toISOString()
-            : editing?.published_at || null,
-      };
-      if (editing) {
-        const res = await doAdminAction({
-          data: { table: "blog_posts", action: "update", id: editing.id, data: payload },
-        });
-        if (!res) throw new Error("No response from server");
-      } else {
-        await doAdminAction({ data: { table: "blog_posts", action: "insert", data: payload } });
-      }
-      toast.success(editing ? "Post updated" : "Post created");
+      await doAdminAction({
+        data: { table: "blog_posts", action: "delete", id: deleteId },
+      });
+      toast.success("Post deleted");
       qc.invalidateQueries({ queryKey: ["blog-posts"] });
-      setOpen(false);
+      setDeleteId(null);
     } catch (e: any) {
-      toast.error(e?.message || "Save failed");
+      toast.error(e?.message || "Delete failed");
     } finally {
-      setSaving(false);
+      setDeleting(false);
     }
   };
 
@@ -202,7 +586,7 @@ export default function BlogManager() {
         },
       });
       if (res?.post) {
-        setForm({
+        setInitialOverride({
           title: res.post.title,
           slug: res.post.slug,
           excerpt: res.post.excerpt,
@@ -210,7 +594,6 @@ export default function BlogManager() {
           content: res.post.content,
           published: false,
         });
-        setEditorMode("markdown");
         setAiDialogOpen(false);
         setEditing(null);
         setOpen(true);
@@ -257,9 +640,12 @@ export default function BlogManager() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-        <p className="text-sm text-muted-foreground">
-          Deep technical research blogs with tables, diagrams, SEO metadata, and rich editing.
-        </p>
+        <div>
+          <h2 className="text-base font-semibold">Blog Posts</h2>
+          <p className="text-xs text-muted-foreground">
+            Manage deep technical research articles, certifications, guides, and platform updates.
+          </p>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
@@ -268,16 +654,16 @@ export default function BlogManager() {
             className="border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 cursor-pointer"
           >
             <Sparkles className="h-3.5 w-3.5 mr-1.5 text-indigo-400" />
-            AI Deep Research Writer
+            AI Research Writer
           </Button>
           {!posts?.length && (
             <Button variant="outline" size="sm" onClick={seedDefaultPosts}>
               <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-              Seed Canonical Posts
+              Seed 2026 Guide & Defaults
             </Button>
           )}
-          <Button onClick={openNew}>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button onClick={openNew} size="sm">
+            <Plus className="h-4 w-4 mr-1.5" />
             New Post
           </Button>
         </div>
@@ -285,68 +671,69 @@ export default function BlogManager() {
 
       {isLoading ? (
         <div className="flex justify-center py-10">
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       ) : !posts?.length ? (
         <div className="text-center py-12 border border-dashed rounded-xl space-y-3">
           <FileText className="h-8 w-8 text-muted-foreground mx-auto" />
           <p className="text-sm font-semibold">No blog posts in database yet</p>
           <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-            Click 'Seed Default Posts' to populate initial articles into your database.
+            Click below to populate the 2026 Free Courses & Certificates master guide.
           </p>
           <Button size="sm" onClick={seedDefaultPosts}>
-            Seed Default Posts
+            Seed 2026 Free Courses Guide
           </Button>
         </div>
       ) : (
         <div className="space-y-2">
-          {posts.map((post: BlogPost) => (
-            <div key={post.id} className="rounded-xl border bg-card p-4 flex items-center gap-3">
-              {post.featured_image ? (
-                <img
-                  src={post.featured_image}
-                  alt=""
-                  className="h-14 w-20 rounded-md object-cover shrink-0"
-                  loading="lazy"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              ) : (
-                <div className="h-14 w-20 rounded-md bg-muted grid place-items-center shrink-0 text-xs text-muted-foreground">
-                  No img
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <div className="font-semibold truncate flex items-center gap-2">
-                  <span className="truncate">{post.title}</span>
-                  <span
-                    className={cn(
-                      "text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0",
-                      post.published
-                        ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
-                        : "bg-muted text-muted-foreground border border-border/50"
-                    )}
-                  >
-                    {post.published ? "Published" : "Draft"}
-                  </span>
-                </div>
-                <div className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-[11px] text-primary/80">/blog/{post.slug}</span>
-                  <span>· {format(new Date(post.created_at), "PP")}</span>
-                  {post.excerpt && <span className="truncate max-w-[240px]">· {post.excerpt}</span>}
+          {posts.map((post) => (
+            <div
+              key={post.id}
+              className="flex items-center justify-between p-4 rounded-xl border bg-card/60 hover:bg-card transition gap-4"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                {post.featured_image ? (
+                  <img
+                    src={post.featured_image}
+                    alt=""
+                    className="h-12 w-12 rounded-lg object-cover border shrink-0"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="h-12 w-12 rounded-lg bg-muted/60 border flex items-center justify-center shrink-0">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-sm truncate">{post.title}</h3>
+                    <span
+                      className={cn(
+                        "text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0",
+                        post.published
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                          : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                      )}
+                    >
+                      {post.published ? "Published" : "Draft"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground truncate max-w-md">
+                    /blog/{post.slug}
+                  </p>
                 </div>
               </div>
+
               <div className="flex items-center gap-1.5 shrink-0">
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="outline"
                   asChild
-                  title="View post in new tab"
+                  title="View post"
                   className="h-8 w-8 p-0"
                 >
                   <a href={`/blog/${post.slug}`} target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
+                    <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
                   </a>
                 </Button>
                 <Button
@@ -357,7 +744,7 @@ export default function BlogManager() {
                   className="h-8 w-8 p-0"
                 >
                   {post.published ? (
-                    <Eye className="h-3.5 w-3.5 text-green-500" />
+                    <Eye className="h-3.5 w-3.5 text-emerald-500" />
                   ) : (
                     <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />
                   )}
@@ -386,132 +773,64 @@ export default function BlogManager() {
         </div>
       )}
 
-      <Dialog
+      {/* Editor Modal with Draft Persistence & Autosave */}
+      <BlogEditorModal
         open={open}
-        onOpenChange={(v) => {
-          if (!v) setOpen(false);
-        }}
-      >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        onOpenChange={handleModalClose}
+        editing={editing}
+        initialOverride={initialOverride}
+        onSaved={() => qc.invalidateQueries({ queryKey: ["blog-posts"] })}
+      />
+
+      {/* AI Deep Research Generator Dialog */}
+      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit Post" : "New Post"}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-indigo-400" />
+              AI Deep Research Blog Writer
+            </DialogTitle>
             <DialogDescription>
-              Write your blog post using the rich text editor below.
+              Researches and drafts comprehensive technical articles with comparisons, code snippets, and key takeaways.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Title</Label>
-                <Input
-                  value={form.title || ""}
-                  onChange={(e) =>
-                    setForm({
-                      ...form,
-                      title: e.target.value,
-                      slug: editing ? form.slug : slugify(e.target.value),
-                    })
-                  }
-                  placeholder="Post title"
-                />
-              </div>
-              <div>
-                <Label>Slug</Label>
-                <Input
-                  value={form.slug || ""}
-                  onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                  placeholder="post-url-slug"
-                />
-              </div>
-            </div>
-            <div>
-              <Label>Excerpt</Label>
-              <Textarea
-                rows={2}
-                value={form.excerpt || ""}
-                onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
-                placeholder="Short summary shown in blog listing"
-              />
-            </div>
-            <div>
-              <Label>Featured image URL</Label>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Research Topic</Label>
               <Input
-                value={form.featured_image || ""}
-                onChange={(e) => setForm({ ...form, featured_image: e.target.value })}
-                placeholder="https://..."
+                value={aiTopic}
+                onChange={(e) => setAiTopic(e.target.value)}
+                placeholder="e.g., Guide to Free Certificates in 2026, Microservices vs Monolith"
               />
             </div>
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <Label>Content</Label>
-                <div className="flex items-center rounded-lg border bg-muted/40 p-0.5 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setEditorMode("rich")}
-                    className={cn(
-                      "px-2.5 py-1 rounded-md transition-all font-medium flex items-center gap-1.5",
-                      editorMode === "rich"
-                        ? "bg-background text-foreground shadow-xs"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Sparkles className="h-3 w-3" /> Visual Editor
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditorMode("markdown")}
-                    className={cn(
-                      "px-2.5 py-1 rounded-md transition-all font-medium flex items-center gap-1.5",
-                      editorMode === "markdown"
-                        ? "bg-background text-foreground shadow-xs"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Code2 className="h-3 w-3" /> Markdown / Raw HTML
-                  </button>
-                </div>
-              </div>
-
-              {editorMode === "rich" ? (
-                <Suspense
-                  fallback={<div className="h-[300px] rounded-xl border bg-muted animate-pulse" />}
-                >
-                  <RichTextEditor
-                    content={form.content || ""}
-                    onChange={(html) => setForm({ ...form, content: html })}
-                    placeholder="Start writing your blog post..."
-                  />
-                </Suspense>
-              ) : (
-                <Textarea
-                  rows={16}
-                  value={form.content || ""}
-                  onChange={(e) => setForm({ ...form, content: e.target.value })}
-                  placeholder="# Write your post in Markdown..."
-                  className="font-mono text-xs leading-relaxed min-h-[350px]"
-                />
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <Switch
-                checked={!!form.published}
-                onCheckedChange={(v) => setForm({ ...form, published: v })}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Target Keywords (optional)</Label>
+              <Input
+                value={aiKeywords}
+                onChange={(e) => setAiKeywords(e.target.value)}
+                placeholder="e.g., CS50, freeCodeCamp, AWS, Google Cloud"
               />
-              <Label className="cursor-pointer">Published</Label>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
+            <Button variant="outline" onClick={() => setAiDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={save} disabled={saving}>
-              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {editing ? "Update" : "Create"}
+            <Button onClick={handleGenerateBlog} disabled={aiGenerating}>
+              {aiGenerating ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Researching...
+                </>
+              ) : (
+                "Generate Draft"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Delete Confirmation Alert */}
       <AlertDialog
         open={!!deleteId}
         onOpenChange={(v) => {
@@ -530,122 +849,14 @@ export default function BlogManager() {
               </AlertDialogDescription>
             </div>
           </div>
-          <AlertDialogFooter className="gap-2">
-            <AlertDialogCancel disabled={deleting} className="flex-1">
-              Cancel
-            </AlertDialogCancel>
-            <Button
-              variant="destructive"
-              className="flex-1"
-              disabled={deleting}
-              onClick={async () => {
-                setDeleting(true);
-                try {
-                  const id = deleteId;
-                  if (!id) return;
-                  await doAdminAction({ data: { table: "blog_posts", action: "delete", id } });
-                  toast.success("Post deleted");
-                  qc.invalidateQueries({ queryKey: ["blog-posts"] });
-                } catch (err: any) {
-                  toast.error(err?.message || "Delete failed");
-                } finally {
-                  setDeleteId(null);
-                  setDeleting(false);
-                }
-              }}
-            >
-              {deleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Delete
+          <AlertDialogFooter className="grid grid-cols-2 gap-2">
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Delete"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* AI Deep Research Writer Dialog */}
-      <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-indigo-400" />
-              AI Deep Research Blog Writer
-            </DialogTitle>
-            <DialogDescription>
-              Generate a publication-grade, deeply researched 2026 technical blog with architecture diagrams, comparison tables, code examples, and SEO keywords.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label>Research Topic / Headline</Label>
-              <Input
-                placeholder="e.g. How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap"
-                value={aiTopic}
-                onChange={(e) => setAiTopic(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Target SEO Keywords (Optional)</Label>
-              <Input
-                placeholder="e.g. TanStack Start, React 19, LangGraph, Supabase pgvector"
-                value={aiKeywords}
-                onChange={(e) => setAiKeywords(e.target.value)}
-              />
-            </div>
-
-            <div>
-              <Label className="text-xs text-muted-foreground mb-1.5 block">
-                Quick 2026 Research Ideas
-              </Label>
-              <div className="flex flex-wrap gap-1.5">
-                {[
-                  "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
-                  "Building Production Autonomous AI Agents with LangGraph & Python",
-                  "Comparing Cashfree vs Razorpay for Indian EdTech & SaaS Applications",
-                  "Building Real-Time Bidirectional Voice Agents with WebSockets",
-                  "Next-Gen Vector Search: pgvector vs Qdrant vs Milvus in 2026",
-                ].map((idea) => (
-                  <button
-                    key={idea}
-                    type="button"
-                    onClick={() => setAiTopic(idea)}
-                    className="text-[11px] px-2.5 py-1 rounded-lg border border-border/80 bg-muted/40 hover:bg-muted text-left transition truncate max-w-full cursor-pointer"
-                  >
-                    {idea}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setAiDialogOpen(false)}
-              disabled={aiGenerating}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleGenerateBlog}
-              disabled={aiGenerating || !aiTopic.trim()}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
-            >
-              {aiGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Deep Researching & Drafting...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Generate Deep Blog
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

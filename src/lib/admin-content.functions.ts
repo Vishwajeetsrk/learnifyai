@@ -24,6 +24,7 @@ const ALLOWED_TABLES = [
   "concept_graphs",
   "explanations_cache",
   "store_items",
+  "content_drafts",
 ] as const;
 
 const actionSchema = z.object({
@@ -498,5 +499,97 @@ export async function processExecutionPipeline(rawInput: unknown) {
 `,
       },
     };
+  });
+
+// ─── Content Drafts Management Server Functions ───────────────────────────────
+
+const draftPayloadSchema = z.object({
+  module: z.string(),
+  record_id: z.string(),
+  title: z.string().optional(),
+  draft_data: z.record(z.any()),
+  version: z.number().optional(),
+});
+
+export const saveContentDraft = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) => draftPayloadSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const userId = context.userId!;
+    await checkAdminRole(userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Upsert into content_drafts table
+    const { data: upserted, error } = await supabaseAdmin
+      .from("content_drafts" as any)
+      .upsert(
+        {
+          module: data.module,
+          record_id: data.record_id,
+          user_id: userId,
+          title: data.title || "",
+          draft_data: data.draft_data,
+          version: data.version ?? 1,
+          status: "draft",
+          updated_at: new Date().toISOString(),
+          last_autosaved_at: new Date().toISOString(),
+        } as any,
+        { onConflict: "module,record_id,user_id" }
+      )
+      .select()
+      .single();
+
+    if (error && error.code !== "42P01") {
+      // If table doesn't exist yet, we don't throw fatal error so client local draft succeeds
+      console.warn("Could not save to content_drafts table:", error.message);
+    }
+
+    return { success: true, draft: upserted };
+  });
+
+export const getContentDraft = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) =>
+    z.object({ module: z.string(), record_id: z.string() }).parse(d)
+  )
+  .handler(async ({ data, context }) => {
+    const userId = context.userId!;
+    await checkAdminRole(userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: draft, error } = await supabaseAdmin
+      .from("content_drafts" as any)
+      .select("*")
+      .eq("module", data.module)
+      .eq("record_id", data.record_id)
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (error && error.code !== "42P01") {
+      console.warn("Could not fetch from content_drafts table:", error.message);
+    }
+
+    return (draft as any) || null;
+  });
+
+export const deleteContentDraft = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d: unknown) =>
+    z.object({ module: z.string(), record_id: z.string() }).parse(d)
+  )
+  .handler(async ({ data, context }) => {
+    const userId = context.userId!;
+    await checkAdminRole(userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin
+      .from("content_drafts" as any)
+      .delete()
+      .eq("module", data.module)
+      .eq("record_id", data.record_id)
+      .eq("user_id", userId);
+
+    return { success: true };
   });
 

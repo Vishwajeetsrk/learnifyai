@@ -75,7 +75,7 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
   });
 
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
+    if (editor && !editor.isFocused && content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
   }, [content, editor]);

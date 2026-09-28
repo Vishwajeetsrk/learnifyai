@@ -100,7 +100,6 @@ function TypingDots() {
 export function GlobalSupportAgent() {
   const { user, isAdmin, isCreator } = useAuth();
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const isLeft = path.startsWith("/studio") || path.startsWith("/admin");
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
@@ -166,7 +165,44 @@ export function GlobalSupportAgent() {
     }
   };
 
+  const isAdminRoute = path.startsWith("/admin");
+  const isLeft = path.startsWith("/studio"); // Studio keeps left, admin stays right to avoid blocking sidebar
+  const [adminMinimized, setAdminMinimized] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("learnify_support_minimized") === "true";
+    }
+    return false;
+  });
+
+  const toggleAdminMinimize = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setAdminMinimized((prev) => {
+      const next = !prev;
+      localStorage.setItem("learnify_support_minimized", String(next));
+      return next;
+    });
+  };
+
   if (!user || !user.email) return null;
+
+  // In admin mode, if minimized, show a tiny unobtrusive floating pill
+  if (isAdminRoute && adminMinimized && !open) {
+    return (
+      <div className="fixed bottom-4 right-4 z-40">
+        <button
+          onClick={() => {
+            setAdminMinimized(false);
+            localStorage.setItem("learnify_support_minimized", "false");
+          }}
+          className="px-2.5 py-1 text-[11px] font-medium rounded-full bg-card/90 border shadow-md hover:bg-card flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition cursor-pointer"
+          title="Show Support Assistant"
+        >
+          <Bot className="h-3.5 w-3.5 text-primary" />
+          <span>Support</span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -175,7 +211,7 @@ export function GlobalSupportAgent() {
       dragMomentum={false}
       dragElastic={0.1}
       className={cn(
-        "fixed bottom-20 md:bottom-6 z-[90] flex-col pointer-events-auto flex",
+        "fixed bottom-20 md:bottom-6 z-40 flex-col pointer-events-auto flex",
         isLeft ? "left-4 md:left-6 items-start" : "right-4 md:right-6 items-end",
       )}
       style={{ touchAction: "none" }}
@@ -419,6 +455,16 @@ export function GlobalSupportAgent() {
               <div className="text-[10px] font-bold text-foreground">Learnify Support</div>
               <div className="text-[8px] text-muted-foreground">Online Assistant</div>
             </div>
+            {isAdminRoute && (
+              <button
+                type="button"
+                onClick={toggleAdminMinimize}
+                className="ml-1 p-0.5 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/50 transition cursor-pointer"
+                title="Minimize assistant in admin view"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
           <button
             onClick={() => setOpen(true)}

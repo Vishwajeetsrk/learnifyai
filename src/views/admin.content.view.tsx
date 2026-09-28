@@ -1,6 +1,12 @@
 import { useLocation, useNavigate, Link } from "@tanstack/react-router";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, useCallback, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  listAllActiveDrafts,
+  useAdminDraft,
+  AutosaveStatusBadge,
+  DraftRecoveryBanner,
+} from "@/lib/admin-editor-workspace";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import {
@@ -332,6 +338,16 @@ export default function AdminContentPage() {
     ? tabAlias
     : "events";
   const [tab, setTab] = useState(tabFromUrl || "events");
+  const [activeDrafts, setActiveDrafts] = useState<Array<{ key: string; module: string; recordId: string; title: string; updatedAt: number }>>([]);
+
+  const handleTabChange = useCallback((newTab: string) => {
+    setTab(newTab);
+    navigate({
+      to: "/admin/content",
+      search: (prev: any) => ({ ...prev, tab: newTab }),
+      replace: true,
+    });
+  }, [navigate]);
 
   useEffect(() => {
     if (!loading && !isAdmin) navigate({ to: "/dashboard" });
@@ -340,6 +356,14 @@ export default function AdminContentPage() {
   useEffect(() => {
     setTab(tabFromUrl || "events");
   }, [tabFromUrl]);
+
+  useEffect(() => {
+    setActiveDrafts(listAllActiveDrafts());
+    const interval = setInterval(() => {
+      setActiveDrafts(listAllActiveDrafts());
+    }, 2500);
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading || !isAdmin) {
     return (
@@ -377,10 +401,37 @@ export default function AdminContentPage() {
               certificate templates, feature visibility, page builder, media library, features
               catalog, and navigation menus — all in one place.
             </p>
+
+            {/* Persistent Active Drafts Quick-Bar */}
+            {activeDrafts.length > 0 && (
+              <div className="flex items-center gap-2 overflow-x-auto pt-2 pb-1 text-xs">
+                <span className="text-[11px] font-semibold text-muted-foreground shrink-0 flex items-center gap-1">
+                  <Sparkles className="h-3 w-3 text-indigo-400" />
+                  Active Drafts ({activeDrafts.length}):
+                </span>
+                {activeDrafts.map((d) => (
+                  <button
+                    key={d.key}
+                    type="button"
+                    onClick={() => handleTabChange(d.module)}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium transition shrink-0 cursor-pointer shadow-xs border",
+                      tab === d.module
+                        ? "bg-primary/10 border-primary text-primary font-semibold"
+                        : "bg-card border-border hover:border-primary/50 text-foreground"
+                    )}
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="capitalize text-muted-foreground">{d.module}:</span>
+                    <span className="truncate max-w-[130px]">{d.title}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
-        <Tabs value={tab} onValueChange={setTab} className="w-full">
+        <Tabs value={tab} onValueChange={handleTabChange} className="w-full">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
             {/* Left navigation sidebar */}
             <div className="col-span-1 md:col-span-3 space-y-4 bg-card/65 backdrop-blur-md rounded-2xl border p-4 shadow-sm md:sticky md:top-24">
@@ -390,7 +441,7 @@ export default function AdminContentPage() {
 
               {/* Mobile quick-select dropdown */}
               <div className="block md:hidden">
-                <Select value={tab} onValueChange={setTab}>
+                <Select value={tab} onValueChange={handleTabChange}>
                   <SelectTrigger className="w-full bg-card">
                     <SelectValue placeholder="Select Tab" />
                   </SelectTrigger>
@@ -444,7 +495,7 @@ export default function AdminContentPage() {
                         <button
                           key={item.id}
                           type="button"
-                          onClick={() => setTab(item.id)}
+                          onClick={() => handleTabChange(item.id)}
                           className={cn(
                             "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
                             isActive
@@ -480,7 +531,7 @@ export default function AdminContentPage() {
                         <button
                           key={item.id}
                           type="button"
-                          onClick={() => setTab(item.id)}
+                          onClick={() => handleTabChange(item.id)}
                           className={cn(
                             "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
                             isActive
@@ -513,7 +564,7 @@ export default function AdminContentPage() {
                         <button
                           key={item.id}
                           type="button"
-                          onClick={() => setTab(item.id)}
+                          onClick={() => handleTabChange(item.id)}
                           className={cn(
                             "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
                             isActive
@@ -551,7 +602,7 @@ export default function AdminContentPage() {
                         <button
                           key={item.id}
                           type="button"
-                          onClick={() => setTab(item.id)}
+                          onClick={() => handleTabChange(item.id)}
                           className={cn(
                             "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition text-left cursor-pointer",
                             isActive
@@ -571,57 +622,57 @@ export default function AdminContentPage() {
 
             {/* Right side container */}
             <div className="col-span-1 md:col-span-9 bg-card border rounded-2xl p-6 shadow-sm min-h-[500px]">
-              <TabsContent value="events" className="mt-0">
+              <TabsContent value="events" forceMount className={cn("mt-0", tab !== "events" && "hidden")}>
                 <EventsManager />
               </TabsContent>
-              <TabsContent value="jobs" className="mt-0">
+              <TabsContent value="jobs" forceMount className={cn("mt-0", tab !== "jobs" && "hidden")}>
                 <JobsManager />
               </TabsContent>
-              <TabsContent value="design-projects" className="mt-0">
+              <TabsContent value="design-projects" forceMount className={cn("mt-0", tab !== "design-projects" && "hidden")}>
                 <Suspense fallback={<LazyFallback />}>
                   <DesignProjectsManager />
                 </Suspense>
               </TabsContent>
-              <TabsContent value="pricing" className="mt-0">
+              <TabsContent value="pricing" forceMount className={cn("mt-0", tab !== "pricing" && "hidden")}>
                 <PricingManager />
               </TabsContent>
-              <TabsContent value="site" className="mt-0">
+              <TabsContent value="site" forceMount className={cn("mt-0", tab !== "site" && "hidden")}>
                 <SiteSettingsManager />
               </TabsContent>
-              <TabsContent value="demo-video" className="mt-0">
+              <TabsContent value="demo-video" forceMount className={cn("mt-0", tab !== "demo-video" && "hidden")}>
                 <DemoVideoManager />
               </TabsContent>
-              <TabsContent value="cert-templates" className="mt-0 w-full overflow-x-hidden">
+              <TabsContent value="cert-templates" forceMount className={cn("mt-0 w-full overflow-x-hidden", tab !== "cert-templates" && "hidden")}>
                 <div className="-m-2 p-1">
                   <CertDesignerAdmin />
                 </div>
               </TabsContent>
-              <TabsContent value="faqs" className="mt-0">
+              <TabsContent value="faqs" forceMount className={cn("mt-0", tab !== "faqs" && "hidden")}>
                 <FaqsManager />
               </TabsContent>
-              <TabsContent value="pages" className="mt-0">
+              <TabsContent value="pages" forceMount className={cn("mt-0", tab !== "pages" && "hidden")}>
                 <PagesManager />
               </TabsContent>
-              <TabsContent value="roadmap" className="mt-0">
+              <TabsContent value="roadmap" forceMount className={cn("mt-0", tab !== "roadmap" && "hidden")}>
                 <RoadmapManager />
               </TabsContent>
-              <TabsContent value="coupons" className="mt-0">
+              <TabsContent value="coupons" forceMount className={cn("mt-0", tab !== "coupons" && "hidden")}>
                 <Suspense fallback={<LazyFallback />}>
                   <CouponManager />
                 </Suspense>
               </TabsContent>
-              <TabsContent value="invoice-designer" className="mt-0">
+              <TabsContent value="invoice-designer" forceMount className={cn("mt-0", tab !== "invoice-designer" && "hidden")}>
                 <Suspense fallback={<LazyFallback />}>
                   <InvoiceDesigner />
                 </Suspense>
               </TabsContent>
-              <TabsContent value="community" className="mt-0">
+              <TabsContent value="community" forceMount className={cn("mt-0", tab !== "community" && "hidden")}>
                 <CohortsManager />
               </TabsContent>
-              <TabsContent value="features" className="mt-0">
+              <TabsContent value="features" forceMount className={cn("mt-0", tab !== "features" && "hidden")}>
                 <FeaturesManager />
               </TabsContent>
-              <TabsContent value="wcms-pages" className="mt-0">
+              <TabsContent value="wcms-pages" forceMount className={cn("mt-0", tab !== "wcms-pages" && "hidden")}>
                 <div className="flex items-center justify-end mb-2">
                   <div className="w-20 h-20">
                     <img
@@ -634,22 +685,22 @@ export default function AdminContentPage() {
                 </div>
                 <PageManager />
               </TabsContent>
-              <TabsContent value="wcms-media" className="mt-0">
+              <TabsContent value="wcms-media" forceMount className={cn("mt-0", tab !== "wcms-media" && "hidden")}>
                 <MediaLibrary />
               </TabsContent>
-              <TabsContent value="wcms-features" className="mt-0">
+              <TabsContent value="wcms-features" forceMount className={cn("mt-0", tab !== "wcms-features" && "hidden")}>
                 <FeaturesCatalog />
               </TabsContent>
-              <TabsContent value="wcms-menus" className="mt-0">
+              <TabsContent value="wcms-menus" forceMount className={cn("mt-0", tab !== "wcms-menus" && "hidden")}>
                 <MenuManager />
               </TabsContent>
-              <TabsContent value="promo-banner" className="mt-0">
+              <TabsContent value="promo-banner" forceMount className={cn("mt-0", tab !== "promo-banner" && "hidden")}>
                 <PromoBannerManager />
               </TabsContent>
-              <TabsContent value="wcms-sections" className="mt-0">
+              <TabsContent value="wcms-sections" forceMount className={cn("mt-0", tab !== "wcms-sections" && "hidden")}>
                 <SectionsManager />
               </TabsContent>
-              <TabsContent value="blog" className="mt-0">
+              <TabsContent value="blog" forceMount className={cn("mt-0", tab !== "blog" && "hidden")}>
                 <Suspense fallback={<LazyFallback />}>
                   <BlogManager />
                 </Suspense>
@@ -955,13 +1006,41 @@ function EventDialog({
   event: EventRow | null;
   onSaved: () => void;
 }) {
-  const [form, setForm] = useState<EventRow | null>(event);
   const [saving, setSaving] = useState(false);
   const doAdminAction = useServerFn(adminContentAction);
 
-  useEffect(() => {
-    setForm(event);
+  const initialValues = useMemo<EventRow>(() => {
+    return (
+      event || {
+        id: "",
+        title: "",
+        description: "",
+        starts_at: new Date(Date.now() + 7 * 86400_000).toISOString().slice(0, 16),
+        location: "",
+        rsvp_url: "",
+        image_url: "",
+      }
+    );
   }, [event]);
+
+  const {
+    formData: form,
+    updateField,
+    status,
+    lastSavedAt,
+    saveDraftNow,
+    clearDraft,
+    restoreDraft,
+    discardRecoverableDraft,
+    hasRecoverableDraft,
+    recoverableDraftDate,
+  } = useAdminDraft<EventRow>({
+    module: "events",
+    recordId: event?.id || "new",
+    initialData: initialValues,
+    getTitle: (d) => d?.title || "Untitled Event",
+    enabled: open,
+  });
 
   if (!form) return null;
 
@@ -987,15 +1066,16 @@ function EventDialog({
       } else {
         await doAdminAction({ data: { table: "events", action: "insert", data: payload } });
       }
+      await clearDraft();
+      setSaving(false);
+      toast.success(form.id ? "Event updated" : "Event created");
+      onSaved();
+      onOpenChange(false);
     } catch (e: any) {
       setSaving(false);
       console.error("[EventsManager] Save error:", e);
       return toast.error(e?.message || "Save failed");
     }
-    setSaving(false);
-    toast.success(form.id ? "Event updated" : "Event created");
-    onSaved();
-    onOpenChange(false);
   };
 
   const localValue = (() => {
@@ -1010,15 +1090,24 @@ function EventDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{form.id ? "Edit event" : "New event"}</DialogTitle>
+          <div className="flex items-center justify-between pr-4">
+            <DialogTitle>{form.id ? "Edit event" : "New event"}</DialogTitle>
+            <AutosaveStatusBadge status={status} lastSavedAt={lastSavedAt} />
+          </div>
           <DialogDescription>Public on the /events page until 24h after start.</DialogDescription>
         </DialogHeader>
+        <DraftRecoveryBanner
+          hasRecoverableDraft={hasRecoverableDraft}
+          recoverableDraftDate={recoverableDraftDate}
+          onRestore={restoreDraft}
+          onDiscard={discardRecoverableDraft}
+        />
         <div className="space-y-3">
           <div>
             <Label>Title</Label>
             <Input
               value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              onChange={(e) => updateField("title", e.target.value)}
             />
           </div>
           <div>
@@ -1026,7 +1115,7 @@ function EventDialog({
             <Textarea
               rows={3}
               value={form.description ?? ""}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) => updateField("description", e.target.value)}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -1035,14 +1124,14 @@ function EventDialog({
               <Input
                 type="datetime-local"
                 value={localValue}
-                onChange={(e) => setForm({ ...form, starts_at: e.target.value })}
+                onChange={(e) => updateField("starts_at", e.target.value)}
               />
             </div>
             <div>
               <Label>Location</Label>
               <Input
                 value={form.location ?? ""}
-                onChange={(e) => setForm({ ...form, location: e.target.value })}
+                onChange={(e) => updateField("location", e.target.value)}
                 placeholder="Online · Zoom"
               />
             </div>
@@ -1051,7 +1140,7 @@ function EventDialog({
             <Label>RSVP URL</Label>
             <Input
               value={form.rsvp_url ?? ""}
-              onChange={(e) => setForm({ ...form, rsvp_url: e.target.value })}
+              onChange={(e) => updateField("rsvp_url", e.target.value)}
               placeholder="https://..."
             />
           </div>
@@ -1059,7 +1148,7 @@ function EventDialog({
             <Label>Cover image URL</Label>
             <Input
               value={form.image_url ?? ""}
-              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+              onChange={(e) => updateField("image_url", e.target.value)}
               placeholder="https://... (banner shown on dashboard)"
             />
             {form.image_url ? (
@@ -1076,14 +1165,27 @@ function EventDialog({
             ) : null}
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+        <DialogFooter className="flex items-center justify-between sm:justify-between w-full">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              saveDraftNow();
+              toast.success("Draft saved locally");
+            }}
+          >
+            Save Draft
           </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Save
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={save} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {form.id ? "Save" : "Create"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1296,13 +1398,42 @@ function JobDialog({
   job: JobRow | null;
   onSaved: () => void;
 }) {
-  const [form, setForm] = useState<JobRow | null>(job);
   const [saving, setSaving] = useState(false);
   const doAdminAction = useServerFn(adminContentAction);
 
-  useEffect(() => {
-    setForm(job);
+  const initialValues = useMemo<JobRow>(() => {
+    return (
+      job || {
+        id: "",
+        title: "",
+        team: "",
+        location: "",
+        description: "",
+        apply_url: "",
+        active: true,
+        closes_at: null,
+      }
+    );
   }, [job]);
+
+  const {
+    formData: form,
+    updateField,
+    status,
+    lastSavedAt,
+    saveDraftNow,
+    clearDraft,
+    restoreDraft,
+    discardRecoverableDraft,
+    hasRecoverableDraft,
+    recoverableDraftDate,
+  } = useAdminDraft<JobRow>({
+    module: "jobs",
+    recordId: job?.id || "new",
+    initialData: initialValues,
+    getTitle: (d) => d?.title || "Untitled Job",
+    enabled: open,
+  });
 
   if (!form) return null;
 
@@ -1329,15 +1460,16 @@ function JobDialog({
       } else {
         await doAdminAction({ data: { table: "job_postings", action: "insert", data: payload } });
       }
+      await clearDraft();
+      setSaving(false);
+      toast.success(form.id ? "Job updated" : "Job created");
+      onSaved();
+      onOpenChange(false);
     } catch (e: any) {
       setSaving(false);
       console.error("[JobsManager] Save error:", e);
       return toast.error(e?.message || "Save failed");
     }
-    setSaving(false);
-    toast.success(form.id ? "Job updated" : "Job created");
-    onSaved();
-    onOpenChange(false);
   };
 
   const closesLocal = form.closes_at
@@ -1354,15 +1486,24 @@ function JobDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{form.id ? "Edit job" : "New job"}</DialogTitle>
+          <div className="flex items-center justify-between pr-4">
+            <DialogTitle>{form.id ? "Edit job" : "New job"}</DialogTitle>
+            <AutosaveStatusBadge status={status} lastSavedAt={lastSavedAt} />
+          </div>
           <DialogDescription>Public on the /careers page while active.</DialogDescription>
         </DialogHeader>
+        <DraftRecoveryBanner
+          hasRecoverableDraft={hasRecoverableDraft}
+          recoverableDraftDate={recoverableDraftDate}
+          onRestore={restoreDraft}
+          onDiscard={discardRecoverableDraft}
+        />
         <div className="space-y-3">
           <div>
             <Label>Title</Label>
             <Input
               value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              onChange={(e) => updateField("title", e.target.value)}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -1370,14 +1511,14 @@ function JobDialog({
               <Label>Team</Label>
               <Input
                 value={form.team}
-                onChange={(e) => setForm({ ...form, team: e.target.value })}
+                onChange={(e) => updateField("team", e.target.value)}
               />
             </div>
             <div>
               <Label>Location</Label>
               <Input
                 value={form.location}
-                onChange={(e) => setForm({ ...form, location: e.target.value })}
+                onChange={(e) => updateField("location", e.target.value)}
               />
             </div>
           </div>
@@ -1386,14 +1527,14 @@ function JobDialog({
             <Textarea
               rows={3}
               value={form.description ?? ""}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) => updateField("description", e.target.value)}
             />
           </div>
           <div>
             <Label>Apply URL</Label>
             <Input
               value={form.apply_url ?? ""}
-              onChange={(e) => setForm({ ...form, apply_url: e.target.value })}
+              onChange={(e) => updateField("apply_url", e.target.value)}
               placeholder="mailto:support.learnifyai@gmail.com or https://..."
             />
           </div>
@@ -1403,26 +1544,39 @@ function JobDialog({
               <Input
                 type="datetime-local"
                 value={closesLocal}
-                onChange={(e) => setForm({ ...form, closes_at: e.target.value || null })}
+                onChange={(e) => updateField("closes_at", e.target.value || null)}
               />
             </div>
             <div className="flex items-center gap-2 pb-2">
               <Switch
                 checked={form.active}
-                onCheckedChange={(v) => setForm({ ...form, active: v })}
+                onCheckedChange={(v) => updateField("active", v)}
               />
               <Label className="cursor-pointer">Active</Label>
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+        <DialogFooter className="flex items-center justify-between sm:justify-between w-full">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              saveDraftNow();
+              toast.success("Draft saved locally");
+            }}
+          >
+            Save Draft
           </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Save
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={save} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {form.id ? "Save" : "Create"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -1881,51 +2035,103 @@ function PlanDialog({
   plan: PlanRow | null;
   onSaved: (form: any) => Promise<void>;
 }) {
-  const [form, setForm] = useState<any>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (plan) {
-      setForm({
-        ...plan,
-        features: Array.isArray(plan.features) ? plan.features.join("\n") : "",
-      });
+  const initialValues = useMemo(() => {
+    if (!plan) {
+      return {
+        id: "",
+        name: "",
+        price_label: "",
+        price_inr: 0,
+        yearly_price: null,
+        interval: null,
+        ai_credits_monthly: 0,
+        max_courses: -1,
+        badge: "",
+        color: "#6366F1",
+        cashfree_plan_id: null,
+        description: "",
+        features: "",
+        order_index: 0,
+        highlighted: false,
+        active: true,
+      };
     }
+    return {
+      ...plan,
+      features: Array.isArray(plan.features) ? plan.features.join("\n") : (plan.features || ""),
+    };
   }, [plan]);
+
+  const {
+    formData: form,
+    updateField,
+    status,
+    lastSavedAt,
+    saveDraftNow,
+    clearDraft,
+    restoreDraft,
+    discardRecoverableDraft,
+    hasRecoverableDraft,
+    recoverableDraftDate,
+  } = useAdminDraft<any>({
+    module: "pricing",
+    recordId: plan?.id || "new",
+    initialData: initialValues,
+    getTitle: (d) => d?.name || "Untitled Plan",
+    enabled: open,
+  });
 
   if (!form) return null;
 
   const save = async () => {
-    if (!form.name.trim() || !form.price_label.trim()) {
+    if (!form.name?.trim() || !form.price_label?.trim()) {
       toast.error("Name and price are required");
       return;
     }
     setSaving(true);
     const payload = {
       ...form,
-      features: form.features
-        .split("\n")
-        .map((s: string) => s.trim())
-        .filter(Boolean),
+      features:
+        typeof form.features === "string"
+          ? form.features
+              .split("\n")
+              .map((s: string) => s.trim())
+              .filter(Boolean)
+          : form.features,
     };
-    await onSaved(payload);
-    setSaving(false);
+    try {
+      await onSaved(payload);
+      await clearDraft();
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{form.id ? "Edit plan" : "New plan"}</DialogTitle>
+          <div className="flex items-center justify-between pr-4">
+            <DialogTitle>{form.id ? "Edit plan" : "New plan"}</DialogTitle>
+            <AutosaveStatusBadge status={status} lastSavedAt={lastSavedAt} />
+          </div>
           <DialogDescription>Shown publicly on the /pricing page.</DialogDescription>
         </DialogHeader>
+        <DraftRecoveryBanner
+          hasRecoverableDraft={hasRecoverableDraft}
+          recoverableDraftDate={recoverableDraftDate}
+          onRestore={restoreDraft}
+          onDiscard={discardRecoverableDraft}
+        />
         <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Name</Label>
               <Input
                 value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                onChange={(e) => updateField("name", e.target.value)}
                 placeholder="Pro"
               />
             </div>
@@ -1933,7 +2139,7 @@ function PlanDialog({
               <Label>Price label</Label>
               <Input
                 value={form.price_label}
-                onChange={(e) => setForm({ ...form, price_label: e.target.value })}
+                onChange={(e) => updateField("price_label", e.target.value)}
                 placeholder="₹499/mo"
               />
             </div>
@@ -1944,7 +2150,7 @@ function PlanDialog({
               <Input
                 type="number"
                 value={form.price_inr}
-                onChange={(e) => setForm({ ...form, price_inr: Number(e.target.value) || 0 })}
+                onChange={(e) => updateField("price_inr", Number(e.target.value) || 0)}
               />
             </div>
             <div>
@@ -1953,7 +2159,7 @@ function PlanDialog({
                 type="number"
                 value={form.yearly_price ?? ""}
                 onChange={(e) =>
-                  setForm({ ...form, yearly_price: e.target.value ? Number(e.target.value) : null })
+                  updateField("yearly_price", e.target.value ? Number(e.target.value) : null)
                 }
                 placeholder="Auto-calculated"
               />
@@ -1962,7 +2168,7 @@ function PlanDialog({
               <Label>Interval</Label>
               <Select
                 value={form.interval || "none"}
-                onValueChange={(v) => setForm({ ...form, interval: v === "none" ? null : v })}
+                onValueChange={(v) => updateField("interval", v === "none" ? null : v)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select interval" />
@@ -1982,7 +2188,7 @@ function PlanDialog({
                 type="number"
                 value={form.ai_credits_monthly}
                 onChange={(e) =>
-                  setForm({ ...form, ai_credits_monthly: Number(e.target.value) || 0 })
+                  updateField("ai_credits_monthly", Number(e.target.value) || 0)
                 }
               />
             </div>
@@ -1991,7 +2197,7 @@ function PlanDialog({
               <Input
                 type="number"
                 value={form.max_courses}
-                onChange={(e) => setForm({ ...form, max_courses: Number(e.target.value) || -1 })}
+                onChange={(e) => updateField("max_courses", Number(e.target.value) || -1)}
               />
             </div>
           </div>
@@ -2000,7 +2206,7 @@ function PlanDialog({
               <Label>Badge</Label>
               <Input
                 value={form.badge || ""}
-                onChange={(e) => setForm({ ...form, badge: e.target.value })}
+                onChange={(e) => updateField("badge", e.target.value)}
                 placeholder="Most popular"
               />
             </div>
@@ -2008,7 +2214,7 @@ function PlanDialog({
               <Label>Color</Label>
               <Input
                 value={form.color || ""}
-                onChange={(e) => setForm({ ...form, color: e.target.value })}
+                onChange={(e) => updateField("color", e.target.value)}
                 placeholder="#7c3aed"
               />
               <div className="flex gap-2 mt-2">
@@ -2032,7 +2238,7 @@ function PlanDialog({
                         : "border-transparent hover:scale-110"
                     }`}
                     style={{ background: c.hex }}
-                    onClick={() => setForm({ ...form, color: c.hex })}
+                    onClick={() => updateField("color", c.hex)}
                   />
                 ))}
               </div>
@@ -2042,7 +2248,7 @@ function PlanDialog({
             <Label>Cashfree Plan ID</Label>
             <Input
               value={form.cashfree_plan_id ?? ""}
-              onChange={(e) => setForm({ ...form, cashfree_plan_id: e.target.value || null })}
+              onChange={(e) => updateField("cashfree_plan_id", e.target.value || null)}
               placeholder="e.g. plan_xxxxx"
             />
           </div>
@@ -2051,7 +2257,7 @@ function PlanDialog({
             <Textarea
               rows={2}
               value={form.description ?? ""}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) => updateField("description", e.target.value)}
             />
           </div>
           <div>
@@ -2059,7 +2265,7 @@ function PlanDialog({
             <Textarea
               rows={4}
               value={form.features}
-              onChange={(e) => setForm({ ...form, features: e.target.value })}
+              onChange={(e) => updateField("features", e.target.value)}
               placeholder="Unlimited courses&#10;Advanced AI tools&#10;Certificates"
             />
           </div>
@@ -2069,33 +2275,46 @@ function PlanDialog({
               <Input
                 type="number"
                 value={form.order_index}
-                onChange={(e) => setForm({ ...form, order_index: Number(e.target.value) || 0 })}
+                onChange={(e) => updateField("order_index", Number(e.target.value) || 0)}
               />
             </div>
             <div className="flex items-center gap-2 pb-2">
               <Switch
                 checked={form.highlighted}
-                onCheckedChange={(v) => setForm({ ...form, highlighted: v })}
+                onCheckedChange={(v) => updateField("highlighted", v)}
               />
               <Label className="cursor-pointer">Featured</Label>
             </div>
             <div className="flex items-center gap-2 pb-2">
               <Switch
                 checked={form.active !== false}
-                onCheckedChange={(v) => setForm({ ...form, active: v })}
+                onCheckedChange={(v) => updateField("active", v)}
               />
               <Label className="cursor-pointer">Active</Label>
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+        <DialogFooter className="flex items-center justify-between sm:justify-between w-full">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              saveDraftNow();
+              toast.success("Draft saved locally");
+            }}
+          >
+            Save Draft
           </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Save
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={save} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Save
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -4255,12 +4474,41 @@ function FaqDialog({
   faq: FaqRow | null;
   onSaved: () => void;
 }) {
-  const [form, setForm] = useState<FaqRow | null>(faq);
   const [saving, setSaving] = useState(false);
   const doAdminAction = useServerFn(adminContentAction);
-  useEffect(() => {
-    setForm(faq);
+
+  const initialValues = useMemo<FaqRow>(() => {
+    return (
+      faq || {
+        id: "",
+        question: "",
+        answer: "",
+        category: "General",
+        order_index: 0,
+        published: true,
+      }
+    );
   }, [faq]);
+
+  const {
+    formData: form,
+    updateField,
+    status,
+    lastSavedAt,
+    saveDraftNow,
+    clearDraft,
+    restoreDraft,
+    discardRecoverableDraft,
+    hasRecoverableDraft,
+    recoverableDraftDate,
+  } = useAdminDraft<FaqRow>({
+    module: "faqs",
+    recordId: faq?.id || "new",
+    initialData: initialValues,
+    getTitle: (d) => d?.question || "Untitled FAQ",
+    enabled: open,
+  });
+
   if (!form) return null;
 
   const save = async () => {
@@ -4282,30 +4530,40 @@ function FaqDialog({
       } else {
         await doAdminAction({ data: { table: "faqs", action: "insert", data: payload } });
       }
+      await clearDraft();
+      setSaving(false);
+      toast.success(form.id ? "FAQ updated" : "FAQ created");
+      onSaved();
+      onOpenChange(false);
     } catch (e: any) {
       setSaving(false);
       console.error("[FAQsManager] Save error:", e);
       return toast.error(e?.message || "Save failed");
     }
-    setSaving(false);
-    toast.success(form.id ? "FAQ updated" : "FAQ created");
-    onSaved();
-    onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{form.id ? "Edit FAQ" : "New FAQ"}</DialogTitle>
+          <div className="flex items-center justify-between pr-4">
+            <DialogTitle>{form.id ? "Edit FAQ" : "New FAQ"}</DialogTitle>
+            <AutosaveStatusBadge status={status} lastSavedAt={lastSavedAt} />
+          </div>
           <DialogDescription>Shown publicly on /faq.</DialogDescription>
         </DialogHeader>
+        <DraftRecoveryBanner
+          hasRecoverableDraft={hasRecoverableDraft}
+          recoverableDraftDate={recoverableDraftDate}
+          onRestore={restoreDraft}
+          onDiscard={discardRecoverableDraft}
+        />
         <div className="space-y-3">
           <div>
             <Label>Question</Label>
             <Input
               value={form.question}
-              onChange={(e) => setForm({ ...form, question: e.target.value })}
+              onChange={(e) => updateField("question", e.target.value)}
             />
           </div>
           <div>
@@ -4313,7 +4571,7 @@ function FaqDialog({
             <Textarea
               rows={4}
               value={form.answer}
-              onChange={(e) => setForm({ ...form, answer: e.target.value })}
+              onChange={(e) => updateField("answer", e.target.value)}
             />
           </div>
           <div className="grid grid-cols-3 gap-2 items-end">
@@ -4321,7 +4579,7 @@ function FaqDialog({
               <Label>Category</Label>
               <Input
                 value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
+                onChange={(e) => updateField("category", e.target.value)}
               />
             </div>
             <div>
@@ -4329,26 +4587,39 @@ function FaqDialog({
               <Input
                 type="number"
                 value={form.order_index}
-                onChange={(e) => setForm({ ...form, order_index: Number(e.target.value) || 0 })}
+                onChange={(e) => updateField("order_index", Number(e.target.value) || 0)}
               />
             </div>
             <div className="flex items-center gap-2 pb-2">
               <Switch
                 checked={form.published}
-                onCheckedChange={(v) => setForm({ ...form, published: v })}
+                onCheckedChange={(v) => updateField("published", v)}
               />
               <Label className="cursor-pointer">Published</Label>
             </div>
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+        <DialogFooter className="flex items-center justify-between sm:justify-between w-full">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              saveDraftNow();
+              toast.success("Draft saved locally");
+            }}
+          >
+            Save Draft
           </Button>
-          <Button onClick={save} disabled={saving}>
-            {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Save
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={save} disabled={saving}>
+              {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {form.id ? "Save" : "Create"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

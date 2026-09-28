@@ -141,46 +141,43 @@ const TX2 = "#6B7280";
 const TX3 = "#9CA3AF";
 const BG = "#F8F9FA";
 
-// ─── Mock / Seed Data ────────────────────────────────────────────────────────
-const sparkCerts = [8500, 9200, 9800, 10500, 11200, 11800, 12420].map((v, i) => ({ v, i }));
-const sparkVerif = [6800, 7200, 7500, 7900, 8200, 8500, 8752].map((v, i) => ({ v, i }));
-const sparkDl = [5100, 5400, 5700, 6000, 6100, 6300, 6423].map((v, i) => ({ v, i }));
-const sparkLi = [2400, 2600, 2800, 2900, 3000, 3100, 3251].map((v, i) => ({ v, i }));
-const sparkWal = [6200, 6600, 7000, 7300, 7600, 7800, 7983].map((v, i) => ({ v, i }));
+// ─── Data Helpers (computed from real stats) ─────────────────────────────────
+/** Compute month-over-month delta % from monthlyGrowth array */
+function computeDelta(monthlyGrowth?: { value: number }[]): string {
+  if (!monthlyGrowth || monthlyGrowth.length < 2) return "";
+  const prev = monthlyGrowth[monthlyGrowth.length - 2]?.value ?? 0;
+  const curr = monthlyGrowth[monthlyGrowth.length - 1]?.value ?? 0;
+  if (prev === 0) return curr > 0 ? "+100%" : "0%";
+  const delta = ((curr - prev) / prev) * 100;
+  return `${delta >= 0 ? "+" : ""}${delta.toFixed(1)}%`;
+}
+
+/** Build a 7-point sparkline from monthlyGrowth, or generate a gentle ramp toward target */
+function buildSparkData(monthlyGrowth?: { value: number }[], target = 0): { v: number; i: number }[] {
+  if (monthlyGrowth && monthlyGrowth.length >= 7) {
+    return monthlyGrowth.slice(-7).map((m, i) => ({ v: m.value, i }));
+  }
+  if (monthlyGrowth && monthlyGrowth.length >= 2) {
+    return monthlyGrowth.map((m, i) => ({ v: m.value, i }));
+  }
+  const t = Math.max(1, target);
+  return Array.from({ length: 7 }, (_, i) => ({ v: Math.round(t * (0.6 + 0.4 * (i / 6))), i }));
+}
+
+// Static spark shapes (used as fallback when monthlyGrowth has only 1 data point)
+const sparkCerts = [1000, 1200, 1400, 1600, 1750, 1900, 2100].map((v, i) => ({ v, i }));
 const sparkVerTotal = [19000, 20500, 21200, 22400, 23100, 24000, 24851].map((v, i) => ({ v, i }));
+const sparkVerif = [18200, 19600, 20300, 21500, 22200, 23100, 23994].map((v, i) => ({ v, i }));
 const sparkInvalid = [480, 420, 390, 360, 370, 355, 342].map((v, i) => ({ v, i }));
 const sparkPending = [760, 800, 820, 840, 855, 850, 857].map((v, i) => ({ v, i }));
 const sparkQR = [11000, 12500, 13200, 14100, 14800, 15500, 15986].map((v, i) => ({ v, i }));
 
+// Fallback area chart data (used when stats.monthlyGrowth is unavailable)
 const areaData = [
-  { date: "May 19", value: 1200 },
-  { date: "May 20", value: 1850 },
-  { date: "May 21", value: 1540 },
-  { date: "May 22", value: 2250 },
-  { date: "May 23", value: 2820 },
-  { date: "May 24", value: 1920 },
-  { date: "May 25", value: 2840 },
+  { date: "—", value: 0 },
 ];
 const barData = [
-  { date: "May 19", downloads: 820, shares: 310 },
-  { date: "May 20", downloads: 1100, shares: 420 },
-  { date: "May 21", downloads: 950, shares: 380 },
-  { date: "May 22", downloads: 1350, shares: 510 },
-  { date: "May 23", downloads: 1620, shares: 630 },
-  { date: "May 24", downloads: 980, shares: 390 },
-  { date: "May 25", downloads: 1200, shares: 430 },
-];
-const pieStatus = [
-  { name: "Issued", value: 12420, color: P },
-  { name: "Verified", value: 8752, color: SG },
-  { name: "Downloaded", value: 6423, color: IN },
-  { name: "Shared", value: 3251, color: WO },
-  { name: "Wallet Added", value: 7983, color: PK },
-];
-const pieAnalytics = [
-  { name: "Verified", value: 23652, pct: "95.2%", color: P },
-  { name: "Invalid", value: 342, pct: "1.4%", color: WO },
-  { name: "Pending", value: 857, pct: "3.4%", color: SG },
+  { date: "—", downloads: 0, shares: 0 },
 ];
 
 const recentCerts = [
@@ -1090,12 +1087,15 @@ function OverviewScreen({
   stats: any;
   onOpenAiModal?: () => void;
 }) {
-  const totalCerts = stats?.totalCerts && stats.totalCerts > 0 ? stats.totalCerts : 4;
-  const totalVerifications = stats?.totalVerifications && stats.totalVerifications > 0 ? stats.totalVerifications : 12;
-  const totalTemplates = stats?.totalTemplates && stats.totalTemplates > 0 ? stats.totalTemplates : 23;
-  const listCertificates = stats?.recentCertificates && stats.recentCertificates.length > 0 ? stats.recentCertificates : recentCerts;
-  const recentVerificationLogs = stats?.recentVerificationLogs && stats.recentVerificationLogs.length > 0 ? stats.recentVerificationLogs : verifyActivity;
+  const totalCerts = stats?.totalCerts ?? 0;
+  const totalVerifications = stats?.totalVerifications ?? 0;
+  const totalTemplates = stats?.totalTemplates ?? 0;
+  const listCertificates = stats?.recentCertificates?.length > 0 ? stats.recentCertificates : [];
+  const recentVerificationLogs = stats?.recentVerificationLogs?.length > 0 ? stats.recentVerificationLogs : [];
   const pieStatusData = stats?.pieStatusData ?? [];
+  const growth = stats?.monthlyGrowth as { value: number }[] | undefined;
+  const downloadedCount = stats?.pieStatusData?.find((s: any) => s.name === "Downloaded")?.value ?? 0;
+  const sharedCount = stats?.pieStatusData?.find((s: any) => s.name === "Shared")?.value ?? 0;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -1103,46 +1103,46 @@ function OverviewScreen({
         <KPICard
           label="Certificates Issued"
           value={totalCerts.toLocaleString()}
-          delta="+24.5%"
+          delta={computeDelta(growth)}
           icon={<FilePlus size={20} color={P} />}
           iconBg={PL}
-          sparkData={sparkCerts}
+          sparkData={buildSparkData(growth, totalCerts)}
           sparkColor={P}
         />
         <KPICard
           label="Verifications"
           value={totalVerifications.toLocaleString()}
-          delta="+18.7%"
+          delta={computeDelta(growth)}
           icon={<ShieldCheck size={20} color={SG} />}
           iconBg={SGL}
-          sparkData={sparkVerif}
+          sparkData={buildSparkData(growth, totalVerifications)}
           sparkColor={SG}
         />
         <KPICard
           label="Active Templates"
           value={totalTemplates.toLocaleString()}
-          delta="+16.2%"
+          delta={""}
           icon={<Download size={20} color={IN} />}
           iconBg={INL}
-          sparkData={sparkDl}
+          sparkData={buildSparkData(growth, totalTemplates)}
           sparkColor={IN}
         />
         <KPICard
-          label="LinkedIn Shares"
-          value="3,251"
-          delta="+20.2%"
+          label="Certificate Shares"
+          value={sharedCount > 0 ? sharedCount.toLocaleString() : "—"}
+          delta={""}
           icon={<Share2 size={20} color={WO} />}
           iconBg={WOL}
-          sparkData={sparkLi}
+          sparkData={buildSparkData(growth, sharedCount)}
           sparkColor={WO}
         />
         <KPICard
-          label="Wallet Added"
-          value="7,983"
-          delta="+21.4%"
-          icon={<Wallet size={20} color={PK} />}
+          label="Downloads"
+          value={downloadedCount > 0 ? downloadedCount.toLocaleString() : "—"}
+          delta={""}
+          icon={<Download size={20} color={PK} />}
           iconBg="#FCE7F3"
-          sparkData={sparkWal}
+          sparkData={buildSparkData(growth, downloadedCount)}
           sparkColor={PK}
         />
       </div>
@@ -4648,21 +4648,33 @@ function BulkIssueScreen({ courses = [], templates = [] }: { courses: any[]; tem
 }
 
 // ─── Screen: Verification ─────────────────────────────────────────────────────
-function VerificationScreen({ stats }: { stats: any }) {
+function VerificationScreen({ stats, certificates = [] }: { stats: any; certificates: any[] }) {
   const [selectedV, setSelectedV] = useState(0);
   const [verFilter, setVerFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const v = VERIFY_LIST[selectedV] || VERIFY_LIST[0];
+  // Build verification list from real certificates; fall back to VERIFY_LIST only when DB is empty
+  const verifyList = certificates.length > 0
+    ? certificates.map((c) => ({
+        name: c.name,
+        email: c.email ?? "—",
+        id: c.id,
+        status: c.status,
+        time: c.date,
+        theme: c.theme,
+      }))
+    : VERIFY_LIST;
 
-  const totalCerts = stats?.totalCerts ?? 4;
-  const verifiedCount =
-    stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 3;
+  const v = verifyList[selectedV] ?? verifyList[0] ?? VERIFY_LIST[0];
+
+  const totalCerts = stats?.totalCerts ?? certificates.length ?? 0;
+  const verifiedCount = stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 0;
   const pendingCount = Math.max(0, totalCerts - verifiedCount);
-  const totalVerifications = stats?.totalVerifications ?? 12;
+  const totalVerifications = stats?.totalVerifications ?? 0;
+  const growth = stats?.monthlyGrowth as { value: number; date: string }[] | undefined;
 
   const filteredList = useMemo(() => {
-    return VERIFY_LIST.filter((item) => {
+    return verifyList.filter((item) => {
       if (verFilter === "Verified" && item.status !== "Verified") return false;
       if (verFilter === "Invalid" && item.status !== "Invalid") return false;
       if (verFilter === "Pending" && item.status !== "Pending") return false;
@@ -4676,7 +4688,7 @@ function VerificationScreen({ stats }: { stats: any }) {
       }
       return true;
     });
-  }, [verFilter, searchQuery]);
+  }, [verFilter, searchQuery, verifyList]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -4684,25 +4696,25 @@ function VerificationScreen({ stats }: { stats: any }) {
         <KPICard
           label="Total Verifications"
           value={totalVerifications.toLocaleString()}
-          delta="+18.7%"
+          delta={computeDelta(growth)}
           icon={<Activity size={20} color={P} />}
           iconBg={PL}
-          sparkData={sparkVerTotal}
+          sparkData={buildSparkData(growth, totalVerifications)}
           sparkColor={P}
         />
         <KPICard
           label="Verified Certificates"
           value={verifiedCount.toLocaleString()}
-          delta="+21.4%"
+          delta={computeDelta(growth)}
           icon={<ShieldCheck size={20} color={SG} />}
           iconBg={SGL}
-          sparkData={sparkVerif}
+          sparkData={buildSparkData(growth, verifiedCount)}
           sparkColor={SG}
         />
         <KPICard
           label="Invalid Certificates"
           value="0"
-          delta="0%"
+          delta=""
           icon={<AlertCircle size={20} color={ER} />}
           iconBg={ERL}
           sparkData={sparkInvalid}
@@ -4711,19 +4723,19 @@ function VerificationScreen({ stats }: { stats: any }) {
         <KPICard
           label="Pending Verifications"
           value={pendingCount.toString()}
-          delta="+5.1%"
+          delta={computeDelta(growth)}
           icon={<Clock size={20} color={WO} />}
           iconBg={WOL}
-          sparkData={sparkPending}
+          sparkData={buildSparkData(growth, pendingCount)}
           sparkColor={WO}
         />
         <KPICard
           label="QR Code Scans"
           value={totalVerifications.toLocaleString()}
-          delta="+22.6%"
+          delta={computeDelta(growth)}
           icon={<QrCode size={20} color={WP} />}
           iconBg="#EDE9FE"
-          sparkData={sparkQR}
+          sparkData={buildSparkData(growth, totalVerifications)}
           sparkColor={WP}
         />
       </div>
@@ -5111,7 +5123,7 @@ function VerificationScreen({ stats }: { stats: any }) {
 }
 
 // ─── Analytics Tab Components ────────────────────────────────────────────────
-function AnalyticsCertificates({ BD, TX, TX2, TX3, P, SGL, SG, ER }: any) {
+function AnalyticsCertificates({ BD, TX, TX2, TX3, P, SGL, SG, ER, certificates = [] }: any) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div
@@ -5234,71 +5246,28 @@ function AnalyticsCertificates({ BD, TX, TX2, TX3, P, SGL, SG, ER }: any) {
             </tr>
           </thead>
           <tbody>
-            {[
-              {
-                name: "Alex Rivera",
-                email: "alex.rivera@example.com",
-                course: "Full Stack Web Development",
-                date: "May 25, 2026",
-                id: "LAI-2026-000124",
-                status: "Verified",
-              },
-              {
-                name: "Aditya Kumar",
-                email: "aditya@learnify.ai",
-                course: "Advanced Machine Learning",
-                date: "May 24, 2026",
-                id: "LAI-2026-000125",
-                status: "Verified",
-              },
-              {
-                name: "Neha Sharma",
-                email: "neha@learnify.ai",
-                course: "Product Management Suite",
-                date: "May 22, 2026",
-                id: "LAI-2026-000126",
-                status: "Pending",
-              },
-              {
-                name: "Rohan Verma",
-                email: "rohan@gmail.com",
-                course: "UI/UX Design Masterclass",
-                date: "May 19, 2026",
-                id: "LAI-2026-000127",
-                status: "Verified",
-              },
-              {
-                name: "Priya Patel",
-                email: "priya@outlook.com",
-                course: "Data Structures & Algorithms",
-                date: "May 15, 2026",
-                id: "LAI-2026-000128",
-                status: "Invalid",
-              },
-            ].map((c, i) => (
+            {certificates.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ padding: "32px", textAlign: "center", color: TX2, fontSize: 13 }}>
+                  No certificates issued yet.
+                </td>
+              </tr>
+            ) : null}
+            {certificates.slice(0, 50).map((c: any, i: number) => (
               <tr
                 key={i}
                 style={{
-                  borderBottom: i === 4 ? "none" : `1px solid ${BD}`,
+                  borderBottom: i === certificates.length - 1 ? "none" : `1px solid ${BD}`,
                   background: i % 2 === 0 ? "white" : "#F9FAFB",
                 }}
               >
                 <td style={{ padding: "12px 16px" }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>{c.name}</div>
-                  <div style={{ fontSize: 11, color: TX3 }}>{c.email}</div>
+                  <div style={{ fontSize: 11, color: TX3 }}>{c.email ?? "—"}</div>
                 </td>
                 <td style={{ padding: "12px 16px", fontSize: 13, color: TX2 }}>{c.course}</td>
                 <td style={{ padding: "12px 16px", fontSize: 12, color: TX3 }}>{c.date}</td>
-                <td
-                  style={{
-                    padding: "12px 16px",
-                    fontSize: 12,
-                    fontFamily: "monospace",
-                    color: TX2,
-                  }}
-                >
-                  {c.id}
-                </td>
+                <td style={{ padding: "12px 16px", fontSize: 12, fontFamily: "monospace", color: TX2 }}>{c.id}</td>
                 <td style={{ padding: "12px 16px" }}>
                   <span
                     style={{
@@ -5306,44 +5275,22 @@ function AnalyticsCertificates({ BD, TX, TX2, TX3, P, SGL, SG, ER }: any) {
                       fontWeight: 600,
                       padding: "2px 8px",
                       borderRadius: 12,
-                      background:
-                        c.status === "Verified"
-                          ? SGL
-                          : c.status === "Pending"
-                            ? "#FEF3C7"
-                            : "#FEE2E2",
-                      color: c.status === "Verified" ? SG : c.status === "Pending" ? "#D97706" : ER,
+                      background: c.status === "Verified" ? SGL : c.status === "Issued" ? "#EEF2FF" : "#FEE2E2",
+                      color: c.status === "Verified" ? SG : c.status === "Issued" ? P : ER,
                     }}
                   >
                     {c.status}
                   </span>
                 </td>
                 <td style={{ padding: "12px 16px", textAlign: "right" }}>
-                  <button
-                    style={{
-                      fontSize: 12,
-                      color: P,
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      marginRight: 12,
-                      fontWeight: 500,
-                    }}
+                  <a
+                    href={`/certificates/${c.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ fontSize: 12, color: P, background: "none", border: "none", cursor: "pointer", fontWeight: 500, textDecoration: "none" }}
                   >
                     View
-                  </button>
-                  <button
-                    style={{
-                      fontSize: 12,
-                      color: P,
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Download
-                  </button>
+                  </a>
                 </td>
               </tr>
             ))}
@@ -5532,7 +5479,17 @@ function AnalyticsTemplates({ BD, TX, TX2, SG, SGL, P }: any) {
   );
 }
 
-function AnalyticsRecipients({ BD, TX, TX2, TX3, P }: any) {
+function AnalyticsRecipients({ BD, TX, TX2, TX3, P, certificates = [] }: any) {
+  // Aggregate recipients from real certificates
+  const recipientMap = new Map<string, { name: string; email: string; count: number; lastDate: string }>();
+  (certificates as any[]).forEach((c) => {
+    const key = c.email ?? c.name;
+    if (!recipientMap.has(key)) {
+      recipientMap.set(key, { name: c.name, email: c.email ?? "—", count: 0, lastDate: c.date });
+    }
+    recipientMap.get(key)!.count++;
+  });
+  const recipients = Array.from(recipientMap.values()).sort((a, b) => b.count - a.count).slice(0, 10);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div
@@ -5628,77 +5585,40 @@ function AnalyticsRecipients({ BD, TX, TX2, TX3, P }: any) {
             </tr>
           </thead>
           <tbody>
-            {[
-              {
-                name: "Alex Rivera",
-                email: "alex.rivera@example.com",
-                count: 4,
-                enrolled: 6,
-                lastDate: "May 25, 2026",
-              },
-              {
-                name: "Aditya Kumar",
-                email: "aditya@learnify.ai",
-                count: 2,
-                enrolled: 3,
-                lastDate: "May 24, 2026",
-              },
-              {
-                name: "Neha Sharma",
-                email: "neha@learnify.ai",
-                count: 1,
-                enrolled: 2,
-                lastDate: "May 22, 2026",
-              },
-              {
-                name: "Rohan Verma",
-                email: "rohan@gmail.com",
-                count: 3,
-                enrolled: 5,
-                lastDate: "May 19, 2026",
-              },
-              {
-                name: "Priya Patel",
-                email: "priya@outlook.com",
-                count: 5,
-                enrolled: 7,
-                lastDate: "May 15, 2026",
-              },
-            ].map((r, i) => (
-              <tr
-                key={i}
-                style={{
-                  borderBottom: i === 4 ? "none" : `1px solid ${BD}`,
-                  background: i % 2 === 0 ? "white" : "#F9FAFB",
-                }}
-              >
-                <td style={{ padding: "12px 16px" }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>{r.name}</div>
-                  <div style={{ fontSize: 11, color: TX3 }}>{r.email}</div>
-                </td>
-                <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: TX }}>
-                  {r.count} Certificates
-                </td>
-                <td style={{ padding: "12px 16px", fontSize: 13, color: TX2 }}>
-                  {r.enrolled} Courses
-                </td>
-                <td style={{ padding: "12px 16px", fontSize: 12, color: TX3 }}>{r.lastDate}</td>
-                <td style={{ padding: "12px 16px", textAlign: "right" }}>
-                  <button
-                    style={{
-                      fontSize: 12,
-                      color: P,
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      fontWeight: 500,
-                    }}
-                  >
-                    View Portfolio
-                  </button>
+            {recipients.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ padding: "32px", textAlign: "center", color: TX2, fontSize: 13 }}>
+                  No recipients found.
                 </td>
               </tr>
-            ))}
+            ) : (
+              recipients.map((r, i) => (
+                <tr
+                  key={i}
+                  style={{
+                    borderBottom: i === recipients.length - 1 ? "none" : `1px solid ${BD}`,
+                    background: i % 2 === 0 ? "white" : "#F9FAFB",
+                  }}
+                >
+                  <td style={{ padding: "12px 16px" }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: TX }}>{r.name}</div>
+                    <div style={{ fontSize: 11, color: TX3 }}>{r.email}</div>
+                  </td>
+                  <td style={{ padding: "12px 16px", fontSize: 13, fontWeight: 600, color: TX }}>
+                    {r.count} {r.count === 1 ? "Certificate" : "Certificates"}
+                  </td>
+                  <td style={{ padding: "12px 16px", fontSize: 12, color: TX3 }}>{r.lastDate}</td>
+                  <td style={{ padding: "12px 16px", textAlign: "right" }}>
+                    <a
+                      href={`/admin/users?q=${encodeURIComponent(r.email)}`}
+                      style={{ fontSize: 12, color: P, background: "none", border: "none", cursor: "pointer", fontWeight: 500, textDecoration: "none" }}
+                    >
+                      View Profile
+                    </a>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -6107,7 +6027,7 @@ function AnalyticsExports({ BD, TX, TX2, P, toast }: any) {
 }
 
 // ─── Screen: Analytics ────────────────────────────────────────────────────────
-function AnalyticsScreen({ stats }: { stats: any }) {
+function AnalyticsScreen({ stats, certificates = [], templates = [] }: { stats: any; certificates: any[]; templates: any[] }) {
   const [aTab, setATab] = useState("Overview");
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
   const [mapZoom, setMapZoom] = useState(1);
@@ -6123,63 +6043,25 @@ function AnalyticsScreen({ stats }: { stats: any }) {
     "Engagement",
     "Exports",
   ];
-  const topTemplates = [
-    {
-      rank: 1,
-      name: "Executive Blue Gold",
-      issued: 2856,
-      verified: 2712,
-      rate: 95.0,
-      rateColor: SG,
-      theme: "navy",
-    },
-    {
-      rank: 2,
-      name: "Skyline Tech",
-      issued: 2341,
-      verified: 2189,
-      rate: 93.5,
-      rateColor: SG,
-      theme: "blue",
-    },
-    {
-      rank: 3,
-      name: "Ivory Academic",
-      issued: 1987,
-      verified: 1872,
-      rate: 94.2,
-      rateColor: SG,
-      theme: "ivory",
-    },
-    {
-      rank: 4,
-      name: "Onyx Calligraphy",
-      issued: 1654,
-      verified: 1514,
-      rate: 91.5,
-      rateColor: WO,
-      theme: "onyx",
-    },
-    {
-      rank: 5,
-      name: "Rose Charcoal",
-      issued: 1431,
-      verified: 1385,
-      rate: 95.4,
-      rateColor: SG,
-      theme: "rose",
-    },
-  ];
+  // Build top templates from real DB templates (ranked by name, since we don't track per-template issue count yet)
+  const topTemplates = (templates as any[]).slice(0, 5).map((t, idx) => ({
+    rank: idx + 1,
+    name: t.name,
+    issued: 0, // will be real when cert-per-template tracking is added
+    verified: 0,
+    rate: 0,
+    rateColor: SG,
+    theme: t.theme_colors?.primary ? "custom" : "navy",
+  }));
 
   const totalCerts = stats?.totalCerts ?? 0;
-  const verifiedCount =
-    stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 0;
-  const downloadedCount =
-    stats?.pieStatusData?.find((s: any) => s.name === "Downloaded")?.value ?? 0;
+  const verifiedCount = stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 0;
+  const downloadedCount = stats?.pieStatusData?.find((s: any) => s.name === "Downloaded")?.value ?? 0;
   const sharedCount = stats?.pieStatusData?.find((s: any) => s.name === "Shared")?.value ?? 0;
   const totalVerifications = stats?.totalVerifications ?? 0;
+  const growth = stats?.monthlyGrowth as { value: number; date: string }[] | undefined;
 
-  const chartData = stats?.monthlyGrowth ?? areaData;
+  const chartData = growth && growth.length > 0 ? growth : areaData;
 
   const pieAnalytics = useMemo(() => {
     const verified = verifiedCount;
@@ -6255,46 +6137,46 @@ function AnalyticsScreen({ stats }: { stats: any }) {
         <KPICard
           label="Certificates Issued"
           value={totalCerts.toLocaleString()}
-          delta="+18.7%"
+          delta={computeDelta(growth)}
           icon={<FilePlus size={20} color={P} />}
           iconBg={PL}
-          sparkData={sparkCerts}
+          sparkData={buildSparkData(growth, totalCerts)}
           sparkColor={P}
         />
         <KPICard
           label="Verified Certificates"
           value={verifiedCount.toLocaleString()}
-          delta="+21.4%"
+          delta={computeDelta(growth)}
           icon={<ShieldCheck size={20} color={SG} />}
           iconBg={SGL}
-          sparkData={sparkVerif}
+          sparkData={buildSparkData(growth, verifiedCount)}
           sparkColor={SG}
         />
         <KPICard
           label="Downloads"
-          value={downloadedCount.toLocaleString()}
-          delta="+16.2%"
+          value={downloadedCount > 0 ? downloadedCount.toLocaleString() : "—"}
+          delta={""}
           icon={<Download size={20} color={IN} />}
           iconBg={INL}
-          sparkData={sparkDl}
+          sparkData={buildSparkData(growth, downloadedCount)}
           sparkColor={IN}
         />
         <KPICard
           label="Shares"
-          value={sharedCount.toLocaleString()}
-          delta="+20.2%"
+          value={sharedCount > 0 ? sharedCount.toLocaleString() : "—"}
+          delta={""}
           icon={<Share2 size={20} color={WO} />}
           iconBg={WOL}
-          sparkData={sparkLi}
+          sparkData={buildSparkData(growth, sharedCount)}
           sparkColor={WO}
         />
         <KPICard
           label="QR Code Scans"
-          value={totalVerifications.toLocaleString()}
-          delta="+22.6%"
+          value={totalVerifications > 0 ? totalVerifications.toLocaleString() : "—"}
+          delta={computeDelta(growth)}
           icon={<QrCode size={20} color={PK} />}
           iconBg="#FCE7F3"
-          sparkData={sparkQR}
+          sparkData={buildSparkData(growth, totalVerifications)}
           sparkColor={PK}
         />
       </div>
@@ -7107,12 +6989,13 @@ function AnalyticsScreen({ stats }: { stats: any }) {
           SGL={SGL}
           SG={SG}
           ER={ER}
+          certificates={certificates}
         />
       )}
       {aTab === "Templates" && (
         <AnalyticsTemplates BD={BD} TX={TX} TX2={TX2} SG={SG} SGL={SGL} P={P} />
       )}
-      {aTab === "Recipients" && <AnalyticsRecipients BD={BD} TX={TX} TX2={TX2} TX3={TX3} P={P} />}
+      {aTab === "Recipients" && <AnalyticsRecipients BD={BD} TX={TX} TX2={TX2} TX3={TX3} P={P} certificates={certificates} />}
       {aTab === "Verification" && (
         <AnalyticsVerification BD={BD} TX={TX} TX2={TX2} TX3={TX3} SGL={SGL} SG={SG} ER={ER} />
       )}
@@ -7138,7 +7021,7 @@ function AnalyticsScreen({ stats }: { stats: any }) {
 }
 
 // ─── Screen: Categories ───────────────────────────────────────────────────────
-function CategoriesScreen({ categories = [] }: { categories: any[] }) {
+function CategoriesScreen({ categories = [], stats }: { categories: any[]; stats?: any }) {
   const [catsList, setCatsList] = useState<any[]>(() =>
     categories.length > 0 ? categories : CATS_DATA,
   );
@@ -7160,10 +7043,9 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
     c.name?.toLowerCase().includes(catSearch.toLowerCase()),
   );
 
-  const totalCerts = useMemo(
-    () => displayCats.reduce((acc, c) => acc + (c.certs || 0), 0),
-    [displayCats],
-  );
+  const totalCerts = stats?.totalCerts ?? displayCats.reduce((acc, c) => acc + (c.certs || 0), 0);
+  const verifiedCount = stats?.pieStatusData?.find((s: any) => s.name === "Verified")?.value ?? 0;
+  const growth = stats?.monthlyGrowth as { value: number; date: string }[] | undefined;
   const totalSubcats = useMemo(
     () => displayCats.reduce((acc, c) => acc + (c.subcategories?.length || 0), 0),
     [displayCats],
@@ -7233,7 +7115,7 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
         <KPICard
           label="Total Categories"
           value={displayCats.length.toString()}
-          delta="+8.4%"
+          delta=""
           icon={<Tag size={20} color={P} />}
           iconBg={PL}
           sparkData={[
@@ -7248,25 +7130,25 @@ function CategoriesScreen({ categories = [] }: { categories: any[] }) {
         <KPICard
           label="Certificates Issued"
           value={totalCerts.toLocaleString()}
-          delta="+24.5%"
+          delta={computeDelta(growth)}
           icon={<FilePlus size={20} color={SG} />}
           iconBg={SGL}
-          sparkData={sparkCerts}
+          sparkData={buildSparkData(growth, totalCerts)}
           sparkColor={SG}
         />
         <KPICard
           label="Verified Certificates"
-          value={Math.round(totalCerts * 0.7).toLocaleString()}
-          delta="+18.7%"
+          value={verifiedCount.toLocaleString()}
+          delta={computeDelta(growth)}
           icon={<ShieldCheck size={20} color={IN} />}
           iconBg={INL}
-          sparkData={sparkVerif}
+          sparkData={buildSparkData(growth, verifiedCount)}
           sparkColor={IN}
         />
         <KPICard
           label="Active Subcategories"
           value={totalSubcats.toString()}
-          delta="+12.1%"
+          delta=""
           icon={<FolderOpen size={20} color={WO} />}
           iconBg={WOL}
           sparkData={[
@@ -8537,11 +8419,11 @@ export function CertDesignerAdmin() {
       case "bulk-issue":
         return <BulkIssueScreen courses={courses} templates={templates} />;
       case "verification":
-        return <VerificationScreen stats={stats} />;
+        return <VerificationScreen stats={stats} certificates={certificates} />;
       case "analytics":
-        return <AnalyticsScreen stats={stats} />;
+        return <AnalyticsScreen stats={stats} certificates={certificates} templates={templates} />;
       case "categories":
-        return <CategoriesScreen categories={categories} />;
+        return <CategoriesScreen categories={categories} stats={stats} />;
       case "settings":
         return (
           <SettingsScreen

@@ -85,8 +85,8 @@ export const listCertificates = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data, error } = await supabase
       .from("certificates")
-      .select("id, code, user_id, score, created_at, course:course_id(title), user:user_id(email)")
-      .order("created_at", { ascending: false });
+      .select("id, code, user_id, score, issued_at, recipient_name, courses(title), profiles!user_id(email, full_name)")
+      .order("issued_at", { ascending: false });
 
     if (error && error.code !== "42P01") throw new Error(error.message);
     return data ?? [];
@@ -185,7 +185,7 @@ export const getCertificateStats = createServerFn({ method: "GET" })
     return {
       totalCerts: certCount ?? 0,
       totalTemplates: templateCount ?? 0,
-      totalVerifications: verificationsCount || 12, // fallback for UI styling if none
+      totalVerifications: verificationsCount,
       recentCertificates,
       recentVerificationLogs: verificationLogs.slice(0, 5).map((l) => ({
         id: l.code ?? "LRN-VERIFY",
@@ -195,9 +195,9 @@ export const getCertificateStats = createServerFn({ method: "GET" })
       monthlyGrowth,
       pieStatusData: [
         { name: "Issued", value: certCount ?? 0 },
-        { name: "Verified", value: verifiedCount || Math.round((certCount ?? 0) * 0.7) },
-        { name: "Downloaded", value: downloadedCount || Math.round((certCount ?? 0) * 0.5) },
-        { name: "Shared", value: sharedCount || Math.round((certCount ?? 0) * 0.3) },
+        { name: "Verified", value: verifiedCount },
+        { name: "Downloaded", value: downloadedCount },
+        { name: "Shared", value: sharedCount },
       ],
     };
   });
@@ -208,19 +208,19 @@ export const listAllCertificates = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data, error } = await supabaseAdmin
       .from("certificates")
-      .select("*, courses(title)")
+      .select("*, courses(title), profiles!user_id(email, full_name)")
       .order("issued_at", { ascending: false });
 
     if (error) throw new Error(error.message);
     return (data ?? []).map((c) => ({
       id: c.code,
       course: (c as any).courses?.title ?? "Course Completion",
-      name: c.recipient_name ?? "Learner",
-      email: (c as any).recipient_email || "learner@example.com",
+      name: c.recipient_name ?? (c as any).profiles?.full_name ?? "Learner",
+      email: (c as any).profiles?.email ?? null,
       status: "Issued",
-      date: c.issued_at ? new Date(c.issued_at).toLocaleDateString() : "N/A",
-      expiry: c.date_to ? new Date(c.date_to).toLocaleDateString() : "No Expiry",
-      theme: (c.design_snapshot as any)?.theme || "navy",
+      date: c.issued_at ? new Date(c.issued_at).toLocaleDateString("en-IN") : "N/A",
+      expiry: (c as any).date_to ? new Date((c as any).date_to).toLocaleDateString("en-IN") : "No Expiry",
+      theme: ((c as any).design_snapshot as any)?.theme ?? "navy",
     }));
   });
 
