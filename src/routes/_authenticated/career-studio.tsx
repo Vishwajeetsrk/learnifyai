@@ -273,7 +273,7 @@ function CareerStudioHub() {
                       key={t.id}
                       onClick={() => switchTab(t.id)}
                       className={cn(
-                        "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-all active:scale-95 cursor-pointer",
+                        "flex flex-col items-center justify-center gap-2 p-3 rounded-xl border transition-[color,background-color,border-color,box-shadow,transform] active:scale-95 cursor-pointer",
                         isActive
                           ? "bg-primary/10 border-primary text-primary shadow-sm"
                           : "bg-muted/30 border-border/60 hover:bg-muted/60 text-foreground",
