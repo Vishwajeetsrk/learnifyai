@@ -109,6 +109,55 @@ export const Route = createFileRoute("/")({
           },
         }),
       },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "What is Learnify AI?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Learnify AI is India's premier AI-native learning and career operating system. It provides interactive courses, 1-on-1 AI tutoring embedded in every lesson, tamper-proof QR-verified digital certificates, and career placement roadmaps for students and tech professionals.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "Are Learnify AI certificates verified and recognized by employers?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Yes, every certificate issued by Learnify AI includes a unique verification ID and a tamper-proof QR code. Recruiters and institutions can verify certificate authenticity instantly at learnifyai.in/verified-certificates, and certificates can be shared directly to LinkedIn licenses and resumes.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "Is Learnify AI free for students?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Yes, Learnify AI offers a generous free tier that includes access to foundational courses, community study groups, and introductory AI tutoring sessions. Pro plans are available starting at ₹199/month with 18% GST invoices for unlimited AI interactions and masteries.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "How does Learnify AI compare to Coursera or Udemy?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Unlike traditional video platforms, Learnify AI is AI-native: it features a 24/7 conversational AI tutor embedded in every lesson to answer doubts, generate custom practice quizzes, provide ATS resume matching, and guide Indian engineering students into high-paying tech careers.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "What skills can I master on Learnify AI?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Learnify AI covers Full-Stack AI Engineering, Autonomous AI Agents (LangGraph & Python), React 19, Modern Cloud & DevOps, Machine Learning, System Design, and tech interview preparation.",
+              },
+            },
+          ],
+        }),
+      },
     ],
   }),
   component: Index,

@@ -33,6 +33,13 @@ export const Route = createFileRoute("/sitemap/xml")({
       GET: async () => {
         const today = new Date().toISOString().split("T")[0];
 
+        const CANONICAL_BLOG_SLUGS = [
+          "full-stack-ai-engineer-roadmap-2026",
+          "ultimate-guide-free-courses-certificates-2026",
+          "cashfree-vs-razorpay-india-saas",
+          "autonomous-ai-agents-langgraph-python",
+        ];
+
         // Fetch published blog posts dynamically
         let blogUrls = "";
         try {
@@ -41,19 +48,23 @@ export const Route = createFileRoute("/sitemap/xml")({
             .select("slug, published_at, created_at")
             .eq("published", true);
 
+          const allSlugs = new Map<string, string>();
+          CANONICAL_BLOG_SLUGS.forEach((slug) => allSlugs.set(slug, today));
           if (posts && posts.length > 0) {
-            blogUrls = posts
-              .map((p) => {
-                const date = (p.published_at || p.created_at || "").split("T")[0] || today;
-                return `  <url>
-    <loc>${BASE_URL}/blog/${p.slug}</loc>
+            posts.forEach((p) => {
+              const date = (p.published_at || p.created_at || "").split("T")[0] || today;
+              allSlugs.set(p.slug, date);
+            });
+          }
+
+          blogUrls = Array.from(allSlugs.entries())
+            .map(([slug, date]) => `  <url>
+    <loc>${BASE_URL}/blog/${slug}</loc>
     <lastmod>${date}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-  </url>`;
-              })
-              .join("\n");
-          }
+  </url>`)
+            .join("\n");
         } catch (e) {
           console.error("Failed to fetch blog posts for sitemap", e);
         }

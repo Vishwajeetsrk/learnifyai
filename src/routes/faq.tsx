@@ -13,28 +13,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { MarketingPage } from "@/components/MarketingPage";
 
-export const Route = createFileRoute("/faq")({
-  head: () => ({
-    meta: [
-      { title: "FAQ — Learnify AI" },
-      {
-        name: "description",
-        content:
-          "Answers to the most common questions about Learnify AI: certificates, courses, billing, and more.",
-      },
-      { property: "og:title", content: "FAQ — Learnify AI" },
-      { property: "og:description", content: "Answers to common questions about Learnify AI." },
-    ],
-    links: [{ rel: "canonical", href: "https://www.learnifyai.in/faq" }],
-  }),
-  component: FaqPage,
-  errorComponent: ({ error }) => (
-    <div className="min-h-screen grid place-items-center p-10 text-center">
-      <p className="text-sm text-muted-foreground">Couldn't load FAQs: {error.message}</p>
-    </div>
-  ),
-});
-
 type FaqRow = {
   id: string;
   question: string;
@@ -85,6 +63,46 @@ const defaultFaqs: FaqRow[] = [
     order_index: 5,
   },
 ];
+
+export const Route = createFileRoute("/faq")({
+  head: () => ({
+    meta: [
+      { title: "FAQ — Learnify AI" },
+      {
+        name: "description",
+        content:
+          "Answers to the most common questions about Learnify AI: certificates, courses, billing, and more.",
+      },
+      { property: "og:title", content: "FAQ — Learnify AI" },
+      { property: "og:description", content: "Answers to common questions about Learnify AI." },
+    ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/faq" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: defaultFaqs.map((f) => ({
+            "@type": "Question",
+            name: f.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: f.answer,
+            },
+          })),
+        }),
+      },
+    ],
+  }),
+  component: FaqPage,
+  errorComponent: ({ error }) => (
+    <div className="min-h-screen grid place-items-center p-10 text-center">
+      <p className="text-sm text-muted-foreground">Couldn't load FAQs: {error.message}</p>
+    </div>
+  ),
+});
+
 
 function FaqPage() {
   const [q, setQ] = useState("");

@@ -36,13 +36,68 @@ export const Route = createFileRoute("/verified-certificates")({
           "Earn tamper-proof, QR-verifiable certificates for completed courses and masteries on Learnify AI. Share directly to LinkedIn and resumes.",
       },
       { property: "og:title", content: "Verified Certificates — Learnify AI" },
-      {
-        property: "og:description",
-        content:
-          "Earn tamper-proof, QR-verifiable certificates for completed courses and masteries on Learnify AI.",
-      },
+      { property: "og:description", content: "Earn tamper-proof, QR-verifiable certificates for completed courses and masteries on Learnify AI." },
+      { property: "og:url", content: "https://www.learnifyai.in/verified-certificates" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Verified Certificates — Learnify AI" },
+      { name: "twitter:description", content: "Earn tamper-proof, QR-verifiable certificates on Learnify AI. Share to LinkedIn and resumes." },
     ],
     links: [{ rel: "canonical", href: "https://www.learnifyai.in/verified-certificates" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "EducationalOccupationalCredential",
+              name: "Learnify AI Verified Certificate",
+              credentialCategory: "certificate",
+              educationalLevel: "Professional & University Level",
+              description:
+                "Cryptographically tamper-proof digital certificate with unique QR code verification, issued upon completing rigorous AI engineering masteries.",
+              recognizedBy: {
+                "@type": "EducationalOrganization",
+                name: "Learnify AI",
+                url: "https://www.learnifyai.in",
+              },
+            },
+            {
+              "@type": "HowTo",
+              name: "How to Earn a Verified Certificate on Learnify AI",
+              description:
+                "Complete four simple steps to earn an accredited, recruiter-ready certificate in Full-Stack AI, Python, or Cloud Engineering.",
+              step: [
+                {
+                  "@type": "HowToStep",
+                  position: 1,
+                  name: "Enroll in a Course",
+                  text: "Choose an AI engineering or development course that matches your learning goals.",
+                },
+                {
+                  "@type": "HowToStep",
+                  position: 2,
+                  name: "Complete All Lessons",
+                  text: "Engage with lessons, solve exercises with your 1-on-1 AI tutor, and build practical projects.",
+                },
+                {
+                  "@type": "HowToStep",
+                  position: 3,
+                  name: "Pass Assessment",
+                  text: "Complete the final assessment to demonstrate concept mastery.",
+                },
+                {
+                  "@type": "HowToStep",
+                  position: 4,
+                  name: "Verify & Share",
+                  text: "Receive your tamper-proof certificate with unique QR code and one-click share to LinkedIn.",
+                },
+              ],
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: VerifiedCertificatesPage,
 });

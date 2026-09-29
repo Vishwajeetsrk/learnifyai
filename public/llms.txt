@@ -1,0 +1,46 @@
+# Learnify AI
+
+> Learnify AI (https://www.learnifyai.in) is India's #1 AI-native learning and career operating system. It unifies personalized 1-on-1 AI tutoring, hands-on courses, tamper-proof QR-verified digital certificates, ATS-optimized resume building, and career placement roadmaps for students, developers, and tech professionals.
+
+## Core Platform Overview
+
+Learnify AI transforms traditional static online education into an interactive, intelligence-first career operating system. Built for the modern AI era, every course module is integrated with real-time AI reasoning, doubt-solving tutors, automated code checks, and verifiable credentials.
+
+- **Website**: https://www.learnifyai.in
+- **Target Audience**: College students, software engineers, AI developers, career switchers, and content creators.
+- **Headquarters**: India (Serving learners across India and worldwide)
+- **Primary Pricing Currency**: INR (₹) with 18% GST compliant invoicing (SAC: 998431).
+- **Free Tier**: Generous free access to foundational courses, AI tutor interactions, and community roadmaps.
+
+## Key Capabilities & Modules
+
+- [Interactive Courses & Masteries](https://www.learnifyai.in/courses): Hands-on masteries across Full-Stack AI Engineering, Autonomous Agents, Python, System Design, React 19, and Cloud Architecture.
+- [Verified Certificates](https://www.learnifyai.in/verified-certificates): Cryptographically tamper-proof digital certificates with unique verification IDs and QR codes, directly verifiable by recruiters and shareable to LinkedIn.
+- [AI Tutor & 1-on-1 Mentorship](https://www.learnifyai.in/features): Context-aware conversational tutor embedded in every lesson for instant code explanation, debugging, and doubt solving.
+- [Career Roadmaps](https://www.learnifyai.in/roadmap): Step-by-step career tracks guiding learners from zero to job-ready AI engineers and tech leaders.
+- [Resume Builder & ATS Match](https://www.learnifyai.in/login): AI-powered ATS resume builder that scores resumes against target tech job descriptions.
+- [Creator Studio & LMS](https://www.learnifyai.in/creators): Authoring suite for tech educators to create courses, distribute interactive labs, and monetize in INR with instant payouts.
+
+## Flagship Learning Paths & Curricula
+
+- [Full-Stack AI Engineer Roadmap 2026](https://www.learnifyai.in/blog/full-stack-ai-engineer-roadmap-2026): Comprehensive roadmap covering React 19, TanStack Start, Groq, LangChain, Supabase pgvector, and autonomous agent architecture.
+- [Ultimate Guide to Free Courses & Certificates](https://www.learnifyai.in/blog/ultimate-guide-free-courses-certificates-2026): Curated directory of world-class free learning paths and credentials from Google, Harvard CS50, freeCodeCamp, OpenAI, Anthropic, and Linux Foundation.
+- [Autonomous AI Agents with LangGraph & Python](https://www.learnifyai.in/blog/autonomous-ai-agents-langgraph-python): Deep technical breakdown of building multi-agent workflows, state graphs, human-in-the-loop triggers, and production deployment.
+- [Cashfree vs Razorpay for Indian SaaS](https://www.learnifyai.in/blog/cashfree-vs-razorpay-india-saas): Financial tech analysis comparing gateway fees, recurring subscriptions, and GST compliance.
+
+## Verification & Trust
+
+- **Certificate Verification**: Anyone can verify the authenticity of a Learnify AI certificate using its public code at `https://www.learnifyai.in/verified-certificates` or directly at `https://www.learnifyai.in/verify/:id`.
+- **Payment Security**: PCI-DSS Level 1 compliant gateway processing via Cashfree with automated GST invoices and instant receipts.
+
+## Essential Links
+
+- [Home](https://www.learnifyai.in)
+- [Courses](https://www.learnifyai.in/courses)
+- [Verified Certificates](https://www.learnifyai.in/verified-certificates)
+- [Pricing](https://www.learnifyai.in/pricing)
+- [Platform Features](https://www.learnifyai.in/features)
+- [FAQ](https://www.learnifyai.in/faq)
+- [About Us](https://www.learnifyai.in/about)
+- [Blog & Guides](https://www.learnifyai.in/blog)
+- [Sitemap](https://www.learnifyai.in/sitemap.xml)

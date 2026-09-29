@@ -16,12 +16,34 @@ export const Route = createFileRoute("/about")({
           "We're building the intelligent learning OS — a single home for learners, creators, and coaches.",
       },
       { property: "og:title", content: "About — Learnify AI" },
-      {
-        property: "og:description",
-        content: "Our mission, story, and the team behind Learnify AI.",
-      },
+      { property: "og:url", content: "https://www.learnifyai.in/about" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://www.learnifyai.in/about" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          "@id": "https://www.learnifyai.in/about#webpage",
+          url: "https://www.learnifyai.in/about",
+          name: "About Learnify AI",
+          description: "Our mission, story, and the intelligent learning OS behind Learnify AI.",
+          mainEntity: {
+            "@type": "EducationalOrganization",
+            name: "Learnify AI",
+            url: "https://www.learnifyai.in",
+            slogan: "#1 AI-Native Learning & Career OS in India",
+            founder: {
+              "@type": "Person",
+              name: "Vishwajeet",
+              jobTitle: "Founder & Lead Architect",
+            },
+          },
+        }),
+      },
+    ],
   }),
   component: AboutPage,
 });

@@ -1,19 +1,79 @@
+# Learnify AI Robots.txt — AI & Search Engine Crawlers
+# https://www.learnifyai.in/
+
 User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /api/
+Disallow: /_authenticated/
 
-# AI Search Engine Crawlers
-User-agent: PerplexityBot
+# ==============================================================================
+# AI Search Engines & LLM Retrieval Agents (GEO - Generative Engine Optimization)
+# Permitted for indexing, grounding, and real-time citation synthesis.
+# ==============================================================================
+
+# OpenAI (ChatGPT, ChatGPT Search, GPT-4, GPTBot)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
 Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
 
+# Anthropic (Claude, Claude-Web)
 User-agent: ClaudeBot
 Allow: /
 
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Perplexity AI Search
+User-agent: PerplexityBot
+Allow: /
+
+# Google AI, Gemini & AI Overviews
 User-agent: Google-Extended
 Allow: /
 
+User-agent: Googlebot
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+# Microsoft Copilot & Bing
+User-agent: Bingbot
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# Meta AI
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# Amazon AI & Bedrock
+User-agent: Amazonbot
+Allow: /
+
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+
+# You.com AI Search
+User-agent: YouBot
+Allow: /
+
+# ==============================================================================
+# Sitemaps & Machine-Readable Context for LLMs (llmstxt.org)
+# ==============================================================================
 Sitemap: https://www.learnifyai.in/sitemap.xml
