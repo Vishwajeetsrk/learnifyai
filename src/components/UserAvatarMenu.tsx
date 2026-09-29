@@ -113,7 +113,7 @@ export function UserAvatarMenu({ size = "md", showName = false, className }: Pro
         </DropdownMenuItem>
         {isAdmin && (
           <DropdownMenuItem asChild>
-            <Link to="/admin">
+            <Link to="/admin" rel="nofollow">
               <Shield className="h-4 w-4" /> Admin
             </Link>
           </DropdownMenuItem>

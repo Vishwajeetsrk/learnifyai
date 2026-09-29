@@ -4,7 +4,6 @@ import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import { LinkPreview } from "@/components/ui/link-preview";
 import { CheckCircle2, ChevronRight, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -201,39 +200,31 @@ export function BlogPostContent({ content, postTitle }: BlogPostContentProps) {
             );
           },
 
-          // Hyperlinks with LinkPreview for external sites
+          // High-performance semantic hyperlinks (zero API screenshot overhead)
           a: ({ href, children, className, ...props }) => {
             const isExternal = Boolean(
               href &&
                 /^https?:\/\//i.test(href) &&
                 !href.includes("learnifyai.in") &&
                 !href.includes("learnifyaitool.vercel.app") &&
-                !href.includes("localhost")
+                !href.includes("localhost"),
             );
-
-            if (isExternal && href) {
-              return (
-                <LinkPreview
-                  url={href}
-                  className={cn("text-primary hover:underline font-medium inline-flex items-center gap-0.5", className)}
-                  target="_blank"
-                  rel="nofollow noopener noreferrer"
-                >
-                  {children}
-                  <ExternalLink className="h-3 w-3 inline ml-0.5 opacity-70" />
-                </LinkPreview>
-              );
-            }
 
             return (
               <a
                 href={href}
-                className={cn("text-primary hover:underline font-medium inline-flex items-center gap-0.5", className)}
+                className={cn(
+                  "text-primary hover:underline font-medium inline-flex items-center gap-1 transition-colors",
+                  className,
+                )}
                 target={isExternal ? "_blank" : props.target}
                 rel={isExternal ? "nofollow noopener noreferrer" : props.rel}
                 {...props}
               >
                 {children}
+                {isExternal && (
+                  <ExternalLink className="h-3 w-3 inline ml-0.5 opacity-70 shrink-0" aria-hidden="true" />
+                )}
               </a>
             );
           },

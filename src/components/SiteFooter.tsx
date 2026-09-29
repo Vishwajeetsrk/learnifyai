@@ -57,13 +57,26 @@ export function SiteFooter() {
   const { data: footerItems = [] } = usePublicMenu("footer");
 
   const hasWcmsFooter = footerItems.length > 0;
-  const sections = hasWcmsFooter
+  const wcmsSections = hasWcmsFooter
     ? footerItems
         .filter((i: any) => !i.parent_id)
         .map((section: any) => ({
           title: section.label,
           links: footerItems.filter((i: any) => i.parent_id === section.id),
         }))
+    : [];
+
+  const hasEditorialSection = wcmsSections.some(
+    (sec: any) =>
+      sec.title?.toLowerCase().includes("editorial") ||
+      sec.title?.toLowerCase().includes("guide") ||
+      sec.title?.toLowerCase().includes("blog"),
+  );
+
+  const sections = hasWcmsFooter
+    ? hasEditorialSection
+      ? wcmsSections
+      : [...wcmsSections, HARDCODED_SECTIONS[1]] // Always include Editorial & Guides for SEO internal inlinks
     : HARDCODED_SECTIONS;
 
   return (
