@@ -609,7 +609,7 @@ export default function CoachingDashboard() {
                             type="button"
                             onClick={() => setSlotDuration(dur)}
                             className={cn(
-                              "h-10 rounded-md border text-xs font-semibold transition-all",
+                              "h-10 rounded-md border text-xs font-semibold transition-[color,background-color,border-color,box-shadow,transform]",
                               slotDuration === dur
                                 ? "bg-primary text-primary-foreground border-primary shadow-xs"
                                 : "bg-card hover:bg-accent text-muted-foreground"
@@ -661,7 +661,7 @@ export default function CoachingDashboard() {
                           type="button"
                           onClick={() => setNewSlotPrice(chip.val)}
                           className={cn(
-                            "text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer",
+                            "text-xs px-2.5 py-1 rounded-full border transition-[color,background-color,border-color,box-shadow,transform] cursor-pointer",
                             newSlotPrice === chip.val
                               ? "bg-primary/10 border-primary text-primary font-bold"
                               : "border-border text-muted-foreground hover:bg-accent"
