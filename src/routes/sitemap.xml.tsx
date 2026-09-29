@@ -23,6 +23,8 @@ const PUBLIC_ROUTES = [
   { path: "/roadmap", changefreq: "weekly", priority: "0.6" },
   { path: "/community", changefreq: "daily", priority: "0.7" },
   { path: "/events", changefreq: "weekly", priority: "0.6" },
+  { path: "/verified-certificates", changefreq: "weekly", priority: "0.8" },
+  { path: "/support-us", changefreq: "monthly", priority: "0.6" },
 ];
 
 export const Route = createFileRoute("/sitemap/xml")({

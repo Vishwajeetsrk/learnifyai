@@ -10,23 +10,36 @@ import { cn } from "@/lib/utils";
 
 interface BlogPostContentProps {
   content: string;
+  postTitle?: string;
 }
 
-export function BlogPostContent({ content }: BlogPostContentProps) {
+export function BlogPostContent({ content, postTitle }: BlogPostContentProps) {
+  const processedContent = React.useMemo(() => {
+    if (!content) return "";
+    let trimmed = content.trim();
+    if (postTitle) {
+      const escaped = postTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const titlePattern = new RegExp(`^#\\s*${escaped}\\s*\\n*`, "i");
+      trimmed = trimmed.replace(titlePattern, "");
+    }
+    return trimmed;
+  }, [content, postTitle]);
+
   return (
     <div className="blog-post-content max-w-none text-foreground font-sans selection:bg-primary/20">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw]}
         components={{
-          // Styled Headings with font-display & comfortable spacing
+          // Semantic SEO: Ensure page has only 1 single H1 (the page's main post title).
+          // Markdown top-level headers are rendered as styled H2 tags.
           h1: ({ children, ...props }) => (
-            <h1
+            <h2
               className="font-display font-extrabold text-2xl sm:text-3xl md:text-4xl tracking-tight text-foreground mt-12 mb-5 pt-6 border-t border-border/40 first:border-0 first:pt-0 first:mt-0 leading-tight"
               {...props}
             >
               {children}
-            </h1>
+            </h2>
           ),
           h2: ({ children, ...props }) => (
             <h2
@@ -224,7 +237,7 @@ export function BlogPostContent({ content }: BlogPostContentProps) {
           },
         }}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     </div>
   );

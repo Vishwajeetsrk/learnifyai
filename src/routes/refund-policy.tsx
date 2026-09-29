@@ -16,6 +16,7 @@ export const Route = createFileRoute("/refund-policy")({
         content: "Our refund and cancellation policy for all paid services.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/refund-policy" }],
   }),
   component: () => (
     <CustomPageContent

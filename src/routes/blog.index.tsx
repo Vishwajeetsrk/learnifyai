@@ -1,4 +1,4 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { format, parseISO } from "date-fns";
 import {
@@ -35,6 +35,7 @@ export const Route = createFileRoute("/blog/")({
           "Insights, tutorials, career advice, and platform updates from the Learnify AI team.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/blog" }],
   }),
   component: BlogIndexPage,
 });

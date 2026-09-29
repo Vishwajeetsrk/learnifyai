@@ -91,6 +91,7 @@ export const Route = createFileRoute("/features")({
           "AI tutoring, smart notes, gamified progress, wallet, and career intelligence — all in one platform.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/features" }],
   }),
   component: FeaturesPage,
 });

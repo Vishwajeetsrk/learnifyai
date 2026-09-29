@@ -109,7 +109,10 @@ const VALID_TABS: CourseTab[] = [
 ];
 
 export const Route = createFileRoute("/_authenticated/courses/$slug")({
-  head: () => ({ meta: [{ title: "Course — Learnify AI" }] }),
+  head: ({ params }) => ({
+    meta: [{ title: "Course — Learnify AI" }],
+    links: [{ rel: "canonical", href: `https://www.learnifyai.in/courses/${params.slug}` }],
+  }),
   validateSearch: (search: Record<string, unknown>): { tab?: CourseTab } => {
     const t = typeof search.tab === "string" ? (search.tab as CourseTab) : undefined;
     return { tab: t && VALID_TABS.includes(t) ? t : undefined };

@@ -15,6 +15,7 @@ export const Route = createFileRoute("/terms")({
         content: "The terms governing your use of the Learnify AI platform.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/terms" }],
   }),
   component: () => (
     <CustomPageContent

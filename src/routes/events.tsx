@@ -24,6 +24,7 @@ export const Route = createFileRoute("/events")({
         content: "Upcoming Learnify AI workshops, AMAs, and creator meetups.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/events" }],
   }),
   component: EventsPage,
 });

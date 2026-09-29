@@ -32,6 +32,7 @@ export const Route = createFileRoute("/verify-student")({
         content: "Verify your .edu student email to get 20% off all paid plans on Learnify AI.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/verify-student" }],
   }),
   component: VerifyStudentPage,
 });

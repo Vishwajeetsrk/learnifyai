@@ -42,6 +42,7 @@ export const Route = createFileRoute("/careers")({
         content: "Join Learnify AI — open roles across engineering, design, content, and growth.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/careers" }],
   }),
   component: CareersPage,
 });

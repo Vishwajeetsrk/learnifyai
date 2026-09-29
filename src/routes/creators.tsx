@@ -25,6 +25,7 @@ export const Route = createFileRoute("/creators")({
           "Launch a course in days, not months. Built-in audience, payouts, and AI co-pilot.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/creators" }],
   }),
   component: CreatorsPage,
 });

@@ -193,10 +193,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       {
-        rel: "canonical",
-        href: "https://www.learnifyai.in",
-      },
-      {
         rel: "icon",
         href: "/favicon.ico",
       },
@@ -251,69 +247,44 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          name: "Learnify AI",
-          operatingSystem: "Web",
-          applicationCategory: "EducationalApplication",
-          url: "https://www.learnifyai.in",
-          image: "https://www.learnifyai.in/logo.png",
-          description:
-            "Learnify AI is the intelligent Career Operating System offering AI-driven learning, verified credentials, and career placement roadmaps.",
-          offers: {
-            "@type": "Offer",
-            price: "0",
-            priceCurrency: "INR",
-          },
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "EducationalOrganization",
-          "@id": "https://www.learnifyai.in/#organization",
-          name: "Learnify AI",
-          url: "https://www.learnifyai.in",
-          logo: "https://www.learnifyai.in/logo.png",
-          description:
-            "Learnify AI is the intelligent Career Operating System offering AI-driven learning, verified credentials, and career placement roadmaps.",
-          sameAs: [
-            "https://twitter.com/LearnifyAI",
-            "https://linkedin.com/company/learnify-ai",
-            "https://github.com/learnifyai",
+          "@graph": [
+            {
+              "@type": "WebSite",
+              "@id": "https://www.learnifyai.in/#website",
+              url: "https://www.learnifyai.in",
+              name: "Learnify AI",
+              publisher: {
+                "@id": "https://www.learnifyai.in/#organization",
+              },
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: "https://www.learnifyai.in/courses?search={search_term_string}",
+                },
+                "query-input": "required name=search_term_string",
+              },
+            },
+            {
+              "@type": "EducationalOrganization",
+              "@id": "https://www.learnifyai.in/#organization",
+              name: "Learnify AI",
+              url: "https://www.learnifyai.in",
+              logo: "https://www.learnifyai.in/logo.png",
+              description:
+                "Learnify AI is the intelligent Career Operating System offering AI-driven learning, verified credentials, and career placement roadmaps.",
+              sameAs: [
+                "https://twitter.com/LearnifyAI",
+                "https://linkedin.com/company/learnify-ai",
+                "https://github.com/learnifyai",
+              ],
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "customer service",
+                email: "support.learnifyai@gmail.com",
+              },
+            },
           ],
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          name: "Learnify AI",
-          url: "https://www.learnifyai.in",
-          logo: "https://www.learnifyai.in/logo.png",
-          description:
-            "The AI-native learning OS: intelligent tutoring, creator economy, gamification, and career growth.",
-          sameAs: [],
-          contactPoint: {
-            "@type": "ContactPoint",
-            contactType: "customer service",
-            email: "support.learnifyai@gmail.com",
-          },
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: "Learnify AI",
-          url: "https://www.learnifyai.in",
-          potentialAction: {
-            "@type": "SearchAction",
-            target: "https://www.learnifyai.in/courses?search={search_term_string}",
-            "query-input": "required name=search_term_string",
-          },
         }),
       },
     ],

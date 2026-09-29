@@ -14,7 +14,23 @@ import { validatePasswordStrength } from "@/lib/password-validator";
 import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/signup")({
-  head: () => ({ meta: [{ title: "Join Learnify AI — Start Learning" }] }),
+  head: () => ({
+    meta: [
+      { title: "Join Learnify AI — Start Learning" },
+      {
+        name: "description",
+        content:
+          "Create your free Learnify AI account today. Master AI engineering, earn verifiable certificates, and accelerate your career.",
+      },
+      { property: "og:title", content: "Join Learnify AI — Start Learning" },
+      {
+        property: "og:description",
+        content:
+          "Create your free Learnify AI account today. Master AI engineering and earn verifiable certificates.",
+      },
+    ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/signup" }],
+  }),
   component: SignupPage,
 });
 

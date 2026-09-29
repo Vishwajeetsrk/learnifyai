@@ -31,6 +31,7 @@ export const Route = createFileRoute("/roadmap")({
         content: "Public roadmap: shipped, in progress, and coming soon.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/roadmap" }],
   }),
   component: RoadmapPage,
 });

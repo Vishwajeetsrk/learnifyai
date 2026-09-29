@@ -10,7 +10,7 @@ export const BLOG_POSTS_DATA: Record<string, any> = {
     title: "How to Become a Full-Stack AI Engineer in 2026: The Complete Roadmap",
     slug: "full-stack-ai-engineer-roadmap-2026",
     excerpt:
-      "The definitive guide to mastering React 19, TanStack Start, Supabase pgvector, LangChain, Groq, and autonomous agents to build high-scale AI products in 2026.",
+      "Master React 19, TanStack Start, Supabase pgvector, LangChain, Groq, and autonomous agent graphs to build scalable, production AI products in 2026.",
     featured_image:
       "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
     published_at: "2026-07-20T10:00:00Z",
@@ -165,7 +165,7 @@ Deploying AI without automated evaluations is like launching code without automa
     title: "Building Production Autonomous AI Agents with LangGraph & Python",
     slug: "autonomous-ai-agents-langgraph-python",
     excerpt:
-      "Comprehensive architecture guide: stateful multi-agent graphs, human-in-the-loop interruption, PostgreSQL checkpointers, and cyclic error recovery in Python.",
+      "Architecture guide: stateful multi-agent graphs, human-in-the-loop interruption, PostgreSQL checkpointers, and cyclic error recovery in Python.",
     featured_image:
       "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1200&q=80",
     published_at: "2026-07-18T10:00:00Z",

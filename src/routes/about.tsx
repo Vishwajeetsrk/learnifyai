@@ -21,6 +21,7 @@ export const Route = createFileRoute("/about")({
         content: "Our mission, story, and the team behind Learnify AI.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/about" }],
   }),
   component: AboutPage,
 });

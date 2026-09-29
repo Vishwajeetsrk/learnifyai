@@ -42,7 +42,23 @@ import { CourseCardVisual } from "@/components/courses/CourseCardVisual";
 import { formatCourseDuration } from "@/lib/brand-registry";
 
 export const Route = createFileRoute("/_authenticated/courses/")({
-  head: () => ({ meta: [{ title: "Courses & Masteries — Learnify AI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Courses & Masteries — Learnify AI" },
+      {
+        name: "description",
+        content:
+          "Explore hands-on software masteries and interactive courses in React, Python, System Design, AI, and Cloud on Learnify AI.",
+      },
+      { property: "og:title", content: "Courses & Masteries — Learnify AI" },
+      {
+        property: "og:description",
+        content:
+          "Explore hands-on software masteries and interactive courses on Learnify AI.",
+      },
+    ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/courses" }],
+  }),
   component: CoursesPage,
 });
 

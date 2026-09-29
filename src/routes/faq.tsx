@@ -25,6 +25,7 @@ export const Route = createFileRoute("/faq")({
       { property: "og:title", content: "FAQ — Learnify AI" },
       { property: "og:description", content: "Answers to common questions about Learnify AI." },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/faq" }],
   }),
   component: FaqPage,
   errorComponent: ({ error }) => (

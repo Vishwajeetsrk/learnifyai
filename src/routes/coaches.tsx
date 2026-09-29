@@ -37,6 +37,7 @@ export const Route = createFileRoute("/coaches")({
           "All the tools you need to run a coaching practice — without the spreadsheet juggling.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/coaches" }],
   }),
   component: CoachesPage,
 });

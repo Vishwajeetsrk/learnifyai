@@ -3,7 +3,7 @@ export const FREE_COURSES_GUIDE_POST = {
   title: "The Ultimate Guide to Free Courses, Free Certificates & High-Value Skills in 2026",
   slug: "ultimate-guide-free-courses-certificates-2026",
   excerpt:
-    "Discover thousands of free learning resources and certificate opportunities from Google, Harvard CS50, freeCodeCamp, Kaggle, Analytics Vidhya, OpenAI Academy, and more.",
+    "Discover thousands of free learning resources and verified certificates from Google, Harvard CS50, freeCodeCamp, Kaggle, and OpenAI Academy in 2026.",
   featured_image:
     "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
   published_at: "2026-08-01T10:00:00Z",
@@ -65,7 +65,7 @@ Google Skillshop certifications are earned by completing learning activities and
 
 # 3. Harvard CS50 — Computer Science & Programming
 
-**Website:** https://cs50.harvard.edu/
+**Website:** https://cs50.harvard.edu/x/
 
 Harvard's CS50 family is one of the strongest free resources for building computer-science fundamentals.
 
@@ -535,7 +535,7 @@ DataCamp focuses on data skills such as:
 
 Your learning link:
 
-https://app.datacamp.com/
+https://www.datacamp.com/
 
 **Best for:** Data analysts, data scientists and Python/SQL learners.
 
@@ -588,7 +588,7 @@ Boot.dev focuses heavily on backend development and computer science.
 
 Your link:
 
-https://www.boot.dev/dashboard
+https://www.boot.dev/
 
 **Best for:** Backend developers and software engineers.
 
@@ -626,7 +626,7 @@ https://www.udemy.com/home/my-courses/learning/
 
 # 26. Oracle University — Oracle Cloud & AI
 
-**Website:** https://education.oracle.com/
+**Website:** https://www.oracle.com/education/
 
 Oracle University currently offers free foundations training and certification opportunities in areas including Oracle Cloud Infrastructure, Oracle Fusion Cloud Applications and AI.
 
@@ -862,7 +862,7 @@ Class Central currently lists more than 40 courses with free certificates.
 
 # 39. Credly — Your Digital Credential Wallet
 
-**Website:** https://www.credly.com/
+**Website:** https://info.credly.com/
 
 Credly is not primarily a learning platform. It is a digital-credential platform used by organizations to issue and manage badges.
 
@@ -916,16 +916,16 @@ Beyond those, Analytics Vidhya also maintains a free Data Analyst Learning Path 
 | Kaggle                 | Data / AI / ML            | https://www.kaggle.com/                                |
 | Great Learning         | Tech / business           | https://olympus.mygreatlearning.com/dashboard          |
 | GitHub                 | Git / developer skills    | https://learn.github.com/courses                       |
-| DataCamp               | Data / Python / SQL       | https://app.datacamp.com/                              |
+| DataCamp               | Data / Python / SQL       | https://www.datacamp.com/                              |
 | Educative              | Interactive coding        | https://www.educative.io/search?tab=all&filter-by=free |
-| Boot.dev               | Backend / CS              | https://www.boot.dev/dashboard                         |
+| Boot.dev               | Backend / CS              | https://www.boot.dev/                                  |
 | Programiz              | Programming               | https://app.programiz.pro/                             |
 | Udemy                  | General learning          | https://www.udemy.com/                                 |
 | Simplilearn            | Tech / business / AI      | https://accountsv2.simplilearn.com/auth/login          |
 | freeCodeCamp           | Web / programming         | https://www.freecodecamp.org/learn                     |
 | IBM SkillsBuild        | AI / data / cyber / cloud | https://students.yourlearning.ibm.com/                 |
 | The Odin Project       | Full-stack development    | https://www.theodinproject.com/                        |
-| Credly                 | Digital credentials       | https://www.credly.com/                                |
+| Credly                 | Digital credentials       | https://info.credly.com/                               |
 | University of Helsinki | Full-stack / AI / Java    | https://www.mooc.fi/                                   |
 | Claude Academy         | Claude / AI / MCP         | https://academy.claude.com/                            |
 | IBM SkillsBuild        | AI / technology           | https://skillsbuild.org/                               |

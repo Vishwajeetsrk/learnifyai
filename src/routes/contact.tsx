@@ -23,6 +23,7 @@ export const Route = createFileRoute("/contact")({
         content: "Reach the Learnify AI team by email, chat, or social.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/contact" }],
   }),
   component: ContactPage,
 });

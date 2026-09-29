@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { Loader2, Calendar, ArrowLeft, User, Heart, MessageCircle, Trash2 } from "lucide-react";
-import { Helmet } from "react-helmet-async";
 import { AppShell } from "@/components/AppShell";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,27 +34,43 @@ export const Route = createFileRoute("/blog/$slug")({
     const canonicalUrl = `https://www.learnifyai.in/blog/${post.slug}`;
     const imageUrl = post.featured_image || "https://www.learnifyai.in/logo.png";
 
+    // Optimized concise SEO titles (<60 chars) to prevent search snippet truncation
+    const SLUG_SEO_TITLES: Record<string, string> = {
+      "full-stack-ai-engineer-roadmap-2026": "Full-Stack AI Engineer Roadmap 2026 | Learnify AI",
+      "ultimate-guide-free-courses-certificates-2026": "Free Courses & Certificates Guide 2026 | Learnify AI",
+      "cashfree-vs-razorpay-india-saas": "Cashfree vs Razorpay for India SaaS | Learnify AI",
+      "autonomous-ai-agents-langgraph-python": "Production AI Agents: LangGraph & Python | Learnify AI",
+    };
+    const seoTitle =
+      SLUG_SEO_TITLES[post.slug] ||
+      (post.title?.length > 45 ? `${post.title.slice(0, 45).trim()}... | Learnify AI` : `${post.title} | Learnify AI`);
+    const seoDesc = post.excerpt
+      ? post.excerpt.length > 155
+        ? `${post.excerpt.slice(0, 152).trim()}...`
+        : post.excerpt
+      : "Read our latest article on Learnify AI.";
+
     return {
       meta: [
-        { title: `${post.title} — Learnify AI Blog` },
-        { name: "description", content: post.excerpt || "Read our latest article on Learnify AI." },
+        { title: seoTitle },
+        { name: "description", content: seoDesc },
         {
           name: "keywords",
           content: `${post.title}, Learnify AI, Learnify, AI Learning, Career OS, EdTech`,
         },
-        { property: "og:title", content: `${post.title} — Learnify AI Blog` },
+        { property: "og:title", content: seoTitle },
         {
           property: "og:description",
-          content: post.excerpt || "Read our latest article on Learnify AI.",
+          content: seoDesc,
         },
         { property: "og:image", content: imageUrl },
         { property: "og:url", content: canonicalUrl },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: `${post.title} — Learnify AI Blog` },
+        { name: "twitter:title", content: seoTitle },
         {
           name: "twitter:description",
-          content: post.excerpt || "Read our latest article on Learnify AI.",
+          content: seoDesc,
         },
         { name: "twitter:image", content: imageUrl },
       ],
@@ -268,14 +283,6 @@ function BlogPostPage() {
 
   return (
     <AppShell>
-      <Helmet>
-        <title>{post.title} — Learnify AI Blog</title>
-        <meta name="description" content={post.excerpt} />
-        <meta property="og:title" content={`${post.title} — Learnify AI Blog`} />
-        <meta property="og:description" content={post.excerpt} />
-        <meta property="og:image" content={post.featured_image} />
-        <meta property="og:type" content="article" />
-      </Helmet>
       <div className="min-h-screen bg-background">
         <div className="max-w-3xl mx-auto px-4 py-16">
           <Link
@@ -327,7 +334,7 @@ function BlogPostPage() {
             <p className="text-lg text-muted-foreground mb-8 leading-relaxed font-medium">{post.excerpt}</p>
           )}
 
-          <BlogPostContent content={post.content} />
+          <BlogPostContent content={post.content} postTitle={post.title} />
 
           {/* About the Author Card */}
           <div className="my-12 p-6 rounded-2xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/5 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-5">

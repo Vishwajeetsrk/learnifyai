@@ -24,6 +24,7 @@ export const Route = createFileRoute("/community")({
         content: "Live cohorts, office hours, and study groups for AI-era learners.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/community" }],
   }),
   component: CommunityPage,
 });

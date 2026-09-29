@@ -27,7 +27,23 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/verified-certificates")({
-  head: () => ({ meta: [{ title: "Verified Certificates — Learnify AI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Verified Certificates — Learnify AI" },
+      {
+        name: "description",
+        content:
+          "Earn tamper-proof, QR-verifiable certificates for completed courses and masteries on Learnify AI. Share directly to LinkedIn and resumes.",
+      },
+      { property: "og:title", content: "Verified Certificates — Learnify AI" },
+      {
+        property: "og:description",
+        content:
+          "Earn tamper-proof, QR-verifiable certificates for completed courses and masteries on Learnify AI.",
+      },
+    ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/verified-certificates" }],
+  }),
   component: VerifiedCertificatesPage,
 });
 
@@ -383,7 +399,7 @@ function VerifiedCertificatesPage() {
               <div className="aspect-[1.414] bg-gradient-to-br from-muted to-card overflow-hidden p-2">
                 <img
                   src={cert.src}
-                  alt={cert.title}
+                  alt={`Learnify AI Verified Certificate — ${cert.title}`}
                   className="w-full h-full object-contain rounded-lg group-hover:scale-105 transition-transform duration-500"
                 />
               </div>

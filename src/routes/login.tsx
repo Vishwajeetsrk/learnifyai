@@ -10,7 +10,23 @@ import { useAuth } from "@/hooks/use-auth";
 import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Sign in — Learnify AI" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in — Learnify AI" },
+      {
+        name: "description",
+        content:
+          "Sign in to Learnify AI to access your full-stack courses, verifiable certificates, AI tutor, and career studio.",
+      },
+      { property: "og:title", content: "Sign in — Learnify AI" },
+      {
+        property: "og:description",
+        content:
+          "Sign in to Learnify AI to access your full-stack courses, verifiable certificates, and career studio.",
+      },
+    ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/login" }],
+  }),
   component: LoginPage,
 });
 

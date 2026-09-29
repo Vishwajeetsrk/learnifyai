@@ -40,6 +40,7 @@ export const Route = createFileRoute("/legal")({
         content: "Transparent governance, terms of service, and privacy standards at Learnify AI.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/legal" }],
   }),
   component: LegalCenterPage,
 });

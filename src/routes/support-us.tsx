@@ -50,6 +50,7 @@ export const Route = createFileRoute("/support-us")({
           "Help Us Build a Free Career-Learning Ecosystem. Sponsor courses, mentorship, and career resources for aspiring professionals.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/support-us" }],
   }),
   component: SupportUsPage,
 });

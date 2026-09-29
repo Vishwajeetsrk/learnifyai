@@ -9,6 +9,7 @@ export const Route = createFileRoute("/privacy")({
       { property: "og:title", content: "Privacy Policy — Learnify AI" },
       { property: "og:description", content: "Our privacy practices, in plain language." },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/privacy" }],
   }),
   component: () => (
     <CustomPageContent

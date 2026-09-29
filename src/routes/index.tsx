@@ -49,7 +49,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Learnify AI is India's leading AI-native learning platform. Master full-stack AI engineering, interactive courses, verifiable certificates, and career acceleration.",
+          "Learnify AI is India's leading AI learning OS. Master full-stack AI engineering, interactive courses, verified certificates, and career placement roadmaps.",
       },
       {
         name: "keywords",
@@ -86,45 +86,27 @@ export const Route = createFileRoute("/")({
         type: "application/ld+json",
         children: JSON.stringify({
           "@context": "https://schema.org",
-          "@graph": [
-            {
-              "@type": "EducationalOrganization",
-              "@id": "https://www.learnifyai.in/#organization",
-              name: "Learnify AI",
-              url: "https://www.learnifyai.in/",
-              logo: "https://www.learnifyai.in/logo.png",
-              description: "India's premier AI-native learning & career operating system.",
-              sameAs: ["https://github.com/learnifyai"],
-            },
-            {
-              "@type": "WebSite",
-              "@id": "https://www.learnifyai.in/#website",
-              url: "https://www.learnifyai.in/",
-              name: "Learnify AI",
-              publisher: { "@id": "https://www.learnifyai.in/#organization" },
-              potentialAction: {
-                "@type": "SearchAction",
-                target: "https://www.learnifyai.in/courses?q={search_term_string}",
-                "query-input": "required name=search_term_string",
-              },
-            },
-            {
-              "@type": "SoftwareApplication",
-              name: "Learnify AI OS",
-              operatingSystem: "Web Browser",
-              applicationCategory: "EducationalApplication",
-              aggregateRating: {
-                "@type": "AggregateRating",
-                ratingValue: "4.9",
-                ratingCount: "1280",
-              },
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "INR",
-              },
-            },
-          ],
+          "@type": "SoftwareApplication",
+          name: "Learnify AI",
+          operatingSystem: "Web Browser",
+          applicationCategory: "EducationalApplication",
+          url: "https://www.learnifyai.in",
+          image: "https://www.learnifyai.in/logo.png",
+          description:
+            "India's leading AI-native learning platform with interactive courses, verified certificates, and career roadmaps.",
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: "4.9",
+            reviewCount: "1280",
+            ratingCount: "1280",
+            bestRating: "5",
+            worstRating: "1",
+          },
+          offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "INR",
+          },
         }),
       },
     ],

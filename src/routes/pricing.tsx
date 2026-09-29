@@ -83,6 +83,7 @@ export const Route = createFileRoute("/pricing")({
           "Simple, transparent pricing. Start free, upgrade when you're ready. 10,000+ learners trust Learnify AI.",
       },
     ],
+    links: [{ rel: "canonical", href: "https://www.learnifyai.in/pricing" }],
   }),
   component: PricingPage,
 });
@@ -1250,19 +1251,19 @@ function PricingPage() {
                   <img
                     key="1"
                     src="/certificate%2001.png"
-                    alt="Certificate 1"
+                    alt="Learnify AI Purple & Gold Prestige Certificate"
                     className="w-full h-full object-contain p-1"
                   />,
                   <img
                     key="2"
                     src="/certificate%2002.png"
-                    alt="Certificate 2"
+                    alt="Learnify AI Emerald & Gold Elite Certificate"
                     className="w-full h-full object-contain p-1"
                   />,
                   <img
                     key="3"
                     src="/certificate%200.png"
-                    alt="Certificate 3"
+                    alt="Learnify AI Blue & Gold Classic Certificate"
                     className="w-full h-full object-contain p-1"
                   />,
                 ]}
