@@ -247,7 +247,7 @@ Class Central currently lists free Claude Academy badges for these areas.
 
 Your provided direct course link:
 
-https://anthropic.skilljar.com/claude-101
+https://academy.claude.com/courses/claude-101
 
 **Best for:** AI developers, prompt/workflow builders and agent developers.
 
@@ -690,7 +690,7 @@ NVIDIA's Deep Learning Institute provides technical training in AI, data science
 
 # 29. Linux Foundation
 
-**Website:** https://training.linuxfoundation.org/
+**Website:** https://www.linuxfoundation.org/
 
 The Linux Foundation provides open-source and Linux-related training.
 

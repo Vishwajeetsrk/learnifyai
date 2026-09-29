@@ -217,7 +217,7 @@ export function BlogPostContent({ content, postTitle }: BlogPostContentProps) {
                   url={href}
                   className={cn("text-primary hover:underline font-medium inline-flex items-center gap-0.5", className)}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="nofollow noopener noreferrer"
                 >
                   {children}
                   <ExternalLink className="h-3 w-3 inline ml-0.5 opacity-70" />
@@ -229,6 +229,8 @@ export function BlogPostContent({ content, postTitle }: BlogPostContentProps) {
               <a
                 href={href}
                 className={cn("text-primary hover:underline font-medium inline-flex items-center gap-0.5", className)}
+                target={isExternal ? "_blank" : props.target}
+                rel={isExternal ? "nofollow noopener noreferrer" : props.rel}
                 {...props}
               >
                 {children}
